@@ -6,7 +6,6 @@ import {
   getEffectiveSettings,
   isSiteDisabled,
   reapplySettings,
-  setSettings,
   setSiteDisabled,
 } from "./settings";
 import { initPopupGuard } from "./popupGuard";
@@ -75,10 +74,6 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
 
     case "toggle-site": {
       return setSiteDisabled(message.hostname, message.disabled).then(() => undefined);
-    }
-
-    case "set-enabled": {
-      return setSettings({ enabled: message.enabled }).then(() => undefined);
     }
 
     case "save-cosmetic-rule": {

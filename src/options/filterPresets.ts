@@ -18,7 +18,7 @@ export const ALL_TOGGLEABLE_GROUPS = [
 
 const SECURITY_AND_ADS = ["ads", "popups", "malicious-urls", "phishing-urls", "scam", "badware"];
 
-export interface PresetDefinition {
+interface PresetDefinition {
   filterGroups: Record<string, boolean>;
   webrtcLeakProtection: boolean;
   blockThirdPartyCookies: boolean;

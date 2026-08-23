@@ -104,11 +104,6 @@ export interface ToggleSiteMessage {
   disabled: boolean;
 }
 
-export interface SetEnabledMessage {
-  type: "set-enabled";
-  enabled: boolean;
-}
-
 /** Sent by elementPicker.ts (content script) -- kept as an explicit message rather than
  * importing the full settings module into that content script's bundle. */
 export interface SaveCosmeticRuleMessage {
@@ -128,7 +123,6 @@ export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
   | ToggleSiteMessage
-  | SetEnabledMessage
   | SaveCosmeticRuleMessage
   | SaveGrayscaleRuleMessage;
 

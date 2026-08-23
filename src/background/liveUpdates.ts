@@ -21,7 +21,7 @@ const ALARM_NAME = "moat-live-update";
 const PERIOD_MINUTES = 24 * 60;
 const STATUS_KEY = "liveUpdateStatus";
 
-export interface LiveUpdateStatus {
+interface LiveUpdateStatus {
   ok: boolean;
   timestamp: number;
   domainCount?: number;

@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.7.3
+
+### Removed
+- **Dead message type.** `SetEnabledMessage`/`case "set-enabled"` in the background worker had no
+  sender anywhere in the codebase -- options.ts calls `setSettings()` directly (it's a privileged
+  page, no message-passing needed), so this was leftover from an earlier design. Removed.
+- Un-exported six internal-only types/constants (`LiveUpdateStatus`, `AD_CONTAINER_SELECTOR`,
+  `PresetDefinition`, `BreakdownBucket`, `MatchedRuleRef`, `FilterListSummary`) that were never
+  imported by name outside their own module -- structurally still used internally, just tightened
+  each module's actual public surface to what's really consumed elsewhere.
+
 ## 0.7.2
 
 ### Fixed

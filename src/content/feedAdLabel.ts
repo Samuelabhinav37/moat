@@ -33,7 +33,7 @@ export function isAdLabel(text: string): boolean {
 // didn't match on that same post despite being the commonly-documented
 // selectors, apparently stale against LinkedIn's current markup, but kept
 // as harmless fallbacks in case an older layout still uses them.
-export const AD_CONTAINER_SELECTOR = [
+const AD_CONTAINER_SELECTOR = [
   "article",
   "ytd-rich-item-renderer",
   "ytd-video-renderer",

@@ -1,6 +1,6 @@
 import type { RulesetManifestEntry } from "./rulesetManifest";
 
-export type BreakdownBucket = "ads" | "trackers" | "popups";
+type BreakdownBucket = "ads" | "trackers" | "popups";
 
 // Collapses the 11 bundled filter-list groups (see scripts/update-filters.mjs)
 // into the three buckets shown in the popup: "ads" is the literal AdGuard
@@ -25,7 +25,7 @@ const GROUP_TO_BUCKET: Partial<Record<string, BreakdownBucket>> = {
   badware: "trackers",
 };
 
-export interface MatchedRuleRef {
+interface MatchedRuleRef {
   rulesetId: string;
 }
 

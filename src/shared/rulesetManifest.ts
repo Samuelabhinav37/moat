@@ -18,7 +18,7 @@ export function groupChunkIds(manifest: RulesetManifestEntry[], group: string): 
 }
 
 /** One row per logical list for the settings UI: name with any "(1/2)" chunk suffix stripped, plus its category. */
-export interface FilterListSummary {
+interface FilterListSummary {
   group: string;
   category: RulesetManifestEntry["category"];
   name: string;
