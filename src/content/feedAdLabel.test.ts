@@ -62,6 +62,16 @@ describe("findAdContainer", () => {
     expect(findAdContainer(label)?.tagName.toLowerCase()).toBe("ytd-rich-item-renderer");
   });
 
+  it("finds an enclosing LinkedIn post via role=listitem (its actual current wrapper)", () => {
+    document.body.innerHTML = `
+      <div role="listitem">
+        <div><span id="label">Promoted</span></div>
+      </div>
+    `;
+    const label = document.getElementById("label")!;
+    expect(findAdContainer(label)?.getAttribute("role")).toBe("listitem");
+  });
+
   it("finds an enclosing LinkedIn post via data-urn", () => {
     document.body.innerHTML = `
       <div data-urn="urn:li:activity:123">

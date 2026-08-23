@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.7.2
+
+### Fixed
+- **LinkedIn's real container wasn't `[data-urn]` or `.feed-shared-update-v2`.** Verified live
+  against an actual "Promoted" post: neither matched. The real current wrapper is
+  `[role="listitem"]` -- added as the primary LinkedIn container selector; the other two stay as
+  harmless fallbacks in case an older LinkedIn layout still uses them.
+
 ## 0.7.1
 
 ### Fixed

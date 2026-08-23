@@ -26,11 +26,13 @@ export function isAdLabel(text: string): boolean {
 }
 
 // The nearest ancestor considered a "whole post/card" worth hiding, tried
-// in order. article covers Instagram's feed post/reel wrapper; the
-// ytd-* renderers cover YouTube's various in-feed card types; [data-urn]
-// and feed-shared-update-v2 cover LinkedIn (data-urn is the more reliable
-// of the two -- LinkedIn has migrated most of its class names to hashed
-// CSS modules, per the same class-obfuscation pattern Instagram uses).
+// in order. article covers Instagram's feed post/reel wrapper; the ytd-*
+// renderers cover YouTube's various in-feed card types. LinkedIn's actual
+// current post wrapper is `[role="listitem"]`, verified live against a real
+// "Promoted" post (2026-08-23) -- [data-urn] and .feed-shared-update-v2
+// didn't match on that same post despite being the commonly-documented
+// selectors, apparently stale against LinkedIn's current markup, but kept
+// as harmless fallbacks in case an older layout still uses them.
 export const AD_CONTAINER_SELECTOR = [
   "article",
   "ytd-rich-item-renderer",
@@ -39,6 +41,7 @@ export const AD_CONTAINER_SELECTOR = [
   "ytd-reel-item-renderer",
   "ytd-rich-shelf-renderer",
   "ytd-in-feed-ad-layout-renderer",
+  '[role="listitem"]',
   "[data-urn]",
   ".feed-shared-update-v2",
 ].join(",");

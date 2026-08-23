@@ -97,7 +97,9 @@ badge count.
   separators feeds actually use between metadata (a post header often renders as one text node
   reading "Sponsored · 2h", the same way an organic post's is "username · 2h"), not a substring
   check, so a caption that mentions one of those words in a sentence won't trip it. A match walks
-  up to the nearest known "whole post" ancestor (`article` on Instagram, `[data-urn]` on LinkedIn,
+  up to the nearest known "whole post" ancestor (`article` on Instagram, `[role="listitem"]` on
+  LinkedIn -- verified live against a real "Promoted" post, since the commonly-documented
+  `[data-urn]`/`.feed-shared-update-v2` selectors turned out to be stale --
   `ytd-rich-item-renderer` and friends on YouTube) and hides it. Off by default because a
   label match carries a little more false-positive risk than a fixed selector -- for people who
   want feeds fully cleaned rather than just what static rules catch.
