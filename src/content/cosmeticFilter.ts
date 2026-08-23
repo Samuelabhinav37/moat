@@ -9,14 +9,25 @@
 import browser from "webextension-polyfill";
 import {
   buildStyleText,
+  customSelectorsForHostname,
   mergeDomainShards,
   selectorsForHostname,
   type CosmeticManifest,
 } from "./cosmeticSelectors";
 import { isDisabledHere } from "./siteDisabled";
+import { STORAGE_KEY, type Settings } from "../types";
 
 async function fetchJson<T>(path: string): Promise<T> {
   return (await fetch(browser.runtime.getURL(path))).json() as Promise<T>;
+}
+
+async function loadCustomCosmeticRules(): Promise<Record<string, string[]>> {
+  // Direct storage read rather than importing background/settings.ts -- that
+  // module also pulls in the DNR/filter-group application logic this
+  // content script has no use for.
+  const stored = await browser.storage.local.get(STORAGE_KEY);
+  const settings = stored[STORAGE_KEY] as Partial<Settings> | undefined;
+  return settings?.customCosmeticRules ?? {};
 }
 
 async function run(): Promise<void> {
@@ -29,7 +40,11 @@ async function run(): Promise<void> {
   ]);
 
   const index = { generic: meta.generic, exceptions: meta.exceptions, perDomain: mergeDomainShards(shards) };
-  const selectors = selectorsForHostname(index, location.hostname);
+  const customRules = await loadCustomCosmeticRules();
+  const selectors = [
+    ...selectorsForHostname(index, location.hostname),
+    ...customSelectorsForHostname(customRules, location.hostname),
+  ];
   if (selectors.length === 0) return;
 
   const style = document.createElement("style");

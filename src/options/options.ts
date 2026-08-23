@@ -1,5 +1,11 @@
 import browser from "webextension-polyfill";
-import { getEffectiveSettings, getSettings, setSettings, setSiteDisabled } from "../background/settings";
+import {
+  getEffectiveSettings,
+  getSettings,
+  removeCustomCosmeticRule,
+  setSettings,
+  setSiteDisabled,
+} from "../background/settings";
 import { getManagedPolicy, isLocked } from "../background/managedPolicy";
 import { getLiveUpdateStatus } from "../background/liveUpdates";
 import { detectPreset, presetPatch, type PresetName } from "./filterPresets";
@@ -206,6 +212,35 @@ customAllowInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") customAllowAdd.click();
 });
 
+const hiddenElementList = document.getElementById("hidden-element-list") as HTMLUListElement;
+const hiddenElementEmpty = document.getElementById("hidden-element-empty") as HTMLElement;
+
+function renderHiddenElements(customCosmeticRules: Settings["customCosmeticRules"]): void {
+  const rows = Object.entries(customCosmeticRules).flatMap(([hostname, selectors]) =>
+    selectors.map((selector) => ({ hostname, selector }))
+  );
+
+  hiddenElementList.innerHTML = "";
+  hiddenElementEmpty.style.display = rows.length ? "none" : "block";
+
+  for (const { hostname, selector } of rows.sort((a, b) => a.hostname.localeCompare(b.hostname))) {
+    const li = document.createElement("li");
+
+    const label = document.createElement("span");
+    label.textContent = `${hostname} — ${selector}`;
+
+    const remove = document.createElement("button");
+    remove.textContent = "Remove";
+    remove.addEventListener("click", async () => {
+      await removeCustomCosmeticRule(hostname, selector);
+      await render();
+    });
+
+    li.append(label, remove);
+    hiddenElementList.append(li);
+  }
+}
+
 // ---------- About tab ----------
 
 const versionText = document.getElementById("version-text") as HTMLElement;
@@ -244,6 +279,7 @@ async function render(): Promise<void> {
     const current = await getSettings();
     await setSettings({ customAllowedDomains: current.customAllowedDomains.filter((d) => d !== domain) });
   });
+  renderHiddenElements(settings.customCosmeticRules);
 
   versionText.textContent = `v${browser.runtime.getManifest().version}`;
   managedNotice.hidden = Object.keys(policy).length === 0;

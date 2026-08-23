@@ -62,6 +62,7 @@ describe("getSettings", () => {
       filterGroups: {},
       customBlockedDomains: [],
       customAllowedDomains: [],
+      customCosmeticRules: {},
     });
   });
 

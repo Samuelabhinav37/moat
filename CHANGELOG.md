@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.3.0
+
+### Added
+- **Element picker** — "Block an element…" in the toolbar popup: hover and click anything on a
+  page, then choose "Hide on this site" (saved, reapplied on future visits) or "Hide for now"
+  (applies immediately, nothing saved) — the same two behaviors as uBlock Origin's separate
+  Element Picker and Element Zapper tools, combined into one flow. Saved picks are listed and
+  removable under Custom Rules → Hidden elements.
+
 ## 0.2.0
 
 ### Added

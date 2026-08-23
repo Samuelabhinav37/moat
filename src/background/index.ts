@@ -1,6 +1,13 @@
 import browser, { type Runtime } from "webextension-polyfill";
 import { getCount, recordBlock, resetCount, forgetTab } from "./badge";
-import { getEffectiveSettings, isSiteDisabled, reapplySettings, setSettings, setSiteDisabled } from "./settings";
+import {
+  addCustomCosmeticRule,
+  getEffectiveSettings,
+  isSiteDisabled,
+  reapplySettings,
+  setSettings,
+  setSiteDisabled,
+} from "./settings";
 import { initPopupGuard } from "./popupGuard";
 import { initLiveUpdates } from "./liveUpdates";
 import type { RuntimeMessage, StatusResponse } from "../types";
@@ -62,6 +69,10 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
 
     case "set-enabled": {
       return setSettings({ enabled: message.enabled }).then(() => undefined);
+    }
+
+    case "save-cosmetic-rule": {
+      return addCustomCosmeticRule(message.hostname, message.selector).then(() => undefined);
     }
 
     default:

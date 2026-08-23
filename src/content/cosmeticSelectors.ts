@@ -35,6 +35,18 @@ export function selectorsForHostname(index: CosmeticIndex, hostname: string): st
   return [...matched].filter((selector) => !excluded.has(selector));
 }
 
+/** Selectors the user picked themselves (element picker), matched the same same-or-subdomain way as the bundled lists. */
+export function customSelectorsForHostname(
+  customCosmeticRules: Record<string, string[]>,
+  hostname: string
+): string[] {
+  const selectors = new Set<string>();
+  for (const domain of domainChain(hostname)) {
+    for (const selector of customCosmeticRules[domain] ?? []) selectors.add(selector);
+  }
+  return [...selectors];
+}
+
 const SELECTORS_PER_RULE = 2000;
 
 /** Batches selectors into multiple `{display:none!important}` rules rather than one huge selector list. */

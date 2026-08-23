@@ -12,6 +12,7 @@ const baseSettings: Settings = {
   filterGroups: {},
   customBlockedDomains: [],
   customAllowedDomains: [],
+  customCosmeticRules: {},
 };
 
 describe("presetPatch", () => {

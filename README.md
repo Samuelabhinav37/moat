@@ -87,6 +87,15 @@ things quietly and shows a badge count.
   specific sites yourself, applied as dynamic `declarativeNetRequest` rules
   (`src/background/customRules.ts`) in their own reserved id range so they
   never collide with the live-update rules above.
+- **Element picker** — "Block an element…" in the toolbar popup turns on a
+  hover-and-click picker (`src/content/elementPicker.ts`) covering both of
+  uBlock Origin's manual tools in one flow: **Hide on this site** saves the
+  generated selector (`src/content/generateSelector.ts` — prefers a stable
+  id, then stable classes, then a short structural path, rejecting
+  generated-looking identifiers along the way) so it's reapplied on future
+  visits, same mechanism as the bundled cosmetic rules; **Hide for now**
+  applies immediately but nothing is saved, gone on the next reload — uBO's
+  Zapper behavior. Picks are listed under Custom Rules → Hidden elements.
 - **Enterprise-managed policy** — an admin can push settings across an
   organization via Chrome's `ExtensionSettings` policy or Firefox's
   `policies.json` `3rdparty` key (schema: `src/managed_schema.json`):

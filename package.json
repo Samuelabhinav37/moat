@@ -1,6 +1,6 @@
 {
   "name": "silent-adblock",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "A quiet ad blocker and popup/redirect firewall for Chrome and Firefox.",
   "type": "module",

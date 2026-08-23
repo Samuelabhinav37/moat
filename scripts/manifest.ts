@@ -34,7 +34,7 @@ function baseManifest() {
     name: "Silent Adblock",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
-    version: "0.2.0",
+    version: "0.3.0",
     icons,
     action: {
       default_popup: "popup.html",
@@ -74,6 +74,14 @@ function baseManifest() {
         matches: ["<all_urls>"],
         js: ["cosmetic-filter.js"],
         run_at: "document_start",
+      },
+      {
+        // Top frame only, same reasoning as cosmetic-filter.js. Inactive
+        // until it receives a "start-picker" message -- document_idle is
+        // fine since there's no timing pressure.
+        matches: ["<all_urls>"],
+        js: ["element-picker.js"],
+        run_at: "document_idle",
       },
     ],
   };

@@ -33,6 +33,7 @@ const ENTRIES = [
   ["fingerprint-guard", "src/content/fingerprintGuard.ts"],
   ["bridge", "src/content/bridge.ts"],
   ["cosmetic-filter", "src/content/cosmeticFilter.ts"],
+  ["element-picker", "src/content/elementPicker.ts"],
   ["popup", "src/popup/popup.ts"],
   ["options", "src/options/options.ts"],
 ];

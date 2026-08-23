@@ -31,6 +31,8 @@ export interface Settings {
   customBlockedDomains: string[];
   /** Exceptions -- never block these, even if a filter list or custom block rule would. */
   customAllowedDomains: string[];
+  /** Element-picker picks that should persist -- hostname -> CSS selectors to hide there. */
+  customCosmeticRules: Record<string, string[]>;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -43,6 +45,7 @@ export const DEFAULT_SETTINGS: Settings = {
   filterGroups: {},
   customBlockedDomains: [],
   customAllowedDomains: [],
+  customCosmeticRules: {},
 };
 
 export const STORAGE_KEY = "settings";
@@ -77,11 +80,20 @@ export interface SetEnabledMessage {
   enabled: boolean;
 }
 
+/** Sent by elementPicker.ts (content script) -- kept as an explicit message rather than
+ * importing the full settings module into that content script's bundle. */
+export interface SaveCosmeticRuleMessage {
+  type: "save-cosmetic-rule";
+  hostname: string;
+  selector: string;
+}
+
 export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
   | ToggleSiteMessage
-  | SetEnabledMessage;
+  | SetEnabledMessage
+  | SaveCosmeticRuleMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the

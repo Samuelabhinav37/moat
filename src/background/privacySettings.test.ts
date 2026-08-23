@@ -18,6 +18,7 @@ const baseSettings: Settings = {
   filterGroups: {},
   customBlockedDomains: [],
   customAllowedDomains: [],
+  customCosmeticRules: {},
 };
 
 function setPrivacy(privacy: unknown): void {

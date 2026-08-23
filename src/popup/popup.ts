@@ -39,4 +39,10 @@ document.getElementById("open-options")?.addEventListener("click", (event) => {
   void browser.runtime.openOptionsPage();
 });
 
+document.getElementById("start-picker")?.addEventListener("click", async () => {
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+  if (tab?.id !== undefined) await browser.tabs.sendMessage(tab.id, { type: "start-picker" }).catch(() => {});
+  window.close();
+});
+
 void render();

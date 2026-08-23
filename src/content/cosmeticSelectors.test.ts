@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildStyleText, mergeDomainShards, selectorsForHostname, type CosmeticIndex } from "./cosmeticSelectors";
+import {
+  buildStyleText,
+  customSelectorsForHostname,
+  mergeDomainShards,
+  selectorsForHostname,
+  type CosmeticIndex,
+} from "./cosmeticSelectors";
 
 describe("mergeDomainShards", () => {
   it("combines domain entries from multiple shard files into one object", () => {
@@ -51,6 +57,29 @@ describe("selectorsForHostname", () => {
   it("de-duplicates when the same selector is both generic and domain-scoped", () => {
     const index: CosmeticIndex = { generic: [".ad"], perDomain: { "example.com": [".ad"] }, exceptions: {} };
     expect(selectorsForHostname(index, "example.com")).toEqual([".ad"]);
+  });
+});
+
+describe("customSelectorsForHostname", () => {
+  it("returns selectors picked for the exact hostname", () => {
+    expect(customSelectorsForHostname({ "example.com": ["#ad-1"] }, "example.com")).toEqual(["#ad-1"]);
+  });
+
+  it("matches a subdomain against a parent domain's picked selectors", () => {
+    expect(customSelectorsForHostname({ "example.com": ["#ad-1"] }, "www.example.com")).toEqual(["#ad-1"]);
+  });
+
+  it("does not leak a subdomain's picks to an unrelated hostname", () => {
+    expect(customSelectorsForHostname({ "sub.example.com": ["#ad-1"] }, "example.com")).toEqual([]);
+  });
+
+  it("returns an empty array when nothing was picked for this hostname", () => {
+    expect(customSelectorsForHostname({}, "example.com")).toEqual([]);
+  });
+
+  it("de-duplicates when the same selector appears at multiple levels of the domain chain", () => {
+    const rules = { "example.com": ["#ad-1"], "www.example.com": ["#ad-1"] };
+    expect(customSelectorsForHostname(rules, "www.example.com")).toEqual(["#ad-1"]);
   });
 });
 
