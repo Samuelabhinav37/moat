@@ -15,6 +15,9 @@ const baseSettings: Settings = {
   blockThirdPartyCookies: false,
   fingerprintResistance: false,
   fingerprintSeed: "",
+  filterGroups: {},
+  customBlockedDomains: [],
+  customAllowedDomains: [],
 };
 
 function setPrivacy(privacy: unknown): void {

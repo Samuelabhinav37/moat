@@ -83,7 +83,10 @@ function copyStaticAssets() {
   const cosmeticsManifest = JSON.parse(readFileSync(resolve(rulesDir, "cosmetics-manifest.json"), "utf8"));
   const cosmeticsFiles = ["cosmetics-manifest.json", cosmeticsManifest.meta, ...cosmeticsManifest.domainShards];
 
-  for (const file of [...rulesetFiles, "redirect-domains.json", ...cosmeticsFiles]) {
+  // manifest.json itself is now also a runtime asset (not just read at build
+  // time by scripts/manifest.ts) -- the Filter Lists settings tab fetches it
+  // to know what rulesets exist and how they're grouped.
+  for (const file of [...rulesetFiles, "manifest.json", "redirect-domains.json", ...cosmeticsFiles]) {
     cpSync(resolve(rulesDir, file), resolve(outDir, "rules", file));
   }
 
@@ -91,6 +94,7 @@ function copyStaticAssets() {
   cpSync(resolve(root, "src/ui/theme.css"), resolve(outDir, "theme.css"));
   cpSync(resolve(root, "src/popup/popup.html"), resolve(outDir, "popup.html"));
   cpSync(resolve(root, "src/options/options.html"), resolve(outDir, "options.html"));
+  cpSync(resolve(root, "src/managed_schema.json"), resolve(outDir, "managed_schema.json"));
 
   writeFileSync(resolve(outDir, "manifest.json"), JSON.stringify(buildManifest(target), null, 2));
 }

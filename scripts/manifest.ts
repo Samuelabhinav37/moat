@@ -34,7 +34,7 @@ function baseManifest() {
     name: "Silent Adblock",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
-    version: "0.1.0",
+    version: "0.2.0",
     icons,
     action: {
       default_popup: "popup.html",
@@ -47,6 +47,9 @@ function baseManifest() {
     },
     permissions: ["storage", "tabs", "webNavigation", "declarativeNetRequest", "privacy", "alarms"],
     host_permissions: ["<all_urls>"],
+    storage: {
+      managed_schema: "managed_schema.json",
+    },
     declarative_net_request: {
       rule_resources: loadRuleResources(),
     },

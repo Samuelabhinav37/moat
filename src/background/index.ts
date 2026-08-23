@@ -1,14 +1,20 @@
 import browser, { type Runtime } from "webextension-polyfill";
 import { getCount, recordBlock, resetCount, forgetTab } from "./badge";
-import { getSettings, isSiteDisabled, setSettings, setSiteDisabled } from "./settings";
+import { getEffectiveSettings, isSiteDisabled, reapplySettings, setSettings, setSiteDisabled } from "./settings";
 import { initPopupGuard } from "./popupGuard";
-import { applyPrivacySettings } from "./privacySettings";
 import { initLiveUpdates } from "./liveUpdates";
 import type { RuntimeMessage, StatusResponse } from "../types";
 
 initPopupGuard();
 initLiveUpdates();
-void getSettings().then(applyPrivacySettings);
+void reapplySettings();
+
+// An admin can push/change managed policy at any point during a session
+// (not just at browser startup) -- reapply everything when that happens,
+// same as we already do for the user's own settings changes.
+browser.storage.onChanged.addListener((_changes, area) => {
+  if (area === "managed") void reapplySettings();
+});
 
 browser.tabs.onRemoved.addListener((tabId) => forgetTab(tabId));
 
@@ -40,7 +46,7 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
         // so fall back to whichever tab the user is currently looking at.
         const tab = sender.tab ?? (await browser.tabs.query({ active: true, currentWindow: true }))[0];
         const hostname = hostnameOf(tab?.url);
-        const settings = await getSettings();
+        const settings = await getEffectiveSettings();
         return {
           hostname,
           siteDisabled: hostname ? await isSiteDisabled(hostname) : false,

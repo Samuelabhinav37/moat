@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "properties": {
+    "forceEnabled": {
+      "type": "boolean",
+      "title": "Force protection on for every user in the organization."
+    },
+    "lockProtectionToggle": {
+      "type": "boolean",
+      "title": "Prevent users from turning protection off or pausing it on a site."
+    },
+    "lockFilterGroups": {
+      "type": "boolean",
+      "title": "Prevent users from changing which filter lists are enabled."
+    },
+    "managedFilterGroups": {
+      "type": "object",
+      "title": "Filter-list group slugs (see rules/manifest.json \"group\" values) mapped to forced on/off.",
+      "additionalProperties": { "type": "boolean" }
+    },
+    "managedCustomBlockedDomains": {
+      "type": "array",
+      "title": "Domains to block for every user, in addition to whatever they've added themselves.",
+      "items": { "type": "string" }
+    }
+  }
+}

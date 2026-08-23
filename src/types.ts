@@ -19,6 +19,18 @@ export interface Settings {
   fingerprintResistance: boolean;
   /** Generated once per install (see background/settings.ts), empty until then. */
   fingerprintSeed: string;
+  /**
+   * Per-filter-list overrides, keyed by the group slug in rules/manifest.json
+   * (e.g. "ads", "trackers", "cookie-notices"). Only stores what the user
+   * actually changed -- a group with no entry here keeps whatever `enabled`
+   * state it shipped with, so we never have to reconcile all 18 rulesets on
+   * every startup, only the ones someone touched.
+   */
+  filterGroups: Record<string, boolean>;
+  /** Extra domains to block outright, beyond the bundled filter lists. */
+  customBlockedDomains: string[];
+  /** Exceptions -- never block these, even if a filter list or custom block rule would. */
+  customAllowedDomains: string[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -28,6 +40,9 @@ export const DEFAULT_SETTINGS: Settings = {
   blockThirdPartyCookies: false,
   fingerprintResistance: false,
   fingerprintSeed: "",
+  filterGroups: {},
+  customBlockedDomains: [],
+  customAllowedDomains: [],
 };
 
 export const STORAGE_KEY = "settings";
@@ -74,3 +89,17 @@ export type RuntimeMessage =
 export type BridgeMessage =
   | { source: "silent-adblock"; type: "config"; disabled: boolean; fingerprintResistance: boolean; fingerprintSeed: string }
   | { source: "silent-adblock"; type: "blocked"; kind: GuardBlockKind; url: string | null };
+
+/**
+ * Read-only policy an org can push via Chrome's ExtensionSettings policy or
+ * Firefox's policies.json 3rdparty key (see managed_schema.json). Kept
+ * separate from Settings -- it's never written by the extension, only read.
+ */
+export interface ManagedPolicy {
+  forceEnabled?: boolean;
+  lockProtectionToggle?: boolean;
+  lockFilterGroups?: boolean;
+  managedFilterGroups?: Record<string, boolean>;
+  /** Merged in ADDITION to the user's own customBlockedDomains, not replacing it. */
+  managedCustomBlockedDomains?: string[];
+}

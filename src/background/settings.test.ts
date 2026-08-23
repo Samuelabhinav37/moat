@@ -5,6 +5,7 @@ vi.mock("webextension-polyfill", () => {
   const store: Record<string, unknown> = {};
   return {
     default: {
+      runtime: { getURL: (path: string) => `test://${path}` },
       storage: {
         local: {
           get: (key: string) => Promise.resolve(key in store ? { [key]: store[key] } : {}),
@@ -17,17 +18,29 @@ vi.mock("webextension-polyfill", () => {
             return Promise.resolve();
           },
         },
+        // No managed policy in these tests -- that's covered in managedPolicyMerge.test.ts.
+        managed: { get: () => Promise.resolve({}) },
       },
-      // Just enough to keep setSettings' internal applyPrivacySettings call
-      // from throwing -- its actual behavior is covered in
-      // privacySettings.test.ts.
+      // Just enough to keep setSettings' internal apply*() calls from
+      // throwing -- their actual behavior is covered in their own test
+      // files (privacySettings.test.ts, filterGroupState.test.ts,
+      // customRules.test.ts).
       privacy: {
         network: { webRTCIPHandlingPolicy: { set: () => Promise.resolve() } },
         websites: { thirdPartyCookiesAllowed: { set: () => Promise.resolve() } },
       },
+      declarativeNetRequest: {
+        updateEnabledRulesets: () => Promise.resolve(),
+        updateDynamicRules: () => Promise.resolve(),
+      },
     },
   };
 });
+
+// filterGroups.ts fetches rules/manifest.json directly via the global fetch,
+// not through the browser.* mock above -- stub it to an empty catalog so
+// setSettings() doesn't attempt a real network request.
+vi.stubGlobal("fetch", () => Promise.resolve({ json: () => Promise.resolve([]) }));
 
 const { getSettings, setSettings, isSiteDisabled, setSiteDisabled, getOrCreateFingerprintSeed } = await import(
   "./settings"
@@ -46,6 +59,9 @@ describe("getSettings", () => {
       blockThirdPartyCookies: false,
       fingerprintResistance: false,
       fingerprintSeed: "",
+      filterGroups: {},
+      customBlockedDomains: [],
+      customAllowedDomains: [],
     });
   });
 

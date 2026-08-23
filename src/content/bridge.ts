@@ -4,10 +4,10 @@
 // relays their block reports back to the background worker.
 import browser from "webextension-polyfill";
 import { STORAGE_KEY, type BridgeMessage, type BlockedMessage } from "../types";
-import { getOrCreateFingerprintSeed, getSettings } from "../background/settings";
+import { getEffectiveSettings, getOrCreateFingerprintSeed } from "../background/settings";
 
 async function sendConfig(): Promise<void> {
-  const settings = await getSettings();
+  const settings = await getEffectiveSettings();
   const disabled = !settings.enabled || settings.disabledSites.includes(location.hostname);
   const fingerprintResistance = settings.fingerprintResistance && !disabled;
   const fingerprintSeed = fingerprintResistance ? await getOrCreateFingerprintSeed() : "";
@@ -19,7 +19,7 @@ async function sendConfig(): Promise<void> {
 void sendConfig();
 
 browser.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && STORAGE_KEY in changes) void sendConfig();
+  if (area === "managed" || (area === "local" && STORAGE_KEY in changes)) void sendConfig();
 });
 
 window.addEventListener("message", (event) => {

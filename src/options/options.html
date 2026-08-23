@@ -6,9 +6,9 @@
     <link rel="stylesheet" href="theme.css" />
     <style>
       body {
-        max-width: 480px;
+        max-width: 560px;
         margin: 40px auto;
-        padding: 0 16px;
+        padding: 0 16px 40px;
       }
       .card + .card {
         margin-top: 16px;
@@ -30,8 +30,108 @@
         color: var(--fg);
         padding: 6px 8px;
       }
-      #empty-state {
+      .empty-state {
         color: var(--muted);
+        font-size: 13px;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin: 20px 0 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .tab-button {
+        border: none;
+        border-radius: 0;
+        border-bottom: 2px solid transparent;
+        padding: 8px 10px;
+        color: var(--muted);
+      }
+      .tab-button:hover {
+        border-color: transparent;
+        color: var(--fg);
+      }
+      .tab-button[aria-selected="true"] {
+        color: var(--fg);
+        border-bottom-color: var(--accent);
+      }
+      [data-tab-panel] {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      [data-tab-panel][hidden] {
+        display: none;
+      }
+
+      .locked-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 2px 8px;
+        white-space: nowrap;
+      }
+
+      .preset-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .preset-row button {
+        flex: 1;
+        min-width: 80px;
+      }
+      .preset-row button[aria-pressed="true"] {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #0f1210;
+        font-weight: 600;
+      }
+
+      .filter-category {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin: 16px 0 8px;
+      }
+      .filter-category:first-of-type {
+        margin-top: 12px;
+      }
+      .filter-row + .filter-row {
+        margin-top: 10px;
+      }
+      .filter-row .name {
+        font-size: 13px;
+      }
+      .filter-row .count {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .about-section + .about-section {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--border);
+      }
+      .about-section h3 {
+        font-size: 13px;
+        margin: 0 0 6px;
+      }
+      .about-section p {
+        margin: 0 0 8px;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .about-links {
+        display: flex;
+        gap: 14px;
         font-size: 13px;
       }
     </style>
@@ -40,74 +140,178 @@
     <h1>Silent Adblock</h1>
     <p class="muted">Blocks ads, trackers, and hijacked new-tab popups. No nag screens, ever.</p>
 
-    <div class="card">
-      <div class="row">
-        <div>
-          <div>Protection enabled</div>
-          <p class="hint muted">Turn everything off, everywhere.</p>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="master-toggle" />
-          <span class="track"><span class="thumb"></span></span>
-        </label>
-      </div>
-    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab-button" data-tab="protection" role="tab" aria-selected="true">Protection</button>
+      <button class="tab-button" data-tab="filters" role="tab" aria-selected="false">Filter Lists</button>
+      <button class="tab-button" data-tab="custom" role="tab" aria-selected="false">Custom Rules</button>
+      <button class="tab-button" data-tab="about" role="tab" aria-selected="false">About</button>
+    </nav>
 
-    <div class="card">
-      <div class="row">
-        <div>
-          <div>Block third-party cookies</div>
-          <p class="hint muted">Browser-wide, not just on protected sites. Off by default.</p>
+    <section data-tab-panel="protection">
+      <div class="card">
+        <div class="row">
+          <div>
+            <div class="row" style="justify-content: flex-start; gap: 8px">
+              <span>Protection enabled</span>
+              <span class="locked-badge" id="protection-locked-badge" hidden>Managed by your organization</span>
+            </div>
+            <p class="hint muted">Turn everything off, everywhere.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="master-toggle" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
         </div>
-        <label class="switch">
-          <input type="checkbox" id="cookies-toggle" />
-          <span class="track"><span class="thumb"></span></span>
-        </label>
       </div>
-      <div class="row" style="margin-top: 12px">
-        <div>
-          <div>WebRTC leak protection</div>
-          <p class="hint muted">Stops WebRTC from exposing your real IP behind a VPN. Browser-wide.</p>
+
+      <div class="card">
+        <div class="row">
+          <div>
+            <div>Block third-party cookies</div>
+            <p class="hint muted">Browser-wide, not just on protected sites. Off by default.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="cookies-toggle" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
         </div>
-        <label class="switch">
-          <input type="checkbox" id="webrtc-toggle" />
-          <span class="track"><span class="thumb"></span></span>
-        </label>
+        <div class="row" style="margin-top: 12px">
+          <div>
+            <div>WebRTC leak protection</div>
+            <p class="hint muted">Stops WebRTC from exposing your real IP behind a VPN. Browser-wide.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="webrtc-toggle" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+        <div class="row" style="margin-top: 12px">
+          <div>
+            <div>Reduce fingerprinting</div>
+            <p class="hint muted">
+              Adds noise to canvas/audio/WebGL reads. Experimental — can occasionally affect a site
+              (e.g. a canvas-based CAPTCHA), so it's off by default.
+            </p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="fingerprint-toggle" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
       </div>
-      <div class="row" style="margin-top: 12px">
-        <div>
-          <div>Reduce fingerprinting</div>
-          <p class="hint muted">
-            Adds noise to canvas/audio/WebGL reads. Experimental — can occasionally affect a site
-            (e.g. a canvas-based CAPTCHA), so it's off by default.
+
+      <div class="card">
+        <div>Live redirect-domain list</div>
+        <p class="hint muted">
+          Once a day, refreshes the known popup/redirect domain list from GitHub, on top of the
+          bundled baseline — no extension update needed for that part.
+        </p>
+        <p class="hint" id="live-status">Not checked yet.</p>
+      </div>
+
+      <div class="card">
+        <div>Paused sites</div>
+        <p class="hint muted">Protection is off on these hostnames.</p>
+        <ul class="site-list" id="site-list"></ul>
+        <p class="empty-state" id="site-empty-state">No sites paused.</p>
+        <div class="add-row">
+          <input type="text" id="add-input" placeholder="example.com" />
+          <button id="add-button">Pause</button>
+        </div>
+      </div>
+    </section>
+
+    <section data-tab-panel="filters" hidden>
+      <div class="card">
+        <div class="row">
+          <div>Filtering level</div>
+          <span class="locked-badge" id="filters-locked-badge" hidden>Managed by your organization</span>
+        </div>
+        <div class="preset-row" id="preset-row">
+          <button type="button" data-preset="off">Off</button>
+          <button type="button" data-preset="essential">Essential</button>
+          <button type="button" data-preset="standard">Standard</button>
+          <button type="button" data-preset="strict">Strict</button>
+        </div>
+        <p class="hint muted" id="preset-hint">Standard — ads, trackers, and known-malicious sites.</p>
+      </div>
+
+      <div class="card">
+        <div>Individual filter lists</div>
+        <p class="hint muted">Fine-tune what's on. Changing one switches the level above to "Custom".</p>
+        <div id="filter-list-rows"></div>
+      </div>
+    </section>
+
+    <section data-tab-panel="custom" hidden>
+      <div class="card">
+        <div>Blocked sites</div>
+        <p class="hint muted">Always blocked, on top of the bundled filter lists.</p>
+        <ul class="site-list" id="custom-block-list"></ul>
+        <p class="empty-state" id="custom-block-empty">Nothing added.</p>
+        <div class="add-row">
+          <input type="text" id="custom-block-input" placeholder="example.com" />
+          <button id="custom-block-add">Block</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div>Allowed sites</div>
+        <p class="hint muted">Never blocked, even if a filter list or a rule above would otherwise catch it.</p>
+        <ul class="site-list" id="custom-allow-list"></ul>
+        <p class="empty-state" id="custom-allow-empty">Nothing added.</p>
+        <div class="add-row">
+          <input type="text" id="custom-allow-input" placeholder="example.com" />
+          <button id="custom-allow-add">Allow</button>
+        </div>
+      </div>
+    </section>
+
+    <section data-tab-panel="about" hidden>
+      <div class="card">
+        <div class="about-section">
+          <h3>What this is</h3>
+          <p>
+            An ad and tracker blocker with a popup/redirect firewall, for Chrome and Firefox. No
+            nag screens, no onboarding tabs, no "rate us" prompts — see the
+            <a href="https://github.com/Samuelabhinav37/silent-adblock#readme" target="_blank" rel="noopener">
+              full README</a
+            >
+            for how the blocking, popup firewall, and cosmetic filtering actually work.
           </p>
         </div>
-        <label class="switch">
-          <input type="checkbox" id="fingerprint-toggle" />
-          <span class="track"><span class="thumb"></span></span>
-        </label>
+        <div class="about-section">
+          <h3>Privacy</h3>
+          <p>
+            Everything on this page — protection state, paused sites, filter list choices, custom
+            rules — is stored locally in your browser's extension storage. None of it is
+            transmitted anywhere.
+          </p>
+          <p>
+            The one exception: once a day, the extension fetches a small public file from GitHub
+            listing known popup/redirect domains, to stay current between store updates. That
+            request carries no settings or browsing data — just a plain GET, which reveals your IP
+            to GitHub's servers the same way visiting any website would.
+          </p>
+          <p>
+            If "Reduce fingerprinting" is on, a random identifier is generated locally to seed
+            noise added to canvas/audio reads. It never leaves your device.
+          </p>
+          <p id="managed-notice" hidden>
+            This installation is managed by your organization. Your administrator can see and set
+            the policy values below; they cannot see your individual browsing.
+          </p>
+        </div>
+        <div class="about-section">
+          <h3>Version</h3>
+          <p id="version-text">—</p>
+          <div class="about-links">
+            <a href="https://github.com/Samuelabhinav37/silent-adblock/blob/master/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+            <a href="https://github.com/Samuelabhinav37/silent-adblock" target="_blank" rel="noopener">Source code</a>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="card">
-      <div>Live redirect-domain list</div>
-      <p class="hint muted">
-        Once a day, refreshes the known popup/redirect domain list from GitHub, on top of the
-        bundled baseline — no extension update needed for that part.
-      </p>
-      <p class="hint" id="live-status">Not checked yet.</p>
-    </div>
-
-    <div class="card">
-      <div>Paused sites</div>
-      <p class="hint muted">Protection is off on these hostnames.</p>
-      <ul class="site-list" id="site-list"></ul>
-      <p id="empty-state">No sites paused.</p>
-      <div class="add-row">
-        <input type="text" id="add-input" placeholder="example.com" />
-        <button id="add-button">Pause</button>
-      </div>
-    </div>
+    </section>
 
     <script src="options.js"></script>
   </body>

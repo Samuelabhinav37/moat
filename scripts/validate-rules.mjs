@@ -11,11 +11,21 @@ const rulesDir = join(__dirname, "..", "rules", "dnr");
 const ALLOWED_KEYS = new Set(["id", "priority", "action", "condition"]);
 
 const manifest = JSON.parse(readFileSync(join(rulesDir, "manifest.json"), "utf8"));
+const VALID_CATEGORIES = new Set(["ads", "security", "annoyance", "core"]);
 
 let totalRules = 0;
 let ok = true;
 
 for (const entry of manifest) {
+  if (!entry.group) {
+    console.error(`${entry.id}: missing "group"`);
+    ok = false;
+  }
+  if (!VALID_CATEGORIES.has(entry.category)) {
+    console.error(`${entry.id}: missing or unknown "category" (${entry.category})`);
+    ok = false;
+  }
+
   const rules = JSON.parse(readFileSync(join(rulesDir, entry.file), "utf8"));
   const ids = new Set();
 

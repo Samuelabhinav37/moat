@@ -14,21 +14,23 @@ const sourceDir = join(
 const outDir = join(root, "rules/dnr");
 
 // AdGuard filter IDs. See https://filters.adtidy.org/extension/chromium-mv3/filters.json
+// `category` groups these for the Filter Lists settings tab: "ads" (ads/trackers/redirects),
+// "security" (known-malicious domains, not just ads), "annoyance" (widgets/banners/notices).
 const RULESETS = [
   // Ads / redirects
-  { id: 2, slug: "ads", name: "AdGuard Base filter", enabled: true },
-  { id: 3, slug: "trackers", name: "AdGuard Tracking Protection filter", enabled: true },
-  { id: 17, slug: "url-tracking", name: "AdGuard URL Tracking filter", enabled: true },
-  { id: 19, slug: "popups", name: "AdGuard Popups filter", enabled: true },
+  { id: 2, slug: "ads", name: "AdGuard Base filter", category: "ads", enabled: true },
+  { id: 3, slug: "trackers", name: "AdGuard Tracking Protection filter", category: "ads", enabled: true },
+  { id: 17, slug: "url-tracking", name: "AdGuard URL Tracking filter", category: "ads", enabled: true },
+  { id: 19, slug: "popups", name: "AdGuard Popups filter", category: "ads", enabled: true },
   // Security -- known-malicious domains, not just ads.
-  { id: 208, slug: "malicious-urls", name: "Online Malicious URL Blocklist", enabled: true },
-  { id: 255, slug: "phishing-urls", name: "Phishing URL Blocklist", enabled: true },
-  { id: 256, slug: "scam", name: "Scam Blocklist", enabled: true },
-  { id: 257, slug: "badware", name: "uBlock Origin - Badware risks", enabled: true },
+  { id: 208, slug: "malicious-urls", name: "Online Malicious URL Blocklist", category: "security", enabled: true },
+  { id: 255, slug: "phishing-urls", name: "Phishing URL Blocklist", category: "security", enabled: true },
+  { id: 256, slug: "scam", name: "Scam Blocklist", category: "security", enabled: true },
+  { id: 257, slug: "badware", name: "uBlock Origin - Badware risks", category: "security", enabled: true },
   // Additional privacy / annoyance coverage.
-  { id: 4, slug: "social-widgets", name: "AdGuard Social Media filter", enabled: true },
-  { id: 18, slug: "cookie-notices", name: "AdGuard Cookie Notices filter", enabled: true },
-  { id: 21, slug: "annoyances", name: "AdGuard Other Annoyances filter", enabled: true },
+  { id: 4, slug: "social-widgets", name: "AdGuard Social Media filter", category: "annoyance", enabled: true },
+  { id: 18, slug: "cookie-notices", name: "AdGuard Cookie Notices filter", category: "annoyance", enabled: true },
+  { id: 21, slug: "annoyances", name: "AdGuard Other Annoyances filter", category: "annoyance", enabled: true },
 ];
 
 if (!existsSync(sourceDir)) {
@@ -99,6 +101,8 @@ for (const ruleset of RULESETS) {
 
     manifestEntries.push({
       id: `ruleset_${ruleset.slug}${suffix}`,
+      group: ruleset.slug,
+      category: ruleset.category,
       name: chunks.length > 1 ? `${ruleset.name} (${index + 1}/${chunks.length})` : ruleset.name,
       enabled: ruleset.enabled,
       file: outFile,
@@ -147,6 +151,11 @@ const ownPrivacyRules = [
 writeFileSync(join(outDir, "ruleset_privacy-headers.json"), JSON.stringify(ownPrivacyRules));
 manifestEntries.push({
   id: "ruleset_privacy-headers",
+  group: "privacy-headers",
+  // Not a user-toggleable filter list -- the Filter Lists UI skips anything
+  // in the "core" category, since turning this off has no meaningful
+  // "less filtering" effect for the user, it just stops sending GPC.
+  category: "core",
   name: "Silent Adblock: Global Privacy Control header",
   enabled: true,
   file: "ruleset_privacy-headers.json",

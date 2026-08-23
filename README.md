@@ -76,6 +76,24 @@ things quietly and shows a badge count.
   what actually defeats cross-site fingerprint correlation. Off by default
   because, unlike blocking, this is the one feature that can occasionally
   change what a page observes (e.g. a canvas-based CAPTCHA).
+- **Filtering levels + per-list control** — Settings' Filter Lists tab has a
+  preset picker (Off / Essential / Standard / Strict) and an on/off switch
+  for each of the 11 bundled lists, grouped by category. Toggling one
+  applies instantly via `declarativeNetRequest.updateEnabledRulesets` — no
+  rebuild, no reinstall. Picking a preset that doesn't match your current
+  switches shows as "Custom," the same way an OS power-plan picker detects
+  manual drift (`src/options/filterPresets.ts`).
+- **Custom rules** — the Custom Rules tab lets you block or allow-list
+  specific sites yourself, applied as dynamic `declarativeNetRequest` rules
+  (`src/background/customRules.ts`) in their own reserved id range so they
+  never collide with the live-update rules above.
+- **Enterprise-managed policy** — an admin can push settings across an
+  organization via Chrome's `ExtensionSettings` policy or Firefox's
+  `policies.json` `3rdparty` key (schema: `src/managed_schema.json`):
+  force protection on, lock the filter-list toggles, or add an org-wide
+  blocklist on top of whatever the user's already added. Locked controls
+  show a "Managed by your organization" badge instead of silently
+  overriding the user with no explanation.
 
 See `src/` for the source layout: `background/` (service worker / event
 page), `content/` (the three content scripts — `mainWorldGuard.ts` for the
@@ -91,7 +109,15 @@ environment: `content/isPlausibleTrigger.ts` (the popup-firewall trigger
 check), `background/redirectDomainMatch.ts` (the tab safety net's domain
 matcher), and `content/cosmeticSelectors.ts` (which selectors apply to a
 given hostname) — all thin wrappers imported by the files that actually
-register listeners or touch the DOM.
+register listeners or touch the DOM. Same pattern for the newer additions:
+`options/filterPresets.ts`, `background/filterGroupState.ts`,
+`background/managedPolicyMerge.ts`, and `shared/rulesetManifest.ts` are all
+pure and directly tested; `background/filterGroups.ts`,
+`background/applyCustomRules.ts`, and `background/managedPolicy.ts` are the
+thin browser-API wrappers around them.
+
+See `CHANGELOG.md` for what shipped in each version, or the in-extension
+About tab (Settings → About) for a shorter version plus the privacy policy.
 
 ## Setup
 
@@ -137,6 +163,35 @@ mode, click "Load unpacked", and select `dist/chrome`.
 Temporary Add-on", and select `dist/firefox/manifest.json`. (Temporary
 add-ons are removed when Firefox restarts; for a persistent local install
 you'd need to sign it through AMO, even for self-distribution.)
+
+## Enterprise deployment
+
+An admin can push policy via Chrome's `ExtensionSettings` policy (Group
+Policy / Chrome Browser Cloud Management) or Firefox's `policies.json`
+`3rdparty` key, targeting this extension's id and setting values matching
+`src/managed_schema.json`. Chrome example (`ExtensionSettings` policy value,
+keyed by extension id):
+
+```json
+{
+  "<extension-id>": {
+    "installation_mode": "force_installed",
+    "update_url": "https://clients2.google.com/service/update2/crx",
+    "policy": {
+      "forceEnabled": true,
+      "lockFilterGroups": true,
+      "managedFilterGroups": { "ads": true, "trackers": true, "malicious-urls": true },
+      "managedCustomBlockedDomains": ["known-bad-domain.example"]
+    }
+  }
+}
+```
+
+Firefox equivalent goes under `3rdparty.Extensions["<extension-id>"]` in
+`policies.json` with the same `policy` object shape. I built and unit-tested
+this against the documented policy mechanism but haven't verified it against
+a real managed browser profile — worth a manual check (`chrome://policy`
+shows whether Chrome picked up the value) before relying on it in production.
 
 ## Known limitations
 
