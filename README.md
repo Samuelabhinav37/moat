@@ -17,7 +17,9 @@ badge count.
 ## Contents
 
 - [Features](#features)
+- [Architecture at a glance](#architecture-at-a-glance)
 - [How it works](#how-it-works)
+- [Problems we hit and how we solved them](#problems-we-hit-and-how-we-solved-them)
 - [Setup](#setup)
 - [Loading it locally](#loading-it-locally)
 - [Enterprise deployment](#enterprise-deployment)
@@ -54,6 +56,35 @@ badge count.
   Firefox's `policies.json`.
 - **Global Privacy Control** — sent as a legally binding opt-out signal in a dozen US states.
 - One codebase, Chrome and Firefox builds.
+
+## Architecture at a glance
+
+```mermaid
+flowchart TD
+    Nav["Page navigation"] --> DNR{"declarativeNetRequest<br/>static rulesets (~273k rules)"}
+    DNR -->|"matches ads/trackers/malware list"| Blocked["Request blocked<br/>(network level, before it loads)"]
+    DNR -->|"no match"| Loads["Request allowed through"]
+
+    Loads --> DocStart["document_start content scripts"]
+    DocStart --> Cosmetic["cosmeticFilter.ts<br/>fetch only the 1-3 domain-hash<br/>buckets this hostname needs,<br/>inject one &lt;style&gt; block"]
+    DocStart --> Guard["mainWorldGuard.ts (MAIN world)<br/>wraps window.open + click hijacks,<br/>drops popups without a real gesture"]
+
+    Loads --> DocIdle["document_idle content scripts<br/>(site-scoped, opt-in)"]
+    DocIdle --> Dimmer["youtubeAdDimmer.ts<br/>grayscale in-stream video ads"]
+    DocIdle --> Scanner["feedAdScanner.ts<br/>MutationObserver + label match,<br/>removes sponsored feed posts"]
+
+    Blocked --> Background["background/index.ts<br/>(service worker)"]
+    Guard --> Background
+    Background --> Badge["Per-tab badge count"]
+    Background --> Breakdown["Ads / Trackers / Popups<br/>breakdown (getMatchedRules)"]
+    Background --> SafetyNet["Tab safety net:<br/>closes popups that slipped past<br/>the content-script guard"]
+    Background --> LiveUpdates["Daily live redirect-domain<br/>refresh from GitHub"]
+```
+
+Network-level blocking (left branch) happens before a request ever loads. Everything else is
+reactive to a page that already loaded — cosmetic hiding, the popup guard, and the opt-in
+per-site features all run as content scripts, while the background service worker owns anything
+that needs to persist across pages (the badge, the breakdown, the safety net, live updates).
 
 ## How it works
 
@@ -136,12 +167,18 @@ badge count.
   rules (skipping AdGuard/uBO scriptlets and CSS-injection/extended-selector
   syntax that need a JS engine, not a `<style>` tag — see the comment atop
   `scripts/lib/parseCosmeticRules.mjs`), and validates every surviving
-  selector against jsdom so nothing invalid ships. A content script
-  (`src/content/cosmeticFilter.ts`, top frame only) injects the selectors
-  that apply to the current hostname as one `<style>` block at
-  `document_start` — CSS rules, not a one-time DOM pass, so they keep
-  hiding elements a site adds later (SPA navigation, lazy-loaded slots)
-  without a MutationObserver.
+  selector against jsdom so nothing invalid ships. Per-domain selectors are
+  bucketed into 64 shard files by a hash of the domain name
+  (`bucketForDomain`, kept identical between `scripts/lib/domainBucket.mjs`
+  and `src/shared/domainBucket.ts`, cross-checked by a test that runs both),
+  so a content script only ever has to fetch the 1-3 buckets its own
+  hostname's domain chain hashes into — a real fix, not a micro-op: it cut
+  the JSON fetched on every single page load from ~5.8MB to well under 1MB
+  (see "Problems we hit and how we solved them" below). A content script
+  (`src/content/cosmeticFilter.ts`, top frame only) injects the resulting
+  selectors as one `<style>` block at `document_start` — CSS rules, not a
+  one-time DOM pass, so they keep hiding elements a site adds later (SPA
+  navigation, lazy-loaded slots) without a MutationObserver.
 - **Live redirect-domain updates** — the bulk of blocking (~273k rules)
   stays build-time/static; MV3's dynamic-rule budget is nowhere near large
   enough to hold that. But the popup/redirect domain list (currently ~460
@@ -214,6 +251,23 @@ thin browser-API wrappers around them.
 
 See `CHANGELOG.md` for what shipped in each version, or the in-extension
 About tab (Settings → About) for a shorter version plus the privacy policy.
+
+## Problems we hit and how we solved them
+
+Most of these were found by actually driving the extension in a real browser against a real
+site, not by reading the DOM structure off a blog post — the sites in question (Instagram,
+LinkedIn, YouTube) all obfuscate or shift their markup in ways that make static assumptions
+unreliable. Keeping this list around so the same investigation doesn't happen twice.
+
+| Problem | Why it happened | How we solved it |
+| --- | --- | --- |
+| YouTube ad dimming looked broken | The setting defaulted to **off** — nobody had opted in, no code bug | Verified live against a real ad, confirmed detection worked once enabled, flipped the default to on, and added a second independent detection signal so one YouTube markup change can't silently disable it |
+| YouTube's sidebar "Sponsored" cards stayed fully visible | AdGuard's bundled cosmetic selectors didn't match YouTube's current sidebar markup | Added first-party selectors (`ytd-ad-slot-renderer` and friends) directly in `scripts/update-cosmetics.mjs` rather than waiting on an upstream filter-list update |
+| The feed scanner did nothing at all on LinkedIn | Its content script's `matches` list only covered Instagram and YouTube — LinkedIn was never in scope, this wasn't a selector bug | Added LinkedIn's URL pattern to `scripts/manifest.ts` |
+| The feed scanner still missed LinkedIn posts once it *was* in scope | The commonly-documented `[data-urn]` / `.feed-shared-update-v2` container selectors turned out to be stale | Live DOM inspection found the real current wrapper is `[role="listitem"]`; added it as the primary selector and kept the old two as harmless fallbacks |
+| Instagram's "Sponsored" label matched inconsistently | The label shares one text node with adjacent metadata — a post header renders as a single node reading `"Sponsored · 2h"`, the same way an organic post's is `"username · 2h"` | Split on the separators these feeds actually use (bullet, middle dot, vertical bar, or `" - "`) and matched each segment exactly, instead of loosening to a substring check that could start matching prose |
+| Cosmetic filtering fetched ~5.8MB of JSON on every single page load | Per-domain selector files were sharded purely by file size (`chunkBySize`), unrelated to which site was actually open — every page fetched every domain's rules | Replaced size-based chunking with domain-hash bucketing (`bucketForDomain`), so a page now fetches only the 1-3 shard files its own hostname needs — verified live against a served build: ~700KB instead of ~5.8MB for a typical page |
+| Live redirect-domain updates silently stopped refreshing after the rename | The GitHub repo was made private mid-project, breaking the unauthenticated `raw.githubusercontent.com` fetch `liveUpdates.ts` relies on | Flagged rather than fixed — repo visibility is a real decision (source availability, not just this feature), left for a deliberate call rather than changed unilaterally |
 
 ## Setup
 
@@ -346,6 +400,18 @@ data isn't original to this project.
 
 From a pass on what a more complete privacy tool would also do:
 
+- **Instagram Stories ads.** The aggressive feed scanner deliberately doesn't touch these, and
+  that's a real scoping decision worth recording, not an oversight. Investigated live: a Stories
+  ad renders as a full-screen slide inside the *same* viewer component that shows real stories —
+  there's no separate "ad container" the way there is in the main feed. Applying the feed
+  scanner's usual technique (hide the matched container) to a Stories ad would blank the entire
+  full-screen viewer, including the real stories around it, since they all share one container.
+  The correct fix is a different mechanism entirely — detect the ad slide and auto-advance past
+  it, the way you'd tap through it manually — which is closer to "act on the page" than "hide an
+  element," a bigger trust/scope step than anything else this scanner does. Not built without an
+  explicit decision to take that step; documented here so the next pass doesn't rediscover this
+  from scratch by trying the container-hide approach again and wondering why the viewer goes
+  blank.
 - **Cookie-banner auto-rejection** — cosmetic filtering hides banners that
   match a plain selector, but AdGuard's Cookie Notices list mostly handles
   *auto-clicking* "reject" for you via scriptlets, which we deliberately
