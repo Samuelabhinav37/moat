@@ -2,6 +2,7 @@
 // soon as it's imported) so this logic is importable in tests without a
 // browser environment.
 import { domainChain } from "../shared/domainChain";
+import { bucketForDomain } from "../shared/domainBucket";
 
 export interface CosmeticIndex {
   generic: string[];
@@ -11,7 +12,19 @@ export interface CosmeticIndex {
 
 export interface CosmeticManifest {
   meta: string;
-  domainShards: string[];
+  bucketCount: number;
+}
+
+/**
+ * Which of the (up to bucketCount) per-domain shard files could possibly
+ * contain a rule for hostname -- one per level of its domain chain, deduped
+ * (a hostname and its parent domain can hash to the same bucket). Lets the
+ * content script fetch only a handful of small shard files instead of every
+ * domain's rules on every page load.
+ */
+export function shardIndicesForHostname(hostname: string, bucketCount: number): number[] {
+  const indices = new Set(domainChain(hostname).map((domain) => bucketForDomain(domain, bucketCount)));
+  return [...indices];
 }
 
 /** perDomain is sharded across multiple files to stay under Firefox's per-file lint size limit. */

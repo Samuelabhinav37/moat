@@ -84,7 +84,8 @@ function copyStaticAssets() {
 
   const rulesetFiles = JSON.parse(readFileSync(resolve(rulesDir, "manifest.json"), "utf8")).map((r) => r.file);
   const cosmeticsManifest = JSON.parse(readFileSync(resolve(rulesDir, "cosmetics-manifest.json"), "utf8"));
-  const cosmeticsFiles = ["cosmetics-manifest.json", cosmeticsManifest.meta, ...cosmeticsManifest.domainShards];
+  const bucketFiles = Array.from({ length: cosmeticsManifest.bucketCount }, (_, i) => `cosmetics-bucket-${i}.json`);
+  const cosmeticsFiles = ["cosmetics-manifest.json", cosmeticsManifest.meta, ...bucketFiles];
 
   // manifest.json itself is now also a runtime asset (not just read at build
   // time by scripts/manifest.ts) -- the Filter Lists settings tab fetches it

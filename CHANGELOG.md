@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.7.4
+
+### Changed
+- **Cosmetic filtering fetches ~85% less data per page load.** `cosmeticFilter.ts` used to fetch
+  and parse the *entire* per-domain selector index -- every domain's rules, for every site --
+  before checking whether any of it even applied to the current page, because the files were
+  split purely by size (`chunkBySize`), not by relevance. That was ~5.3MB of JSON on `<all_urls>`
+  at `document_start`, on every single navigation. Replaced with domain-hash bucketing
+  (`bucketForDomain` in `src/shared/domainBucket.ts`, mirrored in `scripts/lib/domainBucket.mjs`
+  for the build script -- cross-checked by `scripts/lib/domainBucket.test.mjs` so the two copies
+  can't silently drift): each domain is assigned to one of 64 shard files by a hash of its name,
+  and the content script now only fetches the 1-3 buckets its own domain chain hashes into.
+  Verified live (real `fetch()` calls against a served build, not just unit tests): youtube.com
+  now pulls ~700KB across 3 files instead of ~5.8MB across all 66, and still resolves the correct,
+  YouTube-only selectors -- nothing got lost or misrouted in the split.
+
 ## 0.7.3
 
 ### Removed

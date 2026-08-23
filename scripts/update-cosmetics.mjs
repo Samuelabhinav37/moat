@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { JSDOM } from "jsdom";
 import { buildCosmeticIndex } from "./lib/parseCosmeticRules.mjs";
-import { chunkBySize } from "./lib/chunkBySize.mjs";
+import { bucketForDomain } from "./lib/domainBucket.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outDir = join(__dirname, "..", "rules", "dnr");
@@ -71,31 +71,52 @@ for (const [domain, selectors] of Object.entries(OWN_DOMAIN_SELECTORS)) {
 
 mkdirSync(outDir, { recursive: true });
 
-// perDomain alone runs well past web-ext lint's (and AMO's) 5MB-per-file
-// parse limit at this rule-list size -- shard it the same way
-// update-filters.mjs shards oversized DNR rulesets. generic + exceptions
-// stay small enough to ship as one file. The content script fetches every
-// file listed in cosmetics-manifest.json and merges them at runtime.
+// perDomain covers ~50k domains -- fetching all of it on every page load
+// (regardless of which site is actually open) is most of what makes the
+// cosmetic filter slow to start. Instead of update-filters.mjs's size-based
+// chunking (which groups domains by file size, unrelated to which site is
+// being visited), bucket each domain by a hash of its name into a fixed
+// number of shard files: the content script (src/content/cosmeticFilter.ts)
+// then only has to fetch the 1-3 buckets its own domain chain hashes into.
+// scripts/lib/domainBucket.mjs's bucketForDomain must produce the exact same
+// bucket at runtime -- see src/shared/domainBucket.ts and
+// scripts/lib/domainBucket.test.mjs.
+const BUCKET_COUNT = 64;
 const MAX_CHUNK_BYTES = 4.5 * 1024 * 1024;
+
 const perDomainEntries = Object.entries(index.perDomain);
-const perDomainChunks = chunkBySize(perDomainEntries, MAX_CHUNK_BYTES);
+const buckets = Array.from({ length: BUCKET_COUNT }, () => ({}));
+for (const [domain, selectors] of perDomainEntries) {
+  buckets[bucketForDomain(domain, BUCKET_COUNT)][domain] = selectors;
+}
 
 writeFileSync(
   join(outDir, "cosmetics-meta.json"),
   JSON.stringify({ generic: index.generic, exceptions: index.exceptions })
 );
 
-const domainShards = perDomainChunks.map((chunk, i) => `cosmetics-domains-${i + 1}.json`);
-perDomainChunks.forEach((chunk, i) => {
-  writeFileSync(join(outDir, domainShards[i]), JSON.stringify(Object.fromEntries(chunk)));
+buckets.forEach((bucket, i) => {
+  const text = JSON.stringify(bucket);
+  if (text.length > MAX_CHUNK_BYTES) {
+    throw new Error(
+      `cosmetics-bucket-${i}.json is ${text.length} bytes, over the ${MAX_CHUNK_BYTES}-byte lint limit -- ` +
+        `raise BUCKET_COUNT in scripts/update-cosmetics.mjs.`
+    );
+  }
+  writeFileSync(join(outDir, `cosmetics-bucket-${i}.json`), text);
 });
 
-writeFileSync(join(outDir, "cosmetics-manifest.json"), JSON.stringify({ meta: "cosmetics-meta.json", domainShards }));
+writeFileSync(
+  join(outDir, "cosmetics-manifest.json"),
+  JSON.stringify({ meta: "cosmetics-meta.json", bucketCount: BUCKET_COUNT })
+);
 
 const perDomainCount = perDomainEntries.reduce((sum, [, s]) => sum + s.length, 0);
 const exceptionCount = Object.values(index.exceptions).reduce((sum, s) => sum + s.length, 0);
+const largestBucketBytes = Math.max(...buckets.map((b) => JSON.stringify(b).length));
 console.log(
-  `Wrote ${1 + domainShards.length} cosmetics file(s): ${index.generic.length} generic selectors, ` +
+  `Wrote ${1 + BUCKET_COUNT} cosmetics file(s): ${index.generic.length} generic selectors, ` +
     `${perDomainCount} domain-scoped selectors across ${perDomainEntries.length} domains ` +
-    `(${domainShards.length} shard file(s)), ${exceptionCount} exceptions`
+    `(${BUCKET_COUNT} shard buckets, largest ${(largestBucketBytes / 1024).toFixed(1)}KB), ` +
+    `${exceptionCount} exceptions`
 );

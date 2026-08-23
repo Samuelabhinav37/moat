@@ -13,6 +13,7 @@ import {
   customSelectorsForHostname,
   mergeDomainShards,
   selectorsForHostname,
+  shardIndicesForHostname,
   type CosmeticManifest,
 } from "./cosmeticSelectors";
 import { isDisabledHere } from "./siteDisabled";
@@ -35,9 +36,10 @@ async function run(): Promise<void> {
   if (await isDisabledHere()) return;
 
   const manifest = await fetchJson<CosmeticManifest>("rules/cosmetics-manifest.json");
+  const bucketIndices = shardIndicesForHostname(location.hostname, manifest.bucketCount);
   const [meta, ...shards] = await Promise.all([
     fetchJson<{ generic: string[]; exceptions: Record<string, string[]> }>(`rules/${manifest.meta}`),
-    ...manifest.domainShards.map((file) => fetchJson<Record<string, string[]>>(`rules/${file}`)),
+    ...bucketIndices.map((i) => fetchJson<Record<string, string[]>>(`rules/cosmetics-bucket-${i}.json`)),
   ]);
 
   const index = { generic: meta.generic, exceptions: meta.exceptions, perDomain: mergeDomainShards(shards) };

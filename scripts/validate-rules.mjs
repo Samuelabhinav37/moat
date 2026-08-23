@@ -64,8 +64,15 @@ if (!Array.isArray(meta.generic)) {
 let domainCount = 0;
 let perDomainCount = 0;
 const seenDomains = new Set();
-for (const file of cosmeticsManifest.domainShards) {
-  const shard = JSON.parse(readFileSync(join(rulesDir, file), "utf8"));
+const MAX_CHUNK_BYTES = 4.5 * 1024 * 1024;
+for (let i = 0; i < cosmeticsManifest.bucketCount; i += 1) {
+  const file = `cosmetics-bucket-${i}.json`;
+  const text = readFileSync(join(rulesDir, file), "utf8");
+  if (text.length > MAX_CHUNK_BYTES) {
+    console.error(`${file}: ${text.length} bytes, over the ${MAX_CHUNK_BYTES}-byte lint limit`);
+    ok = false;
+  }
+  const shard = JSON.parse(text);
   for (const [domain, selectors] of Object.entries(shard)) {
     if (seenDomains.has(domain)) {
       console.error(`${file}: domain "${domain}" also appears in another shard`);
@@ -80,7 +87,7 @@ for (const file of cosmeticsManifest.domainShards) {
 const exceptionCount = Object.values(meta.exceptions ?? {}).reduce((sum, s) => sum + s.length, 0);
 console.log(
   `cosmetics: ${meta.generic.length} generic, ${perDomainCount} domain-scoped selectors ` +
-    `across ${domainCount} domains (${cosmeticsManifest.domainShards.length} shard file(s)), ${exceptionCount} exceptions`
+    `across ${domainCount} domains (${cosmeticsManifest.bucketCount} shard buckets), ${exceptionCount} exceptions`
 );
 
 if (!ok) {

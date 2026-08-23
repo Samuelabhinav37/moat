@@ -5,8 +5,10 @@ import {
   customSelectorsForHostname,
   mergeDomainShards,
   selectorsForHostname,
+  shardIndicesForHostname,
   type CosmeticIndex,
 } from "./cosmeticSelectors";
+import { bucketForDomain } from "../shared/domainBucket";
 
 describe("mergeDomainShards", () => {
   it("combines domain entries from multiple shard files into one object", () => {
@@ -100,6 +102,24 @@ describe("buildStyleText", () => {
     expect(rules).toHaveLength(2);
     expect(rules[0]?.split(",")).toHaveLength(2000);
     expect(rules[1]?.split(",")).toHaveLength(500);
+  });
+});
+
+describe("shardIndicesForHostname", () => {
+  it("includes the bucket for the exact hostname and every parent domain", () => {
+    const indices = shardIndicesForHostname("www.example.com", 64);
+    expect(indices).toContain(bucketForDomain("www.example.com", 64));
+    expect(indices).toContain(bucketForDomain("example.com", 64));
+  });
+
+  it("de-duplicates when two levels of the domain chain hash to the same bucket", () => {
+    // Force a collision by using a bucket count of 1 -- every domain lands in bucket 0.
+    expect(shardIndicesForHostname("a.b.c.example.com", 1)).toEqual([0]);
+  });
+
+  it("returns one index for a bare two-label hostname", () => {
+    const indices = shardIndicesForHostname("example.com", 64);
+    expect(indices).toEqual([bucketForDomain("example.com", 64)]);
   });
 });
 
