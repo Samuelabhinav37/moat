@@ -45,7 +45,7 @@ function baseManifest() {
       page: "options.html",
       open_in_tab: true,
     },
-    permissions: ["storage", "tabs", "webNavigation", "declarativeNetRequest", "privacy"],
+    permissions: ["storage", "tabs", "webNavigation", "declarativeNetRequest", "privacy", "alarms"],
     host_permissions: ["<all_urls>"],
     declarative_net_request: {
       rule_resources: loadRuleResources(),
@@ -53,7 +53,7 @@ function baseManifest() {
     content_scripts: [
       {
         matches: ["<all_urls>"],
-        js: ["main-world-guard.js"],
+        js: ["main-world-guard.js", "fingerprint-guard.js"],
         run_at: "document_start",
         all_frames: true,
         world: "MAIN" as const,

@@ -29,7 +29,9 @@ vi.mock("webextension-polyfill", () => {
   };
 });
 
-const { getSettings, setSettings, isSiteDisabled, setSiteDisabled } = await import("./settings");
+const { getSettings, setSettings, isSiteDisabled, setSiteDisabled, getOrCreateFingerprintSeed } = await import(
+  "./settings"
+);
 
 beforeEach(async () => {
   await (browser.storage.local as unknown as { clear(): Promise<void> }).clear();
@@ -42,6 +44,8 @@ describe("getSettings", () => {
       enabled: true,
       webrtcLeakProtection: false,
       blockThirdPartyCookies: false,
+      fingerprintResistance: false,
+      fingerprintSeed: "",
     });
   });
 
@@ -70,6 +74,21 @@ describe("setSiteDisabled", () => {
     await setSiteDisabled("other.example.com", true);
     await setSiteDisabled("ads.example.com", false);
     expect((await getSettings()).disabledSites).toEqual(["other.example.com"]);
+  });
+});
+
+describe("getOrCreateFingerprintSeed", () => {
+  it("generates and persists a seed the first time it's called", async () => {
+    expect((await getSettings()).fingerprintSeed).toBe("");
+    const seed = await getOrCreateFingerprintSeed();
+    expect(seed).not.toBe("");
+    expect((await getSettings()).fingerprintSeed).toBe(seed);
+  });
+
+  it("reuses the same seed on subsequent calls instead of regenerating it", async () => {
+    const first = await getOrCreateFingerprintSeed();
+    const second = await getOrCreateFingerprintSeed();
+    expect(second).toBe(first);
   });
 });
 

@@ -30,6 +30,7 @@ if (target !== "chrome" && target !== "firefox") {
 const ENTRIES = [
   ["background", "src/background/index.ts"],
   ["main-world-guard", "src/content/mainWorldGuard.ts"],
+  ["fingerprint-guard", "src/content/fingerprintGuard.ts"],
   ["bridge", "src/content/bridge.ts"],
   ["cosmetic-filter", "src/content/cosmeticFilter.ts"],
   ["popup", "src/popup/popup.ts"],

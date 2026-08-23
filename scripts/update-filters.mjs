@@ -157,11 +157,20 @@ writeFileSync(
   join(outDir, "manifest.json"),
   JSON.stringify(manifestEntries, null, 2)
 );
-writeFileSync(
-  join(outDir, "redirect-domains.json"),
-  JSON.stringify([...redirectDomains].sort())
-);
+const redirectDomainsJson = JSON.stringify([...redirectDomains].sort());
+writeFileSync(join(outDir, "redirect-domains.json"), redirectDomainsJson);
+
+// Also written to a *tracked* path (unlike rules/dnr/, which is gitignored
+// build output): the background worker polls this file straight off
+// raw.githubusercontent.com (see background/liveUpdates.ts), so whatever's
+// committed here is live within ~a day for every installed copy of the
+// extension, without needing a new store release. Publishing a refresh is
+// just: run this script, commit live/redirect-domains.json, push -- no
+// scheduled/unattended automation writes to the repo on its own.
+const liveDir = join(root, "live");
+mkdirSync(liveDir, { recursive: true });
+writeFileSync(join(liveDir, "redirect-domains.json"), redirectDomainsJson);
 
 const total = manifestEntries.reduce((sum, r) => sum + r.ruleCount, 0);
 console.log(`\nWrote ${manifestEntries.length} rulesets, ${total} total rules -> rules/dnr/`);
-console.log(`Extracted ${redirectDomains.size} known ad-redirect domains -> rules/dnr/redirect-domains.json`);
+console.log(`Extracted ${redirectDomains.size} known ad-redirect domains -> rules/dnr/redirect-domains.json and live/redirect-domains.json`);

@@ -13,6 +13,8 @@ const baseSettings: Settings = {
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,
+  fingerprintResistance: false,
+  fingerprintSeed: "",
 };
 
 function setPrivacy(privacy: unknown): void {

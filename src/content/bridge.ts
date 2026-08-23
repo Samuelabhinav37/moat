@@ -1,13 +1,18 @@
 // Isolated-world content script: the only piece of the content-script pair
-// with access to extension APIs. Tells mainWorldGuard.ts whether this site
-// is paused, and relays its block reports back to the background worker.
+// with access to extension APIs. Tells the MAIN-world guards (popup guard,
+// fingerprint guard) whether this site is paused and what to do, and
+// relays their block reports back to the background worker.
 import browser from "webextension-polyfill";
 import { STORAGE_KEY, type BridgeMessage, type BlockedMessage } from "../types";
-import { isDisabledHere } from "./siteDisabled";
+import { getOrCreateFingerprintSeed, getSettings } from "../background/settings";
 
 async function sendConfig(): Promise<void> {
-  const disabled = await isDisabledHere();
-  const message: BridgeMessage = { source: "silent-adblock", type: "config", disabled };
+  const settings = await getSettings();
+  const disabled = !settings.enabled || settings.disabledSites.includes(location.hostname);
+  const fingerprintResistance = settings.fingerprintResistance && !disabled;
+  const fingerprintSeed = fingerprintResistance ? await getOrCreateFingerprintSeed() : "";
+
+  const message: BridgeMessage = { source: "silent-adblock", type: "config", disabled, fingerprintResistance, fingerprintSeed };
   window.postMessage(message, "*");
 }
 

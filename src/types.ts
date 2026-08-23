@@ -11,6 +11,14 @@ export interface Settings {
    */
   webrtcLeakProtection: boolean;
   blockThirdPartyCookies: boolean;
+  /**
+   * Canvas/AudioContext/WebGL noise + navigator property bucketing. Off by
+   * default: unlike blocking, this can occasionally change what a page
+   * observes (e.g. a canvas-based CAPTCHA), so it needs an explicit opt-in.
+   */
+  fingerprintResistance: boolean;
+  /** Generated once per install (see background/settings.ts), empty until then. */
+  fingerprintSeed: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -18,6 +26,8 @@ export const DEFAULT_SETTINGS: Settings = {
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,
+  fingerprintResistance: false,
+  fingerprintSeed: "",
 };
 
 export const STORAGE_KEY = "settings";
@@ -59,8 +69,8 @@ export type RuntimeMessage =
   | SetEnabledMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
- * world guard and the isolated-world content script (postMessage is the
+ * world guard(s) and the isolated-world content script (postMessage is the
  * only channel a MAIN-world script has, since it has no extension APIs). */
 export type BridgeMessage =
-  | { source: "silent-adblock"; type: "config"; disabled: boolean }
+  | { source: "silent-adblock"; type: "config"; disabled: boolean; fingerprintResistance: boolean; fingerprintSeed: string }
   | { source: "silent-adblock"; type: "blocked"; kind: GuardBlockKind; url: string | null };

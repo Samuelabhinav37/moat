@@ -3,9 +3,11 @@ import { getCount, recordBlock, resetCount, forgetTab } from "./badge";
 import { getSettings, isSiteDisabled, setSettings, setSiteDisabled } from "./settings";
 import { initPopupGuard } from "./popupGuard";
 import { applyPrivacySettings } from "./privacySettings";
+import { initLiveUpdates } from "./liveUpdates";
 import type { RuntimeMessage, StatusResponse } from "../types";
 
 initPopupGuard();
+initLiveUpdates();
 void getSettings().then(applyPrivacySettings);
 
 browser.tabs.onRemoved.addListener((tabId) => forgetTab(tabId));

@@ -74,6 +74,28 @@
           <span class="track"><span class="thumb"></span></span>
         </label>
       </div>
+      <div class="row" style="margin-top: 12px">
+        <div>
+          <div>Reduce fingerprinting</div>
+          <p class="hint muted">
+            Adds noise to canvas/audio/WebGL reads. Experimental — can occasionally affect a site
+            (e.g. a canvas-based CAPTCHA), so it's off by default.
+          </p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="fingerprint-toggle" />
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div>Live redirect-domain list</div>
+      <p class="hint muted">
+        Once a day, refreshes the known popup/redirect domain list from GitHub, on top of the
+        bundled baseline — no extension update needed for that part.
+      </p>
+      <p class="hint" id="live-status">Not checked yet.</p>
     </div>
 
     <div class="card">

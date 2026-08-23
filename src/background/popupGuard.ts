@@ -16,6 +16,12 @@ async function loadRedirectDomains(): Promise<Set<string>> {
   return redirectDomains;
 }
 
+/** Merges freshly-fetched domains (see liveUpdates.ts) into the set the tab safety net checks against. */
+export async function addLiveRedirectDomains(domains: string[]): Promise<void> {
+  const current = await loadRedirectDomains();
+  for (const domain of domains) current.add(domain);
+}
+
 async function closeSilently(tabId: number, openerTabId: number | undefined): Promise<void> {
   try {
     await browser.tabs.remove(tabId);

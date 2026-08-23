@@ -31,3 +31,12 @@ export async function setSiteDisabled(hostname: string, disabled: boolean): Prom
   }
   return setSettings({ disabledSites: [...set] });
 }
+
+/** Generates a random per-install seed the first time fingerprint resistance is turned on, then reuses it. */
+export async function getOrCreateFingerprintSeed(): Promise<string> {
+  const settings = await getSettings();
+  if (settings.fingerprintSeed) return settings.fingerprintSeed;
+  const seed = crypto.randomUUID();
+  await setSettings({ fingerprintSeed: seed });
+  return seed;
+}

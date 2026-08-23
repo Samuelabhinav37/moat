@@ -55,6 +55,27 @@ things quietly and shows a badge count.
   `document_start` — CSS rules, not a one-time DOM pass, so they keep
   hiding elements a site adds later (SPA navigation, lazy-loaded slots)
   without a MutationObserver.
+- **Live redirect-domain updates** — the bulk of blocking (~273k rules)
+  stays build-time/static; MV3's dynamic-rule budget is nowhere near large
+  enough to hold that. But the popup/redirect domain list (currently ~460
+  domains) is small enough to refresh daily: `src/background/liveUpdates.ts`
+  fetches whatever's currently committed to `live/redirect-domains.json` on
+  GitHub and applies it as dynamic `declarativeNetRequest` rules, on top of
+  the bundled baseline. Publishing a refresh is just `npm run filters:update`
+  + commit + push — there's no scheduled automation writing to the repo on
+  its own, so this stays under your control. Settings shows the last
+  successful check.
+- **Opt-in fingerprint resistance** — a third toggle, off by default:
+  deterministic per-install noise on canvas (`toDataURL`/`toBlob`/
+  `getImageData`) and `AudioBuffer.getChannelData` reads, a generic WebGL
+  vendor/renderer string in place of your real GPU, and
+  `navigator.hardwareConcurrency`/`deviceMemory` rounded to common values.
+  "Deterministic" matters here: the same canvas content on the same install
+  always noises the same way, so a site re-reading it twice can't tell
+  anything changed — but different installs get different noise, which is
+  what actually defeats cross-site fingerprint correlation. Off by default
+  because, unlike blocking, this is the one feature that can occasionally
+  change what a page observes (e.g. a canvas-based CAPTCHA).
 
 See `src/` for the source layout: `background/` (service worker / event
 page), `content/` (the three content scripts — `mainWorldGuard.ts` for the
@@ -101,6 +122,12 @@ Firefox lint on every push.
 
 `npm run zip` produces `chrome.zip` and `firefox.zip` for store upload.
 
+`filters:update` also writes `live/redirect-domains.json` — unlike
+`rules/dnr/` (build output, gitignored), this one is a tracked file:
+committing and pushing it is how a refreshed redirect-domain list reaches
+already-installed copies of the extension (see "Live redirect-domain
+updates" above) without a new store release.
+
 ## Loading it locally
 
 **Chrome / Edge / Brave:** open `chrome://extensions`, enable Developer
@@ -144,6 +171,7 @@ data isn't original to this project.
   Nothing is sent anywhere.
 - `privacy` — only used by the two opt-in toggles above; unused (and
   invisible to the user) unless they turn one on.
+- `alarms` — schedules the once-a-day live redirect-domain-list refresh.
 
 ## Researched but not built yet
 
@@ -154,16 +182,10 @@ From a pass on what a more complete privacy tool would also do:
   *auto-clicking* "reject" for you via scriptlets, which we deliberately
   don't execute (see above). So banners without a matching hide-selector
   will still show up, just not auto-dismiss.
-- **Fingerprinting resistance** (canvas/AudioContext/font-enumeration
-  noise) — valuable as sites lean on fingerprinting once cookies/domains
-  are blocked, but it's the one category that can silently break real
-  sites (canvas CAPTCHAs, WebGL apps), so it'd need to ship as an explicit
-  "strict mode" opt-in rather than default-on.
-- **Live filter updates** — rulesets are baked in at build time; MV3 allows
-  fetching plain JSON at runtime and loading it as dynamic rules, but the
-  dynamic-rule budget is far smaller than our ~273k static rules, so it
-  could only supplement a small hot-list on top of, not replace, periodic
-  rebuilds.
+- **Font-enumeration fingerprinting** isn't covered by the fingerprint-
+  resistance toggle — canvas, audio, WebGL, and the two navigator hints are.
+  Spoofing the installed-fonts list needs a different technique (font
+  substitution or measurement-based noise) not implemented here.
 - **CNAME-cloaked trackers** — first-party-disguised trackers can't be
   reliably caught without DNS resolution access, which Chrome doesn't
   expose to extensions. Not solvable here.
