@@ -44,6 +44,31 @@ const texts = await Promise.all(FILTER_IDS.map(fetchFilterText));
 
 const index = buildCosmeticIndex(texts, isValidSelector);
 
+// Our own additions, not sourced from AdGuard: the sidebar/in-feed ad cards
+// on YouTube's watch page (verified live -- a "Sponsored" card was showing,
+// fully visible, confirming AdGuard's bundled selectors for it either don't
+// match YouTube's current markup or aren't present in the lists we fetch).
+// These are plain static cards, not the shared-player video ads that need
+// the grayscale treatment in content/youtubeAdDimmer.ts -- hiding them
+// outright is safe and doesn't touch layout the way hiding the player would.
+const OWN_DOMAIN_SELECTORS = {
+  "youtube.com": [
+    "ytd-ad-slot-renderer",
+    "ytd-in-feed-ad-layout-renderer",
+    "ytd-display-ad-renderer",
+    "ytd-promoted-sparkles-web-renderer",
+    "ytd-promoted-video-renderer",
+    "ytd-companion-slot-renderer",
+    "ytd-statement-banner-renderer",
+    "#player-ads",
+  ],
+};
+for (const [domain, selectors] of Object.entries(OWN_DOMAIN_SELECTORS)) {
+  const existing = new Set(index.perDomain[domain] ?? []);
+  for (const selector of selectors) existing.add(selector);
+  index.perDomain[domain] = [...existing];
+}
+
 mkdirSync(outDir, { recursive: true });
 
 // perDomain alone runs well past web-ext lint's (and AMO's) 5MB-per-file

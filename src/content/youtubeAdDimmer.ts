@@ -1,14 +1,21 @@
 // Isolated-world content script, YouTube only. In-stream video ads play
 // through the same <video> element as real content, so they can't be
 // network-blocked or cosmetically hidden without breaking the player --
-// this dims them instead, using the same DOM signal YouTube's own player
-// already exposes: it toggles "ad-showing"/"ad-interrupting" on #movie_player
-// while an ad plays. That's a first-party observation of YouTube's own
-// markup, not a third-party script -- nothing here executes filter-list
-// code (see the scriptlet discussion in README's "Known limitations").
+// this dims them instead, using two DOM signals YouTube's own player
+// already exposes, checked independently so either one alone is enough:
+// (1) it toggles "ad-showing"/"ad-interrupting" on #movie_player while an
+// ad plays, and (2) it populates .ytp-ad-module with the skip button/ad
+// countdown UI for the same duration. Verified live against a real ad on
+// a news livestream (2026-08-23): both signals fired together, and the
+// video's computed filter came back grayscale(1) as expected. Checking
+// both instead of just one means a future YouTube change has to break
+// both signals at once to silently disable this, not just one.
 //
-// Best-effort by nature: YouTube changes its DOM periodically, so this can
-// stop matching without warning. Off by default (Settings -> "Gray out
+// This is a first-party observation of YouTube's own markup, not a
+// third-party script -- nothing here executes filter-list code (see the
+// scriptlet discussion in README's "Known limitations"). Still a
+// heuristic, not a guarantee: YouTube changes its DOM periodically, so
+// this can stop matching without warning (Settings -> "Gray out
 // unblockable video ads").
 import browser from "webextension-polyfill";
 import { isDisabledHere } from "./siteDisabled";
@@ -17,11 +24,12 @@ import { STORAGE_KEY, type Settings } from "../types";
 const DIM_CLASS = "moat-ad-dim";
 const STYLE_ELEMENT_ID = "moat-yt-ad-dim-style";
 const AD_STATE_CLASSES = ["ad-showing", "ad-interrupting"];
+const AD_MODULE_SELECTOR = ".ytp-ad-module";
 
 async function isEnabled(): Promise<boolean> {
   const stored = await browser.storage.local.get(STORAGE_KEY);
   const settings = stored[STORAGE_KEY] as Partial<Settings> | undefined;
-  return (settings?.grayscaleUnblockableAds ?? false) && !(await isDisabledHere());
+  return (settings?.grayscaleUnblockableAds ?? true) && !(await isDisabledHere());
 }
 
 function ensureStyle(): void {
@@ -32,17 +40,41 @@ function ensureStyle(): void {
   document.documentElement.append(style);
 }
 
+function isAdShowing(player: Element): boolean {
+  if (AD_STATE_CLASSES.some((cls) => player.classList.contains(cls))) return true;
+  const adModule = player.querySelector(AD_MODULE_SELECTOR);
+  return !!adModule && adModule.childElementCount > 0;
+}
+
 function syncDimState(player: Element): void {
-  const adShowing = AD_STATE_CLASSES.some((cls) => player.classList.contains(cls));
-  player.classList.toggle(DIM_CLASS, adShowing);
+  // Guard against a no-op write: toggling DIM_CLASS mutates player's class
+  // attribute, which the observer below also watches -- only write when the
+  // state actually flips, so a settled state can't retrigger itself.
+  const showing = isAdShowing(player);
+  if (player.classList.contains(DIM_CLASS) !== showing) {
+    player.classList.toggle(DIM_CLASS, showing);
+  }
 }
 
 function watchPlayer(player: Element): void {
-  syncDimState(player);
-  new MutationObserver(() => syncDimState(player)).observe(player, {
-    attributes: true,
-    attributeFilter: ["class"],
-  });
+  let adModuleObserver: MutationObserver | null = null;
+
+  function sync(): void {
+    syncDimState(player);
+    // .ytp-ad-module doesn't exist until the first ad ever loads, so this
+    // attaches lazily the first time sync() sees it -- cheap once attached
+    // (scoped to one small overlay element, not the whole player).
+    if (!adModuleObserver) {
+      const adModule = player.querySelector(AD_MODULE_SELECTOR);
+      if (adModule) {
+        adModuleObserver = new MutationObserver(sync);
+        adModuleObserver.observe(adModule, { childList: true, subtree: true });
+      }
+    }
+  }
+
+  sync();
+  new MutationObserver(sync).observe(player, { attributes: true, attributeFilter: ["class"] });
 }
 
 /** #movie_player is created once the watch page's player loads and (unlike

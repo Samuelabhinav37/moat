@@ -39,8 +39,10 @@ export interface Settings {
   /**
    * Best-effort dimming of in-stream video ads on YouTube (they share the
    * same player as real content, so they can't be blocked outright) --
-   * see content/youtubeAdDimmer.ts. Off by default: it's a DOM heuristic
-   * tied to YouTube's current markup, not a guaranteed mechanism.
+   * see content/youtubeAdDimmer.ts. On by default: verified live against a
+   * real ad (2026-08-23) using two independent DOM signals. Still a
+   * heuristic tied to YouTube's current markup, not a guaranteed mechanism,
+   * so it stays a real toggle rather than being unconditional.
    */
   grayscaleUnblockableAds: boolean;
 }
@@ -57,7 +59,7 @@ export const DEFAULT_SETTINGS: Settings = {
   customAllowedDomains: [],
   customCosmeticRules: {},
   customGrayscaleRules: {},
-  grayscaleUnblockableAds: false,
+  grayscaleUnblockableAds: true,
 };
 
 export const STORAGE_KEY = "settings";

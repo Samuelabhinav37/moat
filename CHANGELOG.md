@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.6.1
+
+### Changed
+- **YouTube ad dimming is on by default now**, not opt-in. Verified live against a real ad on a
+  news livestream (2026-08-23): confirmed `getMatchedRules`-independent detection via
+  `#movie_player`'s own `ad-showing` class fired correctly, and the video's computed style came
+  back `filter: grayscale(1)` as expected. Detection is now also more resilient: it checks
+  `.ytp-ad-module` having content as a second, independent signal alongside the player's own
+  ad-state class, so a future change to either alone won't silently disable it.
+- **YouTube's sidebar/in-feed "Sponsored" cards are now hidden outright**, not just the in-stream
+  video ads. Found live testing: a real sponsored card (`ytd-ad-slot-renderer` /
+  `ytd-in-feed-ad-layout-renderer`) was rendering fully visible next to the video list, unmatched
+  by AdGuard's bundled selectors. Added as first-party additions in `update-cosmetics.mjs`
+  (`OWN_DOMAIN_SELECTORS`) rather than waiting on upstream -- these are static cards, so hiding
+  them outright is safe, unlike the in-stream ads that need the grayscale treatment instead.
+
 ## 0.6.0
 
 ### Added

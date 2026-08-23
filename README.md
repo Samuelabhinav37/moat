@@ -38,9 +38,10 @@ badge count.
   sourced from the browser's own rule-match feedback, not estimated (Chrome only for now).
 - **Element picker** — "Block an element…" for anything the filter lists miss: hide it
   permanently, hide it just for this page load, or gray it out if hiding would break the layout.
-- **Grayed-out video ads** — dims YouTube's in-stream ads instead of leaving them full-color,
-  since they play through the same player as real content and can't be blocked outright. Off by
-  default, best-effort by nature.
+- **Grayed-out video ads** — automatically dims YouTube's in-stream ads instead of leaving them
+  full-color, since they play through the same player as real content and can't be blocked
+  outright. On by default; best-effort by nature. YouTube's sidebar/in-feed "Sponsored" cards are
+  hidden outright instead, since those are safe to remove without breaking layout.
 - **Per-site pause + master switch** — no nag UI anywhere.
 - **Opt-in privacy toggles** — fingerprint resistance, third-party cookie blocking, and WebRTC
   leak protection, all off by default.
@@ -71,12 +72,17 @@ badge count.
   browsers (see `src/background/matchStats.ts` and `src/shared/matchedRuleCategories.ts`).
 - **Grayed-out video ads** — YouTube's in-stream ads share the same `<video>` element as real
   content, so they can't be network-blocked or cosmetically hidden without breaking the player.
-  `src/content/youtubeAdDimmer.ts` (YouTube-scoped, off by default) watches `#movie_player` for the
-  `ad-showing`/`ad-interrupting` class YouTube's own player already toggles, and applies
-  `filter: grayscale(1)` to the video while it's present. That's a first-party observation of
-  YouTube's own markup, not a third-party script -- see "Known limitations" for why this is
-  best-effort. The element picker's "Gray out" mode uses the same mechanism (a saved selector
-  list, `customGrayscaleRules` in Settings) for anything else hiding would break.
+  `src/content/youtubeAdDimmer.ts` (YouTube-scoped, on by default) watches `#movie_player` for two
+  independent signals YouTube's own player already exposes -- the `ad-showing`/`ad-interrupting`
+  class, and `.ytp-ad-module` having content -- and applies `filter: grayscale(1)` to the video
+  while either is present. Verified live against a real ad on a news livestream (2026-08-23).
+  That's a first-party observation of YouTube's own markup, not a third-party script -- see "Known
+  limitations" for why this is still best-effort despite the two-signal check. YouTube's
+  sidebar/in-feed "Sponsored" cards (`ytd-ad-slot-renderer` and friends) are hidden outright
+  instead, added as first-party selectors in `scripts/update-cosmetics.mjs` since AdGuard's
+  bundled ones weren't matching them live. The element picker's "Gray out" mode uses the dimming
+  mechanism too (a saved selector list, `customGrayscaleRules` in Settings) for anything else
+  hiding would break.
 - **Global Privacy Control** — sends the `Sec-GPC: 1` header on every
   request (our own small rule, `ruleset_privacy-headers`) and exposes
   `navigator.globalPrivacyControl = true` in every page. As of 2026 this is
@@ -288,10 +294,12 @@ shows whether Chrome picked up the value) before relying on it in production.
   `declarativeNetRequest.getMatchedRules()` yet, so the Ads/Trackers/Popups
   strip stays at zero there. The popup/redirect firewall count (the
   "Popups" bucket's other half) still works on both browsers.
-- **The YouTube ad dimmer is a DOM heuristic, not a guarantee.** It depends on YouTube
-  continuing to toggle the `ad-showing`/`ad-interrupting` class on `#movie_player` the way it does
-  today. YouTube changes its markup periodically without notice; when it does, this can silently
-  stop matching until it's updated. Off by default for that reason.
+- **The YouTube ad dimmer is a DOM heuristic, not a guarantee.** It checks two independent
+  signals (see "How it works"), which makes it more resilient than relying on one, but it's still
+  dependent on YouTube's current markup. YouTube changes its markup periodically without notice;
+  when it does, this can silently stop matching until it's updated. On by default since it's
+  visual-only and doesn't break anything if it misfires, but it's still a real toggle for exactly
+  that reason -- turn it off in Settings if it ever does.
 - **`web-ext lint` warnings on the Firefox build are expected and benign:**
   one is a Firefox-for-Android version nuance from bumping
   `strict_min_version` to 140 for `data_collection_permissions` support; one

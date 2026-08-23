@@ -72,7 +72,7 @@ describe("getSettings", () => {
       customAllowedDomains: [],
       customCosmeticRules: {},
       customGrayscaleRules: {},
-      grayscaleUnblockableAds: false,
+      grayscaleUnblockableAds: true,
     });
   });
 
