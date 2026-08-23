@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.4.0
+
+### Changed
+- **Renamed to Moat.** New icon set (toolbar, store listing, options page) generated from a real
+  logo mark, replacing the placeholder icons. The GitHub repo moved to
+  `github.com/Samuelabhinav37/moat`; the About tab's links and the live redirect-domain fetch URL
+  were updated to match.
+- **Popup redesign** — the toolbar popup now leads with the logo and a single hero stat ("Blocked
+  on this page") instead of a bare label-over-number card, and shows an explicit paused state:
+  when protection is off for the current site, the popup swaps in a banner and a "Reload page"
+  button instead of silently leaving stale counts on screen. "Block an element…" is now styled as
+  a danger action (reusing the same accent the element picker highlights with) rather than a
+  plain button, so its color matches what it actually does.
+- Rewrote the About tab's copy to drop the dash-heavy phrasing in favor of plainer, shorter
+  sentences.
+
 ## 0.3.0
 
 ### Added

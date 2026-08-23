@@ -31,15 +31,15 @@ const icons = {
 function baseManifest() {
   return {
     manifest_version: 3,
-    name: "Silent Adblock",
+    name: "Moat",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
-    version: "0.3.0",
+    version: "0.4.0",
     icons,
     action: {
       default_popup: "popup.html",
       default_icon: icons,
-      default_title: "Silent Adblock",
+      default_title: "Moat",
     },
     options_ui: {
       page: "options.html",

@@ -37,7 +37,7 @@ let lastTrustedClick: { time: number; target: EventTarget | null; consumed: bool
 const TRUST_WINDOW_MS = 1200;
 
 function report(kind: GuardBlockKind, url: string | null): void {
-  const message: BridgeMessage = { source: "silent-adblock", type: "blocked", kind, url };
+  const message: BridgeMessage = { source: "moat", type: "blocked", kind, url };
   window.postMessage(message, "*");
 }
 
@@ -94,6 +94,6 @@ window.open = function guardedOpen(...args: Parameters<typeof window.open>): Ret
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;
   const data = event.data as BridgeMessage | undefined;
-  if (!data || data.source !== "silent-adblock" || data.type !== "config") return;
+  if (!data || data.source !== "moat" || data.type !== "config") return;
   siteDisabled = data.disabled;
 });

@@ -8,7 +8,7 @@ import { generateSelector, isUnpickable } from "./generateSelector";
 import type { SaveCosmeticRuleMessage } from "../types";
 
 const Z_INDEX = 2147483647;
-const STYLE_ELEMENT_ID = "silent-adblock-picker-style";
+const STYLE_ELEMENT_ID = "moat-picker-style";
 
 let picking = false;
 let highlighted: Element | null = null;

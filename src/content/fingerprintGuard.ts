@@ -151,7 +151,7 @@ patchNavigatorHints();
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;
   const data = event.data as BridgeMessage | undefined;
-  if (!data || data.source !== "silent-adblock" || data.type !== "config") return;
+  if (!data || data.source !== "moat" || data.type !== "config") return;
   active = data.fingerprintResistance;
   seed = data.fingerprintSeed;
 });

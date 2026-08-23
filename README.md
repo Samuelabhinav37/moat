@@ -1,4 +1,4 @@
-# Silent Adblock
+# Moat
 
 An ad blocker for Chrome and Firefox that also acts as a firewall against
 popup/redirect ads that spawn new tabs without you asking for them. It has no

@@ -16,8 +16,8 @@ import { addLiveRedirectDomains } from "./popupGuard";
 import { allLiveDynamicRuleIds, buildDynamicRedirectRules } from "./liveRedirectRules";
 
 const LIVE_DATA_URL =
-  "https://raw.githubusercontent.com/Samuelabhinav37/silent-adblock/master/live/redirect-domains.json";
-const ALARM_NAME = "silent-adblock-live-update";
+  "https://raw.githubusercontent.com/Samuelabhinav37/moat/master/live/redirect-domains.json";
+const ALARM_NAME = "moat-live-update";
 const PERIOD_MINUTES = 24 * 60;
 const STATUS_KEY = "liveUpdateStatus";
 

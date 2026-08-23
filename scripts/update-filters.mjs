@@ -156,7 +156,7 @@ manifestEntries.push({
   // in the "core" category, since turning this off has no meaningful
   // "less filtering" effect for the user, it just stops sending GPC.
   category: "core",
-  name: "Silent Adblock: Global Privacy Control header",
+  name: "Moat: Global Privacy Control header",
   enabled: true,
   file: "ruleset_privacy-headers.json",
   ruleCount: ownPrivacyRules.length,

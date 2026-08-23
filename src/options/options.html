@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Silent Adblock Settings</title>
+    <title>Moat Settings</title>
     <link rel="stylesheet" href="theme.css" />
     <style>
       body {
@@ -134,10 +134,29 @@
         gap: 14px;
         font-size: 13px;
       }
+
+      .brand-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 4px;
+      }
+      .brand-row img {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        flex: none;
+      }
+      .brand-row h1 {
+        margin: 0;
+      }
     </style>
   </head>
   <body>
-    <h1>Silent Adblock</h1>
+    <div class="brand-row">
+      <img src="icons/icon48.png" alt="" />
+      <h1>Moat</h1>
+    </div>
     <p class="muted">Blocks ads, trackers, and hijacked new-tab popups. No nag screens, ever.</p>
 
     <nav class="tabs" role="tablist">
@@ -282,42 +301,42 @@
         <div class="about-section">
           <h3>What this is</h3>
           <p>
-            An ad and tracker blocker with a popup/redirect firewall, for Chrome and Firefox. No
-            nag screens, no onboarding tabs, no "rate us" prompts — see the
-            <a href="https://github.com/Samuelabhinav37/silent-adblock#readme" target="_blank" rel="noopener">
+            Moat blocks ads, trackers, and hijacked popups and redirects, on Chrome and Firefox.
+            It has no nag screens, no onboarding tabs, and no "rate us" prompts. The
+            <a href="https://github.com/Samuelabhinav37/moat#readme" target="_blank" rel="noopener">
               full README</a
             >
-            for how the blocking, popup firewall, and cosmetic filtering actually work.
+            explains how the blocking, popup firewall, and cosmetic filtering work.
           </p>
         </div>
         <div class="about-section">
           <h3>Privacy</h3>
           <p>
-            Everything on this page — protection state, paused sites, filter list choices, custom
-            rules — is stored locally in your browser's extension storage. None of it is
-            transmitted anywhere.
+            Everything on this page is stored locally in your browser. That includes protection
+            state, paused sites, filter list choices, and custom rules. None of it is sent
+            anywhere.
           </p>
           <p>
-            The one exception: once a day, the extension fetches a small public file from GitHub
-            listing known popup/redirect domains, to stay current between store updates. That
-            request carries no settings or browsing data — just a plain GET, which reveals your IP
-            to GitHub's servers the same way visiting any website would.
+            There is one exception. Once a day, Moat fetches a small public file from GitHub
+            listing known popup and redirect domains, so the list stays current between store
+            updates. That request carries no settings or browsing data. It is a plain GET, and it
+            reveals your IP to GitHub the same way visiting any website would.
           </p>
           <p>
-            If "Reduce fingerprinting" is on, a random identifier is generated locally to seed
-            noise added to canvas/audio reads. It never leaves your device.
+            If "Reduce fingerprinting" is on, Moat generates a random identifier locally to seed
+            noise added to canvas and audio reads. That identifier never leaves your device.
           </p>
           <p id="managed-notice" hidden>
             This installation is managed by your organization. Your administrator can see and set
-            the policy values below; they cannot see your individual browsing.
+            the policy values below. They cannot see your individual browsing.
           </p>
         </div>
         <div class="about-section">
           <h3>Version</h3>
           <p id="version-text">—</p>
           <div class="about-links">
-            <a href="https://github.com/Samuelabhinav37/silent-adblock/blob/master/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
-            <a href="https://github.com/Samuelabhinav37/silent-adblock" target="_blank" rel="noopener">Source code</a>
+            <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+            <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener">Source code</a>
           </div>
         </div>
       </div>

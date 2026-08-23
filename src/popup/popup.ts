@@ -14,6 +14,12 @@ async function render(): Promise<void> {
   const hostnameEl = document.getElementById("hostname")!;
   const siteCard = document.getElementById("site-card")!;
   const toggle = document.getElementById("site-toggle") as HTMLInputElement;
+  const statHero = document.getElementById("stat-hero")!;
+  const pausedBanner = document.getElementById("paused-banner")!;
+  const pausedHostname = document.getElementById("paused-hostname")!;
+  const siteState = document.getElementById("site-state")!;
+  const siteStateText = document.getElementById("site-state-text")!;
+  const reloadButton = document.getElementById("reload-page") as HTMLButtonElement;
 
   if (!status.hostname) {
     siteCard.style.display = "none";
@@ -21,16 +27,31 @@ async function render(): Promise<void> {
   }
 
   hostnameEl.textContent = status.hostname;
+  pausedHostname.textContent = status.hostname;
   toggle.checked = !status.siteDisabled;
   toggle.disabled = !status.enabled;
 
+  function setPaused(paused: boolean): void {
+    statHero.hidden = paused;
+    pausedBanner.hidden = !paused;
+    reloadButton.hidden = !paused;
+    siteState.classList.toggle("paused", paused);
+    siteStateText.textContent = paused ? "paused" : "protected";
+  }
+
+  setPaused(status.siteDisabled || !status.enabled);
+
   toggle.addEventListener("change", () => {
-    const message: ToggleSiteMessage = {
-      type: "toggle-site",
-      hostname: status.hostname,
-      disabled: !toggle.checked,
-    };
+    const disabled = !toggle.checked;
+    const message: ToggleSiteMessage = { type: "toggle-site", hostname: status.hostname, disabled };
     void browser.runtime.sendMessage(message);
+    setPaused(disabled || !status.enabled);
+  });
+
+  reloadButton.addEventListener("click", async () => {
+    const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+    if (tab?.id !== undefined) await browser.tabs.reload(tab.id);
+    window.close();
   });
 }
 

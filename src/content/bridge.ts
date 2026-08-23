@@ -12,7 +12,7 @@ async function sendConfig(): Promise<void> {
   const fingerprintResistance = settings.fingerprintResistance && !disabled;
   const fingerprintSeed = fingerprintResistance ? await getOrCreateFingerprintSeed() : "";
 
-  const message: BridgeMessage = { source: "silent-adblock", type: "config", disabled, fingerprintResistance, fingerprintSeed };
+  const message: BridgeMessage = { source: "moat", type: "config", disabled, fingerprintResistance, fingerprintSeed };
   window.postMessage(message, "*");
 }
 
@@ -25,7 +25,7 @@ browser.storage.onChanged.addListener((changes, area) => {
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;
   const data = event.data as BridgeMessage | undefined;
-  if (!data || data.source !== "silent-adblock" || data.type !== "blocked") return;
+  if (!data || data.source !== "moat" || data.type !== "blocked") return;
 
   const message: BlockedMessage = { type: "blocked", kind: data.kind, url: data.url };
   browser.runtime.sendMessage(message).catch(() => {

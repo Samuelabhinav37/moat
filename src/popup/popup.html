@@ -6,32 +6,110 @@
     <style>
       body {
         width: 260px;
-        padding: 14px;
+        padding: 16px;
       }
-      .count {
-        font-size: 28px;
-        font-weight: 700;
+      [hidden] {
+        display: none !important;
       }
-      .card + .card {
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .brand img {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        flex: none;
+      }
+      .brand .mark {
+        font-weight: 600;
+        font-size: 14.5px;
+      }
+
+      .stat-hero {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 14px;
+        white-space: nowrap;
+      }
+      .stat-hero .n {
+        font: 28px/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-weight: 600;
+      }
+      .stat-hero .l {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .paused-banner {
+        background: rgba(217, 168, 119, 0.12);
+        border: 1px solid #4a3a2c;
+        color: #d9a877;
+        font-size: 11px;
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin-bottom: 12px;
+      }
+
+      .site-state {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 10.5px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .site-state i {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        flex: none;
+      }
+      .site-state.paused i {
+        background: #d9a877;
+      }
+
+      .actions {
+        display: flex;
+        gap: 6px;
         margin-top: 10px;
       }
+      .actions button {
+        flex: 1;
+      }
+
       footer {
-        margin-top: 10px;
+        margin-top: 12px;
         text-align: right;
         font-size: 12px;
       }
     </style>
   </head>
   <body>
-    <h1>Silent Adblock</h1>
-    <div class="card">
-      <div class="muted">Blocked on this page</div>
-      <div class="count" id="count">0</div>
+    <div class="brand">
+      <img src="icons/icon48.png" alt="" />
+      <div class="mark">Moat</div>
     </div>
+
+    <div class="stat-hero" id="stat-hero">
+      <div class="n" id="count">0</div>
+      <div class="l">Blocked on this page</div>
+    </div>
+
+    <div class="paused-banner" id="paused-banner" hidden>
+      Paused on <span id="paused-hostname"></span>. Reload the page to see it unblocked.
+    </div>
+
     <div class="card" id="site-card">
       <div class="row">
         <div>
           <div>Protection on <span id="hostname" class="muted"></span></div>
+          <div class="site-state" id="site-state"><i></i><span id="site-state-text">protected</span></div>
         </div>
         <label class="switch">
           <input type="checkbox" id="site-toggle" />
@@ -39,9 +117,12 @@
         </label>
       </div>
     </div>
-    <div class="card">
-      <button id="start-picker" style="width: 100%">Block an element…</button>
+
+    <div class="actions">
+      <button id="reload-page" class="primary" hidden>Reload page</button>
+      <button id="start-picker" class="danger">Block an element…</button>
     </div>
+
     <footer><a href="#" id="open-options">Settings</a></footer>
     <script src="popup.js"></script>
   </body>
