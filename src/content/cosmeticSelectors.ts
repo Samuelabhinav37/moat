@@ -57,3 +57,13 @@ export function buildStyleText(selectors: string[]): string {
   }
   return rules.join("\n");
 }
+
+/** Same batching as buildStyleText, but for the picker's "Gray out" mode --
+ * tones an element down instead of removing it from the page entirely. */
+export function buildGrayscaleStyleText(selectors: string[]): string {
+  const rules: string[] = [];
+  for (let i = 0; i < selectors.length; i += SELECTORS_PER_RULE) {
+    rules.push(`${selectors.slice(i, i + SELECTORS_PER_RULE).join(",")}{filter:grayscale(1)!important}`);
+  }
+  return rules.join("\n");
+}

@@ -55,26 +55,37 @@ export async function setSiteDisabled(hostname: string, disabled: boolean): Prom
   return setSettings({ disabledSites: [...set] });
 }
 
-export async function addCustomCosmeticRule(hostname: string, selector: string): Promise<Settings> {
+type SelectorMapField = "customCosmeticRules" | "customGrayscaleRules";
+
+/** Shared by the "Hide" and "Gray out" element-picker modes -- both are
+ * hostname -> selector[] maps with identical add/remove semantics. */
+async function addSelectorRule(field: SelectorMapField, hostname: string, selector: string): Promise<Settings> {
   const settings = await getSettings();
-  const existing = settings.customCosmeticRules[hostname] ?? [];
+  const existing = settings[field][hostname] ?? [];
   if (existing.includes(selector)) return settings;
-  return setSettings({
-    customCosmeticRules: { ...settings.customCosmeticRules, [hostname]: [...existing, selector] },
-  });
+  return setSettings({ [field]: { ...settings[field], [hostname]: [...existing, selector] } } as Partial<Settings>);
 }
 
-export async function removeCustomCosmeticRule(hostname: string, selector: string): Promise<Settings> {
+async function removeSelectorRule(field: SelectorMapField, hostname: string, selector: string): Promise<Settings> {
   const settings = await getSettings();
-  const remaining = (settings.customCosmeticRules[hostname] ?? []).filter((s) => s !== selector);
-  const next = { ...settings.customCosmeticRules };
+  const remaining = (settings[field][hostname] ?? []).filter((s) => s !== selector);
+  const next = { ...settings[field] };
   if (remaining.length > 0) {
     next[hostname] = remaining;
   } else {
     delete next[hostname];
   }
-  return setSettings({ customCosmeticRules: next });
+  return setSettings({ [field]: next } as Partial<Settings>);
 }
+
+export const addCustomCosmeticRule = (hostname: string, selector: string): Promise<Settings> =>
+  addSelectorRule("customCosmeticRules", hostname, selector);
+export const removeCustomCosmeticRule = (hostname: string, selector: string): Promise<Settings> =>
+  removeSelectorRule("customCosmeticRules", hostname, selector);
+export const addGrayscaleRule = (hostname: string, selector: string): Promise<Settings> =>
+  addSelectorRule("customGrayscaleRules", hostname, selector);
+export const removeGrayscaleRule = (hostname: string, selector: string): Promise<Settings> =>
+  removeSelectorRule("customGrayscaleRules", hostname, selector);
 
 /** Generates a random per-install seed the first time fingerprint resistance is turned on, then reuses it. */
 export async function getOrCreateFingerprintSeed(): Promise<string> {

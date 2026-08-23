@@ -36,8 +36,11 @@ badge count.
   blocking can't reach.
 - **Real block-count breakdown** — the toolbar popup shows an Ads / Trackers / Popups split
   sourced from the browser's own rule-match feedback, not estimated (Chrome only for now).
-- **Element picker** — "Block an element…" for anything the filter lists miss, hover-and-click to
-  hide it permanently or just for this page load.
+- **Element picker** — "Block an element…" for anything the filter lists miss: hide it
+  permanently, hide it just for this page load, or gray it out if hiding would break the layout.
+- **Grayed-out video ads** — dims YouTube's in-stream ads instead of leaving them full-color,
+  since they play through the same player as real content and can't be blocked outright. Off by
+  default, best-effort by nature.
 - **Per-site pause + master switch** — no nag UI anywhere.
 - **Opt-in privacy toggles** — fingerprint resistance, third-party cookie blocking, and WebRTC
   leak protection, all off by default.
@@ -66,6 +69,14 @@ badge count.
   requests get matched. Chrome-only for now: Firefox hasn't implemented `getMatchedRules` yet, so
   that slice stays at zero there while the popup/redirect firewall count below still works on both
   browsers (see `src/background/matchStats.ts` and `src/shared/matchedRuleCategories.ts`).
+- **Grayed-out video ads** — YouTube's in-stream ads share the same `<video>` element as real
+  content, so they can't be network-blocked or cosmetically hidden without breaking the player.
+  `src/content/youtubeAdDimmer.ts` (YouTube-scoped, off by default) watches `#movie_player` for the
+  `ad-showing`/`ad-interrupting` class YouTube's own player already toggles, and applies
+  `filter: grayscale(1)` to the video while it's present. That's a first-party observation of
+  YouTube's own markup, not a third-party script -- see "Known limitations" for why this is
+  best-effort. The element picker's "Gray out" mode uses the same mechanism (a saved selector
+  list, `customGrayscaleRules` in Settings) for anything else hiding would break.
 - **Global Privacy Control** — sends the `Sec-GPC: 1` header on every
   request (our own small rule, `ruleset_privacy-headers`) and exposes
   `navigator.globalPrivacyControl = true` in every page. As of 2026 this is
@@ -277,6 +288,10 @@ shows whether Chrome picked up the value) before relying on it in production.
   `declarativeNetRequest.getMatchedRules()` yet, so the Ads/Trackers/Popups
   strip stays at zero there. The popup/redirect firewall count (the
   "Popups" bucket's other half) still works on both browsers.
+- **The YouTube ad dimmer is a DOM heuristic, not a guarantee.** It depends on YouTube
+  continuing to toggle the `ad-showing`/`ad-interrupting` class on `#movie_player` the way it does
+  today. YouTube changes its markup periodically without notice; when it does, this can silently
+  stop matching until it's updated. Off by default for that reason.
 - **`web-ext lint` warnings on the Firefox build are expected and benign:**
   one is a Firefox-for-Android version nuance from bumping
   `strict_min_version` to 140 for `data_collection_permissions` support; one

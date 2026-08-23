@@ -19,6 +19,8 @@ const baseSettings: Settings = {
   customBlockedDomains: [],
   customAllowedDomains: [],
   customCosmeticRules: {},
+  customGrayscaleRules: {},
+  grayscaleUnblockableAds: false,
 };
 
 function setPrivacy(privacy: unknown): void {

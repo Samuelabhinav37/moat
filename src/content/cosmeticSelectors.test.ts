@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildGrayscaleStyleText,
   buildStyleText,
   customSelectorsForHostname,
   mergeDomainShards,
@@ -99,5 +100,15 @@ describe("buildStyleText", () => {
     expect(rules).toHaveLength(2);
     expect(rules[0]?.split(",")).toHaveLength(2000);
     expect(rules[1]?.split(",")).toHaveLength(500);
+  });
+});
+
+describe("buildGrayscaleStyleText", () => {
+  it("returns an empty string for no selectors", () => {
+    expect(buildGrayscaleStyleText([])).toBe("");
+  });
+
+  it("emits a grayscale filter rule instead of display:none", () => {
+    expect(buildGrayscaleStyleText([".a", ".b"])).toBe(".a,.b{filter:grayscale(1)!important}");
   });
 });

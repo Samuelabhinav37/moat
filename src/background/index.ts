@@ -2,6 +2,7 @@ import browser, { type Runtime } from "webextension-polyfill";
 import { combinedBreakdown, combinedTotal, forgetTab, recordDynamicCatch, refreshStaticBreakdown, resetForNavigation } from "./blockStats";
 import {
   addCustomCosmeticRule,
+  addGrayscaleRule,
   getEffectiveSettings,
   isSiteDisabled,
   reapplySettings,
@@ -82,6 +83,10 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
 
     case "save-cosmetic-rule": {
       return addCustomCosmeticRule(message.hostname, message.selector).then(() => undefined);
+    }
+
+    case "save-grayscale-rule": {
+      return addGrayscaleRule(message.hostname, message.selector).then(() => undefined);
     }
 
     default:

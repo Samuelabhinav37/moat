@@ -42,9 +42,17 @@ vi.mock("webextension-polyfill", () => {
 // setSettings() doesn't attempt a real network request.
 vi.stubGlobal("fetch", () => Promise.resolve({ json: () => Promise.resolve([]) }));
 
-const { getSettings, setSettings, isSiteDisabled, setSiteDisabled, getOrCreateFingerprintSeed } = await import(
-  "./settings"
-);
+const {
+  getSettings,
+  setSettings,
+  isSiteDisabled,
+  setSiteDisabled,
+  getOrCreateFingerprintSeed,
+  addCustomCosmeticRule,
+  removeCustomCosmeticRule,
+  addGrayscaleRule,
+  removeGrayscaleRule,
+} = await import("./settings");
 
 beforeEach(async () => {
   await (browser.storage.local as unknown as { clear(): Promise<void> }).clear();
@@ -63,6 +71,8 @@ describe("getSettings", () => {
       customBlockedDomains: [],
       customAllowedDomains: [],
       customCosmeticRules: {},
+      customGrayscaleRules: {},
+      grayscaleUnblockableAds: false,
     });
   });
 
@@ -106,6 +116,46 @@ describe("getOrCreateFingerprintSeed", () => {
     const first = await getOrCreateFingerprintSeed();
     const second = await getOrCreateFingerprintSeed();
     expect(second).toBe(first);
+  });
+});
+
+describe("addCustomCosmeticRule / removeCustomCosmeticRule", () => {
+  it("adds a selector under its hostname", async () => {
+    await addCustomCosmeticRule("example.com", ".ad-slot");
+    expect((await getSettings()).customCosmeticRules).toEqual({ "example.com": [".ad-slot"] });
+  });
+
+  it("is idempotent for the same hostname/selector pair", async () => {
+    await addCustomCosmeticRule("example.com", ".ad-slot");
+    await addCustomCosmeticRule("example.com", ".ad-slot");
+    expect((await getSettings()).customCosmeticRules).toEqual({ "example.com": [".ad-slot"] });
+  });
+
+  it("drops the hostname entirely once its last selector is removed", async () => {
+    await addCustomCosmeticRule("example.com", ".ad-slot");
+    await removeCustomCosmeticRule("example.com", ".ad-slot");
+    expect((await getSettings()).customCosmeticRules).toEqual({});
+  });
+
+  it("doesn't touch customGrayscaleRules", async () => {
+    await addCustomCosmeticRule("example.com", ".ad-slot");
+    expect((await getSettings()).customGrayscaleRules).toEqual({});
+  });
+});
+
+describe("addGrayscaleRule / removeGrayscaleRule", () => {
+  it("adds a selector under its hostname, independent of the hide list", async () => {
+    await addGrayscaleRule("youtube.com", "#movie_player");
+    const settings = await getSettings();
+    expect(settings.customGrayscaleRules).toEqual({ "youtube.com": ["#movie_player"] });
+    expect(settings.customCosmeticRules).toEqual({});
+  });
+
+  it("removes just the given selector, keeping siblings under the same hostname", async () => {
+    await addGrayscaleRule("youtube.com", "#movie_player");
+    await addGrayscaleRule("youtube.com", ".ad-banner");
+    await removeGrayscaleRule("youtube.com", "#movie_player");
+    expect((await getSettings()).customGrayscaleRules).toEqual({ "youtube.com": [".ad-banner"] });
   });
 });
 

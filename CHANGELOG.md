@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.6.0
+
+### Added
+- **Gray out unblockable video ads** (Settings → Protection, off by default) -- dims in-stream
+  video ads on YouTube instead of leaving them at full color. They play through the same `<video>`
+  element as real content, so they can't be network-blocked or hidden without breaking the player;
+  this watches the same `ad-showing`/`ad-interrupting` class YouTube's own player already toggles
+  and applies `filter: grayscale(1)` while it's present (`src/content/youtubeAdDimmer.ts`). It's a
+  first-party DOM observation, not a third-party script -- and it's a heuristic tied to YouTube's
+  current markup, not a guarantee, so it's opt-in.
+- **"Gray out" mode in the element picker** -- alongside "Hide on this site" and "Hide for now",
+  the picker now has a third option that dims an element instead of removing it, for anything
+  where hiding would break the page's layout. Saved picks are listed and removable under Custom
+  Rules → Grayed-out elements, the same way hidden picks already were.
+
 ## 0.5.0
 
 ### Added

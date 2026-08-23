@@ -33,6 +33,16 @@ export interface Settings {
   customAllowedDomains: string[];
   /** Element-picker picks that should persist -- hostname -> CSS selectors to hide there. */
   customCosmeticRules: Record<string, string[]>;
+  /** Same shape as customCosmeticRules, but grayed out (filter: grayscale)
+   * instead of hidden -- for elements picked to tone down, not remove. */
+  customGrayscaleRules: Record<string, string[]>;
+  /**
+   * Best-effort dimming of in-stream video ads on YouTube (they share the
+   * same player as real content, so they can't be blocked outright) --
+   * see content/youtubeAdDimmer.ts. Off by default: it's a DOM heuristic
+   * tied to YouTube's current markup, not a guaranteed mechanism.
+   */
+  grayscaleUnblockableAds: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -46,6 +56,8 @@ export const DEFAULT_SETTINGS: Settings = {
   customBlockedDomains: [],
   customAllowedDomains: [],
   customCosmeticRules: {},
+  customGrayscaleRules: {},
+  grayscaleUnblockableAds: false,
 };
 
 export const STORAGE_KEY = "settings";
@@ -92,12 +104,20 @@ export interface SaveCosmeticRuleMessage {
   selector: string;
 }
 
+/** Same idea as SaveCosmeticRuleMessage, for the picker's "Gray out" mode. */
+export interface SaveGrayscaleRuleMessage {
+  type: "save-grayscale-rule";
+  hostname: string;
+  selector: string;
+}
+
 export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
   | ToggleSiteMessage
   | SetEnabledMessage
-  | SaveCosmeticRuleMessage;
+  | SaveCosmeticRuleMessage
+  | SaveGrayscaleRuleMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the

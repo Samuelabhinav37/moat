@@ -34,7 +34,7 @@ function baseManifest() {
     name: "Moat",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
-    version: "0.5.0",
+    version: "0.6.0",
     icons,
     action: {
       default_popup: "popup.html",
@@ -89,6 +89,13 @@ function baseManifest() {
         // fine since there's no timing pressure.
         matches: ["<all_urls>"],
         js: ["element-picker.js"],
+        run_at: "document_idle",
+      },
+      {
+        // Scoped to YouTube only -- see content/youtubeAdDimmer.ts. No-ops
+        // immediately unless "Gray out unblockable video ads" is on.
+        matches: ["*://www.youtube.com/*", "*://m.youtube.com/*"],
+        js: ["youtube-ad-dimmer.js"],
         run_at: "document_idle",
       },
     ],

@@ -3,6 +3,7 @@ import {
   getEffectiveSettings,
   getSettings,
   removeCustomCosmeticRule,
+  removeGrayscaleRule,
   setSettings,
   setSiteDisabled,
 } from "../background/settings";
@@ -33,6 +34,7 @@ const protectionLockedBadge = document.getElementById("protection-locked-badge")
 const cookiesToggle = document.getElementById("cookies-toggle") as HTMLInputElement;
 const webrtcToggle = document.getElementById("webrtc-toggle") as HTMLInputElement;
 const fingerprintToggle = document.getElementById("fingerprint-toggle") as HTMLInputElement;
+const grayscaleToggle = document.getElementById("grayscale-toggle") as HTMLInputElement;
 const liveStatus = document.getElementById("live-status") as HTMLElement;
 const siteList = document.getElementById("site-list") as HTMLUListElement;
 const siteEmptyState = document.getElementById("site-empty-state") as HTMLElement;
@@ -214,14 +216,23 @@ customAllowInput.addEventListener("keydown", (event) => {
 
 const hiddenElementList = document.getElementById("hidden-element-list") as HTMLUListElement;
 const hiddenElementEmpty = document.getElementById("hidden-element-empty") as HTMLElement;
+const grayscaleElementList = document.getElementById("grayscale-element-list") as HTMLUListElement;
+const grayscaleElementEmpty = document.getElementById("grayscale-element-empty") as HTMLElement;
 
-function renderHiddenElements(customCosmeticRules: Settings["customCosmeticRules"]): void {
-  const rows = Object.entries(customCosmeticRules).flatMap(([hostname, selectors]) =>
+/** Shared by the picker's "Hide" and "Gray out" saved-rule lists -- both are
+ * hostname -> selector[] maps rendered the same way. */
+function renderSelectorRules(
+  list: HTMLUListElement,
+  emptyState: HTMLElement,
+  rules: Record<string, string[]>,
+  onRemove: (hostname: string, selector: string) => Promise<unknown>
+): void {
+  const rows = Object.entries(rules).flatMap(([hostname, selectors]) =>
     selectors.map((selector) => ({ hostname, selector }))
   );
 
-  hiddenElementList.innerHTML = "";
-  hiddenElementEmpty.style.display = rows.length ? "none" : "block";
+  list.innerHTML = "";
+  emptyState.style.display = rows.length ? "none" : "block";
 
   for (const { hostname, selector } of rows.sort((a, b) => a.hostname.localeCompare(b.hostname))) {
     const li = document.createElement("li");
@@ -232,12 +243,12 @@ function renderHiddenElements(customCosmeticRules: Settings["customCosmeticRules
     const remove = document.createElement("button");
     remove.textContent = "Remove";
     remove.addEventListener("click", async () => {
-      await removeCustomCosmeticRule(hostname, selector);
+      await onRemove(hostname, selector);
       await render();
     });
 
     li.append(label, remove);
-    hiddenElementList.append(li);
+    list.append(li);
   }
 }
 
@@ -259,6 +270,7 @@ async function render(): Promise<void> {
   cookiesToggle.checked = settings.blockThirdPartyCookies;
   webrtcToggle.checked = settings.webrtcLeakProtection;
   fingerprintToggle.checked = settings.fingerprintResistance;
+  grayscaleToggle.checked = settings.grayscaleUnblockableAds;
   renderLiveStatus(await getLiveUpdateStatus());
 
   renderDomainList(siteList, siteEmptyState, settings.disabledSites, "Resume", (hostname) =>
@@ -279,7 +291,8 @@ async function render(): Promise<void> {
     const current = await getSettings();
     await setSettings({ customAllowedDomains: current.customAllowedDomains.filter((d) => d !== domain) });
   });
-  renderHiddenElements(settings.customCosmeticRules);
+  renderSelectorRules(hiddenElementList, hiddenElementEmpty, settings.customCosmeticRules, removeCustomCosmeticRule);
+  renderSelectorRules(grayscaleElementList, grayscaleElementEmpty, settings.customGrayscaleRules, removeGrayscaleRule);
 
   versionText.textContent = `v${browser.runtime.getManifest().version}`;
   managedNotice.hidden = Object.keys(policy).length === 0;
@@ -300,6 +313,10 @@ webrtcToggle.addEventListener("change", async () => {
 
 fingerprintToggle.addEventListener("change", async () => {
   await setSettings({ fingerprintResistance: fingerprintToggle.checked });
+});
+
+grayscaleToggle.addEventListener("change", async () => {
+  await setSettings({ grayscaleUnblockableAds: grayscaleToggle.checked });
 });
 
 addButton.addEventListener("click", async () => {

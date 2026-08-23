@@ -2,10 +2,12 @@
 // {type: "start-picker"} message from popup.ts. Lets you hover/click an
 // element on the page, then either save it (reapplied on future visits, via
 // customCosmeticRules in Settings) or hide it just for this page load
-// (uBO's "Zapper" behavior -- nothing persisted).
+// (uBO's "Zapper" behavior -- nothing persisted). A third mode, "Gray out",
+// tones the element down (filter: grayscale) instead of removing it --
+// for things like video-ad wrappers where hiding would break the layout.
 import browser from "webextension-polyfill";
 import { generateSelector, isUnpickable } from "./generateSelector";
-import type { SaveCosmeticRuleMessage } from "../types";
+import type { SaveCosmeticRuleMessage, SaveGrayscaleRuleMessage } from "../types";
 
 const Z_INDEX = 2147483647;
 const STYLE_ELEMENT_ID = "moat-picker-style";
@@ -26,6 +28,10 @@ function ensureStyleElement(): HTMLStyleElement {
 
 function hideSelector(selector: string): void {
   ensureStyleElement().append(`${selector}{display:none!important}\n`);
+}
+
+function graySelector(selector: string): void {
+  ensureStyleElement().append(`${selector}{filter:grayscale(1)!important}\n`);
 }
 
 function createOverlay(): HTMLDivElement {
@@ -53,7 +59,9 @@ function positionOverlay(element: Element): void {
   });
 }
 
-function createPanel(selector: string, onPick: (mode: "save" | "temporary") => void, onCancel: () => void): HTMLDivElement {
+type PickMode = "save" | "temporary" | "gray";
+
+function createPanel(selector: string, onPick: (mode: PickMode) => void, onCancel: () => void): HTMLDivElement {
   const div = document.createElement("div");
   Object.assign(div.style, {
     position: "fixed",
@@ -71,7 +79,7 @@ function createPanel(selector: string, onPick: (mode: "save" | "temporary") => v
   });
 
   const label = document.createElement("div");
-  label.textContent = "Hide this element?";
+  label.textContent = "What do you want to do with this?";
   label.style.marginBottom = "6px";
 
   const code = document.createElement("code");
@@ -89,16 +97,21 @@ function createPanel(selector: string, onPick: (mode: "save" | "temporary") => v
   const buttonRow = document.createElement("div");
   Object.assign(buttonRow.style, { display: "flex", gap: "6px", flexWrap: "wrap" });
 
-  function makeButton(text: string, primary: boolean, onClick: () => void): HTMLButtonElement {
+  function makeButton(text: string, variant: "primary" | "danger" | "plain", onClick: () => void): HTMLButtonElement {
     const button = document.createElement("button");
     button.textContent = text;
+    const colors = {
+      primary: { border: "#5fb896", background: "#5fb896", color: "#0f1210" },
+      danger: { border: "#d97757", background: "transparent", color: "#d97757" },
+      plain: { border: "#33383b", background: "transparent", color: "#e7ebed" },
+    }[variant];
     Object.assign(button.style, {
       font: "inherit",
       cursor: "pointer",
       borderRadius: "6px",
-      border: `1px solid ${primary ? "#5fb896" : "#33383b"}`,
-      background: primary ? "#5fb896" : "transparent",
-      color: primary ? "#0f1210" : "#e7ebed",
+      border: `1px solid ${colors.border}`,
+      background: colors.background,
+      color: colors.color,
       padding: "6px 10px",
     });
     button.addEventListener("click", onClick);
@@ -106,9 +119,10 @@ function createPanel(selector: string, onPick: (mode: "save" | "temporary") => v
   }
 
   buttonRow.append(
-    makeButton("Hide on this site", true, () => onPick("save")),
-    makeButton("Hide for now", false, () => onPick("temporary")),
-    makeButton("Cancel", false, onCancel)
+    makeButton("Hide on this site", "primary", () => onPick("save")),
+    makeButton("Hide for now", "plain", () => onPick("temporary")),
+    makeButton("Gray out", "danger", () => onPick("gray")),
+    makeButton("Cancel", "plain", onCancel)
   );
 
   div.append(label, code, buttonRow);
@@ -149,13 +163,22 @@ function onClick(event: MouseEvent): void {
   panel = createPanel(
     selector,
     (mode) => {
-      hideSelector(selector);
-      if (mode === "save") {
-        const message: SaveCosmeticRuleMessage = { type: "save-cosmetic-rule", hostname: location.hostname, selector };
+      if (mode === "gray") {
+        graySelector(selector);
+        const message: SaveGrayscaleRuleMessage = { type: "save-grayscale-rule", hostname: location.hostname, selector };
         browser.runtime.sendMessage(message).catch(() => {
-          // The element is already hidden locally either way; a missed
-          // save just means it won't be remembered next visit.
+          // Already grayed out locally either way; a missed save just
+          // means it won't be remembered next visit.
         });
+      } else {
+        hideSelector(selector);
+        if (mode === "save") {
+          const message: SaveCosmeticRuleMessage = { type: "save-cosmetic-rule", hostname: location.hostname, selector };
+          browser.runtime.sendMessage(message).catch(() => {
+            // The element is already hidden locally either way; a missed
+            // save just means it won't be remembered next visit.
+          });
+        }
       }
       teardown();
     },

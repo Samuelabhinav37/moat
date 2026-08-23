@@ -13,6 +13,8 @@ const baseSettings: Settings = {
   customBlockedDomains: [],
   customAllowedDomains: [],
   customCosmeticRules: {},
+  customGrayscaleRules: {},
+  grayscaleUnblockableAds: false,
 };
 
 describe("presetPatch", () => {
