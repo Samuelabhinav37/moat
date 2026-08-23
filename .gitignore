@@ -1,0 +1,5 @@
+node_modules/
+dist/
+rules/dnr/
+*.zip
+.DS_Store

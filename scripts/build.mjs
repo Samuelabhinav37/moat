@@ -1,0 +1,91 @@
+// Builds the extension for one browser target. Each entry point is built as
+// its own standalone Rollup graph (format: "iife") rather than as multiple
+// inputs in one build -- Rollup can't emit IIFE output for a code-split
+// build, and content scripts / the background worker must each be a single
+// self-contained file with no shared chunk to import.
+import { build } from "vite";
+import { cpSync, mkdirSync, writeFileSync, existsSync, rmSync, readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import { createRequire } from "node:module";
+import { buildManifest } from "./manifest.ts";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const root = resolve(__dirname, "..");
+
+// Pin the exact resolved path so every entry's independent Rollup graph
+// bundles the *same* module instance -- without this, per-entry builds have
+// been observed to resolve two differently-cased absolute paths for this
+// CJS package on Windows and bundle it twice.
+const polyfillPath = createRequire(import.meta.url).resolve("webextension-polyfill");
+
+const target = process.argv[2];
+const watch = process.argv.includes("--watch");
+
+if (target !== "chrome" && target !== "firefox") {
+  console.error('Usage: node scripts/build.mjs <chrome|firefox> [--watch]');
+  process.exit(1);
+}
+
+const ENTRIES = [
+  ["background", "src/background/index.ts"],
+  ["main-world-guard", "src/content/mainWorldGuard.ts"],
+  ["bridge", "src/content/bridge.ts"],
+  ["popup", "src/popup/popup.ts"],
+  ["options", "src/options/options.ts"],
+];
+
+const outDir = resolve(root, "dist", target);
+rmSync(outDir, { recursive: true, force: true });
+mkdirSync(outDir, { recursive: true });
+
+for (const [name, entry] of ENTRIES) {
+  await build({
+    root,
+    configFile: false,
+    logLevel: "warn",
+    resolve: {
+      alias: { "webextension-polyfill": polyfillPath },
+    },
+    build: {
+      outDir,
+      emptyOutDir: false,
+      target: "es2022",
+      minify: false,
+      watch: watch ? {} : undefined,
+      rollupOptions: {
+        input: { [name]: resolve(root, entry) },
+        output: { format: "iife", entryFileNames: "[name].js" },
+      },
+    },
+  });
+}
+
+copyStaticAssets();
+console.log(`Built ${target} -> dist/${target}`);
+
+if (watch) {
+  console.log("Watching for changes (static assets are copied once at startup)...");
+}
+
+function copyStaticAssets() {
+  const rulesDir = resolve(root, "rules", "dnr");
+  if (!existsSync(rulesDir)) {
+    throw new Error('rules/dnr is missing. Run "npm run filters:update" first.');
+  }
+
+  mkdirSync(resolve(outDir, "rules"), { recursive: true });
+  mkdirSync(resolve(outDir, "icons"), { recursive: true });
+
+  const rulesetFiles = JSON.parse(readFileSync(resolve(rulesDir, "manifest.json"), "utf8")).map((r) => r.file);
+  for (const file of [...rulesetFiles, "redirect-domains.json"]) {
+    cpSync(resolve(rulesDir, file), resolve(outDir, "rules", file));
+  }
+
+  cpSync(resolve(root, "icons"), resolve(outDir, "icons"), { recursive: true });
+  cpSync(resolve(root, "src/ui/theme.css"), resolve(outDir, "theme.css"));
+  cpSync(resolve(root, "src/popup/popup.html"), resolve(outDir, "popup.html"));
+  cpSync(resolve(root, "src/options/options.html"), resolve(outDir, "options.html"));
+
+  writeFileSync(resolve(outDir, "manifest.json"), JSON.stringify(buildManifest(target), null, 2));
+}

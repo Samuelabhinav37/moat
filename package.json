@@ -1,0 +1,27 @@
+{
+  "name": "silent-adblock",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A quiet ad blocker and popup/redirect firewall for Chrome and Firefox.",
+  "type": "module",
+  "scripts": {
+    "dev:chrome": "node scripts/build.mjs chrome --watch",
+    "dev:firefox": "node scripts/build.mjs firefox --watch",
+    "build:chrome": "node scripts/build.mjs chrome",
+    "build:firefox": "node scripts/build.mjs firefox",
+    "build": "npm run build:chrome && npm run build:firefox",
+    "filters:update": "node scripts/update-filters.mjs",
+    "typecheck": "tsc --noEmit",
+    "zip": "node scripts/zip.mjs"
+  },
+  "dependencies": {
+    "webextension-polyfill": "^0.12.0"
+  },
+  "devDependencies": {
+    "@adguard/dnr-rulesets": "^4.0.20260823030056",
+    "@types/chrome": "^0.0.280",
+    "@types/webextension-polyfill": "^0.12.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Silent Adblock Settings</title>
+    <link rel="stylesheet" href="theme.css" />
+    <style>
+      body {
+        max-width: 480px;
+        margin: 40px auto;
+        padding: 0 16px;
+      }
+      .card + .card {
+        margin-top: 16px;
+      }
+      p.hint {
+        margin: 4px 0 0;
+      }
+      .add-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .add-row input {
+        flex: 1;
+        font: inherit;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--fg);
+        padding: 6px 8px;
+      }
+      #empty-state {
+        color: var(--muted);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Silent Adblock</h1>
+    <p class="muted">Blocks ads, trackers, and hijacked new-tab popups. No nag screens, ever.</p>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <div>Protection enabled</div>
+          <p class="hint muted">Turn everything off, everywhere.</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="master-toggle" />
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <div>Block third-party cookies</div>
+          <p class="hint muted">Browser-wide, not just on protected sites. Off by default.</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="cookies-toggle" />
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+      <div class="row" style="margin-top: 12px">
+        <div>
+          <div>WebRTC leak protection</div>
+          <p class="hint muted">Stops WebRTC from exposing your real IP behind a VPN. Browser-wide.</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="webrtc-toggle" />
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div>Paused sites</div>
+      <p class="hint muted">Protection is off on these hostnames.</p>
+      <ul class="site-list" id="site-list"></ul>
+      <p id="empty-state">No sites paused.</p>
+      <div class="add-row">
+        <input type="text" id="add-input" placeholder="example.com" />
+        <button id="add-button">Pause</button>
+      </div>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>
