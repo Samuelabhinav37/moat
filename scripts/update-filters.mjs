@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { chunkBySize } from "./lib/chunkBySize.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -108,27 +109,6 @@ for (const ruleset of RULESETS) {
   console.log(
     `${ruleset.name}: ${cleaned.length}/${rawRules.length} rules kept across ${chunks.length} file(s)`
   );
-}
-
-function chunkBySize(rules, maxBytes) {
-  const chunks = [];
-  let current = [];
-  let currentSize = 2; // "[]"
-
-  for (const rule of rules) {
-    // +1 for the separating comma; close enough without re-stringifying the
-    // whole running array on every push.
-    const size = JSON.stringify(rule).length + 1;
-    if (current.length > 0 && currentSize + size > maxBytes) {
-      chunks.push(current);
-      current = [];
-      currentSize = 2;
-    }
-    current.push(rule);
-    currentSize += size;
-  }
-  if (current.length > 0) chunks.push(current);
-  return chunks.length > 0 ? chunks : [[]];
 }
 
 // Our own rule, not sourced from AdGuard: attach the Global Privacy Control

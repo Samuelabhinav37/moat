@@ -4,6 +4,7 @@
 // viewer, or a race on a very slow frame).
 import browser from "webextension-polyfill";
 import { recordBlock } from "./badge";
+import { matchesKnownRedirectDomain, safeHostname } from "./redirectDomainMatch";
 
 let redirectDomains: Set<string> | null = null;
 
@@ -13,22 +14,6 @@ async function loadRedirectDomains(): Promise<Set<string>> {
   const list = (await (await fetch(url)).json()) as string[];
   redirectDomains = new Set(list);
   return redirectDomains;
-}
-
-function matchesKnownRedirectDomain(hostname: string, domains: Set<string>): boolean {
-  const labels = hostname.split(".");
-  for (let i = 0; i < labels.length - 1; i += 1) {
-    if (domains.has(labels.slice(i).join("."))) return true;
-  }
-  return false;
-}
-
-function safeHostname(url: string): string | null {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return null;
-  }
 }
 
 async function closeSilently(tabId: number, openerTabId: number | undefined): Promise<void> {

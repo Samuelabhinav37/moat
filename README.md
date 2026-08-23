@@ -48,13 +48,19 @@ page), `content/` (the two content scripts — `mainWorldGuard.ts` for the
 page-context guard, `bridge.ts` for the isolated-world relay to extension
 storage/messaging), `popup/` and `options/` (UI), `types.ts` (shared
 message/settings shapes), and `scripts/manifest.ts` (builds `manifest.json`
-per browser target).
+per browser target). The heuristics with the most test coverage each live in
+their own side-effect-free module so they're importable without a browser
+environment: `content/isPlausibleTrigger.ts` (the popup-firewall trigger
+check) and `background/redirectDomainMatch.ts` (the tab safety net's domain
+matcher) — both are thin wrappers imported by the files that actually
+register listeners.
 
 ## Setup
 
 ```
 npm install
 npm run filters:update   # pulls the AdGuard DNR rulesets into rules/dnr/
+npm run validate:rules   # sanity-checks them (schema, duplicate ids)
 npm run build             # builds dist/chrome and dist/firefox
 ```
 
@@ -64,6 +70,13 @@ Re-run `npm run filters:update` periodically to pick up newer filter rules
 `npm run dev:chrome` / `npm run dev:firefox` rebuild on file changes
 (static assets — icons, rulesets, manifest — are only copied once at
 startup of the watch, so re-run the plain build if those change).
+
+`npm run test` runs the unit test suite (Vitest) — mainly the pure logic
+behind the popup-firewall heuristic, the redirect-domain matcher, the
+filter-chunking used to stay under Firefox's file-size lint limit, and the
+Chrome/Firefox privacy-API branching. `npm run typecheck` runs `tsc --noEmit`.
+`.github/workflows/ci.yml` runs all of the above plus a full build and the
+Firefox lint on every push.
 
 `npm run zip` produces `chrome.zip` and `firefox.zip` for store upload.
 
