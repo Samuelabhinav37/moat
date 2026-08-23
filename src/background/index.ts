@@ -1,5 +1,5 @@
 import browser, { type Runtime } from "webextension-polyfill";
-import { getCount, recordBlock, resetCount, forgetTab } from "./badge";
+import { combinedBreakdown, combinedTotal, forgetTab, recordDynamicCatch, refreshStaticBreakdown, resetForNavigation } from "./blockStats";
 import {
   addCustomCosmeticRule,
   getEffectiveSettings,
@@ -26,7 +26,15 @@ browser.storage.onChanged.addListener((_changes, area) => {
 browser.tabs.onRemoved.addListener((tabId) => forgetTab(tabId));
 
 browser.webNavigation.onCommitted.addListener((details) => {
-  if (details.frameId === 0) resetCount(details.tabId);
+  if (details.frameId === 0) resetForNavigation(details.tabId);
+});
+
+// Static ads/trackers/popups counts come from declarativeNetRequest's own
+// match feedback, which is only meaningful once the page has actually
+// finished loading and made its requests -- hence onCompleted, not
+// onCommitted (which only clears the stale numbers from the previous page).
+browser.webNavigation.onCompleted.addListener((details) => {
+  if (details.frameId === 0) void refreshStaticBreakdown(details.tabId);
 });
 
 function hostnameOf(url: string | undefined): string {
@@ -43,7 +51,7 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
 
   switch (message.type) {
     case "blocked": {
-      if (sender.tab?.id !== undefined) void recordBlock(sender.tab.id);
+      if (sender.tab?.id !== undefined) void recordDynamicCatch(sender.tab.id);
       return undefined;
     }
 
@@ -58,7 +66,8 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
           hostname,
           siteDisabled: hostname ? await isSiteDisabled(hostname) : false,
           enabled: settings.enabled,
-          blockedOnTab: tab?.id !== undefined ? getCount(tab.id) : 0,
+          blockedOnTab: tab?.id !== undefined ? combinedTotal(tab.id) : 0,
+          breakdown: tab?.id !== undefined ? combinedBreakdown(tab.id) : { ads: 0, trackers: 0, popups: 0 },
         };
       })();
     }

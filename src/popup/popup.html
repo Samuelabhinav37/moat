@@ -55,6 +55,59 @@
         margin-bottom: 12px;
       }
 
+      .breakdown {
+        display: flex;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 14px;
+        overflow: hidden;
+      }
+      .breakdown .seg {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 10px 4px;
+        text-align: center;
+      }
+      .breakdown .seg + .seg {
+        border-left: 1px solid var(--border);
+      }
+      .breakdown .n {
+        font: 15px/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-weight: 600;
+      }
+      .breakdown .l {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 9.5px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .breakdown .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        flex: none;
+      }
+      .breakdown .dot.ads {
+        background: var(--accent);
+      }
+      .breakdown .dot.trackers {
+        background: #3d7f68;
+      }
+      .breakdown .dot.popups {
+        background: var(--danger);
+      }
+
+      .host {
+        font-size: 12.5px;
+        font-weight: 500;
+      }
       .site-state {
         display: flex;
         align-items: center;
@@ -96,9 +149,17 @@
       <div class="mark">Moat</div>
     </div>
 
-    <div class="stat-hero" id="stat-hero">
-      <div class="n" id="count">0</div>
-      <div class="l">Blocked on this page</div>
+    <div id="stats" hidden>
+      <div class="stat-hero">
+        <div class="n" id="count">0</div>
+        <div class="l">Blocked on this page</div>
+      </div>
+
+      <div class="breakdown">
+        <div class="seg"><span class="n" id="count-ads">0</span><span class="l"><i class="dot ads"></i>Ads</span></div>
+        <div class="seg"><span class="n" id="count-trackers">0</span><span class="l"><i class="dot trackers"></i>Trackers</span></div>
+        <div class="seg"><span class="n" id="count-popups">0</span><span class="l"><i class="dot popups"></i>Popups</span></div>
+      </div>
     </div>
 
     <div class="paused-banner" id="paused-banner" hidden>
@@ -108,7 +169,7 @@
     <div class="card" id="site-card">
       <div class="row">
         <div>
-          <div>Protection on <span id="hostname" class="muted"></span></div>
+          <div class="host" id="hostname"></div>
           <div class="site-state" id="site-state"><i></i><span id="site-state-text">protected</span></div>
         </div>
         <label class="switch">

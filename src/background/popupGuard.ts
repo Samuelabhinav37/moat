@@ -3,7 +3,7 @@
 // the popup was opened somewhere our content script never ran (e.g. a PDF
 // viewer, or a race on a very slow frame).
 import browser from "webextension-polyfill";
-import { recordBlock } from "./badge";
+import { recordDynamicCatch } from "./blockStats";
 import { matchesKnownRedirectDomain, safeHostname } from "./redirectDomainMatch";
 
 let redirectDomains: Set<string> | null = null;
@@ -28,7 +28,7 @@ async function closeSilently(tabId: number, openerTabId: number | undefined): Pr
   } catch {
     // Already closed by the time we got here -- nothing to do.
   }
-  if (openerTabId !== undefined) await recordBlock(openerTabId);
+  if (openerTabId !== undefined) await recordDynamicCatch(openerTabId);
 }
 
 interface PendingWatch {

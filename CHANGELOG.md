@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.5.0
+
+### Added
+- **Real ads/trackers/popups breakdown in the popup.** Backed by declarativeNetRequest's own
+  match-feedback API (`getMatchedRules`, gated behind the new `declarativeNetRequestFeedback`
+  permission), refreshed once per page load and mapped from the 11 bundled filter-list groups
+  to three buckets. Counts start at zero on a fresh page and fill in as the page's requests are
+  actually matched -- nothing here is estimated. Chrome-only: Firefox hasn't implemented
+  `getMatchedRules` yet, so the breakdown stays at zero there (`web-ext lint` flags this as an
+  expected, benign `UNSUPPORTED_API` warning); the existing popup/redirect firewall count still
+  works on both browsers and folds into the "Popups" bucket.
+
+### Changed
+- **Transparent icon.** Dropped the solid background square from the logo mark -- toolbar icon,
+  store listing, and the options-page header now show just the mark. The source SVG lives at
+  `icons/logo.svg`.
+- **Popup site card** drops the "Protection on {site}" phrasing in favor of the hostname as the
+  primary line, with "protected"/"paused" underneath it next to the toggle.
+- **Options page visual pass**: cards now sit on a distinct background instead of just a border,
+  the tab switcher is a segmented control instead of underlined tabs, and section headers got a
+  consistent title treatment.
+
 ## 0.4.0
 
 ### Changed

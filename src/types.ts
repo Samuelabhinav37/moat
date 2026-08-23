@@ -67,6 +67,10 @@ export interface StatusResponse {
   siteDisabled: boolean;
   enabled: boolean;
   blockedOnTab: number;
+  /** Real counts from declarativeNetRequest's own match feedback (Chrome
+   * only -- see background/matchStats.ts) plus the popup/redirect firewall's
+   * real-time catches, folded into "popups". */
+  breakdown: { ads: number; trackers: number; popups: number };
 }
 
 export interface ToggleSiteMessage {

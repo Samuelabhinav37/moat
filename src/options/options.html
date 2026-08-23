@@ -7,14 +7,20 @@
     <style>
       body {
         max-width: 560px;
-        margin: 40px auto;
-        padding: 0 16px 40px;
+        margin: 48px auto;
+        padding: 0 20px 48px;
       }
       .card + .card {
-        margin-top: 16px;
+        margin-top: 14px;
+      }
+      .card-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        margin-bottom: 2px;
       }
       p.hint {
         margin: 4px 0 0;
+        line-height: 1.5;
       }
       .add-row {
         display: flex;
@@ -37,24 +43,28 @@
 
       .tabs {
         display: flex;
-        gap: 4px;
-        margin: 20px 0 16px;
-        border-bottom: 1px solid var(--border);
+        gap: 2px;
+        margin: 28px 0 20px;
+        padding: 3px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
       }
       .tab-button {
+        flex: 1;
         border: none;
-        border-radius: 0;
-        border-bottom: 2px solid transparent;
-        padding: 8px 10px;
+        border-radius: 7px;
+        padding: 7px 8px;
+        font-size: 13px;
         color: var(--muted);
       }
       .tab-button:hover {
-        border-color: transparent;
         color: var(--fg);
       }
       .tab-button[aria-selected="true"] {
+        background: var(--bg);
         color: var(--fg);
-        border-bottom-color: var(--accent);
+        font-weight: 600;
       }
       [data-tab-panel] {
         display: flex;
@@ -139,15 +149,18 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
       }
       .brand-row img {
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
+        width: 26px;
+        height: 26px;
         flex: none;
       }
       .brand-row h1 {
+        margin: 0;
+        font-size: 17px;
+      }
+      .tagline {
         margin: 0;
       }
     </style>
@@ -157,7 +170,7 @@
       <img src="icons/icon48.png" alt="" />
       <h1>Moat</h1>
     </div>
-    <p class="muted">Blocks ads, trackers, and hijacked new-tab popups. No nag screens, ever.</p>
+    <p class="muted tagline">Blocks ads, trackers, and hijacked new-tab popups. No nag screens, ever.</p>
 
     <nav class="tabs" role="tablist">
       <button class="tab-button" data-tab="protection" role="tab" aria-selected="true">Protection</button>
@@ -171,7 +184,7 @@
         <div class="row">
           <div>
             <div class="row" style="justify-content: flex-start; gap: 8px">
-              <span>Protection enabled</span>
+              <span class="card-title">Protection enabled</span>
               <span class="locked-badge" id="protection-locked-badge" hidden>Managed by your organization</span>
             </div>
             <p class="hint muted">Turn everything off, everywhere.</p>
@@ -220,7 +233,7 @@
       </div>
 
       <div class="card">
-        <div>Live redirect-domain list</div>
+        <div class="card-title">Live redirect-domain list</div>
         <p class="hint muted">
           Once a day, refreshes the known popup/redirect domain list from GitHub, on top of the
           bundled baseline — no extension update needed for that part.
@@ -229,7 +242,7 @@
       </div>
 
       <div class="card">
-        <div>Paused sites</div>
+        <div class="card-title">Paused sites</div>
         <p class="hint muted">Protection is off on these hostnames.</p>
         <ul class="site-list" id="site-list"></ul>
         <p class="empty-state" id="site-empty-state">No sites paused.</p>
@@ -243,7 +256,7 @@
     <section data-tab-panel="filters" hidden>
       <div class="card">
         <div class="row">
-          <div>Filtering level</div>
+          <div class="card-title">Filtering level</div>
           <span class="locked-badge" id="filters-locked-badge" hidden>Managed by your organization</span>
         </div>
         <div class="preset-row" id="preset-row">
@@ -256,7 +269,7 @@
       </div>
 
       <div class="card">
-        <div>Individual filter lists</div>
+        <div class="card-title">Individual filter lists</div>
         <p class="hint muted">Fine-tune what's on. Changing one switches the level above to "Custom".</p>
         <div id="filter-list-rows"></div>
       </div>
@@ -264,7 +277,7 @@
 
     <section data-tab-panel="custom" hidden>
       <div class="card">
-        <div>Blocked sites</div>
+        <div class="card-title">Blocked sites</div>
         <p class="hint muted">Always blocked, on top of the bundled filter lists.</p>
         <ul class="site-list" id="custom-block-list"></ul>
         <p class="empty-state" id="custom-block-empty">Nothing added.</p>
@@ -275,7 +288,7 @@
       </div>
 
       <div class="card">
-        <div>Allowed sites</div>
+        <div class="card-title">Allowed sites</div>
         <p class="hint muted">Never blocked, even if a filter list or a rule above would otherwise catch it.</p>
         <ul class="site-list" id="custom-allow-list"></ul>
         <p class="empty-state" id="custom-allow-empty">Nothing added.</p>
@@ -286,7 +299,7 @@
       </div>
 
       <div class="card">
-        <div>Hidden elements</div>
+        <div class="card-title">Hidden elements</div>
         <p class="hint muted">
           Picked with "Block an element…" in the toolbar popup. Removing one here also stops
           hiding it on future visits.

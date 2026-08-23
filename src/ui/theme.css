@@ -1,6 +1,7 @@
 :root {
   color-scheme: light dark;
   --bg: #1c1f21;
+  --card: #212528;
   --fg: #e7ebed;
   --muted: #9aa4a9;
   --accent: #5fb896;
@@ -107,9 +108,10 @@ a {
 }
 
 .card {
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 14px;
 }
 
 ul.site-list {

@@ -10,11 +10,14 @@ async function render(): Promise<void> {
   const status = await getStatus();
 
   document.getElementById("count")!.textContent = String(status.blockedOnTab);
+  document.getElementById("count-ads")!.textContent = String(status.breakdown.ads);
+  document.getElementById("count-trackers")!.textContent = String(status.breakdown.trackers);
+  document.getElementById("count-popups")!.textContent = String(status.breakdown.popups);
 
   const hostnameEl = document.getElementById("hostname")!;
   const siteCard = document.getElementById("site-card")!;
   const toggle = document.getElementById("site-toggle") as HTMLInputElement;
-  const statHero = document.getElementById("stat-hero")!;
+  const stats = document.getElementById("stats")!;
   const pausedBanner = document.getElementById("paused-banner")!;
   const pausedHostname = document.getElementById("paused-hostname")!;
   const siteState = document.getElementById("site-state")!;
@@ -23,6 +26,7 @@ async function render(): Promise<void> {
 
   if (!status.hostname) {
     siteCard.style.display = "none";
+    stats.hidden = false;
     return;
   }
 
@@ -32,7 +36,7 @@ async function render(): Promise<void> {
   toggle.disabled = !status.enabled;
 
   function setPaused(paused: boolean): void {
-    statHero.hidden = paused;
+    stats.hidden = paused;
     pausedBanner.hidden = !paused;
     reloadButton.hidden = !paused;
     siteState.classList.toggle("paused", paused);
