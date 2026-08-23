@@ -31,6 +31,7 @@ const ENTRIES = [
   ["background", "src/background/index.ts"],
   ["main-world-guard", "src/content/mainWorldGuard.ts"],
   ["bridge", "src/content/bridge.ts"],
+  ["cosmetic-filter", "src/content/cosmeticFilter.ts"],
   ["popup", "src/popup/popup.ts"],
   ["options", "src/options/options.ts"],
 ];
@@ -78,7 +79,10 @@ function copyStaticAssets() {
   mkdirSync(resolve(outDir, "icons"), { recursive: true });
 
   const rulesetFiles = JSON.parse(readFileSync(resolve(rulesDir, "manifest.json"), "utf8")).map((r) => r.file);
-  for (const file of [...rulesetFiles, "redirect-domains.json"]) {
+  const cosmeticsManifest = JSON.parse(readFileSync(resolve(rulesDir, "cosmetics-manifest.json"), "utf8"));
+  const cosmeticsFiles = ["cosmetics-manifest.json", cosmeticsManifest.meta, ...cosmeticsManifest.domainShards];
+
+  for (const file of [...rulesetFiles, "redirect-domains.json", ...cosmeticsFiles]) {
     cpSync(resolve(rulesDir, file), resolve(outDir, "rules", file));
   }
 

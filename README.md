@@ -42,18 +42,35 @@ things quietly and shows a badge count.
   via the `privacy` API (`src/background/privacySettings.ts`). Chrome and
   Firefox expose third-party cookie blocking under genuinely different
   shapes; that file feature-detects and handles both.
+- **Cosmetic filtering** — hides the leftover empty ad boxes and cookie
+  banners `declarativeNetRequest` can't touch (it's network-only). A
+  build-time script (`scripts/update-cosmetics.mjs`) downloads the raw
+  filter-list text, parses standard `##selector`/`#@#`-exception cosmetic
+  rules (skipping AdGuard/uBO scriptlets and CSS-injection/extended-selector
+  syntax that need a JS engine, not a `<style>` tag — see the comment atop
+  `scripts/lib/parseCosmeticRules.mjs`), and validates every surviving
+  selector against jsdom so nothing invalid ships. A content script
+  (`src/content/cosmeticFilter.ts`, top frame only) injects the selectors
+  that apply to the current hostname as one `<style>` block at
+  `document_start` — CSS rules, not a one-time DOM pass, so they keep
+  hiding elements a site adds later (SPA navigation, lazy-loaded slots)
+  without a MutationObserver.
 
 See `src/` for the source layout: `background/` (service worker / event
-page), `content/` (the two content scripts — `mainWorldGuard.ts` for the
-page-context guard, `bridge.ts` for the isolated-world relay to extension
-storage/messaging), `popup/` and `options/` (UI), `types.ts` (shared
-message/settings shapes), and `scripts/manifest.ts` (builds `manifest.json`
-per browser target). The heuristics with the most test coverage each live in
-their own side-effect-free module so they're importable without a browser
+page), `content/` (the three content scripts — `mainWorldGuard.ts` for the
+page-context popup guard, `bridge.ts` for the isolated-world relay to
+extension storage/messaging, `cosmeticFilter.ts` for element hiding),
+`popup/` and `options/` (UI), `shared/domainChain.ts` (the "is this hostname
+this domain or a subdomain of it" check used by both the popup safety net
+and cosmetic filtering), `types.ts` (shared message/settings shapes), and
+`scripts/manifest.ts` (builds `manifest.json` per browser target). The
+heuristics with the most test coverage each live in their own
+side-effect-free module so they're importable without a browser
 environment: `content/isPlausibleTrigger.ts` (the popup-firewall trigger
-check) and `background/redirectDomainMatch.ts` (the tab safety net's domain
-matcher) — both are thin wrappers imported by the files that actually
-register listeners.
+check), `background/redirectDomainMatch.ts` (the tab safety net's domain
+matcher), and `content/cosmeticSelectors.ts` (which selectors apply to a
+given hostname) — all thin wrappers imported by the files that actually
+register listeners or touch the DOM.
 
 ## Setup
 
@@ -65,7 +82,11 @@ npm run build             # builds dist/chrome and dist/firefox
 ```
 
 Re-run `npm run filters:update` periodically to pick up newer filter rules
-(the underlying package publishes new rulesets frequently).
+(the underlying package publishes new rulesets frequently). It runs two
+steps: `update-filters.mjs` copies the prebuilt DNR rulesets out of
+`node_modules` (no network needed), then `update-cosmetics.mjs` downloads
+the raw filter-list text from AdGuard's CDN to extract cosmetic rules from
+(this one does need network access, including in CI).
 
 `npm run dev:chrome` / `npm run dev:firefox` rebuild on file changes
 (static assets — icons, rulesets, manifest — are only copied once at
@@ -128,10 +149,11 @@ data isn't original to this project.
 
 From a pass on what a more complete privacy tool would also do:
 
-- **Cosmetic filtering / element hiding** — `declarativeNetRequest` is
-  network-only; hiding leftover empty ad boxes or auto-handling cookie
-  banners needs parsing `##selector` rules and injecting scoped CSS
-  per-site. Real work, not yet done.
+- **Cookie-banner auto-rejection** — cosmetic filtering hides banners that
+  match a plain selector, but AdGuard's Cookie Notices list mostly handles
+  *auto-clicking* "reject" for you via scriptlets, which we deliberately
+  don't execute (see above). So banners without a matching hide-selector
+  will still show up, just not auto-dismiss.
 - **Fingerprinting resistance** (canvas/AudioContext/font-enumeration
   noise) — valuable as sites lean on fingerprinting once cookies/domains
   are blocked, but it's the one category that can silently break real

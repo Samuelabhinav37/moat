@@ -10,7 +10,7 @@
     "build:chrome": "node scripts/build.mjs chrome",
     "build:firefox": "node scripts/build.mjs firefox",
     "build": "npm run build:chrome && npm run build:firefox",
-    "filters:update": "node scripts/update-filters.mjs",
+    "filters:update": "node scripts/update-filters.mjs && node scripts/update-cosmetics.mjs",
     "validate:rules": "node scripts/validate-rules.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

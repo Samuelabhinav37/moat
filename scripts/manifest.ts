@@ -64,6 +64,14 @@ function baseManifest() {
         run_at: "document_start",
         all_frames: true,
       },
+      {
+        // Top frame only: cosmetic rules target the containers a blocked
+        // ad leaves behind in the page that hosts it, not the (usually
+        // blocked-before-it-loads) ad iframe's own cross-origin content.
+        matches: ["<all_urls>"],
+        js: ["cosmetic-filter.js"],
+        run_at: "document_start",
+      },
     ],
   };
 }

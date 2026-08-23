@@ -2,13 +2,8 @@
 // with access to extension APIs. Tells mainWorldGuard.ts whether this site
 // is paused, and relays its block reports back to the background worker.
 import browser from "webextension-polyfill";
-import { DEFAULT_SETTINGS, STORAGE_KEY, type BridgeMessage, type BlockedMessage, type Settings } from "../types";
-
-async function isDisabledHere(): Promise<boolean> {
-  const stored = await browser.storage.local.get(STORAGE_KEY);
-  const settings: Settings = { ...DEFAULT_SETTINGS, ...(stored[STORAGE_KEY] as Partial<Settings> | undefined) };
-  return !settings.enabled || settings.disabledSites.includes(location.hostname);
-}
+import { STORAGE_KEY, type BridgeMessage, type BlockedMessage } from "../types";
+import { isDisabledHere } from "./siteDisabled";
 
 async function sendConfig(): Promise<void> {
   const disabled = await isDisabledHere();

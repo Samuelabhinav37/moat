@@ -44,6 +44,35 @@ for (const entry of manifest) {
 
 console.log(`\n${manifest.length} rulesets, ${totalRules} total rules`);
 
+const cosmeticsManifest = JSON.parse(readFileSync(join(rulesDir, "cosmetics-manifest.json"), "utf8"));
+const meta = JSON.parse(readFileSync(join(rulesDir, cosmeticsManifest.meta), "utf8"));
+if (!Array.isArray(meta.generic)) {
+  console.error(`${cosmeticsManifest.meta}: "generic" must be an array`);
+  ok = false;
+}
+
+let domainCount = 0;
+let perDomainCount = 0;
+const seenDomains = new Set();
+for (const file of cosmeticsManifest.domainShards) {
+  const shard = JSON.parse(readFileSync(join(rulesDir, file), "utf8"));
+  for (const [domain, selectors] of Object.entries(shard)) {
+    if (seenDomains.has(domain)) {
+      console.error(`${file}: domain "${domain}" also appears in another shard`);
+      ok = false;
+    }
+    seenDomains.add(domain);
+    domainCount += 1;
+    perDomainCount += selectors.length;
+  }
+}
+
+const exceptionCount = Object.values(meta.exceptions ?? {}).reduce((sum, s) => sum + s.length, 0);
+console.log(
+  `cosmetics: ${meta.generic.length} generic, ${perDomainCount} domain-scoped selectors ` +
+    `across ${domainCount} domains (${cosmeticsManifest.domainShards.length} shard file(s)), ${exceptionCount} exceptions`
+);
+
 if (!ok) {
   console.error("\nValidation failed.");
   process.exit(1);
