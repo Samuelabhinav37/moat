@@ -45,6 +45,16 @@ export interface Settings {
    * so it stays a real toggle rather than being unconditional.
    */
   grayscaleUnblockableAds: boolean;
+  /**
+   * Continuously scans Instagram and YouTube feeds for the literal
+   * "Sponsored"/"Ad"/"Paid partnership" label as new posts render (infinite
+   * scroll), and hides the whole post -- catches sponsored content whose
+   * class names are randomized specifically to defeat fixed selectors. Off
+   * by default: a text-label match, not a fixed rule, so it carries a
+   * small false-positive risk a fixed selector doesn't -- opt in if you
+   * want feeds fully cleaned rather than just what static rules catch.
+   */
+  aggressiveFeedAdRemoval: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -60,6 +70,7 @@ export const DEFAULT_SETTINGS: Settings = {
   customCosmeticRules: {},
   customGrayscaleRules: {},
   grayscaleUnblockableAds: true,
+  aggressiveFeedAdRemoval: false,
 };
 
 export const STORAGE_KEY = "settings";

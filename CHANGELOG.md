@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.7.0
+
+### Added
+- **Aggressive feed ad removal** (Settings → Protection, off by default) -- a persistent scanner
+  for Instagram and YouTube that watches feeds as you scroll and removes any post/card labeled
+  "Sponsored," "Ad," or "Paid partnership" the instant it renders, instead of relying on a fixed
+  selector. This exists because infinite-scroll feeds render sponsored content with class names
+  that are often randomized per session specifically to defeat static filter-list rules -- a
+  MutationObserver-driven text-label match (`src/content/feedAdScanner.ts`,
+  `src/content/feedAdLabel.ts`) doesn't depend on any particular class name surviving. Off by
+  default since a label match, unlike a fixed selector, carries a small false-positive risk (the
+  match is an exact, trimmed, case-insensitive check against a whole text node, not a substring,
+  specifically to keep that risk low).
+
 ## 0.6.1
 
 ### Changed

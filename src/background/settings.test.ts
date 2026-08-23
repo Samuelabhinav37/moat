@@ -73,6 +73,7 @@ describe("getSettings", () => {
       customCosmeticRules: {},
       customGrayscaleRules: {},
       grayscaleUnblockableAds: true,
+      aggressiveFeedAdRemoval: false,
     });
   });
 

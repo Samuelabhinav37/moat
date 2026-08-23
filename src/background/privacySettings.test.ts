@@ -21,6 +21,7 @@ const baseSettings: Settings = {
   customCosmeticRules: {},
   customGrayscaleRules: {},
   grayscaleUnblockableAds: false,
+  aggressiveFeedAdRemoval: false,
 };
 
 function setPrivacy(privacy: unknown): void {

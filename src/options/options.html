@@ -287,6 +287,26 @@
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
+        <div class="toggle-row">
+          <div class="row-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5.5 6.5l5 5M10.5 6.5l-5 5"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Aggressively remove sponsored posts</div>
+            <p class="hint muted">
+              Instagram and YouTube render sponsored posts with class names that change per
+              session specifically to dodge fixed filter rules. This watches feeds as you scroll
+              and removes any post labeled "Sponsored," "Ad," or "Paid partnership" as it renders,
+              instead of relying on a fixed selector. Off by default: a label match, not a fixed
+              rule, so it carries a little more false-positive risk than everything else here — for
+              when you want feeds fully cleaned, not just what static rules catch.
+            </p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="feed-scan-toggle" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
       </div>
 
       <div class="card">

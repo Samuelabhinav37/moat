@@ -34,7 +34,7 @@ function baseManifest() {
     name: "Moat",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
-    version: "0.6.1",
+    version: "0.7.0",
     icons,
     action: {
       default_popup: "popup.html",
@@ -96,6 +96,14 @@ function baseManifest() {
         // immediately unless "Gray out unblockable video ads" is on.
         matches: ["*://www.youtube.com/*", "*://m.youtube.com/*"],
         js: ["youtube-ad-dimmer.js"],
+        run_at: "document_idle",
+      },
+      {
+        // Scoped to Instagram + YouTube -- see content/feedAdScanner.ts.
+        // No-ops immediately unless "Aggressively remove sponsored posts"
+        // is on (off by default).
+        matches: ["*://www.instagram.com/*", "*://www.youtube.com/*", "*://m.youtube.com/*"],
+        js: ["feed-ad-scanner.js"],
         run_at: "document_idle",
       },
     ],

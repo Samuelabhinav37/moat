@@ -35,6 +35,7 @@ const ENTRIES = [
   ["cosmetic-filter", "src/content/cosmeticFilter.ts"],
   ["element-picker", "src/content/elementPicker.ts"],
   ["youtube-ad-dimmer", "src/content/youtubeAdDimmer.ts"],
+  ["feed-ad-scanner", "src/content/feedAdScanner.ts"],
   ["popup", "src/popup/popup.ts"],
   ["options", "src/options/options.ts"],
 ];

@@ -15,6 +15,7 @@ const baseSettings: Settings = {
   customCosmeticRules: {},
   customGrayscaleRules: {},
   grayscaleUnblockableAds: false,
+  aggressiveFeedAdRemoval: false,
 };
 
 describe("presetPatch", () => {
