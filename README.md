@@ -1,9 +1,52 @@
-# Moat
+<p align="center">
+  <img src="icons/logo-banner.svg" width="64" height="64" alt="">
+</p>
 
-An ad blocker for Chrome and Firefox that also acts as a firewall against
-popup/redirect ads that spawn new tabs without you asking for them. It has no
-nag screens, no "rate us" prompts, and no onboarding tabs — it just blocks
-things quietly and shows a badge count.
+<h1 align="center">Moat</h1>
+<p align="center"><strong>A quiet ad blocker and popup/redirect firewall for Chrome and Firefox.</strong></p>
+
+<p align="center">
+  <a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml"><img src="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+  <img src="https://img.shields.io/badge/manifest-v3-5fb896" alt="Manifest V3">
+  <img src="https://img.shields.io/badge/browsers-chrome%20%7C%20firefox-5fb896" alt="Chrome and Firefox">
+</p>
+
+No nag screens, no "rate us" prompts, no onboarding tabs. It blocks things quietly and shows a
+badge count.
+
+## Contents
+
+- [Features](#features)
+- [How it works](#how-it-works)
+- [Setup](#setup)
+- [Loading it locally](#loading-it-locally)
+- [Enterprise deployment](#enterprise-deployment)
+- [Permissions](#permissions)
+- [Known limitations](#known-limitations)
+- [Licensing note](#licensing-note)
+- [Researched but not built yet](#researched-but-not-built-yet)
+
+## Features
+
+- **Network-level blocking** — ~273,000 rules across 11 AdGuard filter lists: ads, trackers,
+  known-malicious/phishing/scam domains, cookie notices, and other annoyances.
+- **Popup/redirect firewall** — silently drops hijacked new-tab popups and redirects, backed by a
+  background tab safety net.
+- **Cosmetic filtering** — hides the leftover ad containers and cookie banners that network-level
+  blocking can't reach.
+- **Real block-count breakdown** — the toolbar popup shows an Ads / Trackers / Popups split
+  sourced from the browser's own rule-match feedback, not estimated (Chrome only for now).
+- **Element picker** — "Block an element…" for anything the filter lists miss, hover-and-click to
+  hide it permanently or just for this page load.
+- **Per-site pause + master switch** — no nag UI anywhere.
+- **Opt-in privacy toggles** — fingerprint resistance, third-party cookie blocking, and WebRTC
+  leak protection, all off by default.
+- **Filtering levels** — Off / Essential / Standard / Strict presets, plus per-list control.
+- **Custom rules** — your own block and allow lists, on top of the bundled filter lists.
+- **Enterprise-managed policy** — push settings org-wide via Chrome's `ExtensionSettings` or
+  Firefox's `policies.json`.
+- **Global Privacy Control** — sent as a legally binding opt-out signal in a dozen US states.
+- One codebase, Chrome and Firefox builds.
 
 ## How it works
 
@@ -16,6 +59,13 @@ things quietly and shows a badge count.
   Annoyances for the trackers/nags those don't otherwise catch. ~273,000
   rules total, well under Chrome's static-rule budget. This all runs in the
   browser engine, not a JS handler (which MV3 no longer allows for blocking).
+- **Real block-count breakdown** — the toolbar popup's Ads/Trackers/Popups strip is sourced from
+  `declarativeNetRequest.getMatchedRules()` (the `declarativeNetRequestFeedback` permission),
+  refreshed once per page load and mapped from the 11 filter-list groups above to three buckets.
+  Real numbers, not estimates — they start at zero on a fresh page and fill in as the page's own
+  requests get matched. Chrome-only for now: Firefox hasn't implemented `getMatchedRules` yet, so
+  that slice stays at zero there while the popup/redirect firewall count below still works on both
+  browsers (see `src/background/matchStats.ts` and `src/shared/matchedRuleCategories.ts`).
 - **Global Privacy Control** — sends the `Sec-GPC: 1` header on every
   request (our own small rule, `ruleset_privacy-headers`) and exposes
   `navigator.globalPrivacyControl = true` in every page. As of 2026 this is
@@ -150,10 +200,11 @@ startup of the watch, so re-run the plain build if those change).
 
 `npm run test` runs the unit test suite (Vitest) — mainly the pure logic
 behind the popup-firewall heuristic, the redirect-domain matcher, the
-filter-chunking used to stay under Firefox's file-size lint limit, and the
-Chrome/Firefox privacy-API branching. `npm run typecheck` runs `tsc --noEmit`.
-`.github/workflows/ci.yml` runs all of the above plus a full build and the
-Firefox lint on every push.
+filter-chunking used to stay under Firefox's file-size lint limit, the
+Chrome/Firefox privacy-API branching, and the match-rule-to-category
+mapping behind the popup's block-count breakdown. `npm run typecheck` runs
+`tsc --noEmit`. `.github/workflows/ci.yml` runs all of the above plus a
+full build and the Firefox lint on every push.
 
 `npm run zip` produces `chrome.zip` and `firefox.zip` for store upload.
 
@@ -202,6 +253,19 @@ this against the documented policy mechanism but haven't verified it against
 a real managed browser profile — worth a manual check (`chrome://policy`
 shows whether Chrome picked up the value) before relying on it in production.
 
+## Permissions
+
+| Permission | Why |
+| --- | --- |
+| `<all_urls>` (host permission) | So the content-script firewall runs on every page and `declarativeNetRequest` can act on every request. |
+| `tabs` | To read the URL/opener of newly created tabs for the popup safety net, and to show the right badge count per tab. |
+| `webNavigation` | To detect when a page spawns a new tab/window, and when a page finishes loading (to refresh the block-count breakdown). |
+| `declarativeNetRequest` | The core network-blocking engine. |
+| `declarativeNetRequestFeedback` | Read-only match feedback for the popup's Ads/Trackers/Popups breakdown (`getMatchedRules`) — Chrome only, see "How it works" above. |
+| `storage` | The paused-sites list and switches, stored locally only. Nothing is sent anywhere. |
+| `privacy` | Only used by the two opt-in toggles above; unused (and invisible to the user) unless one is turned on. |
+| `alarms` | Schedules the once-a-day live redirect-domain-list refresh. |
+
 ## Known limitations
 
 - **~990 filter rules dropped.** A small slice of AdGuard's rules neutralize
@@ -209,13 +273,18 @@ shows whether Chrome picked up the value) before relying on it in production.
   (`$redirect` rules). We don't ship those resource files yet, so
   `scripts/update-filters.mjs` drops that slice rather than ship a broken
   redirect. Everything else (the vast majority — 273,000+ rules) is intact.
+- **The block-count breakdown is Chrome-only.** Firefox hasn't implemented
+  `declarativeNetRequest.getMatchedRules()` yet, so the Ads/Trackers/Popups
+  strip stays at zero there. The popup/redirect firewall count (the
+  "Popups" bucket's other half) still works on both browsers.
 - **`web-ext lint` warnings on the Firefox build are expected and benign:**
   one is a Firefox-for-Android version nuance from bumping
-  `strict_min_version` to 140 for `data_collection_permissions` support; the
-  other (`COINMINER_USAGE_DETECTED`) is the linter's naive keyword scanner
+  `strict_min_version` to 140 for `data_collection_permissions` support; one
+  (`COINMINER_USAGE_DETECTED`) is the linter's naive keyword scanner
   tripping over a cryptominer *domain name* inside the AdGuard Base filter's
-  own block rules — the file is static JSON blocking that domain, not code
-  that runs it.
+  own block rules (the file is static JSON blocking that domain, not code
+  that runs it); and one (`UNSUPPORTED_API`) is exactly the
+  `getMatchedRules` gap noted above.
 
 ## Licensing note
 
@@ -223,19 +292,6 @@ The bundled filter lists are distributed under GPL-3.0 by AdGuard/EasyList
 contributors. If you publish this extension, keep the attribution above and
 check current license terms before distributing `rules/dnr/*.json` — that
 data isn't original to this project.
-
-## Permissions
-
-- `<all_urls>` host permission — needed so the content-script firewall runs
-  on every page and `declarativeNetRequest` can act on every request.
-- `tabs` — to read the URL/opener of newly created tabs for the popup
-  safety net (and to show the right badge count per tab).
-- `webNavigation` — to detect when a page spawns a new tab/window.
-- `storage` — the paused-sites list and switches, stored locally only.
-  Nothing is sent anywhere.
-- `privacy` — only used by the two opt-in toggles above; unused (and
-  invisible to the user) unless they turn one on.
-- `alarms` — schedules the once-a-day live redirect-domain-list refresh.
 
 ## Researched but not built yet
 
