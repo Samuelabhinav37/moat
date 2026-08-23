@@ -42,9 +42,9 @@ badge count.
   full-color, since they play through the same player as real content and can't be blocked
   outright. On by default; best-effort by nature. YouTube's sidebar/in-feed "Sponsored" cards are
   hidden outright instead, since those are safe to remove without breaking layout.
-- **Aggressive feed ad removal** (opt-in) — a live scanner for Instagram and YouTube that removes
-  sponsored posts by their rendered "Sponsored"/"Ad"/"Paid partnership" label as they render,
-  since feeds randomize class names specifically to defeat fixed selectors.
+- **Aggressive feed ad removal** (opt-in) — a live scanner for Instagram, LinkedIn, and YouTube
+  that removes sponsored posts by their rendered "Sponsored"/"Ad"/"Promoted"/"Paid partnership"
+  label as they render, since feeds randomize class names specifically to defeat fixed selectors.
 - **Per-site pause + master switch** — no nag UI anywhere.
 - **Opt-in privacy toggles** — fingerprint resistance, third-party cookie blocking, and WebRTC
   leak protection, all off by default.
@@ -86,14 +86,18 @@ badge count.
   bundled ones weren't matching them live. The element picker's "Gray out" mode uses the dimming
   mechanism too (a saved selector list, `customGrayscaleRules` in Settings) for anything else
   hiding would break.
-- **Aggressive feed ad removal** — a fixed selector, static or picked, can't follow Instagram or
-  YouTube's infinite-scroll feeds, because both randomize the class names on sponsored posts
-  specifically to defeat exactly that kind of rule. `src/content/feedAdScanner.ts` (opt-in, off by
-  default) takes the same approach a human would instead: a `MutationObserver` watches the feed
-  for newly rendered posts, and `src/content/feedAdLabel.ts` checks each one for an isolated text
-  node that's an exact, case-insensitive match for "Sponsored," "Ad," or "Paid partnership" (not a
-  substring check, so a caption that mentions one of those words in a sentence won't trip it).
-  A match walks up to the nearest known "whole post" ancestor (`article` on Instagram,
+- **Aggressive feed ad removal** — a fixed selector, static or picked, can't follow Instagram,
+  LinkedIn, or YouTube's infinite-scroll feeds, because all three randomize the class names on
+  sponsored posts specifically to defeat exactly that kind of rule (confirmed live for Instagram's
+  atomic CSS classes; LinkedIn has documented the same move to hashed CSS modules).
+  `src/content/feedAdScanner.ts` (opt-in, off by default) takes the same approach a human would
+  instead: a `MutationObserver` watches the feed for newly rendered posts, and
+  `src/content/feedAdLabel.ts` checks each one for a text node that's an exact, case-insensitive
+  match for "Sponsored," "Ad," "Promoted," or "Paid partnership" -- per *segment*, splitting on the
+  separators feeds actually use between metadata (a post header often renders as one text node
+  reading "Sponsored · 2h", the same way an organic post's is "username · 2h"), not a substring
+  check, so a caption that mentions one of those words in a sentence won't trip it. A match walks
+  up to the nearest known "whole post" ancestor (`article` on Instagram, `[data-urn]` on LinkedIn,
   `ytd-rich-item-renderer` and friends on YouTube) and hides it. Off by default because a
   label match carries a little more false-positive risk than a fixed selector -- for people who
   want feeds fully cleaned rather than just what static rules catch.

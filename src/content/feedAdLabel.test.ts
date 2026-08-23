@@ -12,10 +12,20 @@ describe("isAdLabel", () => {
     expect(isAdLabel("sponsored")).toBe(true);
     expect(isAdLabel("AD")).toBe(true);
     expect(isAdLabel("Paid partnership")).toBe(true);
+    expect(isAdLabel("Promoted")).toBe(true);
   });
 
   it("tolerates surrounding whitespace", () => {
     expect(isAdLabel("  Sponsored  \n")).toBe(true);
+  });
+
+  it("matches a label sharing a text node with adjacent metadata", () => {
+    // Instagram renders a post header as one text node, e.g. "Sponsored ·
+    // 2h" for an ad the same way an organic post's is "username · 2h".
+    expect(isAdLabel("Sponsored · 2h")).toBe(true);
+    expect(isAdLabel("2h · Sponsored")).toBe(true);
+    expect(isAdLabel("Promoted | Acme Corp")).toBe(true);
+    expect(isAdLabel("Acme Corp - Promoted")).toBe(true);
   });
 
   it("does not match a label embedded in a longer sentence", () => {
@@ -23,9 +33,10 @@ describe("isAdLabel", () => {
     expect(isAdLabel("Ad-free experience")).toBe(false);
   });
 
-  it("does not match unrelated text", () => {
+  it("does not match unrelated text, including a segment that merely contains a hyphen", () => {
     expect(isAdLabel("2h ago")).toBe(false);
     expect(isAdLabel("")).toBe(false);
+    expect(isAdLabel("well-advised")).toBe(false);
   });
 });
 
@@ -49,6 +60,16 @@ describe("findAdContainer", () => {
     `;
     const label = document.getElementById("label")!;
     expect(findAdContainer(label)?.tagName.toLowerCase()).toBe("ytd-rich-item-renderer");
+  });
+
+  it("finds an enclosing LinkedIn post via data-urn", () => {
+    document.body.innerHTML = `
+      <div data-urn="urn:li:activity:123">
+        <span id="label">Promoted</span>
+      </div>
+    `;
+    const label = document.getElementById("label")!;
+    expect(findAdContainer(label)?.getAttribute("data-urn")).toBe("urn:li:activity:123");
   });
 
   it("returns null when no known container ancestor exists", () => {

@@ -294,12 +294,13 @@
           <div>
             <div class="card-title">Aggressively remove sponsored posts</div>
             <p class="hint muted">
-              Instagram and YouTube render sponsored posts with class names that change per
-              session specifically to dodge fixed filter rules. This watches feeds as you scroll
-              and removes any post labeled "Sponsored," "Ad," or "Paid partnership" as it renders,
-              instead of relying on a fixed selector. Off by default: a label match, not a fixed
-              rule, so it carries a little more false-positive risk than everything else here — for
-              when you want feeds fully cleaned, not just what static rules catch.
+              Instagram, LinkedIn, and YouTube render sponsored posts with class names that change
+              per session specifically to dodge fixed filter rules. This watches feeds as you
+              scroll and removes any post labeled "Sponsored," "Ad," "Promoted," or "Paid
+              partnership" as it renders, instead of relying on a fixed selector. Off by default: a
+              label match, not a fixed rule, so it carries a little more false-positive risk than
+              everything else here — for when you want feeds fully cleaned, not just what static
+              rules catch.
             </p>
           </div>
           <label class="switch">

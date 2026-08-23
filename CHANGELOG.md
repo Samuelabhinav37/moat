@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.7.1
+
+### Fixed
+- **LinkedIn was never actually in scope for the feed scanner** -- the content script's `matches`
+  only covered Instagram and YouTube, so it silently did nothing there. Added
+  `*://www.linkedin.com/*`, plus `"promoted"` (LinkedIn's actual label) to the recognized set, and
+  `[data-urn]`/`.feed-shared-update-v2` as LinkedIn container selectors (`[data-urn]` is the more
+  reliable of the two -- LinkedIn has migrated most of its class names to hashed CSS modules, the
+  same pattern that already defeats fixed selectors on Instagram).
+- **The exact-text match was too strict for Instagram specifically.** Feeds render the label
+  sharing one text node with adjacent metadata -- e.g. a post header renders as one node reading
+  "Sponsored · 2h", the same way an organic post's is "username · 2h". `isAdLabel` now splits on
+  the separators these sites actually use (`•`, `·`, `|`, " - ") and checks each segment on its
+  own, still an exact match per segment -- so this closes the gap without turning into a
+  substring test that could start matching prose.
+
 ## 0.7.0
 
 ### Added
