@@ -34,7 +34,7 @@ function baseManifest() {
     name: "Moat",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
-    version: "0.7.8",
+    version: "0.8.0",
     icons,
     action: {
       default_popup: "popup.html",
@@ -120,6 +120,14 @@ function baseManifest() {
           "*://m.youtube.com/*",
         ],
         js: ["feed-ad-scanner.js"],
+        run_at: "document_idle",
+      },
+      {
+        // Top frame only, same reasoning as cosmetic-filter.js. No-ops
+        // immediately unless "Auto-reject cookie banners" is on (off by
+        // default) -- see content/consentRejector.ts.
+        matches: ["<all_urls>"],
+        js: ["consent-rejector.js"],
         run_at: "document_idle",
       },
     ],

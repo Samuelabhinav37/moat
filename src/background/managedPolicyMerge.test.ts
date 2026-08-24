@@ -16,6 +16,7 @@ const baseSettings: Settings = {
   customGrayscaleRules: {},
   grayscaleUnblockableAds: false,
   aggressiveFeedAdRemoval: false,
+  cookieBannerAutoReject: false,
 };
 
 describe("applyManagedOverrides", () => {

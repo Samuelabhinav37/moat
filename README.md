@@ -47,6 +47,9 @@ badge count.
 - **Aggressive feed ad removal** (opt-in) — a live scanner for Instagram, LinkedIn, and YouTube
   that removes sponsored posts by their rendered "Sponsored"/"Ad"/"Promoted"/"Paid partnership"
   label as they render, since feeds randomize class names specifically to defeat fixed selectors.
+- **Auto-reject cookie banners** (opt-in) — clicks through to "reject"/"decline" on the major
+  consent platforms (OneTrust, Cookiebot, Didomi, and others) using a small interpreter for a
+  declarative rule format, never arbitrary injected JS.
 - **Per-site pause + master switch** — no nag UI anywhere.
 - **Opt-in privacy toggles** — fingerprint resistance, third-party cookie blocking, and WebRTC
   leak protection, all off by default.
@@ -155,6 +158,31 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   `ytd-rich-item-renderer` and friends on YouTube) and hides it. Off by default because a
   label match carries a little more false-positive risk than a fixed selector -- for people who
   want feeds fully cleaned rather than just what static rules catch.
+- **Auto-reject cookie banners** -- cosmetic filtering already hides banners that match a plain
+  selector, but AdGuard's own Cookie Notices list mostly handles the "click reject for me" half
+  via scriptlets: arbitrary injected JS Moat deliberately never executes (see "Popup/redirect
+  firewall" above and the licensing note below for why that boundary matters). `src/content/
+  consent/` is a from-scratch interpreter for [Consent-O-Matic](https://github.com/cavi-au/Consent-O-Matic)'s
+  declarative rule format instead -- inert JSON describing which selector to click, never code to
+  run, the same trust boundary as Moat's own cosmetic selectors. Every consent category defaults
+  to reject (`consent/types.ts`'s `REJECT_ALL`), Consent-O-Matic's own out-of-the-box default too,
+  not a stricter policy invented here. Ported by hand from their MIT-licensed source (`Tools.js`,
+  `Matcher.js`, `Action.js`, `CMP.js`, `ConsentEngine.js`) rather than guessed from the schema
+  alone -- two real schema-vs-implementation mismatches were caught doing that (a documented
+  `styleFilter` field the actual code never reads, and `DOMSelection`'s nominally-recursive
+  `{parent,target}` shape only ever being resolved one level deep in practice) and matched to
+  what the shipped extension actually does, not what its schema aspirationally describes. Verified
+  end-to-end in tests against the real, currently-vendored Cookiebot and OneTrust rules -- not
+  just unit tests of the interpreter in isolation -- confirming the default-reject path clicks
+  only "Decline"/unchecks pre-checked categories, never "Accept" (see `src/content/consent/
+  engine.test.ts`). Deliberately narrower than upstream in a few places, each explained in that
+  directory's file headers: no drag-simulated consent sliders, `close` is a safe no-op rather than
+  `window.close()` (this only ever runs in the page's own tab, not a popup window), and no
+  progress-dialog/PIP visual chrome, since Moat has nowhere it would show. Opt-in, off by default
+  -- it's still clicking things on your behalf, closer in kind to the aggressive feed scanner
+  above than to plain cosmetic hiding. Covers a few dozen of the most widely-reused consent
+  platforms (`rules/dnr/consent-rules.json`, vendored by `scripts/vendor-consent-rules.mjs`), not
+  Consent-O-Matic's separate 200+ per-site bespoke rule catalog.
 - **Global Privacy Control** — sends the `Sec-GPC: 1` header on every
   request (our own small rule, `ruleset_privacy-headers`) and exposes
   `navigator.globalPrivacyControl = true` in every page. As of 2026 this is
@@ -433,6 +461,13 @@ licensed [CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) �
 for non-commercial use, which Moat is. If that ever changes, this needs revisiting
 before shipping a build that still includes `rules/dnr/rule-companies.json`.
 
+The cookie-banner rule data behind "Auto-reject cookie banners" is vendored from
+[Consent-O-Matic](https://github.com/cavi-au/Consent-O-Matic) (Aarhus University CAVI),
+MIT-licensed. Moat's interpreter for that rule format (`src/content/consent/`) is
+written from scratch against their published schema and source, not copied — see that
+directory's own file headers for exactly what's ported faithfully and what's
+deliberately different.
+
 ## Researched but not built yet
 
 From a pass on what a more complete privacy tool would also do:
@@ -449,15 +484,19 @@ From a pass on what a more complete privacy tool would also do:
   explicit decision to take that step; documented here so the next pass doesn't rediscover this
   from scratch by trying the container-hide approach again and wondering why the viewer goes
   blank.
-- **Cookie-banner auto-rejection** — cosmetic filtering hides banners that
-  match a plain selector, but AdGuard's Cookie Notices list mostly handles
-  *auto-clicking* "reject" for you via scriptlets, which we deliberately
-  don't execute (see above). So banners without a matching hide-selector
-  will still show up, just not auto-dismiss.
 - **Font-enumeration fingerprinting** isn't covered by the fingerprint-
   resistance toggle — canvas, audio, WebGL, and the two navigator hints are.
-  Spoofing the installed-fonts list needs a different technique (font
-  substitution or measurement-based noise) not implemented here.
+  This one's a real architectural gap, not just an unimplemented feature:
+  Brave's approach (exposing only a randomized subset of user-installed
+  fonts) works because Brave patches font enumeration in the browser
+  engine's own C++ layer, something no extension can do. The actual
+  detection vector fingerprinters use — render invisible text in a
+  candidate font, compare its measured width against a fallback via
+  `offsetWidth`/`getBoundingClientRect` — has no dedicated, interceptable
+  JS API the way canvas/audio reads do; those are generic layout properties
+  every page's ordinary code depends on, so noising them broadly risks real
+  site breakage in a way nothing else Moat's fingerprint guard touches
+  does. Not implemented for that reason, not because nobody looked.
 - **CNAME-cloaked trackers** — first-party-disguised trackers can't be
   reliably caught without DNS resolution access, which Chrome doesn't
   expose to extensions. Not solvable here.

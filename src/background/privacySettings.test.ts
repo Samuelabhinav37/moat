@@ -22,6 +22,7 @@ const baseSettings: Settings = {
   customGrayscaleRules: {},
   grayscaleUnblockableAds: false,
   aggressiveFeedAdRemoval: false,
+  cookieBannerAutoReject: false,
 };
 
 function setPrivacy(privacy: unknown): void {

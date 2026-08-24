@@ -74,6 +74,7 @@ describe("getSettings", () => {
       customGrayscaleRules: {},
       grayscaleUnblockableAds: true,
       aggressiveFeedAdRemoval: false,
+      cookieBannerAutoReject: false,
     });
   });
 

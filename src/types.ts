@@ -55,6 +55,16 @@ export interface Settings {
    * want feeds fully cleaned rather than just what static rules catch.
    */
   aggressiveFeedAdRemoval: boolean;
+  /**
+   * Auto-clicks the "reject"/"decline" path on cookie-consent banners
+   * using a small interpreter for Consent-O-Matic's declarative rule
+   * format (inert JSON describing which selector to click, never
+   * arbitrary injected JS) -- see content/consentRejector.ts. Off by
+   * default: it's still clicking things on a page on your behalf, closer
+   * in kind to the aggressive feed scanner above than to plain cosmetic
+   * hiding.
+   */
+  cookieBannerAutoReject: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -71,6 +81,7 @@ export const DEFAULT_SETTINGS: Settings = {
   customGrayscaleRules: {},
   grayscaleUnblockableAds: true,
   aggressiveFeedAdRemoval: false,
+  cookieBannerAutoReject: false,
 };
 
 export const STORAGE_KEY = "settings";

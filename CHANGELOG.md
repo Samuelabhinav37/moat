@@ -3,6 +3,54 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.8.0
+
+### Added
+- **Auto-reject cookie banners** (Settings → Protection, off by default). Cosmetic filtering
+  already hides banners that match a plain selector, but the "click reject for me" half was a
+  known gap -- AdGuard's own Cookie Notices list mostly handles that via scriptlets, arbitrary
+  injected JS Moat deliberately never executes. `src/content/consent/` is a from-scratch
+  interpreter for [Consent-O-Matic](https://github.com/cavi-au/Consent-O-Matic)'s declarative
+  rule format (MIT-licensed) instead: inert JSON describing which selector to click, the same
+  trust boundary as Moat's own cosmetic selectors, not a scriptlet engine. Ported by hand from
+  their actual source (`Tools.js`/`Matcher.js`/`Action.js`/`CMP.js`/`ConsentEngine.js`), not
+  guessed from the schema alone -- caught two real schema-vs-implementation mismatches doing
+  that (a `styleFilter` field the shipped code never actually reads; `DOMSelection`'s nominally
+  recursive shape only ever resolved one level deep in practice) and matched what the extension
+  actually does today.
+- Supports the full action/matcher vocabulary needed for correct default-reject behavior,
+  including the checkbox/consent-matrix system (IAB-style category codes) most major CMPs
+  require to reach a real "reject all" rather than just clicking whatever's labeled "Decline" --
+  every category defaults to reject (`consent/types.ts`'s `REJECT_ALL`), Consent-O-Matic's own
+  out-of-the-box default too, not a stricter policy invented here. Vendors a few dozen of the
+  most widely-reused consent platforms (OneTrust, Cookiebot, Didomi, Quantcast, TrustArc,
+  Sourcepoint, and others -- `rules/dnr/consent-rules.json`, `scripts/vendor-consent-rules.mjs`),
+  not Consent-O-Matic's separate 200+ per-site bespoke rule catalog.
+- Deliberately narrower than upstream in a few places, each with its reasoning in
+  `src/content/consent/`'s file headers: no drag-simulated consent sliders; `close` is a safe
+  no-op rather than `window.close()` (this only ever runs in the page's own tab, where closing
+  the window would close the user's actual browser tab); no progress-dialog/PIP visual chrome,
+  since Moat has nowhere it would show; `CheckboxMatcher`/`OnOffMatcher` fail safe (report "not
+  enabled") rather than throw when their target can't be resolved, so one missing element on a
+  slightly different page variant can't abort a whole method.
+- **Verified end-to-end against real, currently-vendored rule content, not just unit tests of
+  the interpreter in isolation**: `consent/engine.test.ts` runs the actual Cookiebot and
+  OneTrust rules (frozen fixtures, pasted from the live source) against simulated realistic
+  banner markup and confirms the default-reject path clicks only "Decline"/unchecks pre-checked
+  categories -- never "Accept" -- for both the direct-checkbox (Cookiebot) and parent-scoped
+  category-panel (OneTrust, the single highest-market-share CMP) patterns. 63 new tests total
+  across `consent/tools.test.ts`, `matchers.test.ts`, `actions.test.ts`, `cmp.test.ts`, and
+  `engine.test.ts`.
+- Design note: the original plan considered a smaller "simple tier only" interpreter (click/
+  hide/wait/ifcss/waitcss, skipping the checkbox-matrix system entirely) to avoid the larger
+  implementation surface. Investigating Cookiebot's actual `SAVE_CONSENT` rule showed why that
+  would have been wrong, not just less capable: on CMPs with a "levels" consent UI, the button
+  that commits the user's selection is often literally labeled "Accept" -- correct only because
+  `DO_CONSENT` (the checkbox-matrix step) already zeroed out every category first. A simple-tier
+  interpreter would have needed to either skip those sites entirely or risk clicking that
+  "Accept"-labeled commit button without ever having unchecked anything -- confirming the fuller
+  implementation was the safer choice, not just the more thorough one.
+
 ## 0.7.8
 
 ### Added

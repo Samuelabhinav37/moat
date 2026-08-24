@@ -36,6 +36,7 @@ const webrtcToggle = document.getElementById("webrtc-toggle") as HTMLInputElemen
 const fingerprintToggle = document.getElementById("fingerprint-toggle") as HTMLInputElement;
 const grayscaleToggle = document.getElementById("grayscale-toggle") as HTMLInputElement;
 const feedScanToggle = document.getElementById("feed-scan-toggle") as HTMLInputElement;
+const consentRejectToggle = document.getElementById("consent-reject-toggle") as HTMLInputElement;
 const liveStatus = document.getElementById("live-status") as HTMLElement;
 const siteList = document.getElementById("site-list") as HTMLUListElement;
 const siteEmptyState = document.getElementById("site-empty-state") as HTMLElement;
@@ -273,6 +274,7 @@ async function render(): Promise<void> {
   fingerprintToggle.checked = settings.fingerprintResistance;
   grayscaleToggle.checked = settings.grayscaleUnblockableAds;
   feedScanToggle.checked = settings.aggressiveFeedAdRemoval;
+  consentRejectToggle.checked = settings.cookieBannerAutoReject;
   renderLiveStatus(await getLiveUpdateStatus());
 
   renderDomainList(siteList, siteEmptyState, settings.disabledSites, "Resume", (hostname) =>
@@ -323,6 +325,10 @@ grayscaleToggle.addEventListener("change", async () => {
 
 feedScanToggle.addEventListener("change", async () => {
   await setSettings({ aggressiveFeedAdRemoval: feedScanToggle.checked });
+});
+
+consentRejectToggle.addEventListener("change", async () => {
+  await setSettings({ cookieBannerAutoReject: consentRejectToggle.checked });
 });
 
 addButton.addEventListener("click", async () => {
