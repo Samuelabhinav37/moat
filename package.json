@@ -1,6 +1,6 @@
 {
   "name": "moat",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "private": true,
   "description": "A quiet ad blocker and popup/redirect firewall for Chrome and Firefox.",
   "type": "module",
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@adguard/dnr-rulesets": "^4.0.20260823030056",
+    "@ghostery/trackerdb": "^1.0.923",
     "@types/chrome": "^0.0.280",
     "@types/webextension-polyfill": "^0.12.1",
     "jsdom": "^30.0.1",

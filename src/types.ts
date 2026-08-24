@@ -96,6 +96,10 @@ export interface StatusResponse {
    * only -- see background/matchStats.ts) plus the popup/redirect firewall's
    * real-time catches, folded into "popups". */
   breakdown: { ads: number; trackers: number; popups: number };
+  /** Optional "by company" detail for the same tab (company name -> count),
+   * sourced from Ghostery's TrackerDB -- see shared/matchedRuleCompanies.ts.
+   * Most blocked requests have no entry; empty object when none apply. */
+  companyBreakdown: Record<string, number>;
 }
 
 export interface ToggleSiteMessage {

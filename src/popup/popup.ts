@@ -6,6 +6,31 @@ async function getStatus(): Promise<StatusResponse> {
   return browser.runtime.sendMessage(message) as Promise<StatusResponse>;
 }
 
+// Collapsed by default (see popup.html's <details hidden>) -- a company
+// drill-down on top of the existing Ads/Trackers/Popups strip, not a
+// dashboard. Hidden entirely when nothing's attributed rather than shown
+// empty (most blocked requests have no company match -- TrackerDB only
+// covers a fraction of the bundled domains).
+function renderCompanyBreakdown(companyBreakdown: Record<string, number>): void {
+  const details = document.getElementById("company-details")!;
+  const list = document.getElementById("company-list")!;
+  const entries = Object.entries(companyBreakdown).sort((a, b) => b[1] - a[1]);
+
+  details.hidden = entries.length === 0;
+  list.replaceChildren(
+    ...entries.map(([company, count]) => {
+      const li = document.createElement("li");
+      const name = document.createElement("span");
+      name.textContent = company;
+      const n = document.createElement("span");
+      n.className = "n";
+      n.textContent = String(count);
+      li.append(name, n);
+      return li;
+    })
+  );
+}
+
 async function render(): Promise<void> {
   const status = await getStatus();
 
@@ -13,6 +38,7 @@ async function render(): Promise<void> {
   document.getElementById("count-ads")!.textContent = String(status.breakdown.ads);
   document.getElementById("count-trackers")!.textContent = String(status.breakdown.trackers);
   document.getElementById("count-popups")!.textContent = String(status.breakdown.popups);
+  renderCompanyBreakdown(status.companyBreakdown);
 
   const hostnameEl = document.getElementById("hostname")!;
   const siteCard = document.getElementById("site-card")!;

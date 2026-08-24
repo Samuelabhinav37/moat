@@ -104,6 +104,33 @@
         background: var(--danger);
       }
 
+      #company-details {
+        margin: -6px 0 14px;
+        font-size: 11.5px;
+      }
+      #company-details summary {
+        cursor: pointer;
+        color: var(--muted);
+        user-select: none;
+      }
+      #company-list {
+        list-style: none;
+        margin: 8px 0 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      #company-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      #company-list .n {
+        font: 11px ui-monospace, "SFMono-Regular", Consolas, monospace;
+        color: var(--muted);
+      }
+
       .host {
         font-size: 12.5px;
         font-weight: 500;
@@ -160,6 +187,11 @@
         <div class="seg"><span class="n" id="count-trackers">0</span><span class="l"><i class="dot trackers"></i>Trackers</span></div>
         <div class="seg"><span class="n" id="count-popups">0</span><span class="l"><i class="dot popups"></i>Popups</span></div>
       </div>
+
+      <details id="company-details" hidden>
+        <summary>By company</summary>
+        <ul id="company-list"></ul>
+      </details>
     </div>
 
     <div class="paused-banner" id="paused-banner" hidden>

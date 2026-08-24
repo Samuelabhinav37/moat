@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { chunkBySize } from "./lib/chunkBySize.mjs";
 import { resolveRedirectResource } from "./lib/redirectResources.mjs";
+import { extractRuleDomain, lookupCompany } from "./lib/ruleCompany.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -18,6 +19,8 @@ const redirectResourcesSourceDir = join(
   "node_modules/@adguard/scriptlets/dist/redirect-files"
 );
 const redirectResourcesOutDir = join(root, "rules/redirect-resources");
+const trackerDbPath = join(root, "node_modules/@ghostery/trackerdb/dist/trackerdb.json");
+const trackerDb = existsSync(trackerDbPath) ? JSON.parse(readFileSync(trackerDbPath, "utf8")) : null;
 
 // AdGuard filter IDs. See https://filters.adtidy.org/extension/chromium-mv3/filters.json
 // `category` groups these for the Filter Lists settings tab: "ads" (ads/trackers/redirects),
@@ -66,6 +69,14 @@ const domainAnchor = /^\|\|([a-z0-9.-]+)\^?\$?$/;
 const redirectDomains = new Set();
 
 const manifestEntries = [];
+// rulesetId (the same string used as manifestEntries[].id, which is what
+// declarativeNetRequest.getMatchedRules() returns as MatchedRuleInfo.rule.rulesetId
+// at runtime) -> ruleId -> company name, for the popup's optional "by company"
+// breakdown (see src/background/matchStats.ts). Sourced from Ghostery's
+// TrackerDB (@ghostery/trackerdb's dist/trackerdb.json, CC-BY-NC-SA-4.0 --
+// see README's Licensing note), correlated by domain at build time so no
+// runtime domain matching or third-party engine is needed.
+const ruleCompanies = {};
 
 for (const ruleset of RULESETS) {
   const srcPath = join(
@@ -118,10 +129,29 @@ for (const ruleset of RULESETS) {
   chunks.forEach((chunkRules, index) => {
     const suffix = chunks.length > 1 ? `-${index + 1}` : "";
     const outFile = `ruleset_${ruleset.slug}${suffix}.json`;
+    const rulesetId = `ruleset_${ruleset.slug}${suffix}`;
     writeFileSync(join(outDir, outFile), JSON.stringify(chunkRules));
 
+    // "security" rulesets (malicious-urls, phishing-urls, scam, badware)
+    // block arbitrary bad *content* wherever it's hosted -- often a phishing
+    // page parked on a free platform (github.io, weebly.com, etc.). Domain-
+    // chain-walking those up to the platform's own registrable domain would
+    // misattribute the block to the platform itself (confirmed live: 6,303
+    // malicious-urls rules and 4,344 phishing-urls rules would otherwise
+    // land on "GitHub, Inc." and "Weebly"). Only ad/tracking rulesets, where
+    // the blocked domain genuinely is the tracker's own infrastructure, are
+    // eligible for company attribution.
+    if (trackerDb && ruleset.category !== "security") {
+      for (const rule of chunkRules) {
+        const domain = extractRuleDomain(rule.condition?.urlFilter);
+        const company = domain ? lookupCompany(domain, trackerDb) : null;
+        if (!company) continue;
+        (ruleCompanies[rulesetId] ??= {})[rule.id] = company;
+      }
+    }
+
     manifestEntries.push({
-      id: `ruleset_${ruleset.slug}${suffix}`,
+      id: rulesetId,
       group: ruleset.slug,
       category: ruleset.category,
       name: chunks.length > 1 ? `${ruleset.name} (${index + 1}/${chunks.length})` : ruleset.name,
@@ -201,6 +231,8 @@ const liveDir = join(root, "live");
 mkdirSync(liveDir, { recursive: true });
 writeFileSync(join(liveDir, "redirect-domains.json"), redirectDomainsJson);
 
+writeFileSync(join(outDir, "rule-companies.json"), JSON.stringify(ruleCompanies));
+
 // Copy only the resource files $redirect rules actually reference (not
 // every file @adguard/scriptlets ships) into a tracked-shaped build output,
 // mirrored by scripts/build.mjs into web-accessible-resources/redirects/ so
@@ -217,4 +249,10 @@ console.log(
     (droppedRedirectRules > 0
       ? ` (${droppedRedirectRules} $redirect rule(s) still dropped -- referenced resource(s) not shipped by @adguard/scriptlets)`
       : "")
+);
+const attributedRuleCount = Object.values(ruleCompanies).reduce((sum, m) => sum + Object.keys(m).length, 0);
+console.log(
+  trackerDb
+    ? `Attributed ${attributedRuleCount} rules to a company via TrackerDB -> rules/dnr/rule-companies.json`
+    : "TrackerDB not found (npm install @ghostery/trackerdb) -- skipped company attribution"
 );

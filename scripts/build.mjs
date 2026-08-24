@@ -96,7 +96,7 @@ function copyStaticAssets() {
   // manifest.json itself is now also a runtime asset (not just read at build
   // time by scripts/manifest.ts) -- the Filter Lists settings tab fetches it
   // to know what rulesets exist and how they're grouped.
-  for (const file of [...rulesetFiles, "manifest.json", "redirect-domains.json", ...cosmeticsFiles]) {
+  for (const file of [...rulesetFiles, "manifest.json", "redirect-domains.json", "rule-companies.json", ...cosmeticsFiles]) {
     cpSync(resolve(rulesDir, file), resolve(outDir, "rules", file));
   }
 

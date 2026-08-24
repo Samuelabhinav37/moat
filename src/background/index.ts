@@ -1,5 +1,13 @@
 import browser, { type Runtime } from "webextension-polyfill";
-import { combinedBreakdown, combinedTotal, forgetTab, recordDynamicCatch, refreshStaticBreakdown, resetForNavigation } from "./blockStats";
+import {
+  combinedBreakdown,
+  combinedCompanyBreakdown,
+  combinedTotal,
+  forgetTab,
+  recordDynamicCatch,
+  refreshStaticBreakdown,
+  resetForNavigation,
+} from "./blockStats";
 import {
   addCustomCosmeticRule,
   addGrayscaleRule,
@@ -68,6 +76,7 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
           enabled: settings.enabled,
           blockedOnTab: tab?.id !== undefined ? combinedTotal(tab.id) : 0,
           breakdown: tab?.id !== undefined ? combinedBreakdown(tab.id) : { ads: 0, trackers: 0, popups: 0 },
+          companyBreakdown: tab?.id !== undefined ? combinedCompanyBreakdown(tab.id) : {},
         };
       })();
     }

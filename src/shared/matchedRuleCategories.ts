@@ -25,8 +25,11 @@ const GROUP_TO_BUCKET: Partial<Record<string, BreakdownBucket>> = {
   badware: "trackers",
 };
 
-interface MatchedRuleRef {
+export interface MatchedRuleRef {
   rulesetId: string;
+  /** Optional so existing rulesetId-only callers/tests keep working --
+   * only matchedRuleCompanies.ts's summarizeCompanies needs this. */
+  ruleId?: number;
 }
 
 export type Breakdown = Record<BreakdownBucket, number>;

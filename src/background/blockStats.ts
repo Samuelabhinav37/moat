@@ -8,6 +8,7 @@ import { forgetTab as forgetDynamicTab, getCount, recordBlock, resetCount } from
 import {
   forgetTab as forgetBreakdownTab,
   getBreakdown,
+  getCompanyBreakdown,
   refreshBreakdown,
   resetBreakdown,
   type Breakdown,
@@ -20,6 +21,13 @@ export type { Breakdown };
 export function combinedBreakdown(tabId: number): Breakdown {
   const breakdown = getBreakdown(tabId);
   return { ...breakdown, popups: breakdown.popups + getCount(tabId) };
+}
+
+/** The dynamic firewall's real-time popup catches have no associated DNR
+ * rule, so they carry no company attribution -- this is purely the static
+ * breakdown's company detail, passed through unchanged. */
+export function combinedCompanyBreakdown(tabId: number): Record<string, number> {
+  return getCompanyBreakdown(tabId);
 }
 
 export function combinedTotal(tabId: number): number {

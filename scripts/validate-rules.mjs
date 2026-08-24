@@ -15,6 +15,7 @@ const VALID_CATEGORIES = new Set(["ads", "security", "annoyance", "core"]);
 
 let totalRules = 0;
 let ok = true;
+const rulesetRuleIds = new Map();
 
 for (const entry of manifest) {
   if (!entry.group) {
@@ -28,6 +29,7 @@ for (const entry of manifest) {
 
   const rules = JSON.parse(readFileSync(join(rulesDir, entry.file), "utf8"));
   const ids = new Set();
+  rulesetRuleIds.set(entry.id, new Set(rules.map((r) => r.id)));
 
   for (const rule of rules) {
     for (const key of Object.keys(rule)) {
@@ -89,6 +91,25 @@ console.log(
   `cosmetics: ${meta.generic.length} generic, ${perDomainCount} domain-scoped selectors ` +
     `across ${domainCount} domains (${cosmeticsManifest.bucketCount} shard buckets), ${exceptionCount} exceptions`
 );
+
+const ruleCompanies = JSON.parse(readFileSync(join(rulesDir, "rule-companies.json"), "utf8"));
+let attributedCount = 0;
+for (const [rulesetId, byRuleId] of Object.entries(ruleCompanies)) {
+  const knownIds = rulesetRuleIds.get(rulesetId);
+  if (!knownIds) {
+    console.error(`rule-companies.json: unknown rulesetId "${rulesetId}"`);
+    ok = false;
+    continue;
+  }
+  for (const ruleId of Object.keys(byRuleId)) {
+    attributedCount += 1;
+    if (!knownIds.has(Number(ruleId))) {
+      console.error(`rule-companies.json: rulesetId "${rulesetId}" has no rule ${ruleId}`);
+      ok = false;
+    }
+  }
+}
+console.log(`rule-companies.json: ${attributedCount} rules attributed to a company`);
 
 if (!ok) {
   console.error("\nValidation failed.");

@@ -112,7 +112,12 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   Real numbers, not estimates — they start at zero on a fresh page and fill in as the page's own
   requests get matched. Chrome-only for now: Firefox hasn't implemented `getMatchedRules` yet, so
   that slice stays at zero there while the popup/redirect firewall count below still works on both
-  browsers (see `src/background/matchStats.ts` and `src/shared/matchedRuleCategories.ts`).
+  browsers (see `src/background/matchStats.ts` and `src/shared/matchedRuleCategories.ts`). A
+  collapsed-by-default "By company" disclosure under the strip attributes as many of those matches
+  as it can to the actual organization behind them (Google, Meta, Criteo, etc.), correlated at
+  build time against Ghostery's TrackerDB by each rule's target domain — purely informational, no
+  new decision asked of anyone, hidden entirely on requests TrackerDB doesn't cover (see
+  `scripts/lib/ruleCompany.mjs` and `src/shared/matchedRuleCompanies.ts`).
 - **Grayed-out video ads** — YouTube's in-stream ads share the same `<video>` element as real
   content, so they can't be network-blocked or cosmetically hidden without breaking the player.
   `src/content/youtubeAdDimmer.ts` (YouTube-scoped, on by default) watches `#movie_player` for two
@@ -399,6 +404,12 @@ The bundled filter lists are distributed under GPL-3.0 by AdGuard/EasyList
 contributors. If you publish this extension, keep the attribution above and
 check current license terms before distributing `rules/dnr/*.json` — that
 data isn't original to this project.
+
+The company names behind the popup's optional "By company" breakdown come from
+[Ghostery's TrackerDB](https://github.com/ghostery/trackerdb) (`@ghostery/trackerdb`),
+licensed [CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) — free
+for non-commercial use, which Moat is. If that ever changes, this needs revisiting
+before shipping a build that still includes `rules/dnr/rule-companies.json`.
 
 ## Researched but not built yet
 

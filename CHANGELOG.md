@@ -3,6 +3,34 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.7.6
+
+### Added
+- **Optional "By company" breakdown in the popup.** The existing Ads/Trackers/Popups strip now
+  has a collapsed-by-default `<details>` disclosure underneath it attributing as many blocked
+  requests as possible to the actual organization behind them (Google, Amazon, Criteo, etc.),
+  purely informational -- no new decision asked of anyone, and it's hidden entirely when nothing
+  is attributed. Attribution happens at filter-update time, not at runtime: a new pure module,
+  `scripts/lib/ruleCompany.mjs` (tested, including a cross-check against the existing
+  `src/shared/domainChain.ts` runtime copy), extracts each compiled rule's target domain from its
+  `urlFilter` and looks it up against Ghostery's TrackerDB (`@ghostery/trackerdb`'s bundled
+  `dist/trackerdb.json`, CC-BY-NC-SA-4.0 -- confirmed compatible with Moat's non-commercial
+  status), walking the domain chain so a subdomain still resolves via its registrable parent. The
+  result is written to `rules/dnr/rule-companies.json`, keyed by `rulesetId` then `ruleId` to
+  avoid collisions across chunked rulesets (DNR rule ids are only unique per-ruleset). At
+  runtime, `getMatchedRules()`'s previously-discarded `ruleId` field (see
+  `src/background/matchStats.ts`) is now kept and joined against this map by a new pure module,
+  `src/shared/matchedRuleCompanies.ts` (tested).
+- **Caught and fixed a real correctness bug before shipping this**: naively correlating every
+  ruleset would have attributed thousands of malicious/phishing-URL blocks to "GitHub, Inc." and
+  "Weebly" -- those rulesets block arbitrary bad content parked on free hosting platforms by
+  domain, and domain-chain-walking up to the platform's own registrable domain (`github.io`,
+  `weebly.com`) falsely credited the platform itself as the tracker. Verified live against the
+  actual generated data (6,303 and 4,344 rules respectively) before restricting attribution to
+  ad/tracking rulesets only, where the blocked domain genuinely is the tracker's own
+  infrastructure -- 11,635 rules attributed after the fix, none of them security-list false
+  positives.
+
 ## 0.7.5
 
 ### Added
