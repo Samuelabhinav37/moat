@@ -23,6 +23,7 @@ const baseSettings: Settings = {
   grayscaleUnblockableAds: false,
   aggressiveFeedAdRemoval: false,
   cookieBannerAutoReject: false,
+  cnameUncloaking: false,
 };
 
 function setPrivacy(privacy: unknown): void {

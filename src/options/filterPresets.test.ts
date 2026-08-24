@@ -17,6 +17,7 @@ const baseSettings: Settings = {
   grayscaleUnblockableAds: false,
   aggressiveFeedAdRemoval: false,
   cookieBannerAutoReject: false,
+  cnameUncloaking: false,
 };
 
 describe("presetPatch", () => {

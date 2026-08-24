@@ -34,7 +34,7 @@ function baseManifest() {
     name: "Moat",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
-    version: "0.8.0",
+    version: "0.9.0",
     icons,
     action: {
       default_popup: "popup.html",
@@ -149,6 +149,12 @@ export function buildManifest(target: "chrome" | "firefox") {
 
   return {
     ...manifest,
+    // dns/webRequest/webRequestBlocking are Firefox-only additions, for
+    // background/cnameUncloak.ts's real CNAME uncloaking -- Chrome has no
+    // DNS-resolution API for extensions at all, and MV3 there disallows
+    // blocking webRequest listeners entirely (Firefox continues supporting
+    // both; see the README's CNAME section).
+    permissions: [...manifest.permissions, "dns", "webRequest", "webRequestBlocking"],
     background: {
       scripts: ["background.js"],
     },

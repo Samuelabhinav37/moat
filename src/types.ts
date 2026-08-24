@@ -65,6 +65,14 @@ export interface Settings {
    * hiding.
    */
   cookieBannerAutoReject: boolean;
+  /**
+   * Firefox-only real CNAME uncloaking via browser.dns.resolve() -- see
+   * background/cnameUncloak.ts. Chrome has no equivalent API at all, a
+   * hard platform gap, not a toggle Moat can offer there. Off by default:
+   * it's a per-candidate-request DNS resolution, a different (if small)
+   * cost/trust profile than everything else here.
+   */
+  cnameUncloaking: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -82,6 +90,7 @@ export const DEFAULT_SETTINGS: Settings = {
   grayscaleUnblockableAds: true,
   aggressiveFeedAdRemoval: false,
   cookieBannerAutoReject: false,
+  cnameUncloaking: false,
 };
 
 export const STORAGE_KEY = "settings";

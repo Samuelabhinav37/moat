@@ -327,6 +327,29 @@
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
+        <div class="toggle-row">
+          <div class="row-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Uncloak disguised trackers (Firefox only)</div>
+            <p class="hint muted">
+              Some trackers hide behind a subdomain of the site you're on (e.g.
+              <code>trk.example.com</code>) that secretly points elsewhere via DNS, specifically to
+              dodge domain-based blocking. This resolves the real destination for candidate
+              subdomains and blocks the request if it leads to a known tracker — real resolution,
+              not a static list, using the same browser API uBlock Origin uses for this on Firefox.
+              Chrome has no equivalent API at all. Off by default.
+            </p>
+            <p class="hint muted" id="cname-unsupported-hint" hidden>
+              Not available in this browser.
+            </p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="cname-uncloak-toggle" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
       </div>
 
       <div class="card">

@@ -9,6 +9,7 @@ import {
 } from "../background/settings";
 import { getManagedPolicy, isLocked } from "../background/managedPolicy";
 import { getLiveUpdateStatus } from "../background/liveUpdates";
+import { isSupported as isCnameUncloakSupported } from "../background/cnameUncloak";
 import { detectPreset, presetPatch, type PresetName } from "./filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import type { Settings } from "../types";
@@ -37,6 +38,8 @@ const fingerprintToggle = document.getElementById("fingerprint-toggle") as HTMLI
 const grayscaleToggle = document.getElementById("grayscale-toggle") as HTMLInputElement;
 const feedScanToggle = document.getElementById("feed-scan-toggle") as HTMLInputElement;
 const consentRejectToggle = document.getElementById("consent-reject-toggle") as HTMLInputElement;
+const cnameUncloakToggle = document.getElementById("cname-uncloak-toggle") as HTMLInputElement;
+const cnameUnsupportedHint = document.getElementById("cname-unsupported-hint") as HTMLElement;
 const liveStatus = document.getElementById("live-status") as HTMLElement;
 const siteList = document.getElementById("site-list") as HTMLUListElement;
 const siteEmptyState = document.getElementById("site-empty-state") as HTMLElement;
@@ -275,6 +278,12 @@ async function render(): Promise<void> {
   grayscaleToggle.checked = settings.grayscaleUnblockableAds;
   feedScanToggle.checked = settings.aggressiveFeedAdRemoval;
   consentRejectToggle.checked = settings.cookieBannerAutoReject;
+
+  const cnameSupported = isCnameUncloakSupported();
+  cnameUncloakToggle.checked = settings.cnameUncloaking;
+  cnameUncloakToggle.disabled = !cnameSupported;
+  cnameUnsupportedHint.hidden = cnameSupported;
+
   renderLiveStatus(await getLiveUpdateStatus());
 
   renderDomainList(siteList, siteEmptyState, settings.disabledSites, "Resume", (hostname) =>
@@ -329,6 +338,10 @@ feedScanToggle.addEventListener("change", async () => {
 
 consentRejectToggle.addEventListener("change", async () => {
   await setSettings({ cookieBannerAutoReject: consentRejectToggle.checked });
+});
+
+cnameUncloakToggle.addEventListener("change", async () => {
+  await setSettings({ cnameUncloaking: cnameUncloakToggle.checked });
 });
 
 addButton.addEventListener("click", async () => {

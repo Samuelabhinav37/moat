@@ -183,6 +183,23 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   above than to plain cosmetic hiding. Covers a few dozen of the most widely-reused consent
   platforms (`rules/dnr/consent-rules.json`, vendored by `scripts/vendor-consent-rules.mjs`), not
   Consent-O-Matic's separate 200+ per-site bespoke rule catalog.
+- **Uncloak disguised trackers** (Firefox only, opt-in) — a CNAME-cloaked tracker hides behind a
+  subdomain of the site you're on (e.g. `trk.example.com`) that secretly resolves elsewhere via
+  DNS, specifically to defeat domain-based blocking -- the 274,000 static rules above never see
+  the real destination, only the disguised first-party-looking hostname. Chrome has no
+  DNS-resolution API for extensions at all, a hard platform gap (see "Known limitations"); Firefox
+  exposes `dns.resolve()`, the same API uBlock Origin uses there for the same purpose.
+  `src/background/cnameUncloak.ts` adds a blocking `webRequest.onBeforeRequest` listener (Firefox
+  still allows this under MV3; Chrome no longer does) that, for a subresource request whose
+  hostname shares the current page's own domain (the actual cloaking pattern -- a true
+  third-party domain is already visible to and blockable by the static rules directly, so it's
+  skipped, no DNS lookup needed), resolves the real canonical name and cancels the request if it
+  leads into a known tracker destination (`rules/dnr/cname-cloak-destinations.json`, vendored from
+  [NextDNS's public list](https://github.com/nextdns/cname-cloaking-blocklist)). Firefox's
+  blocking listeners can return a `Promise` (supported since Firefox 52), so this resolves DNS
+  per-candidate-request directly rather than needing a separate cache-warming pass. Off by
+  default: it's a per-request DNS resolution with a different cost/trust profile than everything
+  else here.
 - **Global Privacy Control** — sends the `Sec-GPC: 1` header on every
   request (our own small rule, `ruleset_privacy-headers`) and exposes
   `navigator.globalPrivacyControl = true` in every page. As of 2026 this is
@@ -417,6 +434,8 @@ shows whether Chrome picked up the value) before relying on it in production.
 | `storage` | The paused-sites list and switches, stored locally only. Nothing is sent anywhere. |
 | `privacy` | Only used by the two opt-in toggles above; unused (and invisible to the user) unless one is turned on. |
 | `alarms` | Schedules the once-a-day live redirect-domain-list refresh. |
+| `dns` (Firefox only) | Real CNAME resolution for "Uncloak disguised trackers" — off by default, and the permission itself has no effect unless that toggle is on. Not requested on Chrome, which has no equivalent API. |
+| `webRequest` + `webRequestBlocking` (Firefox only) | Needed to actually cancel a request once its resolved CNAME target matches a known tracker — declarativeNetRequest can't act on an async DNS lookup mid-request. Chrome no longer allows blocking `webRequest` under MV3 at all; Firefox still does. |
 
 ## Known limitations
 
@@ -424,6 +443,9 @@ shows whether Chrome picked up the value) before relying on it in production.
   `declarativeNetRequest.getMatchedRules()` yet, so the Ads/Trackers/Popups
   strip stays at zero there. The popup/redirect firewall count (the
   "Popups" bucket's other half) still works on both browsers.
+- **CNAME-cloaked tracker uncloaking is Firefox-only, the other direction.** Chrome has no
+  DNS-resolution API for extensions at all -- not a missing permission, no such capability exists
+  to request. "Uncloak disguised trackers" in Settings simply isn't offered there.
 - **The YouTube ad dimmer is a DOM heuristic, not a guarantee.** It checks two independent
   signals (see "How it works"), which makes it more resilient than relying on one, but it's still
   dependent on YouTube's current markup. YouTube changes its markup periodically without notice;
@@ -468,6 +490,10 @@ written from scratch against their published schema and source, not copied — s
 directory's own file headers for exactly what's ported faithfully and what's
 deliberately different.
 
+The known CNAME-cloak-destination domains behind "Uncloak disguised trackers" come from
+[NextDNS's cname-cloaking-blocklist](https://github.com/nextdns/cname-cloaking-blocklist),
+MIT-licensed.
+
 ## Researched but not built yet
 
 From a pass on what a more complete privacy tool would also do:
@@ -497,6 +523,20 @@ From a pass on what a more complete privacy tool would also do:
   every page's ordinary code depends on, so noising them broadly risks real
   site breakage in a way nothing else Moat's fingerprint guard touches
   does. Not implemented for that reason, not because nobody looked.
-- **CNAME-cloaked trackers** — first-party-disguised trackers can't be
-  reliably caught without DNS resolution access, which Chrome doesn't
-  expose to extensions. Not solvable here.
+- **uBlock Origin's per-site dynamic-filtering "firewall matrix."** A real, shipped, sourced
+  technique -- a full matrix UI letting an "advanced user" set global vs. per-site allow/block
+  rules down to individual third-party domains contacted by the current page. Explicitly declined
+  on philosophy grounds, not technical infeasibility: this is real decision-delegation to the user
+  at a granularity Moat's "decide nothing for the user by default, quiet" stance directly argues
+  against. uBO itself gates it behind an explicit "I am an advanced user" opt-in for the same
+  reason. Recording the decision the way Instagram Stories is recorded above, rather than leaving
+  it as silent absence.
+- **Ghostery's `fetch`-monkeypatching approach to dynamic request modification.** MV3's
+  `declarativeNetRequest` can't do the data-driven request rewriting (stripping identifying
+  params, not just block/allow) Ghostery's tracker protection relies on, so their stated approach
+  is replacing built-in browser APIs like `fetch` from a content script to claw some of that back
+  -- by their own admission, this "introduces site-breakage risks and latency." A materially
+  bigger trust/breakage step than anything Moat already does (including the popup firewall's
+  `window.open` wrapper, which only intercepts a narrow, specific call, not a page's entire
+  networking surface). Declined for the same reason as the firewall matrix above: a real,
+  considered technique, not a gap nobody noticed.

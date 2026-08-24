@@ -75,6 +75,7 @@ describe("getSettings", () => {
       grayscaleUnblockableAds: true,
       aggressiveFeedAdRemoval: false,
       cookieBannerAutoReject: false,
+      cnameUncloaking: false,
     });
   });
 

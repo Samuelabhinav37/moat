@@ -3,6 +3,7 @@ import { DEFAULT_SETTINGS, STORAGE_KEY, type Settings } from "../types";
 import { applyPrivacySettings } from "./privacySettings";
 import { applyFilterGroupState } from "./filterGroups";
 import { applyCustomRules } from "./applyCustomRules";
+import { applyCnameUncloak } from "./cnameUncloak";
 import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
 
 export async function getSettings(): Promise<Settings> {
@@ -24,6 +25,7 @@ async function applyEffectiveSettings(): Promise<void> {
     applyFilterGroupState(effective),
     applyCustomRules(effective),
   ]);
+  applyCnameUncloak(effective);
 }
 
 export async function setSettings(patch: Partial<Settings>): Promise<Settings> {

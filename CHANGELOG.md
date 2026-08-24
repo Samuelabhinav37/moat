@@ -3,6 +3,36 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.9.0
+
+### Added
+- **Uncloak disguised trackers (Firefox only, off by default).** A CNAME-cloaked tracker hides
+  behind a subdomain of the site you're on (e.g. `trk.example.com`) that secretly resolves
+  elsewhere via DNS, specifically to defeat domain-based blocking -- the 274,000 static rules
+  never see the real destination. Chrome has no DNS-resolution API for extensions at all,
+  confirmed as a hard platform gap (no workaround exists, not a missing permission). Firefox
+  exposes `dns.resolve()`, the same API uBlock Origin uses there. `src/background/cnameUncloak.ts`
+  adds a blocking `webRequest.onBeforeRequest` listener (Firefox still allows this under MV3;
+  Chrome no longer does) that resolves the real canonical name for candidate requests and cancels
+  them if it leads into a known tracker destination
+  (`rules/dnr/cname-cloak-destinations.json`, vendored from
+  [NextDNS's public list](https://github.com/nextdns/cname-cloaking-blocklist), MIT-licensed).
+  Firefox's blocking listeners support returning a `Promise` (since Firefox 52), so this resolves
+  DNS directly in the listener per candidate request rather than needing a separate cache-warming
+  pass with a fail-open compromise.
+- Scoped to actual candidate requests only: a subresource is only checked if its hostname shares
+  the current page's own domain apex (`cnameUncloakMatch.ts`'s `isCandidateForUncloak`, tested) --
+  that's the entire cloaking technique, so a request to a domain that doesn't share the page's
+  apex is already visible to and blockable by the static rules directly and skips the DNS lookup
+  entirely. Own in-memory cache on top of Firefox's own DNS cache to avoid redundant resolves
+  within a session.
+- Design correction during implementation: the original plan considered a static-list-only
+  approach (no live DNS resolution) as lower-risk. Checking NextDNS's own README first showed
+  that's a non-starter -- their list only works "wildcard matched against CNAMEs," which requires
+  actually resolving the chain; a static list alone has nothing to compare a disguised hostname
+  against. Corrected to real resolution before writing any code, scoped to Firefox only where an
+  API for it actually exists.
+
 ## 0.8.0
 
 ### Added

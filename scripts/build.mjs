@@ -104,6 +104,7 @@ function copyStaticAssets() {
     "redirect-domains.json",
     "rule-companies.json",
     "consent-rules.json",
+    "cname-cloak-destinations.json",
     ...cosmeticsFiles,
   ]) {
     cpSync(resolve(rulesDir, file), resolve(outDir, "rules", file));
