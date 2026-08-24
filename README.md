@@ -118,6 +118,13 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   build time against Ghostery's TrackerDB by each rule's target domain — purely informational, no
   new decision asked of anyone, hidden entirely on requests TrackerDB doesn't cover (see
   `scripts/lib/ruleCompany.mjs` and `src/shared/matchedRuleCompanies.ts`).
+- **Rule-match logger** — a development tool, not a user feature: `logger.html` (linked from
+  Settings → About → Debugging) lists every request `declarativeNetRequest.onRuleMatchedDebug`
+  saw on the active tab and which specific rule matched it, for diagnosing a filter or heuristic
+  that's stopped working without guessing. Chrome only fires that event for extensions loaded
+  unpacked (developer mode) — it stays empty on a Web Store install, and on Firefox, which
+  doesn't implement it at all — so `src/background/ruleLogger.ts` feature-detects it and the page
+  says so plainly rather than showing an empty table with no explanation.
 - **Grayed-out video ads** — YouTube's in-stream ads share the same `<video>` element as real
   content, so they can't be network-blocked or cosmetically hidden without breaking the player.
   `src/content/youtubeAdDimmer.ts` (YouTube-scoped, on by default) watches `#movie_player` for two
@@ -395,8 +402,11 @@ shows whether Chrome picked up the value) before relying on it in production.
   (`COINMINER_USAGE_DETECTED`) is the linter's naive keyword scanner
   tripping over a cryptominer *domain name* inside the AdGuard Base filter's
   own block rules (the file is static JSON blocking that domain, not code
-  that runs it); and one (`UNSUPPORTED_API`) is exactly the
-  `getMatchedRules` gap noted above.
+  that runs it); and three (`UNSUPPORTED_API`) are the `getMatchedRules` gap
+  noted above plus its debugging-tool cousin, `onRuleMatchedDebug` (see the
+  rule-match logger below) — Firefox implements neither, and both are
+  feature-detected before use so this is a dead reference, not a runtime
+  failure.
 
 ## Licensing note
 

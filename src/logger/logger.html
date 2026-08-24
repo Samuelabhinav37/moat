@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Moat Rule-Match Logger</title>
+    <link rel="stylesheet" href="theme.css" />
+    <style>
+      body {
+        max-width: 860px;
+        margin: 32px auto;
+        padding: 0 20px 48px;
+      }
+      p.lede {
+        color: var(--muted);
+        font-size: 12.5px;
+        max-width: 62ch;
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 14px 0;
+      }
+      .toolbar .host {
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      #unsupported,
+      #empty {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 0;
+      }
+      td.url {
+        max-width: 420px;
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Rule-match logger</h1>
+    <p class="lede">
+      Diagnostic tool, not a general feature: shows which of Moat's compiled rules matched each
+      request on the active tab, sourced from
+      <code>declarativeNetRequest.onRuleMatchedDebug</code>. Chrome only fires that event for
+      extensions loaded unpacked (developer mode) — it will never populate on a Web Store install,
+      and Firefox doesn't implement it at all.
+    </p>
+
+    <div class="toolbar">
+      <button id="refresh" class="primary">Refresh</button>
+      <span class="host" id="host"></span>
+    </div>
+
+    <p id="unsupported" hidden>
+      Not available. Either this build isn't loaded unpacked, or your browser doesn't support
+      <code>onRuleMatchedDebug</code>.
+    </p>
+    <p id="empty" hidden>No matches recorded yet for this tab. Reload the page and refresh.</p>
+
+    <table id="table" hidden>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Ruleset</th>
+          <th>Rule</th>
+          <th>Type</th>
+          <th class="url">URL</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <script src="logger.js"></script>
+  </body>
+</html>

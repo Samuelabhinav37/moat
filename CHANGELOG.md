@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.7.7
+
+### Added
+- **Rule-match logger, a development tool.** `src/logger/logger.html` (linked from Settings →
+  About → Debugging) lists every request `declarativeNetRequest.onRuleMatchedDebug` saw on the
+  active tab and which of Moat's compiled rules matched it -- built to help diagnose the
+  already-flagged fragile heuristics (the YouTube ad dimmer, the feed scanner) when they break
+  silently after a site markup change, instead of guessing. Deliberately scoped as a diagnostic
+  tool, not a general feature: Chrome only fires that event for extensions loaded unpacked
+  (developer mode), never a Web Store install, and Firefox doesn't implement it at all --
+  `src/background/ruleLogger.ts` feature-detects it and keeps an in-memory, per-tab ring buffer
+  (last 200 matches, evicted oldest-first -- tested via the pulled-out pure `appendEntry`), not
+  persisted to storage. The page itself shows a clear "not available" message rather than an
+  empty table when unsupported.
+
 ## 0.7.6
 
 ### Added

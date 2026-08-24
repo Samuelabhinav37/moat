@@ -18,10 +18,12 @@ import {
 } from "./settings";
 import { initPopupGuard } from "./popupGuard";
 import { initLiveUpdates } from "./liveUpdates";
-import type { RuntimeMessage, StatusResponse } from "../types";
+import { forgetTab as forgetLoggerTab, getEntries as getLoggedEntries, initRuleLogger, isSupported as isLoggerSupported } from "./ruleLogger";
+import type { LogEntriesResponse, RuntimeMessage, StatusResponse } from "../types";
 
 initPopupGuard();
 initLiveUpdates();
+initRuleLogger();
 void reapplySettings();
 
 // An admin can push/change managed policy at any point during a session
@@ -31,7 +33,10 @@ browser.storage.onChanged.addListener((_changes, area) => {
   if (area === "managed") void reapplySettings();
 });
 
-browser.tabs.onRemoved.addListener((tabId) => forgetTab(tabId));
+browser.tabs.onRemoved.addListener((tabId) => {
+  forgetTab(tabId);
+  forgetLoggerTab(tabId);
+});
 
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId === 0) resetForNavigation(details.tabId);
@@ -91,6 +96,17 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
 
     case "save-grayscale-rule": {
       return addGrayscaleRule(message.hostname, message.selector).then(() => undefined);
+    }
+
+    case "get-log-entries": {
+      return (async (): Promise<LogEntriesResponse> => {
+        const tab = sender.tab ?? (await browser.tabs.query({ active: true, currentWindow: true }))[0];
+        return {
+          supported: isLoggerSupported(),
+          hostname: hostnameOf(tab?.url),
+          entries: tab?.id !== undefined ? getLoggedEntries(tab.id) : [],
+        };
+      })();
     }
 
     default:

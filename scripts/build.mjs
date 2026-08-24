@@ -38,6 +38,7 @@ const ENTRIES = [
   ["feed-ad-scanner", "src/content/feedAdScanner.ts"],
   ["popup", "src/popup/popup.ts"],
   ["options", "src/options/options.ts"],
+  ["logger", "src/logger/logger.ts"],
 ];
 
 const outDir = resolve(root, "dist", target);
@@ -104,6 +105,7 @@ function copyStaticAssets() {
   cpSync(resolve(root, "src/ui/theme.css"), resolve(outDir, "theme.css"));
   cpSync(resolve(root, "src/popup/popup.html"), resolve(outDir, "popup.html"));
   cpSync(resolve(root, "src/options/options.html"), resolve(outDir, "options.html"));
+  cpSync(resolve(root, "src/logger/logger.html"), resolve(outDir, "logger.html"));
   cpSync(resolve(root, "src/managed_schema.json"), resolve(outDir, "managed_schema.json"));
 
   writeFileSync(resolve(outDir, "manifest.json"), JSON.stringify(buildManifest(target), null, 2));

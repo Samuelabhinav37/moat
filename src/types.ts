@@ -123,12 +123,41 @@ export interface SaveGrayscaleRuleMessage {
   selector: string;
 }
 
+/** One declarativeNetRequest.onRuleMatchedDebug match, kept for the
+ * diagnostic logger page (src/logger/). This event only fires for
+ * extensions loaded unpacked (Chrome dev mode), never a Web Store install --
+ * see background/ruleLogger.ts. */
+export interface LoggedMatch {
+  timestamp: number;
+  url: string;
+  method: string;
+  /** chrome.declarativeNetRequest.RequestDetails.type, e.g. "script"/"image"/"xmlhttprequest". */
+  type: string;
+  ruleId: number;
+  rulesetId: string;
+}
+
+export interface GetLogEntriesMessage {
+  type: "get-log-entries";
+}
+
+export interface LogEntriesResponse {
+  /** False when chrome.declarativeNetRequest.onRuleMatchedDebug doesn't
+   * exist -- a Web Store/production build, Firefox, or Chrome without dev
+   * mode -- so the logger page can show a clear reason instead of an empty
+   * list. */
+  supported: boolean;
+  hostname: string;
+  entries: LoggedMatch[];
+}
+
 export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
   | ToggleSiteMessage
   | SaveCosmeticRuleMessage
-  | SaveGrayscaleRuleMessage;
+  | SaveGrayscaleRuleMessage
+  | GetLogEntriesMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the
