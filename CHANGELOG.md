@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.7.8
+
+### Added
+- **Idle-time trim for unmatched generic cosmetic selectors.** The ~17k generic (no-hostname)
+  selectors were being injected into a `<style>` block and kept live for the rest of the page's
+  life whether or not anything on the page actually matched them. `cosmeticFilter.ts` now splits
+  injection into two `<style>` blocks -- one for per-domain/custom selectors (unchanged, never
+  trimmed), one for generic selectors -- and, once on the `window` `load` event (not a
+  MutationObserver, not per-mutation), checks which generic selectors still match anything via
+  the new `selectorsStillMatching` (`src/content/cosmeticSelectors.ts`, tested against real jsdom
+  DOM matching) and rebuilds that block's text from just the survivors. `document_start`
+  injection itself is untouched -- same CSS, same timing, zero added FOUC risk -- so this is a
+  style-engine cleanup (fewer live selectors for the browser to keep evaluating on every later
+  recalc, most relevant on long-lived SPA tabs like Instagram/YouTube/LinkedIn), not a network
+  optimization: the full generic set is still fetched and injected upfront exactly as before.
+  Deliberately rebuilds from the already-known selector array rather than parsing pruned
+  selectors back out of the CSSOM's rendered `selectorText` -- some kept selectors (native
+  `:has(a, b)`) contain commas of their own that a naive text re-split would have corrupted.
+  `selectorsForHostname` is now composed from two new exported halves,
+  `genericSelectorsForHostname`/`domainSelectorsForHostname`, each independently tested; existing
+  behavior and its existing tests are unchanged.
+
 ## 0.7.7
 
 ### Added

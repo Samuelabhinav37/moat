@@ -197,9 +197,21 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   the JSON fetched on every single page load from ~5.8MB to well under 1MB
   (see "Problems we hit and how we solved them" below). A content script
   (`src/content/cosmeticFilter.ts`, top frame only) injects the resulting
-  selectors as one `<style>` block at `document_start` — CSS rules, not a
+  selectors as `<style>` blocks at `document_start` — CSS rules, not a
   one-time DOM pass, so they keep hiding elements a site adds later (SPA
-  navigation, lazy-loaded slots) without a MutationObserver.
+  navigation, lazy-loaded slots) without a MutationObserver. Per-domain and
+  generic selectors go into two separate blocks so a one-time cleanup pass,
+  triggered on `window`'s `load` event, can prune generic selectors that
+  matched nothing anywhere in the final DOM without touching the
+  intentionally-scoped per-domain block. This is a style-engine cleanup —
+  fewer live selectors for the browser to keep evaluating on every later
+  recalc, which matters most on long-lived SPA tabs like Instagram, YouTube,
+  and LinkedIn — not a network optimization: the full generic set (~17k
+  selectors) is still fetched and injected upfront exactly as before. Not a
+  MutationObserver either — it runs once, after initial load, same
+  "no persistent DOM watcher for cosmetic filtering" design as the rest of
+  this feature (see `selectorsStillMatching` in
+  `src/content/cosmeticSelectors.ts`).
 - **Live redirect-domain updates** — the bulk of blocking (~273k rules)
   stays build-time/static; MV3's dynamic-rule budget is nowhere near large
   enough to hold that. But the popup/redirect domain list (currently ~460

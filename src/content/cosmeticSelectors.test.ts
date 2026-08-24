@@ -1,10 +1,15 @@
+// @vitest-environment jsdom -- selectorsStillMatching below needs a real DOM;
+// none of this file's other (pure-array) tests behave differently under it.
 import { describe, expect, it } from "vitest";
 import {
   buildGrayscaleStyleText,
   buildStyleText,
   customSelectorsForHostname,
+  domainSelectorsForHostname,
+  genericSelectorsForHostname,
   mergeDomainShards,
   selectorsForHostname,
+  selectorsStillMatching,
   shardIndicesForHostname,
   type CosmeticIndex,
 } from "./cosmeticSelectors";
@@ -60,6 +65,61 @@ describe("selectorsForHostname", () => {
   it("de-duplicates when the same selector is both generic and domain-scoped", () => {
     const index: CosmeticIndex = { generic: [".ad"], perDomain: { "example.com": [".ad"] }, exceptions: {} };
     expect(selectorsForHostname(index, "example.com")).toEqual([".ad"]);
+  });
+});
+
+describe("genericSelectorsForHostname", () => {
+  it("returns the generic slice, ignoring perDomain entirely", () => {
+    const index: CosmeticIndex = { generic: [".ad"], perDomain: { "example.com": [".other"] }, exceptions: {} };
+    expect(genericSelectorsForHostname(index, "example.com")).toEqual([".ad"]);
+  });
+
+  it("removes a generic selector excluded on this domain", () => {
+    const index: CosmeticIndex = { generic: [".ad", ".banner"], perDomain: {}, exceptions: { "example.com": [".ad"] } };
+    expect(genericSelectorsForHostname(index, "example.com")).toEqual([".banner"]);
+  });
+});
+
+describe("domainSelectorsForHostname", () => {
+  it("returns the per-domain slice, ignoring generic entirely", () => {
+    const index: CosmeticIndex = { generic: [".ad"], perDomain: { "example.com": [".only-domain"] }, exceptions: {} };
+    expect(domainSelectorsForHostname(index, "example.com")).toEqual([".only-domain"]);
+  });
+
+  it("matches a parent domain's selectors when visiting a subdomain", () => {
+    const index: CosmeticIndex = { generic: [], perDomain: { "example.com": [".ad"] }, exceptions: {} };
+    expect(domainSelectorsForHostname(index, "www.example.com")).toEqual([".ad"]);
+  });
+
+  it("removes a domain-scoped selector excluded on this domain", () => {
+    const index: CosmeticIndex = {
+      generic: [],
+      perDomain: { "example.com": [".ad", ".banner"] },
+      exceptions: { "example.com": [".ad"] },
+    };
+    expect(domainSelectorsForHostname(index, "example.com")).toEqual([".banner"]);
+  });
+});
+
+describe("selectorsStillMatching", () => {
+  it("keeps a selector that matches an element in the document", () => {
+    document.body.innerHTML = '<div class="ad"></div>';
+    expect(selectorsStillMatching(document, [".ad"])).toEqual([".ad"]);
+  });
+
+  it("drops a selector that matches nothing", () => {
+    document.body.innerHTML = "<div></div>";
+    expect(selectorsStillMatching(document, [".ad"])).toEqual([]);
+  });
+
+  it("keeps selectors that throw rather than risk un-hiding something real", () => {
+    document.body.innerHTML = "<div></div>";
+    expect(selectorsStillMatching(document, [":this-is-not-valid-css("])).toEqual([":this-is-not-valid-css("]);
+  });
+
+  it("preserves input order across a mix of matching and non-matching selectors", () => {
+    document.body.innerHTML = '<div class="a"></div><div class="c"></div>';
+    expect(selectorsStillMatching(document, [".a", ".b", ".c"])).toEqual([".a", ".c"]);
   });
 });
 
