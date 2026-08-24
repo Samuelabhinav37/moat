@@ -34,7 +34,7 @@ function baseManifest() {
     name: "Moat",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
-    version: "0.7.4",
+    version: "0.7.5",
     icons,
     action: {
       default_popup: "popup.html",
@@ -61,6 +61,17 @@ function baseManifest() {
     declarative_net_request: {
       rule_resources: loadRuleResources(),
     },
+    // $redirect rules in the bundled filter lists point at these no-op
+    // resources (nooptext.js, 1x1-transparent.gif, etc., vendored from
+    // @adguard/scriptlets by scripts/update-filters.mjs) via a matching
+    // extensionPath -- without this, Chrome/Firefox refuse to serve them to
+    // the page and those rules fail closed.
+    web_accessible_resources: [
+      {
+        resources: ["web-accessible-resources/redirects/*"],
+        matches: ["<all_urls>"],
+      },
+    ],
     content_scripts: [
       {
         matches: ["<all_urls>"],

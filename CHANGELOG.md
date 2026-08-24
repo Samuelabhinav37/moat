@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.7.5
+
+### Added
+- **Stopped dropping ~990 `$redirect` filter rules.** These rules neutralize ad scripts by
+  redirecting them to a bundled no-op resource (`nooptext.js`, `1x1-transparent.gif`,
+  `click2load.html`, etc.) instead of a plain block, but we didn't ship the resource files
+  those rules point at, so `scripts/update-filters.mjs` silently dropped the whole slice.
+  `@adguard/scriptlets` -- already a transitive dependency of `@adguard/dnr-rulesets` -- ships
+  exactly the resource files AdGuard's own rules reference: a new pure helper,
+  `resolveRedirectResource` (`scripts/lib/redirectResources.mjs`, tested), resolves each rule's
+  `extensionPath` against what's actually available and only drops a rule if its specific
+  resource genuinely isn't shipped (confirmed live against the current rule set: 0 of the 30
+  referenced files are missing). The needed resource files are vendored into
+  `rules/redirect-resources/` at filter-update time, copied into
+  `web-accessible-resources/redirects/` at build time, and declared in the manifest's new
+  `web_accessible_resources` entry -- no rule rewriting needed, the paths AdGuard's rules
+  already encode just resolve now. Recovered rule count verified via `npm run validate:rules`:
+  274,186 total rules, up from ~273,000.
+
 ## 0.7.4
 
 ### Changed

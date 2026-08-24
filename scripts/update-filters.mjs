@@ -1,9 +1,10 @@
 // Copies prebuilt AdGuard DNR rulesets out of node_modules into rules/dnr/.
 // Re-run whenever @adguard/dnr-rulesets is updated (npm run filters:update).
-import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync, cpSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { chunkBySize } from "./lib/chunkBySize.mjs";
+import { resolveRedirectResource } from "./lib/redirectResources.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -12,6 +13,11 @@ const sourceDir = join(
   "node_modules/@adguard/dnr-rulesets/dist/filters/declarative"
 );
 const outDir = join(root, "rules/dnr");
+const redirectResourcesSourceDir = join(
+  root,
+  "node_modules/@adguard/scriptlets/dist/redirect-files"
+);
+const redirectResourcesOutDir = join(root, "rules/redirect-resources");
 
 // AdGuard filter IDs. See https://filters.adtidy.org/extension/chromium-mv3/filters.json
 // `category` groups these for the Filter Lists settings tab: "ads" (ads/trackers/redirects),
@@ -42,6 +48,14 @@ if (!existsSync(sourceDir)) {
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir, { recursive: true });
+rmSync(redirectResourcesOutDir, { recursive: true, force: true });
+mkdirSync(redirectResourcesOutDir, { recursive: true });
+
+const availableRedirectResources = existsSync(redirectResourcesSourceDir)
+  ? new Set(readdirSync(redirectResourcesSourceDir))
+  : new Set();
+const neededRedirectResources = new Set();
+let droppedRedirectRules = 0;
 
 // Rulesets whose "block this whole domain" rules also feed the background
 // safety net that closes popup/redirect tabs (see background/popupGuard.ts).
@@ -63,11 +77,18 @@ for (const ruleset of RULESETS) {
 
   const cleaned = [];
   for (const rule of rawRules) {
-    // Rules that redirect to a bundled no-op resource (extensionPath) need
-    // a matching file shipped as a web-accessible resource, which we don't
-    // ship yet -- drop that slice rather than ship a broken redirect.
+    // Rules that redirect to a bundled no-op resource (extensionPath) need a
+    // matching file shipped as a web-accessible resource. @adguard/scriptlets
+    // ships exactly the resource files AdGuard's own rules reference, so
+    // resolve against that instead of dropping the whole slice -- only drop
+    // a rule if the specific resource it points at genuinely isn't shipped.
     if (rule.action?.type === "redirect" && rule.action.redirect?.extensionPath) {
-      continue;
+      const resource = resolveRedirectResource(rule.action.redirect.extensionPath, availableRedirectResources);
+      if (!resource) {
+        droppedRedirectRules += 1;
+        continue;
+      }
+      neededRedirectResources.add(resource);
     }
     // Only {id, priority, action, condition} are part of the DNR rule
     // schema. AdGuard's ruleset id 1 in particular carries a multi-MB
@@ -180,6 +201,20 @@ const liveDir = join(root, "live");
 mkdirSync(liveDir, { recursive: true });
 writeFileSync(join(liveDir, "redirect-domains.json"), redirectDomainsJson);
 
+// Copy only the resource files $redirect rules actually reference (not
+// every file @adguard/scriptlets ships) into a tracked-shaped build output,
+// mirrored by scripts/build.mjs into web-accessible-resources/redirects/ so
+// the extensionPath values already baked into the rules above resolve as-is.
+for (const name of neededRedirectResources) {
+  cpSync(join(redirectResourcesSourceDir, name), join(redirectResourcesOutDir, name));
+}
+
 const total = manifestEntries.reduce((sum, r) => sum + r.ruleCount, 0);
 console.log(`\nWrote ${manifestEntries.length} rulesets, ${total} total rules -> rules/dnr/`);
 console.log(`Extracted ${redirectDomains.size} known ad-redirect domains -> rules/dnr/redirect-domains.json and live/redirect-domains.json`);
+console.log(
+  `Kept ${neededRedirectResources.size} $redirect resource file(s) -> rules/redirect-resources/` +
+    (droppedRedirectRules > 0
+      ? ` (${droppedRedirectRules} $redirect rule(s) still dropped -- referenced resource(s) not shipped by @adguard/scriptlets)`
+      : "")
+);

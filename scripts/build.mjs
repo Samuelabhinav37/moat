@@ -78,9 +78,15 @@ function copyStaticAssets() {
   if (!existsSync(rulesDir)) {
     throw new Error('rules/dnr is missing. Run "npm run filters:update" first.');
   }
+  const redirectResourcesDir = resolve(root, "rules", "redirect-resources");
+  if (!existsSync(redirectResourcesDir)) {
+    throw new Error('rules/redirect-resources is missing. Run "npm run filters:update" first.');
+  }
 
   mkdirSync(resolve(outDir, "rules"), { recursive: true });
   mkdirSync(resolve(outDir, "icons"), { recursive: true });
+  mkdirSync(resolve(outDir, "web-accessible-resources", "redirects"), { recursive: true });
+  cpSync(redirectResourcesDir, resolve(outDir, "web-accessible-resources", "redirects"), { recursive: true });
 
   const rulesetFiles = JSON.parse(readFileSync(resolve(rulesDir, "manifest.json"), "utf8")).map((r) => r.file);
   const cosmeticsManifest = JSON.parse(readFileSync(resolve(rulesDir, "cosmetics-manifest.json"), "utf8"));

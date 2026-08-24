@@ -1,5 +1,6 @@
 node_modules/
 dist/
 rules/dnr/
+rules/redirect-resources/
 *.zip
 .DS_Store

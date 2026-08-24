@@ -30,7 +30,7 @@ badge count.
 
 ## Features
 
-- **Network-level blocking** — ~273,000 rules across 11 AdGuard filter lists: ads, trackers,
+- **Network-level blocking** — ~274,000 rules across 11 AdGuard filter lists: ads, trackers,
   known-malicious/phishing/scam domains, cookie notices, and other annoyances.
 - **Popup/redirect firewall** — silently drops hijacked new-tab popups and redirects, backed by a
   background tab safety net.
@@ -94,9 +94,18 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   Online Malicious URL, Phishing URL, Scam, and Badware-risks for actual
   malware/phishing domains (this is the "firewall" half — it blocks known-bad
   sites outright, not just ads); Social Media, Cookie Notices, and Other
-  Annoyances for the trackers/nags those don't otherwise catch. ~273,000
+  Annoyances for the trackers/nags those don't otherwise catch. ~274,000
   rules total, well under Chrome's static-rule budget. This all runs in the
   browser engine, not a JS handler (which MV3 no longer allows for blocking).
+  A small slice of these are `$redirect` rules that neutralize ad scripts by
+  pointing them at a bundled no-op resource (`nooptext.js`,
+  `1x1-transparent.gif`, etc.) instead of just blocking the request outright —
+  `scripts/update-filters.mjs` vendors the ~30 resource files these rules
+  actually reference straight out of `@adguard/scriptlets` (which ships
+  exactly the set AdGuard's own rules point at) into
+  `web-accessible-resources/redirects/`, declared in the manifest's
+  `web_accessible_resources`, so these rules resolve instead of failing
+  closed.
 - **Real block-count breakdown** — the toolbar popup's Ads/Trackers/Popups strip is sourced from
   `declarativeNetRequest.getMatchedRules()` (the `declarativeNetRequestFeedback` permission),
   refreshed once per page load and mapped from the 11 filter-list groups above to three buckets.
@@ -359,11 +368,6 @@ shows whether Chrome picked up the value) before relying on it in production.
 
 ## Known limitations
 
-- **~990 filter rules dropped.** A small slice of AdGuard's rules neutralize
-  ad scripts by redirecting them to a bundled no-op resource file
-  (`$redirect` rules). We don't ship those resource files yet, so
-  `scripts/update-filters.mjs` drops that slice rather than ship a broken
-  redirect. Everything else (the vast majority — 273,000+ rules) is intact.
 - **The block-count breakdown is Chrome-only.** Firefox hasn't implemented
   `declarativeNetRequest.getMatchedRules()` yet, so the Ads/Trackers/Popups
   strip stays at zero there. The popup/redirect firewall count (the
