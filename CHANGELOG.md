@@ -3,6 +3,36 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.9.2
+
+### Fixed
+- **"Block an element..." silently did nothing on tabs opened before the extension was last
+  loaded/reloaded.** `element-picker.js` is a `document_idle` content script, which only
+  auto-injects as pages load -- a tab left open from before an install/reload has no listener,
+  so `popup.ts`'s `browser.tabs.sendMessage` had nowhere to go and failed silently.
+  `src/popup/popup.ts` now falls back to `browser.scripting.executeScript` to inject the content
+  script on demand and retries once if the first send fails. Added the `scripting` permission
+  (`scripts/manifest.ts`) for this. `manifest.ts`'s own hardcoded `version` field had also drifted
+  out of sync with `package.json` since 0.9.0 -- brought back in line and will be checked at each
+  future bump.
+
+### Changed
+- **Options page and element-picker dialog now match the popup's redesign.** Both were still on
+  the pre-redesign palette, which read as two different products. `src/ui/theme.css`'s shared
+  `--accent` token drops the blue in favor of a greyish-white (`#d7dae0`) pulled from
+  `icons/logo.svg`'s own line/dot colors -- affects `options.html` only (links, row icons, hover
+  borders), since `popup.html` already hardcodes its own colors independently. Added an `--on`
+  token (`#4ae03f`) so the toggle-checked and primary-button green stays a distinct affirmative
+  color from the link/icon accent, matching the popup's toggle. The element-picker's floating
+  panel (`src/content/elementPicker.ts`) -- the "Hide on this site / Hide for now / Gray out /
+  Cancel" dialog that appears after clicking an element -- moves off its old hardcoded teal/orange
+  palette onto the same dark/green/coral system, with pill-shaped buttons to match.
+- **Rewrote all options.html copy.** Full pass on every card title, hint, empty state, and button
+  label, plus new group headings ("Advanced Protection", "Filter Updates", "Cosmetic Filtering")
+  above related cards. "Paused sites" is now "Exceptions"; "Grayed-out elements" is now "Dimmed
+  elements". `options.ts`'s `PRESET_HINTS.standard` string updated to match so the "Filtering
+  level" hint doesn't flash old text before the new copy loads.
+
 ## 0.9.1
 
 ### Changed

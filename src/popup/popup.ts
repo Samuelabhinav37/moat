@@ -92,7 +92,25 @@ document.getElementById("open-options")?.addEventListener("click", (event) => {
 
 document.getElementById("start-picker")?.addEventListener("click", async () => {
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
-  if (tab?.id !== undefined) await browser.tabs.sendMessage(tab.id, { type: "start-picker" }).catch(() => {});
+  if (tab?.id !== undefined) {
+    const tabId = tab.id;
+    try {
+      await browser.tabs.sendMessage(tabId, { type: "start-picker" });
+    } catch {
+      // No content script listening yet -- element-picker.js only
+      // auto-injects on page load, so a tab left open since before the
+      // extension was last installed/reloaded has no receiver. Inject it on
+      // demand and retry once. This still no-ops on pages content scripts
+      // can never run on (chrome://, the Web Store), which reject the
+      // injection the same way.
+      try {
+        await browser.scripting.executeScript({ target: { tabId }, files: ["element-picker.js"] });
+        await browser.tabs.sendMessage(tabId, { type: "start-picker" });
+      } catch {
+        // Nothing more we can do here.
+      }
+    }
+  }
   window.close();
 });
 

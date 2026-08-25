@@ -39,8 +39,8 @@ function createOverlay(): HTMLDivElement {
   Object.assign(div.style, {
     position: "fixed",
     pointerEvents: "none",
-    background: "rgba(217, 119, 87, 0.25)",
-    outline: "2px solid #d97757",
+    background: "rgba(250, 109, 109, 0.25)",
+    outline: "2px solid #fa6d6d",
     zIndex: String(Z_INDEX),
     transition: "all 0.05s ease",
   });
@@ -68,10 +68,10 @@ function createPanel(selector: string, onPick: (mode: PickMode) => void, onCance
     bottom: "16px",
     right: "16px",
     zIndex: String(Z_INDEX),
-    background: "#1c1f21",
-    color: "#e7ebed",
-    border: "1px solid #33383b",
-    borderRadius: "8px",
+    background: "#1b191d",
+    color: "#eceef0",
+    border: "1px solid #37343b",
+    borderRadius: "14px",
     padding: "12px",
     font: "13px/1.4 system-ui, -apple-system, sans-serif",
     boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
@@ -86,9 +86,9 @@ function createPanel(selector: string, onPick: (mode: PickMode) => void, onCance
   code.textContent = selector;
   Object.assign(code.style, {
     display: "block",
-    background: "#0f1210",
+    background: "#111015",
     padding: "4px 6px",
-    borderRadius: "4px",
+    borderRadius: "6px",
     marginBottom: "10px",
     wordBreak: "break-all",
     fontSize: "12px",
@@ -101,18 +101,19 @@ function createPanel(selector: string, onPick: (mode: PickMode) => void, onCance
     const button = document.createElement("button");
     button.textContent = text;
     const colors = {
-      primary: { border: "#5fb896", background: "#5fb896", color: "#0f1210" },
-      danger: { border: "#d97757", background: "transparent", color: "#d97757" },
-      plain: { border: "#33383b", background: "transparent", color: "#e7ebed" },
+      primary: { border: "#4ae03f", background: "#4ae03f", color: "#123010" },
+      danger: { border: "#fa6d6d", background: "transparent", color: "#fa6d6d" },
+      plain: { border: "#37343b", background: "transparent", color: "#eceef0" },
     }[variant];
     Object.assign(button.style, {
       font: "inherit",
+      fontWeight: "600",
       cursor: "pointer",
-      borderRadius: "6px",
+      borderRadius: "999px",
       border: `1px solid ${colors.border}`,
       background: colors.background,
       color: colors.color,
-      padding: "6px 10px",
+      padding: "7px 12px",
     });
     button.addEventListener("click", onClick);
     return button;

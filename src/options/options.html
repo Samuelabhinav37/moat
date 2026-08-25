@@ -124,9 +124,9 @@
         min-width: 80px;
       }
       .preset-row button[aria-pressed="true"] {
-        background: var(--accent);
-        border-color: var(--accent);
-        color: #0f1210;
+        background: var(--on);
+        border-color: var(--on);
+        color: #123010;
         font-weight: 600;
       }
 
@@ -196,7 +196,7 @@
       <img src="icons/icon48.png" alt="" />
       <h1>Moat</h1>
     </div>
-    <p class="muted tagline">Blocks ads, trackers, and hijacked new-tab popups. No nag screens, ever.</p>
+    <p class="muted tagline">Blocks ads, trackers, and hijacked popups.</p>
 
     <nav class="tabs" role="tablist">
       <button class="tab-button" data-tab="protection" role="tab" aria-selected="true">Protection</button>
@@ -216,7 +216,7 @@
               <span class="card-title">Protection enabled</span>
               <span class="locked-badge" id="protection-locked-badge" hidden>Managed by your organization</span>
             </div>
-            <p class="hint muted">Turn everything off, everywhere.</p>
+            <p class="hint muted">Toggle to turn off all blocking globally.</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="master-toggle" />
@@ -225,14 +225,15 @@
         </div>
       </div>
 
+      <div class="filter-category">Advanced Protection</div>
       <div class="card">
         <div class="toggle-row">
           <div class="row-icon" aria-hidden="true">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6"/><circle cx="6.2" cy="6" r=".7" fill="currentColor" stroke="none"/><circle cx="10" cy="6.8" r=".7" fill="currentColor" stroke="none"/><circle cx="6.8" cy="9.8" r=".7" fill="currentColor" stroke="none"/><circle cx="10.2" cy="10.2" r=".7" fill="currentColor" stroke="none"/></svg>
           </div>
           <div>
-            <div class="card-title">Block third-party cookies</div>
-            <p class="hint muted">Browser-wide, not just on protected sites. Off by default.</p>
+            <div class="card-title">Block third party cookies</div>
+            <p class="hint muted">Prevents cross site tracking across your browser. (Off by default)</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="cookies-toggle" />
@@ -244,8 +245,8 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M2 6a9 9 0 0112 0M4.4 8.6a5.5 5.5 0 017.2 0"/><circle cx="8" cy="12.3" r=".9" fill="currentColor" stroke="none"/><line x1="2" y1="2" x2="14" y2="14"/></svg>
           </div>
           <div>
-            <div class="card-title">WebRTC leak protection</div>
-            <p class="hint muted">Stops WebRTC from exposing your real IP behind a VPN. Browser-wide.</p>
+            <div class="card-title">Prevent WebRTC IP leaks</div>
+            <p class="hint muted">Hides your real IP address when using a VPN.</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="webrtc-toggle" />
@@ -259,8 +260,8 @@
           <div>
             <div class="card-title">Reduce fingerprinting</div>
             <p class="hint muted">
-              Adds noise to canvas/audio/WebGL reads. Experimental — can occasionally affect a site
-              (e.g. a canvas-based CAPTCHA), so it's off by default.
+              Scrambles device data to prevent silent tracking. May occasionally break site
+              features like CAPTCHAs. (Off by default)
             </p>
           </div>
           <label class="switch">
@@ -273,13 +274,10 @@
             <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 2a6 6 0 000 12z" fill="currentColor"/></svg>
           </div>
           <div>
-            <div class="card-title">Gray out unblockable video ads</div>
+            <div class="card-title">Dim unblockable video ads</div>
             <p class="hint muted">
-              Some video ads (YouTube's in-stream ones) play through the same player as real
-              content, so they can't be blocked outright. This dims them instead of removing them,
-              automatically, no picking required. On by default. Best-effort — depends on
-              YouTube's current markup — so turn it off here if it ever misfires. Still see one you
-              want gone entirely? Use "Block an element…" from the toolbar popup.
+              Automatically grays out embedded video ads like YouTube that cannot be entirely
+              removed.
             </p>
           </div>
           <label class="switch">
@@ -292,15 +290,10 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5.5 6.5l5 5M10.5 6.5l-5 5"/></svg>
           </div>
           <div>
-            <div class="card-title">Aggressively remove sponsored posts</div>
+            <div class="card-title">Aggressively hide sponsored posts</div>
             <p class="hint muted">
-              Instagram, LinkedIn, and YouTube render sponsored posts with class names that change
-              per session specifically to dodge fixed filter rules. This watches feeds as you
-              scroll and removes any post labeled "Sponsored," "Ad," "Promoted," or "Paid
-              partnership" as it renders, instead of relying on a fixed selector. Off by default: a
-              label match, not a fixed rule, so it carries a little more false-positive risk than
-              everything else here — for when you want feeds fully cleaned, not just what static
-              rules catch.
+              Scans and removes sponsored or promoted posts from social feeds as you scroll. (Off
+              by default)
             </p>
           </div>
           <label class="switch">
@@ -313,13 +306,9 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M3 6h10M3 10h6"/><path d="M11.5 10.5l1.5 1.5 2-2" stroke-linejoin="round"/></svg>
           </div>
           <div>
-            <div class="card-title">Auto-reject cookie banners</div>
+            <div class="card-title">Auto reject cookie banners</div>
             <p class="hint muted">
-              Clicks through to "reject"/"decline" on cookie-consent banners automatically, using an
-              interpreter for a small, declarative rule format (inert JSON describing which button
-              to click — never arbitrary injected JS). Covers the major consent platforms (OneTrust,
-              Cookiebot, Didomi, and others), not every site. Off by default: it's still clicking
-              things on your behalf, closer to the feed scanner above than plain hiding.
+              Automatically clicks reject or decline on major consent banners. (Off by default)
             </p>
           </div>
           <label class="switch">
@@ -334,12 +323,7 @@
           <div>
             <div class="card-title">Uncloak disguised trackers (Firefox only)</div>
             <p class="hint muted">
-              Some trackers hide behind a subdomain of the site you're on (e.g.
-              <code>trk.example.com</code>) that secretly points elsewhere via DNS, specifically to
-              dodge domain-based blocking. This resolves the real destination for candidate
-              subdomains and blocks the request if it leads to a known tracker — real resolution,
-              not a static list, using the same browser API uBlock Origin uses for this on Firefox.
-              Chrome has no equivalent API at all. Off by default.
+              Detects and blocks trackers hiding behind first party subdomains. (Off by default)
             </p>
             <p class="hint muted" id="cname-unsupported-hint" hidden>
               Not available in this browser.
@@ -352,23 +336,21 @@
         </div>
       </div>
 
+      <div class="filter-category">Filter Updates</div>
       <div class="card">
         <div class="card-title">Live redirect-domain list</div>
-        <p class="hint muted">
-          Once a day, refreshes the known popup/redirect domain list from GitHub, on top of the
-          bundled baseline — no extension update needed for that part.
-        </p>
+        <p class="hint muted">Fetches the latest popup and redirect blocks daily from GitHub.</p>
         <p class="hint" id="live-status">Not checked yet.</p>
       </div>
 
       <div class="card">
-        <div class="card-title">Paused sites</div>
-        <p class="hint muted">Protection is off on these hostnames.</p>
+        <div class="card-title">Exceptions</div>
+        <p class="hint muted">Protection is completely disabled on these hostnames.</p>
         <ul class="site-list" id="site-list"></ul>
-        <p class="empty-state" id="site-empty-state">No sites paused.</p>
+        <p class="empty-state" id="site-empty-state">No sites added.</p>
         <div class="add-row">
           <input type="text" id="add-input" placeholder="example.com" />
-          <button id="add-button">Pause</button>
+          <button id="add-button">Add</button>
         </div>
       </div>
     </section>
@@ -385,12 +367,12 @@
           <button type="button" data-preset="standard">Standard</button>
           <button type="button" data-preset="strict">Strict</button>
         </div>
-        <p class="hint muted" id="preset-hint">Standard — ads, trackers, and known-malicious sites.</p>
+        <p class="hint muted" id="preset-hint">Standard level blocks ads, trackers, and known malicious sites.</p>
       </div>
 
       <div class="card">
         <div class="card-title">Individual filter lists</div>
-        <p class="hint muted">Fine-tune what's on. Changing one switches the level above to "Custom".</p>
+        <p class="hint muted">Fine tune your active filters. Changing these will switch your level to Custom.</p>
         <div id="filter-list-rows"></div>
       </div>
     </section>
@@ -398,9 +380,9 @@
     <section data-tab-panel="custom" hidden>
       <div class="card">
         <div class="card-title">Blocked sites</div>
-        <p class="hint muted">Always blocked, on top of the bundled filter lists.</p>
+        <p class="hint muted">Always block these domains regardless of filter lists.</p>
         <ul class="site-list" id="custom-block-list"></ul>
-        <p class="empty-state" id="custom-block-empty">Nothing added.</p>
+        <p class="empty-state" id="custom-block-empty">No sites added.</p>
         <div class="add-row">
           <input type="text" id="custom-block-input" placeholder="example.com" />
           <button id="custom-block-add">Block</button>
@@ -409,73 +391,70 @@
 
       <div class="card">
         <div class="card-title">Allowed sites</div>
-        <p class="hint muted">Never blocked, even if a filter list or a rule above would otherwise catch it.</p>
+        <p class="hint muted">Never block these domains, bypassing all active filter lists.</p>
         <ul class="site-list" id="custom-allow-list"></ul>
-        <p class="empty-state" id="custom-allow-empty">Nothing added.</p>
+        <p class="empty-state" id="custom-allow-empty">No sites added.</p>
         <div class="add-row">
           <input type="text" id="custom-allow-input" placeholder="example.com" />
           <button id="custom-allow-add">Allow</button>
         </div>
       </div>
 
+      <div class="filter-category">Cosmetic Filtering</div>
       <div class="card">
         <div class="card-title">Hidden elements</div>
         <p class="hint muted">
-          Picked with "Block an element…" in the toolbar popup. Removing one here also stops
-          hiding it on future visits.
+          Elements you removed using the "Block an element" toolbar tool. Remove them here to
+          restore them.
         </p>
         <ul class="site-list" id="hidden-element-list"></ul>
-        <p class="empty-state" id="hidden-element-empty">Nothing picked yet.</p>
+        <p class="empty-state" id="hidden-element-empty">Nothing selected yet.</p>
       </div>
 
       <div class="card">
-        <div class="card-title">Grayed-out elements</div>
+        <div class="card-title">Dimmed elements</div>
         <p class="hint muted">
-          Picked with "Gray out" in the element picker. Removing one here also stops dimming it on
-          future visits.
+          Elements you selected to "Gray out". Remove them here to restore normal visibility.
         </p>
         <ul class="site-list" id="grayscale-element-list"></ul>
-        <p class="empty-state" id="grayscale-element-empty">Nothing picked yet.</p>
+        <p class="empty-state" id="grayscale-element-empty">Nothing selected yet.</p>
       </div>
     </section>
 
     <section data-tab-panel="about" hidden>
       <div class="card">
         <div class="about-section">
-          <h3>What this is</h3>
+          <h3>About Moat</h3>
           <p>
-            Moat blocks ads, trackers, and hijacked popups and redirects, on Chrome and Firefox.
-            It has no nag screens, no onboarding tabs, and no "rate us" prompts. The
+            Moat blocks ads, trackers, and hijacked popups on Chrome and Firefox. The
             <a href="https://github.com/Samuelabhinav37/moat#readme" target="_blank" rel="noopener">
               full README</a
             >
-            explains how the blocking, popup firewall, and cosmetic filtering work.
+            explains exactly how the blocking, popup firewall, and cosmetic filtering work.
           </p>
         </div>
         <div class="about-section">
           <h3>Privacy</h3>
           <p>
-            Everything on this page is stored locally in your browser. That includes protection
-            state, paused sites, filter list choices, and custom rules. None of it is sent
-            anywhere.
+            Everything on this page is stored locally in your browser and never leaves your
+            device.
           </p>
           <p>
-            There is one exception. Once a day, Moat fetches a small public file from GitHub
-            listing known popup and redirect domains, so the list stays current between store
-            updates. That request carries no settings or browsing data. It is a plain GET, and it
-            reveals your IP to GitHub the same way visiting any website would.
+            <strong>Filter Updates:</strong> Once a day, Moat pings GitHub to update its redirect
+            domain list. This is a standard network request and carries no browsing data.
           </p>
           <p>
-            If "Reduce fingerprinting" is on, Moat generates a random identifier locally to seed
-            noise added to canvas and audio reads. That identifier never leaves your device.
+            <strong>Fingerprinting:</strong> If "Reduce fingerprinting" is enabled, Moat generates
+            a random local identifier to block trackers. This identifier is never transmitted.
           </p>
           <p id="managed-notice" hidden>
-            This installation is managed by your organization. Your administrator can see and set
-            the policy values below. They cannot see your individual browsing.
+            <strong>Enterprise Notice:</strong> This installation is managed by your organization.
+            Your administrator can see and set the policies below but cannot see your individual
+            browsing history.
           </p>
         </div>
         <div class="about-section">
-          <h3>Version</h3>
+          <h3>Version details</h3>
           <p id="version-text">—</p>
           <div class="about-links">
             <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
@@ -485,11 +464,9 @@
         <div class="about-section">
           <h3>Debugging</h3>
           <p>
-            The <a href="logger.html" target="_blank" rel="noopener">rule-match logger</a> shows
-            which of Moat's compiled rules matched each request on a tab, for diagnosing a filter
-            or heuristic that stops working. It's a development tool: Chrome only exposes the data
-            it needs when the extension is loaded unpacked (developer mode), so this page will say
-            so and show nothing on a normal install.
+            The <a href="logger.html" target="_blank" rel="noopener">rule match logger</a> is a
+            development tool that shows which compiled rules matched specific network requests. It
+            is only visible when the extension is loaded unpacked in developer mode.
           </p>
         </div>
       </div>

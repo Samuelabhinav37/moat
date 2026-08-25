@@ -34,7 +34,7 @@ function baseManifest() {
     name: "Moat",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
-    version: "0.9.0",
+    version: "0.9.2",
     icons,
     action: {
       default_popup: "popup.html",
@@ -53,6 +53,7 @@ function baseManifest() {
       "declarativeNetRequestFeedback",
       "privacy",
       "alarms",
+      "scripting",
     ],
     host_permissions: ["<all_urls>"],
     storage: {

@@ -105,7 +105,7 @@ const filterListRows = document.getElementById("filter-list-rows") as HTMLElemen
 const PRESET_HINTS: Record<PresetName | "custom", string> = {
   off: "Nothing is blocked.",
   essential: "Ads, popups, and known-malicious sites only.",
-  standard: "Essential, plus trackers and tracking-link cleanup.",
+  standard: "Standard level blocks ads, trackers, and known malicious sites.",
   strict: "Everything, plus the browser-wide privacy toggles above.",
   custom: "A mix you've put together yourself.",
 };

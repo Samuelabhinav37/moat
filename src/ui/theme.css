@@ -1,12 +1,13 @@
 :root {
   color-scheme: light dark;
-  --bg: #1c1f21;
-  --card: #212528;
-  --fg: #e7ebed;
-  --muted: #9aa4a9;
-  --accent: #5fb896;
-  --danger: #d97757;
-  --border: #33383b;
+  --bg: #1b191d;
+  --card: #242229;
+  --fg: #eceef0;
+  --muted: #9d97a1;
+  --accent: #d7dae0;
+  --on: #4ae03f;
+  --danger: #fa6d6d;
+  --border: #37343b;
 }
 
 * {
@@ -40,7 +41,7 @@ h1 {
 button {
   font: inherit;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--fg);
@@ -52,9 +53,9 @@ button:hover {
 }
 
 button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #0f1210;
+  background: var(--on);
+  border-color: var(--on);
+  color: #123010;
   font-weight: 600;
 }
 
@@ -100,7 +101,7 @@ a {
 }
 
 .switch input:checked + .track {
-  background: var(--accent);
+  background: var(--on);
 }
 
 .switch input:checked + .track .thumb {
