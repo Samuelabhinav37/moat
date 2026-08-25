@@ -14,6 +14,10 @@
 No nag screens, no "rate us" prompts, no onboarding tabs. It blocks things quietly and shows a
 badge count.
 
+> **Project status:** active development. Builds and automated tests cover Chrome and Firefox,
+> but browser-store review, real-world compatibility, filter provenance, and dependency review
+> remain part of every release decision.
+
 ## Contents
 
 - [Features](#features)
