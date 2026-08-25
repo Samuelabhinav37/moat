@@ -9,23 +9,46 @@
 import type { LoggedMatch } from "../types";
 
 const MAX_ENTRIES_PER_TAB = 200;
-const entriesByTab = new Map<number, LoggedMatch[]>();
 
-/** Pure ring-buffer append, pulled out so it's testable without the
- * chrome.declarativeNetRequest API this file otherwise depends on. Mutates
- * and returns `entries` for convenience at the one call site. */
-export function appendEntry(entries: LoggedMatch[], entry: LoggedMatch, max: number): LoggedMatch[] {
-  entries.push(entry);
-  if (entries.length > max) entries.shift();
-  return entries;
+/** A true fixed-capacity ring buffer -- push is O(1) (write to a slot,
+ * advance an index), unlike an array + shift() which is O(n) once full
+ * (shift re-indexes every remaining element). Pulled out as its own class,
+ * pure and testable without the chrome.declarativeNetRequest API this file
+ * otherwise depends on, since push() is called on every matched request
+ * (potentially many per page) while toArray() is only called when the
+ * diagnostic logger page is actually open -- worth moving the O(n) cost to
+ * the rare read instead of the frequent write. */
+export class RingBuffer<T> {
+  private readonly slots: (T | undefined)[];
+  private writeIndex = 0;
+  private count = 0;
+
+  constructor(private readonly capacity: number) {
+    this.slots = new Array(capacity);
+  }
+
+  push(item: T): void {
+    this.slots[this.writeIndex] = item;
+    this.writeIndex = (this.writeIndex + 1) % this.capacity;
+    this.count = Math.min(this.count + 1, this.capacity);
+  }
+
+  /** Oldest-to-newest snapshot. O(count), not O(1) -- only worth calling
+   * when something actually needs to read the buffer, not on every push. */
+  toArray(): T[] {
+    if (this.count < this.capacity) return this.slots.slice(0, this.count) as T[];
+    return [...this.slots.slice(this.writeIndex), ...this.slots.slice(0, this.writeIndex)] as T[];
+  }
 }
+
+const entriesByTab = new Map<number, RingBuffer<LoggedMatch>>();
 
 export function isSupported(): boolean {
   return typeof chrome !== "undefined" && !!chrome.declarativeNetRequest?.onRuleMatchedDebug;
 }
 
 export function getEntries(tabId: number): LoggedMatch[] {
-  return entriesByTab.get(tabId) ?? [];
+  return entriesByTab.get(tabId)?.toArray() ?? [];
 }
 
 export function forgetTab(tabId: number): void {
@@ -39,18 +62,18 @@ export function initRuleLogger(): void {
     const { tabId } = info.request;
     if (tabId < 0) return; // not associated with any tab (e.g. a background fetch)
 
-    const entries = appendEntry(
-      entriesByTab.get(tabId) ?? [],
-      {
-        timestamp: Date.now(),
-        url: info.request.url,
-        method: info.request.method,
-        type: info.request.type,
-        ruleId: info.rule.ruleId,
-        rulesetId: info.rule.rulesetId,
-      },
-      MAX_ENTRIES_PER_TAB
-    );
-    entriesByTab.set(tabId, entries);
+    let buffer = entriesByTab.get(tabId);
+    if (!buffer) {
+      buffer = new RingBuffer<LoggedMatch>(MAX_ENTRIES_PER_TAB);
+      entriesByTab.set(tabId, buffer);
+    }
+    buffer.push({
+      timestamp: Date.now(),
+      url: info.request.url,
+      method: info.request.method,
+      type: info.request.type,
+      ruleId: info.rule.ruleId,
+      rulesetId: info.rule.rulesetId,
+    });
   });
 }

@@ -68,14 +68,19 @@ function normalizeHostname(input: string): string | null {
 }
 
 /** Shared by every removable list on this page: the paused-sites list, the
- * two custom block/allow lists, and the picker's two saved-rule lists. */
+ * two custom block/allow lists, and the picker's two saved-rule lists.
+ * rerenderSelf re-renders just this one list after a removal -- adding or
+ * removing one entry doesn't need to tear down and rebuild every other
+ * list plus the filter-groups checkboxes on the page too, which is what
+ * calling the page-level render() here would do. */
 function renderRows<T>(
   list: HTMLUListElement,
   emptyState: HTMLElement,
   items: T[],
   formatLabel: (item: T) => string,
   removeLabel: string,
-  onRemove: (item: T) => Promise<unknown>
+  onRemove: (item: T) => Promise<unknown>,
+  rerenderSelf: () => Promise<void>
 ): void {
   emptyState.style.display = items.length ? "none" : "block";
   list.replaceChildren(
@@ -88,7 +93,7 @@ function renderRows<T>(
       remove.textContent = removeLabel;
       remove.addEventListener("click", async () => {
         await onRemove(item);
-        await render();
+        await rerenderSelf();
       });
 
       li.append(label, remove);
@@ -102,9 +107,10 @@ function renderDomainList(
   emptyState: HTMLElement,
   domains: string[],
   removeLabel: string,
-  onRemove: (domain: string) => Promise<void>
+  onRemove: (domain: string) => Promise<void>,
+  rerenderSelf: () => Promise<void>
 ): void {
-  renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove);
+  renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove, rerenderSelf);
 }
 
 // ---------- Filter Lists tab ----------
@@ -242,7 +248,7 @@ async function addCustomDomain(field: "customBlockedDomains" | "customAllowedDom
   set.add(hostname);
   await setSettings({ [field]: [...set] });
   input.value = "";
-  await render();
+  await (field === "customBlockedDomains" ? rerenderCustomBlockList() : rerenderCustomAllowList());
 }
 
 customBlockAdd.addEventListener("click", () => addCustomDomain("customBlockedDomains", customBlockInput));
@@ -266,7 +272,8 @@ function renderSelectorRules(
   list: HTMLUListElement,
   emptyState: HTMLElement,
   rules: Record<string, string[]>,
-  onRemove: (hostname: string, selector: string) => Promise<unknown>
+  onRemove: (hostname: string, selector: string) => Promise<unknown>,
+  rerenderSelf: () => Promise<void>
 ): void {
   const rows = Object.entries(rules)
     .flatMap(([hostname, selectors]) => selectors.map((selector) => ({ hostname, selector })))
@@ -278,7 +285,8 @@ function renderSelectorRules(
     rows,
     (row) => `${row.hostname} — ${row.selector}`,
     "Remove",
-    (row) => onRemove(row.hostname, row.selector)
+    (row) => onRemove(row.hostname, row.selector),
+    rerenderSelf
   );
 }
 
@@ -288,6 +296,77 @@ const versionText = document.getElementById("version-text") as HTMLElement;
 const managedNotice = document.getElementById("managed-notice") as HTMLElement;
 
 // ---------- Render ----------
+
+// Each of these re-renders exactly one list from a fresh settings read,
+// rather than the whole page -- used as renderRows' rerenderSelf so
+// removing (or adding) one entry doesn't tear down and rebuild every other
+// list plus the filter-groups checkboxes too. getEffectiveSettings() (not
+// getSettings()) so a managed policy's forced disabledSites/
+// customBlockedDomains still shows correctly, matching what the full
+// render() below already does.
+async function rerenderSiteList(): Promise<void> {
+  const settings = await getEffectiveSettings();
+  renderDomainList(
+    siteList,
+    siteEmptyState,
+    settings.disabledSites,
+    "Resume",
+    (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
+    rerenderSiteList
+  );
+}
+
+async function rerenderCustomBlockList(): Promise<void> {
+  const settings = await getEffectiveSettings();
+  renderDomainList(
+    customBlockList,
+    customBlockEmpty,
+    settings.customBlockedDomains,
+    "Remove",
+    async (domain) => {
+      const current = await getSettings();
+      await setSettings({ customBlockedDomains: current.customBlockedDomains.filter((d) => d !== domain) });
+    },
+    rerenderCustomBlockList
+  );
+}
+
+async function rerenderCustomAllowList(): Promise<void> {
+  const settings = await getEffectiveSettings();
+  renderDomainList(
+    customAllowList,
+    customAllowEmpty,
+    settings.customAllowedDomains,
+    "Remove",
+    async (domain) => {
+      const current = await getSettings();
+      await setSettings({ customAllowedDomains: current.customAllowedDomains.filter((d) => d !== domain) });
+    },
+    rerenderCustomAllowList
+  );
+}
+
+async function rerenderHiddenElementList(): Promise<void> {
+  const settings = await getEffectiveSettings();
+  renderSelectorRules(
+    hiddenElementList,
+    hiddenElementEmpty,
+    settings.customCosmeticRules,
+    removeCustomCosmeticRule,
+    rerenderHiddenElementList
+  );
+}
+
+async function rerenderGrayscaleElementList(): Promise<void> {
+  const settings = await getEffectiveSettings();
+  renderSelectorRules(
+    grayscaleElementList,
+    grayscaleElementEmpty,
+    settings.customGrayscaleRules,
+    removeGrayscaleRule,
+    rerenderGrayscaleElementList
+  );
+}
 
 async function render(): Promise<void> {
   const [settings, policy] = await Promise.all([getEffectiveSettings(), getManagedPolicy()]);
@@ -311,8 +390,13 @@ async function render(): Promise<void> {
 
   renderLiveStatus(await getLiveUpdateStatus());
 
-  renderDomainList(siteList, siteEmptyState, settings.disabledSites, "Resume", (hostname) =>
-    setSiteDisabled(hostname, false).then(() => undefined)
+  renderDomainList(
+    siteList,
+    siteEmptyState,
+    settings.disabledSites,
+    "Resume",
+    (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
+    rerenderSiteList
   );
 
   const filtersLocked = isLocked("filterGroups", policy);
@@ -321,16 +405,42 @@ async function render(): Promise<void> {
   await renderFilterLists(settings);
   for (const input of filterListRows.querySelectorAll("input")) input.disabled = filtersLocked;
 
-  renderDomainList(customBlockList, customBlockEmpty, settings.customBlockedDomains, "Remove", async (domain) => {
-    const current = await getSettings();
-    await setSettings({ customBlockedDomains: current.customBlockedDomains.filter((d) => d !== domain) });
-  });
-  renderDomainList(customAllowList, customAllowEmpty, settings.customAllowedDomains, "Remove", async (domain) => {
-    const current = await getSettings();
-    await setSettings({ customAllowedDomains: current.customAllowedDomains.filter((d) => d !== domain) });
-  });
-  renderSelectorRules(hiddenElementList, hiddenElementEmpty, settings.customCosmeticRules, removeCustomCosmeticRule);
-  renderSelectorRules(grayscaleElementList, grayscaleElementEmpty, settings.customGrayscaleRules, removeGrayscaleRule);
+  renderDomainList(
+    customBlockList,
+    customBlockEmpty,
+    settings.customBlockedDomains,
+    "Remove",
+    async (domain) => {
+      const current = await getSettings();
+      await setSettings({ customBlockedDomains: current.customBlockedDomains.filter((d) => d !== domain) });
+    },
+    rerenderCustomBlockList
+  );
+  renderDomainList(
+    customAllowList,
+    customAllowEmpty,
+    settings.customAllowedDomains,
+    "Remove",
+    async (domain) => {
+      const current = await getSettings();
+      await setSettings({ customAllowedDomains: current.customAllowedDomains.filter((d) => d !== domain) });
+    },
+    rerenderCustomAllowList
+  );
+  renderSelectorRules(
+    hiddenElementList,
+    hiddenElementEmpty,
+    settings.customCosmeticRules,
+    removeCustomCosmeticRule,
+    rerenderHiddenElementList
+  );
+  renderSelectorRules(
+    grayscaleElementList,
+    grayscaleElementEmpty,
+    settings.customGrayscaleRules,
+    removeGrayscaleRule,
+    rerenderGrayscaleElementList
+  );
 
   versionText.textContent = `v${browser.runtime.getManifest().version}`;
   managedNotice.hidden = Object.keys(policy).length === 0;
@@ -374,7 +484,7 @@ addButton.addEventListener("click", async () => {
   if (!hostname) return;
   await setSiteDisabled(hostname, true);
   addInput.value = "";
-  await render();
+  await rerenderSiteList();
 });
 
 addInput.addEventListener("keydown", (event) => {

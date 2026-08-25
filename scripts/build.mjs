@@ -59,27 +59,33 @@ try {
 }
 mkdirSync(outDir, { recursive: true });
 
-for (const [name, entry] of ENTRIES) {
-  await build({
-    root,
-    configFile: false,
-    logLevel: "warn",
-    resolve: {
-      alias: { "webextension-polyfill": polyfillPath },
-    },
-    build: {
-      outDir,
-      emptyOutDir: false,
-      target: "es2022",
-      minify: false,
-      watch: watch ? {} : undefined,
-      rollupOptions: {
-        input: { [name]: resolve(root, entry) },
-        output: { format: "iife", entryFileNames: "[name].js" },
+// Each entry is a fully independent Rollup graph with no shared state, so
+// these run in parallel rather than one at a time -- logLevel: "warn" keeps
+// interleaved output from different entries rare (only warnings, not the
+// normal per-file build log) in the common case where nothing warns.
+await Promise.all(
+  ENTRIES.map(([name, entry]) =>
+    build({
+      root,
+      configFile: false,
+      logLevel: "warn",
+      resolve: {
+        alias: { "webextension-polyfill": polyfillPath },
       },
-    },
-  });
-}
+      build: {
+        outDir,
+        emptyOutDir: false,
+        target: "es2022",
+        minify: false,
+        watch: watch ? {} : undefined,
+        rollupOptions: {
+          input: { [name]: resolve(root, entry) },
+          output: { format: "iife", entryFileNames: "[name].js" },
+        },
+      },
+    })
+  )
+);
 
 copyStaticAssets();
 console.log(`Built ${target} -> dist/${target}`);

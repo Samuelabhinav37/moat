@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.10.1
+
+### Changed
+- Implemented the four low-severity audit findings 0.10.0 deliberately left as-is (each had been
+  judged not worth the churn at the project's actual scale, but doing them properly turned out to
+  be reasonably contained):
+  - `ruleLogger.ts`'s diagnostic per-tab match buffer is now a real fixed-capacity ring buffer
+    (`push` is O(1); the old array + `shift()` was O(n) once full) instead of just being named
+    one. `push` happens on every matched request; the O(n) cost of materializing an ordered
+    snapshot now only happens on `getEntries()`, which is only called when the diagnostic logger
+    page is actually open.
+  - `options.ts`'s five removable lists (paused sites, custom block/allow, the picker's two
+    saved-rule lists) now each re-render just themselves after an add/remove instead of the
+    page-level `render()` tearing down and rebuilding every list plus the filter-groups
+    checkboxes for a single-item change.
+  - `build.mjs`'s 12 independent per-entry Rollup builds now run via `Promise.all` instead of
+    one at a time -- each is a fully independent graph with no shared state.
+  - `chunkBySize.mjs` now documents in a comment that its size check measures UTF-16 code units
+    rather than bytes (a non-issue at these rules' effectively-ASCII content, but worth naming).
+
 ## 0.10.0
 
 ### Security

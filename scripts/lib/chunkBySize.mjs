@@ -9,7 +9,11 @@ export function chunkBySize(rules, maxBytes) {
 
   for (const rule of rules) {
     // +1 for the separating comma; close enough without re-stringifying the
-    // whole running array on every push.
+    // whole running array on every push. .length here is UTF-16 code units,
+    // not bytes -- an approximation of the byte-based maxBytes limit this
+    // function is named after. A non-issue at these specific rule shapes
+    // (urlFilter/domain values are effectively always ASCII), but would
+    // need a real byte count (e.g. Buffer.byteLength) if that ever changes.
     const size = JSON.stringify(rule).length + 1;
     if (current.length > 0 && currentSize + size > maxBytes) {
       chunks.push(current);
