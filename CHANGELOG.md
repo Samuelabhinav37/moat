@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.9.1
+
+### Changed
+- **Redesigned the popup.** Explored ten real ad-blocker visual languages (uBlock Origin,
+  AdGuard, Brave Shields, Ghostery, Privacy Badger, AdBlock Plus, 1Blocker, Wipr,
+  Malwarebytes, DuckDuckGo) side by side, rebuilt with Moat's own content so they were
+  directly comparable, then picked and iterated on one. `src/popup/popup.html` moves to a
+  dark-to-gray gradient body, a centered hero stat card, pill-shaped Ads/Trackers/Popups
+  chips, a white site card with a blue "protected" state and a green toggle, and a coral
+  pill-shaped "Block an element..." button. Settings moved into the header row. The header
+  mark is the existing `icons/logo.svg` constellation, inlined -- no new icon, no ghost or
+  other borrowed mascot. Deliberately did not adopt the reference direction's Google Font
+  (`Baloo 2`): a privacy tool that avoids external network calls by design shouldn't add one
+  for its own popup chrome, so the rounded/friendly feel comes from weight and radius on the
+  existing system font stack instead. No changes to `popup.ts` -- all element ids/classes it
+  depends on are unchanged, this is a markup/CSS-only pass.
+
 ## 0.9.0
 
 ### Added
