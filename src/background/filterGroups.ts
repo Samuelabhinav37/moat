@@ -5,21 +5,29 @@
 // diff: there are only ~11 groups, so idempotent full application is cheap
 // and avoids drift if something updates state outside this module.
 import browser from "webextension-polyfill";
-import { groupChunkIds, summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
+import { groupChunkIds, summarizeFilterLists } from "../shared/rulesetManifest";
 import { effectiveFilterGroupState } from "./filterGroupState";
+import { loadRulesetManifest } from "./rulesetManifestLoader";
 import type { Settings } from "../types";
 
-let manifestCache: RulesetManifestEntry[] | null = null;
+const STATUS_KEY = "filterGroupStatus";
 
-async function loadManifest(): Promise<RulesetManifestEntry[]> {
-  if (manifestCache) return manifestCache;
-  const url = browser.runtime.getURL("rules/manifest.json");
-  manifestCache = (await (await fetch(url)).json()) as RulesetManifestEntry[];
-  return manifestCache;
+export interface FilterGroupStatus {
+  ok: boolean;
+  timestamp: number;
+}
+
+/** Lets the options page surface "your filter-list selection didn't fully
+ * apply" instead of showing toggles as changed with no indication the
+ * underlying declarativeNetRequest call actually failed (a stale cached
+ * manifest, or Chrome's enabled-ruleset budget). */
+export async function getFilterGroupStatus(): Promise<FilterGroupStatus | null> {
+  const stored = await browser.storage.local.get(STATUS_KEY);
+  return (stored[STATUS_KEY] as FilterGroupStatus | undefined) ?? null;
 }
 
 export async function applyFilterGroupState(settings: Settings): Promise<void> {
-  const manifest = await loadManifest();
+  const manifest = await loadRulesetManifest();
   const groups = summarizeFilterLists(manifest).map((list) => list.group);
   const state = effectiveFilterGroupState(settings.enabled, settings.filterGroups, groups);
 
@@ -31,9 +39,12 @@ export async function applyFilterGroupState(settings: Settings): Promise<void> {
 
   try {
     await browser.declarativeNetRequest.updateEnabledRulesets({ enableRulesetIds, disableRulesetIds });
+    await browser.storage.local.set({ [STATUS_KEY]: { ok: true, timestamp: Date.now() } satisfies FilterGroupStatus });
   } catch {
     // Stale cached manifest, or the browser's enabled-ruleset budget --
     // leave whatever's currently active alone rather than throwing out of
-    // setSettings().
+    // setSettings(). Record it so the options page can surface it instead
+    // of silently showing a toggle that didn't actually take effect.
+    await browser.storage.local.set({ [STATUS_KEY]: { ok: false, timestamp: Date.now() } satisfies FilterGroupStatus });
   }
 }

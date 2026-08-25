@@ -10,6 +10,19 @@ import type { DeclarativeNetRequest } from "webextension-polyfill";
 export const LIVE_DYNAMIC_RULE_ID_START = 900_000;
 export const MAX_LIVE_DYNAMIC_RULES = 2000;
 
+// Same shape check as customRules.ts's -- kept as its own copy rather than
+// a shared import since the two modules have no other coupling and this is
+// three lines. `domain` here comes from a remote GitHub-hosted list rather
+// than the user's own input, so one malformed upstream entry must not be
+// able to throw and silently drop the whole day's refresh.
+const HOSTNAME_PATTERN = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
+
+/** Returns the valid domains plus how many entries were rejected, so callers can report it. */
+export function filterValidRedirectDomains(domains: string[]): { valid: string[]; rejectedCount: number } {
+  const valid = domains.filter((domain) => HOSTNAME_PATTERN.test(domain));
+  return { valid, rejectedCount: domains.length - valid.length };
+}
+
 export function buildDynamicRedirectRules(domains: string[]): DeclarativeNetRequest.Rule[] {
   return domains.slice(0, MAX_LIVE_DYNAMIC_RULES).map((domain, index) => ({
     id: LIVE_DYNAMIC_RULE_ID_START + index,

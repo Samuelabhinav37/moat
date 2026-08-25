@@ -54,6 +54,14 @@ export class Cmp {
     return detector !== null && detectorShowing(detector, ctx);
   }
 
+  /** Same result as isPresent(ctx) && isShowing(ctx), but runs
+   * matchedDetector's full detector scan once instead of twice -- engine.ts
+   * calls this back-to-back for every CMP in the list on every attempt. */
+  isPresentAndShowing(ctx: FindContext): boolean {
+    const detector = this.matchedDetector(ctx);
+    return detector !== null && detectorShowing(detector, ctx);
+  }
+
   async runMethod(name: string, consentTypes: Record<ConsentType, boolean>, findCtx: FindContext): Promise<void> {
     const action = this.methods.get(name);
     if (action == null) return;

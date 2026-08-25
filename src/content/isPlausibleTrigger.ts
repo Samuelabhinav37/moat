@@ -18,7 +18,16 @@ export function isPlausibleTrigger(target: EventTarget | null): boolean {
   const rect = interactive.getBoundingClientRect();
   const style = getComputedStyle(interactive);
   const coversViewport = rect.width >= window.innerWidth * 0.9 && rect.height >= window.innerHeight * 0.9;
-  const nearInvisible = parseFloat(style.opacity) < 0.05;
+  // Opacity is the most common invisible-click-catcher trick, but not the
+  // only one -- visibility:hidden and a fully-collapsed clip region produce
+  // the same "invisible but still catching clicks" effect. This is a
+  // best-effort heuristic either way (see the file header) and can't cover
+  // every possible hiding technique.
+  const nearInvisible =
+    parseFloat(style.opacity) < 0.05 ||
+    style.visibility === "hidden" ||
+    style.clipPath === "inset(100%)" ||
+    style.clip === "rect(0px, 0px, 0px, 0px)";
   if (coversViewport && nearInvisible) return false;
 
   return true;

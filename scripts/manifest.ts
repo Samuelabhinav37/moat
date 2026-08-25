@@ -4,6 +4,13 @@ import { dirname, join } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rulesManifestPath = join(__dirname, "..", "rules", "dnr", "manifest.json");
+const packageJsonPath = join(__dirname, "..", "package.json");
+
+// Read from package.json rather than hand-copying the version here -- this
+// drifted out of sync with package.json for a full release cycle before
+// (stayed "0.9.0" through all of 0.9.1) because nothing enforced the two
+// staying equal.
+const { version: packageVersion } = JSON.parse(readFileSync(packageJsonPath, "utf8")) as { version: string };
 
 interface RulesetEntry {
   id: string;
@@ -34,7 +41,7 @@ function baseManifest() {
     name: "Moat",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
-    version: "0.9.2",
+    version: packageVersion,
     icons,
     action: {
       default_popup: "popup.html",

@@ -35,7 +35,15 @@ export function applyManagedOverrides(settings: Settings, policy: ManagedPolicy)
   return effective;
 }
 
-/** Whether a given settings field should be disabled/greyed out in the UI. */
+/** Whether a given settings field should be disabled/greyed out in the UI.
+ *
+ * lockProtectionToggle alone only locks the *toggle in the UI* -- it does
+ * not itself force effective.enabled=true (see applyManagedOverrides
+ * above, which only does that for forceEnabled). An admin who sets
+ * lockProtectionToggle without also setting forceEnabled on a user who had
+ * already disabled protection leaves it permanently stuck off, with the
+ * toggle greyed out and no way for the user to fix it. Set both together
+ * for the "protection must always be on" enterprise case. */
 export function isLocked(field: "protection" | "filterGroups", policy: ManagedPolicy): boolean {
   if (field === "protection") return Boolean(policy.lockProtectionToggle || policy.forceEnabled);
   return Boolean(policy.lockFilterGroups);

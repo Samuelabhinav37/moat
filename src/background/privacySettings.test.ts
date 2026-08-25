@@ -50,17 +50,18 @@ describe("applyPrivacySettings", () => {
     expect(cookieConfig.set).not.toHaveBeenCalled();
   });
 
-  it("allows third-party cookies when blockThirdPartyCookies is false (Chrome shape)", async () => {
-    const thirdPartyCookiesAllowed = { set: vi.fn(() => Promise.resolve()) };
+  it("clears thirdPartyCookiesAllowed (rather than setting it) when blockThirdPartyCookies is false (Chrome shape)", async () => {
+    const thirdPartyCookiesAllowed = { set: vi.fn(() => Promise.resolve()), clear: vi.fn(() => Promise.resolve()) };
     setPrivacy({ websites: { thirdPartyCookiesAllowed } });
 
     await applyPrivacySettings({ ...baseSettings, blockThirdPartyCookies: false });
 
-    expect(thirdPartyCookiesAllowed.set).toHaveBeenCalledWith({ value: true });
+    expect(thirdPartyCookiesAllowed.clear).toHaveBeenCalledWith({});
+    expect(thirdPartyCookiesAllowed.set).not.toHaveBeenCalled();
   });
 
   it("falls back to Firefox's cookieConfig when thirdPartyCookiesAllowed doesn't exist", async () => {
-    const cookieConfig = { set: vi.fn(() => Promise.resolve()) };
+    const cookieConfig = { set: vi.fn(() => Promise.resolve()), clear: vi.fn(() => Promise.resolve()) };
     setPrivacy({ websites: { cookieConfig } });
 
     await applyPrivacySettings({ ...baseSettings, blockThirdPartyCookies: true });
@@ -68,24 +69,27 @@ describe("applyPrivacySettings", () => {
     expect(cookieConfig.set).toHaveBeenCalledWith({ value: { behavior: "reject_third_party" } });
   });
 
-  it("sets cookieConfig back to allow_all when the toggle is off (Firefox shape)", async () => {
-    const cookieConfig = { set: vi.fn(() => Promise.resolve()) };
+  it("clears cookieConfig (rather than setting it back to allow_all) when the toggle is off (Firefox shape)", async () => {
+    const cookieConfig = { set: vi.fn(() => Promise.resolve()), clear: vi.fn(() => Promise.resolve()) };
     setPrivacy({ websites: { cookieConfig } });
 
     await applyPrivacySettings({ ...baseSettings, blockThirdPartyCookies: false });
 
-    expect(cookieConfig.set).toHaveBeenCalledWith({ value: { behavior: "allow_all" } });
+    expect(cookieConfig.clear).toHaveBeenCalledWith({});
+    expect(cookieConfig.set).not.toHaveBeenCalled();
   });
 
-  it("maps webrtcLeakProtection to disable_non_proxied_udp when on, default when off", async () => {
-    const webRTCIPHandlingPolicy = { set: vi.fn(() => Promise.resolve()) };
+  it("maps webrtcLeakProtection to disable_non_proxied_udp when on, clears the setting when off", async () => {
+    const webRTCIPHandlingPolicy = { set: vi.fn(() => Promise.resolve()), clear: vi.fn(() => Promise.resolve()) };
     setPrivacy({ network: { webRTCIPHandlingPolicy } });
 
     await applyPrivacySettings({ ...baseSettings, webrtcLeakProtection: true });
     expect(webRTCIPHandlingPolicy.set).toHaveBeenCalledWith({ value: "disable_non_proxied_udp" });
 
+    webRTCIPHandlingPolicy.set.mockClear();
     await applyPrivacySettings({ ...baseSettings, webrtcLeakProtection: false });
-    expect(webRTCIPHandlingPolicy.set).toHaveBeenCalledWith({ value: "default" });
+    expect(webRTCIPHandlingPolicy.clear).toHaveBeenCalledWith({});
+    expect(webRTCIPHandlingPolicy.set).not.toHaveBeenCalled();
   });
 
   it("always tries to enable the native Firefox GPC setting when present, regardless of toggles", async () => {

@@ -12,7 +12,7 @@ import browser from "webextension-polyfill";
 import type { Settings } from "../types";
 
 interface ChromeThirdPartyCookies {
-  thirdPartyCookiesAllowed?: { set(details: { value: boolean }): Promise<void> };
+  thirdPartyCookiesAllowed?: { set(details: { value: boolean }): Promise<void>; clear(details: object): Promise<void> };
 }
 
 async function apply<T>(
@@ -29,21 +29,45 @@ async function apply<T>(
   }
 }
 
+// Like `apply`, but for the two opt-in toggles: `.set()` with the "off"
+// value still marks the setting "controlled by this extension" in
+// chrome://settings, which isn't the same as leaving it alone. `.clear()`
+// actually relinquishes control back to the browser/another extension/OS
+// default when the toggle is off, so a fresh install with every toggle at
+// its default takes ownership of nothing.
+async function applyOrClear<T>(
+  // `clear`'s details shape differs (and is all-optional) across the three
+  // settings this is called with; typing it exactly isn't worth the
+  // friction for an internal helper.
+  setting: { set(details: { value: T }): Promise<void>; clear(details: any): Promise<void> } | undefined,
+  isOn: boolean,
+  onValue: T
+): Promise<void> {
+  if (!setting) return;
+  try {
+    if (isOn) await setting.set({ value: onValue });
+    else await setting.clear({});
+  } catch {
+    // Same reasoning as `apply`'s catch above.
+  }
+}
+
 export async function applyPrivacySettings(settings: Settings): Promise<void> {
   const privacy = browser.privacy;
   if (!privacy) return;
 
-  await apply(
+  await applyOrClear(
     privacy.network?.webRTCIPHandlingPolicy,
-    settings.webrtcLeakProtection ? "disable_non_proxied_udp" : "default"
+    settings.webrtcLeakProtection,
+    "disable_non_proxied_udp"
   );
 
   const websites = privacy.websites as (typeof privacy.websites & ChromeThirdPartyCookies) | undefined;
   if (websites?.thirdPartyCookiesAllowed) {
-    await apply(websites.thirdPartyCookiesAllowed, !settings.blockThirdPartyCookies);
+    await applyOrClear(websites.thirdPartyCookiesAllowed, settings.blockThirdPartyCookies, false);
   } else {
-    await apply(websites?.cookieConfig, {
-      behavior: settings.blockThirdPartyCookies ? "reject_third_party" : "allow_all",
+    await applyOrClear(websites?.cookieConfig, settings.blockThirdPartyCookies, {
+      behavior: "reject_third_party",
     });
   }
 

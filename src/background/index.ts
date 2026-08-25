@@ -59,8 +59,23 @@ function hostnameOf(url: string | undefined): string {
   }
 }
 
+function isRuntimeMessage(value: unknown): value is RuntimeMessage {
+  return typeof value === "object" && value !== null && "type" in value;
+}
+
+// hostname/selector arrive from a sender the TS types trust unconditionally
+// (only Moat's own elementPicker.ts sends these today), but the listener
+// itself shouldn't -- a compact, independent check at this boundary so it
+// stays safe against any future sender, not just the current one.
+const MAX_MESSAGE_STRING_LENGTH = 2000;
+
+function isValidMessageString(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0 && value.length <= MAX_MESSAGE_STRING_LENGTH;
+}
+
 browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSender) => {
-  const message = raw as RuntimeMessage;
+  if (!isRuntimeMessage(raw)) return undefined;
+  const message = raw;
 
   switch (message.type) {
     case "blocked": {
@@ -87,14 +102,17 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     }
 
     case "toggle-site": {
+      if (!isValidMessageString(message.hostname)) return undefined;
       return setSiteDisabled(message.hostname, message.disabled).then(() => undefined);
     }
 
     case "save-cosmetic-rule": {
+      if (!isValidMessageString(message.hostname) || !isValidMessageString(message.selector)) return undefined;
       return addCustomCosmeticRule(message.hostname, message.selector).then(() => undefined);
     }
 
     case "save-grayscale-rule": {
+      if (!isValidMessageString(message.hostname) || !isValidMessageString(message.selector)) return undefined;
       return addGrayscaleRule(message.hostname, message.selector).then(() => undefined);
     }
 

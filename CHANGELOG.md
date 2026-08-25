@@ -3,6 +3,130 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.10.0
+
+### Security
+- **postMessage config messages between the isolated- and MAIN-world content scripts were
+  spoofable by the page itself.** `mainWorldGuard.ts` and `fingerprintGuard.ts` trusted any
+  `window.postMessage` shaped like `{source: "moat", ...}`, authenticated only by
+  `event.source === window` -- true for the page's own scripts too. Any page could spoof a
+  config message (e.g. `{disabled: true}`) with one line and silently switch off the
+  popup/redirect guard or fingerprint resistance. `bridge.ts` now mints a random
+  `crypto.randomUUID()` token once per page load and includes it on every config message; both
+  guards lock onto the first token they see and ignore anything that doesn't match it after
+  that. This doesn't make it unspoofable -- same-window `postMessage` can always be observed
+  once sent -- but raises the bar from zero-effort to "must eavesdrop the real message first."
+
+### Fixed
+- **Two rapid settings writes could silently clobber each other.** `settings.ts`'s
+  `addSelectorRule`/`removeSelectorRule`/`getOrCreateFingerprintSeed`/`setSiteDisabled` each did
+  an unserialized read-modify-write; two concurrent calls (two fast element picks, a toggle flip
+  mid-save) could both read the same stale snapshot and the second write would drop the first's
+  change. All settings mutations now funnel through one module-level FIFO queue. The same race
+  existed in `options.ts`'s filter-list checkbox handler (each read `getSettings()` fresh instead
+  of reusing `render()`'s already-fetched snapshot) and in the live redirect-domain refresh and
+  custom-rule domain lists, which had no validation at all -- a single malformed entry (a pasted
+  full URL, a stray space) threw and silently dropped the entire batch of dynamic rules, not just
+  the bad one. All three now validate/serialize independently.
+- **`applyPrivacySettings` never actually relinquished control of a toggle once touched.**
+  Chrome's `.set({value: "default"})` still marks a privacy setting "controlled by this
+  extension," unlike `.clear()` -- contradicted the file's own comment that these settings "only
+  take effect once the user explicitly flips them on." Now clears instead of setting the default
+  when a toggle is off.
+- **A consent banner's "manage partners"-style link silently fought `mainWorldGuard.ts`'s own
+  popunder blocker.** `consent/actions.ts`'s `openInTab` action dispatched a synthetic ctrl-click
+  to simulate a new-tab open; a `target="_blank"` anchor made that indistinguishable from the
+  exact ad-popunder pattern `mainWorldGuard.ts` blocks. Now calls `window.open()` directly.
+  Separately, `feedAdLabel.ts`'s label normalizer had `.replace(/ /g, " ")` -- a literal no-op,
+  almost certainly meant to collapse non-breaking spaces (` `) that some platforms embed in
+  short labels like "Paid partnership," which silently defeated the exact-match sponsored-post
+  detector.
+- **Settings changes didn't reach already-open tabs.** `feedAdScanner.ts`, `youtubeAdDimmer.ts`,
+  and `consentRejector.ts` each read their enabled-toggle once at content-script startup with no
+  `storage.onChanged` listener -- turning a setting off did nothing on an already-open tab until
+  reload. All three now react live, matching the pattern `bridge.ts`/`cosmeticFilter.ts` already
+  used.
+- **A corrupted or missing `rules/manifest.json` took down the whole options page.**
+  `loadRulesetManifest`'s fetch/parse had no error handling; a failure threw partway through
+  `render()` and silently aborted every section after it (custom lists, version text, the
+  managed-policy notice). Now renders a visible "Couldn't load filter lists" state and lets the
+  rest of the page render independently.
+- **`youtubeAdDimmer.ts`'s player-wait observer never gave up.** Most YouTube pages (search,
+  channel, home) never have a `#movie_player` at all; the fallback `MutationObserver` watching
+  all of `document.body` ran for the tab's entire lifetime regardless, on one of the web's most
+  mutation-heavy SPAs. Now disconnects after 15 seconds if no player ever appears.
+- **The live redirect-domain safety net only ever grew, never shrank.**
+  `popupGuard.ts`'s `addLiveRedirectDomains` merged each day's refresh into a `Set` that was
+  never reset -- a domain removed upstream (a fixed false positive) stayed blocked locally until
+  the worker restarted. The daily refresh fetches the full current list each time, not a diff, so
+  this now replaces the live slice instead of merging into it, while keeping the bundled baseline
+  separate and permanent.
+- **`filterGroups.ts` swallowed `updateEnabledRulesets` failures entirely.** Hitting Chrome's
+  enabled-ruleset budget (or a stale cached manifest) left the Options UI showing a toggle as
+  changed with no indication it hadn't actually applied. Now records an ok/timestamp status the
+  options page can surface, mirroring the existing live-update status pattern.
+- Background message handling (`index.ts`) now validates incoming runtime messages have a shape
+  before switching on `.type`, and validates `hostname`/`selector` string fields independently at
+  that boundary instead of trusting the sender's shape unconditionally.
+- `cnameUncloak.ts` no longer caches a failed DNS resolution forever -- a single transient
+  lookup failure used to permanently disable uncloak-checking for that hostname until the
+  background context restarted; failures are retried on the next request instead, and the
+  positive-result cache is now capped rather than unbounded.
+- `liveUpdates.ts` now validates the fetched redirect-domain list is actually an array of
+  hostnames before applying it, instead of trusting the remote JSON's shape unconditionally.
+
+### Changed
+- `filterGroups.ts` and `matchStats.ts` each fetched and cached their own separate copy of
+  `rules/manifest.json` in the same background worker -- factored into one shared loader.
+  Similarly, `matchStats.ts`/`badge.ts`'s identical per-tab-map "reset"/"forget" function pairs
+  now share one implementation each instead of two independently-maintained copies.
+- `options.ts`'s three near-identical "clear list, sort, build `<li>` rows with a remove button"
+  helpers are now one shared `renderRows` generic, also used by the two custom block/allow lists.
+  `popup.html`'s hardcoded button colors now reference `theme.css`'s `--on`/`--danger` tokens
+  instead of repeating literal hex values that could silently drift from the shared palette.
+- `isPlausibleTrigger.ts`'s popunder heuristic now also catches `visibility: hidden` and
+  clip-collapsed elements, not just near-zero opacity.
+- `consent/engine.ts`'s CMP list is now built once per page load and reused across every
+  `consentRejector.ts` retry attempt (up to 8 seconds of polling), instead of rebuilding all
+  ~100+ CMP entries from scratch on every attempt; `Cmp` similarly runs its detector-matching
+  scan once per check instead of twice (`isPresent` + `isShowing` back to back).
+- `scripts/manifest.ts` reads its `version` field from `package.json` instead of a hand-copied
+  literal, which had already drifted stale for a full release cycle once before. `build.mjs`'s
+  `dist/` cleanup now prints a clear message when the directory is locked by another process
+  (an editor, a stray preview server, the browser with the unpacked extension loaded) instead of
+  a raw Node EPERM stack trace. `vendor-consent-rules.mjs` now fails the build loudly if
+  Consent-O-Matic's upstream rules ever reference an action type the interpreter doesn't
+  recognize, instead of silently shipping unvalidated surface to the runtime engine.
+  `update-cosmetics.mjs` now asserts a byte-size floor on each fetched filter list and logs a
+  diff against the previously-committed selector counts. `validate-rules.mjs` now checks
+  `action.type` against DNR's actual legal enum. `filters:update` now chains `validate:rules`
+  instead of requiring a maintainer to remember to run it separately. `vendor-cname-list.mjs` and
+  `vendor-consent-rules.mjs`'s near-identical fetch/validate/write logic is now a shared
+  `fetchAndVendor` helper in `scripts/lib/`.
+- Managed-policy documentation (`managedPolicyMerge.ts`, `managed_schema.json`) now spells out
+  that `lockProtectionToggle` alone only locks the UI toggle -- `forceEnabled` must also be set
+  for an admin policy to actually force protection back on for a user who'd already disabled it.
+
+### Removed
+- **`scripts/generate-icons.mjs`.** Dead code: not referenced by any `package.json` script,
+  untouched since the project's first commit, and rendered the pre-redesign color scheme --
+  actively misleading rather than just unused, since running it would have silently overwritten
+  the real icons with a stale, wrong design.
+- `theme.css`'s unused `button.danger` rule, which never actually painted anywhere (popup.html's
+  own higher-specificity local override always won the cascade).
+
+This release is the result of a full-codebase audit for correctness, security, complexity, and
+dead code across every area -- content scripts, the background worker, the UI, and the build
+pipeline. A few low-severity findings were deliberately left as-is, each because the audit's own
+assessment was that fixing them wasn't worth the churn at the project's actual scale: `ruleLogger.ts`'s
+dev-mode-only diagnostic buffer is described as a "ring buffer" but implemented with
+`push`/`shift` (O(n) once full, inconsequential at 200 entries); `options.ts`'s `render()` does a
+full teardown/rebuild of every list on any single mutation (harmless at realistic scale of tens of
+entries); `build.mjs` runs its 12 Rollup builds sequentially instead of via `Promise.all` (keeps
+build output deterministic, a judgment call rather than a defect); and `chunkBySize.mjs` measures
+selector size in UTF-16 code units rather than bytes (a non-issue at these rules' effectively-ASCII
+content).
+
 ## 0.9.2
 
 ### Fixed

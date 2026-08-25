@@ -72,4 +72,20 @@ describe("isPlausibleTrigger", () => {
     mockRect(faint, 40, 20);
     expect(isPlausibleTrigger(faint)).toBe(true);
   });
+
+  it("rejects a full-viewport overlay hidden via visibility:hidden", () => {
+    const overlay = document.createElement("button");
+    overlay.style.visibility = "hidden";
+    document.body.append(overlay);
+    mockRect(overlay, 1000, 800);
+    expect(isPlausibleTrigger(overlay)).toBe(false);
+  });
+
+  it("rejects a full-viewport overlay hidden via a fully-collapsed clip", () => {
+    const overlay = document.createElement("button");
+    overlay.style.clip = "rect(0px, 0px, 0px, 0px)";
+    document.body.append(overlay);
+    mockRect(overlay, 1000, 800);
+    expect(isPlausibleTrigger(overlay)).toBe(false);
+  });
 });

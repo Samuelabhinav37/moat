@@ -34,21 +34,29 @@ async function loadCloakDestinations(): Promise<Set<string>> {
 // Firefox's own dns.resolve() already sits in front of the OS/network DNS
 // cache; this second, in-memory cache exists only to skip the extra
 // message-passing round trip to the parent process for a hostname already
-// resolved earlier in the same session.
+// resolved earlier in the same session. Only successful resolutions are
+// cached -- caching a failure (below) would turn one transient DNS hiccup
+// into a standing uncloak-bypass window for that hostname until the
+// background context restarts, which is worse than just retrying. Capped
+// so a session that touches many distinct hostnames can't grow this
+// unboundedly; a full clear-and-restart is fine since this is purely a
+// best-effort speed-up, not a correctness-load-bearing cache.
 const canonicalNameCache = new Map<string, string | null>();
+const MAX_CACHE_ENTRIES = 500;
 
 async function resolveCanonicalName(hostname: string): Promise<string | null> {
   if (canonicalNameCache.has(hostname)) return canonicalNameCache.get(hostname) ?? null;
   try {
     const record = await browser.dns.resolve(hostname, ["canonical_name"]);
     const canonical = record.canonicalName && record.canonicalName !== hostname ? record.canonicalName : null;
+    if (canonicalNameCache.size >= MAX_CACHE_ENTRIES) canonicalNameCache.clear();
     canonicalNameCache.set(hostname, canonical);
     return canonical;
   } catch {
     // Resolution failure (offline, TRR down, hostname doesn't exist) --
-    // fail open. Cache the miss too so a persistently-failing lookup
-    // doesn't get retried on every request to the same host.
-    canonicalNameCache.set(hostname, null);
+    // fail open, and deliberately don't cache the miss: a hostname that
+    // fails once should still be retried on its next request rather than
+    // being permanently treated as unresolvable for this session.
     return null;
   }
 }

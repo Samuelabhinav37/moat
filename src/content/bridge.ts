@@ -6,13 +6,25 @@ import browser from "webextension-polyfill";
 import { STORAGE_KEY, type BridgeMessage, type BlockedMessage } from "../types";
 import { getEffectiveSettings, getOrCreateFingerprintSeed } from "../background/settings";
 
+// One token per page load, sent with every config message so the MAIN-world
+// guards can tell a real update from a later message spoofed by the page
+// itself (same-window postMessage has no other origin check available).
+const guardToken = crypto.randomUUID();
+
 async function sendConfig(): Promise<void> {
   const settings = await getEffectiveSettings();
   const disabled = !settings.enabled || settings.disabledSites.includes(location.hostname);
   const fingerprintResistance = settings.fingerprintResistance && !disabled;
   const fingerprintSeed = fingerprintResistance ? await getOrCreateFingerprintSeed() : "";
 
-  const message: BridgeMessage = { source: "moat", type: "config", disabled, fingerprintResistance, fingerprintSeed };
+  const message: BridgeMessage = {
+    source: "moat",
+    type: "config",
+    disabled,
+    fingerprintResistance,
+    fingerprintSeed,
+    guardToken,
+  };
   window.postMessage(message, "*");
 }
 

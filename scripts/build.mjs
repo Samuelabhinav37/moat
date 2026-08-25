@@ -43,7 +43,20 @@ const ENTRIES = [
 ];
 
 const outDir = resolve(root, "dist", target);
-rmSync(outDir, { recursive: true, force: true });
+try {
+  rmSync(outDir, { recursive: true, force: true });
+} catch (err) {
+  // force:true only suppresses ENOENT (path doesn't exist) -- a locked file
+  // (an editor, a stray preview server, or the browser with the unpacked
+  // extension loaded) throws EPERM/EBUSY here instead, which used to surface
+  // as a raw Node stack trace with no indication of the actual cause.
+  console.error(
+    `\nCouldn't remove dist/${target} -- it looks like something else has it open ` +
+      `(an editor, a running preview server, or the browser with the unpacked extension loaded).\n` +
+      `Close whatever's holding it and retry.\n`
+  );
+  throw err;
+}
 mkdirSync(outDir, { recursive: true });
 
 for (const [name, entry] of ENTRIES) {

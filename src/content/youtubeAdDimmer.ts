@@ -56,6 +56,15 @@ function syncDimState(player: Element): void {
   }
 }
 
+// Every observer this file starts gets tracked here so stopWatching() (a
+// setting flip, not a page unload) can tear all of them down -- nothing
+// else in this file needs to know which observers exist at any given time.
+let activeObservers: MutationObserver[] = [];
+let playerWaitTimeout: ReturnType<typeof setTimeout> | null = null;
+let watching = false;
+
+const PLAYER_WAIT_TIMEOUT_MS = 15_000;
+
 function watchPlayer(player: Element): void {
   let adModuleObserver: MutationObserver | null = null;
 
@@ -69,12 +78,15 @@ function watchPlayer(player: Element): void {
       if (adModule) {
         adModuleObserver = new MutationObserver(sync);
         adModuleObserver.observe(adModule, { childList: true, subtree: true });
+        activeObservers.push(adModuleObserver);
       }
     }
   }
 
   sync();
-  new MutationObserver(sync).observe(player, { attributes: true, attributeFilter: ["class"] });
+  const classObserver = new MutationObserver(sync);
+  classObserver.observe(player, { attributes: true, attributeFilter: ["class"] });
+  activeObservers.push(classObserver);
 }
 
 /** #movie_player is created once the watch page's player loads and (unlike
@@ -90,16 +102,55 @@ function watchForPlayer(): void {
     const player = document.getElementById("movie_player");
     if (player) {
       bodyObserver.disconnect();
+      if (playerWaitTimeout !== null) {
+        clearTimeout(playerWaitTimeout);
+        playerWaitTimeout = null;
+      }
       watchPlayer(player);
     }
   });
   bodyObserver.observe(document.body, { childList: true, subtree: true });
+  activeObservers.push(bodyObserver);
+
+  // Most YouTube pages (search, channel, home) never have a player at all --
+  // give up instead of paying full subtree-mutation cost on document.body
+  // for the rest of the tab's lifetime.
+  playerWaitTimeout = setTimeout(() => {
+    bodyObserver.disconnect();
+    playerWaitTimeout = null;
+  }, PLAYER_WAIT_TIMEOUT_MS);
 }
 
-async function run(): Promise<void> {
-  if (!(await isEnabled())) return;
+function startWatching(): void {
+  if (watching) return;
+  watching = true;
   ensureStyle();
   watchForPlayer();
 }
+
+function stopWatching(): void {
+  watching = false;
+  for (const observer of activeObservers) observer.disconnect();
+  activeObservers = [];
+  if (playerWaitTimeout !== null) {
+    clearTimeout(playerWaitTimeout);
+    playerWaitTimeout = null;
+  }
+}
+
+async function run(): Promise<void> {
+  if (await isEnabled()) startWatching();
+}
+
+// Settings.grayscaleUnblockableAds is only checked once at startup above --
+// react live to it changing so switching it off in options.html actually
+// stops the observers on an already-open tab instead of waiting for reload.
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area !== "managed" && !(area === "local" && STORAGE_KEY in changes)) return;
+  void (async () => {
+    if (await isEnabled()) startWatching();
+    else stopWatching();
+  })();
+});
 
 void run();

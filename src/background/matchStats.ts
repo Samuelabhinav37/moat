@@ -9,21 +9,13 @@
 import browser from "webextension-polyfill";
 import { summarizeMatchedRules, type Breakdown } from "../shared/matchedRuleCategories";
 import { summarizeCompanies, type RuleCompanies } from "../shared/matchedRuleCompanies";
-import type { RulesetManifestEntry } from "../shared/rulesetManifest";
+import { clearTabFromMaps } from "./tabMapCleanup";
+import { loadRulesetManifest } from "./rulesetManifestLoader";
 
 export type { Breakdown };
 
 const EMPTY: Breakdown = { ads: 0, trackers: 0, popups: 0 };
 const EMPTY_COMPANIES: Record<string, number> = {};
-
-let manifestCache: RulesetManifestEntry[] | null = null;
-
-async function loadManifest(): Promise<RulesetManifestEntry[]> {
-  if (manifestCache) return manifestCache;
-  const url = browser.runtime.getURL("rules/manifest.json");
-  manifestCache = (await (await fetch(url)).json()) as RulesetManifestEntry[];
-  return manifestCache;
-}
 
 let companiesCache: RuleCompanies | null = null;
 
@@ -49,23 +41,26 @@ export function getCompanyBreakdown(tabId: number): Record<string, number> {
   return companiesByTab.get(tabId) ?? EMPTY_COMPANIES;
 }
 
-export function resetBreakdown(tabId: number): void {
-  breakdownByTab.delete(tabId);
-  companiesByTab.delete(tabId);
+function clearTab(tabId: number): void {
+  clearTabFromMaps(tabId, breakdownByTab, companiesByTab);
 }
 
-export function forgetTab(tabId: number): void {
-  breakdownByTab.delete(tabId);
-  companiesByTab.delete(tabId);
-}
+export const resetBreakdown = clearTab;
+export const forgetTab = clearTab;
 
 export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
   try {
+    // Raw chrome global rather than the browser (webextension-polyfill)
+    // import used elsewhere in this file: getMatchedRules is a Chrome-only,
+    // callback/promise-hybrid DNR feedback API the polyfill doesn't wrap.
+    // The whole block is wrapped in try/catch below, so a missing `chrome`
+    // global (shouldn't happen -- both targets expose it) fails the same
+    // safe way as a missing getMatchedRules does.
     const getMatchedRules = chrome.declarativeNetRequest?.getMatchedRules;
     if (!getMatchedRules) return getBreakdown(tabId);
 
     const [manifest, companies, { rulesMatchedInfo }] = await Promise.all([
-      loadManifest(),
+      loadRulesetManifest(),
       loadCompanies(),
       getMatchedRules({ tabId }),
     ]);

@@ -15,7 +15,7 @@ const AD_LABELS = new Set(["sponsored", "ad", "paid partnership", "promoted"]);
 const SEGMENT_SEPARATOR = /[•·|]| - /;
 
 function normalize(text: string): string {
-  return text.replace(/ /g, " ").trim().toLowerCase();
+  return text.replace(/\u00A0/g, " ").trim().toLowerCase();
 }
 
 export function isAdLabel(text: string): boolean {

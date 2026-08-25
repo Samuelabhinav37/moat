@@ -183,7 +183,14 @@ export type RuntimeMessage =
  * world guard(s) and the isolated-world content script (postMessage is the
  * only channel a MAIN-world script has, since it has no extension APIs). */
 export type BridgeMessage =
-  | { source: "moat"; type: "config"; disabled: boolean; fingerprintResistance: boolean; fingerprintSeed: string }
+  | {
+      source: "moat";
+      type: "config";
+      disabled: boolean;
+      fingerprintResistance: boolean;
+      fingerprintSeed: string;
+      guardToken: string;
+    }
   | { source: "moat"; type: "blocked"; kind: GuardBlockKind; url: string | null };
 
 /**

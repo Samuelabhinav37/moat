@@ -114,4 +114,6 @@ document.getElementById("start-picker")?.addEventListener("click", async () => {
   window.close();
 });
 
-void render();
+void render().catch(() => {
+  document.getElementById("site-card")!.textContent = "Couldn't load status. Try reopening the popup.";
+});

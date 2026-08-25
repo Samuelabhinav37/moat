@@ -28,6 +28,11 @@ describe("buildCustomBlockRules", () => {
     const domains = Array.from({ length: MAX_CUSTOM_RULES_PER_LIST + 10 }, (_, i) => `d${i}.com`);
     expect(buildCustomBlockRules(domains)).toHaveLength(MAX_CUSTOM_RULES_PER_LIST);
   });
+
+  it("skips a malformed entry instead of letting it break the whole batch", () => {
+    const rules = buildCustomBlockRules(["a.com", "not a domain", "https://b.com/path", "", "c.com"]);
+    expect(rules.map((r) => r.condition.urlFilter)).toEqual(["||a.com^", "||c.com^"]);
+  });
 });
 
 describe("buildCustomAllowRules", () => {

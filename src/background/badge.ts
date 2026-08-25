@@ -5,6 +5,8 @@
 // Painting the toolbar badge is blockStats.ts's job, since the visible
 // number also includes the static ads/trackers/popups breakdown from
 // matchStats.ts -- this module only tracks its own slice of that total.
+import { clearTabFromMaps } from "./tabMapCleanup";
+
 const countsByTab = new Map<number, number>();
 
 export function getCount(tabId: number): number {
@@ -15,10 +17,9 @@ export function recordBlock(tabId: number): void {
   countsByTab.set(tabId, getCount(tabId) + 1);
 }
 
-export function resetCount(tabId: number): void {
-  countsByTab.delete(tabId);
+function clearTab(tabId: number): void {
+  clearTabFromMaps(tabId, countsByTab);
 }
 
-export function forgetTab(tabId: number): void {
-  countsByTab.delete(tabId);
-}
+export const resetCount = clearTab;
+export const forgetTab = clearTab;

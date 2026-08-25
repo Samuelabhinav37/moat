@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, beforeEach } from "vitest";
-import { runConsentRejection } from "./engine";
+import { buildCmps, runConsentRejection } from "./engine";
 import type { CmpConfig, RuleSet } from "./types";
 
 beforeEach(() => {
@@ -100,7 +100,7 @@ describe("runConsentRejection against the real Cookiebot rule (\"classic\" banne
     const declineClicked = countClicksOn("#CybotCookiebotDialogBodyButtonDecline");
 
     const ruleSet: RuleSet = { cookiebot: COOKIEBOT_CONFIG };
-    const result = await runConsentRejection(ruleSet);
+    const result = await runConsentRejection(buildCmps(ruleSet));
 
     expect(result).toEqual({ handled: true, cmpName: "cookiebot" });
     expect(declineClicked()).toBe(1);
@@ -111,7 +111,7 @@ describe("runConsentRejection against the real Cookiebot rule (\"classic\" banne
 
   it("does not report handled when the banner isn't present at all", async () => {
     document.body.innerHTML = "<div>ordinary page content</div>";
-    const result = await runConsentRejection({ cookiebot: COOKIEBOT_CONFIG });
+    const result = await runConsentRejection(buildCmps({ cookiebot: COOKIEBOT_CONFIG }));
     expect(result).toEqual({ handled: false });
   });
 
@@ -127,7 +127,7 @@ describe("runConsentRejection against the real Cookiebot rule (\"classic\" banne
     // elements under jsdom by default, so the showingMatcher's
     // displayFilter:true never matches -- present, but not showing.
     const declineClicked = countClicksOn("#CybotCookiebotDialogBodyButtonDecline");
-    const result = await runConsentRejection({ cookiebot: COOKIEBOT_CONFIG });
+    const result = await runConsentRejection(buildCmps({ cookiebot: COOKIEBOT_CONFIG }));
     expect(result).toEqual({ handled: false });
     expect(declineClicked()).toBe(0);
   });
@@ -187,7 +187,7 @@ describe("runConsentRejection against the real OneTrust rule (parent-scoped cate
     // it via `for`) so a label click natively toggles it -- same as here.
     markVisible("#onetrust-banner-sdk");
 
-    const result = await runConsentRejection({ onetrust: ONETRUST_CONFIG });
+    const result = await runConsentRejection(buildCmps({ onetrust: ONETRUST_CONFIG }));
 
     expect(result).toEqual({ handled: true, cmpName: "onetrust" });
     const checkbox = document.querySelector(".category-switch-handler") as HTMLInputElement;
@@ -208,7 +208,7 @@ describe("runConsentRejection against the real OneTrust rule (parent-scoped cate
     markVisible("#onetrust-banner-sdk");
     const labelClicked = countClicksOn(".category-item label");
 
-    await runConsentRejection({ onetrust: ONETRUST_CONFIG });
+    await runConsentRejection(buildCmps({ onetrust: ONETRUST_CONFIG }));
 
     expect(labelClicked()).toBe(0);
   });

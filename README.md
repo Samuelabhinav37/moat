@@ -270,7 +270,11 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   the bundled baseline. Publishing a refresh is just `npm run filters:update`
   + commit + push — there's no scheduled automation writing to the repo on
   its own, so this stays under your control. Settings shows the last
-  successful check.
+  successful check. This is fetched over HTTPS with no additional signature/
+  hash pinning beyond that -- trust here is entirely GitHub account security
+  plus TLS, standard for this class of feature but worth naming explicitly:
+  these become live block rules for every installed copy within 24h of a
+  push.
 - **Opt-in fingerprint resistance** — a third toggle, off by default:
   deterministic per-install noise on canvas (`toDataURL`/`toBlob`/
   `getImageData`) and `AudioBuffer.getChannelData` reads, a generic WebGL

@@ -28,12 +28,33 @@ async function applyEffectiveSettings(): Promise<void> {
   applyCnameUncloak(effective);
 }
 
-export async function setSettings(patch: Partial<Settings>): Promise<Settings> {
-  const current = await getSettings();
-  const next = { ...current, ...patch };
-  await browser.storage.local.set({ [STORAGE_KEY]: next });
-  await applyEffectiveSettings();
-  return next;
+// Every mutation below reads the current settings, merges a patch, and
+// writes the result back -- without serialization, two concurrent mutations
+// (two rapid element picks, a toggle flip while a picker save is in flight)
+// each read the same stale snapshot and the second write clobbers the
+// first's change. `pending` chains every mutation through a single-file
+// queue so each one sees the previous one's already-applied result.
+let pending: Promise<unknown> = Promise.resolve();
+
+/** mutator returns null to signal "no change needed" (skips the write and
+ * the settings re-apply); otherwise a patch to merge onto the just-read
+ * current settings. */
+function mutateSettings(mutator: (current: Settings) => Partial<Settings> | null): Promise<Settings> {
+  const result = pending.then(async () => {
+    const current = await getSettings();
+    const patch = mutator(current);
+    if (patch === null) return current;
+    const next = { ...current, ...patch };
+    await browser.storage.local.set({ [STORAGE_KEY]: next });
+    await applyEffectiveSettings();
+    return next;
+  });
+  pending = result.catch(() => {});
+  return result;
+}
+
+export function setSettings(patch: Partial<Settings>): Promise<Settings> {
+  return mutateSettings(() => patch);
 }
 
 /** Re-applies everything against current settings -- call at startup, and whenever managed policy itself changes. */
@@ -46,38 +67,38 @@ export async function isSiteDisabled(hostname: string): Promise<boolean> {
   return !settings.enabled || settings.disabledSites.includes(hostname);
 }
 
-export async function setSiteDisabled(hostname: string, disabled: boolean): Promise<Settings> {
-  const settings = await getSettings();
-  const set = new Set(settings.disabledSites);
-  if (disabled) {
-    set.add(hostname);
-  } else {
-    set.delete(hostname);
-  }
-  return setSettings({ disabledSites: [...set] });
+export function setSiteDisabled(hostname: string, disabled: boolean): Promise<Settings> {
+  return mutateSettings((current) => {
+    const set = new Set(current.disabledSites);
+    if (disabled) set.add(hostname);
+    else set.delete(hostname);
+    return { disabledSites: [...set] };
+  });
 }
 
 type SelectorMapField = "customCosmeticRules" | "customGrayscaleRules";
 
 /** Shared by the "Hide" and "Gray out" element-picker modes -- both are
  * hostname -> selector[] maps with identical add/remove semantics. */
-async function addSelectorRule(field: SelectorMapField, hostname: string, selector: string): Promise<Settings> {
-  const settings = await getSettings();
-  const existing = settings[field][hostname] ?? [];
-  if (existing.includes(selector)) return settings;
-  return setSettings({ [field]: { ...settings[field], [hostname]: [...existing, selector] } } as Partial<Settings>);
+function addSelectorRule(field: SelectorMapField, hostname: string, selector: string): Promise<Settings> {
+  return mutateSettings((current) => {
+    const existing = current[field][hostname] ?? [];
+    if (existing.includes(selector)) return null;
+    return { [field]: { ...current[field], [hostname]: [...existing, selector] } } as Partial<Settings>;
+  });
 }
 
-async function removeSelectorRule(field: SelectorMapField, hostname: string, selector: string): Promise<Settings> {
-  const settings = await getSettings();
-  const remaining = (settings[field][hostname] ?? []).filter((s) => s !== selector);
-  const next = { ...settings[field] };
-  if (remaining.length > 0) {
-    next[hostname] = remaining;
-  } else {
-    delete next[hostname];
-  }
-  return setSettings({ [field]: next } as Partial<Settings>);
+function removeSelectorRule(field: SelectorMapField, hostname: string, selector: string): Promise<Settings> {
+  return mutateSettings((current) => {
+    const remaining = (current[field][hostname] ?? []).filter((s) => s !== selector);
+    const next = { ...current[field] };
+    if (remaining.length > 0) {
+      next[hostname] = remaining;
+    } else {
+      delete next[hostname];
+    }
+    return { [field]: next } as Partial<Settings>;
+  });
 }
 
 export const addCustomCosmeticRule = (hostname: string, selector: string): Promise<Settings> =>
@@ -91,9 +112,8 @@ export const removeGrayscaleRule = (hostname: string, selector: string): Promise
 
 /** Generates a random per-install seed the first time fingerprint resistance is turned on, then reuses it. */
 export async function getOrCreateFingerprintSeed(): Promise<string> {
-  const settings = await getSettings();
-  if (settings.fingerprintSeed) return settings.fingerprintSeed;
-  const seed = crypto.randomUUID();
-  await setSettings({ fingerprintSeed: seed });
-  return seed;
+  const settings = await mutateSettings((current) =>
+    current.fingerprintSeed ? null : { fingerprintSeed: crypto.randomUUID() }
+  );
+  return settings.fingerprintSeed;
 }

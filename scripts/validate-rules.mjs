@@ -9,6 +9,10 @@ import { dirname, join } from "node:path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rulesDir = join(__dirname, "..", "rules", "dnr");
 const ALLOWED_KEYS = new Set(["id", "priority", "action", "condition"]);
+// Chrome's declarativeNetRequest.RuleActionType enum -- a rule with a legal
+// top-level shape but an illegal action.type value would otherwise pass this
+// validator and only fail at runtime with a cryptic browser-level error.
+const ALLOWED_ACTION_TYPES = new Set(["block", "redirect", "allow", "upgradeScheme", "modifyHeaders", "allowAllRequests"]);
 
 const manifest = JSON.parse(readFileSync(join(rulesDir, "manifest.json"), "utf8"));
 const VALID_CATEGORIES = new Set(["ads", "security", "annoyance", "core"]);
@@ -43,6 +47,10 @@ for (const entry of manifest) {
       ok = false;
     }
     ids.add(rule.id);
+    if (!ALLOWED_ACTION_TYPES.has(rule.action?.type)) {
+      console.error(`${entry.file}: rule ${rule.id} has unknown action.type "${rule.action?.type}"`);
+      ok = false;
+    }
   }
 
   if (rules.length !== entry.ruleCount) {

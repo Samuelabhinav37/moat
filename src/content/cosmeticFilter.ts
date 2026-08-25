@@ -90,6 +90,13 @@ async function run(): Promise<void> {
  * which a naive comma-split on the serialized text would corrupt.
  */
 function trimUnmatchedGenericRules(styleEl: HTMLStyleElement, genericSelectors: string[]): void {
+  // Undocumented tradeoff worth naming: this runs synchronously on the
+  // window "load" event, and genericSelectors can hold up to ~17k entries.
+  // selectorsStillMatching calls doc.querySelector once per selector in one
+  // blocking main-thread pass -- each call can force a style/layout
+  // recalculation on a large DOM, risking a jank spike right at load-
+  // complete. If that's ever reported as real jank, chunk this via
+  // requestIdleCallback/batches instead of running it all at once.
   const stillMatching = selectorsStillMatching(document, genericSelectors);
   if (stillMatching.length === genericSelectors.length) return; // nothing to prune
   styleEl.textContent = buildStyleText(stillMatching);

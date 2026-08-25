@@ -7,7 +7,7 @@
     },
     "lockProtectionToggle": {
       "type": "boolean",
-      "title": "Prevent users from turning protection off or pausing it on a site."
+      "title": "Prevent users from turning protection off or pausing it on a site. Only locks the toggle -- set forceEnabled too if a user who already turned protection off should have it forced back on."
     },
     "lockFilterGroups": {
       "type": "boolean",

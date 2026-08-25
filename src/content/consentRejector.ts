@@ -18,7 +18,7 @@
 // budget below runs out.
 import browser from "webextension-polyfill";
 import { isDisabledHere } from "./siteDisabled";
-import { runConsentRejection } from "./consent/engine";
+import { buildCmps, runConsentRejection } from "./consent/engine";
 import type { RuleSet } from "./consent/types";
 import { STORAGE_KEY, type Settings } from "../types";
 
@@ -36,7 +36,16 @@ async function fetchRuleSet(): Promise<RuleSet> {
   return (await response.json()) as RuleSet;
 }
 
+// Settings.cookieBannerAutoReject is only checked once at startup below --
+// react live to it changing so switching it off in options.html actually
+// stops an in-flight watch on an already-open tab instead of waiting out
+// its own (bounded, at most MAX_WAIT_MS) polling window, matching the
+// pattern feedAdScanner.ts/youtubeAdDimmer.ts use for the same class of
+// setting. null when nothing is currently watching.
+let activeCleanup: (() => void) | null = null;
+
 function watchAndReject(ruleSet: RuleSet): void {
+  const cmps = buildCmps(ruleSet);
   let stopped = false;
   let attemptInFlight = false;
   let observer: MutationObserver | null = null;
@@ -48,13 +57,15 @@ function watchAndReject(ruleSet: RuleSet): void {
     observer?.disconnect();
     if (intervalId !== null) clearInterval(intervalId);
     if (timeoutId !== null) clearTimeout(timeoutId);
+    if (activeCleanup === cleanup) activeCleanup = null;
   }
+  activeCleanup = cleanup;
 
   async function attempt(): Promise<void> {
     if (stopped || attemptInFlight) return;
     attemptInFlight = true;
     try {
-      const result = await runConsentRejection(ruleSet);
+      const result = await runConsentRejection(cmps);
       if (result.handled) cleanup();
     } finally {
       attemptInFlight = false;
@@ -69,10 +80,23 @@ function watchAndReject(ruleSet: RuleSet): void {
   void attempt(); // the banner may already be present at document_idle
 }
 
-async function run(): Promise<void> {
+async function start(): Promise<void> {
+  if (activeCleanup) return; // already watching
   if (!(await isEnabled())) return;
   const ruleSet = await fetchRuleSet();
   watchAndReject(ruleSet);
 }
+
+async function run(): Promise<void> {
+  await start();
+}
+
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area !== "managed" && !(area === "local" && STORAGE_KEY in changes)) return;
+  void (async () => {
+    if (await isEnabled()) await start();
+    else activeCleanup?.();
+  })();
+});
 
 void run();

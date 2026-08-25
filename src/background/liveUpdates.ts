@@ -13,7 +13,7 @@
 // copies of the extension without waiting on a new store release.
 import browser from "webextension-polyfill";
 import { addLiveRedirectDomains } from "./popupGuard";
-import { allLiveDynamicRuleIds, buildDynamicRedirectRules } from "./liveRedirectRules";
+import { allLiveDynamicRuleIds, buildDynamicRedirectRules, filterValidRedirectDomains } from "./liveRedirectRules";
 
 const LIVE_DATA_URL =
   "https://raw.githubusercontent.com/Samuelabhinav37/moat/master/live/redirect-domains.json";
@@ -40,7 +40,14 @@ async function refresh(): Promise<void> {
   try {
     const response = await fetch(LIVE_DATA_URL, { cache: "no-store" });
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-    const domains = (await response.json()) as string[];
+    const fetched = (await response.json()) as unknown;
+    if (!Array.isArray(fetched)) throw new Error("live redirect-domains payload was not an array");
+
+    // fetched is remote, GitHub-hosted content -- validate its shape before
+    // trusting it the same way customRules.ts validates user-typed domains,
+    // so one malformed upstream entry can't throw partway through and
+    // silently drop the whole day's refresh.
+    const { valid: domains } = filterValidRedirectDomains(fetched.filter((d): d is string => typeof d === "string"));
 
     await addLiveRedirectDomains(domains);
     await browser.declarativeNetRequest.updateDynamicRules({

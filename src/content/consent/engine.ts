@@ -19,7 +19,11 @@ import { Cmp } from "./cmp";
 import { newContext } from "./tools";
 import { REJECT_ALL, type CmpConfig, type RuleSet } from "./types";
 
-function buildCmps(ruleSet: RuleSet): Cmp[] {
+/** Exported so a caller retrying on a time budget (consentRejector.ts) can
+ * build this once per page load instead of once per attempt -- the vendored
+ * rule set is dozens to 100+ CMP entries, and rebuilding it from scratch on
+ * every MutationObserver batch/poll tick adds up over an 8-second budget. */
+export function buildCmps(ruleSet: RuleSet): Cmp[] {
   const cmps: Cmp[] = [];
   for (const [name, config] of Object.entries(ruleSet)) {
     if (name === "$schema" || typeof config !== "object" || config === null) continue;
@@ -41,11 +45,12 @@ export interface ConsentRunResult {
 /** One snapshot attempt: is a CMP present and showing right now? If so,
  * run the full reject sequence against it and report which one. Safe to
  * call repeatedly (e.g. on a MutationObserver/interval) until it reports
- * handled: true or a caller-owned time budget runs out. */
-export async function runConsentRejection(ruleSet: RuleSet): Promise<ConsentRunResult> {
-  const cmps = buildCmps(ruleSet);
+ * handled: true or a caller-owned time budget runs out. Takes an
+ * already-built CMP list (see buildCmps) rather than a RuleSet so a caller
+ * retrying this doesn't rebuild it on every attempt. */
+export async function runConsentRejection(cmps: Cmp[]): Promise<ConsentRunResult> {
   const ctx = newContext(null);
-  const cmp = cmps.find((c) => c.isPresent(ctx) && c.isShowing(ctx));
+  const cmp = cmps.find((c) => c.isPresentAndShowing(ctx));
   if (cmp == null) return { handled: false };
 
   await cmp.runMethod("HIDE_CMP", REJECT_ALL, ctx);

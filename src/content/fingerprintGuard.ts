@@ -22,6 +22,13 @@ import type { BridgeMessage } from "../types";
 let seed = "";
 let active = false;
 
+// Trust-on-first-use: the first "config" message this page load sees locks
+// in its guardToken, and later messages are only applied if they carry the
+// same one. Same-window postMessage has no real origin check available, so
+// a page can still eavesdrop the real message and learn the token -- this
+// only raises the cost from a zero-effort spoof to "must observe first".
+let lockedGuardToken: string | null = null;
+
 function canvasSeed(width: number, height: number): string {
   return `${seed}:canvas:${width}x${height}`;
 }
@@ -152,6 +159,8 @@ window.addEventListener("message", (event) => {
   if (event.source !== window) return;
   const data = event.data as BridgeMessage | undefined;
   if (!data || data.source !== "moat" || data.type !== "config") return;
+  if (lockedGuardToken === null) lockedGuardToken = data.guardToken;
+  if (data.guardToken !== lockedGuardToken) return;
   active = data.fingerprintResistance;
   seed = data.fingerprintSeed;
 });

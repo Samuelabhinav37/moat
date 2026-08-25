@@ -67,7 +67,36 @@ function normalizeHostname(input: string): string | null {
   }
 }
 
-/** Shared by the paused-sites list and the two custom block/allow lists. */
+/** Shared by every removable list on this page: the paused-sites list, the
+ * two custom block/allow lists, and the picker's two saved-rule lists. */
+function renderRows<T>(
+  list: HTMLUListElement,
+  emptyState: HTMLElement,
+  items: T[],
+  formatLabel: (item: T) => string,
+  removeLabel: string,
+  onRemove: (item: T) => Promise<unknown>
+): void {
+  emptyState.style.display = items.length ? "none" : "block";
+  list.replaceChildren(
+    ...items.map((item) => {
+      const li = document.createElement("li");
+      const label = document.createElement("span");
+      label.textContent = formatLabel(item);
+
+      const remove = document.createElement("button");
+      remove.textContent = removeLabel;
+      remove.addEventListener("click", async () => {
+        await onRemove(item);
+        await render();
+      });
+
+      li.append(label, remove);
+      return li;
+    })
+  );
+}
+
 function renderDomainList(
   list: HTMLUListElement,
   emptyState: HTMLElement,
@@ -75,24 +104,7 @@ function renderDomainList(
   removeLabel: string,
   onRemove: (domain: string) => Promise<void>
 ): void {
-  list.innerHTML = "";
-  emptyState.style.display = domains.length ? "none" : "block";
-
-  for (const domain of [...domains].sort()) {
-    const li = document.createElement("li");
-    const label = document.createElement("span");
-    label.textContent = domain;
-
-    const remove = document.createElement("button");
-    remove.textContent = removeLabel;
-    remove.addEventListener("click", async () => {
-      await onRemove(domain);
-      await render();
-    });
-
-    li.append(label, remove);
-    list.append(li);
-  }
+  renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove);
 }
 
 // ---------- Filter Lists tab ----------
@@ -119,16 +131,38 @@ const CATEGORY_LABELS: Record<RulesetManifestEntry["category"], string> = {
 
 let manifestCache: RulesetManifestEntry[] | null = null;
 
-async function loadRulesetManifest(): Promise<RulesetManifestEntry[]> {
+/** Updated synchronously (before any await) on every checkbox change below,
+ * so two filter-list toggles fired in quick succession each merge onto the
+ * other's already-applied change instead of racing two independent
+ * getSettings() reads and clobbering one write with the other. */
+let currentFilterGroups: Settings["filterGroups"] | null = null;
+
+/** Returns null (rather than throwing) on a corrupted install or any other
+ * fetch/parse failure, so a single bad read here doesn't take down the rest
+ * of render() -- see renderFilterLists's null check below. */
+async function loadRulesetManifest(): Promise<RulesetManifestEntry[] | null> {
   if (manifestCache) return manifestCache;
-  const url = browser.runtime.getURL("rules/manifest.json");
-  manifestCache = (await (await fetch(url)).json()) as RulesetManifestEntry[];
-  return manifestCache;
+  try {
+    const url = browser.runtime.getURL("rules/manifest.json");
+    manifestCache = (await (await fetch(url)).json()) as RulesetManifestEntry[];
+    return manifestCache;
+  } catch {
+    return null;
+  }
 }
 
 async function renderFilterLists(settings: Settings): Promise<void> {
   const manifest = await loadRulesetManifest();
+  if (!manifest) {
+    presetHint.textContent = "Couldn't load filter lists.";
+    const error = document.createElement("p");
+    error.className = "empty-state";
+    error.textContent = "Couldn't load filter lists.";
+    filterListRows.replaceChildren(error);
+    return;
+  }
   const lists = summarizeFilterLists(manifest);
+  currentFilterGroups = settings.filterGroups;
 
   const preset = detectPreset(settings);
   presetHint.textContent = PRESET_HINTS[preset];
@@ -136,7 +170,7 @@ async function renderFilterLists(settings: Settings): Promise<void> {
     button.setAttribute("aria-pressed", String(button.dataset.preset === preset));
   }
 
-  filterListRows.innerHTML = "";
+  filterListRows.replaceChildren();
   let lastCategory = "";
   for (const list of lists.sort((a, b) => a.category.localeCompare(b.category))) {
     if (list.category !== lastCategory) {
@@ -170,7 +204,9 @@ async function renderFilterLists(settings: Settings): Promise<void> {
     toggle.append(input, track);
 
     input.addEventListener("change", async () => {
-      await setSettings({ filterGroups: { ...(await getSettings()).filterGroups, [list.group]: input.checked } });
+      const updated = { ...(currentFilterGroups ?? settings.filterGroups), [list.group]: input.checked };
+      currentFilterGroups = updated;
+      await setSettings({ filterGroups: updated });
       await render();
     });
 
@@ -232,29 +268,18 @@ function renderSelectorRules(
   rules: Record<string, string[]>,
   onRemove: (hostname: string, selector: string) => Promise<unknown>
 ): void {
-  const rows = Object.entries(rules).flatMap(([hostname, selectors]) =>
-    selectors.map((selector) => ({ hostname, selector }))
+  const rows = Object.entries(rules)
+    .flatMap(([hostname, selectors]) => selectors.map((selector) => ({ hostname, selector })))
+    .sort((a, b) => a.hostname.localeCompare(b.hostname));
+
+  renderRows(
+    list,
+    emptyState,
+    rows,
+    (row) => `${row.hostname} — ${row.selector}`,
+    "Remove",
+    (row) => onRemove(row.hostname, row.selector)
   );
-
-  list.innerHTML = "";
-  emptyState.style.display = rows.length ? "none" : "block";
-
-  for (const { hostname, selector } of rows.sort((a, b) => a.hostname.localeCompare(b.hostname))) {
-    const li = document.createElement("li");
-
-    const label = document.createElement("span");
-    label.textContent = `${hostname} — ${selector}`;
-
-    const remove = document.createElement("button");
-    remove.textContent = "Remove";
-    remove.addEventListener("click", async () => {
-      await onRemove(hostname, selector);
-      await render();
-    });
-
-    li.append(label, remove);
-    list.append(li);
-  }
 }
 
 // ---------- About tab ----------

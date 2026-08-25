@@ -45,7 +45,13 @@ async function doClick(action: Extract<ActionConfig, { type: "click" }>, ctx: Ac
   const target = find(action, ctx.find, false).target;
   if (target === null) return;
   if (action.openInTab) {
-    target.dispatchEvent(new MouseEvent("click", { ctrlKey: true, shiftKey: true, bubbles: true }));
+    // window.open(...) directly rather than a synthetic ctrl-click
+    // MouseEvent: dispatching a synthetic click on a target="_blank" anchor
+    // (plausible for a consent banner's "manage partners" link) is exactly
+    // what mainWorldGuard.ts's own capture-phase listener treats as a
+    // suspected ad popunder and blocks -- the two features were silently
+    // fighting each other.
+    if (target instanceof HTMLAnchorElement && target.href) window.open(target.href, "_blank");
   } else {
     (target as HTMLElement).click();
   }

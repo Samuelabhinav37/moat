@@ -57,30 +57,40 @@ function scanSubtree(root: Element): void {
   }
 }
 
+let observer: MutationObserver | null = null;
+let pendingRoots: Element[] = [];
+let flushTimer: ReturnType<typeof setTimeout> | null = null;
+
 function watchFeed(): void {
+  if (observer) return; // already watching
   scanSubtree(document.body);
 
-  let pendingRoots: Element[] = [];
-  let timer: ReturnType<typeof setTimeout> | null = null;
-
   const flush = (): void => {
-    timer = null;
+    flushTimer = null;
     const roots = pendingRoots;
     pendingRoots = [];
     for (const root of roots) scanSubtree(root);
   };
 
-  const observer = new MutationObserver((mutations) => {
+  observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes) {
         if (node instanceof Element) pendingRoots.push(node);
       }
     }
-    if (pendingRoots.length > 0 && timer === null) {
-      timer = setTimeout(flush, SCAN_DELAY_MS);
+    if (pendingRoots.length > 0 && flushTimer === null) {
+      flushTimer = setTimeout(flush, SCAN_DELAY_MS);
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
+}
+
+function stopWatching(): void {
+  observer?.disconnect();
+  observer = null;
+  if (flushTimer !== null) clearTimeout(flushTimer);
+  flushTimer = null;
+  pendingRoots = [];
 }
 
 async function run(): Promise<void> {
@@ -88,5 +98,20 @@ async function run(): Promise<void> {
   ensureStyle();
   watchFeed();
 }
+
+// Settings.aggressiveFeedAdRemoval is only checked once at startup above --
+// react live to it changing so switching it off in options.html actually
+// stops the observer on an already-open tab instead of waiting for reload.
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area !== "managed" && !(area === "local" && STORAGE_KEY in changes)) return;
+  void (async () => {
+    if (await isEnabled()) {
+      ensureStyle();
+      watchFeed();
+    } else {
+      stopWatching();
+    }
+  })();
+});
 
 void run();

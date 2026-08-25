@@ -6,20 +6,41 @@ import browser from "webextension-polyfill";
 import { recordDynamicCatch } from "./blockStats";
 import { matchesKnownRedirectDomain, safeHostname } from "./redirectDomainMatch";
 
-let redirectDomains: Set<string> | null = null;
+// Bundled-at-build-time baseline (loaded once, never changes at runtime)
+// plus the live slice liveUpdates.ts refreshes daily -- kept as two sets so
+// the live refresh can be a wholesale replace (below) without ever losing
+// the baseline.
+let baselineDomains: Set<string> | null = null;
+let liveDomains = new Set<string>();
+let combinedDomains: Set<string> | null = null;
 
-async function loadRedirectDomains(): Promise<Set<string>> {
-  if (redirectDomains) return redirectDomains;
+async function loadBaselineDomains(): Promise<Set<string>> {
+  if (baselineDomains) return baselineDomains;
   const url = browser.runtime.getURL("rules/redirect-domains.json");
   const list = (await (await fetch(url)).json()) as string[];
-  redirectDomains = new Set(list);
-  return redirectDomains;
+  baselineDomains = new Set(list);
+  return baselineDomains;
 }
 
-/** Merges freshly-fetched domains (see liveUpdates.ts) into the set the tab safety net checks against. */
+function rebuildCombinedDomains(): Set<string> {
+  combinedDomains = new Set([...(baselineDomains ?? []), ...liveDomains]);
+  return combinedDomains;
+}
+
+async function loadRedirectDomains(): Promise<Set<string>> {
+  await loadBaselineDomains();
+  return combinedDomains ?? rebuildCombinedDomains();
+}
+
+/** Replaces (not merges) the live slice of the tab safety net's domain set.
+ * liveUpdates.ts fetches the *current, full* list on every refresh, not a
+ * diff -- merging into a Set forever would mean a domain removed upstream
+ * (e.g. a fixed false positive) stays blocked locally until the worker
+ * restarts, instead of actually going away. */
 export async function addLiveRedirectDomains(domains: string[]): Promise<void> {
-  const current = await loadRedirectDomains();
-  for (const domain of domains) current.add(domain);
+  await loadBaselineDomains();
+  liveDomains = new Set(domains);
+  rebuildCombinedDomains();
 }
 
 async function closeSilently(tabId: number, openerTabId: number | undefined): Promise<void> {

@@ -6,7 +6,9 @@
   --muted: #9d97a1;
   --accent: #d7dae0;
   --on: #4ae03f;
+  --on-fg: #123010;
   --danger: #fa6d6d;
+  --danger-fg: #2c2c2f;
   --border: #37343b;
 }
 
@@ -55,13 +57,8 @@ button:hover {
 button.primary {
   background: var(--on);
   border-color: var(--on);
-  color: #123010;
+  color: var(--on-fg);
   font-weight: 600;
-}
-
-button.danger {
-  border-color: var(--danger);
-  color: var(--danger);
 }
 
 a {
