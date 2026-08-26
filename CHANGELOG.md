@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.8
+
+### Added
+- **i18n infrastructure (manifest/build plumbing).** `default_locale: "en"` +
+  `src/_locales/en/messages.json`, `__MSG_extName__`/`__MSG_extDescription__` in the
+  manifest, a new `scripts/build.mjs` copy step for `_locales/`, and a shared
+  `applyStaticI18n`/`getMessageOrFallback` helper (`src/shared/i18n.ts`) for the popup/
+  options migration that follows. English-only for now, no translations yet -- this is the
+  prerequisite plumbing, not a feature on its own. `getMessage` returning `""` for an
+  unresolved key would otherwise silently blank UI text during the migration; the fallback
+  wrapper turns that into visible (kept) text instead.
+
 ## 0.11.7
 
 ### Added

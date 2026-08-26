@@ -134,6 +134,7 @@ function copyStaticAssets() {
   }
 
   cpSync(resolve(root, "icons"), resolve(outDir, "icons"), { recursive: true });
+  cpSync(resolve(root, "src/_locales"), resolve(outDir, "_locales"), { recursive: true });
   cpSync(resolve(root, "src/ui/theme.css"), resolve(outDir, "theme.css"));
   cpSync(resolve(root, "src/popup/popup.html"), resolve(outDir, "popup.html"));
   cpSync(resolve(root, "src/options/options.html"), resolve(outDir, "options.html"));

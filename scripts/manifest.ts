@@ -38,10 +38,10 @@ const icons = {
 function baseManifest() {
   return {
     manifest_version: 3,
-    name: "Moat",
-    short_name: "Moat",
-    description:
-      "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
+    default_locale: "en",
+    name: "__MSG_extName__",
+    short_name: "__MSG_extName__",
+    description: "__MSG_extDescription__",
     homepage_url: "https://github.com/Samuelabhinav37/moat",
     version: packageVersion,
     icons,

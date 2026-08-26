@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Moat",
+    "description": "The extension's name, shown in the browser toolbar and extensions management page."
+  },
+  "extDescription": {
+    "message": "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
+    "description": "The extension's short description, shown on the extensions management page and store listing."
+  }
+}
