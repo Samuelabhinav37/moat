@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.22
+
+### Fixed
+- **A filter list's toggle could show "on" while actually being inactive**, with no per-row
+  indication -- only a summary line at the top of the tab named which lists the rule-budget retry
+  had to drop. Prompted by the reasonable question of what a toggle is even for if it doesn't
+  reflect what's really happening: each row for a list in `droppedGroups` now shows a "Not active
+  (rule budget)" badge next to its name, so it's obvious at a glance which specific toggles aren't
+  actually doing anything right now, not just a general warning above the whole list.
+
+### Added
+- **Stress-tested the drop-priority logic with Moat's real 11 filter groups and their actual
+  bundled rule counts**, not just small toy examples -- specifically because a toy example is what
+  let the front/back drop-direction bug (v0.11.20 to v0.11.21) through review undetected. New tests
+  assert every annoyance-category group ranks before every ads-category group before every
+  security-category group across the full real set, and simulate the actual retry loop under a
+  constrained budget to confirm no security group is ever dropped while a non-security group
+  remains enabled.
+
 ## 0.11.21
 
 ### Fixed

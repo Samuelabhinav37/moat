@@ -88,6 +88,7 @@
     "message": "Left disabled for now, to keep the rest of your filter lists active within the browser's shared rule budget: $NAMES$.",
     "placeholders": { "names": { "content": "$1" } }
   },
+  "optionsFilterBudgetDroppedBadge": { "message": "Not active (rule budget)" },
   "optionsFilteringLevelTitle": { "message": "Filtering level" },
   "presetOff": { "message": "Off" },
   "presetEssential": { "message": "Essential" },

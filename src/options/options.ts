@@ -195,7 +195,7 @@ async function loadRulesetManifest(): Promise<RulesetManifestEntry[] | null> {
   }
 }
 
-async function renderFilterLists(settings: Settings): Promise<void> {
+async function renderFilterLists(settings: Settings, droppedGroups: Set<string>): Promise<void> {
   const manifest = await loadRulesetManifest();
   if (!manifest) {
     const loadError = tFallback("optionsLoadListsError", "Couldn't load filter lists.");
@@ -238,6 +238,18 @@ async function renderFilterLists(settings: Settings): Promise<void> {
     count.className = "count";
     count.textContent = tFallback("optionsRuleCount", `${list.ruleCount.toLocaleString()} rules`, list.ruleCount.toLocaleString());
     label.append(name, count);
+
+    // The toggle below reflects what the user *asked for* (settings.filterGroups), which isn't
+    // necessarily what's actually enabled in Chrome right now -- a toggle showing "on" while the
+    // browser's shared rule budget silently kept it off would be actively misleading, so this
+    // list's own row gets a visible badge instead of just relying on the summary text above the
+    // list (see applyFilterGroupState's drop-priority retry in background/filterGroups.ts).
+    if (droppedGroups.has(list.group)) {
+      const badge = document.createElement("span");
+      badge.className = "locked-badge budget-badge";
+      badge.textContent = tFallback("optionsFilterBudgetDroppedBadge", "Not active (rule budget)");
+      label.append(badge);
+    }
 
     const toggle = document.createElement("label");
     toggle.className = "switch";
@@ -473,7 +485,7 @@ async function render(): Promise<void> {
   const filtersLocked = isLocked("filterGroups", policy);
   filtersLockedBadge.hidden = !filtersLocked;
   for (const button of presetRow.querySelectorAll<HTMLButtonElement>("[data-preset]")) button.disabled = filtersLocked;
-  await renderFilterLists(settings);
+  await renderFilterLists(settings, new Set(filterGroupStatus?.droppedGroups ?? []));
   for (const input of filterListRows.querySelectorAll("input")) input.disabled = filtersLocked;
 
   renderDomainList(

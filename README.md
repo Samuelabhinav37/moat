@@ -549,8 +549,9 @@ network at all.
   rather than an all-or-nothing failure leaving every list disabled when
   most of them would easily fit alone. The Filter Lists tab in Settings
   then shows exactly which lists got left disabled (or, if even the single
-  highest-priority list didn't fit, Chrome's own remaining-rule count) --
-  never silent toggles that didn't actually take effect. There is no way to
+  highest-priority list didn't fit, Chrome's own remaining-rule count), and
+  each affected list's own row gets a "Not active (rule budget)" badge --
+  never a toggle silently shown as "on" while doing nothing. There is no way to
   raise the ceiling itself from within a single extension: the budget is a
   browser-wide, cross-extension limit.
 - **`web-ext lint` warnings on the Firefox build are expected and benign:**
