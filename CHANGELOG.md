@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.3
+
+### Added
+- **A keyboard shortcut (default Ctrl+Shift+M / Cmd+Shift+M) to toggle protection globally**,
+  without needing to open the popup. Mentioned in the About tab along with the
+  `chrome://extensions/shortcuts` rebind page. No extra visual feedback on toggle -- same as
+  flipping the master switch by hand, consistent with the project's "no nag UI" stance.
+- `short_name` and `homepage_url` manifest fields, closing two small gaps in the manifest
+  metadata ahead of a Chrome Web Store listing.
+
 ## 0.11.2
 
 ### Added

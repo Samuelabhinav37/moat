@@ -39,8 +39,10 @@ function baseManifest() {
   return {
     manifest_version: 3,
     name: "Moat",
+    short_name: "Moat",
     description:
       "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
+    homepage_url: "https://github.com/Samuelabhinav37/moat",
     version: packageVersion,
     icons,
     action: {
@@ -51,6 +53,12 @@ function baseManifest() {
     options_ui: {
       page: "options.html",
       open_in_tab: true,
+    },
+    commands: {
+      "toggle-protection": {
+        suggested_key: { default: "Ctrl+Shift+M", mac: "Command+Shift+M" },
+        description: "Toggle Moat protection on/off",
+      },
     },
     permissions: [
       "storage",

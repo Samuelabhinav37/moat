@@ -14,6 +14,7 @@ import {
   getEffectiveSettings,
   isSiteDisabled,
   reapplySettings,
+  setSettings,
   setSiteDisabled,
 } from "./settings";
 import { initPopupGuard } from "./popupGuard";
@@ -31,6 +32,14 @@ void reapplySettings();
 // same as we already do for the user's own settings changes.
 browser.storage.onChanged.addListener((_changes, area) => {
   if (area === "managed") void reapplySettings();
+});
+
+browser.commands.onCommand.addListener((command) => {
+  if (command !== "toggle-protection") return;
+  void (async () => {
+    const current = await getEffectiveSettings();
+    await setSettings({ enabled: !current.enabled });
+  })();
 });
 
 browser.tabs.onRemoved.addListener((tabId) => {
