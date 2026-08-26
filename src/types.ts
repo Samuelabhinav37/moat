@@ -161,6 +161,20 @@ export interface GetLogEntriesMessage {
   type: "get-log-entries";
 }
 
+export interface GetReportContextMessage {
+  type: "get-report-context";
+}
+
+/** Deliberately hostname-only, not the full URL -- avoids leaking a page's
+ * tracking/session query-string params into a public GitHub issue body. */
+export interface ReportContextResponse {
+  hostname: string;
+  /** Human-readable names of filter groups currently enabled globally (not
+   * per-request match data, which is Chrome-only via getMatchedRules -- this
+   * stays cheap and identical on both browsers). */
+  enabledFilterGroups: string[];
+}
+
 export interface LogEntriesResponse {
   /** False when chrome.declarativeNetRequest.onRuleMatchedDebug doesn't
    * exist -- a Web Store/production build, Firefox, or Chrome without dev
@@ -177,7 +191,8 @@ export type RuntimeMessage =
   | ToggleSiteMessage
   | SaveCosmeticRuleMessage
   | SaveGrayscaleRuleMessage
-  | GetLogEntriesMessage;
+  | GetLogEntriesMessage
+  | GetReportContextMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the

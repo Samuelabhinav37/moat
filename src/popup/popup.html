@@ -186,6 +186,10 @@
         background: var(--on);
         color: var(--on-fg);
       }
+      .actions button.secondary {
+        background: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.85);
+      }
     </style>
   </head>
   <body>
@@ -245,6 +249,9 @@
     <div class="actions">
       <button id="reload-page" class="primary" hidden>Reload page</button>
       <button id="start-picker" class="danger">Block an element…</button>
+    </div>
+    <div class="actions">
+      <button id="report-problem" class="secondary" hidden>Report a problem…</button>
     </div>
 
     <script src="popup.js"></script>

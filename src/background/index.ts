@@ -20,7 +20,10 @@ import {
 import { initPopupGuard } from "./popupGuard";
 import { initLiveUpdates } from "./liveUpdates";
 import { forgetTab as forgetLoggerTab, getEntries as getLoggedEntries, initRuleLogger, isSupported as isLoggerSupported } from "./ruleLogger";
-import type { LogEntriesResponse, RuntimeMessage, StatusResponse } from "../types";
+import { loadRulesetManifest } from "./rulesetManifestLoader";
+import { summarizeFilterLists } from "../shared/rulesetManifest";
+import { effectiveFilterGroupState } from "./filterGroupState";
+import type { LogEntriesResponse, ReportContextResponse, RuntimeMessage, StatusResponse } from "../types";
 
 initPopupGuard();
 initLiveUpdates();
@@ -123,6 +126,20 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     case "save-grayscale-rule": {
       if (!isValidMessageString(message.hostname) || !isValidMessageString(message.selector)) return undefined;
       return addGrayscaleRule(message.hostname, message.selector).then(() => undefined);
+    }
+
+    case "get-report-context": {
+      return (async (): Promise<ReportContextResponse> => {
+        const tab = sender.tab ?? (await browser.tabs.query({ active: true, currentWindow: true }))[0];
+        const settings = await getEffectiveSettings();
+        const manifest = await loadRulesetManifest();
+        const lists = summarizeFilterLists(manifest);
+        const state = effectiveFilterGroupState(settings.enabled, settings.filterGroups, lists.map((l) => l.group));
+        return {
+          hostname: hostnameOf(tab?.url),
+          enabledFilterGroups: lists.filter((l) => state[l.group]).map((l) => l.name),
+        };
+      })();
     }
 
     case "get-log-entries": {

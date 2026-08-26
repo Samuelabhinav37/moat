@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
-import type { GetStatusMessage, StatusResponse, ToggleSiteMessage } from "../types";
+import type { GetReportContextMessage, GetStatusMessage, ReportContextResponse, StatusResponse, ToggleSiteMessage } from "../types";
+import { buildIssueUrl } from "./reportIssue";
 
 async function getStatus(): Promise<StatusResponse> {
   const message: GetStatusMessage = { type: "get-status" };
@@ -49,6 +50,7 @@ async function render(): Promise<void> {
   const siteState = document.getElementById("site-state")!;
   const siteStateText = document.getElementById("site-state-text")!;
   const reloadButton = document.getElementById("reload-page") as HTMLButtonElement;
+  const reportButton = document.getElementById("report-problem") as HTMLButtonElement;
 
   if (!status.hostname) {
     siteCard.style.display = "none";
@@ -56,6 +58,7 @@ async function render(): Promise<void> {
     return;
   }
 
+  reportButton.hidden = false;
   hostnameEl.textContent = status.hostname;
   pausedHostname.textContent = status.hostname;
   toggle.checked = !status.siteDisabled;
@@ -111,6 +114,14 @@ document.getElementById("start-picker")?.addEventListener("click", async () => {
       }
     }
   }
+  window.close();
+});
+
+document.getElementById("report-problem")?.addEventListener("click", async () => {
+  const message: GetReportContextMessage = { type: "get-report-context" };
+  const context = (await browser.runtime.sendMessage(message)) as ReportContextResponse;
+  const url = buildIssueUrl(context, browser.runtime.getManifest().version);
+  await browser.tabs.create({ url });
   window.close();
 });
 

@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.4
+
+### Added
+- **A "Report a problem" button in the popup**, opening a pre-filled GitHub issue with the
+  site's hostname (never the full URL, to avoid leaking tracking/session query params into
+  a public issue) and the filter groups currently enabled globally. Uses only cross-browser,
+  cheap data (`summarizeFilterLists`/`effectiveFilterGroupState`), not Chrome-only
+  `getMatchedRules`, so it works identically on both browsers. Hidden on pages with no
+  hostname (e.g. `chrome://` pages), matching the existing site-card behavior.
+
 ## 0.11.3
 
 ### Added
