@@ -1,6 +1,6 @@
 {
   "name": "moat",
-  "version": "0.11.18",
+  "version": "0.11.19",
   "private": true,
   "license": "GPL-3.0",
   "description": "A quiet ad blocker and popup/redirect firewall for Chrome and Firefox.",

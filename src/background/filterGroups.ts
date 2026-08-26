@@ -15,6 +15,14 @@ const STATUS_KEY = "filterGroupStatus";
 export interface FilterGroupStatus {
   ok: boolean;
   timestamp: number;
+  /** Chrome's own count of static rules still available across every
+   * installed extension (declarativeNetRequest.getAvailableStaticRuleCount),
+   * captured only when a call below actually failed -- lets the options page
+   * show a real number instead of just "something didn't fit," and lets a
+   * report distinguish "0 left, genuinely out of budget" from some other
+   * failure (a stale cached manifest, a malformed ruleset id) that would
+   * otherwise look identical from the outside. */
+  availableStaticRuleCount?: number;
 }
 
 /** Lets the options page surface "your filter-list selection didn't fully
@@ -45,6 +53,15 @@ export async function applyFilterGroupState(settings: Settings): Promise<void> {
     // leave whatever's currently active alone rather than throwing out of
     // setSettings(). Record it so the options page can surface it instead
     // of silently showing a toggle that didn't actually take effect.
-    await browser.storage.local.set({ [STATUS_KEY]: { ok: false, timestamp: Date.now() } satisfies FilterGroupStatus });
+    let availableStaticRuleCount: number | undefined;
+    try {
+      availableStaticRuleCount = await browser.declarativeNetRequest.getAvailableStaticRuleCount();
+    } catch {
+      // Older browser or the call itself is unavailable -- the boolean
+      // failure above is still recorded either way.
+    }
+    await browser.storage.local.set({
+      [STATUS_KEY]: { ok: false, timestamp: Date.now(), availableStaticRuleCount } satisfies FilterGroupStatus,
+    });
   }
 }

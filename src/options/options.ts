@@ -154,6 +154,7 @@ const presetHint = document.getElementById("preset-hint") as HTMLElement;
 const filtersLockedBadge = document.getElementById("filters-locked-badge") as HTMLElement;
 const filterListRows = document.getElementById("filter-list-rows") as HTMLElement;
 const filterBudgetWarning = document.getElementById("filter-budget-warning") as HTMLElement;
+const filterBudgetDetail = document.getElementById("filter-budget-detail") as HTMLElement;
 
 // Keyed by both the i18n message key and its English fallback (used via
 // tFallback below) -- kept as one table so the two can't drift apart.
@@ -447,6 +448,15 @@ async function render(): Promise<void> {
 
   const filterGroupStatus = await getFilterGroupStatus();
   filterBudgetWarning.hidden = filterGroupStatus === null || filterGroupStatus.ok;
+  const availableCount = filterGroupStatus?.availableStaticRuleCount;
+  filterBudgetDetail.hidden = availableCount === undefined;
+  if (availableCount !== undefined) {
+    filterBudgetDetail.textContent = tFallback(
+      "optionsFilterBudgetDetail",
+      `Chrome currently reports ${availableCount} static rules still available across every installed extension. If this stays low after disabling other extensions and reloading Moat, the budget itself may be too small for all of Moat's filter lists to fit at once -- try turning off a filter list below (Annoyances or Cookie Notices first) rather than removing more extensions.`,
+      [String(availableCount)]
+    );
+  }
 
   const filtersLocked = isLocked("filterGroups", policy);
   filtersLockedBadge.hidden = !filtersLocked;

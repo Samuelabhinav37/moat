@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.19
+
+### Added
+- **The filter-list rule-budget warning now shows a real number.** Prompted by live troubleshooting
+  where the warning persisted after removing other extensions -- with no diagnostic beyond a
+  boolean "something didn't fully apply," there was no way to tell "genuinely out of shared budget"
+  from "some other, unrelated `updateEnabledRulesets` failure" from the outside. `filterGroups.ts`
+  now also captures `declarativeNetRequest.getAvailableStaticRuleCount()` when the call fails, and
+  Settings' Filter Lists tab shows it: "Chrome currently reports N static rules still available
+  across every installed extension." A near-zero number even with no other extensions installed
+  means Moat's own bundled rule count is the actual ceiling, not extension competition -- steers
+  toward turning off a filter list instead of hunting for more extensions to disable.
+
 ## 0.11.18
 
 ### Fixed
