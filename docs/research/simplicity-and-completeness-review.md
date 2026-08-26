@@ -9,8 +9,10 @@ with one merged, prioritized list.
 
 This doc does not re-research power features already covered in
 [`feature-expansion-survey.md`](feature-expansion-survey.md) (leaked-password check,
-per-tab tracker/company list, Decentraleyes-style local CDN mirroring, ClearURLs gap audit)
-or [`ad-blocker-architecture-and-roadmap.md`](ad-blocker-architecture-and-roadmap.md) (all 9
+Decentraleyes-style local CDN mirroring, ClearURLs gap audit -- the fourth candidate that
+doc originally listed, a per-tab tracker/company list, turned out to already be shipped;
+see that doc's corrected §2) or
+[`ad-blocker-architecture-and-roadmap.md`](ad-blocker-architecture-and-roadmap.md) (all 9
 candidates there already shipped, v0.7.5--0.9.0). Both are summarized under "Power," not
 repeated.
 
@@ -114,8 +116,9 @@ Already thoroughly researched and shortlisted in `feature-expansion-survey.md`; 
 here only so this doc is a complete answer to "what else can we add":
 
 1. Opt-in leaked-password check on password fields via HIBP's free k-anonymity API.
-2. Read-only per-tab "who was blocked here" tracker/company list in the popup (data already
-   collected, just never surfaced).
+2. ~~Read-only per-tab tracker/company list in the popup~~ — **correction (2026-08-26):
+   already shipped** (`matchStats.ts` + `popup.ts`'s `renderCompanyBreakdown()`). Struck
+   here; see `feature-expansion-survey.md` §2 for the full correction.
 3. Decentraleyes-style local mirroring of common CDN-hosted JS libraries.
 4. Audit the bundled URL-tracking filter list against ClearURLs' catalog for coverage gaps.
 
