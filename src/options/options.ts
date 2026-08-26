@@ -195,6 +195,7 @@ async function renderFilterLists(settings: Settings): Promise<void> {
     const label = document.createElement("div");
     const name = document.createElement("div");
     name.className = "name";
+    name.id = `filter-list-${list.group}-label`;
     name.textContent = list.name;
     const count = document.createElement("div");
     count.className = "count";
@@ -205,6 +206,7 @@ async function renderFilterLists(settings: Settings): Promise<void> {
     toggle.className = "switch";
     const input = document.createElement("input");
     input.type = "checkbox";
+    input.setAttribute("aria-labelledby", name.id);
     input.checked = settings.filterGroups[list.group] ?? true;
     const track = document.createElement("span");
     track.className = "track";

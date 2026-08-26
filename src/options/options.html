@@ -225,13 +225,13 @@
           </div>
           <div>
             <div class="row" style="justify-content: flex-start; gap: 8px">
-              <span class="card-title">Protection enabled</span>
+              <span class="card-title" id="master-toggle-label">Protection enabled</span>
               <span class="locked-badge" id="protection-locked-badge" hidden>Managed by your organization</span>
             </div>
             <p class="hint muted">Toggle to turn off all blocking globally.</p>
           </div>
           <label class="switch">
-            <input type="checkbox" id="master-toggle" />
+            <input type="checkbox" id="master-toggle" aria-labelledby="master-toggle-label" />
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
@@ -244,11 +244,11 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6"/><circle cx="6.2" cy="6" r=".7" fill="currentColor" stroke="none"/><circle cx="10" cy="6.8" r=".7" fill="currentColor" stroke="none"/><circle cx="6.8" cy="9.8" r=".7" fill="currentColor" stroke="none"/><circle cx="10.2" cy="10.2" r=".7" fill="currentColor" stroke="none"/></svg>
           </div>
           <div>
-            <div class="card-title">Block third party cookies</div>
+            <div class="card-title" id="cookies-toggle-label">Block third party cookies</div>
             <p class="hint muted">Prevents cross site tracking across your browser. (Off by default)</p>
           </div>
           <label class="switch">
-            <input type="checkbox" id="cookies-toggle" />
+            <input type="checkbox" id="cookies-toggle" aria-labelledby="cookies-toggle-label" />
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
@@ -257,11 +257,11 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M2 6a9 9 0 0112 0M4.4 8.6a5.5 5.5 0 017.2 0"/><circle cx="8" cy="12.3" r=".9" fill="currentColor" stroke="none"/><line x1="2" y1="2" x2="14" y2="14"/></svg>
           </div>
           <div>
-            <div class="card-title">Prevent WebRTC IP leaks</div>
+            <div class="card-title" id="webrtc-toggle-label">Prevent WebRTC IP leaks</div>
             <p class="hint muted">Hides your real IP address when using a VPN.</p>
           </div>
           <label class="switch">
-            <input type="checkbox" id="webrtc-toggle" />
+            <input type="checkbox" id="webrtc-toggle" aria-labelledby="webrtc-toggle-label" />
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
@@ -270,14 +270,14 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M8 3.2a4.8 4.8 0 00-4.8 4.8v1.2M8 3.2A4.8 4.8 0 0112.8 8v2.1M8 5.4a2.6 2.6 0 00-2.6 2.6v1.2M8 5.4A2.6 2.6 0 0110.6 8v2M8 7.6a.4.4 0 00-.4.4v3.4"/></svg>
           </div>
           <div>
-            <div class="card-title">Reduce fingerprinting</div>
+            <div class="card-title" id="fingerprint-toggle-label">Reduce fingerprinting</div>
             <p class="hint muted">
               Scrambles device data to prevent silent tracking. May occasionally break site
               features like CAPTCHAs. (Off by default)
             </p>
           </div>
           <label class="switch">
-            <input type="checkbox" id="fingerprint-toggle" />
+            <input type="checkbox" id="fingerprint-toggle" aria-labelledby="fingerprint-toggle-label" />
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
@@ -286,14 +286,14 @@
             <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 2a6 6 0 000 12z" fill="currentColor"/></svg>
           </div>
           <div>
-            <div class="card-title">Dim unblockable video ads</div>
+            <div class="card-title" id="grayscale-toggle-label">Dim unblockable video ads</div>
             <p class="hint muted">
               Automatically grays out embedded video ads like YouTube that cannot be entirely
               removed.
             </p>
           </div>
           <label class="switch">
-            <input type="checkbox" id="grayscale-toggle" />
+            <input type="checkbox" id="grayscale-toggle" aria-labelledby="grayscale-toggle-label" />
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
@@ -302,14 +302,14 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5.5 6.5l5 5M10.5 6.5l-5 5"/></svg>
           </div>
           <div>
-            <div class="card-title">Aggressively hide sponsored posts</div>
+            <div class="card-title" id="feed-scan-toggle-label">Aggressively hide sponsored posts</div>
             <p class="hint muted">
               Scans and removes sponsored or promoted posts from social feeds as you scroll. (Off
               by default)
             </p>
           </div>
           <label class="switch">
-            <input type="checkbox" id="feed-scan-toggle" />
+            <input type="checkbox" id="feed-scan-toggle" aria-labelledby="feed-scan-toggle-label" />
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
@@ -318,13 +318,13 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M3 6h10M3 10h6"/><path d="M11.5 10.5l1.5 1.5 2-2" stroke-linejoin="round"/></svg>
           </div>
           <div>
-            <div class="card-title">Auto reject cookie banners</div>
+            <div class="card-title" id="consent-reject-toggle-label">Auto reject cookie banners</div>
             <p class="hint muted">
               Automatically clicks reject or decline on major consent banners. (Off by default)
             </p>
           </div>
           <label class="switch">
-            <input type="checkbox" id="consent-reject-toggle" />
+            <input type="checkbox" id="consent-reject-toggle" aria-labelledby="consent-reject-toggle-label" />
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
@@ -333,7 +333,7 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
           </div>
           <div>
-            <div class="card-title">Uncloak disguised trackers (Firefox only)</div>
+            <div class="card-title" id="cname-uncloak-toggle-label">Uncloak disguised trackers (Firefox only)</div>
             <p class="hint muted">
               Detects and blocks trackers hiding behind first party subdomains. (Off by default)
             </p>
@@ -342,7 +342,7 @@
             </p>
           </div>
           <label class="switch">
-            <input type="checkbox" id="cname-uncloak-toggle" />
+            <input type="checkbox" id="cname-uncloak-toggle" aria-labelledby="cname-uncloak-toggle-label" />
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>

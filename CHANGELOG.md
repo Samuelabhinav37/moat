@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.2
+
+### Added
+- **Accessible names on every toggle switch, in both the popup and options pages.** Every
+  switch (`<label class="switch">…`) wrapped only the visual track/thumb, leaving its
+  descriptive text as a disconnected sibling -- a screen reader landed on each one and
+  announced "checkbox, not checked" with no name at all. Added `id`s to the 8 static toggle
+  titles in the Protection tab plus the per-site pause toggle in the popup, and
+  `aria-labelledby` on each matching input; the dynamically generated per-filter-list
+  toggles (`renderFilterLists` in `options.ts`) now get an id assigned at creation time too.
+
 ## 0.11.1
 
 ### Added
