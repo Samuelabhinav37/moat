@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.17
+
+### Fixed
+- **Popup's "Reload page"/"Block an element…" buttons looked oversized and pill-shaped** --
+  `border-radius: 999px` on generous padding read as circular rather than as a button. Toned down
+  to a standard rounded rectangle (`border-radius: 10px`, tighter vertical padding).
+
 ## 0.11.16
 
 ### Removed
