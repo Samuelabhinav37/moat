@@ -18,6 +18,7 @@ const baseSettings: Settings = {
   aggressiveFeedAdRemoval: false,
   cookieBannerAutoReject: false,
   cnameUncloaking: false,
+  syncEnabled: false,
 };
 
 describe("presetPatch", () => {

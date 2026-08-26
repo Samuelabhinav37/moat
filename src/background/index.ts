@@ -15,6 +15,7 @@ import {
   getSettings,
   isSiteDisabled,
   reapplySettings,
+  seedFromSyncIfEmpty,
   setSettings,
   setSiteDisabled,
 } from "./settings";
@@ -36,7 +37,9 @@ import type {
 initPopupGuard();
 initLiveUpdates();
 initRuleLogger();
-void reapplySettings();
+// Note: not a top-level `await` -- this module is built as a Rollup `iife`
+// bundle (see scripts/build.mjs), which doesn't support it.
+void seedFromSyncIfEmpty().then(() => reapplySettings());
 
 // An admin can push/change managed policy at any point during a session
 // (not just at browser startup) -- reapply everything when that happens,

@@ -5,6 +5,7 @@ import { applyFilterGroupState } from "./filterGroups";
 import { applyCustomRules } from "./applyCustomRules";
 import { applyCnameUncloak } from "./cnameUncloak";
 import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
+import { exportSettings } from "./settingsPortability";
 
 export async function getSettings(): Promise<Settings> {
   const stored = await browser.storage.local.get(STORAGE_KEY);
@@ -46,11 +47,38 @@ function mutateSettings(mutator: (current: Settings) => Partial<Settings> | null
     if (patch === null) return current;
     const next = { ...current, ...patch };
     await browser.storage.local.set({ [STORAGE_KEY]: next });
+    if (next.syncEnabled) {
+      // Best-effort, opt-in mirror -- a quota failure (storage.sync caps at
+      // ~100KB total / ~8KB per item) just means sync silently doesn't
+      // happen for this install, same posture as everything else here that
+      // isn't user-visible until it's turned on.
+      void browser.storage.sync.set({ [STORAGE_KEY]: exportSettings(next) }).catch(() => {});
+    }
     await applyEffectiveSettings();
     return next;
   });
   pending = result.catch(() => {});
   return result;
+}
+
+/** Seeds a fresh install's local settings from an existing synced copy, if
+ * one exists -- only when storage.local genuinely has nothing yet (never
+ * overwrites real local settings). Opt-in: only meaningful once
+ * settings.syncEnabled has been turned on somewhere and mirrored a copy to
+ * sync; on a brand new install with sync never enabled anywhere, this is a
+ * no-op. Not a live bidirectional sync -- seeds once, then normal writes
+ * take over. */
+export async function seedFromSyncIfEmpty(): Promise<void> {
+  const local = await browser.storage.local.get(STORAGE_KEY);
+  if (STORAGE_KEY in local) return;
+  try {
+    const synced = await browser.storage.sync.get(STORAGE_KEY);
+    const value = synced[STORAGE_KEY] as Partial<Settings> | undefined;
+    if (value) await browser.storage.local.set({ [STORAGE_KEY]: { ...DEFAULT_SETTINGS, ...value } });
+  } catch {
+    // storage.sync unavailable (sync disabled, no signed-in account, etc.) --
+    // fine, stay on local defaults.
+  }
 }
 
 export function setSettings(patch: Partial<Settings>): Promise<Settings> {

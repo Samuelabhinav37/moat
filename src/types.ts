@@ -73,6 +73,15 @@ export interface Settings {
    * cost/trust profile than everything else here.
    */
   cnameUncloaking: boolean;
+  /**
+   * Mirrors settings (excluding fingerprintSeed) to browser.storage.sync so
+   * a fresh install can seed itself from an existing synced copy -- see
+   * settings.ts's seedFromSyncIfEmpty(). Off by default: this sends your
+   * custom rules/filter choices through your browser's own sync account,
+   * a real behavior change outside what's on-screen. Last-write-wins, no
+   * live cross-device merge -- not a real-time sync engine.
+   */
+  syncEnabled: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -91,6 +100,7 @@ export const DEFAULT_SETTINGS: Settings = {
   aggressiveFeedAdRemoval: false,
   cookieBannerAutoReject: false,
   cnameUncloaking: false,
+  syncEnabled: false,
 };
 
 export const STORAGE_KEY = "settings";

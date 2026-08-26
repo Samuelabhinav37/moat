@@ -3,6 +3,7 @@ import browser from "webextension-polyfill";
 
 vi.mock("webextension-polyfill", () => {
   const store: Record<string, unknown> = {};
+  const syncStore: Record<string, unknown> = {};
   return {
     default: {
       runtime: { getURL: (path: string) => `test://${path}` },
@@ -15,6 +16,17 @@ vi.mock("webextension-polyfill", () => {
           },
           clear: () => {
             for (const key of Object.keys(store)) delete store[key];
+            return Promise.resolve();
+          },
+        },
+        sync: {
+          get: (key: string) => Promise.resolve(key in syncStore ? { [key]: syncStore[key] } : {}),
+          set: (items: Record<string, unknown>) => {
+            Object.assign(syncStore, items);
+            return Promise.resolve();
+          },
+          clear: () => {
+            for (const key of Object.keys(syncStore)) delete syncStore[key];
             return Promise.resolve();
           },
         },
@@ -52,10 +64,12 @@ const {
   removeCustomCosmeticRule,
   addGrayscaleRule,
   removeGrayscaleRule,
+  seedFromSyncIfEmpty,
 } = await import("./settings");
 
 beforeEach(async () => {
   await (browser.storage.local as unknown as { clear(): Promise<void> }).clear();
+  await (browser.storage.sync as unknown as { clear(): Promise<void> }).clear();
 });
 
 describe("getSettings", () => {
@@ -76,6 +90,7 @@ describe("getSettings", () => {
       aggressiveFeedAdRemoval: false,
       cookieBannerAutoReject: false,
       cnameUncloaking: false,
+      syncEnabled: false,
     });
   });
 
@@ -175,5 +190,51 @@ describe("isSiteDisabled", () => {
   it("is true everywhere once the master switch is off, even for untouched sites", async () => {
     await setSettings({ enabled: false });
     expect(await isSiteDisabled("never-paused.example.com")).toBe(true);
+  });
+});
+
+describe("storage.sync mirroring", () => {
+  it("does not mirror to sync when syncEnabled is off (the default)", async () => {
+    await setSettings({ disabledSites: ["example.com"] });
+    const synced = await (browser.storage.sync as unknown as { get(key: string): Promise<Record<string, unknown>> }).get(
+      "settings"
+    );
+    expect(synced).toEqual({});
+  });
+
+  it("mirrors to sync, excluding fingerprintSeed, once syncEnabled is on", async () => {
+    await setSettings({ syncEnabled: true });
+    await getOrCreateFingerprintSeed();
+    await setSettings({ disabledSites: ["example.com"] });
+    const synced = (await (
+      browser.storage.sync as unknown as { get(key: string): Promise<Record<string, unknown>> }
+    ).get("settings")) as { settings?: Record<string, unknown> };
+    expect(synced.settings?.disabledSites).toEqual(["example.com"]);
+    expect(synced.settings?.syncEnabled).toBe(true);
+    expect(synced.settings).not.toHaveProperty("fingerprintSeed");
+  });
+});
+
+describe("seedFromSyncIfEmpty", () => {
+  it("does nothing when local settings already exist, even if sync has a different value", async () => {
+    await setSettings({ disabledSites: ["local.example.com"] });
+    await (browser.storage.sync as unknown as { set(items: Record<string, unknown>): Promise<void> }).set({
+      settings: { disabledSites: ["synced.example.com"] },
+    });
+    await seedFromSyncIfEmpty();
+    expect((await getSettings()).disabledSites).toEqual(["local.example.com"]);
+  });
+
+  it("seeds local settings from sync when local is genuinely empty", async () => {
+    await (browser.storage.sync as unknown as { set(items: Record<string, unknown>): Promise<void> }).set({
+      settings: { disabledSites: ["synced.example.com"] },
+    });
+    await seedFromSyncIfEmpty();
+    expect((await getSettings()).disabledSites).toEqual(["synced.example.com"]);
+  });
+
+  it("is a no-op when both local and sync are empty", async () => {
+    await seedFromSyncIfEmpty();
+    expect((await getSettings()).disabledSites).toEqual([]);
   });
 });

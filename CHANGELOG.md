@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.6
+
+### Added
+- **Opt-in settings sync via `storage.sync`** (new toggle in Backup & restore, off by
+  default). Seeds a fresh install from an existing synced copy if one exists, then mirrors
+  local changes going forward -- last-write-wins, no live cross-device merge, not a
+  real-time sync engine. The per-install fingerprint-resistance identifier is never synced.
+  A sync-quota failure (storage.sync caps at ~100KB total / ~8KB per item) fails silently,
+  same posture as everything else here that stays invisible until turned on.
+
 ## 0.11.5
 
 ### Added

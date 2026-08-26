@@ -45,6 +45,7 @@ const grayscaleToggle = document.getElementById("grayscale-toggle") as HTMLInput
 const feedScanToggle = document.getElementById("feed-scan-toggle") as HTMLInputElement;
 const consentRejectToggle = document.getElementById("consent-reject-toggle") as HTMLInputElement;
 const cnameUncloakToggle = document.getElementById("cname-uncloak-toggle") as HTMLInputElement;
+const syncToggle = document.getElementById("sync-toggle") as HTMLInputElement;
 const cnameUnsupportedHint = document.getElementById("cname-unsupported-hint") as HTMLElement;
 const liveStatus = document.getElementById("live-status") as HTMLElement;
 const siteList = document.getElementById("site-list") as HTMLUListElement;
@@ -397,6 +398,8 @@ async function render(): Promise<void> {
   cnameUncloakToggle.disabled = !cnameSupported;
   cnameUnsupportedHint.hidden = cnameSupported;
 
+  syncToggle.checked = settings.syncEnabled;
+
   renderLiveStatus(await getLiveUpdateStatus());
 
   renderDomainList(
@@ -489,6 +492,10 @@ consentRejectToggle.addEventListener("change", async () => {
 
 cnameUncloakToggle.addEventListener("change", async () => {
   await setSettings({ cnameUncloaking: cnameUncloakToggle.checked });
+});
+
+syncToggle.addEventListener("change", async () => {
+  await setSettings({ syncEnabled: syncToggle.checked });
 });
 
 addButton.addEventListener("click", async () => {

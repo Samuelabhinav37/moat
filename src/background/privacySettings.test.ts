@@ -24,6 +24,7 @@ const baseSettings: Settings = {
   aggressiveFeedAdRemoval: false,
   cookieBannerAutoReject: false,
   cnameUncloaking: false,
+  syncEnabled: false,
 };
 
 function setPrivacy(privacy: unknown): void {

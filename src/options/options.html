@@ -504,6 +504,19 @@
           </div>
           <input type="file" id="import-settings-input" accept="application/json" hidden />
           <p class="hint muted" id="import-settings-status" hidden></p>
+          <div class="toggle-row" style="margin-top: 10px">
+            <div>
+              <div class="card-title" id="sync-toggle-label">Sync settings across devices</div>
+              <p class="hint muted">
+                Mirrors your settings through your browser's own sync account. Off by default.
+                Seeds a new install once; doesn't live-merge changes made on two devices at once.
+              </p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="sync-toggle" aria-labelledby="sync-toggle-label" />
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+          </div>
         </div>
       </div>
     </section>
