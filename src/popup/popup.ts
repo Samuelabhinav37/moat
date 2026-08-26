@@ -9,7 +9,6 @@ import type {
 } from "../types";
 import { buildIssueUrl } from "./reportIssue";
 import type { PopupUiNotices } from "../background/updateNotice";
-import type { CompanyInfo } from "../shared/matchedRuleCompanies";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
@@ -40,62 +39,11 @@ async function renderUiNotices(): Promise<void> {
   }
 }
 
-// Fetched only once a company row is actually clicked open, not on every
-// popup open -- most opens never touch this, and the file (deduped, but
-// still per-company text) is bigger than anything else the popup loads.
-let companyInfoPromise: Promise<CompanyInfo> | null = null;
-function loadCompanyInfo(): Promise<CompanyInfo> {
-  companyInfoPromise ??= (async () => {
-    try {
-      const url = browser.runtime.getURL("rules/company-info.json");
-      return (await (await fetch(url)).json()) as CompanyInfo;
-    } catch {
-      return {};
-    }
-  })();
-  return companyInfoPromise;
-}
-
-// Ghostery-style click-through: a description/category/website link under a
-// company row, same trust boundary as the count itself (TrackerDB data, no
-// separate network request per company). Silently renders nothing if
-// TrackerDB has no detail for this company beyond its name.
-function renderCompanyDetail(container: HTMLElement, info: CompanyInfo[string] | undefined): void {
-  container.replaceChildren();
-  if (!info) return;
-  if (info.description) {
-    const description = document.createElement("p");
-    description.className = "company-description";
-    description.textContent = info.description;
-    container.append(description);
-  }
-  if (info.category) {
-    const category = document.createElement("p");
-    category.className = "company-category";
-    category.textContent = info.category.replace(/_/g, " ");
-    container.append(category);
-  }
-  if (info.websiteUrl) {
-    const link = document.createElement("a");
-    link.href = info.websiteUrl;
-    link.target = "_blank";
-    link.rel = "noopener";
-    link.textContent = getMessageOrFallback(
-      (key) => browser.i18n.getMessage(key),
-      "popupCompanyWebsite",
-      "Website"
-    );
-    container.append(link);
-  }
-}
-
 // Collapsed by default (see popup.html's <details hidden>) -- a company
 // drill-down on top of the existing Ads/Trackers/Popups strip, not a
 // dashboard. Hidden entirely when nothing's attributed rather than shown
 // empty (most blocked requests have no company match -- TrackerDB only
-// covers a fraction of the bundled domains). Each row is itself a
-// click-through: expands a short description/category/link fetched from
-// TrackerDB, same data Ghostery's Tracker Panel shows.
+// covers a fraction of the bundled domains).
 function renderCompanyBreakdown(companyBreakdown: Record<string, number>): void {
   const details = document.getElementById("company-details")!;
   const list = document.getElementById("company-list")!;
@@ -105,50 +53,15 @@ function renderCompanyBreakdown(companyBreakdown: Record<string, number>): void 
   list.replaceChildren(
     ...entries.map(([company, count]) => {
       const li = document.createElement("li");
-
-      const row = document.createElement("button");
-      row.type = "button";
-      row.className = "company-row";
       const name = document.createElement("span");
       name.textContent = company;
       const n = document.createElement("span");
       n.className = "n";
       n.textContent = String(count);
-      row.append(name, n);
-
-      const detail = document.createElement("div");
-      detail.className = "company-detail";
-      detail.hidden = true;
-
-      row.addEventListener("click", () => {
-        const expanding = detail.hidden;
-        detail.hidden = !expanding;
-        if (expanding && !detail.dataset.loaded) {
-          detail.dataset.loaded = "1";
-          void loadCompanyInfo().then((info) => renderCompanyDetail(detail, info[company]));
-        }
-      });
-
-      li.append(row, detail);
+      li.append(name, n);
       return li;
     })
   );
-}
-
-// A DuckDuckGo-report-card-style plain-language line over the exact same
-// real block count already shown in the hero number below -- not a site
-// safety/trust grade (Moat has no data on the site itself to grade), just a
-// coarser, more legible framing of "how much did this page try to load."
-function renderPageSummary(total: number): void {
-  const summary = document.getElementById("page-summary")!;
-  const [tier, key, fallback] =
-    total === 0
-      ? ["clean", "popupSummaryClean", "Nothing to block on this page"]
-      : total < 10
-        ? ["light", "popupSummaryLight", "A few trackers blocked"]
-        : ["heavy", "popupSummaryHeavy", "Heavily tracked page"];
-  summary.className = `summary ${tier}`;
-  summary.textContent = getMessageOrFallback((key2) => browser.i18n.getMessage(key2), key, fallback);
 }
 
 async function render(): Promise<void> {
@@ -158,7 +71,6 @@ async function render(): Promise<void> {
   document.getElementById("count-ads")!.textContent = String(status.breakdown.ads);
   document.getElementById("count-trackers")!.textContent = String(status.breakdown.trackers);
   document.getElementById("count-popups")!.textContent = String(status.breakdown.popups);
-  renderPageSummary(status.blockedOnTab);
   renderCompanyBreakdown(status.companyBreakdown);
 
   const hostnameEl = document.getElementById("hostname")!;

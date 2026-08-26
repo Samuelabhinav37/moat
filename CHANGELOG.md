@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.16
+
+### Removed
+- **Reverted the popup company drill-down and report-card summary line from v0.11.13**, per
+  direct feedback that the popup UI change wasn't wanted. `src/popup/popup.ts`/`popup.html` are
+  back to the pre-0.11.13 layout: a flat, non-interactive "By company" list and no summary line
+  above the Ads/Trackers/Popups breakdown. The supporting build-time output
+  (`rules/company-info.json`) and its generation code are removed with it, since nothing else
+  used that data.
+
 ## 0.11.15
 
 ### Added
@@ -46,6 +56,8 @@ All notable changes to this project are documented here. Format loosely follows
   block count already shown in the hero number -- not a fabricated site-safety grade, since Moat
   has no independent data on the site itself to grade, unlike DuckDuckGo's letter-grade feature
   this was inspired by.
+
+  **Reverted in v0.11.16** -- see above.
 
 ## 0.11.12
 

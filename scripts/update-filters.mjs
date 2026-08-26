@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { chunkBySize } from "./lib/chunkBySize.mjs";
 import { resolveRedirectResource } from "./lib/redirectResources.mjs";
-import { extractRuleDomain, lookupCompanyDetails } from "./lib/ruleCompany.mjs";
+import { extractRuleDomain, lookupCompany } from "./lib/ruleCompany.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -77,12 +77,6 @@ const manifestEntries = [];
 // see README's Licensing note), correlated by domain at build time so no
 // runtime domain matching or third-party engine is needed.
 const ruleCompanies = {};
-// Company name -> {description, websiteUrl, category}, deduped so the
-// popup's company drill-down (see src/popup/popup.ts's renderCompanyBreakdown)
-// can show a one-line description and category per company without shipping
-// TrackerDB's full ~2600-organization catalog -- only the companies actually
-// attributed to a shipped rule end up here.
-const companyInfo = {};
 
 for (const ruleset of RULESETS) {
   const srcPath = join(
@@ -150,14 +144,9 @@ for (const ruleset of RULESETS) {
     if (trackerDb && ruleset.category !== "security") {
       for (const rule of chunkRules) {
         const domain = extractRuleDomain(rule.condition?.urlFilter);
-        const company = domain ? lookupCompanyDetails(domain, trackerDb) : null;
+        const company = domain ? lookupCompany(domain, trackerDb) : null;
         if (!company) continue;
-        (ruleCompanies[rulesetId] ??= {})[rule.id] = company.name;
-        companyInfo[company.name] ??= {
-          description: company.description,
-          websiteUrl: company.websiteUrl,
-          category: company.category,
-        };
+        (ruleCompanies[rulesetId] ??= {})[rule.id] = company;
       }
     }
 
@@ -299,7 +288,6 @@ mkdirSync(liveDir, { recursive: true });
 writeFileSync(join(liveDir, "redirect-domains.json"), redirectDomainsJson);
 
 writeFileSync(join(outDir, "rule-companies.json"), JSON.stringify(ruleCompanies));
-writeFileSync(join(outDir, "company-info.json"), JSON.stringify(companyInfo));
 
 // Copy only the resource files $redirect rules actually reference (not
 // every file @adguard/scriptlets ships) into a tracked-shaped build output,

@@ -119,19 +119,6 @@ for (const [rulesetId, byRuleId] of Object.entries(ruleCompanies)) {
 }
 console.log(`rule-companies.json: ${attributedCount} rules attributed to a company`);
 
-const companyInfo = JSON.parse(readFileSync(join(rulesDir, "company-info.json"), "utf8"));
-const attributedCompanies = new Set();
-for (const byRuleId of Object.values(ruleCompanies)) {
-  for (const company of Object.values(byRuleId)) attributedCompanies.add(company);
-}
-for (const company of attributedCompanies) {
-  if (!(company in companyInfo)) {
-    console.error(`company-info.json: missing entry for attributed company "${company}"`);
-    ok = false;
-  }
-}
-console.log(`company-info.json: ${Object.keys(companyInfo).length} companies described`);
-
 if (!ok) {
   console.error("\nValidation failed.");
   process.exit(1);
