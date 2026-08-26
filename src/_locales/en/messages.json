@@ -6,5 +6,25 @@
   "extDescription": {
     "message": "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
     "description": "The extension's short description, shown on the extensions management page and store listing."
-  }
+  },
+  "popupSettingsLink": { "message": "Settings" },
+  "popupOnboardingCard": {
+    "message": "Moat blocks ads and trackers automatically. Use the switch below to pause it on a site, or Settings to fine-tune."
+  },
+  "popupUpdatePrefix": { "message": "Updated to v" },
+  "popupUpdateSeparator": { "message": " -- " },
+  "popupUpdateLinkText": { "message": "see what's new" },
+  "popupBlockedOnPage": { "message": "Blocked on this page" },
+  "popupAds": { "message": "Ads" },
+  "popupTrackers": { "message": "Trackers" },
+  "popupPopups": { "message": "Popups" },
+  "popupByCompany": { "message": "By company" },
+  "popupPausedPrefix": { "message": "Paused on " },
+  "popupPausedSuffix": { "message": ". Reload the page to see it unblocked." },
+  "popupProtected": { "message": "protected" },
+  "popupPaused": { "message": "paused" },
+  "popupReloadPage": { "message": "Reload page" },
+  "popupBlockElement": { "message": "Block an element…" },
+  "popupReportProblem": { "message": "Report a problem…" },
+  "popupLoadError": { "message": "Couldn't load status. Try reopening the popup." }
 }

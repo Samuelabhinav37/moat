@@ -225,22 +225,26 @@
         <circle cx="3.68" cy="10.2" r="1.43" fill="rgba(255,255,255,0.5)" />
       </svg>
       <div class="mark">Moat</div>
-      <a href="#" id="open-options">Settings</a>
+      <a href="#" id="open-options" data-i18n="popupSettingsLink">Settings</a>
     </div>
 
     <div class="notice" id="onboarding-card" hidden>
-      <span>Moat blocks ads and trackers automatically. Use the switch below to pause it on a
-        site, or Settings to fine-tune.</span>
+      <span data-i18n="popupOnboardingCard"
+        >Moat blocks ads and trackers automatically. Use the switch below to pause it on a
+        site, or Settings to fine-tune.</span
+      >
     </div>
 
     <div class="notice" id="update-notice" hidden>
       <span
-        >Updated to v<span id="update-version"></span> --
+        ><span data-i18n="popupUpdatePrefix">Updated to v</span><span id="update-version"></span
+        ><span data-i18n="popupUpdateSeparator"> -- </span>
         <a
           href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md"
           target="_blank"
           rel="noopener"
           id="update-changelog-link"
+          data-i18n="popupUpdateLinkText"
           >see what's new</a
         ></span
       >
@@ -249,30 +253,31 @@
     <div id="stats" hidden>
       <div class="stat-hero">
         <div class="n" id="count">0</div>
-        <div class="l">Blocked on this page</div>
+        <div class="l" data-i18n="popupBlockedOnPage">Blocked on this page</div>
       </div>
 
       <div class="breakdown">
-        <div class="seg"><span class="n" id="count-ads">0</span><span class="l"><i class="dot ads"></i>Ads</span></div>
-        <div class="seg"><span class="n" id="count-trackers">0</span><span class="l"><i class="dot trackers"></i>Trackers</span></div>
-        <div class="seg"><span class="n" id="count-popups">0</span><span class="l"><i class="dot popups"></i>Popups</span></div>
+        <div class="seg"><span class="n" id="count-ads">0</span><span class="l"><i class="dot ads"></i><span data-i18n="popupAds">Ads</span></span></div>
+        <div class="seg"><span class="n" id="count-trackers">0</span><span class="l"><i class="dot trackers"></i><span data-i18n="popupTrackers">Trackers</span></span></div>
+        <div class="seg"><span class="n" id="count-popups">0</span><span class="l"><i class="dot popups"></i><span data-i18n="popupPopups">Popups</span></span></div>
       </div>
 
       <details id="company-details" hidden>
-        <summary>By company</summary>
+        <summary data-i18n="popupByCompany">By company</summary>
         <ul id="company-list"></ul>
       </details>
     </div>
 
     <div class="paused-banner" id="paused-banner" hidden>
-      Paused on <span id="paused-hostname"></span>. Reload the page to see it unblocked.
+      <span data-i18n="popupPausedPrefix">Paused on </span><span id="paused-hostname"></span
+      ><span data-i18n="popupPausedSuffix">. Reload the page to see it unblocked.</span>
     </div>
 
     <div class="card" id="site-card">
       <div class="row">
         <div>
           <div class="host" id="hostname"></div>
-          <div class="site-state" id="site-state"><i></i><span id="site-state-text">protected</span></div>
+          <div class="site-state" id="site-state"><i></i><span id="site-state-text" data-i18n="popupProtected">protected</span></div>
         </div>
         <label class="switch">
           <input type="checkbox" id="site-toggle" aria-labelledby="hostname" />
@@ -282,11 +287,11 @@
     </div>
 
     <div class="actions">
-      <button id="reload-page" class="primary" hidden>Reload page</button>
-      <button id="start-picker" class="danger">Block an element…</button>
+      <button id="reload-page" class="primary" hidden data-i18n="popupReloadPage">Reload page</button>
+      <button id="start-picker" class="danger" data-i18n="popupBlockElement">Block an element…</button>
     </div>
     <div class="actions">
-      <button id="report-problem" class="secondary" hidden>Report a problem…</button>
+      <button id="report-problem" class="secondary" hidden data-i18n="popupReportProblem">Report a problem…</button>
     </div>
 
     <script src="popup.js"></script>

@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.9
+
+### Added
+- **i18n migration: popup.** All user-facing strings in `popup.html`/`popup.ts` (~16 keys)
+  now route through `_locales/en/messages.json` via `data-i18n` attributes (static markup)
+  or `browser.i18n.getMessage()` (the "protected"/"paused" state text and the load-error
+  fallback). English text stays in the HTML as a dev-readability fallback. No behavior or
+  visual change -- infrastructure migration, not a new language yet.
+
 ## 0.11.8
 
 ### Added

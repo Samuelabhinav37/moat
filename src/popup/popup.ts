@@ -9,6 +9,9 @@ import type {
 } from "../types";
 import { buildIssueUrl } from "./reportIssue";
 import type { PopupUiNotices } from "../background/updateNotice";
+import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
+
+applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 
 async function getStatus(): Promise<StatusResponse> {
   const message: GetStatusMessage = { type: "get-status" };
@@ -98,7 +101,11 @@ async function render(): Promise<void> {
     pausedBanner.hidden = !paused;
     reloadButton.hidden = !paused;
     siteState.classList.toggle("paused", paused);
-    siteStateText.textContent = paused ? "paused" : "protected";
+    siteStateText.textContent = getMessageOrFallback(
+      (key) => browser.i18n.getMessage(key),
+      paused ? "popupPaused" : "popupProtected",
+      paused ? "paused" : "protected"
+    );
   }
 
   setPaused(status.siteDisabled || !status.enabled);
@@ -155,6 +162,10 @@ document.getElementById("report-problem")?.addEventListener("click", async () =>
 });
 
 void render().catch(() => {
-  document.getElementById("site-card")!.textContent = "Couldn't load status. Try reopening the popup.";
+  document.getElementById("site-card")!.textContent = getMessageOrFallback(
+    (key) => browser.i18n.getMessage(key),
+    "popupLoadError",
+    "Couldn't load status. Try reopening the popup."
+  );
 });
 void renderUiNotices();
