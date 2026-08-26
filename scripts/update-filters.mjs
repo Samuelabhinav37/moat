@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
 const sourceDir = join(
   root,
-  "node_modules/@adguard/dnr-rulesets/dist/filters/declarative"
+  "node_modules/@adguard/dnr-rulesets/dist/filters/chromium-mv3/declarative"
 );
 const outDir = join(root, "rules/dnr");
 const redirectResourcesSourceDir = join(
@@ -211,6 +211,62 @@ manifestEntries.push({
   enabled: true,
   file: "ruleset_privacy-headers.json",
   ruleCount: ownPrivacyRules.length,
+});
+
+// Our own rules, not sourced from AdGuard: domain-scoped tracking-param
+// stripping for gaps identified against ClearURLs
+// (docs/research/clearurls-gap-audit.md, Finding 3) that AdGuard's bundled
+// URL Tracking filter doesn't cover on these specific high-traffic
+// first-party domains. Kept in a first-party file rather than hand-edited
+// into ruleset_url-tracking.json above, which is regenerated wholesale from
+// AdGuard's source every run -- same reasoning as ruleset_privacy-headers.json.
+// Google's `ie` and `dpr` are deliberately excluded from this list: unlike
+// the rest, they aren't obviously tracking-only by name alone, and the audit
+// flagged that ClearURLs stripping them isn't enough justification on its
+// own without independent confirmation.
+function domainRemoveParamsRule(id, urlFilter, removeParams) {
+  return {
+    id,
+    priority: 1,
+    action: { type: "redirect", redirect: { transform: { queryTransform: { removeParams } } } },
+    condition: { urlFilter, resourceTypes: ["main_frame", "sub_frame"] },
+  };
+}
+
+const ownUrlTrackingRules = [
+  domainRemoveParamsRule(1, "||google.*/search", [
+    "esrc", "uact", "cd", "cad", "atyp", "vet", "_u", "je", "dcr", "sei",
+    "usg", "sxsrf", "rlz", "ictx", "cshid",
+  ]),
+  domainRemoveParamsRule(2, "||facebook.com^", [
+    "eid", "comment_tracking", "dti", "app", "video_source", "ftentidentifier",
+    "pageid", "padding", "ls_ref", "action_history", "referral_code",
+    "referral_story_type", "eav", "sfnsn", "idorvanity", "wtsid", "rdr",
+    "paipv", "_nc_x", "_rdr",
+  ]),
+  domainRemoveParamsRule(3, "||amazon.*", [
+    "spIA", "ms3_c", "qualifier", "_encoding", "aaxitk", "hsa_cr_id", "rnid",
+    "content-id", "social_share", "starsLeft", "skipTwisterOG",
+  ]),
+  domainRemoveParamsRule(4, "||bing.com^", ["sp", "qs", "qp"]),
+  domainRemoveParamsRule(5, "||twitter.com^", ["cn"]),
+  domainRemoveParamsRule(6, "||x.com^", ["cn"]),
+  domainRemoveParamsRule(7, "||reddit.com^", ["rdt"]),
+  domainRemoveParamsRule(8, "||twitch.tv^", ["tt_medium", "tt_content"]),
+  domainRemoveParamsRule(9, "||youtube.com^", ["kw"]),
+];
+writeFileSync(join(outDir, "ruleset_url-tracking-extra.json"), JSON.stringify(ownUrlTrackingRules));
+// Same group as the AdGuard URL Tracking filter above so this merges into
+// that one Filter Lists toggle (see summarizeFilterLists) instead of adding
+// a second, redundant-looking row for what's conceptually the same feature.
+manifestEntries.push({
+  id: "ruleset_url-tracking-extra",
+  group: "url-tracking",
+  category: "ads",
+  name: "Moat: URL Tracking filter (ClearURLs gap fixes)",
+  enabled: true,
+  file: "ruleset_url-tracking-extra.json",
+  ruleCount: ownUrlTrackingRules.length,
 });
 
 writeFileSync(

@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.12
+
+### Added
+- **Closed the material gaps found in the ClearURLs comparison** (`docs/research/clearurls-gap-audit.md`,
+  Finding 3): a new first-party ruleset (`ruleset_url-tracking-extra.json`, generated in
+  `scripts/update-filters.mjs` alongside the existing GPC rule so it survives `filters:update`
+  reruns) strips tracking params AdGuard's bundled URL Tracking filter misses on google.com search
+  results, facebook.com, amazon.*, bing.com, twitter.com/x.com, reddit.com, twitch.tv, and
+  youtube.com. Google's `ie` and `dpr` are deliberately left out -- not obviously tracking-only by
+  name alone, per the audit's own caveat.
+
+### Fixed
+- **`npm run filters:update` was broken** -- `@adguard/dnr-rulesets` moved its rulesets from
+  `dist/filters/declarative/` to `dist/filters/chromium-mv3/declarative/` in a recent release
+  (still within this project's `^4.0.x` semver range), so every ruleset regeneration since
+  v0.11.11 was silently impossible. `scripts/update-filters.mjs`'s source path now matches.
+
 ## 0.11.11
 
 ### Added
