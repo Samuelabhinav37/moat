@@ -19,6 +19,13 @@ import type {
   ImportSettingsResponse,
   Settings,
 } from "../types";
+import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
+
+function tFallback(key: string, fallback: string, substitutions?: string | string[]): string {
+  return getMessageOrFallback((k, s) => browser.i18n.getMessage(k, s), key, fallback, substitutions);
+}
+
+applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 
 // ---------- Tabs ----------
 
@@ -55,13 +62,17 @@ const addButton = document.getElementById("add-button") as HTMLButtonElement;
 
 function renderLiveStatus(status: Awaited<ReturnType<typeof getLiveUpdateStatus>>): void {
   if (!status) {
-    liveStatus.textContent = "Not checked yet.";
+    liveStatus.textContent = tFallback("optionsLiveStatusNotChecked", "Not checked yet.");
     return;
   }
   const when = new Date(status.timestamp).toLocaleString();
   liveStatus.textContent = status.ok
-    ? `Last updated ${when} — ${status.domainCount} domains.`
-    : `Last attempt failed (${when}) — using the bundled baseline until the next try.`;
+    ? tFallback("optionsLiveStatusOk", `Last updated ${when} — ${status.domainCount} domains.`, [when, String(status.domainCount)])
+    : tFallback(
+        "optionsLiveStatusFailed",
+        `Last attempt failed (${when}) — using the bundled baseline until the next try.`,
+        [when]
+      );
 }
 
 function normalizeHostname(input: string): string | null {
@@ -128,19 +139,21 @@ const filtersLockedBadge = document.getElementById("filters-locked-badge") as HT
 const filterListRows = document.getElementById("filter-list-rows") as HTMLElement;
 const filterBudgetWarning = document.getElementById("filter-budget-warning") as HTMLElement;
 
-const PRESET_HINTS: Record<PresetName | "custom", string> = {
-  off: "Nothing is blocked.",
-  essential: "Ads, popups, and known-malicious sites only.",
-  standard: "Standard level blocks ads, trackers, and known malicious sites.",
-  strict: "Everything, plus the browser-wide privacy toggles above.",
-  custom: "A mix you've put together yourself.",
+// Keyed by both the i18n message key and its English fallback (used via
+// tFallback below) -- kept as one table so the two can't drift apart.
+const PRESET_HINTS: Record<PresetName | "custom", { key: string; fallback: string }> = {
+  off: { key: "presetHintOff", fallback: "Nothing is blocked." },
+  essential: { key: "presetHintEssential", fallback: "Ads, popups, and known-malicious sites only." },
+  standard: { key: "presetHintStandard", fallback: "Standard level blocks ads, trackers, and known malicious sites." },
+  strict: { key: "presetHintStrict", fallback: "Everything, plus the browser-wide privacy toggles above." },
+  custom: { key: "presetHintCustom", fallback: "A mix you've put together yourself." },
 };
 
-const CATEGORY_LABELS: Record<RulesetManifestEntry["category"], string> = {
-  ads: "Ads & trackers",
-  security: "Security",
-  annoyance: "Annoyances",
-  core: "Core",
+const CATEGORY_LABELS: Record<RulesetManifestEntry["category"], { key: string; fallback: string }> = {
+  ads: { key: "categoryAds", fallback: "Ads & trackers" },
+  security: { key: "categorySecurity", fallback: "Security" },
+  annoyance: { key: "categoryAnnoyance", fallback: "Annoyances" },
+  core: { key: "categoryCore", fallback: "Core" },
 };
 
 let manifestCache: RulesetManifestEntry[] | null = null;
@@ -168,10 +181,11 @@ async function loadRulesetManifest(): Promise<RulesetManifestEntry[] | null> {
 async function renderFilterLists(settings: Settings): Promise<void> {
   const manifest = await loadRulesetManifest();
   if (!manifest) {
-    presetHint.textContent = "Couldn't load filter lists.";
+    const loadError = tFallback("optionsLoadListsError", "Couldn't load filter lists.");
+    presetHint.textContent = loadError;
     const error = document.createElement("p");
     error.className = "empty-state";
-    error.textContent = "Couldn't load filter lists.";
+    error.textContent = loadError;
     filterListRows.replaceChildren(error);
     return;
   }
@@ -179,7 +193,7 @@ async function renderFilterLists(settings: Settings): Promise<void> {
   currentFilterGroups = settings.filterGroups;
 
   const preset = detectPreset(settings);
-  presetHint.textContent = PRESET_HINTS[preset];
+  presetHint.textContent = tFallback(PRESET_HINTS[preset].key, PRESET_HINTS[preset].fallback);
   for (const button of presetRow.querySelectorAll<HTMLButtonElement>("[data-preset]")) {
     button.setAttribute("aria-pressed", String(button.dataset.preset === preset));
   }
@@ -190,7 +204,7 @@ async function renderFilterLists(settings: Settings): Promise<void> {
     if (list.category !== lastCategory) {
       const heading = document.createElement("div");
       heading.className = "filter-category";
-      heading.textContent = CATEGORY_LABELS[list.category];
+      heading.textContent = tFallback(CATEGORY_LABELS[list.category].key, CATEGORY_LABELS[list.category].fallback);
       filterListRows.append(heading);
       lastCategory = list.category;
     }
@@ -205,7 +219,7 @@ async function renderFilterLists(settings: Settings): Promise<void> {
     name.textContent = list.name;
     const count = document.createElement("div");
     count.className = "count";
-    count.textContent = `${list.ruleCount.toLocaleString()} rules`;
+    count.textContent = tFallback("optionsRuleCount", `${list.ruleCount.toLocaleString()} rules`, list.ruleCount.toLocaleString());
     label.append(name, count);
 
     const toggle = document.createElement("label");
@@ -293,8 +307,8 @@ function renderSelectorRules(
     list,
     emptyState,
     rows,
-    (row) => `${row.hostname} — ${row.selector}`,
-    "Remove",
+    (row) => `${row.hostname}${tFallback("optionsHostnameSelectorSeparator", " — ")}${row.selector}`,
+    tFallback("commonRemove", "Remove"),
     (row) => onRemove(row.hostname, row.selector),
     rerenderSelf
   );
@@ -320,7 +334,7 @@ async function rerenderSiteList(): Promise<void> {
     siteList,
     siteEmptyState,
     settings.disabledSites,
-    "Resume",
+    tFallback("commonResume", "Resume"),
     (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
     rerenderSiteList
   );
@@ -332,7 +346,7 @@ async function rerenderCustomBlockList(): Promise<void> {
     customBlockList,
     customBlockEmpty,
     settings.customBlockedDomains,
-    "Remove",
+    tFallback("commonRemove", "Remove"),
     async (domain) => {
       const current = await getSettings();
       await setSettings({ customBlockedDomains: current.customBlockedDomains.filter((d) => d !== domain) });
@@ -347,7 +361,7 @@ async function rerenderCustomAllowList(): Promise<void> {
     customAllowList,
     customAllowEmpty,
     settings.customAllowedDomains,
-    "Remove",
+    tFallback("commonRemove", "Remove"),
     async (domain) => {
       const current = await getSettings();
       await setSettings({ customAllowedDomains: current.customAllowedDomains.filter((d) => d !== domain) });
@@ -406,7 +420,7 @@ async function render(): Promise<void> {
     siteList,
     siteEmptyState,
     settings.disabledSites,
-    "Resume",
+    tFallback("commonResume", "Resume"),
     (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
     rerenderSiteList
   );
@@ -424,7 +438,7 @@ async function render(): Promise<void> {
     customBlockList,
     customBlockEmpty,
     settings.customBlockedDomains,
-    "Remove",
+    tFallback("commonRemove", "Remove"),
     async (domain) => {
       const current = await getSettings();
       await setSettings({ customBlockedDomains: current.customBlockedDomains.filter((d) => d !== domain) });
@@ -435,7 +449,7 @@ async function render(): Promise<void> {
     customAllowList,
     customAllowEmpty,
     settings.customAllowedDomains,
-    "Remove",
+    tFallback("commonRemove", "Remove"),
     async (domain) => {
       const current = await getSettings();
       await setSettings({ customAllowedDomains: current.customAllowedDomains.filter((d) => d !== domain) });
@@ -457,7 +471,8 @@ async function render(): Promise<void> {
     rerenderGrayscaleElementList
   );
 
-  versionText.textContent = `v${browser.runtime.getManifest().version}`;
+  const version = browser.runtime.getManifest().version;
+  versionText.textContent = tFallback("optionsVersionPrefix", `v${version}`, version);
   managedNotice.hidden = Object.keys(policy).length === 0;
 }
 
@@ -540,12 +555,12 @@ importSettingsInput.addEventListener("change", async () => {
     const result = (await browser.runtime.sendMessage(message)) as ImportSettingsResponse;
     importSettingsStatus.hidden = false;
     importSettingsStatus.textContent = result.ok
-      ? "Settings imported."
-      : "That file doesn't look like a valid Moat settings export.";
+      ? tFallback("optionsImportedSuccess", "Settings imported.")
+      : tFallback("optionsImportedInvalid", "That file doesn't look like a valid Moat settings export.");
     if (result.ok) await render();
   } catch {
     importSettingsStatus.hidden = false;
-    importSettingsStatus.textContent = "Couldn't read that file.";
+    importSettingsStatus.textContent = tFallback("optionsImportReadError", "Couldn't read that file.");
   } finally {
     importSettingsInput.value = "";
   }

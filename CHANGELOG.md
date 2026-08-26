@@ -12,6 +12,19 @@ All notable changes to this project are documented here. Format loosely follows
   fallback). English text stays in the HTML as a dev-readability fallback. No behavior or
   visual change -- infrastructure migration, not a new language yet.
 
+## 0.11.10
+
+### Added
+- **i18n migration: options page.** All user-facing strings in `options.html`/`options.ts`
+  (73 static `data-i18n`/`data-i18n-placeholder` keys, 21 dynamic `browser.i18n.getMessage()`
+  call sites -- presets, category labels, live-status text, rule counts, import/export
+  status, the version string) now route through `_locales/en/messages.json`. A handful of
+  About-tab paragraphs that mix plain text with an inline link/emphasis are deliberately left
+  as English-only static markup -- `applyStaticI18n` replaces an element's whole `textContent`,
+  which would silently delete an embedded `<a>`/`<strong>`/`<code>`; documented in place with
+  an HTML comment rather than risked. No behavior or visual change otherwise. This completes
+  the i18n infrastructure work (0.11.8-0.11.10) -- English-only for now, no translations yet.
+
 ## 0.11.8
 
 ### Added

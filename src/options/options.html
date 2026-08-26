@@ -208,13 +208,13 @@
       <img src="icons/icon48.png" alt="" />
       <h1>Moat</h1>
     </div>
-    <p class="muted tagline">Blocks ads, trackers, and hijacked popups.</p>
+    <p class="muted tagline" data-i18n="optionsTagline">Blocks ads, trackers, and hijacked popups.</p>
 
     <nav class="tabs" role="tablist">
-      <button class="tab-button" data-tab="protection" role="tab" aria-selected="true">Protection</button>
-      <button class="tab-button" data-tab="filters" role="tab" aria-selected="false">Filter Lists</button>
-      <button class="tab-button" data-tab="custom" role="tab" aria-selected="false">Custom Rules</button>
-      <button class="tab-button" data-tab="about" role="tab" aria-selected="false">About</button>
+      <button class="tab-button" data-tab="protection" role="tab" aria-selected="true" data-i18n="tabProtection">Protection</button>
+      <button class="tab-button" data-tab="filters" role="tab" aria-selected="false" data-i18n="tabFilters">Filter Lists</button>
+      <button class="tab-button" data-tab="custom" role="tab" aria-selected="false" data-i18n="tabCustom">Custom Rules</button>
+      <button class="tab-button" data-tab="about" role="tab" aria-selected="false" data-i18n="tabAbout">About</button>
     </nav>
 
     <section data-tab-panel="protection">
@@ -225,10 +225,10 @@
           </div>
           <div>
             <div class="row" style="justify-content: flex-start; gap: 8px">
-              <span class="card-title" id="master-toggle-label">Protection enabled</span>
-              <span class="locked-badge" id="protection-locked-badge" hidden>Managed by your organization</span>
+              <span class="card-title" id="master-toggle-label" data-i18n="optionsMasterToggleLabel">Protection enabled</span>
+              <span class="locked-badge" id="protection-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
             </div>
-            <p class="hint muted">Toggle to turn off all blocking globally.</p>
+            <p class="hint muted" data-i18n="optionsMasterToggleHint">Toggle to turn off all blocking globally.</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="master-toggle" aria-labelledby="master-toggle-label" />
@@ -237,15 +237,15 @@
         </div>
       </div>
 
-      <div class="filter-category">Advanced Protection</div>
+      <div class="filter-category" data-i18n="optionsAdvancedProtectionCategory">Advanced Protection</div>
       <div class="card">
         <div class="toggle-row">
           <div class="row-icon" aria-hidden="true">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6"/><circle cx="6.2" cy="6" r=".7" fill="currentColor" stroke="none"/><circle cx="10" cy="6.8" r=".7" fill="currentColor" stroke="none"/><circle cx="6.8" cy="9.8" r=".7" fill="currentColor" stroke="none"/><circle cx="10.2" cy="10.2" r=".7" fill="currentColor" stroke="none"/></svg>
           </div>
           <div>
-            <div class="card-title" id="cookies-toggle-label">Block third party cookies</div>
-            <p class="hint muted">Prevents cross site tracking across your browser. (Off by default)</p>
+            <div class="card-title" id="cookies-toggle-label" data-i18n="optionsCookiesToggleLabel">Block third party cookies</div>
+            <p class="hint muted" data-i18n="optionsCookiesToggleHint">Prevents cross site tracking across your browser. (Off by default)</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="cookies-toggle" aria-labelledby="cookies-toggle-label" />
@@ -257,8 +257,8 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M2 6a9 9 0 0112 0M4.4 8.6a5.5 5.5 0 017.2 0"/><circle cx="8" cy="12.3" r=".9" fill="currentColor" stroke="none"/><line x1="2" y1="2" x2="14" y2="14"/></svg>
           </div>
           <div>
-            <div class="card-title" id="webrtc-toggle-label">Prevent WebRTC IP leaks</div>
-            <p class="hint muted">Hides your real IP address when using a VPN.</p>
+            <div class="card-title" id="webrtc-toggle-label" data-i18n="optionsWebrtcToggleLabel">Prevent WebRTC IP leaks</div>
+            <p class="hint muted" data-i18n="optionsWebrtcToggleHint">Hides your real IP address when using a VPN.</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="webrtc-toggle" aria-labelledby="webrtc-toggle-label" />
@@ -270,8 +270,8 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M8 3.2a4.8 4.8 0 00-4.8 4.8v1.2M8 3.2A4.8 4.8 0 0112.8 8v2.1M8 5.4a2.6 2.6 0 00-2.6 2.6v1.2M8 5.4A2.6 2.6 0 0110.6 8v2M8 7.6a.4.4 0 00-.4.4v3.4"/></svg>
           </div>
           <div>
-            <div class="card-title" id="fingerprint-toggle-label">Reduce fingerprinting</div>
-            <p class="hint muted">
+            <div class="card-title" id="fingerprint-toggle-label" data-i18n="optionsFingerprintToggleLabel">Reduce fingerprinting</div>
+            <p class="hint muted" data-i18n="optionsFingerprintToggleHint">
               Scrambles device data to prevent silent tracking. May occasionally break site
               features like CAPTCHAs. (Off by default)
             </p>
@@ -286,8 +286,8 @@
             <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 2a6 6 0 000 12z" fill="currentColor"/></svg>
           </div>
           <div>
-            <div class="card-title" id="grayscale-toggle-label">Dim unblockable video ads</div>
-            <p class="hint muted">
+            <div class="card-title" id="grayscale-toggle-label" data-i18n="optionsGrayscaleToggleLabel">Dim unblockable video ads</div>
+            <p class="hint muted" data-i18n="optionsGrayscaleToggleHint">
               Automatically grays out embedded video ads like YouTube that cannot be entirely
               removed.
             </p>
@@ -302,8 +302,8 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5.5 6.5l5 5M10.5 6.5l-5 5"/></svg>
           </div>
           <div>
-            <div class="card-title" id="feed-scan-toggle-label">Aggressively hide sponsored posts</div>
-            <p class="hint muted">
+            <div class="card-title" id="feed-scan-toggle-label" data-i18n="optionsFeedScanToggleLabel">Aggressively hide sponsored posts</div>
+            <p class="hint muted" data-i18n="optionsFeedScanToggleHint">
               Scans and removes sponsored or promoted posts from social feeds as you scroll. (Off
               by default)
             </p>
@@ -318,8 +318,8 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M3 6h10M3 10h6"/><path d="M11.5 10.5l1.5 1.5 2-2" stroke-linejoin="round"/></svg>
           </div>
           <div>
-            <div class="card-title" id="consent-reject-toggle-label">Auto reject cookie banners</div>
-            <p class="hint muted">
+            <div class="card-title" id="consent-reject-toggle-label" data-i18n="optionsConsentRejectToggleLabel">Auto reject cookie banners</div>
+            <p class="hint muted" data-i18n="optionsConsentRejectToggleHint">
               Automatically clicks reject or decline on major consent banners. (Off by default)
             </p>
           </div>
@@ -333,11 +333,11 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
           </div>
           <div>
-            <div class="card-title" id="cname-uncloak-toggle-label">Uncloak disguised trackers (Firefox only)</div>
-            <p class="hint muted">
+            <div class="card-title" id="cname-uncloak-toggle-label" data-i18n="optionsCnameToggleLabel">Uncloak disguised trackers (Firefox only)</div>
+            <p class="hint muted" data-i18n="optionsCnameToggleHint">
               Detects and blocks trackers hiding behind first party subdomains. (Off by default)
             </p>
-            <p class="hint muted" id="cname-unsupported-hint" hidden>
+            <p class="hint muted" id="cname-unsupported-hint" hidden data-i18n="optionsCnameUnsupportedHint">
               Not available in this browser.
             </p>
           </div>
@@ -348,27 +348,27 @@
         </div>
       </div>
 
-      <div class="filter-category">Filter Updates</div>
+      <div class="filter-category" data-i18n="optionsFilterUpdatesCategory">Filter Updates</div>
       <div class="card">
-        <div class="card-title">Live redirect-domain list</div>
-        <p class="hint muted">Fetches the latest popup and redirect blocks daily from GitHub.</p>
-        <p class="hint" id="live-status">Not checked yet.</p>
+        <div class="card-title" data-i18n="optionsLiveListTitle">Live redirect-domain list</div>
+        <p class="hint muted" data-i18n="optionsLiveListHint">Fetches the latest popup and redirect blocks daily from GitHub.</p>
+        <p class="hint" id="live-status" data-i18n="optionsLiveStatusNotChecked">Not checked yet.</p>
       </div>
 
       <div class="card">
-        <div class="card-title">Exceptions</div>
-        <p class="hint muted">Protection is completely disabled on these hostnames.</p>
+        <div class="card-title" data-i18n="optionsExceptionsTitle">Exceptions</div>
+        <p class="hint muted" data-i18n="optionsExceptionsHint">Protection is completely disabled on these hostnames.</p>
         <ul class="site-list" id="site-list"></ul>
-        <p class="empty-state" id="site-empty-state">No sites added.</p>
+        <p class="empty-state" id="site-empty-state" data-i18n="optionsNoSitesAdded">No sites added.</p>
         <div class="add-row">
-          <input type="text" id="add-input" placeholder="example.com" />
-          <button id="add-button">Add</button>
+          <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
+          <button id="add-button" data-i18n="commonAdd">Add</button>
         </div>
       </div>
     </section>
 
     <section data-tab-panel="filters" hidden>
-      <div class="budget-warning" id="filter-budget-warning" hidden>
+      <div class="budget-warning" id="filter-budget-warning" hidden data-i18n="optionsFilterBudgetWarning">
         Some filter lists may not be fully active. Your browser's shared rule budget is often
         exceeded when several ad-blocking or filter-heavy extensions are installed at once --
         try disabling other such extensions, or turning off a filter list below.
@@ -376,73 +376,78 @@
 
       <div class="card">
         <div class="row">
-          <div class="card-title">Filtering level</div>
-          <span class="locked-badge" id="filters-locked-badge" hidden>Managed by your organization</span>
+          <div class="card-title" data-i18n="optionsFilteringLevelTitle">Filtering level</div>
+          <span class="locked-badge" id="filters-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
         </div>
         <div class="preset-row" id="preset-row">
-          <button type="button" data-preset="off">Off</button>
-          <button type="button" data-preset="essential">Essential</button>
-          <button type="button" data-preset="standard">Standard</button>
-          <button type="button" data-preset="strict">Strict</button>
+          <button type="button" data-preset="off" data-i18n="presetOff">Off</button>
+          <button type="button" data-preset="essential" data-i18n="presetEssential">Essential</button>
+          <button type="button" data-preset="standard" data-i18n="presetStandard">Standard</button>
+          <button type="button" data-preset="strict" data-i18n="presetStrict">Strict</button>
         </div>
-        <p class="hint muted" id="preset-hint">Standard level blocks ads, trackers, and known malicious sites.</p>
+        <p class="hint muted" id="preset-hint" data-i18n="presetHintStandard">Standard level blocks ads, trackers, and known malicious sites.</p>
       </div>
 
       <div class="card">
-        <div class="card-title">Individual filter lists</div>
-        <p class="hint muted">Fine tune your active filters. Changing these will switch your level to Custom.</p>
+        <div class="card-title" data-i18n="optionsIndividualListsTitle">Individual filter lists</div>
+        <p class="hint muted" data-i18n="optionsIndividualListsHint">Fine tune your active filters. Changing these will switch your level to Custom.</p>
         <div id="filter-list-rows"></div>
       </div>
     </section>
 
     <section data-tab-panel="custom" hidden>
       <div class="card">
-        <div class="card-title">Blocked sites</div>
-        <p class="hint muted">Always block these domains regardless of filter lists.</p>
+        <div class="card-title" data-i18n="optionsBlockedSitesTitle">Blocked sites</div>
+        <p class="hint muted" data-i18n="optionsBlockedSitesHint">Always block these domains regardless of filter lists.</p>
         <ul class="site-list" id="custom-block-list"></ul>
-        <p class="empty-state" id="custom-block-empty">No sites added.</p>
+        <p class="empty-state" id="custom-block-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
         <div class="add-row">
-          <input type="text" id="custom-block-input" placeholder="example.com" />
-          <button id="custom-block-add">Block</button>
+          <input type="text" id="custom-block-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
+          <button id="custom-block-add" data-i18n="commonBlock">Block</button>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">Allowed sites</div>
-        <p class="hint muted">Never block these domains, bypassing all active filter lists.</p>
+        <div class="card-title" data-i18n="optionsAllowedSitesTitle">Allowed sites</div>
+        <p class="hint muted" data-i18n="optionsAllowedSitesHint">Never block these domains, bypassing all active filter lists.</p>
         <ul class="site-list" id="custom-allow-list"></ul>
-        <p class="empty-state" id="custom-allow-empty">No sites added.</p>
+        <p class="empty-state" id="custom-allow-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
         <div class="add-row">
-          <input type="text" id="custom-allow-input" placeholder="example.com" />
-          <button id="custom-allow-add">Allow</button>
+          <input type="text" id="custom-allow-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
+          <button id="custom-allow-add" data-i18n="commonAllow">Allow</button>
         </div>
       </div>
 
-      <div class="filter-category">Cosmetic Filtering</div>
+      <div class="filter-category" data-i18n="optionsCosmeticCategory">Cosmetic Filtering</div>
       <div class="card">
-        <div class="card-title">Hidden elements</div>
-        <p class="hint muted">
+        <div class="card-title" data-i18n="optionsHiddenElementsTitle">Hidden elements</div>
+        <p class="hint muted" data-i18n="optionsHiddenElementsHint">
           Elements you removed using the "Block an element" toolbar tool. Remove them here to
           restore them.
         </p>
         <ul class="site-list" id="hidden-element-list"></ul>
-        <p class="empty-state" id="hidden-element-empty">Nothing selected yet.</p>
+        <p class="empty-state" id="hidden-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
       </div>
 
       <div class="card">
-        <div class="card-title">Dimmed elements</div>
-        <p class="hint muted">
+        <div class="card-title" data-i18n="optionsDimmedElementsTitle">Dimmed elements</div>
+        <p class="hint muted" data-i18n="optionsDimmedElementsHint">
           Elements you selected to "Gray out". Remove them here to restore normal visibility.
         </p>
         <ul class="site-list" id="grayscale-element-list"></ul>
-        <p class="empty-state" id="grayscale-element-empty">Nothing selected yet.</p>
+        <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
       </div>
     </section>
 
+    <!-- The prose paragraphs below that mix plain text with an inline <a>/<strong>/<code>
+         aren't migrated to data-i18n -- applyStaticI18n replaces an element's whole
+         textContent, which would silently delete the embedded link/emphasis. Left as
+         English-only static markup rather than risk that; everything else on this page is
+         migrated. -->
     <section data-tab-panel="about" hidden>
       <div class="card">
         <div class="about-section">
-          <h3>About Moat</h3>
+          <h3 data-i18n="optionsAboutHeading">About Moat</h3>
           <p>
             Moat blocks ads, trackers, and hijacked popups on Chrome and Firefox. The
             <a href="https://github.com/Samuelabhinav37/moat#readme" target="_blank" rel="noopener">
@@ -457,8 +462,8 @@
           </p>
         </div>
         <div class="about-section">
-          <h3>Privacy</h3>
-          <p>
+          <h3 data-i18n="optionsPrivacyHeading">Privacy</h3>
+          <p data-i18n="optionsPrivacyIntro">
             Everything on this page is stored locally in your browser and never leaves your
             device.
           </p>
@@ -477,15 +482,15 @@
           </p>
         </div>
         <div class="about-section">
-          <h3>Version details</h3>
+          <h3 data-i18n="optionsVersionHeading">Version details</h3>
           <p id="version-text">—</p>
           <div class="about-links">
-            <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
-            <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener">Source code</a>
+            <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="optionsChangelogLink">Changelog</a>
+            <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="optionsSourceCodeLink">Source code</a>
           </div>
         </div>
         <div class="about-section">
-          <h3>Debugging</h3>
+          <h3 data-i18n="optionsDebuggingHeading">Debugging</h3>
           <p>
             The <a href="logger.html" target="_blank" rel="noopener">rule match logger</a> is a
             development tool that shows which compiled rules matched specific network requests. It
@@ -493,21 +498,21 @@
           </p>
         </div>
         <div class="about-section">
-          <h3>Backup &amp; restore</h3>
-          <p>
+          <h3 data-i18n="optionsBackupHeading">Backup &amp; restore</h3>
+          <p data-i18n="optionsBackupIntro">
             Save your settings to a file, or load a previously saved one. Your device's
             fingerprint-resistance identifier is never included.
           </p>
           <div class="about-links">
-            <button id="export-settings-button" type="button">Download settings</button>
-            <button id="import-settings-button" type="button">Upload settings…</button>
+            <button id="export-settings-button" type="button" data-i18n="optionsExportButton">Download settings</button>
+            <button id="import-settings-button" type="button" data-i18n="optionsImportButton">Upload settings…</button>
           </div>
           <input type="file" id="import-settings-input" accept="application/json" hidden />
           <p class="hint muted" id="import-settings-status" hidden></p>
           <div class="toggle-row" style="margin-top: 10px">
             <div>
-              <div class="card-title" id="sync-toggle-label">Sync settings across devices</div>
-              <p class="hint muted">
+              <div class="card-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">Sync settings across devices</div>
+              <p class="hint muted" data-i18n="optionsSyncToggleHint">
                 Mirrors your settings through your browser's own sync account. Off by default.
                 Seeds a new install once; doesn't live-merge changes made on two devices at once.
               </p>

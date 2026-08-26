@@ -42,4 +42,17 @@ describe("applyStaticI18n", () => {
     applyStaticI18n(document.body, () => "Should not appear");
     expect(document.querySelector("div")?.textContent).toBe("Untouched");
   });
+
+  it("sets the placeholder attribute for [data-i18n-placeholder] inputs", () => {
+    document.body.innerHTML = `<input data-i18n-placeholder="hostnamePlaceholder" placeholder="example.com" />`;
+    const getMessage = (key: string) => (key === "hostnamePlaceholder" ? "translated.example" : "");
+    applyStaticI18n(document.body, getMessage);
+    expect((document.querySelector("input") as HTMLInputElement).placeholder).toBe("translated.example");
+  });
+
+  it("falls back to the existing placeholder for a missing key", () => {
+    document.body.innerHTML = `<input data-i18n-placeholder="missingKey" placeholder="example.com" />`;
+    applyStaticI18n(document.body, () => "");
+    expect((document.querySelector("input") as HTMLInputElement).placeholder).toBe("example.com");
+  });
 });

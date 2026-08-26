@@ -26,5 +26,133 @@
   "popupReloadPage": { "message": "Reload page" },
   "popupBlockElement": { "message": "Block an element…" },
   "popupReportProblem": { "message": "Report a problem…" },
-  "popupLoadError": { "message": "Couldn't load status. Try reopening the popup." }
+  "popupLoadError": { "message": "Couldn't load status. Try reopening the popup." },
+
+  "tabProtection": { "message": "Protection" },
+  "tabFilters": { "message": "Filter Lists" },
+  "tabCustom": { "message": "Custom Rules" },
+  "tabAbout": { "message": "About" },
+  "optionsTagline": { "message": "Blocks ads, trackers, and hijacked popups." },
+
+  "optionsMasterToggleLabel": { "message": "Protection enabled" },
+  "optionsMasterToggleHint": { "message": "Toggle to turn off all blocking globally." },
+  "optionsManagedBadge": { "message": "Managed by your organization" },
+  "optionsAdvancedProtectionCategory": { "message": "Advanced Protection" },
+  "optionsCookiesToggleLabel": { "message": "Block third party cookies" },
+  "optionsCookiesToggleHint": { "message": "Prevents cross site tracking across your browser. (Off by default)" },
+  "optionsWebrtcToggleLabel": { "message": "Prevent WebRTC IP leaks" },
+  "optionsWebrtcToggleHint": { "message": "Hides your real IP address when using a VPN." },
+  "optionsFingerprintToggleLabel": { "message": "Reduce fingerprinting" },
+  "optionsFingerprintToggleHint": {
+    "message": "Scrambles device data to prevent silent tracking. May occasionally break site features like CAPTCHAs. (Off by default)"
+  },
+  "optionsGrayscaleToggleLabel": { "message": "Dim unblockable video ads" },
+  "optionsGrayscaleToggleHint": {
+    "message": "Automatically grays out embedded video ads like YouTube that cannot be entirely removed."
+  },
+  "optionsFeedScanToggleLabel": { "message": "Aggressively hide sponsored posts" },
+  "optionsFeedScanToggleHint": {
+    "message": "Scans and removes sponsored or promoted posts from social feeds as you scroll. (Off by default)"
+  },
+  "optionsConsentRejectToggleLabel": { "message": "Auto reject cookie banners" },
+  "optionsConsentRejectToggleHint": {
+    "message": "Automatically clicks reject or decline on major consent banners. (Off by default)"
+  },
+  "optionsCnameToggleLabel": { "message": "Uncloak disguised trackers (Firefox only)" },
+  "optionsCnameToggleHint": {
+    "message": "Detects and blocks trackers hiding behind first party subdomains. (Off by default)"
+  },
+  "optionsCnameUnsupportedHint": { "message": "Not available in this browser." },
+  "optionsFilterUpdatesCategory": { "message": "Filter Updates" },
+  "optionsLiveListTitle": { "message": "Live redirect-domain list" },
+  "optionsLiveListHint": { "message": "Fetches the latest popup and redirect blocks daily from GitHub." },
+  "optionsLiveStatusNotChecked": { "message": "Not checked yet." },
+  "optionsExceptionsTitle": { "message": "Exceptions" },
+  "optionsExceptionsHint": { "message": "Protection is completely disabled on these hostnames." },
+  "optionsNoSitesAdded": { "message": "No sites added." },
+  "commonAdd": { "message": "Add" },
+  "commonHostnamePlaceholder": { "message": "example.com" },
+
+  "optionsFilterBudgetWarning": {
+    "message": "Some filter lists may not be fully active. Your browser's shared rule budget is often exceeded when several ad-blocking or filter-heavy extensions are installed at once -- try disabling other such extensions, or turning off a filter list below."
+  },
+  "optionsFilteringLevelTitle": { "message": "Filtering level" },
+  "presetOff": { "message": "Off" },
+  "presetEssential": { "message": "Essential" },
+  "presetStandard": { "message": "Standard" },
+  "presetStrict": { "message": "Strict" },
+  "optionsIndividualListsTitle": { "message": "Individual filter lists" },
+  "optionsIndividualListsHint": {
+    "message": "Fine tune your active filters. Changing these will switch your level to Custom."
+  },
+  "optionsLoadListsError": { "message": "Couldn't load filter lists." },
+
+  "optionsBlockedSitesTitle": { "message": "Blocked sites" },
+  "optionsBlockedSitesHint": { "message": "Always block these domains regardless of filter lists." },
+  "commonBlock": { "message": "Block" },
+  "optionsAllowedSitesTitle": { "message": "Allowed sites" },
+  "optionsAllowedSitesHint": { "message": "Never block these domains, bypassing all active filter lists." },
+  "commonAllow": { "message": "Allow" },
+  "optionsCosmeticCategory": { "message": "Cosmetic Filtering" },
+  "optionsHiddenElementsTitle": { "message": "Hidden elements" },
+  "optionsHiddenElementsHint": {
+    "message": "Elements you removed using the \"Block an element\" toolbar tool. Remove them here to restore them."
+  },
+  "optionsNothingSelected": { "message": "Nothing selected yet." },
+  "optionsDimmedElementsTitle": { "message": "Dimmed elements" },
+  "optionsDimmedElementsHint": {
+    "message": "Elements you selected to \"Gray out\". Remove them here to restore normal visibility."
+  },
+
+  "optionsAboutHeading": { "message": "About Moat" },
+  "optionsPrivacyHeading": { "message": "Privacy" },
+  "optionsPrivacyIntro": {
+    "message": "Everything on this page is stored locally in your browser and never leaves your device."
+  },
+  "optionsVersionHeading": { "message": "Version details" },
+  "optionsDebuggingHeading": { "message": "Debugging" },
+  "optionsBackupHeading": { "message": "Backup & restore" },
+  "optionsBackupIntro": {
+    "message": "Save your settings to a file, or load a previously saved one. Your device's fingerprint-resistance identifier is never included."
+  },
+  "optionsChangelogLink": { "message": "Changelog" },
+  "optionsSourceCodeLink": { "message": "Source code" },
+  "optionsExportButton": { "message": "Download settings" },
+  "optionsImportButton": { "message": "Upload settings…" },
+  "optionsSyncToggleLabel": { "message": "Sync settings across devices" },
+  "optionsSyncToggleHint": {
+    "message": "Mirrors your settings through your browser's own sync account. Off by default. Seeds a new install once; doesn't live-merge changes made on two devices at once."
+  },
+  "optionsVersionPrefix": {
+    "message": "v$VERSION$",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+
+  "presetHintOff": { "message": "Nothing is blocked." },
+  "presetHintEssential": { "message": "Ads, popups, and known-malicious sites only." },
+  "presetHintStandard": { "message": "Standard level blocks ads, trackers, and known malicious sites." },
+  "presetHintStrict": { "message": "Everything, plus the browser-wide privacy toggles above." },
+  "presetHintCustom": { "message": "A mix you've put together yourself." },
+  "categoryAds": { "message": "Ads & trackers" },
+  "categorySecurity": { "message": "Security" },
+  "categoryAnnoyance": { "message": "Annoyances" },
+  "categoryCore": { "message": "Core" },
+  "optionsLiveStatusOk": {
+    "message": "Last updated $WHEN$ — $COUNT$ domains.",
+    "placeholders": { "when": { "content": "$1" }, "count": { "content": "$2" } }
+  },
+  "optionsLiveStatusFailed": {
+    "message": "Last attempt failed ($WHEN$) — using the bundled baseline until the next try.",
+    "placeholders": { "when": { "content": "$1" } }
+  },
+  "optionsRuleCount": {
+    "message": "$COUNT$ rules",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "optionsHostnameSelectorSeparator": { "message": " — " },
+  "commonResume": { "message": "Resume" },
+  "commonRemove": { "message": "Remove" },
+  "optionsImportedSuccess": { "message": "Settings imported." },
+  "optionsImportedInvalid": { "message": "That file doesn't look like a valid Moat settings export." },
+  "optionsImportReadError": { "message": "Couldn't read that file." }
 }

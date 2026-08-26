@@ -16,11 +16,18 @@ export function getMessageOrFallback(getMessage: GetMessage, key: string, fallba
 /** Walks every [data-i18n] element under `root` and replaces its text with
  * the looked-up message, falling back to whatever text was already there
  * (the English copy left in the HTML as a dev-readability aid) if the key
- * doesn't resolve. */
+ * doesn't resolve. Also handles [data-i18n-placeholder] for <input> elements,
+ * where the translatable text lives in the placeholder attribute, not
+ * textContent. */
 export function applyStaticI18n(root: ParentNode, getMessage: GetMessage): void {
   for (const el of root.querySelectorAll<HTMLElement>("[data-i18n]")) {
     const key = el.dataset.i18n;
     if (!key) continue;
     el.textContent = getMessageOrFallback(getMessage, key, el.textContent ?? "");
+  }
+  for (const el of root.querySelectorAll<HTMLInputElement>("[data-i18n-placeholder]")) {
+    const key = el.dataset.i18nPlaceholder;
+    if (!key) continue;
+    el.placeholder = getMessageOrFallback(getMessage, key, el.placeholder);
   }
 }
