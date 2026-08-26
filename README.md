@@ -290,6 +290,17 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   plus TLS, standard for this class of feature but worth naming explicitly:
   these become live block rules for every installed copy within 24h of a
   push.
+- **Emergency quick-fix channel** — the same daily refresh above also fetches
+  `live/quick-fixes.json`, an AdGuard-"Quick Fixes filter"-style channel for
+  patching an anti-adblock-circumvention script or a filter-breakage report
+  without waiting on a full store review cycle. Reuses the exact same
+  fetch/validate/`updateDynamicRules` pipeline and trust model as the
+  redirect-domain list, not new infrastructure. Deliberately narrow: an
+  entry can only block a request, allow-list one, or strip query params
+  (`src/background/quickFixRules.ts`) — never redirect to an arbitrary URL,
+  so a compromised feed can't turn this into traffic hijacking. Empty
+  (`[]`) by default; Settings only mentions it when a fix is actually
+  active, staying silent the rest of the time.
 - **Opt-in fingerprint resistance** — a third toggle, off by default:
   deterministic per-install noise on canvas (`toDataURL`/`toBlob`/
   `getImageData`) and `AudioBuffer.getChannelData` reads, a generic WebGL

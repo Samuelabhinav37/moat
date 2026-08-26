@@ -149,6 +149,10 @@
     "message": "Last attempt failed ($WHEN$) — using the bundled baseline until the next try.",
     "placeholders": { "when": { "content": "$1" } }
   },
+  "optionsLiveStatusQuickFixes": {
+    "message": " $COUNT$ active quick fix(es).",
+    "placeholders": { "count": { "content": "$1" } }
+  },
   "optionsRuleCount": {
     "message": "$COUNT$ rules",
     "placeholders": { "count": { "content": "$1" } }

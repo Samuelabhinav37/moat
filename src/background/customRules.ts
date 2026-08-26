@@ -26,7 +26,7 @@ function filterValidDomains(domains: string[]): string[] {
   return valid;
 }
 
-const ALL_RESOURCE_TYPES: DeclarativeNetRequest.ResourceType[] = [
+export const ALL_RESOURCE_TYPES: DeclarativeNetRequest.ResourceType[] = [
   "main_frame",
   "sub_frame",
   "stylesheet",

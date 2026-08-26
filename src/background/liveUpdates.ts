@@ -14,9 +14,16 @@
 import browser from "webextension-polyfill";
 import { addLiveRedirectDomains } from "./popupGuard";
 import { allLiveDynamicRuleIds, buildDynamicRedirectRules, filterValidRedirectDomains } from "./liveRedirectRules";
+import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from "./quickFixRules";
 
 const LIVE_DATA_URL =
   "https://raw.githubusercontent.com/Samuelabhinav37/moat/master/live/redirect-domains.json";
+// Same repo, same trust model, same daily alarm as the redirect-domain list
+// above -- an emergency anti-adblock-circumvention/breakage-fix channel
+// reusing the existing pipeline rather than standing up new infrastructure
+// (see quickFixRules.ts for the rule shapes this accepts). Empty (`[]`) by
+// default; this is the plumbing, not an active patch.
+const QUICK_FIXES_URL = "https://raw.githubusercontent.com/Samuelabhinav37/moat/master/live/quick-fixes.json";
 const ALARM_NAME = "moat-live-update";
 const PERIOD_MINUTES = 24 * 60;
 const STATUS_KEY = "liveUpdateStatus";
@@ -25,6 +32,10 @@ interface LiveUpdateStatus {
   ok: boolean;
   timestamp: number;
   domainCount?: number;
+  // Omitted entirely when there are no active quick fixes -- the common
+  // case -- rather than shown as "0 quick fixes" every time, keeping the
+  // status line quiet unless there's actually something to say.
+  quickFixCount?: number;
 }
 
 export async function getLiveUpdateStatus(): Promise<LiveUpdateStatus | null> {
@@ -36,26 +47,57 @@ async function setStatus(status: LiveUpdateStatus): Promise<void> {
   await browser.storage.local.set({ [STATUS_KEY]: status });
 }
 
+async function refreshRedirectDomains(): Promise<number> {
+  const response = await fetch(LIVE_DATA_URL, { cache: "no-store" });
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+  const fetched = (await response.json()) as unknown;
+  if (!Array.isArray(fetched)) throw new Error("live redirect-domains payload was not an array");
+
+  // fetched is remote, GitHub-hosted content -- validate its shape before
+  // trusting it the same way customRules.ts validates user-typed domains,
+  // so one malformed upstream entry can't throw partway through and
+  // silently drop the whole day's refresh.
+  const { valid: domains } = filterValidRedirectDomains(fetched.filter((d): d is string => typeof d === "string"));
+
+  await addLiveRedirectDomains(domains);
+  await browser.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: allLiveDynamicRuleIds(),
+    addRules: buildDynamicRedirectRules(domains),
+  });
+  return domains.length;
+}
+
+async function refreshQuickFixes(): Promise<number> {
+  const response = await fetch(QUICK_FIXES_URL, { cache: "no-store" });
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+  const fetched = (await response.json()) as unknown;
+  if (!Array.isArray(fetched)) throw new Error("quick-fixes payload was not an array");
+
+  const { valid: entries } = filterValidQuickFixes(fetched);
+  await browser.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: allQuickFixRuleIds(),
+    addRules: buildQuickFixRules(entries),
+  });
+  return entries.length;
+}
+
 async function refresh(): Promise<void> {
   try {
-    const response = await fetch(LIVE_DATA_URL, { cache: "no-store" });
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-    const fetched = (await response.json()) as unknown;
-    if (!Array.isArray(fetched)) throw new Error("live redirect-domains payload was not an array");
+    const domainCount = await refreshRedirectDomains();
 
-    // fetched is remote, GitHub-hosted content -- validate its shape before
-    // trusting it the same way customRules.ts validates user-typed domains,
-    // so one malformed upstream entry can't throw partway through and
-    // silently drop the whole day's refresh.
-    const { valid: domains } = filterValidRedirectDomains(fetched.filter((d): d is string => typeof d === "string"));
+    // A quick-fixes fetch failure shouldn't fail the whole refresh or touch
+    // whatever quick-fix rules are already applied from the last successful
+    // one -- the redirect-domain list above is the more load-bearing half
+    // of this alarm, and updateDynamicRules is only called on success below.
+    let quickFixCount: number | undefined;
+    try {
+      const count = await refreshQuickFixes();
+      quickFixCount = count > 0 ? count : undefined;
+    } catch {
+      // Keep whatever quick-fix rules (if any) are already active.
+    }
 
-    await addLiveRedirectDomains(domains);
-    await browser.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: allLiveDynamicRuleIds(),
-      addRules: buildDynamicRedirectRules(domains),
-    });
-
-    await setStatus({ ok: true, timestamp: Date.now(), domainCount: domains.length });
+    await setStatus({ ok: true, timestamp: Date.now(), domainCount, quickFixCount });
   } catch {
     // Offline, GitHub unreachable, rate-limited -- keep the bundled
     // baseline and try again on the next alarm tick.

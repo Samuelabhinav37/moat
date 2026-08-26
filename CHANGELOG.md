@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.14
+
+### Added
+- **Emergency "quick-fix" filter channel** (item e of the competitive gap audit), AdGuard's
+  "Quick Fixes filter" pattern applied to Moat's existing daily live-update pipeline instead of
+  new infrastructure. `src/background/liveUpdates.ts` now also fetches `live/quick-fixes.json`
+  on the same daily alarm and applies validated entries as dynamic `declarativeNetRequest` rules
+  (`src/background/quickFixRules.ts`, id range 950,000-950,499 -- clear of the existing custom-rule
+  and live-redirect ranges). An entry can only block, allow, or strip query params; there's no
+  `action.redirect.url`/`regexSubstitution` shape, so a compromised feed can't be used to redirect
+  traffic anywhere. Empty by default -- this is the channel, not an active patch. Settings' live
+  status line only mentions it when a fix is actually active.
+
 ## 0.11.13
 
 ### Added

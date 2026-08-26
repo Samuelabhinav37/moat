@@ -67,13 +67,26 @@ function renderLiveStatus(status: Awaited<ReturnType<typeof getLiveUpdateStatus>
     return;
   }
   const when = new Date(status.timestamp).toLocaleString();
-  liveStatus.textContent = status.ok
-    ? tFallback("optionsLiveStatusOk", `Last updated ${when} — ${status.domainCount} domains.`, [when, String(status.domainCount)])
-    : tFallback(
-        "optionsLiveStatusFailed",
-        `Last attempt failed (${when}) — using the bundled baseline until the next try.`,
-        [when]
-      );
+  if (!status.ok) {
+    liveStatus.textContent = tFallback(
+      "optionsLiveStatusFailed",
+      `Last attempt failed (${when}) — using the bundled baseline until the next try.`,
+      [when]
+    );
+    return;
+  }
+  let text = tFallback("optionsLiveStatusOk", `Last updated ${when} — ${status.domainCount} domains.`, [
+    when,
+    String(status.domainCount),
+  ]);
+  // Only mentioned when there's actually one active -- see liveUpdates.ts's
+  // LiveUpdateStatus comment for why this stays quiet the rest of the time.
+  if (status.quickFixCount) {
+    text += tFallback("optionsLiveStatusQuickFixes", ` ${status.quickFixCount} active quick fix(es).`, [
+      String(status.quickFixCount),
+    ]);
+  }
+  liveStatus.textContent = text;
 }
 
 function normalizeHostname(input: string): string | null {
