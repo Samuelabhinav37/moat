@@ -12,18 +12,26 @@ import {
   addCustomCosmeticRule,
   addGrayscaleRule,
   getEffectiveSettings,
+  getSettings,
   isSiteDisabled,
   reapplySettings,
   setSettings,
   setSiteDisabled,
 } from "./settings";
+import { exportSettings, validateImportedSettings } from "./settingsPortability";
 import { initPopupGuard } from "./popupGuard";
 import { initLiveUpdates } from "./liveUpdates";
 import { forgetTab as forgetLoggerTab, getEntries as getLoggedEntries, initRuleLogger, isSupported as isLoggerSupported } from "./ruleLogger";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import { summarizeFilterLists } from "../shared/rulesetManifest";
 import { effectiveFilterGroupState } from "./filterGroupState";
-import type { LogEntriesResponse, ReportContextResponse, RuntimeMessage, StatusResponse } from "../types";
+import type {
+  ImportSettingsResponse,
+  LogEntriesResponse,
+  ReportContextResponse,
+  RuntimeMessage,
+  StatusResponse,
+} from "../types";
 
 initPopupGuard();
 initLiveUpdates();
@@ -139,6 +147,22 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
           hostname: hostnameOf(tab?.url),
           enabledFilterGroups: lists.filter((l) => state[l.group]).map((l) => l.name),
         };
+      })();
+    }
+
+    case "export-settings": {
+      // Deliberately getSettings() (raw), never getEffectiveSettings() -- an
+      // org's managed-policy-forced values must never be exported as if
+      // they were the user's own preference (see settingsPortability.ts).
+      return (async () => exportSettings(await getSettings()))();
+    }
+
+    case "import-settings": {
+      return (async (): Promise<ImportSettingsResponse> => {
+        const patch = validateImportedSettings(message.payload);
+        if (patch === null) return { ok: false };
+        await setSettings(patch);
+        return { ok: true };
       })();
     }
 

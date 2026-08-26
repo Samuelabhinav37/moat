@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.5
+
+### Added
+- **Settings export/import**, in a new "Backup & restore" section on the About tab. Download
+  writes the current settings as JSON (excluding the per-install fingerprint-resistance
+  identifier); Upload validates the file's shape field-by-field before applying anything --
+  a malformed or unrelated JSON file is rejected outright rather than partially applied.
+  Export always reads raw settings, never the managed-policy-merged view, so an
+  organization's forced/locked values can never be captured as if they were the user's own
+  preference and later "restored" as such on an unmanaged device.
+
 ## 0.11.4
 
 ### Added

@@ -492,6 +492,19 @@
             is only visible when the extension is loaded unpacked in developer mode.
           </p>
         </div>
+        <div class="about-section">
+          <h3>Backup &amp; restore</h3>
+          <p>
+            Save your settings to a file, or load a previously saved one. Your device's
+            fingerprint-resistance identifier is never included.
+          </p>
+          <div class="about-links">
+            <button id="export-settings-button" type="button">Download settings</button>
+            <button id="import-settings-button" type="button">Upload settings…</button>
+          </div>
+          <input type="file" id="import-settings-input" accept="application/json" hidden />
+          <p class="hint muted" id="import-settings-status" hidden></p>
+        </div>
       </div>
     </section>
 

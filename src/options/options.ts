@@ -13,7 +13,12 @@ import { getFilterGroupStatus } from "../background/filterGroups";
 import { isSupported as isCnameUncloakSupported } from "../background/cnameUncloak";
 import { detectPreset, presetPatch, type PresetName } from "./filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
-import type { Settings } from "../types";
+import type {
+  ExportSettingsMessage,
+  ImportSettingsMessage,
+  ImportSettingsResponse,
+  Settings,
+} from "../types";
 
 // ---------- Tabs ----------
 
@@ -496,6 +501,47 @@ addButton.addEventListener("click", async () => {
 
 addInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") addButton.click();
+});
+
+// ---------- Backup & restore ----------
+
+const exportSettingsButton = document.getElementById("export-settings-button") as HTMLButtonElement;
+const importSettingsButton = document.getElementById("import-settings-button") as HTMLButtonElement;
+const importSettingsInput = document.getElementById("import-settings-input") as HTMLInputElement;
+const importSettingsStatus = document.getElementById("import-settings-status") as HTMLElement;
+
+exportSettingsButton.addEventListener("click", async () => {
+  const message: ExportSettingsMessage = { type: "export-settings" };
+  const exported = await browser.runtime.sendMessage(message);
+  const blob = new Blob([JSON.stringify(exported, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `moat-settings-${new Date().toISOString().slice(0, 10)}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+});
+
+importSettingsButton.addEventListener("click", () => importSettingsInput.click());
+
+importSettingsInput.addEventListener("change", async () => {
+  const file = importSettingsInput.files?.[0];
+  if (!file) return;
+  try {
+    const payload = JSON.parse(await file.text());
+    const message: ImportSettingsMessage = { type: "import-settings", payload };
+    const result = (await browser.runtime.sendMessage(message)) as ImportSettingsResponse;
+    importSettingsStatus.hidden = false;
+    importSettingsStatus.textContent = result.ok
+      ? "Settings imported."
+      : "That file doesn't look like a valid Moat settings export.";
+    if (result.ok) await render();
+  } catch {
+    importSettingsStatus.hidden = false;
+    importSettingsStatus.textContent = "Couldn't read that file.";
+  } finally {
+    importSettingsInput.value = "";
+  }
 });
 
 void render();

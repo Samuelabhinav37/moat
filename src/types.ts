@@ -165,6 +165,19 @@ export interface GetReportContextMessage {
   type: "get-report-context";
 }
 
+export interface ExportSettingsMessage {
+  type: "export-settings";
+}
+
+export interface ImportSettingsMessage {
+  type: "import-settings";
+  payload: unknown;
+}
+
+export interface ImportSettingsResponse {
+  ok: boolean;
+}
+
 /** Deliberately hostname-only, not the full URL -- avoids leaking a page's
  * tracking/session query-string params into a public GitHub issue body. */
 export interface ReportContextResponse {
@@ -192,7 +205,9 @@ export type RuntimeMessage =
   | SaveCosmeticRuleMessage
   | SaveGrayscaleRuleMessage
   | GetLogEntriesMessage
-  | GetReportContextMessage;
+  | GetReportContextMessage
+  | ExportSettingsMessage
+  | ImportSettingsMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the
