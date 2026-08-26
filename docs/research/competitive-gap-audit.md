@@ -123,10 +123,27 @@ the same public ad-blocker-testing sites (adblock-tester.com, d3ward's test) wou
 externally-comparable number instead of relying on raw bundled-rule counts, which say nothing
 about real-world hit rate.
 
-**Status: pending.** Needs a real browser with Moat loaded unpacked; the coding-agent's browser
-automation in this environment can't reach `chrome://extensions` or drive the native "Load
-unpacked" file picker. User elected to load the dev build themselves and have the agent drive the
-benchmark sites once it's loaded, rather than skip this item or run it fully manually.
+**Status: done (measured, not fixed).** d3ward's test is discontinued/archived as of this check.
+Ran adblock-tester.com (2026-08-26) against `dist/chrome` loaded unpacked by the user, driven via
+browser automation: **48/100** (11 services, 22 checks). Breakdown:
+
+| Category | Result |
+| --- | --- |
+| Contextual ads (Google AdSense, Yandex Direct, generic) | Blocked/hidden |
+| Analytics (Google Analytics, Hotjar, Yandex.Metrica) | Script *executes* -- not blocked |
+| Banner images/gifs/flash (the test site's own ad-shaped test assets) | Not blocked at all |
+| Error monitoring (Sentry, Bugsnag) | Script *executes* -- not blocked |
+
+Contextual/display ad-network blocking works as expected. Two real gaps worth a closer look in a
+separate pass: (1) `google-analytics.com`/Hotjar/Yandex.Metrica script *execution* isn't being
+prevented despite AdGuard's Tracking Protection filter nominally covering these domains -- worth
+checking whether the specific script URLs this test loads them from are actually covered by a
+bundled rule, or whether this is a false negative in the test's own methodology; (2) the generic
+banner-image/gif/flash test assets (hosted on adblock-tester.com's own domain, not a third-party ad
+network) aren't caught by any bundled path/filename pattern -- this is the kind of gap a broader
+generic-ads filter list (already bundled) would normally catch, so worth checking why it didn't
+here specifically. Not investigated further in this pass -- recording the external, reproducible
+number was the scope of item (f); root-causing the two gaps above is separate follow-up work.
 
 ### (g) Fingerprint-rotation finding — flag, not fix
 Moat's fingerprint noise is deterministic *per install, forever* (`fingerprintSeed`, generated once
