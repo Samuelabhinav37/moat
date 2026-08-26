@@ -4,5 +4,11 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts", "scripts/**/*.test.mjs"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+      include: ["src/**/*.ts", "scripts/**/*.mjs"],
+      exclude: ["src/**/*.test.ts", "scripts/**/*.test.mjs"],
+    },
   },
 });

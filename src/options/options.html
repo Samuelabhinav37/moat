@@ -113,6 +113,18 @@
         white-space: nowrap;
       }
 
+      .budget-warning {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        font-size: 13px;
+        color: var(--danger-fg);
+        background: var(--danger);
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 12px;
+      }
+
       .preset-row {
         display: flex;
         gap: 8px;
@@ -356,6 +368,12 @@
     </section>
 
     <section data-tab-panel="filters" hidden>
+      <div class="budget-warning" id="filter-budget-warning" hidden>
+        Some filter lists may not be fully active. Your browser's shared rule budget is often
+        exceeded when several ad-blocking or filter-heavy extensions are installed at once --
+        try disabling other such extensions, or turning off a filter list below.
+      </div>
+
       <div class="card">
         <div class="row">
           <div class="card-title">Filtering level</div>

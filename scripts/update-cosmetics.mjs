@@ -10,6 +10,7 @@ import { dirname, join } from "node:path";
 import { JSDOM } from "jsdom";
 import { buildCosmeticIndex } from "./lib/parseCosmeticRules.mjs";
 import { bucketForDomain } from "./lib/domainBucket.mjs";
+import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outDir = join(__dirname, "..", "rules", "dnr");
@@ -28,7 +29,7 @@ const MIN_FILTER_BYTES = 2048;
 
 async function fetchFilterText(id) {
   const url = `https://filters.adtidy.org/extension/chromium-mv3/filters/${id}.txt`;
-  const response = await fetch(url);
+  const response = await fetchWithRetry(url);
   if (!response.ok) {
     throw new Error(`Failed to fetch filter ${id}: ${response.status} ${response.statusText}`);
   }

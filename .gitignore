@@ -2,5 +2,7 @@ node_modules/
 dist/
 rules/dnr/
 rules/redirect-resources/
+coverage/
 *.zip
 .DS_Store
+.claude/

@@ -76,7 +76,11 @@ await Promise.all(
         outDir,
         emptyOutDir: false,
         target: "es2022",
-        minify: false,
+        // Unminified in --watch (dev) so stack traces/breakpoints stay
+        // readable; minified for real builds -- content scripts run on every
+        // page load at document_start, so shipping them unminified was pure
+        // waste for anyone actually installing the extension.
+        minify: watch ? false : "esbuild",
         watch: watch ? {} : undefined,
         rollupOptions: {
           input: { [name]: resolve(root, entry) },

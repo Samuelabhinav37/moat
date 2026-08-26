@@ -28,6 +28,7 @@ badge count.
 - [Loading it locally](#loading-it-locally)
 - [Enterprise deployment](#enterprise-deployment)
 - [Permissions](#permissions)
+- [Privacy policy](PRIVACY.md)
 - [Known limitations](#known-limitations)
 - [Licensing note](#licensing-note)
 - [Researched but not built yet](#researched-but-not-built-yet)
@@ -445,6 +446,10 @@ shows whether Chrome picked up the value) before relying on it in production.
 | `dns` (Firefox only) | Real CNAME resolution for "Uncloak disguised trackers" — off by default, and the permission itself has no effect unless that toggle is on. Not requested on Chrome, which has no equivalent API. |
 | `webRequest` + `webRequestBlocking` (Firefox only) | Needed to actually cancel a request once its resolved CNAME target matches a known tracker — declarativeNetRequest can't act on an async DNS lookup mid-request. Chrome no longer allows blocking `webRequest` under MV3 at all; Firefox still does. |
 
+See [PRIVACY.md](PRIVACY.md) for the full privacy policy: what data Moat
+collects (none) and the two narrow cases where its own code talks to a
+network at all.
+
 ## Known limitations
 
 - **The block-count breakdown is Chrome-only.** Firefox hasn't implemented
@@ -466,6 +471,17 @@ shows whether Chrome picked up the value) before relying on it in production.
   accounted for. It's also English-only right now -- a non-English UI language won't match. Off
   by default for these reasons, on top of the general false-positive risk of matching by label
   rather than by a fixed selector.
+- **Chrome only guarantees 30,000 enabled static DNR rules per extension
+  (`GUARANTEED_MINIMUM_STATIC_RULES`); Moat ships 274,186 across its 18
+  rulesets.** Rules beyond that guaranteed floor come from a pool shared
+  across every extension installed in the browser, so on a machine running
+  several other rule-heavy ad blockers or privacy extensions, some of Moat's
+  filter lists can silently fail to enable. When that happens,
+  `declarativeNetRequest.updateEnabledRulesets()` rejects and Moat leaves
+  whatever was already active alone rather than guessing -- the Filter Lists
+  tab in Settings then shows a warning banner rather than silently showing
+  toggles that didn't actually take effect. There is no fix within a single
+  extension's control: the budget is a browser-wide, cross-extension limit.
 - **`web-ext lint` warnings on the Firefox build are expected and benign:**
   one is a Firefox-for-Android version nuance from bumping
   `strict_min_version` to 140 for `data_collection_permissions` support; one

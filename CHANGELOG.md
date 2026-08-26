@@ -3,6 +3,60 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.0
+
+Release-readiness pass, aimed at getting the extension into shape for a Chrome Web Store
+submission: build performance, CI reliability, a real privacy policy, and a documented,
+now-surfaced-in-the-UI gap in Chrome's rule-count budget.
+
+### Changed
+- **Content scripts and the background worker now ship minified.** `scripts/build.mjs` had
+  `minify: false` hardcoded since the first build script -- every entry (background worker,
+  9 content scripts, popup, options, logger) is injected on every matching page load, so
+  shipping them unminified was pure dead weight. Minified only for real builds; `--watch`
+  (dev) stays unminified so stack traces and breakpoints remain readable. Cuts total JS
+  payload across all 12 entries from ~450KB to ~160KB.
+- **`npm run filters:update`'s live network fetches now retry on transient failure.**
+  `update-cosmetics.mjs` (7 fetches to filters.adtidy.org) and the two `scripts/vendor-*.mjs`
+  scripts (via `scripts/lib/vendorFetch.mjs`, fetching from raw.githubusercontent.com) each
+  made a single unretried `fetch()` call -- one dropped connection or transient 5xx/429 from
+  either upstream failed the whole chain, which `.github/workflows/ci.yml` runs on every push
+  and PR. New `scripts/lib/fetchWithRetry.mjs` retries network errors and 429/5xx responses
+  (3 attempts, exponential backoff) before giving up; a real 4xx, or any error from the
+  caller's own parsing/validation, still fails immediately since that's a real bug, not a
+  transient blip.
+- Reinstalled `node_modules` from the committed lockfile -- local `node_modules` had drifted
+  to vite@8.2.2 against the lockfile's pinned 5.4.21 (likely a stray `npm install` outside the
+  lockfile), which is what surfaced the missing-`esbuild`-package failure while enabling
+  minification above. `npm ci` restores the pinned version; this wasn't a repo-tracked issue.
+- Ran `npm audit fix` (non-breaking): resolved the axios (via `@adguard/dnr-rulesets`) and
+  js-yaml (via `@adguard/scriptlets`) advisories. Two remaining advisories (esbuild via vite's
+  dev server, image-size via web-ext's addons-linter) only have `--force` fixes that bump
+  major versions already confirmed to break this project's build/lint scripts -- deferred
+  rather than risked; both are dev-tooling-only and never ship in the built extension.
+
+### Added
+- **Test coverage tooling** (`@vitest/coverage-v8`, `npm run test:coverage`). No coverage gate
+  added to CI yet -- the current ~33% statement coverage is mostly the browser-API entry
+  points (background/index.ts, popup.ts, options.ts, content script bootstraps) that need a
+  real browser to exercise meaningfully, versus the pure-logic modules underneath them
+  (consent engine, cosmetic selectors, rule company lookup, etc.), which mostly sit at
+  85-100%. Available as a real number now instead of a file-count impression.
+- **A Filter Lists warning banner for when Chrome's shared DNR rule budget is exceeded.**
+  Chrome guarantees only 30,000 enabled static rules per extension
+  (`GUARANTEED_MINIMUM_STATIC_RULES`); Moat ships 274,186 across 18 rulesets, with anything
+  beyond the guaranteed floor drawn from a pool shared across every extension installed in the
+  browser. The background worker already detected and recorded when
+  `declarativeNetRequest.updateEnabledRulesets()` failed for this reason (added in 0.10.0's
+  audit pass, via `getFilterGroupStatus()`) but nothing in the UI ever read it -- the Filter
+  Lists tab in Settings now shows a warning when that's happened, instead of toggles silently
+  not taking effect. See the new Known Limitations entry in the README.
+- **`PRIVACY.md`**, linked from the README's Permissions section and Contents. States plainly
+  that Moat collects, stores, and transmits no user data, and discloses the two narrow
+  exceptions where its own code talks to a network at all (the daily redirect-domain-list
+  refresh, and Firefox-only opt-in CNAME-uncloak DNS resolution) -- required reading material
+  for the Chrome Web Store's Privacy practices dashboard field before submission.
+
 ## 0.10.1
 
 ### Changed

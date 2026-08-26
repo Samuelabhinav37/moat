@@ -9,6 +9,7 @@ import {
 } from "../background/settings";
 import { getManagedPolicy, isLocked } from "../background/managedPolicy";
 import { getLiveUpdateStatus } from "../background/liveUpdates";
+import { getFilterGroupStatus } from "../background/filterGroups";
 import { isSupported as isCnameUncloakSupported } from "../background/cnameUncloak";
 import { detectPreset, presetPatch, type PresetName } from "./filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
@@ -119,6 +120,7 @@ const presetRow = document.getElementById("preset-row") as HTMLElement;
 const presetHint = document.getElementById("preset-hint") as HTMLElement;
 const filtersLockedBadge = document.getElementById("filters-locked-badge") as HTMLElement;
 const filterListRows = document.getElementById("filter-list-rows") as HTMLElement;
+const filterBudgetWarning = document.getElementById("filter-budget-warning") as HTMLElement;
 
 const PRESET_HINTS: Record<PresetName | "custom", string> = {
   off: "Nothing is blocked.",
@@ -398,6 +400,9 @@ async function render(): Promise<void> {
     (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
     rerenderSiteList
   );
+
+  const filterGroupStatus = await getFilterGroupStatus();
+  filterBudgetWarning.hidden = filterGroupStatus === null || filterGroupStatus.ok;
 
   const filtersLocked = isLocked("filterGroups", policy);
   filtersLockedBadge.hidden = !filtersLocked;

@@ -3,6 +3,7 @@
 // its source URL, how it parses the raw response text, and what it considers valid.
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
+import { fetchWithRetry } from "./fetchWithRetry.mjs";
 
 /**
  * @param {object} opts
@@ -14,7 +15,7 @@ import { dirname } from "node:path";
  * @returns the parsed value, so the caller can log a count/summary specific to its own shape.
  */
 export async function fetchAndVendor({ url, describe, outFile, parse, validate }) {
-  const response = await fetch(url);
+  const response = await fetchWithRetry(url);
   if (!response.ok) {
     throw new Error(`Failed to fetch ${describe}: ${response.status} ${response.statusText}`);
   }
