@@ -91,6 +91,7 @@ describe("getSettings", () => {
       cookieBannerAutoReject: false,
       cnameUncloaking: false,
       syncEnabled: false,
+      leakedPasswordCheck: false,
     });
   });
 

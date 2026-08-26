@@ -25,6 +25,7 @@ const baseSettings: Settings = {
   cookieBannerAutoReject: false,
   cnameUncloaking: false,
   syncEnabled: false,
+  leakedPasswordCheck: false,
 };
 
 function setPrivacy(privacy: unknown): void {

@@ -52,6 +52,7 @@ const grayscaleToggle = document.getElementById("grayscale-toggle") as HTMLInput
 const feedScanToggle = document.getElementById("feed-scan-toggle") as HTMLInputElement;
 const consentRejectToggle = document.getElementById("consent-reject-toggle") as HTMLInputElement;
 const cnameUncloakToggle = document.getElementById("cname-uncloak-toggle") as HTMLInputElement;
+const leakedPasswordToggle = document.getElementById("leaked-password-toggle") as HTMLInputElement;
 const syncToggle = document.getElementById("sync-toggle") as HTMLInputElement;
 const cnameUnsupportedHint = document.getElementById("cname-unsupported-hint") as HTMLElement;
 const liveStatus = document.getElementById("live-status") as HTMLElement;
@@ -412,6 +413,8 @@ async function render(): Promise<void> {
   cnameUncloakToggle.disabled = !cnameSupported;
   cnameUnsupportedHint.hidden = cnameSupported;
 
+  leakedPasswordToggle.checked = settings.leakedPasswordCheck;
+
   syncToggle.checked = settings.syncEnabled;
 
   renderLiveStatus(await getLiveUpdateStatus());
@@ -507,6 +510,10 @@ consentRejectToggle.addEventListener("change", async () => {
 
 cnameUncloakToggle.addEventListener("change", async () => {
   await setSettings({ cnameUncloaking: cnameUncloakToggle.checked });
+});
+
+leakedPasswordToggle.addEventListener("change", async () => {
+  await setSettings({ leakedPasswordCheck: leakedPasswordToggle.checked });
 });
 
 syncToggle.addEventListener("change", async () => {

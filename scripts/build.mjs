@@ -37,6 +37,7 @@ const ENTRIES = [
   ["youtube-ad-dimmer", "src/content/youtubeAdDimmer.ts"],
   ["feed-ad-scanner", "src/content/feedAdScanner.ts"],
   ["consent-rejector", "src/content/consentRejector.ts"],
+  ["leaked-password-check", "src/content/leakedPasswordCheck.ts"],
   ["popup", "src/popup/popup.ts"],
   ["options", "src/options/options.ts"],
   ["logger", "src/logger/logger.ts"],

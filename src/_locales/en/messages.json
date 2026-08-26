@@ -154,5 +154,11 @@
   "commonRemove": { "message": "Remove" },
   "optionsImportedSuccess": { "message": "Settings imported." },
   "optionsImportedInvalid": { "message": "That file doesn't look like a valid Moat settings export." },
-  "optionsImportReadError": { "message": "Couldn't read that file." }
+  "optionsImportReadError": { "message": "Couldn't read that file." },
+
+  "leakedPasswordWarning": { "message": "This password has appeared in known data breaches." },
+  "optionsLeakedPasswordToggleLabel": { "message": "Check passwords against known breaches" },
+  "optionsLeakedPasswordToggleHint": {
+    "message": "Warns if a password you type has appeared in a known data breach. Only a partial hash ever leaves your device. (Off by default)"
+  }
 }

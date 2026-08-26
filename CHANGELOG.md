@@ -3,14 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## 0.11.9
+## 0.11.11
 
 ### Added
-- **i18n migration: popup.** All user-facing strings in `popup.html`/`popup.ts` (~16 keys)
-  now route through `_locales/en/messages.json` via `data-i18n` attributes (static markup)
-  or `browser.i18n.getMessage()` (the "protected"/"paused" state text and the load-error
-  fallback). English text stays in the HTML as a dev-readability fallback. No behavior or
-  visual change -- infrastructure migration, not a new language yet.
+- **Leaked-password check, off by default.** A new "Check passwords against known breaches"
+  toggle (Advanced Protection) warns -- via a small, non-blocking inline tooltip -- when a
+  password you type into a page has appeared in a known data breach. Uses HaveIBeenPwned's
+  Pwned Passwords k-anonymity API: only a 5-character SHA-1 hash prefix ever leaves your
+  device, never the password or its full hash. Off by default, since (unlike every other
+  toggle in this section) it involves a network request derived from what you typed --
+  toggling it on is a deliberate trust decision, not a free privacy win. Top-frame only, so
+  a cross-origin login iframe isn't covered. Never blocks or clears the field either way.
 
 ## 0.11.10
 
@@ -24,6 +27,15 @@ All notable changes to this project are documented here. Format loosely follows
   which would silently delete an embedded `<a>`/`<strong>`/`<code>`; documented in place with
   an HTML comment rather than risked. No behavior or visual change otherwise. This completes
   the i18n infrastructure work (0.11.8-0.11.10) -- English-only for now, no translations yet.
+
+## 0.11.9
+
+### Added
+- **i18n migration: popup.** All user-facing strings in `popup.html`/`popup.ts` (~16 keys)
+  now route through `_locales/en/messages.json` via `data-i18n` attributes (static markup)
+  or `browser.i18n.getMessage()` (the "protected"/"paused" state text and the load-error
+  fallback). English text stays in the HTML as a dev-readability fallback. No behavior or
+  visual change -- infrastructure migration, not a new language yet.
 
 ## 0.11.8
 

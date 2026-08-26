@@ -82,6 +82,17 @@ export interface Settings {
    * live cross-device merge -- not a real-time sync engine.
    */
   syncEnabled: boolean;
+  /**
+   * Checks password field values against HIBP's Pwned Passwords k-anonymity
+   * API (only a 5-character SHA-1 prefix ever leaves the device -- see
+   * content/leakedPasswordCheck.ts) on blur/submit, and shows a non-blocking
+   * inline warning if a match is found. Off by default: this is a network
+   * request containing a hash derived from what the user typed, a materially
+   * different trust boundary than anything else in this extension, even
+   * though HIBP's own k-anonymity design means the full password/hash is
+   * never transmitted.
+   */
+  leakedPasswordCheck: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -101,6 +112,7 @@ export const DEFAULT_SETTINGS: Settings = {
   cookieBannerAutoReject: false,
   cnameUncloaking: false,
   syncEnabled: false,
+  leakedPasswordCheck: false,
 };
 
 export const STORAGE_KEY = "settings";

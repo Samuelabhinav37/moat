@@ -346,6 +346,22 @@
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
+        <div class="toggle-row">
+          <div class="row-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.2"/><path d="M5.5 7V4.8a2.5 2.5 0 015 0V7"/></svg>
+          </div>
+          <div>
+            <div class="card-title" id="leaked-password-toggle-label" data-i18n="optionsLeakedPasswordToggleLabel">Check passwords against known breaches</div>
+            <p class="hint muted" data-i18n="optionsLeakedPasswordToggleHint">
+              Warns if a password you type has appeared in a known data breach. Only a partial
+              hash ever leaves your device. (Off by default)
+            </p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="leaked-password-toggle" aria-labelledby="leaked-password-toggle-label" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
       </div>
 
       <div class="filter-category" data-i18n="optionsFilterUpdatesCategory">Filter Updates</div>

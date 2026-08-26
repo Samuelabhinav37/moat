@@ -146,6 +146,14 @@ function baseManifest() {
         js: ["consent-rejector.js"],
         run_at: "document_idle",
       },
+      {
+        // Top frame only. No-ops immediately unless "Check passwords
+        // against known breaches" is on (off by default) -- see
+        // content/leakedPasswordCheck.ts.
+        matches: ["<all_urls>"],
+        js: ["leaked-password-check.js"],
+        run_at: "document_idle",
+      },
     ],
   };
 }
