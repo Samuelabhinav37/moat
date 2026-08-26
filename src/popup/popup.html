@@ -62,6 +62,23 @@
         margin-bottom: 12px;
       }
 
+      .notice {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 11px;
+        line-height: 1.5;
+        border-radius: 10px;
+        padding: 8px 10px;
+        margin-bottom: 12px;
+      }
+      .notice a {
+        color: inherit;
+        font-weight: 600;
+      }
+
       .breakdown {
         display: flex;
         gap: 8px;
@@ -209,6 +226,24 @@
       </svg>
       <div class="mark">Moat</div>
       <a href="#" id="open-options">Settings</a>
+    </div>
+
+    <div class="notice" id="onboarding-card" hidden>
+      <span>Moat blocks ads and trackers automatically. Use the switch below to pause it on a
+        site, or Settings to fine-tune.</span>
+    </div>
+
+    <div class="notice" id="update-notice" hidden>
+      <span
+        >Updated to v<span id="update-version"></span> --
+        <a
+          href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md"
+          target="_blank"
+          rel="noopener"
+          id="update-changelog-link"
+          >see what's new</a
+        ></span
+      >
     </div>
 
     <div id="stats" hidden>

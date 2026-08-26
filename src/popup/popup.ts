@@ -1,10 +1,39 @@
 import browser from "webextension-polyfill";
-import type { GetReportContextMessage, GetStatusMessage, ReportContextResponse, StatusResponse, ToggleSiteMessage } from "../types";
+import type {
+  GetReportContextMessage,
+  GetStatusMessage,
+  GetUiNoticesMessage,
+  ReportContextResponse,
+  StatusResponse,
+  ToggleSiteMessage,
+} from "../types";
 import { buildIssueUrl } from "./reportIssue";
+import type { PopupUiNotices } from "../background/updateNotice";
 
 async function getStatus(): Promise<StatusResponse> {
   const message: GetStatusMessage = { type: "get-status" };
   return browser.runtime.sendMessage(message) as Promise<StatusResponse>;
+}
+
+// Both notices are "view = dismiss" -- shown once, then gone on the next
+// open, with no explicit close button. A card the user has to click to
+// dismiss is closer to a nag than one that's just gone next time.
+async function renderUiNotices(): Promise<void> {
+  const message: GetUiNoticesMessage = { type: "get-ui-notices" };
+  const notices = (await browser.runtime.sendMessage(message)) as PopupUiNotices;
+
+  const onboardingCard = document.getElementById("onboarding-card")!;
+  if (notices.showOnboarding) {
+    onboardingCard.hidden = false;
+    void browser.runtime.sendMessage({ type: "dismiss-onboarding" });
+  }
+
+  const updateNotice = document.getElementById("update-notice")!;
+  if (notices.updateAvailable) {
+    document.getElementById("update-version")!.textContent = notices.updateVersion;
+    updateNotice.hidden = false;
+    void browser.runtime.sendMessage({ type: "dismiss-update-notice" });
+  }
 }
 
 // Collapsed by default (see popup.html's <details hidden>) -- a company
@@ -128,3 +157,4 @@ document.getElementById("report-problem")?.addEventListener("click", async () =>
 void render().catch(() => {
   document.getElementById("site-card")!.textContent = "Couldn't load status. Try reopening the popup.";
 });
+void renderUiNotices();

@@ -20,6 +20,7 @@ import {
   setSiteDisabled,
 } from "./settings";
 import { exportSettings, validateImportedSettings } from "./settingsPortability";
+import { dismissOnboarding, dismissUpdateNotice, getPopupUiNotices, recordUpdateSeen } from "./updateNotice";
 import { initPopupGuard } from "./popupGuard";
 import { initLiveUpdates } from "./liveUpdates";
 import { forgetTab as forgetLoggerTab, getEntries as getLoggedEntries, initRuleLogger, isSupported as isLoggerSupported } from "./ruleLogger";
@@ -33,6 +34,7 @@ import type {
   RuntimeMessage,
   StatusResponse,
 } from "../types";
+import type { PopupUiNotices } from "./updateNotice";
 
 initPopupGuard();
 initLiveUpdates();
@@ -40,6 +42,13 @@ initRuleLogger();
 // Note: not a top-level `await` -- this module is built as a Rollup `iife`
 // bundle (see scripts/build.mjs), which doesn't support it.
 void seedFromSyncIfEmpty().then(() => reapplySettings());
+
+// Fires on both "install" and "update" -- on a fresh install this only
+// records the baseline version (there's nothing to compare against yet, so
+// no notice), which is exactly what lets the *next* real update be detected.
+browser.runtime.onInstalled.addListener(() => {
+  void recordUpdateSeen();
+});
 
 // An admin can push/change managed policy at any point during a session
 // (not just at browser startup) -- reapply everything when that happens,
@@ -167,6 +176,18 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
         await setSettings(patch);
         return { ok: true };
       })();
+    }
+
+    case "get-ui-notices": {
+      return (async (): Promise<PopupUiNotices> => getPopupUiNotices())();
+    }
+
+    case "dismiss-update-notice": {
+      return dismissUpdateNotice();
+    }
+
+    case "dismiss-onboarding": {
+      return dismissOnboarding();
     }
 
     case "get-log-entries": {

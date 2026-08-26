@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.7
+
+### Added
+- **A brief first-run card in the popup** introducing the per-site pause toggle and
+  Settings, and **a small "what's new" link after an update**, pointing at the CHANGELOG.
+  Both are "view = dismiss" -- shown once, gone on the next open, no explicit close button
+  needed. Tracked under a new, separate `uiState` storage key, deliberately kept out of
+  `Settings`/the export-import and sync payloads since neither flag is a user preference.
+
 ## 0.11.6
 
 ### Added

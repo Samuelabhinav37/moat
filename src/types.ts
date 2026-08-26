@@ -188,6 +188,18 @@ export interface ImportSettingsResponse {
   ok: boolean;
 }
 
+export interface GetUiNoticesMessage {
+  type: "get-ui-notices";
+}
+
+export interface DismissUpdateNoticeMessage {
+  type: "dismiss-update-notice";
+}
+
+export interface DismissOnboardingMessage {
+  type: "dismiss-onboarding";
+}
+
 /** Deliberately hostname-only, not the full URL -- avoids leaking a page's
  * tracking/session query-string params into a public GitHub issue body. */
 export interface ReportContextResponse {
@@ -217,7 +229,10 @@ export type RuntimeMessage =
   | GetLogEntriesMessage
   | GetReportContextMessage
   | ExportSettingsMessage
-  | ImportSettingsMessage;
+  | ImportSettingsMessage
+  | GetUiNoticesMessage
+  | DismissUpdateNoticeMessage
+  | DismissOnboardingMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the
