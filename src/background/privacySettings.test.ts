@@ -15,6 +15,7 @@ const baseSettings: Settings = {
   blockThirdPartyCookies: false,
   fingerprintResistance: false,
   fingerprintSeed: "",
+  fingerprintRotatePerSession: false,
   filterGroups: {},
   customBlockedDomains: [],
   customAllowedDomains: [],

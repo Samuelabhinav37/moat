@@ -44,6 +44,13 @@
       .toggle-row .switch {
         margin-left: auto;
       }
+      .toggle-row.sub-row {
+        margin-left: 28px;
+        opacity: 0.9;
+      }
+      .toggle-row[hidden] {
+        display: none;
+      }
       p.hint {
         margin: 4px 0 0;
         line-height: 1.5;
@@ -278,6 +285,24 @@
           </div>
           <label class="switch">
             <input type="checkbox" id="fingerprint-toggle" aria-labelledby="fingerprint-toggle-label" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+        <div class="toggle-row sub-row" id="fingerprint-rotate-row" hidden>
+          <div class="row-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M13 8A5 5 0 013 8M3 8A5 5 0 0113 8"/><path d="M3 8l1.6-1.8M13 8l-1.6 1.8"/></svg>
+          </div>
+          <div>
+            <div class="card-title" id="fingerprint-rotate-toggle-label" data-i18n="optionsFingerprintRotateToggleLabel">Rotate noise every browser session</div>
+            <p class="hint muted" data-i18n="optionsFingerprintRotateToggleHint">
+              Generates fresh noise each time your browser restarts instead of reusing the same
+              noise forever, closer to Brave's model. A fingerprint that never changes can itself
+              become a stable identifier over time; rotating trades that off against sites seeing
+              a different "device" on every browser restart. (Off by default)
+            </p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="fingerprint-rotate-toggle" aria-labelledby="fingerprint-rotate-toggle-label" />
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>

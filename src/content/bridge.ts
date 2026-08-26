@@ -4,7 +4,7 @@
 // relays their block reports back to the background worker.
 import browser from "webextension-polyfill";
 import { STORAGE_KEY, type BridgeMessage, type BlockedMessage } from "../types";
-import { getEffectiveSettings, getOrCreateFingerprintSeed } from "../background/settings";
+import { getEffectiveSettings, getOrCreateFingerprintSeed, getOrCreateSessionFingerprintSeed } from "../background/settings";
 
 // One token per page load, sent with every config message so the MAIN-world
 // guards can tell a real update from a later message spoofed by the page
@@ -15,7 +15,16 @@ async function sendConfig(): Promise<void> {
   const settings = await getEffectiveSettings();
   const disabled = !settings.enabled || settings.disabledSites.includes(location.hostname);
   const fingerprintResistance = settings.fingerprintResistance && !disabled;
-  const fingerprintSeed = fingerprintResistance ? await getOrCreateFingerprintSeed() : "";
+  const fingerprintSeed = fingerprintResistance
+    ? settings.fingerprintRotatePerSession
+      ? // storage.session needs the background worker to have already called
+        // setAccessLevel (see background/index.ts) before a content script
+        // can reach it -- on the very first page load after a browser
+        // restart that call might not have landed yet, so fall back to the
+        // permanent seed rather than fail the whole config message.
+        await getOrCreateSessionFingerprintSeed().catch(() => getOrCreateFingerprintSeed())
+      : await getOrCreateFingerprintSeed()
+    : "";
 
   const message: BridgeMessage = {
     source: "moat",

@@ -145,3 +145,22 @@ export async function getOrCreateFingerprintSeed(): Promise<string> {
   );
   return settings.fingerprintSeed;
 }
+
+const SESSION_FINGERPRINT_SEED_KEY = "sessionFingerprintSeed";
+
+/**
+ * Same idea as getOrCreateFingerprintSeed above, but stored in
+ * browser.storage.session (in-memory, cleared when the browser or the
+ * extension itself restarts) instead of local -- only used when
+ * settings.fingerprintRotatePerSession is on. Storage.session's own
+ * lifetime already gives "one seed per browser session" for free; no
+ * onStartup bookkeeping needed here.
+ */
+export async function getOrCreateSessionFingerprintSeed(): Promise<string> {
+  const stored = await browser.storage.session.get(SESSION_FINGERPRINT_SEED_KEY);
+  const existing = stored[SESSION_FINGERPRINT_SEED_KEY] as string | undefined;
+  if (existing) return existing;
+  const seed = crypto.randomUUID();
+  await browser.storage.session.set({ [SESSION_FINGERPRINT_SEED_KEY]: seed });
+  return seed;
+}

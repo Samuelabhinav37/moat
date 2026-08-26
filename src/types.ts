@@ -20,6 +20,14 @@ export interface Settings {
   /** Generated once per install (see background/settings.ts), empty until then. */
   fingerprintSeed: string;
   /**
+   * Off by default (fingerprintSeed above, reused forever, is the default).
+   * When on, bridge.ts uses a seed from browser.storage.session instead --
+   * fresh each browser restart, closer to Brave's model -- since a
+   * fingerprint that never changes can itself become a durable identifier.
+   * Only has an effect when fingerprintResistance is also on.
+   */
+  fingerprintRotatePerSession: boolean;
+  /**
    * Per-filter-list overrides, keyed by the group slug in rules/manifest.json
    * (e.g. "ads", "trackers", "cookie-notices"). Only stores what the user
    * actually changed -- a group with no entry here keeps whatever `enabled`
@@ -102,6 +110,7 @@ export const DEFAULT_SETTINGS: Settings = {
   blockThirdPartyCookies: false,
   fingerprintResistance: false,
   fingerprintSeed: "",
+  fingerprintRotatePerSession: false,
   filterGroups: {},
   customBlockedDomains: [],
   customAllowedDomains: [],

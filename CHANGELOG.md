@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.15
+
+### Added
+- **Opt-in per-session fingerprint noise rotation** (item g of the competitive gap audit), nested
+  under the existing fingerprint-resistance toggle and off by default. Moat's canvas/audio/WebGL
+  noise has always been deterministic per install, forever; Brave rotates its own noise per
+  session specifically because a fingerprint that never changes can itself become a durable
+  cross-site identifier. Rather than change that default for every existing user, this ships as a
+  separate opt-in: when on, `src/content/bridge.ts` sources the noise seed from
+  `browser.storage.session` (cleared on browser/extension restart) instead of the permanent
+  per-install one. The background worker grants content scripts access to session storage once at
+  startup (`storage.session.setAccessLevel`); a page load that races that call falls back to the
+  permanent seed rather than failing.
+- **`docs/research/competitive-gap-audit.md`** updated with a status line on every ranked item —
+  done/pending/declined, with the reasoning, closing the loop on the audit's own open questions.
+
 ## 0.11.14
 
 ### Added

@@ -311,7 +311,19 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   anything changed — but different installs get different noise, which is
   what actually defeats cross-site fingerprint correlation. Off by default
   because, unlike blocking, this is the one feature that can occasionally
-  change what a page observes (e.g. a canvas-based CAPTCHA).
+  change what a page observes (e.g. a canvas-based CAPTCHA). A second,
+  nested opt-in — **rotate noise every browser session** — switches the
+  seed from the permanent per-install one to one stored in
+  `browser.storage.session` (in-memory, cleared on browser/extension
+  restart), closer to Brave's model: a fingerprint that never changes can
+  itself become a durable cross-site identifier over time, which rotating
+  trades off against sites seeing a different "device" on every restart.
+  Off by default, layered under the parent toggle rather than replacing it,
+  since the deterministic default is the safer one for compatibility.
+  Content scripts can't reach `storage.session` until the background worker
+  grants it access (`storage.session.setAccessLevel`, called once at
+  startup); on the rare page load that races that call, this silently falls
+  back to the permanent seed rather than failing (`src/content/bridge.ts`).
 - **Filtering levels + per-list control** — Settings' Filter Lists tab has a
   preset picker (Off / Essential / Standard / Strict) and an on/off switch
   for each of the 11 bundled lists, grouped by category. Toggling one

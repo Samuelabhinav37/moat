@@ -70,11 +70,16 @@ migration, and the leaked-password checker. Pure documentation catch-up — zero
 should happen regardless of what else from this list gets picked up. Also a natural place to add
 the explicit "no paid allowlisting, ever" statement from §2.
 
+**Status: done** (`bc23f67`, docs-only, no version bump).
+
 ### (b) ClearURLs gap-audit follow-through
 `clearurls-gap-audit.md` already identified concrete, currently-missing tracking params for
 google/facebook/amazon/bing/twitter/reddit/twitch/youtube — Moat's highest-traffic first-party
 surfaces. Bounded, low-risk (new domain-scoped `removeParams` DNR rules, the exact shape already
 used for 848 existing groups), not yet turned into rules.
+
+**Status: done (v0.11.12).** `ie`/`dpr` (Google) deliberately excluded from what shipped — not
+obviously tracking-only by name alone, per the caveat above.
 
 ### (c) Tracker-by-company drilldown
 Moat's popup already attributes matched rules to companies via Ghostery's own TrackerDB
@@ -83,6 +88,8 @@ Tracker Panel goes one step further: click a company for a short description. Si
 has the attribution data and is drawing from the *same* TrackerDB Ghostery itself uses, this is a
 small, bounded UI addition, not new data-collection work.
 
+**Status: done (v0.11.13).**
+
 ### (d) "Report card"-style popup summary
 DuckDuckGo's letter-grade + "enhanced from X to Y" framing was the single most legible
 non-technical UX pattern surfaced across all six competitors — more approachable than Privacy
@@ -90,6 +97,9 @@ Badger's slider (documented as confusing new users) or a raw request logger. Moa
 computes real, accurate per-page Ads/Trackers/Popups counts (`getMatchedRules`); this would be a
 presentation layer over existing data, not new detection logic — directly serves the "simplicity
 for everyone" goal from the original completeness review.
+
+**Status: done (v0.11.13).** Implemented as a bucketed plain-language line, not a letter grade —
+Moat has no independent data on the site itself to grade the way DuckDuckGo's feature implies.
 
 ### (e) Emergency "quick-fix" filter channel
 AdGuard's "Quick Fixes filter" pushes near-real-time anti-adblock-circumvention/breakage fixes
@@ -101,12 +111,22 @@ is reuse of a proven mechanism, not new architecture. Directly relevant since Mo
 (`ad-blocker-architecture-and-roadmap.md`) previously flagged anti-adblock-circumvention as an
 "evidence-limited" open question with no concrete mechanism identified — this is that mechanism.
 
+**Status: done (v0.11.14).** `live/quick-fixes.json` ships empty — this is the channel, not an
+active patch. Deliberately narrower than a fully general remote-rule channel: an entry can only
+block, allow, or strip query params, never redirect to an arbitrary URL, so a compromised feed
+can't be used to hijack traffic.
+
 ### (f) Objective coverage benchmark
 Reviewers scored AdGuard's MV3 extension against uBlock Origin Lite on public test suites (one
 cited result: 6/14 vs. 14/14 blocked-test-case score on a 2026 comparison). Running Moat through
 the same public ad-blocker-testing sites (adblock-tester.com, d3ward's test) would give a concrete,
 externally-comparable number instead of relying on raw bundled-rule counts, which say nothing
 about real-world hit rate.
+
+**Status: pending.** Needs a real browser with Moat loaded unpacked; the coding-agent's browser
+automation in this environment can't reach `chrome://extensions` or drive the native "Load
+unpacked" file picker. User elected to load the dev build themselves and have the agent drive the
+benchmark sites once it's loaded, rather than skip this item or run it fully manually.
 
 ### (g) Fingerprint-rotation finding — flag, not fix
 Moat's fingerprint noise is deterministic *per install, forever* (`fingerprintSeed`, generated once
@@ -117,6 +137,12 @@ over time, which defeats the point. This is worth a dedicated look in a future p
 systems might flag as itself suspicious — need real thought, not a decision made inside this
 audit).
 
+**Status: done (v0.11.14) — added as opt-in, not changed as default.** User's call: a new,
+separately-toggleable "rotate noise every browser session" option, off by default and nested under
+the existing fingerprint-resistance toggle, using `browser.storage.session` for the rotating seed.
+The deterministic per-install default is unchanged for every existing user; only someone who
+explicitly opts in gets Brave's model.
+
 ### (h) i18n: ship real translations
 Infrastructure is complete (`default_locale`, `_locales/en/messages.json`,
 `applyStaticI18n`/`getMessageOrFallback`, 0.11.8–10) but zero non-English languages exist yet.
@@ -124,6 +150,10 @@ Every competitor researched here ships localized UI. This is now a content-only 
 architecture change — but needs an explicit scope/quality decision (machine-translated draft vs.
 verified per-language) before starting, since a wrong or awkward translation is arguably worse than
 staying English-only.
+
+**Status: declined for now, by user decision.** Staying English-only — translations need ongoing
+maintenance as strings change, and starting without a plan to keep them current isn't worth it.
+Infrastructure stays in place for whenever that changes.
 
 ## 4. Confirmed correctly out of scope
 

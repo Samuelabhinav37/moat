@@ -48,6 +48,8 @@ const protectionLockedBadge = document.getElementById("protection-locked-badge")
 const cookiesToggle = document.getElementById("cookies-toggle") as HTMLInputElement;
 const webrtcToggle = document.getElementById("webrtc-toggle") as HTMLInputElement;
 const fingerprintToggle = document.getElementById("fingerprint-toggle") as HTMLInputElement;
+const fingerprintRotateRow = document.getElementById("fingerprint-rotate-row") as HTMLElement;
+const fingerprintRotateToggle = document.getElementById("fingerprint-rotate-toggle") as HTMLInputElement;
 const grayscaleToggle = document.getElementById("grayscale-toggle") as HTMLInputElement;
 const feedScanToggle = document.getElementById("feed-scan-toggle") as HTMLInputElement;
 const consentRejectToggle = document.getElementById("consent-reject-toggle") as HTMLInputElement;
@@ -417,6 +419,8 @@ async function render(): Promise<void> {
   cookiesToggle.checked = settings.blockThirdPartyCookies;
   webrtcToggle.checked = settings.webrtcLeakProtection;
   fingerprintToggle.checked = settings.fingerprintResistance;
+  fingerprintRotateRow.hidden = !settings.fingerprintResistance;
+  fingerprintRotateToggle.checked = settings.fingerprintRotatePerSession;
   grayscaleToggle.checked = settings.grayscaleUnblockableAds;
   feedScanToggle.checked = settings.aggressiveFeedAdRemoval;
   consentRejectToggle.checked = settings.cookieBannerAutoReject;
@@ -507,6 +511,11 @@ webrtcToggle.addEventListener("change", async () => {
 
 fingerprintToggle.addEventListener("change", async () => {
   await setSettings({ fingerprintResistance: fingerprintToggle.checked });
+  fingerprintRotateRow.hidden = !fingerprintToggle.checked;
+});
+
+fingerprintRotateToggle.addEventListener("change", async () => {
+  await setSettings({ fingerprintRotatePerSession: fingerprintRotateToggle.checked });
 });
 
 grayscaleToggle.addEventListener("change", async () => {

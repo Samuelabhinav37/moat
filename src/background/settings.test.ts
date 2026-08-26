@@ -4,6 +4,7 @@ import browser from "webextension-polyfill";
 vi.mock("webextension-polyfill", () => {
   const store: Record<string, unknown> = {};
   const syncStore: Record<string, unknown> = {};
+  const sessionStore: Record<string, unknown> = {};
   return {
     default: {
       runtime: { getURL: (path: string) => `test://${path}` },
@@ -27,6 +28,17 @@ vi.mock("webextension-polyfill", () => {
           },
           clear: () => {
             for (const key of Object.keys(syncStore)) delete syncStore[key];
+            return Promise.resolve();
+          },
+        },
+        session: {
+          get: (key: string) => Promise.resolve(key in sessionStore ? { [key]: sessionStore[key] } : {}),
+          set: (items: Record<string, unknown>) => {
+            Object.assign(sessionStore, items);
+            return Promise.resolve();
+          },
+          clear: () => {
+            for (const key of Object.keys(sessionStore)) delete sessionStore[key];
             return Promise.resolve();
           },
         },
@@ -60,6 +72,7 @@ const {
   isSiteDisabled,
   setSiteDisabled,
   getOrCreateFingerprintSeed,
+  getOrCreateSessionFingerprintSeed,
   addCustomCosmeticRule,
   removeCustomCosmeticRule,
   addGrayscaleRule,
@@ -70,6 +83,7 @@ const {
 beforeEach(async () => {
   await (browser.storage.local as unknown as { clear(): Promise<void> }).clear();
   await (browser.storage.sync as unknown as { clear(): Promise<void> }).clear();
+  await (browser.storage.session as unknown as { clear(): Promise<void> }).clear();
 });
 
 describe("getSettings", () => {
@@ -81,6 +95,7 @@ describe("getSettings", () => {
       blockThirdPartyCookies: false,
       fingerprintResistance: false,
       fingerprintSeed: "",
+      fingerprintRotatePerSession: false,
       filterGroups: {},
       customBlockedDomains: [],
       customAllowedDomains: [],
@@ -135,6 +150,27 @@ describe("getOrCreateFingerprintSeed", () => {
     const first = await getOrCreateFingerprintSeed();
     const second = await getOrCreateFingerprintSeed();
     expect(second).toBe(first);
+  });
+});
+
+describe("getOrCreateSessionFingerprintSeed", () => {
+  it("generates and persists a seed in storage.session the first time it's called", async () => {
+    const seed = await getOrCreateSessionFingerprintSeed();
+    expect(seed).not.toBe("");
+    const stored = await browser.storage.session.get("sessionFingerprintSeed");
+    expect(stored.sessionFingerprintSeed).toBe(seed);
+  });
+
+  it("reuses the same seed on subsequent calls instead of regenerating it", async () => {
+    const first = await getOrCreateSessionFingerprintSeed();
+    const second = await getOrCreateSessionFingerprintSeed();
+    expect(second).toBe(first);
+  });
+
+  it("is independent of the permanent (storage.local) fingerprint seed", async () => {
+    const permanent = await getOrCreateFingerprintSeed();
+    const session = await getOrCreateSessionFingerprintSeed();
+    expect(session).not.toBe(permanent);
   });
 });
 

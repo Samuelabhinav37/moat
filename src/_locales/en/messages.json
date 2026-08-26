@@ -50,6 +50,10 @@
   "optionsFingerprintToggleHint": {
     "message": "Scrambles device data to prevent silent tracking. May occasionally break site features like CAPTCHAs. (Off by default)"
   },
+  "optionsFingerprintRotateToggleLabel": { "message": "Rotate noise every browser session" },
+  "optionsFingerprintRotateToggleHint": {
+    "message": "Generates fresh noise each time your browser restarts instead of reusing the same noise forever, closer to Brave's model. A fingerprint that never changes can itself become a stable identifier over time; rotating trades that off against sites seeing a different \"device\" on every browser restart. (Off by default)"
+  },
   "optionsGrayscaleToggleLabel": { "message": "Dim unblockable video ads" },
   "optionsGrayscaleToggleHint": {
     "message": "Automatically grays out embedded video ads like YouTube that cannot be entirely removed."

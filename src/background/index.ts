@@ -39,6 +39,19 @@ import type { PopupUiNotices } from "./updateNotice";
 initPopupGuard();
 initLiveUpdates();
 initRuleLogger();
+// storage.session defaults to background/extension-page-only access; the
+// opt-in per-session fingerprint rotation toggle needs bridge.ts (a content
+// script) to read/write it too. Untyped in webextension-polyfill's storage
+// types even though both Chrome and Firefox support it (see MDN's
+// StorageArea.setAccessLevel), hence the loose cast. Best-effort: if this
+// fails (older browser, API missing), bridge.ts's session-seed read just
+// falls back to the permanent seed instead of throwing.
+type SessionAccessArea = { setAccessLevel(options: { accessLevel: string }): Promise<void> };
+void (browser.storage.session as unknown as SessionAccessArea)
+  .setAccessLevel({ accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS" })
+  .catch(() => {
+    // Older browser or API missing -- rotation silently falls back to the permanent seed.
+  });
 // Note: not a top-level `await` -- this module is built as a Rollup `iife`
 // bundle (see scripts/build.mjs), which doesn't support it.
 void seedFromSyncIfEmpty().then(() => reapplySettings());
