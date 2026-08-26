@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.20
+
+### Fixed
+- **A tight shared static-rule budget could leave every filter list disabled, not just the ones
+  that didn't fit.** Found via live troubleshooting: a user's browser reported only 374 static
+  rules available across every installed extension -- Moat's own ~274,000-rule footprint, not
+  competing extensions, was the actual ceiling. `declarativeNetRequest.updateEnabledRulesets()` is
+  atomic (the whole requested change succeeds or the whole thing rejects), so the previous
+  single-attempt call could fail completely and leave *nothing* enabled even when most lists would
+  have fit comfortably alone. `src/background/filterGroups.ts` now retries, dropping the
+  least-essential lists first (annoyance/cosmetic categories, then ads/trackers, security last --
+  see the new `orderGroupsByDropPriority` in `filterGroupState.ts`) until something fits, so a tight
+  budget degrades gracefully instead of collapsing to zero protection.
+- **The Filter Lists warning now names exactly which lists got left disabled**, instead of a
+  generic "something didn't fit" -- or, on total failure, Chrome's own real remaining-rule count
+  (added in v0.11.19) rather than a vague warning.
+
 ## 0.11.19
 
 ### Added

@@ -6,7 +6,7 @@
 // and avoids drift if something updates state outside this module.
 import browser from "webextension-polyfill";
 import { groupChunkIds, summarizeFilterLists } from "../shared/rulesetManifest";
-import { effectiveFilterGroupState } from "./filterGroupState";
+import { effectiveFilterGroupState, orderGroupsByDropPriority } from "./filterGroupState";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import type { Settings } from "../types";
 
@@ -15,13 +15,16 @@ const STATUS_KEY = "filterGroupStatus";
 export interface FilterGroupStatus {
   ok: boolean;
   timestamp: number;
+  /** Groups that had to be left disabled because the full desired set didn't
+   * fit the browser's shared static-rule budget, even though the user's
+   * settings ask for them on -- see applyFilterGroupState's retry loop.
+   * Present (possibly empty) whenever the underlying call succeeded at all;
+   * absent only when even the single highest-priority group didn't fit. */
+  droppedGroups?: string[];
   /** Chrome's own count of static rules still available across every
    * installed extension (declarativeNetRequest.getAvailableStaticRuleCount),
-   * captured only when a call below actually failed -- lets the options page
-   * show a real number instead of just "something didn't fit," and lets a
-   * report distinguish "0 left, genuinely out of budget" from some other
-   * failure (a stale cached manifest, a malformed ruleset id) that would
-   * otherwise look identical from the outside. */
+   * captured only when nothing could be enabled at all -- lets the options
+   * page show a real number instead of just "something didn't fit." */
   availableStaticRuleCount?: number;
 }
 
@@ -36,32 +39,58 @@ export async function getFilterGroupStatus(): Promise<FilterGroupStatus | null> 
 
 export async function applyFilterGroupState(settings: Settings): Promise<void> {
   const manifest = await loadRulesetManifest();
-  const groups = summarizeFilterLists(manifest).map((list) => list.group);
-  const state = effectiveFilterGroupState(settings.enabled, settings.filterGroups, groups);
+  const lists = summarizeFilterLists(manifest);
+  const state = effectiveFilterGroupState(
+    settings.enabled,
+    settings.filterGroups,
+    lists.map((list) => list.group)
+  );
 
-  const enableRulesetIds: string[] = [];
-  const disableRulesetIds: string[] = [];
-  for (const [group, enabled] of Object.entries(state)) {
-    (enabled ? enableRulesetIds : disableRulesetIds).push(...groupChunkIds(manifest, group));
-  }
+  const wantOff = lists.filter((list) => !state[list.group]).map((list) => list.group);
+  // Ordered least-essential-first (annoyance/cosmetic, then ads/trackers,
+  // security last) -- see orderGroupsByDropPriority. The retry loop below
+  // drops from the front of this list one group at a time.
+  const wantOn = orderGroupsByDropPriority(lists.filter((list) => state[list.group]));
+  const idsFor = (groups: string[]): string[] => groups.flatMap((group) => groupChunkIds(manifest, group));
 
-  try {
-    await browser.declarativeNetRequest.updateEnabledRulesets({ enableRulesetIds, disableRulesetIds });
-    await browser.storage.local.set({ [STATUS_KEY]: { ok: true, timestamp: Date.now() } satisfies FilterGroupStatus });
-  } catch {
-    // Stale cached manifest, or the browser's enabled-ruleset budget --
-    // leave whatever's currently active alone rather than throwing out of
-    // setSettings(). Record it so the options page can surface it instead
-    // of silently showing a toggle that didn't actually take effect.
-    let availableStaticRuleCount: number | undefined;
+  // Try the full desired set first; if the browser's shared static-rule
+  // budget can't hold it all (declarativeNetRequest.updateEnabledRulesets is
+  // atomic -- it either fully succeeds or fully rejects), progressively
+  // drop the least-essential groups and retry, rather than an all-or-
+  // nothing failure that could leave *every* group disabled even though
+  // most of them would easily fit alone.
+  for (let drop = 0; drop <= wantOn.length; drop++) {
+    const enabling = drop === 0 ? wantOn : wantOn.slice(0, -drop);
+    const droppedGroups = drop === 0 ? [] : wantOn.slice(-drop);
     try {
-      availableStaticRuleCount = await browser.declarativeNetRequest.getAvailableStaticRuleCount();
+      await browser.declarativeNetRequest.updateEnabledRulesets({
+        enableRulesetIds: idsFor(enabling),
+        disableRulesetIds: idsFor([...wantOff, ...droppedGroups]),
+      });
+      await browser.storage.local.set({
+        [STATUS_KEY]: {
+          ok: droppedGroups.length === 0,
+          timestamp: Date.now(),
+          droppedGroups: droppedGroups.length > 0 ? droppedGroups : undefined,
+        } satisfies FilterGroupStatus,
+      });
+      return;
     } catch {
-      // Older browser or the call itself is unavailable -- the boolean
-      // failure above is still recorded either way.
+      // Didn't fit even after dropping `drop` group(s) -- drop one more and retry.
     }
-    await browser.storage.local.set({
-      [STATUS_KEY]: { ok: false, timestamp: Date.now(), availableStaticRuleCount } satisfies FilterGroupStatus,
-    });
   }
+
+  // Nothing fit at all, not even the single highest-priority group alone.
+  // Leave whatever's currently active alone rather than throwing out of
+  // setSettings(); record diagnostics so the options page can show a real
+  // number instead of just "something didn't fit."
+  let availableStaticRuleCount: number | undefined;
+  try {
+    availableStaticRuleCount = await browser.declarativeNetRequest.getAvailableStaticRuleCount();
+  } catch {
+    // Older browser or the call itself is unavailable.
+  }
+  await browser.storage.local.set({
+    [STATUS_KEY]: { ok: false, timestamp: Date.now(), availableStaticRuleCount } satisfies FilterGroupStatus,
+  });
 }

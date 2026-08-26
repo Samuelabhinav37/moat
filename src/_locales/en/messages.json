@@ -84,6 +84,10 @@
     "message": "Chrome currently reports $COUNT$ static rules still available across every installed extension. If this stays low after disabling other extensions and reloading Moat, the budget itself may be too small for all of Moat's filter lists to fit at once -- try turning off a filter list below (Annoyances or Cookie Notices first) rather than removing more extensions.",
     "placeholders": { "count": { "content": "$1" } }
   },
+  "optionsFilterBudgetDropped": {
+    "message": "Left disabled for now, to keep the rest of your filter lists active within the browser's shared rule budget: $NAMES$.",
+    "placeholders": { "names": { "content": "$1" } }
+  },
   "optionsFilteringLevelTitle": { "message": "Filtering level" },
   "presetOff": { "message": "Off" },
   "presetEssential": { "message": "Essential" },

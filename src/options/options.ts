@@ -448,14 +448,26 @@ async function render(): Promise<void> {
 
   const filterGroupStatus = await getFilterGroupStatus();
   filterBudgetWarning.hidden = filterGroupStatus === null || filterGroupStatus.ok;
-  const availableCount = filterGroupStatus?.availableStaticRuleCount;
-  filterBudgetDetail.hidden = availableCount === undefined;
-  if (availableCount !== undefined) {
+  if (filterGroupStatus?.droppedGroups?.length) {
+    const manifest = await loadRulesetManifest();
+    const namesByGroup = new Map((manifest ? summarizeFilterLists(manifest) : []).map((l) => [l.group, l.name]));
+    const names = filterGroupStatus.droppedGroups.map((group) => namesByGroup.get(group) ?? group).join(", ");
+    filterBudgetDetail.hidden = false;
+    filterBudgetDetail.textContent = tFallback(
+      "optionsFilterBudgetDropped",
+      `Left disabled for now, to keep the rest of your filter lists active within the browser's shared rule budget: ${names}.`,
+      [names]
+    );
+  } else if (filterGroupStatus?.availableStaticRuleCount !== undefined) {
+    const availableCount = filterGroupStatus.availableStaticRuleCount;
+    filterBudgetDetail.hidden = false;
     filterBudgetDetail.textContent = tFallback(
       "optionsFilterBudgetDetail",
       `Chrome currently reports ${availableCount} static rules still available across every installed extension. If this stays low after disabling other extensions and reloading Moat, the budget itself may be too small for all of Moat's filter lists to fit at once -- try turning off a filter list below (Annoyances or Cookie Notices first) rather than removing more extensions.`,
       [String(availableCount)]
     );
+  } else {
+    filterBudgetDetail.hidden = true;
   }
 
   const filtersLocked = isLocked("filterGroups", policy);

@@ -539,13 +539,20 @@ network at all.
   (`GUARANTEED_MINIMUM_STATIC_RULES`); Moat ships 274,186 across its 18
   rulesets.** Rules beyond that guaranteed floor come from a pool shared
   across every extension installed in the browser, so on a machine running
-  several other rule-heavy ad blockers or privacy extensions, some of Moat's
-  filter lists can silently fail to enable. When that happens,
-  `declarativeNetRequest.updateEnabledRulesets()` rejects and Moat leaves
-  whatever was already active alone rather than guessing -- the Filter Lists
-  tab in Settings then shows a warning banner rather than silently showing
-  toggles that didn't actually take effect. There is no fix within a single
-  extension's control: the budget is a browser-wide, cross-extension limit.
+  several other rule-heavy ad blockers or privacy extensions -- or where
+  that shared pool is simply small on its own -- some of Moat's filter
+  lists can fail to enable. `declarativeNetRequest.updateEnabledRulesets()`
+  is atomic (all-or-nothing for whatever's requested in one call), so
+  `src/background/filterGroups.ts` doesn't just try once and give up: it
+  retries with the least-essential lists dropped first (annoyance/cosmetic
+  categories, then ads/trackers, security last) until something fits,
+  rather than an all-or-nothing failure leaving every list disabled when
+  most of them would easily fit alone. The Filter Lists tab in Settings
+  then shows exactly which lists got left disabled (or, if even the single
+  highest-priority list didn't fit, Chrome's own remaining-rule count) --
+  never silent toggles that didn't actually take effect. There is no way to
+  raise the ceiling itself from within a single extension: the budget is a
+  browser-wide, cross-extension limit.
 - **`web-ext lint` warnings on the Firefox build are expected and benign:**
   one is a Firefox-for-Android version nuance from bumping
   `strict_min_version` to 140 for `data_collection_permissions` support; one
