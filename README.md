@@ -134,7 +134,12 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   as it can to the actual organization behind them (Google, Meta, Criteo, etc.), correlated at
   build time against Ghostery's TrackerDB by each rule's target domain — purely informational, no
   new decision asked of anyone, hidden entirely on requests TrackerDB doesn't cover (see
-  `scripts/lib/ruleCompany.mjs` and `src/shared/matchedRuleCompanies.ts`).
+  `scripts/lib/ruleCompany.mjs` and `src/shared/matchedRuleCompanies.ts`). Clicking a company row
+  expands a short description, category, and website link, also sourced from TrackerDB
+  (`rules/company-info.json`, fetched lazily on first click rather than on every popup open). A
+  plain-language summary line above the strip ("Nothing to block on this page" / "A few trackers
+  blocked" / "Heavily tracked page") buckets the same real count into a more legible phrase — not
+  a fabricated site-safety grade, since Moat has no independent data on the site itself to grade.
 - **Rule-match logger** — a development tool, not a user feature: `logger.html` (linked from
   Settings → About → Debugging) lists every request `declarativeNetRequest.onRuleMatchedDebug`
   saw on the active tab and which specific rule matched it, for diagnosing a filter or heuristic

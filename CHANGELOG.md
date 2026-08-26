@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.13
+
+### Added
+- **Click-through company detail in the popup's "By company" list.** Each row now expands, on
+  click, to a short description, category, and website link sourced from Ghostery's TrackerDB --
+  the same data source already used for the company attribution itself, just more of it. A new
+  build-time output, `rules/company-info.json` (deduped to only the ~1,380 companies actually
+  attributed to a shipped rule, not TrackerDB's full ~2,600-organization catalog), is fetched
+  lazily on first click rather than bundled into every popup open.
+- **A plain-language summary line** above the Ads/Trackers/Popups breakdown ("Nothing to block on
+  this page" / "A few trackers blocked" / "Heavily tracked page"), bucketed from the same real
+  block count already shown in the hero number -- not a fabricated site-safety grade, since Moat
+  has no independent data on the site itself to grade, unlike DuckDuckGo's letter-grade feature
+  this was inspired by.
+
 ## 0.11.12
 
 ### Added

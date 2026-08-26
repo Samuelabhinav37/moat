@@ -9,6 +9,14 @@ import type { MatchedRuleRef } from "./matchedRuleCategories";
  * Popups breakdown, not a replacement for it. */
 export type RuleCompanies = Record<string, Record<number, string>>;
 
+/** Company name -> a short description/category/link, for the popup's
+ * click-through company drill-down. Built at filter-update time alongside
+ * RuleCompanies above (see scripts/update-filters.mjs), deduped to one entry
+ * per company actually attributed to a shipped rule rather than shipping
+ * TrackerDB's full organization catalog. Any field can be null -- TrackerDB
+ * doesn't have complete data for every organization. */
+export type CompanyInfo = Record<string, { description: string | null; websiteUrl: string | null; category: string | null }>;
+
 export function summarizeCompanies(companies: RuleCompanies, matches: MatchedRuleRef[]): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const match of matches) {

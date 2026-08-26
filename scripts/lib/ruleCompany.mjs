@@ -36,16 +36,28 @@ export function extractRuleDomain(urlFilter) {
 }
 
 // trackerDb is the parsed dist/trackerdb.json shape: flat maps keyed by
-// domain -> patternKey, patternKey -> {organization: orgKey, ...}, and
-// orgKey -> {name, ...}. Walks the domain chain most-specific first so a
-// rule targeting a subdomain still resolves via its registrable parent.
-export function lookupCompany(domain, trackerDb) {
+// domain -> patternKey, patternKey -> {organization: orgKey, category, ...},
+// and orgKey -> {name, description, website_url, ...}. Walks the domain
+// chain most-specific first so a rule targeting a subdomain still resolves
+// via its registrable parent.
+export function lookupCompanyDetails(domain, trackerDb) {
   for (const level of domainChain(domain)) {
     const patternKey = trackerDb.domains[level];
     if (!patternKey) continue;
     const pattern = trackerDb.patterns[patternKey];
     const org = pattern && trackerDb.organizations[pattern.organization];
-    if (org?.name) return org.name;
+    if (org?.name) {
+      return {
+        name: org.name,
+        description: org.description || null,
+        websiteUrl: org.website_url || null,
+        category: pattern.category || null,
+      };
+    }
   }
   return null;
+}
+
+export function lookupCompany(domain, trackerDb) {
+  return lookupCompanyDetails(domain, trackerDb)?.name ?? null;
 }
