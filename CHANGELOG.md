@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.1
+
+### Added
+- **A `LICENSE` file (GPL-3.0) and `package.json`'s `license` field.** The project had no
+  license anywhere for its own code -- only the README's Licensing note, which covered the
+  bundled third-party filter/tracker/consent data, never Moat's own source. GPL-3.0 chosen to
+  match the license already covering the bundled AdGuard/EasyList filter data, so the whole
+  distributed package sits under one consistent license rather than mixing families.
+
 ## 0.11.0
 
 Release-readiness pass, aimed at getting the extension into shape for a Chrome Web Store

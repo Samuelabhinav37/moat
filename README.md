@@ -496,6 +496,11 @@ network at all.
 
 ## Licensing note
 
+Moat's own code is licensed under [GPL-3.0](LICENSE) — chosen to match the license
+already covering the bundled AdGuard/EasyList filter data below, so the whole
+distributed package sits under one consistent copyleft license rather than mixing
+license families.
+
 The bundled filter lists are distributed under GPL-3.0 by AdGuard/EasyList
 contributors. If you publish this extension, keep the attribution above and
 check current license terms before distributing `rules/dnr/*.json` — that
