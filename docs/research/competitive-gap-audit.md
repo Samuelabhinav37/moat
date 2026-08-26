@@ -123,27 +123,37 @@ the same public ad-blocker-testing sites (adblock-tester.com, d3ward's test) wou
 externally-comparable number instead of relying on raw bundled-rule counts, which say nothing
 about real-world hit rate.
 
-**Status: done (measured, not fixed).** d3ward's test is discontinued/archived as of this check.
-Ran adblock-tester.com (2026-08-26) against `dist/chrome` loaded unpacked by the user, driven via
-browser automation: **48/100** (11 services, 22 checks). Breakdown:
+**Status: done (measured) — and the low scores turned out not to be a Moat coverage problem.**
+d3ward's test is discontinued/archived as of this check. Ran three benchmarks against `dist/chrome`
+loaded unpacked by the user, driven via browser automation:
 
-| Category | Result |
-| --- | --- |
-| Contextual ads (Google AdSense, Yandex Direct, generic) | Blocked/hidden |
-| Analytics (Google Analytics, Hotjar, Yandex.Metrica) | Script *executes* -- not blocked |
-| Banner images/gifs/flash (the test site's own ad-shaped test assets) | Not blocked at all |
-| Error monitoring (Sentry, Bugsnag) | Script *executes* -- not blocked |
+- **adblock-tester.com** (2026-08-26): 48/100 (11 services, 22 checks). Contextual ads (AdSense,
+  Yandex Direct) blocked/hidden correctly; analytics (Google Analytics, Hotjar, Yandex.Metrica),
+  generic banner images, and error monitoring (Sentry, Bugsnag) all showed as not blocked.
+- **adblock.turtlecute.org** (the actively-maintained successor to d3ward's test, 132 checks across
+  ads/analytics/error-trackers/social-trackers/OEM-telemetry domains): **7%** (9/132 blocked).
 
-Contextual/display ad-network blocking works as expected. Two real gaps worth a closer look in a
-separate pass: (1) `google-analytics.com`/Hotjar/Yandex.Metrica script *execution* isn't being
-prevented despite AdGuard's Tracking Protection filter nominally covering these domains -- worth
-checking whether the specific script URLs this test loads them from are actually covered by a
-bundled rule, or whether this is a false negative in the test's own methodology; (2) the generic
-banner-image/gif/flash test assets (hosted on adblock-tester.com's own domain, not a third-party ad
-network) aren't caught by any bundled path/filename pattern -- this is the kind of gap a broader
-generic-ads filter list (already bundled) would normally catch, so worth checking why it didn't
-here specifically. Not investigated further in this pass -- recording the external, reproducible
-number was the scope of item (f); root-causing the two gaps above is separate follow-up work.
+Initially read the turtlecute result as a real coverage gap. It isn't: cross-checking the failing
+domains against Moat's actual bundled rule files found that most of them -- including
+`google-analytics.com`, `doubleclick.net`, `pagead2.googlesyndication.com`, `mouseflow.com`,
+`luckyorange.com`, `pixel.facebook.com`, `ads.linkedin.com` -- already have an exact-match bundled
+rule. A live network request to `google-analytics.com/analytics.js` from the test browser
+confirmed it: **200 OK**, not blocked, despite the rule existing. That ruled out a data gap and
+pointed at the rules simply not being *enabled* at runtime. Settings → Filter Lists confirmed it: a
+warning banner reading "Some filter lists may not be fully active. Your browser's shared rule
+budget is often exceeded when several ad-blocking or filter-heavy extensions are installed at
+once." This is the exact, already-documented MV3 platform ceiling from README's "Known
+limitations" (Chrome guarantees only 30,000 enabled static rules per extension; Moat's ~274,000
+draws the rest from a pool shared across every extension installed in the browser) --
+environmental, not a Moat bug, and Moat's own UI already detects and surfaces it correctly. Not
+reproducible as a coverage number until re-run in a profile without other rule-heavy extensions
+competing for that shared budget.
+
+Two genuinely-missing-data gaps survive independent of the budget issue (present in the test
+domain list, absent from Moat's bundled rules regardless of budget): Bugsnag/Sentry error-tracker
+endpoints and a few social-tracker subdomains (`an.facebook.com`, `ads.pinterest.com`). Small and
+optional -- error-monitoring/social-widget domains, not core ad/tracker coverage -- not pursued
+further in this pass.
 
 ### (g) Fingerprint-rotation finding — flag, not fix
 Moat's fingerprint noise is deterministic *per install, forever* (`fingerprintSeed`, generated once
