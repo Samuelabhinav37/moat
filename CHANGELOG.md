@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.21
+
+### Fixed
+- **v0.11.20's graceful-degradation fix dropped security lists first instead of last -- the exact
+  opposite of what it was supposed to do.** Confirmed live: a user's Settings showed "Phishing URL
+  Blocklist, Online Malicious URL Blocklist, uBlock Origin - Badware risks, Scam Blocklist" left
+  disabled, while annoyance/ads/tracker lists stayed on. `orderGroupsByDropPriority` correctly
+  orders groups least-essential-first, but `filterGroups.ts`'s retry loop was dropping from the
+  *end* of that list (`slice(-drop)`) instead of the front -- security, sorted last because it's
+  meant to be kept longest, was actually removed first. Fixed to drop from the front
+  (`wantOn.slice(drop)` / `wantOn.slice(0, drop)`). Added a regression test
+  (`filterGroups.test.ts`) mocking a tight budget and asserting the annoyance-category list is
+  dropped before the security-category one -- this test fails against the previous code.
+
 ## 0.11.20
 
 ### Fixed

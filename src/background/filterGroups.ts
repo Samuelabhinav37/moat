@@ -60,8 +60,11 @@ export async function applyFilterGroupState(settings: Settings): Promise<void> {
   // nothing failure that could leave *every* group disabled even though
   // most of them would easily fit alone.
   for (let drop = 0; drop <= wantOn.length; drop++) {
-    const enabling = drop === 0 ? wantOn : wantOn.slice(0, -drop);
-    const droppedGroups = drop === 0 ? [] : wantOn.slice(-drop);
+    // wantOn is ordered least-essential-first, so dropping from the FRONT
+    // drops the least-essential groups first -- security-category groups
+    // sit at the end and are the last to go.
+    const enabling = wantOn.slice(drop);
+    const droppedGroups = wantOn.slice(0, drop);
     try {
       await browser.declarativeNetRequest.updateEnabledRulesets({
         enableRulesetIds: idsFor(enabling),
