@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.18
+
+### Fixed
+- **Popup had too many competing colors** -- bright neon-green "Reload page" and bright-red
+  "Block an element…" buttons, plus a brown/tan "Paused on" banner and paused-state dot, on top
+  of the existing blue "protected" state. Researched Ghostery's actual design tokens
+  (`ghostery/ghostery-extension`'s `src/ui/styles.css`/`components/button.js`) for comparison:
+  their buttons default to a neutral/outline style and reserve solid color for real semantic
+  meaning, and their own pause state uses the same neutral/brand treatment as everything else --
+  no separate warning color. Applied the same restraint here: both action buttons now use the
+  existing neutral `.secondary` style (same treatment as "Report a problem…"), and the paused
+  banner/dot use a neutral gray instead of brown -- pausing on a site isn't a warning state.
+- **Action buttons still looked oversized after the previous pass** -- reduced padding, font size,
+  and font weight (700 to 600) to match Ghostery's own button proportions more closely.
+
 ## 0.11.17
 
 ### Fixed

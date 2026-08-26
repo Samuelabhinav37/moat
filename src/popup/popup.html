@@ -53,9 +53,9 @@
       }
 
       .paused-banner {
-        background: rgba(217, 168, 119, 0.14);
-        border: 1px solid #4a3a2c;
-        color: #d9a877;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        color: rgba(255, 255, 255, 0.75);
         font-size: 11px;
         border-radius: 10px;
         padding: 8px 10px;
@@ -165,10 +165,10 @@
         flex: none;
       }
       .site-state.paused {
-        color: #b4691f;
+        color: #737278;
       }
       .site-state.paused i {
-        background: #b4691f;
+        background: #737278;
       }
 
       .switch .track {
@@ -190,18 +190,10 @@
       .actions button {
         flex: 1;
         border: none;
-        border-radius: 10px;
-        padding: 9px 11px;
-        font-weight: 700;
-        font-size: 13px;
-      }
-      .actions button.danger {
-        background: var(--danger);
-        color: var(--danger-fg);
-      }
-      .actions button.primary {
-        background: var(--on);
-        color: var(--on-fg);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-weight: 600;
+        font-size: 12.5px;
       }
       .actions button.secondary {
         background: rgba(255, 255, 255, 0.12);
@@ -287,8 +279,8 @@
     </div>
 
     <div class="actions">
-      <button id="reload-page" class="primary" hidden data-i18n="popupReloadPage">Reload page</button>
-      <button id="start-picker" class="danger" data-i18n="popupBlockElement">Block an element…</button>
+      <button id="reload-page" class="secondary" hidden data-i18n="popupReloadPage">Reload page</button>
+      <button id="start-picker" class="secondary" data-i18n="popupBlockElement">Block an element…</button>
     </div>
     <div class="actions">
       <button id="report-problem" class="secondary" hidden data-i18n="popupReportProblem">Report a problem…</button>
