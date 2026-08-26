@@ -63,6 +63,15 @@ badge count.
 - **Enterprise-managed policy** — push settings org-wide via Chrome's `ExtensionSettings` or
   Firefox's `policies.json`.
 - **Global Privacy Control** — sent as a legally binding opt-out signal in a dozen US states.
+- **Leaked-password check** (opt-in) — warns inline when a password you type into a page has
+  appeared in a known data breach, via HaveIBeenPwned's k-anonymity API (only a 5-character hash
+  prefix ever leaves your device, never the password itself).
+- **Settings export/import and opt-in cross-device sync** — back up your settings as a file, or
+  mirror them across your own devices via `storage.sync`, both off by default.
+- **Keyboard shortcut** (default Ctrl+Shift+M / Cmd+Shift+M) — toggle protection globally without
+  opening the popup.
+- **"Report a problem" button** — opens a pre-filled GitHub issue with just the site's hostname
+  and your enabled filter groups, never the full URL.
 - One codebase, Chrome and Firefox builds.
 
 ## Architecture at a glance
@@ -314,6 +323,38 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   blocklist on top of whatever the user's already added. Locked controls
   show a "Managed by your organization" badge instead of silently
   overriding the user with no explanation.
+- **Leaked-password check** (opt-in, off by default) — a content script watches password fields
+  for input and, via `src/background/pwnedPasswords.ts`, checks the typed password against
+  HaveIBeenPwned's Pwned Passwords API using k-anonymity: only the first 5 characters of the
+  password's SHA-1 hash are ever sent, HaveIBeenPwned returns every suffix that shares that
+  prefix, and the match against the full hash happens locally — the actual password or its full
+  hash never leaves the device. A match shows a small, non-blocking inline tooltip; the field is
+  never cleared or blocked either way. Top-frame only, so a cross-origin login iframe isn't
+  covered. Off by default since, unlike everything else in Settings, this is the one toggle that
+  sends something derived from what you actually type.
+- **Settings export/import** — the About tab's "Backup & restore" section downloads current
+  settings as JSON (excluding the per-install fingerprint-resistance identifier) or validates and
+  applies an uploaded file field-by-field, rejecting anything malformed outright rather than
+  partially applying it. Export always reads raw settings, never the managed-policy-merged view,
+  so a locked organizational value can never be captured and later "restored" as if it were a
+  personal preference.
+- **Opt-in settings sync** — a second Backup & restore toggle mirrors settings across your own
+  devices via `storage.sync` (last-write-wins, not live real-time merge); a fresh install seeds
+  itself from an existing synced copy if one exists. Off by default. The per-install
+  fingerprint-resistance identifier is deliberately never synced, for the same reason it's
+  excluded from export.
+- **Keyboard shortcut** — Ctrl+Shift+M / Cmd+Shift+M by default, toggles protection globally the
+  same as the popup's master switch, rebindable at `chrome://extensions/shortcuts`. No extra
+  visual feedback beyond the badge change, consistent with the rest of Moat's "no nag UI" stance.
+- **"Report a problem" button** — in the popup, opens a pre-filled GitHub issue containing only
+  the current site's hostname (never the full URL, so tracking/session query params never end up
+  in a public issue) and the filter groups currently enabled globally. Built from the same
+  cross-browser, cheap data as the rest of the popup, not Chrome-only `getMatchedRules`, so it
+  behaves identically on both browsers.
+- **Localization infrastructure** — all user-facing strings in the popup and options page route
+  through `_locales/en/messages.json` and `browser.i18n.getMessage()` rather than being hardcoded,
+  the standard WebExtension i18n mechanism. English-only for now; this is the plumbing a future
+  translation would drop into, not a translation itself.
 
 See `src/` for the source layout: `background/` (service worker / event
 page), `content/` (the three content scripts — `mainWorldGuard.ts` for the
