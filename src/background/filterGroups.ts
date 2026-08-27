@@ -5,12 +5,16 @@
 // diff: there are only ~11 groups, so idempotent full application is cheap
 // and avoids drift if something updates state outside this module.
 import browser from "webextension-polyfill";
-import { groupChunkIds, summarizeFilterLists } from "../shared/rulesetManifest";
+import { groupChunkIds, summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { effectiveFilterGroupState, orderGroupsByDropPriority } from "./filterGroupState";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import type { Settings } from "../types";
 
 const STATUS_KEY = "filterGroupStatus";
+// storage.session (not local) -- deliberately gone on browser restart/
+// extension reload, same lifetime as the "have we tried this exact state
+// before" question this answers. See applyFilterGroupState's fast path.
+const APPLIED_FINGERPRINT_KEY = "filterGroupAppliedFingerprint";
 
 export interface FilterGroupStatus {
   ok: boolean;
@@ -37,7 +41,32 @@ export async function getFilterGroupStatus(): Promise<FilterGroupStatus | null> 
   return (stored[STATUS_KEY] as FilterGroupStatus | undefined) ?? null;
 }
 
-export async function applyFilterGroupState(settings: Settings): Promise<void> {
+/** Same desired-state inputs every apply depends on: settings.enabled/
+ * filterGroups (what the user asked for) plus the manifest's own baked-in
+ * id/enabled-by-default list (changes only on an extension update). Sorted
+ * so key order in the stored object can't produce a spurious "changed"
+ * result. */
+function computeFingerprint(settings: Settings, manifest: RulesetManifestEntry[]): string {
+  const groupsKey = Object.entries(settings.filterGroups)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([group, on]) => `${group}=${on}`)
+    .join(",");
+  const manifestKey = manifest.map((entry) => `${entry.id}:${entry.enabled}`).join(",");
+  return `${settings.enabled}|${groupsKey}|${manifestKey}`;
+}
+
+export interface ApplyFilterGroupOptions {
+  /** Bypasses the "nothing changed since last time" fast path below --
+   * used once a day by liveUpdates.ts's alarm to notice budget that freed
+   * up (or got worse) for reasons entirely outside Moat's own settings,
+   * e.g. another extension being disabled/enabled -- see the
+   * lightweight-architecture roadmap doc. Every other caller (settings
+   * changes, managed-policy changes, and the reapply that runs on every
+   * service-worker cold start) leaves this off. */
+  force?: boolean;
+}
+
+export async function applyFilterGroupState(settings: Settings, options: ApplyFilterGroupOptions = {}): Promise<void> {
   const manifest = await loadRulesetManifest();
   const lists = summarizeFilterLists(manifest);
   const state = effectiveFilterGroupState(
@@ -45,6 +74,21 @@ export async function applyFilterGroupState(settings: Settings): Promise<void> {
     settings.filterGroups,
     lists.map((list) => list.group)
   );
+
+  const fingerprint = computeFingerprint(settings, manifest);
+  if (!options.force) {
+    // MV3 service workers re-run their whole top-level module (including
+    // the reapplySettings() call that reaches here) on every cold start --
+    // any page navigation after ~30s idle is enough -- not just when
+    // settings actually change. Skipping declarativeNetRequest.updateEnabledRulesets
+    // entirely when the desired state is byte-for-byte identical to the
+    // last time it was FULLY applied (no groups dropped) avoids redundant
+    // work on every one of those wake-ups. Only set after a fully
+    // successful apply below, so a degraded (budget-limited) state always
+    // keeps retrying rather than getting stuck on a stale "done" cache.
+    const cached = await browser.storage.session.get(APPLIED_FINGERPRINT_KEY);
+    if (cached[APPLIED_FINGERPRINT_KEY] === fingerprint) return;
+  }
 
   const wantOff = lists.filter((list) => !state[list.group]).map((list) => list.group);
   // Ordered least-essential-first (annoyance/cosmetic, then ads/trackers,
@@ -77,6 +121,14 @@ export async function applyFilterGroupState(settings: Settings): Promise<void> {
           droppedGroups: droppedGroups.length > 0 ? droppedGroups : undefined,
         } satisfies FilterGroupStatus,
       });
+      if (droppedGroups.length === 0) {
+        await browser.storage.session.set({ [APPLIED_FINGERPRINT_KEY]: fingerprint });
+      } else {
+        // Degraded state -- never cache this as "done" so the next call
+        // (next SW wake, or the daily reconciliation retry) keeps trying,
+        // in case budget frees up for reasons outside Moat's own settings.
+        await browser.storage.session.remove(APPLIED_FINGERPRINT_KEY);
+      }
       return;
     } catch {
       // Didn't fit even after dropping `drop` group(s) -- drop one more and retry.

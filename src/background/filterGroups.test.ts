@@ -16,6 +16,13 @@ let updateCalls: { enableRulesetIds: string[]; disableRulesetIds: string[] }[] =
 let maxFittableRulesets = 3;
 let alwaysFail = false;
 const store: Record<string, unknown> = {};
+// Separate from `store` (storage.local) -- applyFilterGroupState's
+// "already applied this exact state" fast path lives in storage.session,
+// same lifetime distinction the real code relies on (session storage is
+// gone on browser restart/extension reload; local isn't). Reset per test
+// same as `store`/updateCalls, since real session storage would carry
+// nothing over between them in practice.
+let sessionStore: Record<string, unknown> = {};
 
 vi.mock("webextension-polyfill", () => ({
   default: {
@@ -25,6 +32,17 @@ vi.mock("webextension-polyfill", () => ({
         get: (key: string) => Promise.resolve(key in store ? { [key]: store[key] } : {}),
         set: (items: Record<string, unknown>) => {
           Object.assign(store, items);
+          return Promise.resolve();
+        },
+      },
+      session: {
+        get: (key: string) => Promise.resolve(key in sessionStore ? { [key]: sessionStore[key] } : {}),
+        set: (items: Record<string, unknown>) => {
+          Object.assign(sessionStore, items);
+          return Promise.resolve();
+        },
+        remove: (key: string) => {
+          delete sessionStore[key];
           return Promise.resolve();
         },
       },
@@ -50,6 +68,7 @@ const { DEFAULT_SETTINGS } = await import("../types");
 describe("applyFilterGroupState under a tight rule budget", () => {
   it("drops the annoyance list first, never the security list, when only 2 of 3 lists fit", async () => {
     updateCalls = [];
+    sessionStore = {};
     maxFittableRulesets = 2;
     await applyFilterGroupState(DEFAULT_SETTINGS);
 
@@ -67,6 +86,7 @@ describe("applyFilterGroupState under a tight rule budget", () => {
 
   it("keeps only the security list when just 1 of 3 fits", async () => {
     updateCalls = [];
+    sessionStore = {};
     maxFittableRulesets = 1;
     await applyFilterGroupState(DEFAULT_SETTINGS);
 
@@ -76,6 +96,7 @@ describe("applyFilterGroupState under a tight rule budget", () => {
 
   it("enables everything with no drops when the full set fits", async () => {
     updateCalls = [];
+    sessionStore = {};
     maxFittableRulesets = 3;
     await applyFilterGroupState(DEFAULT_SETTINGS);
 
@@ -85,6 +106,7 @@ describe("applyFilterGroupState under a tight rule budget", () => {
 
   it("records the available rule count when even the single highest-priority list doesn't fit", async () => {
     updateCalls = [];
+    sessionStore = {};
     alwaysFail = true;
     await applyFilterGroupState(DEFAULT_SETTINGS);
     alwaysFail = false;
@@ -93,5 +115,51 @@ describe("applyFilterGroupState under a tight rule budget", () => {
     expect(status?.ok).toBe(false);
     expect(status?.droppedGroups).toBeUndefined();
     expect(status?.availableStaticRuleCount).toBe(0);
+  });
+});
+
+describe("applyFilterGroupState's fast path (skip re-applying an unchanged, fully-successful state)", () => {
+  it("skips the declarativeNetRequest call entirely on a second call with the same settings", async () => {
+    updateCalls = [];
+    sessionStore = {};
+    maxFittableRulesets = 3;
+    await applyFilterGroupState(DEFAULT_SETTINGS);
+    expect(updateCalls.length).toBe(1);
+
+    await applyFilterGroupState(DEFAULT_SETTINGS);
+    expect(updateCalls.length).toBe(1); // no second call -- fingerprint matched, nothing dropped last time
+  });
+
+  it("does not skip when force is passed, even with an unchanged fingerprint", async () => {
+    updateCalls = [];
+    sessionStore = {};
+    maxFittableRulesets = 3;
+    await applyFilterGroupState(DEFAULT_SETTINGS);
+    expect(updateCalls.length).toBe(1);
+
+    await applyFilterGroupState(DEFAULT_SETTINGS, { force: true });
+    expect(updateCalls.length).toBe(2);
+  });
+
+  it("never skips when the last apply left something dropped, even without force", async () => {
+    updateCalls = [];
+    sessionStore = {};
+    maxFittableRulesets = 2; // annoyances gets dropped
+    await applyFilterGroupState(DEFAULT_SETTINGS);
+    expect(updateCalls.length).toBe(2); // full attempt, then the successful reduced one
+
+    await applyFilterGroupState(DEFAULT_SETTINGS);
+    expect(updateCalls.length).toBeGreaterThan(2); // retried, not skipped
+  });
+
+  it("re-applies once the desired settings actually change, even with a cached fingerprint", async () => {
+    updateCalls = [];
+    sessionStore = {};
+    maxFittableRulesets = 3;
+    await applyFilterGroupState(DEFAULT_SETTINGS);
+    expect(updateCalls.length).toBe(1);
+
+    await applyFilterGroupState({ ...DEFAULT_SETTINGS, enabled: false });
+    expect(updateCalls.length).toBe(2);
   });
 });

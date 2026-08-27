@@ -15,6 +15,7 @@ import browser from "webextension-polyfill";
 import { addLiveRedirectDomains } from "./popupGuard";
 import { allLiveDynamicRuleIds, buildDynamicRedirectRules, filterValidRedirectDomains } from "./liveRedirectRules";
 import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from "./quickFixRules";
+import { reapplySettings } from "./settings";
 
 const LIVE_DATA_URL =
   "https://raw.githubusercontent.com/Samuelabhinav37/moat/master/live/redirect-domains.json";
@@ -103,6 +104,23 @@ async function refresh(): Promise<void> {
     // baseline and try again on the next alarm tick.
     await setStatus({ ok: false, timestamp: Date.now() });
   }
+
+  // Piggybacks on this same daily alarm rather than adding a new one: a
+  // filter group that got dropped for lack of shared static-rule budget
+  // (see filterGroups.ts) doesn't get proactively rechecked otherwise --
+  // Moat's own budget-warning copy suggests disabling other extensions,
+  // and Chrome (128+) does free that budget when a user does, but nothing
+  // notices on its own outside of a service-worker cold start that happens
+  // to occur. `force: true` bypasses the "nothing changed" fast path so
+  // this actually re-checks reality once a day, in both directions --
+  // recovers budget that freed up, and would also catch budget getting
+  // worse for a state that used to fit fully. No new permission needed;
+  // reuses the `alarms` permission this daily refresh already has.
+  await reapplySettings({ force: true }).catch(() => {
+    // Best-effort -- a failure here shouldn't affect this alarm's reported
+    // status above, which is specifically about the redirect/quick-fix
+    // fetch, not filter-group reconciliation.
+  });
 }
 
 export function initLiveUpdates(): void {

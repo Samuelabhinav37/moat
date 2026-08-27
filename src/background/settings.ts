@@ -20,11 +20,11 @@ export async function getEffectiveSettings(): Promise<Settings> {
   return applyManagedOverrides(settings, policy);
 }
 
-async function applyEffectiveSettings(): Promise<void> {
+async function applyEffectiveSettings(options: { forceFilterGroups?: boolean } = {}): Promise<void> {
   const effective = await getEffectiveSettings();
   await Promise.all([
     applyPrivacySettings(effective),
-    applyFilterGroupState(effective),
+    applyFilterGroupState(effective, { force: options.forceFilterGroups }),
     applyCustomRules(effective),
   ]);
   applyCnameUncloak(effective);
@@ -112,9 +112,14 @@ export function setSettings(patch: Partial<Settings>): Promise<Settings> {
   return mutateSettings(() => patch);
 }
 
-/** Re-applies everything against current settings -- call at startup, and whenever managed policy itself changes. */
-export async function reapplySettings(): Promise<void> {
-  await applyEffectiveSettings();
+/** Re-applies everything against current settings -- call at startup, and
+ * whenever managed policy itself changes. `force` bypasses filterGroups.ts's
+ * "nothing changed since last fully-successful apply" fast path -- used
+ * once a day by liveUpdates.ts to notice the browser's shared static-rule
+ * budget changing for reasons entirely outside Moat's own settings (another
+ * extension being disabled/enabled). Every other caller leaves it off. */
+export async function reapplySettings(options: { force?: boolean } = {}): Promise<void> {
+  await applyEffectiveSettings({ forceFilterGroups: options.force });
 }
 
 export async function isSiteDisabled(hostname: string): Promise<boolean> {

@@ -37,6 +37,10 @@ vi.mock("webextension-polyfill", () => {
             Object.assign(sessionStore, items);
             return Promise.resolve();
           },
+          remove: (key: string) => {
+            delete sessionStore[key];
+            return Promise.resolve();
+          },
           clear: () => {
             for (const key of Object.keys(sessionStore)) delete sessionStore[key];
             return Promise.resolve();

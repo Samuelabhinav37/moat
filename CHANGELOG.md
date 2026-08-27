@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.25
+
+### Changed
+- **`applyFilterGroupState` no longer reapplies an unchanged, fully-successful state on every
+  service-worker cold start.** MV3 service workers re-run their whole top-level module (including
+  the reapply that runs at startup) on every wake -- any page navigation after ~30s idle is
+  enough, not just an actual settings change. A fingerprint of the desired state (settings +
+  manifest) is now cached in `storage.session` after a fully successful apply and checked first;
+  a degraded (budget-limited) state is never cached this way, so it keeps retrying as before.
+- **Budget that frees up (e.g. from disabling another extension, which Moat's own warning already
+  suggests) is now proactively rechecked once a day**, piggybacked on the existing `liveUpdates.ts`
+  alarm rather than a new one -- no new permission needed. Previously this only recovered
+  whenever a service-worker cold start happened to occur on its own.
+
 ## 0.11.24
 
 ### Fixed
