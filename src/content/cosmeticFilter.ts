@@ -76,6 +76,20 @@ async function run(): Promise<void> {
   }
 }
 
+// Schedules work in a browser idle period when available; falls back to a
+// plain macrotask (still yields to the event loop, just without idle-
+// awareness) on anything that doesn't implement it -- Firefox has shipped
+// requestIdleCallback since version 55, well under Moat's own
+// strict_min_version, so this fallback is defense-in-depth, not a real
+// compatibility need today.
+function scheduleIdleWork(callback: (deadline: IdleDeadline) => void): void {
+  if (typeof requestIdleCallback === "function") {
+    requestIdleCallback(callback, { timeout: 2000 });
+  } else {
+    setTimeout(() => callback({ didTimeout: true, timeRemaining: () => 0 }), 0);
+  }
+}
+
 /**
  * One-time cleanup after the page finishes its initial load: prune generic
  * selectors that matched nothing anywhere in the final DOM. Not a
@@ -88,18 +102,38 @@ async function run(): Promise<void> {
  * rather than parsing it back out of the CSSOM's rendered `selectorText` --
  * some kept selectors (native `:has(a, b)`) contain commas of their own,
  * which a naive comma-split on the serialized text would corrupt.
+ *
+ * Runs incrementally across idle periods, in fixed-size batches, rather than
+ * one synchronous pass over the whole set -- measured directly (real
+ * Chrome, not jsdom, since jsdom's CSS engine isn't representative) against
+ * the full ~17k generic selector set: ~4 seconds of blocking main-thread
+ * work on a 5,000-element DOM, ~560ms even on a modest 800-element page.
+ * That's a real, likely-already-happening freeze right at page-load-
+ * complete on any moderately complex page (a long feed, a big article), not
+ * a hypothetical "if reported" risk. TRIM_BATCH_SIZE keeps each idle
+ * slice's worst-case cost bounded to roughly a frame's worth of work even
+ * on that same 5,000-element DOM, rather than either the single ~4s block
+ * this replaces or an unboundedly large per-slice batch.
  */
+const TRIM_BATCH_SIZE = 200;
+
 function trimUnmatchedGenericRules(styleEl: HTMLStyleElement, genericSelectors: string[]): void {
-  // Undocumented tradeoff worth naming: this runs synchronously on the
-  // window "load" event, and genericSelectors can hold up to ~17k entries.
-  // selectorsStillMatching calls doc.querySelector once per selector in one
-  // blocking main-thread pass -- each call can force a style/layout
-  // recalculation on a large DOM, risking a jank spike right at load-
-  // complete. If that's ever reported as real jank, chunk this via
-  // requestIdleCallback/batches instead of running it all at once.
-  const stillMatching = selectorsStillMatching(document, genericSelectors);
-  if (stillMatching.length === genericSelectors.length) return; // nothing to prune
-  styleEl.textContent = buildStyleText(stillMatching);
+  let index = 0;
+  const stillMatching: string[] = [];
+
+  function step(): void {
+    stillMatching.push(...selectorsStillMatching(document, genericSelectors.slice(index, index + TRIM_BATCH_SIZE)));
+    index += TRIM_BATCH_SIZE;
+    if (index < genericSelectors.length) {
+      scheduleIdleWork(step);
+      return;
+    }
+    if (stillMatching.length < genericSelectors.length) {
+      styleEl.textContent = buildStyleText(stillMatching);
+    }
+  }
+
+  scheduleIdleWork(step);
 }
 
 void run();

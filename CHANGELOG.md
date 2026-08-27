@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.27
+
+### Fixed
+- **The cosmetic-filter document-idle cleanup pass could block the main thread for several
+  seconds on a complex page.** `trimUnmatchedGenericRules` ran `document.querySelector` once per
+  generic selector (~17,000 of them) in a single synchronous pass; measured directly in real
+  Chrome (not jsdom, which badly overstates the cost): 4.1 seconds against a 5,000-element DOM
+  (roughly a long feed page), 560ms even on a modest 800-element page. Now runs in 200-selector
+  batches scheduled across `requestIdleCallback` slices -- worst single batch measured at 52ms
+  after the fix, page stays fully interactive throughout. Ad-hiding itself is unaffected either
+  way (it's driven by the full, untrimmed selector set the whole time); this only speeds up when
+  the style-engine bookkeeping optimization kicks in.
+
 ## 0.11.26
 
 ### Added
