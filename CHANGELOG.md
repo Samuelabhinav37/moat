@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.24
+
+### Fixed
+- **Settings import validated shape but not content for `customCosmeticRules`/`customGrayscaleRules`.**
+  Their selector strings end up live in an injected `<style>` element (`cosmeticFilter.ts`); a
+  selector containing `}` could close that block early and inject an unrelated CSS rule into
+  every matching page. Can't lead to script execution (`textContent` never re-enters the HTML
+  parser) and only reaches a victim if they import an untrusted settings file themselves, but
+  flagged by this session's security-review pass as worth closing regardless. `validateImportedSettings`
+  now rejects selectors containing `{`, `}`, `<`, or `` ` `` (none of which a real CSS selector
+  needs), and every imported array/record field is now length-capped -- an import is untrusted
+  file content, not just untrusted shape.
+
 ## 0.11.23
 
 ### Added

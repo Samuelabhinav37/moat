@@ -69,4 +69,37 @@ describe("validateImportedSettings", () => {
   it("rejects a customCosmeticRules entry mapping to a non-array", () => {
     expect(validateImportedSettings({ customCosmeticRules: { "example.com": ".ad" } })).toBeNull();
   });
+
+  it("rejects a selector containing a closing brace (could inject a whole new CSS rule)", () => {
+    expect(
+      validateImportedSettings({ customCosmeticRules: { "example.com": [".ad{}body{display:none}"] } })
+    ).toBeNull();
+  });
+
+  it("rejects a selector containing an opening brace, angle bracket, or backtick", () => {
+    for (const selector of [".ad{color:red}", "<script>", "`evil`"]) {
+      expect(validateImportedSettings({ customGrayscaleRules: { "example.com": [selector] } })).toBeNull();
+    }
+  });
+
+  it("accepts real selector syntax that legitimately uses '>' and other punctuation", () => {
+    const patch = validateImportedSettings({ customCosmeticRules: { "example.com": ["div > .ad[data-x='1']:has(span)"] } });
+    expect(patch?.customCosmeticRules).toEqual({ "example.com": ["div > .ad[data-x='1']:has(span)"] });
+  });
+
+  it("rejects an empty-string selector", () => {
+    expect(validateImportedSettings({ customCosmeticRules: { "example.com": [""] } })).toBeNull();
+  });
+
+  it("rejects a selector longer than the length cap", () => {
+    expect(validateImportedSettings({ customCosmeticRules: { "example.com": ["a".repeat(5000)] } })).toBeNull();
+  });
+
+  it("rejects a customBlockedDomains array longer than the length cap", () => {
+    expect(validateImportedSettings({ customBlockedDomains: Array.from({ length: 5001 }, (_, i) => `d${i}.example`) })).toBeNull();
+  });
+
+  it("rejects an empty-string entry in a plain string array field", () => {
+    expect(validateImportedSettings({ disabledSites: [""] })).toBeNull();
+  });
 });
