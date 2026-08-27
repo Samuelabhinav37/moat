@@ -131,9 +131,14 @@ committed).
 
 ## Verdict
 
-- **Finding 1 (already-redundant rules) is a legitimate, zero-risk future cleanup** -- small
-  (1.86% of simple blocks, ~3,000 rules) but genuinely free. Worth a follow-up pass at some
-  point; not urgent on its own given the size.
+- **Finding 1 (already-redundant rules) is now automated.** `scripts/lib/pruneRedundantRules.mjs`
+  runs inside `scripts/update-filters.mjs` on every `npm run filters:update`, dropping
+  already-redundant rules from every non-security ruleset before they're chunked and shipped --
+  no behavior change by construction (a regression test asserts the pruned set blocks exactly the
+  same requests as the unpruned one), so this needed no follow-up decision, just implementation.
+  The real count on a given day depends on whatever AdGuard's upstream content looks like that
+  day (4,726 the day this was wired in -- more than this doc's original 3,011 sample, since the
+  underlying package had already moved on by then); re-run `filters:update` for a current number.
 - **Finding 2 (sibling-subdomain consolidation) is the more interesting number** (~4% of the
   scanned rule count) but is explicitly **not** being turned into an automatic build step by this
   spike -- it's a real behavior change (broadens blocking scope for hundreds of domains) that

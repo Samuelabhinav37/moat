@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import { chunkBySize } from "./lib/chunkBySize.mjs";
 import { resolveRedirectResource } from "./lib/redirectResources.mjs";
 import { extractRuleDomain, lookupCompany } from "./lib/ruleCompany.mjs";
+import { pruneRedundantRules } from "./lib/pruneRedundantRules.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -119,6 +120,28 @@ for (const ruleset of RULESETS) {
     }
   }
 
+  // Drop rules already fully redundant within this same ruleset -- a rule
+  // blocking "sub.example.com" blocks nothing an existing "example.com"
+  // rule (same resourceTypes) doesn't already cover, since declarativeNetRequest's
+  // "||" domain anchor matches every subdomain on its own. Verified as a
+  // real, zero-risk (no change in what's actually blocked) reduction via
+  // scripts/analysis/consolidation-audit.mjs; see
+  // docs/research/dnr-rule-consolidation-audit.md and pruneRedundantRules.mjs's
+  // own header for why this is scoped to non-security rulesets only --
+  // "security" rulesets block arbitrary hosted bad content, and the
+  // *domain-ownership* reasoning this prune relies on for ads/trackers
+  // doesn't apply the same way there (it doesn't create new blocking scope
+  // the way the riskier sibling-subdomain consolidation would, so this
+  // exclusion is about staying consistent with that reasoning, not a
+  // required safety boundary the way it is for Finding 2).
+  let redundantDropped = 0;
+  if (ruleset.category !== "security") {
+    const pruned = pruneRedundantRules(cleaned);
+    redundantDropped = pruned.droppedCount;
+    cleaned.length = 0;
+    cleaned.push(...pruned.kept);
+  }
+
   // Firefox's linter (the same one AMO's automated review runs) refuses to
   // parse any non-binary file over 5MB, which the base/tracking rulesets
   // blow past on their own. Split into same-sized-budget chunks so every
@@ -162,7 +185,8 @@ for (const ruleset of RULESETS) {
   });
 
   console.log(
-    `${ruleset.name}: ${cleaned.length}/${rawRules.length} rules kept across ${chunks.length} file(s)`
+    `${ruleset.name}: ${cleaned.length}/${rawRules.length} rules kept across ${chunks.length} file(s)` +
+      (redundantDropped > 0 ? ` (${redundantDropped} already-redundant rule(s) pruned)` : "")
   );
 }
 

@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.26
+
+### Added
+- **Already-redundant rules are now pruned automatically at build time.** `scripts/update-filters.mjs`
+  runs a new `scripts/lib/pruneRedundantRules.mjs` over every non-security ruleset: a rule
+  blocking `sub.example.com` is dropped when another rule in the same list already blocks an
+  ancestor domain (`example.com`) with an equal `resourceTypes` set, since `declarativeNetRequest`'s
+  own `||` domain anchor already matches every subdomain -- no change in what's actually blocked,
+  verified by a regression test asserting the pruned rule set blocks exactly the same sample
+  requests as the unpruned one. Automates Finding 1 from
+  `docs/research/dnr-rule-consolidation-audit.md`; today's run pruned 4,726 rules (271,262 shipped
+  total, down from ~276,000).
+
 ## 0.11.25
 
 ### Changed

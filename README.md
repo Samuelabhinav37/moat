@@ -538,8 +538,11 @@ network at all.
   by default for these reasons, on top of the general false-positive risk of matching by label
   rather than by a fixed selector.
 - **Chrome only guarantees 30,000 enabled static DNR rules per extension
-  (`GUARANTEED_MINIMUM_STATIC_RULES`); Moat ships 274,186 across its 18
-  rulesets.** Rules beyond that guaranteed floor come from a pool shared
+  (`GUARANTEED_MINIMUM_STATIC_RULES`); Moat ships roughly 271,000 across its 19
+  rulesets** (this exact number drifts with every `@adguard/dnr-rulesets` update --
+  see `npm run filters:update`'s own output for the current count; already-redundant
+  rules are pruned automatically at build time, see
+  `docs/research/dnr-rule-consolidation-audit.md`). Rules beyond that guaranteed floor come from a pool shared
   across every extension installed in the browser, so on a machine running
   several other rule-heavy ad blockers or privacy extensions -- or where
   that shared pool is simply small on its own -- some of Moat's filter
