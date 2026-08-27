@@ -138,6 +138,10 @@
   "optionsSyncToggleHint": {
     "message": "Mirrors your settings through your browser's own sync account. Off by default. Seeds a new install once; doesn't live-merge changes made on two devices at once."
   },
+  "optionsSyncStatusFailed": {
+    "message": "Couldn't sync your settings ($WHEN$) -- they may be too large for your browser's sync storage (custom rules and site lists count against it). Your settings are still saved locally either way.",
+    "placeholders": { "when": { "content": "$1" } }
+  },
   "optionsVersionPrefix": {
     "message": "v$VERSION$",
     "placeholders": { "version": { "content": "$1" } }

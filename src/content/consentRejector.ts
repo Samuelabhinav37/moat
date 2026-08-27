@@ -17,18 +17,17 @@
 // stops itself: either it successfully rejects something, or the time
 // budget below runs out.
 import browser from "webextension-polyfill";
-import { isDisabledHere } from "./siteDisabled";
+import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { buildCmps, runConsentRejection } from "./consent/engine";
 import type { RuleSet } from "./consent/types";
-import { STORAGE_KEY, type Settings } from "../types";
+import { STORAGE_KEY } from "../types";
 
 const MAX_WAIT_MS = 8000;
 const POLL_INTERVAL_MS = 300;
 
 async function isEnabled(): Promise<boolean> {
-  const stored = await browser.storage.local.get(STORAGE_KEY);
-  const settings = stored[STORAGE_KEY] as Partial<Settings> | undefined;
-  return (settings?.cookieBannerAutoReject ?? false) && !(await isDisabledHere());
+  const effective = await getEffectiveSettingsHere();
+  return effective.cookieBannerAutoReject && !isDisabled(effective);
 }
 
 async function fetchRuleSet(): Promise<RuleSet> {

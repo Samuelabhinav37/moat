@@ -18,24 +18,15 @@ import {
   shardIndicesForHostname,
   type CosmeticManifest,
 } from "./cosmeticSelectors";
-import { isDisabledHere } from "./siteDisabled";
-import { STORAGE_KEY, type Settings } from "../types";
+import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 
 async function fetchJson<T>(path: string): Promise<T> {
   return (await fetch(browser.runtime.getURL(path))).json() as Promise<T>;
 }
 
-async function loadCustomRuleMaps(): Promise<{ hide: Record<string, string[]>; gray: Record<string, string[]> }> {
-  // Direct storage read rather than importing background/settings.ts -- that
-  // module also pulls in the DNR/filter-group application logic this
-  // content script has no use for.
-  const stored = await browser.storage.local.get(STORAGE_KEY);
-  const settings = stored[STORAGE_KEY] as Partial<Settings> | undefined;
-  return { hide: settings?.customCosmeticRules ?? {}, gray: settings?.customGrayscaleRules ?? {} };
-}
-
 async function run(): Promise<void> {
-  if (await isDisabledHere()) return;
+  const effective = await getEffectiveSettingsHere();
+  if (isDisabled(effective)) return;
 
   const manifest = await fetchJson<CosmeticManifest>("rules/cosmetics-manifest.json");
   const bucketIndices = shardIndicesForHostname(location.hostname, manifest.bucketCount);
@@ -45,7 +36,7 @@ async function run(): Promise<void> {
   ]);
 
   const index = { generic: meta.generic, exceptions: meta.exceptions, perDomain: mergeDomainShards(shards) };
-  const customRules = await loadCustomRuleMaps();
+  const customRules = { hide: effective.customCosmeticRules, gray: effective.customGrayscaleRules };
   const genericSelectors = genericSelectorsForHostname(index, location.hostname);
   const domainSelectors = [
     ...domainSelectorsForHostname(index, location.hostname),

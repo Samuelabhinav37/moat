@@ -8,6 +8,30 @@ import { applyCnameUncloak } from "./cnameUncloak";
 import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
 import { exportSettings } from "./settingsPortability";
 
+// Deliberately a separate storage.local key, not part of Settings/STORAGE_KEY
+// -- it must never get swept into the blob that gets mirrored *to* sync
+// itself (that would be recording sync status inside the synced data).
+const SYNC_STATUS_KEY = "syncStatus";
+
+export interface SyncStatus {
+  ok: boolean;
+  when: number;
+}
+
+async function recordSyncStatus(ok: boolean): Promise<void> {
+  await browser.storage.local.set({ [SYNC_STATUS_KEY]: { ok, when: Date.now() } satisfies SyncStatus });
+}
+
+/** Whether the last opt-in sync mirror attempt succeeded -- null if sync has
+ * never been attempted on this install (never turned on, or turned on but
+ * no setting has changed since). See options.ts: only surfaced to the user
+ * when it's actually failed, same "stay quiet unless something's wrong"
+ * posture as the filter-budget warning. */
+export async function getSyncStatus(): Promise<SyncStatus | null> {
+  const stored = await browser.storage.local.get(SYNC_STATUS_KEY);
+  return (stored[SYNC_STATUS_KEY] as SyncStatus | undefined) ?? null;
+}
+
 export async function getSettings(): Promise<Settings> {
   const stored = await browser.storage.local.get(STORAGE_KEY);
   const value = stored[STORAGE_KEY] as Partial<Settings> | undefined;
@@ -51,9 +75,14 @@ function mutateSettings(mutator: (current: Settings) => Partial<Settings> | null
     if (next.syncEnabled) {
       // Best-effort, opt-in mirror -- a quota failure (storage.sync caps at
       // ~100KB total / ~8KB per item) just means sync silently doesn't
-      // happen for this install, same posture as everything else here that
-      // isn't user-visible until it's turned on.
-      void browser.storage.sync.set({ [STORAGE_KEY]: exportSettings(next) }).catch(() => {});
+      // happen for this install. Not silent to the user though: the result
+      // (ok or failed) is recorded via recordSyncStatus so options.ts can
+      // surface a failure -- see getSyncStatus's own comment for why this
+      // still doesn't block the mutation itself.
+      void browser.storage.sync
+        .set({ [STORAGE_KEY]: exportSettings(next) })
+        .then(() => recordSyncStatus(true))
+        .catch(() => recordSyncStatus(false));
     }
     await applyEffectiveSettings();
     return next;

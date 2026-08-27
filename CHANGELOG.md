@@ -3,6 +3,32 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.30
+
+### Fixed
+- **5 content scripts read the same settings blob twice per page load.** `cosmeticFilter.ts`,
+  `consentRejector.ts`, `leakedPasswordCheck.ts`, `feedAdScanner.ts`, and `youtubeAdDimmer.ts` each
+  independently called `browser.storage.local.get` for their own feature flag, then separately
+  called `isDisabledHere()` (via `siteDisabled.ts`), which did its own independent read of the exact
+  same key plus a managed-policy fetch. `siteDisabled.ts` now exposes a single
+  `getEffectiveSettingsHere()` that reads once and returns the full effective settings; all 5
+  scripts derive both their feature flag and the disabled-here check from that one read. Cuts each
+  script from 2 `storage.local` reads to 1, on the single most-executed code path in the extension.
+- **`npm run zip` had no exclusion filter**, so Chrome's own `_metadata/generated_indexed_rulesets/`
+  (written into `dist/<target>` the first time that build is loaded unpacked for local testing, not
+  produced by `npm run build`) would silently ship inside a Chrome Web Store submission zip if `zip`
+  were ever run without a preceding rebuild -- the same class of mistake that produced a
+  stale-version zip earlier in this project's history, caught only by manually inspecting the zip's
+  bundled manifest. `zip.mjs` now excludes `_metadata` explicitly and prints a non-fatal warning if
+  it finds that directory present, recommending a rebuild.
+- **Opt-in settings sync failed silently, with zero indication anywhere in the UI.**
+  `browser.storage.sync` caps at ~100KB total / ~8KB per item; a user with enough custom rules or
+  site-list entries could exceed that and never find out sync had stopped working, since the failure
+  was caught and swallowed with no status recorded. Sync attempts now record `{ok, when}` to a
+  dedicated (non-synced) storage key, and the options page shows a hint under the sync toggle when
+  the last attempt actually failed -- silent otherwise, same "only speak up when something's wrong"
+  posture as the filter-budget warning.
+
 ## 0.11.29
 
 ### Fixed

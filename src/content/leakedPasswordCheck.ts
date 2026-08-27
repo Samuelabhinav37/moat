@@ -13,14 +13,13 @@
 // handling elsewhere, just applied to a non-bubbling event (blur only
 // fires during the capture phase for delegation purposes, never bubble).
 import browser from "webextension-polyfill";
-import { isDisabledHere } from "./siteDisabled";
-import { STORAGE_KEY, type Settings } from "../types";
+import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
+import { STORAGE_KEY } from "../types";
 import { isSuffixInRangeResponse, sha1Hex, splitHashForRangeQuery } from "../shared/hibp";
 
 async function isEnabled(): Promise<boolean> {
-  const stored = await browser.storage.local.get(STORAGE_KEY);
-  const settings = stored[STORAGE_KEY] as Partial<Settings> | undefined;
-  return (settings?.leakedPasswordCheck ?? false) && !(await isDisabledHere());
+  const effective = await getEffectiveSettingsHere();
+  return effective.leakedPasswordCheck && !isDisabled(effective);
 }
 
 // Avoids re-querying HIBP for a value already checked on this page (e.g. a

@@ -18,8 +18,8 @@
 // this can stop matching without warning (Settings -> "Gray out
 // unblockable video ads").
 import browser from "webextension-polyfill";
-import { isDisabledHere } from "./siteDisabled";
-import { STORAGE_KEY, type Settings } from "../types";
+import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
+import { STORAGE_KEY } from "../types";
 
 const DIM_CLASS = "moat-ad-dim";
 const STYLE_ELEMENT_ID = "moat-yt-ad-dim-style";
@@ -27,9 +27,8 @@ const AD_STATE_CLASSES = ["ad-showing", "ad-interrupting"];
 const AD_MODULE_SELECTOR = ".ytp-ad-module";
 
 async function isEnabled(): Promise<boolean> {
-  const stored = await browser.storage.local.get(STORAGE_KEY);
-  const settings = stored[STORAGE_KEY] as Partial<Settings> | undefined;
-  return (settings?.grayscaleUnblockableAds ?? true) && !(await isDisabledHere());
+  const effective = await getEffectiveSettingsHere();
+  return effective.grayscaleUnblockableAds && !isDisabled(effective);
 }
 
 function ensureStyle(): void {

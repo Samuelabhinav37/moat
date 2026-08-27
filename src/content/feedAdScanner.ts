@@ -21,18 +21,17 @@
 // else, and continuous scanning has a real (if small) cost on pages this
 // mutation-heavy. Settings -> "Aggressively remove sponsored posts".
 import browser from "webextension-polyfill";
-import { isDisabledHere } from "./siteDisabled";
+import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { findAdContainer, isAdLabel } from "./feedAdLabel";
-import { STORAGE_KEY, type Settings } from "../types";
+import { STORAGE_KEY } from "../types";
 
 const HIDE_CLASS = "moat-feed-ad-hidden";
 const STYLE_ELEMENT_ID = "moat-feed-scanner-style";
 const SCAN_DELAY_MS = 200;
 
 async function isEnabled(): Promise<boolean> {
-  const stored = await browser.storage.local.get(STORAGE_KEY);
-  const settings = stored[STORAGE_KEY] as Partial<Settings> | undefined;
-  return (settings?.aggressiveFeedAdRemoval ?? false) && !(await isDisabledHere());
+  const effective = await getEffectiveSettingsHere();
+  return effective.aggressiveFeedAdRemoval && !isDisabled(effective);
 }
 
 function ensureStyle(): void {

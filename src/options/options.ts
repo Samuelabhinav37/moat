@@ -2,6 +2,7 @@ import browser from "webextension-polyfill";
 import {
   getEffectiveSettings,
   getSettings,
+  getSyncStatus,
   removeCustomCosmeticRule,
   removeGrayscaleRule,
   setSettings,
@@ -56,6 +57,7 @@ const consentRejectToggle = document.getElementById("consent-reject-toggle") as 
 const cnameUncloakToggle = document.getElementById("cname-uncloak-toggle") as HTMLInputElement;
 const leakedPasswordToggle = document.getElementById("leaked-password-toggle") as HTMLInputElement;
 const syncToggle = document.getElementById("sync-toggle") as HTMLInputElement;
+const syncStatus = document.getElementById("sync-status") as HTMLElement;
 const cnameUnsupportedHint = document.getElementById("cname-unsupported-hint") as HTMLElement;
 const liveStatus = document.getElementById("live-status") as HTMLElement;
 const siteList = document.getElementById("site-list") as HTMLUListElement;
@@ -89,6 +91,24 @@ function renderLiveStatus(status: Awaited<ReturnType<typeof getLiveUpdateStatus>
     ]);
   }
   liveStatus.textContent = text;
+}
+
+// Only ever shown when sync is on and the last attempt actually failed --
+// same "stay quiet unless something's wrong" posture as the filter-budget
+// warning. Silence otherwise means either sync is off, or it's working.
+function renderSyncStatus(syncEnabled: boolean, status: Awaited<ReturnType<typeof getSyncStatus>>): void {
+  if (!syncEnabled || !status || status.ok) {
+    syncStatus.hidden = true;
+    return;
+  }
+  const when = new Date(status.when).toLocaleString();
+  syncStatus.hidden = false;
+  syncStatus.textContent = tFallback(
+    "optionsSyncStatusFailed",
+    `Couldn't sync your settings (${when}) -- they may be too large for your browser's sync storage ` +
+      `(custom rules and site lists count against it). Your settings are still saved locally either way.`,
+    [when]
+  );
 }
 
 function normalizeHostname(input: string): string | null {
@@ -447,6 +467,7 @@ async function render(): Promise<void> {
   leakedPasswordToggle.checked = settings.leakedPasswordCheck;
 
   syncToggle.checked = settings.syncEnabled;
+  renderSyncStatus(settings.syncEnabled, await getSyncStatus());
 
   renderLiveStatus(await getLiveUpdateStatus());
 
