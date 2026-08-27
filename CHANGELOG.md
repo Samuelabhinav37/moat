@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.29
+
+### Fixed
+- **`PRIVACY.md` and the options page's About-tab privacy summary no longer match what Moat
+  actually does.** Found while assessing Chrome Web Store launch readiness: neither document
+  mentioned the leaked-password check (sends a 5-character hash prefix to Have I Been Pwned,
+  opt-in) or the quick-fixes live-update channel, and both overstated "everything stays local" now
+  that opt-in settings sync exists. Both documents now accurately disclose every case where Moat's
+  code talks to a network, what's sent, and that opt-in features go to a third party (HIBP) or the
+  user's own browser-vendor sync account -- never to Moat's developer. Added a direct link to the
+  full privacy policy from the About tab (previously only linked from the README).
+
 ## 0.11.28
 
 ### Fixed

@@ -526,11 +526,23 @@
           </p>
           <p>
             <strong>Filter Updates:</strong> Once a day, Moat pings GitHub to update its redirect
-            domain list. This is a standard network request and carries no browsing data.
+            domain list and check for any emergency filter fixes. This is a standard network
+            request and carries no browsing data.
           </p>
           <p>
             <strong>Fingerprinting:</strong> If "Reduce fingerprinting" is enabled, Moat generates
             a random local identifier to block trackers. This identifier is never transmitted.
+          </p>
+          <p>
+            <strong>Password-breach checking:</strong> If "Check passwords against known
+            breaches" is enabled, only the first 5 characters of a SHA-1 hash of a password you
+            type are ever sent, to Have I Been Pwned -- never the full hash or the password
+            itself, and never to Moat's developer. Off by default.
+          </p>
+          <p>
+            <strong>Settings sync:</strong> If "Sync settings" is enabled, your settings are
+            mirrored to your browser's own sync account (Google's for Chrome, Mozilla's for
+            Firefox) -- not a server Moat runs. Off by default.
           </p>
           <p id="managed-notice" hidden>
             <strong>Enterprise Notice:</strong> This installation is managed by your organization.
@@ -542,6 +554,7 @@
           <h3 data-i18n="optionsVersionHeading">Version details</h3>
           <p id="version-text">—</p>
           <div class="about-links">
+            <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener" data-i18n="optionsPrivacyPolicyLink">Full privacy policy</a>
             <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="optionsChangelogLink">Changelog</a>
             <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="optionsSourceCodeLink">Source code</a>
           </div>

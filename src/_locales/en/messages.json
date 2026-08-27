@@ -121,7 +121,7 @@
   "optionsAboutHeading": { "message": "About Moat" },
   "optionsPrivacyHeading": { "message": "Privacy" },
   "optionsPrivacyIntro": {
-    "message": "Everything on this page is stored locally in your browser and never leaves your device."
+    "message": "Everything on this page is stored locally in your browser. It's never sent to Moat's developer -- see the full privacy policy for the few opt-in features (password-breach checking, settings sync) that talk to anyone else."
   },
   "optionsVersionHeading": { "message": "Version details" },
   "optionsDebuggingHeading": { "message": "Debugging" },
@@ -129,6 +129,7 @@
   "optionsBackupIntro": {
     "message": "Save your settings to a file, or load a previously saved one. Your device's fingerprint-resistance identifier is never included."
   },
+  "optionsPrivacyPolicyLink": { "message": "Full privacy policy" },
   "optionsChangelogLink": { "message": "Changelog" },
   "optionsSourceCodeLink": { "message": "Source code" },
   "optionsExportButton": { "message": "Download settings" },
