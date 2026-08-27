@@ -140,12 +140,17 @@ committed).
   day (4,726 the day this was wired in -- more than this doc's original 3,011 sample, since the
   underlying package had already moved on by then); re-run `filters:update` for a current number.
 - **Finding 2 (sibling-subdomain consolidation) is the more interesting number** (~4% of the
-  scanned rule count) but is explicitly **not** being turned into an automatic build step by this
-  spike -- it's a real behavior change (broadens blocking scope for hundreds of domains) that
-  needs domain-ownership confirmation Moat doesn't currently have a source of truth for beyond
-  "AdGuard/EasyList wrote it this way." A future pass could cross-reference `@ghostery/trackerdb`
-  company data for the largest groups (`notifysrv.com`, `adobe.com`, etc.) as a confirmation
-  signal before ever auto-generating a consolidated rule.
+  scanned rule count) but stays explicitly **not** automated -- it's a real behavior change
+  (broadens blocking scope for hundreds of domains) that needs domain-ownership confirmation Moat
+  doesn't currently have a source of truth for beyond "AdGuard/EasyList wrote it this way."
+  `scripts/analysis/consolidation-candidates-reviewed.mjs` cross-references every candidate
+  group's registrable domain against `@ghostery/trackerdb` and lists only the ones confirmed to
+  belong to one known company -- 35 of ~727 candidate groups on the day this was built (`adobe.com`,
+  `apple.com`, `paypal.com`, `reddit.com`, etc.), the other 692 counted but deliberately not named
+  since "TrackerDB has no match" isn't evidence of safety either way. See
+  `docs/research/consolidation-candidates-reviewed.md` for the current list -- still nothing more
+  than a shortlist for a human to look at one domain at a time; the script never writes a
+  consolidated rule itself.
 - Neither finding, even combined (~5.9% reduction), meaningfully changes the rule-budget math
   from the "Lite" preset work -- Moat's rule count is dominated by breadth of coverage (188k+
   ads/tracker rules), not redundancy within it. This spike's conclusion is that consolidation is

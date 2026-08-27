@@ -45,60 +45,16 @@
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { fetchWithRetry } from "../lib/fetchWithRetry.mjs";
+import { loadPsl, registrableDomain } from "../lib/publicSuffixList.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const RULES_DIR = join(__dirname, "..", "..", "rules", "dnr");
-const PSL_URL = "https://publicsuffix.org/list/public_suffix_list.dat";
 
 // Rules in this many or more distinct registrable-domain siblings are
 // reported as a (b)-style consolidation candidate. Below this, the
 // per-review cost of manually confirming shared ownership isn't worth a
 // 2-3 rule saving.
 const SIBLING_THRESHOLD = 5;
-
-async function loadPsl() {
-  const response = await fetchWithRetry(PSL_URL);
-  const text = await response.text();
-  const rules = new Set();
-  const exceptions = new Set();
-  for (const rawLine of text.split("\n")) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("//")) continue;
-    if (line.startsWith("!")) exceptions.add(line.slice(1));
-    else rules.add(line);
-  }
-  return { rules, exceptions };
-}
-
-/** Standard PSL algorithm: longest matching suffix wins, exceptions override
- * at their exact label depth. Returns the suffix's label count. */
-function publicSuffixLabelCount(labels, psl) {
-  let best = 1; // implicit "*" rule: the last label alone, if nothing else matches
-  for (let i = 0; i < labels.length; i++) {
-    const candidateLabelCount = labels.length - i;
-    const candidate = labels.slice(i).join(".");
-    if (psl.exceptions.has(candidate)) return candidateLabelCount - 1;
-    if (psl.rules.has(candidate)) {
-      best = Math.max(best, candidateLabelCount);
-      continue;
-    }
-    const wildcardCandidate = "*." + labels.slice(i + 1).join(".");
-    if (i + 1 < labels.length && psl.rules.has(wildcardCandidate)) {
-      best = Math.max(best, candidateLabelCount);
-    }
-  }
-  return best;
-}
-
-/** Null when the domain IS its own public suffix (e.g. "co.uk", "github.io"
- * itself) -- not a registrable domain, deliberately excluded from grouping. */
-function registrableDomain(domain, psl) {
-  const labels = domain.split(".");
-  const suffixLabels = publicSuffixLabelCount(labels, psl);
-  if (labels.length <= suffixLabels) return null;
-  return labels.slice(labels.length - suffixLabels - 1).join(".");
-}
 
 const SIMPLE_BLOCK = /^\|\|([a-z0-9.-]+)\^$/;
 
@@ -188,7 +144,7 @@ function auditRuleset(file, rules, psl) {
 }
 
 async function main() {
-  console.log(`Fetching Public Suffix List from ${PSL_URL} ...`);
+  console.log(`Fetching Public Suffix List from publicsuffix.org ...`);
   const psl = await loadPsl();
   console.log(`Loaded ${psl.rules.size} suffix rules, ${psl.exceptions.size} exceptions.`);
 

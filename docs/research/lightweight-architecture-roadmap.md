@@ -105,26 +105,30 @@ one-line follow-up (`grep -c regexFilter rules/dnr/*.json`) rather than guessing
 
 ## 3. Turning the two spikes into real follow-up work
 
-Ranked by risk/effort, not by originally-written order:
+Ranked by risk/effort, not by originally-written order. **All four items below are now done**
+(v0.11.24-v0.11.26 plus one docs-only/ci-only commit each) -- kept as a record of the ordering
+actually used, not a still-open TODO list.
 
-1. **Add Dependabot/Renovate for `@adguard/dnr-rulesets`** (from the dead-rule-pruning spike).
-   Smallest, safest, most clearly justified by the verified 29-releases/~23-hours gap. A config
-   file + one CI check, no filtering-logic risk at all.
-2. **Automate Finding 1 from the consolidation spike** (drop already-redundant rules --
-   1.86% of simple blocks, zero behavior change by construction). Wire
-   `scripts/analysis/consolidation-audit.mjs`'s Finding-1 logic into `scripts/update-filters.mjs`
-   as a real post-processing step instead of a read-only report. Low risk *if* it ships with the
-   same regression-test discipline as the filterGroups drop-priority fix (a test asserting the
-   pruned rule set matches the same requests as the unpruned one on a fixed sample).
-3. **Section 2.1/2.2's fingerprint-cache + daily-alarm reclaim.** Runtime streamlining, not rule
-   data -- independent of 1 and 2, can land any time.
-4. **Finding 2 (risky consolidation) as a *reviewed*, not automatic, feature.** Cross-reference
-   the top candidate groups (`notifysrv.com`, `adobe.com`, etc.) against `@ghostery/trackerdb`'s
-   company data as a confidence signal, surface only the ones with a confirmed single-company
-   match as a manual "approve this consolidation" step somewhere (options page or a maintainer
-   script), never auto-applied. Highest effort of the four, and the one most worth *not* rushing.
+1. **Add Dependabot/Renovate for `@adguard/dnr-rulesets`** (from the dead-rule-pruning spike). ✅
+   Done: `.github/dependabot.yml`, daily schedule, scoped to just this one package.
+2. **Automate Finding 1 from the consolidation spike** (drop already-redundant rules). ✅ Done:
+   `scripts/lib/pruneRedundantRules.mjs`, wired into `scripts/update-filters.mjs`, with a
+   semantic-equivalence regression test (v0.11.26). 4,726 rules pruned on the day it landed.
+3. **Section 2.1/2.2's fingerprint-cache + daily-alarm reclaim.** ✅ Done (v0.11.25):
+   `applyFilterGroupState` now caches a fingerprint in `storage.session` and skips a redundant
+   `updateEnabledRulesets` call when nothing changed since the last fully-successful apply;
+   `liveUpdates.ts`'s existing daily alarm now also forces a real recheck, bypassing that cache,
+   to notice budget that changed for reasons outside Moat's own settings.
+4. **Finding 2 (risky consolidation) as a *reviewed*, not automatic, feature.** ✅ Done:
+   `scripts/analysis/consolidation-candidates-reviewed.mjs` cross-references every candidate
+   group against `@ghostery/trackerdb` and writes `docs/research/consolidation-candidates-reviewed.md`
+   -- 35 of ~727 candidates confirmed to a single company on the day it was built, the rest
+   deliberately left unnamed. Still nothing more than a list for a human to review one domain at
+   a time; nothing auto-applies a consolidated rule.
 
-None of these are started -- this section is the "how to work on this" ordering, not new commits.
+Also fixed alongside these, from section 4's security audit: `validateImportedSettings` now
+validates cosmetic-rule selector content (not just shape) and length-caps every imported
+array/record field (v0.11.24).
 
 ## 4. Security audit
 
