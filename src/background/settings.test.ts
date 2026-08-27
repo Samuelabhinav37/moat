@@ -78,7 +78,9 @@ const {
   addGrayscaleRule,
   removeGrayscaleRule,
   seedFromSyncIfEmpty,
+  applyFreshInstallDefaults,
 } = await import("./settings");
+const { PRESETS } = await import("../shared/filterPresets");
 
 beforeEach(async () => {
   await (browser.storage.local as unknown as { clear(): Promise<void> }).clear();
@@ -273,5 +275,31 @@ describe("seedFromSyncIfEmpty", () => {
   it("is a no-op when both local and sync are empty", async () => {
     await seedFromSyncIfEmpty();
     expect((await getSettings()).disabledSites).toEqual([]);
+  });
+});
+
+describe("applyFreshInstallDefaults", () => {
+  it("seeds the lite preset's filter groups when local is genuinely empty", async () => {
+    await applyFreshInstallDefaults();
+    expect((await getSettings()).filterGroups).toEqual(PRESETS.lite.filterGroups);
+  });
+
+  it("does nothing when local settings already exist (e.g. seedFromSyncIfEmpty already ran)", async () => {
+    await setSettings({ disabledSites: ["already-here.example.com"] });
+    await applyFreshInstallDefaults();
+    const settings = await getSettings();
+    expect(settings.filterGroups).toEqual({});
+    expect(settings.disabledSites).toEqual(["already-here.example.com"]);
+  });
+
+  it("respects settings seeded from sync, even though sync's own filterGroups is {}", async () => {
+    await (browser.storage.sync as unknown as { set(items: Record<string, unknown>): Promise<void> }).set({
+      settings: { disabledSites: ["synced.example.com"] }, // filterGroups absent -> defaults to {}
+    });
+    await seedFromSyncIfEmpty();
+    await applyFreshInstallDefaults();
+    const settings = await getSettings();
+    expect(settings.disabledSites).toEqual(["synced.example.com"]);
+    expect(settings.filterGroups).toEqual({}); // sync's value wins, not the lite defaults
   });
 });

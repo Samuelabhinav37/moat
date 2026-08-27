@@ -91,6 +91,7 @@
   "optionsFilterBudgetDroppedBadge": { "message": "Not active (rule budget)" },
   "optionsFilteringLevelTitle": { "message": "Filtering level" },
   "presetOff": { "message": "Off" },
+  "presetLite": { "message": "Lite" },
   "presetEssential": { "message": "Essential" },
   "presetStandard": { "message": "Standard" },
   "presetStrict": { "message": "Strict" },
@@ -142,6 +143,7 @@
   },
 
   "presetHintOff": { "message": "Nothing is blocked." },
+  "presetHintLite": { "message": "A lighter version of Essential -- leaves out the largest security list." },
   "presetHintEssential": { "message": "Ads, popups, and known-malicious sites only." },
   "presetHintStandard": { "message": "Standard level blocks ads, trackers, and known malicious sites." },
   "presetHintStrict": { "message": "Everything, plus the browser-wide privacy toggles above." },

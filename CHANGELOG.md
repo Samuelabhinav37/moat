@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.23
+
+### Added
+- **A fresh install now starts from a much smaller "Lite" filter preset instead of implicitly
+  enabling every filter group.** `filterGroups: {}` (the untouched default) reads as "every group
+  on" -- summing Moat's 11 bundled groups comes to roughly 276,000 rules, about 9x the 30,000
+  static rules Chrome guarantees any one extension, with the rest drawn from a budget shared across
+  every installed extension (see the graceful-degradation work in 0.11.19-0.11.22). A brand new
+  install now seeds `filterGroups` to the new "Lite" preset (~89,000 rules: Essential's ads/popup/
+  malware/scam coverage, minus the single largest security list) via
+  `browser.runtime.onInstalled`'s `details.reason === "install"` -- the one signal that
+  distinguishes a true fresh install from every later browser restart or extension update, which
+  are left untouched. Existing installs are unaffected; a synced settings copy from another device
+  (`seedFromSyncIfEmpty`) still takes priority over the new default when one exists. "Lite" is also
+  now a selectable preset in Settings alongside Off/Essential/Standard/Strict, not just an
+  install-time default.
+- Moved `filterPresets.ts` from `src/options/` to `src/shared/` (pure module, no browser APIs) --
+  the background bundle now needs it too, to apply the "Lite" preset on fresh installs.
+
 ## 0.11.22
 
 ### Fixed

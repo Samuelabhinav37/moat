@@ -11,7 +11,7 @@ import { getManagedPolicy, isLocked } from "../background/managedPolicy";
 import { getLiveUpdateStatus } from "../background/liveUpdates";
 import { getFilterGroupStatus } from "../background/filterGroups";
 import { isSupported as isCnameUncloakSupported } from "../background/cnameUncloak";
-import { detectPreset, presetPatch, type PresetName } from "./filterPresets";
+import { detectPreset, presetPatch, type PresetName } from "../shared/filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import type {
   ExportSettingsMessage,
@@ -160,6 +160,7 @@ const filterBudgetDetail = document.getElementById("filter-budget-detail") as HT
 // tFallback below) -- kept as one table so the two can't drift apart.
 const PRESET_HINTS: Record<PresetName | "custom", { key: string; fallback: string }> = {
   off: { key: "presetHintOff", fallback: "Nothing is blocked." },
+  lite: { key: "presetHintLite", fallback: "A lighter version of Essential -- leaves out the largest security list." },
   essential: { key: "presetHintEssential", fallback: "Ads, popups, and known-malicious sites only." },
   standard: { key: "presetHintStandard", fallback: "Standard level blocks ads, trackers, and known malicious sites." },
   strict: { key: "presetHintStrict", fallback: "Everything, plus the browser-wide privacy toggles above." },

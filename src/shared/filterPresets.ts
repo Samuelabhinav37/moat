@@ -1,5 +1,8 @@
-// Filtering-level presets shown at the top of the Filter Lists tab. Pure
-// module (no browser APIs) so it's directly unit-testable.
+// Filtering-level presets shown at the top of the Filter Lists tab, and
+// (lite only) applied automatically on a genuine fresh install -- see
+// background/settings.ts's applyFreshInstallDefaults(). Pure module (no
+// browser APIs) so it's directly unit-testable, and shared rather than
+// options-only since the background bundle needs "lite" too.
 import type { Settings } from "../types";
 
 export const ALL_TOGGLEABLE_GROUPS = [
@@ -18,6 +21,15 @@ export const ALL_TOGGLEABLE_GROUPS = [
 
 const SECURITY_AND_ADS = ["ads", "popups", "malicious-urls", "phishing-urls", "scam", "badware"];
 
+// Same as essential, minus phishing-urls (Moat's single largest security
+// list at ~64,600 rules). Not a hand-picked ideal blocklist -- it exists
+// purely to give a fresh install a smaller starting footprint (~89,000 rules
+// vs. essential's ~154,000, vs. every group on by default at ~276,000) so
+// it's less likely to blow past whatever's left of the browser's shared
+// static-rule budget (see README's Known Limitations section). Still real
+// ad+malware+scam blocking, just without the one list that costs the most.
+const LITE_GROUPS = SECURITY_AND_ADS.filter((group) => group !== "phishing-urls");
+
 interface PresetDefinition {
   filterGroups: Record<string, boolean>;
   webrtcLeakProtection: boolean;
@@ -29,7 +41,13 @@ function groupMap(onGroups: readonly string[]): Record<string, boolean> {
   return Object.fromEntries(ALL_TOGGLEABLE_GROUPS.map((group) => [group, onGroups.includes(group)]));
 }
 
-export const PRESETS: Record<"essential" | "standard" | "strict", PresetDefinition> = {
+export const PRESETS: Record<"lite" | "essential" | "standard" | "strict", PresetDefinition> = {
+  lite: {
+    filterGroups: groupMap(LITE_GROUPS),
+    webrtcLeakProtection: false,
+    blockThirdPartyCookies: false,
+    fingerprintResistance: false,
+  },
   essential: {
     filterGroups: groupMap(SECURITY_AND_ADS),
     webrtcLeakProtection: false,

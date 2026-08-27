@@ -58,7 +58,7 @@ badge count.
 - **Per-site pause + master switch** — no nag UI anywhere.
 - **Opt-in privacy toggles** — fingerprint resistance, third-party cookie blocking, and WebRTC
   leak protection, all off by default.
-- **Filtering levels** — Off / Essential / Standard / Strict presets, plus per-list control.
+- **Filtering levels** — Off / Lite / Essential / Standard / Strict presets, plus per-list control.
 - **Custom rules** — your own block and allow lists, on top of the bundled filter lists.
 - **Enterprise-managed policy** — push settings org-wide via Chrome's `ExtensionSettings` or
   Firefox's `policies.json`.
@@ -320,12 +320,14 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   startup); on the rare page load that races that call, this silently falls
   back to the permanent seed rather than failing (`src/content/bridge.ts`).
 - **Filtering levels + per-list control** — Settings' Filter Lists tab has a
-  preset picker (Off / Essential / Standard / Strict) and an on/off switch
-  for each of the 11 bundled lists, grouped by category. Toggling one
+  preset picker (Off / Lite / Essential / Standard / Strict) and an on/off
+  switch for each of the 11 bundled lists, grouped by category. Toggling one
   applies instantly via `declarativeNetRequest.updateEnabledRulesets` — no
   rebuild, no reinstall. Picking a preset that doesn't match your current
   switches shows as "Custom," the same way an OS power-plan picker detects
-  manual drift (`src/options/filterPresets.ts`).
+  manual drift (`src/shared/filterPresets.ts`). A genuinely fresh install
+  starts on Lite rather than the implicit "every group on" default — see
+  Known Limitations below for why.
 - **Custom rules** — the Custom Rules tab lets you block or allow-list
   specific sites yourself, applied as dynamic `declarativeNetRequest` rules
   (`src/background/customRules.ts`) in their own reserved id range so they
@@ -394,7 +396,7 @@ check), `background/redirectDomainMatch.ts` (the tab safety net's domain
 matcher), and `content/cosmeticSelectors.ts` (which selectors apply to a
 given hostname) — all thin wrappers imported by the files that actually
 register listeners or touch the DOM. Same pattern for the newer additions:
-`options/filterPresets.ts`, `background/filterGroupState.ts`,
+`shared/filterPresets.ts`, `background/filterGroupState.ts`,
 `background/managedPolicyMerge.ts`, and `shared/rulesetManifest.ts` are all
 pure and directly tested; `background/filterGroups.ts`,
 `background/applyCustomRules.ts`, and `background/managedPolicy.ts` are the
@@ -553,7 +555,13 @@ network at all.
   each affected list's own row gets a "Not active (rule budget)" badge --
   never a toggle silently shown as "on" while doing nothing. There is no way to
   raise the ceiling itself from within a single extension: the budget is a
-  browser-wide, cross-extension limit.
+  browser-wide, cross-extension limit. A genuinely fresh install (detected via
+  `browser.runtime.onInstalled`'s `details.reason === "install"`) now seeds the
+  much smaller "Lite" preset (~89,000 rules) instead of the implicit "every
+  group on" default (~276,000 rules) specifically to make hitting this ceiling
+  less likely from day one -- see `applyFreshInstallDefaults` in
+  `src/background/settings.ts`. It doesn't raise the ceiling either, and the
+  retry loop above still exists for whatever's left.
 - **`web-ext lint` warnings on the Firefox build are expected and benign:**
   one is a Firefox-for-Android version nuance from bumping
   `strict_min_version` to 140 for `data_collection_permissions` support; one

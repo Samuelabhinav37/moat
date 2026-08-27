@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
 import { DEFAULT_SETTINGS, STORAGE_KEY, type Settings } from "../types";
+import { PRESETS } from "../shared/filterPresets";
 import { applyPrivacySettings } from "./privacySettings";
 import { applyFilterGroupState } from "./filterGroups";
 import { applyCustomRules } from "./applyCustomRules";
@@ -79,6 +80,32 @@ export async function seedFromSyncIfEmpty(): Promise<void> {
     // storage.sync unavailable (sync disabled, no signed-in account, etc.) --
     // fine, stay on local defaults.
   }
+}
+
+/**
+ * Applied only on a genuine fresh install (browser.runtime.onInstalled's
+ * details.reason === "install" -- see background/index.ts), and only after
+ * seedFromSyncIfEmpty() has already had its chance to run first: if that
+ * seeded real settings from another synced device, storage.local is no
+ * longer empty by the time this runs, so this is a no-op and the synced
+ * settings win, exactly like every other "only if truly empty" check here.
+ *
+ * Otherwise, a brand new install starts from the "lite" preset instead of
+ * DEFAULT_SETTINGS' implicit filterGroups: {} (which effectiveFilterGroupState
+ * reads as "every group on"). Moat's bundled filter lists sum to roughly
+ * 276,000 rules across all 11 groups -- about 9x the 30,000 static rules
+ * Chrome guarantees any one extension, with the remainder drawn from a pool
+ * shared across every installed extension (see README's Known Limitations
+ * section, and applyFilterGroupState's graceful-degradation retry loop,
+ * which this doesn't replace -- it just gives that retry loop a much
+ * smaller number to start from on day one).
+ */
+export async function applyFreshInstallDefaults(): Promise<void> {
+  const local = await browser.storage.local.get(STORAGE_KEY);
+  if (STORAGE_KEY in local) return;
+  await browser.storage.local.set({
+    [STORAGE_KEY]: { ...DEFAULT_SETTINGS, filterGroups: PRESETS.lite.filterGroups },
+  });
 }
 
 export function setSettings(patch: Partial<Settings>): Promise<Settings> {

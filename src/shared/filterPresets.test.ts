@@ -28,6 +28,15 @@ describe("presetPatch", () => {
     expect(presetPatch("off")).toEqual({ enabled: false });
   });
 
+  it("lite enables essential's groups minus phishing-urls", () => {
+    const patch = presetPatch("lite");
+    expect(patch.enabled).toBe(true);
+    expect(patch.filterGroups?.ads).toBe(true);
+    expect(patch.filterGroups?.["malicious-urls"]).toBe(true);
+    expect(patch.filterGroups?.["phishing-urls"]).toBe(false);
+    expect(patch.filterGroups?.trackers).toBe(false);
+  });
+
   it("essential enables only ads/popups/security groups", () => {
     const patch = presetPatch("essential");
     expect(patch.enabled).toBe(true);

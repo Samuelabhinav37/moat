@@ -11,6 +11,7 @@ import {
 import {
   addCustomCosmeticRule,
   addGrayscaleRule,
+  applyFreshInstallDefaults,
   getEffectiveSettings,
   getSettings,
   isSiteDisabled,
@@ -52,15 +53,35 @@ void (browser.storage.session as unknown as SessionAccessArea)
   .catch(() => {
     // Older browser or API missing -- rotation silently falls back to the permanent seed.
   });
-// Note: not a top-level `await` -- this module is built as a Rollup `iife`
-// bundle (see scripts/build.mjs), which doesn't support it.
-void seedFromSyncIfEmpty().then(() => reapplySettings());
+// Shared by both call sites below. seedFromSyncIfEmpty/applyFreshInstallDefaults
+// each independently check "is storage.local genuinely still empty?" right
+// before writing, so calling this twice in a row (once from the
+// unconditional bootstrap below, once from onInstalled when it fires) is
+// safe -- whichever runs first wins, and the other becomes a no-op. What
+// matters is the ORDER *within* one call: seed-from-sync must get its
+// chance before the fresh-install lite defaults do, so a real synced
+// settings copy from another device always wins over the generic default.
+async function initializeSettings(reason?: Runtime.OnInstalledReason): Promise<void> {
+  await seedFromSyncIfEmpty();
+  if (reason === "install") await applyFreshInstallDefaults();
+  await reapplySettings();
+}
 
-// Fires on both "install" and "update" -- on a fresh install this only
-// records the baseline version (there's nothing to compare against yet, so
-// no notice), which is exactly what lets the *next* real update be detected.
-browser.runtime.onInstalled.addListener(() => {
+// Note: not a top-level `await` -- this module is built as a Rollup `iife`
+// bundle (see scripts/build.mjs), which doesn't support it. No reason here --
+// this path covers ordinary service-worker wake-ups (browser restart, SW
+// idle timeout) where onInstalled never fires at all.
+void initializeSettings();
+
+// Fires on "install", "update", and "browser_update". On a fresh install
+// this both records the baseline version (there's nothing to compare
+// against yet, so no notice -- which is exactly what lets the *next* real
+// update be detected) and seeds the smaller "lite" filter-group defaults;
+// on every other reason, initializeSettings behaves the same as the
+// unconditional call above.
+browser.runtime.onInstalled.addListener((details) => {
   void recordUpdateSeen();
+  void initializeSettings(details.reason);
 });
 
 // An admin can push/change managed policy at any point during a session
