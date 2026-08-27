@@ -4,5 +4,8 @@ rules/dnr/
 rules/redirect-resources/
 coverage/
 *.zip
+# Scratch output from throwaway analysis scripts (scripts/analysis/*.mjs) --
+# reproducible by re-running the script, not meant to be committed.
+scripts/analysis/*-results.json
 .DS_Store
 .claude/
