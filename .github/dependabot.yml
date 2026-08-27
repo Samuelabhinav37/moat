@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # @adguard/dnr-rulesets publishes continuously (dozens of releases a day
+  # across its major-version lines) and is the source of Moat's bundled
+  # filter data (see scripts/update-filters.mjs) -- but nothing previously
+  # advanced it beyond whatever was installed the one time someone ran
+  # `npm install`/`npm update` by hand. Verified live during the
+  # lightweight-architecture audit: the pinned version was 29 releases and
+  # ~23 hours behind the newest release in its own major line. Every
+  # release potentially carries upstream rule fixes/pruning (see
+  # docs/research/dead-rule-pruning-feasibility.md) that Moat wasn't
+  # getting until someone happened to bump it manually.
+  #
+  # Scoped to just this one package (not every npm dependency) -- this is
+  # specifically closing the cadence gap that package's own publish
+  # frequency creates, not a general "keep everything current" policy.
+  # CI (.github/workflows/ci.yml) already runs `npm run filters:update` on
+  # every pull_request, including Dependabot's own PRs, so a bump that
+  # breaks the filter-generation pipeline fails CI before it can merge.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-name: "@adguard/dnr-rulesets"
+    open-pull-requests-limit: 1
+    commit-message:
+      prefix: "chore(deps)"
