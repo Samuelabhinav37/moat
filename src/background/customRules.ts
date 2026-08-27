@@ -17,10 +17,34 @@ export const MAX_CUSTOM_RULES_PER_LIST = 1000;
 // not just the bad one.
 const HOSTNAME_PATTERN = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
 
+/**
+ * ASCII-only after this: an internationalized domain typed as-is (e.g.
+ * "münchen.de") would otherwise fail HOSTNAME_PATTERN outright and be
+ * silently dropped, even though it's a perfectly real, valid domain --
+ * `urlFilter` needs the same punycode form a real request's hostname is
+ * always normalized to anyway. `URL`'s own host parser already does this
+ * IDNA conversion (plus lowercasing) as a side effect of parsing; building
+ * with a throwaway scheme and then checking nothing besides a bare host
+ * came along for the ride (a path, port, credentials) keeps this from
+ * silently *accepting* more than HOSTNAME_PATTERN already would have --
+ * "https://b.com/path" or "example.com:8080" must still be rejected, the
+ * same way they always were, not have their extra parts quietly stripped.
+ */
+function toAsciiHostname(input: string): string | null {
+  try {
+    const url = new URL(`http://${input}`);
+    if (url.pathname !== "/" || url.port || url.username || url.password || url.search || url.hash) return null;
+    return url.hostname;
+  } catch {
+    return null;
+  }
+}
+
 function filterValidDomains(domains: string[]): string[] {
   const valid: string[] = [];
   for (const domain of domains) {
-    if (HOSTNAME_PATTERN.test(domain)) valid.push(domain);
+    const ascii = toAsciiHostname(domain);
+    if (ascii && HOSTNAME_PATTERN.test(ascii)) valid.push(ascii);
     else console.warn(`Moat: skipping malformed custom-rule domain "${domain}"`);
   }
   return valid;

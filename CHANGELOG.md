@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.28
+
+### Fixed
+- **An internationalized custom-rule domain (e.g. `münchen.de`) was silently rejected.**
+  `customRules.ts`'s hostname validation is ASCII-only by construction (it gets interpolated
+  straight into a DNR `urlFilter`), so any non-ASCII domain failed outright with no visible
+  feedback beyond a `console.warn` in the background service worker's own console -- invisible to
+  a real user, who'd just see their custom block/allow rule for a real domain silently not exist.
+  Domains are now run through the `URL` API's own host parser first, which performs the same
+  IDNA-to-punycode conversion a real request's hostname is normalized to anyway (`münchen.de` ->
+  `xn--mnchen-3ya.de`). Guarded so this can't accept more than the old check did -- a domain with
+  a path, port, or credentials attached is still rejected exactly as before.
+
 ## 0.11.27
 
 ### Fixed

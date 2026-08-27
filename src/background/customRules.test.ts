@@ -33,6 +33,17 @@ describe("buildCustomBlockRules", () => {
     const rules = buildCustomBlockRules(["a.com", "not a domain", "https://b.com/path", "", "c.com"]);
     expect(rules.map((r) => r.condition.urlFilter)).toEqual(["||a.com^", "||c.com^"]);
   });
+
+  it("still rejects a domain with a port, path, or credentials attached", () => {
+    const rules = buildCustomBlockRules(["example.com:8080", "example.com/path", "user@example.com"]);
+    expect(rules).toHaveLength(0);
+  });
+
+  it("converts an internationalized domain to its punycode form instead of dropping it", () => {
+    const rules = buildCustomBlockRules(["münchen.de"]);
+    expect(rules).toHaveLength(1);
+    expect(rules[0]?.condition.urlFilter).toBe("||xn--mnchen-3ya.de^");
+  });
 });
 
 describe("buildCustomAllowRules", () => {
