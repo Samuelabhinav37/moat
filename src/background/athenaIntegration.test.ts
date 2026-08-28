@@ -27,6 +27,7 @@ vi.mock("webextension-polyfill", () => {
 
 const CONFIG: AthenaConfig = {
   tenantId: "acme",
+  agentId: "00000000-0000-4000-8000-000000000001",
   bootstrapUrl: "https://athena.acme.example/bootstrap",
   bootstrapSecret: "s3cret",
   eventsUrl: "https://athena.acme.example/events",
@@ -52,13 +53,18 @@ describe("isAthenaConfigured", () => {
   it("is true when every required field is present", () => {
     expect(isAthenaConfigured(CONFIGURED_POLICY)).toBe(true);
   });
+
+  it("is false when bootstrapUrl or eventsUrl isn't https (a misconfigured http:// endpoint would leak the secret/token)", () => {
+    expect(isAthenaConfigured({ athena: { ...CONFIG, bootstrapUrl: "http://athena.acme.example/bootstrap" } })).toBe(false);
+    expect(isAthenaConfigured({ athena: { ...CONFIG, eventsUrl: "http://athena.acme.example/events" } })).toBe(false);
+  });
 });
 
 describe("getAthenaSession", () => {
   it("exchanges the bootstrap secret for a token on first call", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ token: "tok-1", expiresAt: Date.now() + 3_600_000 }),
+      json: () => Promise.resolve({ access_token: "tok-1", expires_at: new Date(Date.now() + 3_600_000).toISOString() }),
     });
     vi.stubGlobal("fetch", fetchMock);
 
@@ -68,7 +74,7 @@ describe("getAthenaSession", () => {
       CONFIG.bootstrapUrl,
       expect.objectContaining({
         method: "POST",
-        body: JSON.stringify({ tenantId: CONFIG.tenantId, secret: CONFIG.bootstrapSecret }),
+        body: JSON.stringify({ tenant_id: CONFIG.tenantId, agent_id: CONFIG.agentId, enrollment_secret: CONFIG.bootstrapSecret }),
       })
     );
   });
@@ -76,7 +82,7 @@ describe("getAthenaSession", () => {
   it("reuses a cached, still-valid session instead of re-fetching", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ token: "tok-2", expiresAt: Date.now() + 3_600_000 }),
+      json: () => Promise.resolve({ access_token: "tok-2", expires_at: new Date(Date.now() + 3_600_000).toISOString() }),
     });
     vi.stubGlobal("fetch", fetchMock);
 
@@ -88,8 +94,8 @@ describe("getAthenaSession", () => {
   it("re-fetches once the cached session is within the expiry buffer", async () => {
     const fetchMock = vi
       .fn()
-      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ token: "tok-3", expiresAt: Date.now() + 1_000 }) })
-      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ token: "tok-4", expiresAt: Date.now() + 3_600_000 }) });
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ access_token: "tok-3", expires_at: new Date(Date.now() + 1_000).toISOString() }) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ access_token: "tok-4", expires_at: new Date(Date.now() + 3_600_000).toISOString() }) });
     vi.stubGlobal("fetch", fetchMock);
 
     const first = await getAthenaSession(CONFIG);
@@ -130,7 +136,7 @@ describe("queueSecurityEvent / flushSecurityEvents", () => {
     };
     const fetchMock = vi.fn().mockImplementation((url: string) => {
       if (url === policy.athena!.bootstrapUrl) {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({ token: "tok", expiresAt: Date.now() + 3_600_000 }) });
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ access_token: "tok", expires_at: new Date(Date.now() + 3_600_000).toISOString() }) });
       }
       return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     });
@@ -144,9 +150,8 @@ describe("queueSecurityEvent / flushSecurityEvents", () => {
     expect(eventsCall).toBeDefined();
     const [, init] = eventsCall as [string, RequestInit];
     expect((init.headers as Record<string, string>).authorization).toBe("Bearer tok");
-    const body = JSON.parse(init.body as string) as { tenantId: string; events: unknown[] };
-    expect(body.tenantId).toBe("acme-flush-1");
-    expect(body.events).toHaveLength(2);
+    const body = JSON.parse(init.body as string) as { source_event_id: string };
+    expect(body.source_event_id).toBeTruthy();
   });
 
   it("keeps the queue for the next attempt when the flush POST fails", async () => {
@@ -155,7 +160,7 @@ describe("queueSecurityEvent / flushSecurityEvents", () => {
     };
     const fetchMock = vi.fn().mockImplementation((url: string) => {
       if (url === policy.athena!.bootstrapUrl) {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({ token: "tok", expiresAt: Date.now() + 3_600_000 }) });
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ access_token: "tok", expires_at: new Date(Date.now() + 3_600_000).toISOString() }) });
       }
       return Promise.resolve({ ok: false, json: () => Promise.resolve({}) });
     });

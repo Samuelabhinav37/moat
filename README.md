@@ -513,9 +513,12 @@ Add an `athena` object (see `src/managed_schema.json`) to the same managed polic
 "policy": {
   "athena": {
     "tenantId": "acme",
-    "bootstrapUrl": "https://athena.acme.example/v1/moat/bootstrap",
+    "agentId": "<agent id returned by Athena enrollment>",
+    "bootstrapUrl": "https://athena.acme.example/v1/security/agent-token",
     "bootstrapSecret": "<provisioned by your Athena deployment, scoped to this org only>",
-    "eventsUrl": "https://athena.acme.example/v1/moat/events"
+    "eventsUrl": "https://athena.acme.example/v1/security/events",
+    "policyUrl": "https://athena.acme.example/v1/security/policies/latest",
+    "policyPublicKey": { "kty": "OKP", "crv": "Ed25519", "x": "<base64url key>" }
   }
 }
 ```
@@ -523,7 +526,7 @@ Add an `athena` object (see `src/managed_schema.json`) to the same managed polic
 Once present, `src/background/athenaIntegration.ts` exchanges `bootstrapSecret` for a short-lived
 session token (cached in `browser.storage.session` — in-memory, never `local`/`sync`, the same
 pattern already used for the per-session fingerprint-rotation seed), and every five minutes flushes
-a batch of minimized security events: one for each request already blocked by the
+the bounded local queue as individual idempotent security events: one for each request already blocked by the
 malicious-urls/phishing-urls/scam/badware filter lists specifically (not ordinary ads/trackers,
 which never generate an event), and one for each popup/redirect-firewall catch (the one source that
 also works on Firefox, where `getMatchedRules` doesn't exist). Every event carries a category, a
@@ -532,11 +535,10 @@ never the URL, page content, or browsing history involved. Blocking itself never
 this: by the time an event is queued, the block it describes has already happened locally, and a
 flush failure (Athena unreachable) just leaves the queue for the next attempt.
 
-**What this doesn't do yet:** Athena doesn't currently expose the `bootstrapUrl`/`eventsUrl`
-endpoints this code calls — that's separate, not-yet-built work on Athena's own side. Nothing is
-sent anywhere until both sides exist. Signed policy distribution *back* to Moat (org-pushed
-blocklists/thresholds beyond the bundled filter lists) and the blocked-page warning interstitial
-with a logged override are also not built yet.
+Athena now exposes the enrollment, token, event, and policy endpoints above. Policy artifacts are
+verified with the managed Ed25519 public key before Moat changes dynamic rules; invalid or
+unreachable updates retain the last-known-good rules. Athena-sourced blocks use a separate warning
+page and a reported mistake remains an audited request rather than an immediate local bypass.
 
 ## Permissions
 

@@ -26,11 +26,15 @@ import { initPopupGuard } from "./popupGuard";
 import { initLiveUpdates } from "./liveUpdates";
 import { getManagedPolicy } from "./managedPolicy";
 import { initAthenaIntegration, queueSecurityEvent } from "./athenaIntegration";
+import { isPolicyBlockedHostname } from "./athenaPolicySync";
+import { forgetTab as forgetBlockReasonTab, getBlockedHostname, recordBlockedHostname } from "./athenaBlockReason";
+import { safeHostname } from "./redirectDomainMatch";
 import { forgetTab as forgetLoggerTab, getEntries as getLoggedEntries, initRuleLogger, isSupported as isLoggerSupported } from "./ruleLogger";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import { summarizeFilterLists } from "../shared/rulesetManifest";
 import { effectiveFilterGroupState } from "./filterGroupState";
 import type {
+  AthenaBlockReasonResponse,
   ImportSettingsResponse,
   LogEntriesResponse,
   ReportContextResponse,
@@ -107,10 +111,23 @@ browser.commands.onCommand.addListener((command) => {
 browser.tabs.onRemoved.addListener((tabId) => {
   forgetTab(tabId);
   forgetLoggerTab(tabId);
+  forgetBlockReasonTab(tabId);
 });
 
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId === 0) resetForNavigation(details.tabId);
+});
+
+// Fires with the ORIGINAL requested URL, before declarativeNetRequest's
+// redirect (see athenaPolicyRules.ts) ever resolves -- the one point where
+// the extension can still see what a tab was actually trying to reach.
+// isPolicyBlockedHostname is a plain in-memory Set lookup (see
+// athenaPolicySync.ts), so this is cheap on every normal install too, where
+// the set is always empty and this always no-ops.
+browser.webNavigation.onBeforeNavigate.addListener((details) => {
+  if (details.frameId !== 0) return;
+  const hostname = safeHostname(details.url);
+  if (hostname && isPolicyBlockedHostname(hostname)) recordBlockedHostname(details.tabId, hostname);
 });
 
 // Static ads/trackers/popups counts come from declarativeNetRequest's own
@@ -139,6 +156,11 @@ function isRuntimeMessage(value: unknown): value is RuntimeMessage {
 // itself shouldn't -- a compact, independent check at this boundary so it
 // stays safe against any future sender, not just the current one.
 const MAX_MESSAGE_STRING_LENGTH = 2000;
+// Deliberately smaller than the general cap above: this is the one message
+// carrying free text a user typed, headed to an org's Athena instance (see
+// the "override" case below) -- capped independently rather than just
+// reusing the general limit.
+const MAX_OVERRIDE_REASON_LENGTH = 500;
 
 function isValidMessageString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0 && value.length <= MAX_MESSAGE_STRING_LENGTH;
@@ -244,6 +266,29 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
           entries: tab?.id !== undefined ? getLoggedEntries(tab.id) : [],
         };
       })();
+    }
+
+    case "get-athena-block-reason": {
+      return (async (): Promise<AthenaBlockReasonResponse> => ({
+        hostname: sender.tab?.id !== undefined ? getBlockedHostname(sender.tab.id) : null,
+      }))();
+    }
+
+    case "report-athena-override": {
+      // Logged, not an instant local unblock -- see warning.ts's own
+      // comment and the README's Athena-integration section for why: an
+      // org's Athena instance reviewing and re-pushing an updated policy is
+      // the actual mechanism that lifts a block, matching Athena's own
+      // "a human approves" governing rule rather than a self-service bypass.
+      if (typeof message.reason !== "string" || message.reason.length === 0 || message.reason.length > MAX_OVERRIDE_REASON_LENGTH) {
+        return undefined;
+      }
+      if (sender.tab?.id === undefined) return undefined;
+      const hostname = getBlockedHostname(sender.tab.id);
+      if (!hostname) return undefined;
+      return getManagedPolicy().then((policy) =>
+        queueSecurityEvent(policy, { category: "override", riskTier: "low", domain: hostname, note: message.reason })
+      );
     }
 
     default:

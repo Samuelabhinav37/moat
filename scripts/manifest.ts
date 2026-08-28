@@ -87,6 +87,15 @@ function baseManifest() {
         resources: ["web-accessible-resources/redirects/*"],
         matches: ["<all_urls>"],
       },
+      {
+        // Only reachable at all when an org's Athena-pushed policy names a
+        // blocked domain (see athenaPolicyRules.ts) -- declarativeNetRequest
+        // redirects require their extensionPath target to be listed here
+        // even for a main_frame navigation, or Chrome blocks the redirect
+        // outright.
+        resources: ["warning.html"],
+        matches: ["<all_urls>"],
+      },
     ],
     content_scripts: [
       {

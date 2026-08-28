@@ -241,6 +241,25 @@ export interface LogEntriesResponse {
   entries: LoggedMatch[];
 }
 
+/** Sent by warning.ts on load -- only ever reachable at all when an org's
+ * Athena-pushed policy named the domain that redirected here, so this is
+ * never exercised on a normal install. */
+export interface GetAthenaBlockReasonMessage {
+  type: "get-athena-block-reason";
+}
+
+export interface AthenaBlockReasonResponse {
+  /** Null if the sending tab has no recorded reason -- e.g. warning.html
+   * opened directly rather than via an actual policy redirect. The page
+   * shows a generic message rather than guessing a hostname in that case. */
+  hostname: string | null;
+}
+
+export interface ReportAthenaOverrideMessage {
+  type: "report-athena-override";
+  reason: string;
+}
+
 export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
@@ -253,7 +272,9 @@ export type RuntimeMessage =
   | ImportSettingsMessage
   | GetUiNoticesMessage
   | DismissUpdateNoticeMessage
-  | DismissOnboardingMessage;
+  | DismissOnboardingMessage
+  | GetAthenaBlockReasonMessage
+  | ReportAthenaOverrideMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the
@@ -300,6 +321,8 @@ export interface AthenaConfig {
   /** Identifies this org's data to a multi-tenant Athena instance; never
    * used to look anything up locally. */
   tenantId: string;
+  /** Immutable Athena security_agents identifier returned during enrollment. */
+  agentId: string;
   /** POSTed to once (or again after the returned token expires) with
    * { tenantId, secret } to exchange bootstrapSecret for a short-lived
    * session token -- see athenaIntegration.ts. Never Moat's own domain. */
@@ -312,6 +335,45 @@ export interface AthenaConfig {
   /** Where minimized security events (see AthenaSecurityEvent) are POSTed,
    * batched, using the session token from the exchange above. */
   eventsUrl: string;
+  /**
+   * Optional -- policy distribution (org-pushed blocked domains beyond the
+   * bundled filter lists) only runs when BOTH this and policyPublicKey are
+   * set; event reporting above works independently of these two. Fetched
+   * on the same interval as the event flush -- see athenaPolicySync.ts.
+   */
+  policyUrl?: string;
+  /**
+   * Optional, paired with policyUrl. An Ed25519 public key (JWK) used
+   * to verify every fetched policy artifact's signature before it's ever
+   * trusted -- see shared/athenaPolicySignature.ts. A fetch that fails
+   * signature verification is discarded outright; whatever policy was
+   * last successfully verified stays active, the same fail-safe posture
+   * liveUpdates.ts already has for an unreachable/malformed daily fetch.
+   */
+  policyPublicKey?: JsonWebKey;
+}
+
+/**
+ * What policyUrl serves, once its envelope's signature verifies. Kept
+ * intentionally narrow -- block-only, domain-shaped -- for the same reason
+ * quickFixRules.ts's remote channel is narrow: this is fetched content an
+ * org's own Athena deployment controls, not Moat's, and a payload shape
+ * that could redirect traffic to an arbitrary target is not a risk worth
+ * taking for what this channel is for.
+ */
+export interface AthenaPolicyArtifact {
+  version: number;
+  issuedAt: number;
+  blockedDomains: string[];
+}
+
+/** The envelope actually fetched from policyUrl: `payload` is the exact,
+ * verbatim JSON-stringified AthenaPolicyArtifact the signature was computed
+ * over (a string, not a parsed object, so there's no ambiguity about which
+ * bytes were signed), and `signature` is that ECDSA signature, base64. */
+export interface SignedAthenaPolicy {
+  payload: string;
+  signature: string;
 }
 
 /**
@@ -329,11 +391,16 @@ export interface AthenaSecurityEvent {
    * scam/badware filter groups specifically -- not ordinary ad/tracker
    * blocking, which never generates an event. "popup-redirect" is the
    * background tab-safety-net closing a hijacked tab -- the one source that
-   * also works on Firefox, where getMatchedRules doesn't exist. */
-  category: "security-rule" | "popup-redirect";
+   * also works on Firefox, where getMatchedRules doesn't exist. "override"
+   * is a user clicking through the warning interstitial (see warning.ts)
+   * for a domain blocked by an Athena-pushed policy specifically -- never
+   * generated for the bundled consumer filter lists, which don't show that
+   * page at all. */
+  category: "security-rule" | "popup-redirect" | "override";
   /** "high" for malicious-urls/phishing-urls/scam, "medium" for badware
-   * (see shared/securityRuleCategories.ts), "medium" for popup-redirect. */
-  riskTier: "high" | "medium";
+   * (see shared/securityRuleCategories.ts) or popup-redirect, "low" for an
+   * override (a human decision, not a detection). */
+  riskTier: "high" | "medium" | "low";
   /** Opaque identifiers into the bundled ruleset that matched, not the
    * domain itself -- resolving these to an actual hostname is a real
    * follow-up (see planning notes), deliberately not done yet: it would
@@ -343,4 +410,18 @@ export interface AthenaSecurityEvent {
    * data Athena would need to already have out-of-band. */
   rulesetId?: string;
   ruleId?: number;
+  /**
+   * The one place free text can reach this event -- only ever set by a
+   * user's own typed reason on the warning interstitial's "Report mistake"
+   * override, length-capped there. Absent on every other category.
+   */
+  note?: string;
+  /**
+   * Only set for category "override" -- unlike rulesetId/ruleId above, this
+   * is safe to include as a real hostname rather than an opaque reference:
+   * it's a domain the org's own Athena instance already named in its policy
+   * artifact (see AthenaPolicyArtifact.blockedDomains), not anything new
+   * being disclosed to it.
+   */
+  domain?: string;
 }

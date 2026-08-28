@@ -14,12 +14,17 @@
 // itself never waits on any of this: by the time an event reaches this
 // module, the thing it describes has already happened locally.
 import browser from "webextension-polyfill";
+import { fetchAndApplyPolicy } from "./athenaPolicySync";
+import { isHttpsUrl } from "../shared/httpsUrl";
 import type { AthenaConfig, AthenaSecurityEvent, ManagedPolicy } from "../types";
 
 export function isAthenaConfigured(policy: ManagedPolicy): policy is ManagedPolicy & { athena: AthenaConfig } {
   const athena = policy.athena;
   if (!athena) return false;
-  return Boolean(athena.tenantId && athena.bootstrapUrl && athena.bootstrapSecret && athena.eventsUrl);
+  if (!athena.tenantId || !athena.agentId || !athena.bootstrapSecret) return false;
+  // A misconfigured http:// endpoint would send bootstrapSecret and the
+  // resulting session token in cleartext -- see shared/httpsUrl.ts.
+  return isHttpsUrl(athena.bootstrapUrl) && isHttpsUrl(athena.eventsUrl);
 }
 
 interface AthenaSession {
@@ -68,19 +73,25 @@ export async function getAthenaSession(config: AthenaConfig): Promise<AthenaSess
     const response = await fetch(config.bootstrapUrl, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ tenantId: config.tenantId, secret: config.bootstrapSecret }),
+      body: JSON.stringify({
+        tenant_id: config.tenantId,
+        agent_id: config.agentId,
+        enrollment_secret: config.bootstrapSecret,
+      }),
     });
     if (!response.ok) return null;
     const body = (await response.json()) as unknown;
     if (
       typeof body !== "object" ||
       body === null ||
-      typeof (body as { token?: unknown }).token !== "string" ||
-      typeof (body as { expiresAt?: unknown }).expiresAt !== "number"
+      typeof (body as { access_token?: unknown }).access_token !== "string" ||
+      typeof (body as { expires_at?: unknown }).expires_at !== "string"
     ) {
       return null;
     }
-    const session: AthenaSession = { token: (body as { token: string }).token, expiresAt: (body as { expiresAt: number }).expiresAt };
+    const expiresAt = Date.parse((body as { expires_at: string }).expires_at);
+    if (!Number.isFinite(expiresAt)) return null;
+    const session: AthenaSession = { token: (body as { access_token: string }).access_token, expiresAt };
     await browser.storage.session.set({ [SESSION_KEY]: session });
     return session;
   } catch {
@@ -119,13 +130,28 @@ export async function flushSecurityEvents(policy: ManagedPolicy): Promise<void> 
   if (!session) return; // Leave the queue intact -- retried on the next alarm tick.
 
   try {
-    const response = await fetch(policy.athena.eventsUrl, {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${session.token}` },
-      body: JSON.stringify({ tenantId: policy.athena.tenantId, events: queue }),
-    });
-    if (response.ok) await browser.storage.session.set({ [QUEUE_KEY]: [] });
-    // A non-ok response leaves the queue as-is for the next attempt.
+    let sent = 0;
+    for (const event of queue) {
+      const response = await fetch(policy.athena.eventsUrl, {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${session.token}` },
+        body: JSON.stringify({
+          source_event_id: event.eventId,
+          occurred_at: new Date(event.timestamp).toISOString(),
+          action: event.category === "override" ? "allowed_override" : "blocked",
+          severity: event.riskTier,
+          rule_id: event.rulesetId ? `${event.rulesetId}:${event.ruleId ?? "unknown"}` : event.category,
+          target_indicator: event.domain,
+          evidence: {
+            category: event.category,
+            ...(event.note ? { override_reason: event.note } : {}),
+          },
+        }),
+      });
+      if (!response.ok) break;
+      sent += 1;
+    }
+    if (sent > 0) await browser.storage.session.set({ [QUEUE_KEY]: queue.slice(sent) });
   } catch {
     // Unreachable -- same "keep going, try again next tick" posture as above.
   }
@@ -144,6 +170,13 @@ export function initAthenaIntegration(getPolicy: () => Promise<ManagedPolicy>): 
     void (async () => {
       const policy = await getPolicy();
       await flushSecurityEvents(policy);
+      // fetchAndApplyPolicy no-ops on its own (isPolicySyncConfigured) when
+      // policy distribution isn't set up -- same "always safe to call"
+      // contract as flushSecurityEvents above.
+      if (policy.athena) {
+        const session = await getAthenaSession(policy.athena);
+        if (session) await fetchAndApplyPolicy(policy.athena, session.token);
+      }
     })();
   });
 }
