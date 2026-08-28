@@ -1,11 +1,17 @@
 # Privacy Policy
 
 Moat does not collect, store, sell, or transmit any user data to Moat or
-its developer. There is no analytics, no telemetry, no crash reporting, and
-no account or sign-in of any kind. This document discloses every case where
-Moat's own code talks to a network at all -- most are plain file downloads
-that carry nothing about you; two (both off by default) send something
-derived from what you typed, to a third party, never to Moat itself.
+its developer, ever, under any configuration. There is no crash reporting
+and no account or sign-in of any kind. For a personal or open-source
+install -- everyone reading this outside of an organization that has
+specifically deployed enterprise device-management policy for Moat -- there
+is also no analytics or telemetry of any kind, full stop. This document
+discloses every case where Moat's own code talks to a network at all: most
+are plain file downloads that carry nothing about you; two (both off by
+default) send something derived from what you typed, to a third party,
+never to Moat itself; and one (item 5, enterprise-managed only, impossible
+to enable as a regular user) sends minimized security-event telemetry, but
+only to an organization's own infrastructure, never to Moat's developer.
 
 ## What stays on your device
 
@@ -58,6 +64,19 @@ derived from what you typed, to a third party, never to Moat itself.
    whichever account you're already signed into there, not a server Moat
    runs. This is what lets a fresh install seed itself from an existing
    synced copy. Off unless you explicitly enable it.
+5. **Enterprise-managed Athena integration -- not available to you at all
+   unless your organization deployed it.** This has no Settings toggle and
+   cannot be turned on by a user; it only activates when an organization's
+   own device-management policy (`chrome.storage.managed`) provisions it,
+   pointing at that organization's own self-hosted Athena instance -- never
+   at any server Moat's developer operates. When active, it sends minimized
+   security events for requests already blocked by Moat's malicious-URL,
+   phishing, scam, and badware filter lists, and for popup/redirect-firewall
+   catches: a category, a risk tier, an opaque reference into the bundled
+   filter data, and a timestamp. It never sends the URL, page content, or
+   browsing history that triggered the block. If you use a personal or
+   open-source install of Moat, this section does not apply to you --
+   nothing about it can activate without your organization's own IT policy.
 
 Nothing else in Moat makes a network request. In particular: the filter
 lists and cosmetic-hiding rules that block ads and trackers are bundled into

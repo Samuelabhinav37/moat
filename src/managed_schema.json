@@ -22,6 +22,16 @@
       "type": "array",
       "title": "Domains to block for every user, in addition to whatever they've added themselves.",
       "items": { "type": "string" }
+    },
+    "athena": {
+      "type": "object",
+      "title": "Connects this install to a self-hosted Athena instance for minimized security-event reporting. Leave unset entirely for a normal/open-source install -- every field below is required for the integration to activate at all.",
+      "properties": {
+        "tenantId": { "type": "string", "title": "This org's tenant id in Athena." },
+        "bootstrapUrl": { "type": "string", "title": "Athena endpoint that exchanges bootstrapSecret for a short-lived session token." },
+        "bootstrapSecret": { "type": "string", "title": "Shared secret provisioned by this org's Athena deployment, scoped to this org only." },
+        "eventsUrl": { "type": "string", "title": "Athena endpoint that receives batched, minimized security events." }
+      }
     }
   }
 }

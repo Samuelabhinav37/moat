@@ -24,6 +24,8 @@ import { exportSettings, validateImportedSettings } from "./settingsPortability"
 import { dismissOnboarding, dismissUpdateNotice, getPopupUiNotices, recordUpdateSeen } from "./updateNotice";
 import { initPopupGuard } from "./popupGuard";
 import { initLiveUpdates } from "./liveUpdates";
+import { getManagedPolicy } from "./managedPolicy";
+import { initAthenaIntegration, queueSecurityEvent } from "./athenaIntegration";
 import { forgetTab as forgetLoggerTab, getEntries as getLoggedEntries, initRuleLogger, isSupported as isLoggerSupported } from "./ruleLogger";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import { summarizeFilterLists } from "../shared/rulesetManifest";
@@ -40,6 +42,9 @@ import type { PopupUiNotices } from "./updateNotice";
 initPopupGuard();
 initLiveUpdates();
 initRuleLogger();
+// No-op on every normal install -- see athenaIntegration.ts. Only does
+// anything once an org's own managed policy provisions ManagedPolicy.athena.
+initAthenaIntegration(getManagedPolicy);
 // storage.session defaults to background/extension-page-only access; the
 // opt-in per-session fingerprint rotation toggle needs bridge.ts (a content
 // script) to read/write it too. Untyped in webextension-polyfill's storage
@@ -146,6 +151,12 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
   switch (message.type) {
     case "blocked": {
       if (sender.tab?.id !== undefined) void recordDynamicCatch(sender.tab.id);
+      // Cross-browser event source (unlike the getMatchedRules-based one in
+      // matchStats.ts, which is Chrome-only) -- no-ops instantly on every
+      // normal install, same as that one.
+      void getManagedPolicy().then((policy) =>
+        queueSecurityEvent(policy, { category: "popup-redirect", riskTier: "medium" })
+      );
       return undefined;
     }
 

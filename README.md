@@ -497,6 +497,47 @@ this against the documented policy mechanism but haven't verified it against
 a real managed browser profile — worth a manual check (`chrome://policy`
 shows whether Chrome picked up the value) before relying on it in production.
 
+### Athena integration (enterprise-only, off for every other install)
+
+Moat ships the client half of an optional integration with
+[Athena](https://github.com/Samuelabhinav37/Athena), a self-hosted identity-governance platform —
+one piece of a wider three-project design (Athena, Moat, and a Gmail/Outlook triage extension)
+planned separately from either project's own repository. This has **no Settings toggle** and cannot be turned on
+by a user at all; it only exists to be provisioned by an organization's own device-management
+policy, and every normal, personal, or open-source install of Moat behaves exactly as documented
+everywhere else in this README with it entirely absent.
+
+Add an `athena` object (see `src/managed_schema.json`) to the same managed policy shown above:
+
+```json
+"policy": {
+  "athena": {
+    "tenantId": "acme",
+    "bootstrapUrl": "https://athena.acme.example/v1/moat/bootstrap",
+    "bootstrapSecret": "<provisioned by your Athena deployment, scoped to this org only>",
+    "eventsUrl": "https://athena.acme.example/v1/moat/events"
+  }
+}
+```
+
+Once present, `src/background/athenaIntegration.ts` exchanges `bootstrapSecret` for a short-lived
+session token (cached in `browser.storage.session` — in-memory, never `local`/`sync`, the same
+pattern already used for the per-session fingerprint-rotation seed), and every five minutes flushes
+a batch of minimized security events: one for each request already blocked by the
+malicious-urls/phishing-urls/scam/badware filter lists specifically (not ordinary ads/trackers,
+which never generate an event), and one for each popup/redirect-firewall catch (the one source that
+also works on Firefox, where `getMatchedRules` doesn't exist). Every event carries a category, a
+risk tier, an opaque `{rulesetId, ruleId}` reference into the bundled filter data, and a timestamp —
+never the URL, page content, or browsing history involved. Blocking itself never waits on any of
+this: by the time an event is queued, the block it describes has already happened locally, and a
+flush failure (Athena unreachable) just leaves the queue for the next attempt.
+
+**What this doesn't do yet:** Athena doesn't currently expose the `bootstrapUrl`/`eventsUrl`
+endpoints this code calls — that's separate, not-yet-built work on Athena's own side. Nothing is
+sent anywhere until both sides exist. Signed policy distribution *back* to Moat (org-pushed
+blocklists/thresholds beyond the bundled filter lists) and the blocked-page warning interstitial
+with a logged override are also not built yet.
+
 ## Permissions
 
 | Permission | Why |

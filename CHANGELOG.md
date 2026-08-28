@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.31
+
+### Added
+- **Optional, enterprise-only Athena integration (client half).** No Settings toggle, no effect on
+  any normal install -- it activates only when an organization's own `chrome.storage.managed`
+  policy provisions a new `athena` object (`src/managed_schema.json`). When present,
+  `src/background/athenaIntegration.ts` exchanges a provisioned bootstrap secret for a short-lived
+  session token (`browser.storage.session` only, same pattern as the per-session
+  fingerprint-rotation seed), then flushes a batch of minimized security events every five minutes:
+  one per request blocked by the malicious-urls/phishing-urls/scam/badware filter lists
+  specifically (via a new `src/shared/securityRuleCategories.ts` classifier over the same
+  `getMatchedRules()` data the popup's block-count breakdown already uses), and one per
+  popup/redirect-firewall catch (Firefox-compatible, since `getMatchedRules` isn't). Every event
+  carries a category, a risk tier, and an opaque `{rulesetId, ruleId}` reference -- never the URL,
+  page content, or browsing history that triggered the block. Blocking itself never depends on any
+  of this: events are queued after a block already happened locally, and a flush failure just
+  retries next tick. See the README's new "Athena integration" section and `PRIVACY.md` item 5 for
+  the full disclosure. Athena's own corresponding server endpoints aren't built yet, so this stays
+  entirely inert on both sides for now -- this is the client half only.
+
 ## 0.11.30
 
 ### Fixed

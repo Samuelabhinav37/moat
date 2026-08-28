@@ -281,4 +281,66 @@ export interface ManagedPolicy {
   managedFilterGroups?: Record<string, boolean>;
   /** Merged in ADDITION to the user's own customBlockedDomains, not replacing it. */
   managedCustomBlockedDomains?: string[];
+  /**
+   * Present only when an org has deployed Moat alongside a self-hosted
+   * Athena instance (see background/athenaIntegration.ts) -- absent for
+   * every normal/open-source install, since it can only ever arrive via
+   * chrome.storage.managed, which nothing but an org's own MDM/Group
+   * Policy can populate. Nothing in this object is ever read, written, or
+   * offered as a Settings toggle outside of that -- there's no user-facing
+   * path that could turn this on by accident.
+   */
+  athena?: AthenaConfig;
+}
+
+/** See ManagedPolicy.athena. Every field is required -- a partially-set
+ * object is treated as "not configured" by isAthenaConfigured() rather
+ * than attempted with missing pieces. */
+export interface AthenaConfig {
+  /** Identifies this org's data to a multi-tenant Athena instance; never
+   * used to look anything up locally. */
+  tenantId: string;
+  /** POSTed to once (or again after the returned token expires) with
+   * { tenantId, secret } to exchange bootstrapSecret for a short-lived
+   * session token -- see athenaIntegration.ts. Never Moat's own domain. */
+  bootstrapUrl: string;
+  /** A shared secret provisioned by the org's Athena deployment, scoped to
+   * this org only. Only ever held in browser.storage.managed (read-only,
+   * OS-policy-populated) and briefly in memory during the exchange above --
+   * never written to storage.local/sync, which aren't encrypted at rest. */
+  bootstrapSecret: string;
+  /** Where minimized security events (see AthenaSecurityEvent) are POSTed,
+   * batched, using the session token from the exchange above. */
+  eventsUrl: string;
+}
+
+/**
+ * The wire format for a single batched event sent to eventsUrl. Deliberately
+ * minimal -- no URLs, page content, or browsing history, matching the same
+ * k-anonymity-style minimization already used for the leaked-password check.
+ * See docs/research (Moat repo) / planning docs (cross-project) for the
+ * "Athena Security Event v1" schema this implements.
+ */
+export interface AthenaSecurityEvent {
+  eventId: string;
+  timestamp: number;
+  /** What kind of local decision produced this event. "security-rule" is a
+   * declarativeNetRequest match against the malicious-urls/phishing-urls/
+   * scam/badware filter groups specifically -- not ordinary ad/tracker
+   * blocking, which never generates an event. "popup-redirect" is the
+   * background tab-safety-net closing a hijacked tab -- the one source that
+   * also works on Firefox, where getMatchedRules doesn't exist. */
+  category: "security-rule" | "popup-redirect";
+  /** "high" for malicious-urls/phishing-urls/scam, "medium" for badware
+   * (see shared/securityRuleCategories.ts), "medium" for popup-redirect. */
+  riskTier: "high" | "medium";
+  /** Opaque identifiers into the bundled ruleset that matched, not the
+   * domain itself -- resolving these to an actual hostname is a real
+   * follow-up (see planning notes), deliberately not done yet: it would
+   * mean bundling or fetching full rule content just to read it back out,
+   * a materially bigger privacy/complexity step than shipping ruleId
+   * references, which say nothing on their own without the same ruleset
+   * data Athena would need to already have out-of-band. */
+  rulesetId?: string;
+  ruleId?: number;
 }
