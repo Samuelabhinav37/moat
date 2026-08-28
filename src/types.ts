@@ -324,8 +324,10 @@ export interface AthenaConfig {
   /** Immutable Athena security_agents identifier returned during enrollment. */
   agentId: string;
   /** POSTed to once (or again after the returned token expires) with
-   * { tenantId, secret } to exchange bootstrapSecret for a short-lived
-   * session token -- see athenaIntegration.ts. Never Moat's own domain. */
+   * { tenant_id, agent_id, enrollment_secret } -- Athena's real
+   * /v1/security/agent-token request shape -- to exchange bootstrapSecret
+   * for a short-lived session token. See athenaIntegration.ts. Never
+   * Moat's own domain. */
   bootstrapUrl: string;
   /** A shared secret provisioned by the org's Athena deployment, scoped to
    * this org only. Only ever held in browser.storage.managed (read-only,
@@ -369,8 +371,10 @@ export interface AthenaPolicyArtifact {
 
 /** The envelope actually fetched from policyUrl: `payload` is the exact,
  * verbatim JSON-stringified AthenaPolicyArtifact the signature was computed
- * over (a string, not a parsed object, so there's no ambiguity about which
- * bytes were signed), and `signature` is that ECDSA signature, base64. */
+ * over -- reconstructed client-side via canonicalPolicyPayload(), since
+ * Athena's real response returns `policy` as a parsed object, not a
+ * pre-serialized string -- and `signature` is that Ed25519 signature,
+ * base64. */
 export interface SignedAthenaPolicy {
   payload: string;
   signature: string;

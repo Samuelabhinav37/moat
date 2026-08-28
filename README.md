@@ -529,11 +529,15 @@ pattern already used for the per-session fingerprint-rotation seed), and every f
 the bounded local queue as individual idempotent security events: one for each request already blocked by the
 malicious-urls/phishing-urls/scam/badware filter lists specifically (not ordinary ads/trackers,
 which never generate an event), and one for each popup/redirect-firewall catch (the one source that
-also works on Firefox, where `getMatchedRules` doesn't exist). Every event carries a category, a
-risk tier, an opaque `{rulesetId, ruleId}` reference into the bundled filter data, and a timestamp —
-never the URL, page content, or browsing history involved. Blocking itself never waits on any of
-this: by the time an event is queued, the block it describes has already happened locally, and a
-flush failure (Athena unreachable) just leaves the queue for the next attempt.
+also works on Firefox, where `getMatchedRules` doesn't exist), plus one for every "Report mistake"
+override submitted on the warning page below. Every event carries a category, a risk tier, and a
+timestamp; a security-rule/popup-redirect event's target is an opaque `{rulesetId, ruleId}`
+reference into the bundled filter data, never a domain -- an override event instead carries the
+already-policy-known hostname (Athena named it in its own policy artifact, so this discloses
+nothing new) and the user's typed reason. Never the URL, page content, or browsing history
+involved. Blocking itself never waits on any of this: by the time an event is queued, the block it
+describes has already happened locally, and a flush failure (Athena unreachable) just leaves the
+queue for the next attempt.
 
 Athena now exposes the enrollment, token, event, and policy endpoints above. Policy artifacts are
 verified with the managed Ed25519 public key before Moat changes dynamic rules; invalid or
@@ -556,8 +560,8 @@ page and a reported mistake remains an audited request rather than an immediate 
 | `webRequest` + `webRequestBlocking` (Firefox only) | Needed to actually cancel a request once its resolved CNAME target matches a known tracker — declarativeNetRequest can't act on an async DNS lookup mid-request. Chrome no longer allows blocking `webRequest` under MV3 at all; Firefox still does. |
 
 See [PRIVACY.md](PRIVACY.md) for the full privacy policy: what data Moat
-collects (none) and the two narrow cases where its own code talks to a
-network at all.
+collects (none, ever, for any normal install) and every case where its own
+code talks to a network at all.
 
 ## Known limitations
 

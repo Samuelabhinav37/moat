@@ -3,6 +3,38 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.32
+
+### Changed
+- **The Athena integration client (0.11.31) now speaks Athena's real, implemented API** instead of
+  a placeholder contract: `ManagedPolicy.athena` gained a required `agentId` (Athena's
+  `security_agents` identifier), the bootstrap exchange sends
+  `{tenant_id, agent_id, enrollment_secret}` and expects `{access_token, expires_at}` matching
+  Athena's actual `/v1/security/agent-token` endpoint, and outgoing security events now match
+  Athena's real `/v1/security/events` schema (`source_event_id`, `occurred_at`, `action`,
+  `severity`, `rule_id`, `target_indicator`, `evidence`) instead of Moat's own invented shape.
+  Policy-artifact signing moved from ECDSA P-256 to **Ed25519**, matching Athena's own signing key
+  type. Also lands `athenaPolicyRules.ts`/`athenaPolicySync.ts` (the signed policy-fetch pipeline)
+  and the `warning.html` interstitial for Athena-policy-blocked domains, previously built but not
+  yet committed. Verified this pass by reading Athena's actual FastAPI routes/schemas
+  (`apps/api/src/athena/routes/security_events.py`, `schemas.py`) directly, not assumed.
+- **`canonicalPolicyPayload` (new in this pass, `shared/athenaPolicySignature.ts`) reconstructs the
+  exact canonical JSON bytes Athena signed** -- sorted keys, no whitespace, matching Athena's own
+  `json.dumps(value, sort_keys=True, separators=(",", ":"))` -- since Athena's real policy response
+  returns a parsed `policy` object, not a pre-serialized string the way the earlier placeholder
+  assumed. Added 6 tests pinning its exact output, including a full sign/verify round-trip using
+  the same call shape `athenaPolicySync.ts` actually uses. One documented, currently-dormant gap:
+  Python's `json.dumps` escapes non-ASCII by default and `JSON.stringify` doesn't -- harmless today
+  since the policy schema's only string field (`blockedDomains`) is validated ASCII-only, flagged
+  in code for whoever adds a free-text policy field later.
+
+### Fixed
+- Two stale doc comments left over from the ECDSA-P256-to-Ed25519 signing-algorithm switch (one
+  self-contradicting sentence in `athenaPolicySignature.ts`, one in `types.ts`) and one describing
+  the bootstrap request's old placeholder shape instead of Athena's real one.
+- README's Permissions section still said "the two narrow cases where its own code talks to a
+  network at all" -- stale since well before this pass; PRIVACY.md has documented five for a while.
+
 ## 0.11.31
 
 ### Added

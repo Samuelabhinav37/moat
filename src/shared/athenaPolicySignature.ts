@@ -8,6 +8,19 @@
 // whatever policy was last successfully verified.
 import type { SignedAthenaPolicy } from "../types";
 
+/**
+ * Must byte-for-byte match Athena's own canonicalization
+ * (`json.dumps(value, sort_keys=True, separators=(",", ":"))` in
+ * `security_agents.py`) or every policy fails to verify -- sorted keys, no
+ * whitespace, same as here. One real gap, currently dormant rather than
+ * fixed: Python's `json.dumps` escapes non-ASCII characters by default
+ * (`ensure_ascii=True`), `JSON.stringify` here does not. `AthenaPolicyArtifact`
+ * only carries hostnames already validated ASCII-only (see
+ * athenaPolicyRules.ts's HOSTNAME_PATTERN), so this never triggers today --
+ * but a future field carrying free text would silently break verification
+ * for any non-ASCII value. Flagging here rather than guessing a fix neither
+ * side has coordinated on yet.
+ */
 export function canonicalPolicyPayload(value: unknown): string {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
   if (Array.isArray(value)) return `[${value.map(canonicalPolicyPayload).join(",")}]`;
@@ -26,8 +39,8 @@ async function importVerifyKey(jwk: JsonWebKey): Promise<CryptoKey> {
   return crypto.subtle.importKey("jwk", jwk, { name: "Ed25519" }, false, ["verify"]);
 }
 
-/** True only if `signature` is a valid ECDSA-P256-SHA256 signature over the
- * exact UTF-8 bytes of `payload`, produced by the Ed25519 private key matching
+/** True only if `signature` is a valid Ed25519 signature over the exact
+ * UTF-8 bytes of `payload`, produced by the private key matching
  * `publicKeyJwk`. Any malformed input (bad base64, wrong key shape, wrong
  * curve) resolves to false rather than throwing -- callers should treat a
  * thrown error and a `false` result identically either way, but this keeps
