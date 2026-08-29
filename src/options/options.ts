@@ -105,8 +105,8 @@ function renderSyncStatus(syncEnabled: boolean, status: Awaited<ReturnType<typeo
   syncStatus.hidden = false;
   syncStatus.textContent = tFallback(
     "optionsSyncStatusFailed",
-    `Couldn't sync your settings (${when}) -- they may be too large for your browser's sync storage ` +
-      `(custom rules and site lists count against it). Your settings are still saved locally either way.`,
+    `Couldn't sync your settings (${when}) -- they may be over your browser's sync-storage limit ` +
+      `(custom rules and site lists count toward it). They're still saved locally.`,
     [when]
   );
 }
@@ -180,11 +180,11 @@ const filterBudgetDetail = document.getElementById("filter-budget-detail") as HT
 // tFallback below) -- kept as one table so the two can't drift apart.
 const PRESET_HINTS: Record<PresetName | "custom", { key: string; fallback: string }> = {
   off: { key: "presetHintOff", fallback: "Nothing is blocked." },
-  lite: { key: "presetHintLite", fallback: "A lighter version of Essential -- leaves out the largest security list." },
-  essential: { key: "presetHintEssential", fallback: "Ads, popups, and known-malicious sites only." },
-  standard: { key: "presetHintStandard", fallback: "Standard level blocks ads, trackers, and known malicious sites." },
-  strict: { key: "presetHintStrict", fallback: "Everything, plus the browser-wide privacy toggles above." },
-  custom: { key: "presetHintCustom", fallback: "A mix you've put together yourself." },
+  lite: { key: "presetHintLite", fallback: "Like Essential, without the largest security list." },
+  essential: { key: "presetHintEssential", fallback: "Ads, popups, and known-malicious sites." },
+  standard: { key: "presetHintStandard", fallback: "Ads, trackers, and known-malicious sites." },
+  strict: { key: "presetHintStrict", fallback: "Every list, plus the privacy toggles above." },
+  custom: { key: "presetHintCustom", fallback: "A mix you've set up yourself." },
 };
 
 const CATEGORY_LABELS: Record<RulesetManifestEntry["category"], { key: string; fallback: string }> = {
@@ -489,7 +489,7 @@ async function render(): Promise<void> {
     filterBudgetDetail.hidden = false;
     filterBudgetDetail.textContent = tFallback(
       "optionsFilterBudgetDropped",
-      `Left disabled for now, to keep the rest of your filter lists active within the browser's shared rule budget: ${names}.`,
+      `Turned off for now so the rest of your lists stay within the browser's shared rule limit: ${names}.`,
       [names]
     );
   } else if (filterGroupStatus?.availableStaticRuleCount !== undefined) {
@@ -497,7 +497,7 @@ async function render(): Promise<void> {
     filterBudgetDetail.hidden = false;
     filterBudgetDetail.textContent = tFallback(
       "optionsFilterBudgetDetail",
-      `Chrome currently reports ${availableCount} static rules still available across every installed extension. If this stays low after disabling other extensions and reloading Moat, the budget itself may be too small for all of Moat's filter lists to fit at once -- try turning off a filter list below (Annoyances or Cookie Notices first) rather than removing more extensions.`,
+      `Your browser reports ${availableCount} shared rule slots left across all extensions. If that stays low after disabling other extensions and reloading Moat, turn a list off below -- Annoyances or Cookie Notices first.`,
       [String(availableCount)]
     );
   } else {

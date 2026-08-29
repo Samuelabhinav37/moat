@@ -38,58 +38,58 @@
   "tabAbout": { "message": "About" },
   "optionsTagline": { "message": "Blocks ads, trackers, and hijacked popups." },
 
-  "optionsMasterToggleLabel": { "message": "Protection enabled" },
-  "optionsMasterToggleHint": { "message": "Toggle to turn off all blocking globally." },
+  "optionsMasterToggleLabel": { "message": "Protection" },
+  "optionsMasterToggleHint": { "message": "Turn all blocking on or off, everywhere." },
   "optionsManagedBadge": { "message": "Managed by your organization" },
-  "optionsAdvancedProtectionCategory": { "message": "Advanced Protection" },
-  "optionsCookiesToggleLabel": { "message": "Block third party cookies" },
-  "optionsCookiesToggleHint": { "message": "Prevents cross site tracking across your browser. (Off by default)" },
+  "optionsAdvancedProtectionCategory": { "message": "Advanced protection" },
+  "optionsCookiesToggleLabel": { "message": "Block third-party cookies" },
+  "optionsCookiesToggleHint": { "message": "Stops sites from tracking you as you move from one to the next." },
   "optionsWebrtcToggleLabel": { "message": "Prevent WebRTC IP leaks" },
-  "optionsWebrtcToggleHint": { "message": "Hides your real IP address when using a VPN." },
-  "optionsFingerprintToggleLabel": { "message": "Reduce fingerprinting" },
+  "optionsWebrtcToggleHint": { "message": "Stops a page from reading your real IP address behind a VPN." },
+  "optionsFingerprintToggleLabel": { "message": "Resist fingerprinting" },
   "optionsFingerprintToggleHint": {
-    "message": "Scrambles device data to prevent silent tracking. May occasionally break site features like CAPTCHAs. (Off by default)"
+    "message": "Adds a little noise to the device details sites use to identify you. Can occasionally interfere with a CAPTCHA."
   },
-  "optionsFingerprintRotateToggleLabel": { "message": "Rotate noise every browser session" },
+  "optionsFingerprintRotateToggleLabel": { "message": "New noise each session" },
   "optionsFingerprintRotateToggleHint": {
-    "message": "Generates fresh noise each time your browser restarts instead of reusing the same noise forever, closer to Brave's model. A fingerprint that never changes can itself become a stable identifier over time; rotating trades that off against sites seeing a different \"device\" on every browser restart. (Off by default)"
+    "message": "Regenerates the noise every time the browser restarts, so it can't settle into a fixed identifier of its own. Sites see a slightly different device each session."
   },
-  "optionsGrayscaleToggleLabel": { "message": "Dim unblockable video ads" },
+  "optionsGrayscaleToggleLabel": { "message": "Gray out unblockable video ads" },
   "optionsGrayscaleToggleHint": {
-    "message": "Automatically grays out embedded video ads like YouTube that cannot be entirely removed."
+    "message": "Fades in-stream video ads, like YouTube's, to grayscale while they play."
   },
-  "optionsFeedScanToggleLabel": { "message": "Aggressively hide sponsored posts" },
+  "optionsFeedScanToggleLabel": { "message": "Hide sponsored posts in feeds" },
   "optionsFeedScanToggleHint": {
-    "message": "Scans and removes sponsored or promoted posts from social feeds as you scroll. (Off by default)"
+    "message": "Removes sponsored and promoted posts from Instagram, LinkedIn, and YouTube as you scroll."
   },
-  "optionsConsentRejectToggleLabel": { "message": "Auto reject cookie banners" },
+  "optionsConsentRejectToggleLabel": { "message": "Auto-reject cookie banners" },
   "optionsConsentRejectToggleHint": {
-    "message": "Automatically clicks reject or decline on major consent banners. (Off by default)"
+    "message": "Clicks “reject” or “decline” on common consent banners for you."
   },
   "optionsCnameToggleLabel": { "message": "Uncloak disguised trackers (Firefox only)" },
   "optionsCnameToggleHint": {
-    "message": "Detects and blocks trackers hiding behind first party subdomains. (Off by default)"
+    "message": "Blocks trackers that hide behind a subdomain of the site you're on."
   },
   "optionsCnameUnsupportedHint": { "message": "Not available in this browser." },
-  "optionsFilterUpdatesCategory": { "message": "Filter Updates" },
+  "optionsFilterUpdatesCategory": { "message": "Filter updates" },
   "optionsLiveListTitle": { "message": "Live redirect-domain list" },
-  "optionsLiveListHint": { "message": "Fetches the latest popup and redirect blocks daily from GitHub." },
+  "optionsLiveListHint": { "message": "Refreshes the popup and redirect blocklist from GitHub once a day." },
   "optionsLiveStatusNotChecked": { "message": "Not checked yet." },
   "optionsExceptionsTitle": { "message": "Exceptions" },
-  "optionsExceptionsHint": { "message": "Protection is completely disabled on these hostnames." },
+  "optionsExceptionsHint": { "message": "Moat is turned off completely on these sites." },
   "optionsNoSitesAdded": { "message": "No sites added." },
   "commonAdd": { "message": "Add" },
   "commonHostnamePlaceholder": { "message": "example.com" },
 
   "optionsFilterBudgetWarning": {
-    "message": "Some filter lists may not be fully active. Your browser's shared rule budget is often exceeded when several ad-blocking or filter-heavy extensions are installed at once -- try disabling other such extensions, or turning off a filter list below."
+    "message": "Some filter lists aren't fully active. Browsers cap how many blocking rules all extensions can share, and that cap is often reached when several ad blockers or privacy extensions run together -- disable another one, or turn a list off below."
   },
   "optionsFilterBudgetDetail": {
-    "message": "Chrome currently reports $COUNT$ static rules still available across every installed extension. If this stays low after disabling other extensions and reloading Moat, the budget itself may be too small for all of Moat's filter lists to fit at once -- try turning off a filter list below (Annoyances or Cookie Notices first) rather than removing more extensions.",
+    "message": "Your browser reports $COUNT$ shared rule slots left across all extensions. If that stays low after disabling other extensions and reloading Moat, turn a list off below -- Annoyances or Cookie Notices first.",
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsFilterBudgetDropped": {
-    "message": "Left disabled for now, to keep the rest of your filter lists active within the browser's shared rule budget: $NAMES$.",
+    "message": "Turned off for now so the rest of your lists stay within the browser's shared rule limit: $NAMES$.",
     "placeholders": { "names": { "content": "$1" } }
   },
   "optionsFilterBudgetDroppedBadge": { "message": "Not active (rule budget)" },
@@ -101,37 +101,37 @@
   "presetStrict": { "message": "Strict" },
   "optionsIndividualListsTitle": { "message": "Individual filter lists" },
   "optionsIndividualListsHint": {
-    "message": "Fine tune your active filters. Changing these will switch your level to Custom."
+    "message": "Turn lists on or off individually. Any change sets the level to Custom."
   },
   "optionsLoadListsError": { "message": "Couldn't load filter lists." },
 
   "optionsBlockedSitesTitle": { "message": "Blocked sites" },
-  "optionsBlockedSitesHint": { "message": "Always block these domains regardless of filter lists." },
+  "optionsBlockedSitesHint": { "message": "Always block these sites, whatever the filter lists say." },
   "commonBlock": { "message": "Block" },
   "optionsAllowedSitesTitle": { "message": "Allowed sites" },
-  "optionsAllowedSitesHint": { "message": "Never block these domains, bypassing all active filter lists." },
+  "optionsAllowedSitesHint": { "message": "Never block these sites, even when a filter list matches." },
   "commonAllow": { "message": "Allow" },
-  "optionsCosmeticCategory": { "message": "Cosmetic Filtering" },
+  "optionsCosmeticCategory": { "message": "Cosmetic filtering" },
   "optionsHiddenElementsTitle": { "message": "Hidden elements" },
   "optionsHiddenElementsHint": {
-    "message": "Elements you removed using the \"Block an element\" toolbar tool. Remove them here to restore them."
+    "message": "Elements you hid with the “Block an element” tool. Remove one to bring it back."
   },
   "optionsNothingSelected": { "message": "Nothing selected yet." },
   "optionsDimmedElementsTitle": { "message": "Dimmed elements" },
   "optionsDimmedElementsHint": {
-    "message": "Elements you selected to \"Gray out\". Remove them here to restore normal visibility."
+    "message": "Elements you grayed out with the picker. Remove one to restore it."
   },
 
   "optionsAboutHeading": { "message": "About Moat" },
   "optionsPrivacyHeading": { "message": "Privacy" },
   "optionsPrivacyIntro": {
-    "message": "Everything on this page is stored locally in your browser. It's never sent to Moat's developer -- see the full privacy policy for the few opt-in features (password-breach checking, settings sync) that talk to anyone else."
+    "message": "Everything on this page is stored locally in your browser and never sent to Moat's developer. The privacy policy covers the few opt-in features -- breach checking and settings sync -- that contact anyone else."
   },
   "optionsVersionHeading": { "message": "Version details" },
   "optionsDebuggingHeading": { "message": "Debugging" },
   "optionsBackupHeading": { "message": "Backup & restore" },
   "optionsBackupIntro": {
-    "message": "Save your settings to a file, or load a previously saved one. Your device's fingerprint-resistance identifier is never included."
+    "message": "Save your settings to a file, or load one back in. The fingerprint-resistance identifier is never included."
   },
   "optionsPrivacyPolicyLink": { "message": "Full privacy policy" },
   "optionsChangelogLink": { "message": "Changelog" },
@@ -140,10 +140,10 @@
   "optionsImportButton": { "message": "Upload settings…" },
   "optionsSyncToggleLabel": { "message": "Sync settings across devices" },
   "optionsSyncToggleHint": {
-    "message": "Mirrors your settings through your browser's own sync account. Off by default. Seeds a new install once; doesn't live-merge changes made on two devices at once."
+    "message": "Mirrors your settings through your browser's own sync account. A new install picks them up once; it doesn't merge edits made on two devices at the same time."
   },
   "optionsSyncStatusFailed": {
-    "message": "Couldn't sync your settings ($WHEN$) -- they may be too large for your browser's sync storage (custom rules and site lists count against it). Your settings are still saved locally either way.",
+    "message": "Couldn't sync your settings ($WHEN$) -- they may be over your browser's sync-storage limit (custom rules and site lists count toward it). They're still saved locally.",
     "placeholders": { "when": { "content": "$1" } }
   },
   "optionsVersionPrefix": {
@@ -152,11 +152,11 @@
   },
 
   "presetHintOff": { "message": "Nothing is blocked." },
-  "presetHintLite": { "message": "A lighter version of Essential -- leaves out the largest security list." },
-  "presetHintEssential": { "message": "Ads, popups, and known-malicious sites only." },
-  "presetHintStandard": { "message": "Standard level blocks ads, trackers, and known malicious sites." },
-  "presetHintStrict": { "message": "Everything, plus the browser-wide privacy toggles above." },
-  "presetHintCustom": { "message": "A mix you've put together yourself." },
+  "presetHintLite": { "message": "Like Essential, without the largest security list." },
+  "presetHintEssential": { "message": "Ads, popups, and known-malicious sites." },
+  "presetHintStandard": { "message": "Ads, trackers, and known-malicious sites." },
+  "presetHintStrict": { "message": "Every list, plus the privacy toggles above." },
+  "presetHintCustom": { "message": "A mix you've set up yourself." },
   "categoryAds": { "message": "Ads & trackers" },
   "categorySecurity": { "message": "Security" },
   "categoryAnnoyance": { "message": "Annoyances" },
@@ -184,9 +184,9 @@
   "optionsImportedInvalid": { "message": "That file doesn't look like a valid Moat settings export." },
   "optionsImportReadError": { "message": "Couldn't read that file." },
 
-  "leakedPasswordWarning": { "message": "This password has appeared in known data breaches." },
+  "leakedPasswordWarning": { "message": "This password has appeared in a known data breach." },
   "optionsLeakedPasswordToggleLabel": { "message": "Check passwords against known breaches" },
   "optionsLeakedPasswordToggleHint": {
-    "message": "Warns if a password you type has appeared in a known data breach. Only a partial hash ever leaves your device. (Off by default)"
+    "message": "Warns if a password you type has appeared in a known breach. Only a short piece of its hash ever leaves your device."
   }
 }

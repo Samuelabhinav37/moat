@@ -48,7 +48,7 @@
   },
   "optionsFingerprintRotateToggleLabel": { "message": "Changer le bruit à chaque session du navigateur" },
   "optionsFingerprintRotateToggleHint": {
-    "message": "Génère un nouveau bruit à chaque redémarrage du navigateur au lieu de toujours réutiliser le même, à l'image du modèle de Brave. Une empreinte numérique qui ne change jamais peut devenir un identifiant stable avec le temps ; la faire varier échange cela contre le fait que les sites voient un \"appareil\" différent à chaque redémarrage. (Désactivé par défaut)"
+    "message": "Régénère le bruit à chaque redémarrage du navigateur, afin qu'il ne devienne pas lui-même un identifiant fixe. Les sites voient un appareil légèrement différent à chaque session."
   },
   "optionsGrayscaleToggleLabel": { "message": "Estomper les publicités vidéo non bloquables" },
   "optionsGrayscaleToggleHint": {

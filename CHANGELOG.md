@@ -3,6 +3,29 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.39
+
+### Changed
+- **Rewrote the Settings page copy.** A pass over every label and hint on the options page,
+  checked against how uBlock Origin, AdGuard, and Ghostery word their own settings:
+  - **Removed the competitor reference.** The "New noise each session" hint (formerly "Rotate
+    noise every browser session") explained itself as "closer to Brave's model" in three sentences
+    with a semicolon and a philosophical aside. It's now two plain sentences that say what the
+    toggle does. The "Brave" name is gone from the English string and all three translations.
+  - **Dropped "(Off by default)" from every hint.** No mainstream blocker annotates default state
+    in the description -- the toggle already shows it, and the text is wrong-looking once a user
+    turns the setting on.
+  - **Consistent style:** sentence-case section headers ("Advanced protection", "Filter updates",
+    "Cosmetic filtering", previously Title Case), hyphenated compounds ("third-party" not "third
+    party"), verb-first labels, and one plain sentence per hint instead of two or three.
+  - **Tightened the About tab.** The Privacy section's dense `Label:` paragraphs are one line
+    each; the rule-match-logger and managed-install notes are shorter.
+  - Spanish/French/German keep the older wording for the other strings for now (still first-draft
+    machine translations) -- only the Brave reference was removed there. `localeParity.test.ts`
+    stays green (no keys or placeholders changed).
+
+472/472 tests unchanged, typecheck/build/lint:firefox clean.
+
 ## 0.11.38
 
 ### Fixed

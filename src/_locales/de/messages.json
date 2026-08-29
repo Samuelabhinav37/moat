@@ -48,7 +48,7 @@
   },
   "optionsFingerprintRotateToggleLabel": { "message": "Rauschen bei jeder Browsersitzung neu erzeugen" },
   "optionsFingerprintRotateToggleHint": {
-    "message": "Erzeugt bei jedem Neustart des Browsers neues Rauschen, anstatt immer dasselbe zu verwenden -- näher am Modell von Brave. Ein Fingerabdruck, der sich nie ändert, kann mit der Zeit selbst zu einem stabilen Identifikator werden; das Rotieren tauscht dies dagegen ein, dass Websites bei jedem Neustart ein anderes \"Gerät\" sehen. (Standardmäßig aus)"
+    "message": "Erzeugt bei jedem Neustart des Browsers neues Rauschen, damit es nicht selbst zu einem festen Erkennungsmerkmal wird. Websites sehen in jeder Sitzung ein leicht anderes Gerät."
   },
   "optionsGrayscaleToggleLabel": { "message": "Nicht blockierbare Videowerbung abdunkeln" },
   "optionsGrayscaleToggleHint": {

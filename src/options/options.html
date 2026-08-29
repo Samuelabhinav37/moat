@@ -244,10 +244,10 @@
           </div>
           <div>
             <div class="row" style="justify-content: flex-start; gap: 8px">
-              <span class="card-title" id="master-toggle-label" data-i18n="optionsMasterToggleLabel">Protection enabled</span>
+              <span class="card-title" id="master-toggle-label" data-i18n="optionsMasterToggleLabel">Protection</span>
               <span class="locked-badge" id="protection-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
             </div>
-            <p class="hint muted" data-i18n="optionsMasterToggleHint">Toggle to turn off all blocking globally.</p>
+            <p class="hint muted" data-i18n="optionsMasterToggleHint">Turn all blocking on or off, everywhere.</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="master-toggle" aria-labelledby="master-toggle-label" />
@@ -256,15 +256,15 @@
         </div>
       </div>
 
-      <div class="filter-category" data-i18n="optionsAdvancedProtectionCategory">Advanced Protection</div>
+      <div class="filter-category" data-i18n="optionsAdvancedProtectionCategory">Advanced protection</div>
       <div class="card">
         <div class="toggle-row">
           <div class="row-icon" aria-hidden="true">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6"/><circle cx="6.2" cy="6" r=".7" fill="currentColor" stroke="none"/><circle cx="10" cy="6.8" r=".7" fill="currentColor" stroke="none"/><circle cx="6.8" cy="9.8" r=".7" fill="currentColor" stroke="none"/><circle cx="10.2" cy="10.2" r=".7" fill="currentColor" stroke="none"/></svg>
           </div>
           <div>
-            <div class="card-title" id="cookies-toggle-label" data-i18n="optionsCookiesToggleLabel">Block third party cookies</div>
-            <p class="hint muted" data-i18n="optionsCookiesToggleHint">Prevents cross site tracking across your browser. (Off by default)</p>
+            <div class="card-title" id="cookies-toggle-label" data-i18n="optionsCookiesToggleLabel">Block third-party cookies</div>
+            <p class="hint muted" data-i18n="optionsCookiesToggleHint">Stops sites from tracking you as you move from one to the next.</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="cookies-toggle" aria-labelledby="cookies-toggle-label" />
@@ -277,7 +277,7 @@
           </div>
           <div>
             <div class="card-title" id="webrtc-toggle-label" data-i18n="optionsWebrtcToggleLabel">Prevent WebRTC IP leaks</div>
-            <p class="hint muted" data-i18n="optionsWebrtcToggleHint">Hides your real IP address when using a VPN.</p>
+            <p class="hint muted" data-i18n="optionsWebrtcToggleHint">Stops a page from reading your real IP address behind a VPN.</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="webrtc-toggle" aria-labelledby="webrtc-toggle-label" />
@@ -289,10 +289,10 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M8 3.2a4.8 4.8 0 00-4.8 4.8v1.2M8 3.2A4.8 4.8 0 0112.8 8v2.1M8 5.4a2.6 2.6 0 00-2.6 2.6v1.2M8 5.4A2.6 2.6 0 0110.6 8v2M8 7.6a.4.4 0 00-.4.4v3.4"/></svg>
           </div>
           <div>
-            <div class="card-title" id="fingerprint-toggle-label" data-i18n="optionsFingerprintToggleLabel">Reduce fingerprinting</div>
+            <div class="card-title" id="fingerprint-toggle-label" data-i18n="optionsFingerprintToggleLabel">Resist fingerprinting</div>
             <p class="hint muted" data-i18n="optionsFingerprintToggleHint">
-              Scrambles device data to prevent silent tracking. May occasionally break site
-              features like CAPTCHAs. (Off by default)
+              Adds a little noise to the device details sites use to identify you. Can occasionally
+              interfere with a CAPTCHA.
             </p>
           </div>
           <label class="switch">
@@ -305,12 +305,10 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M13 8A5 5 0 013 8M3 8A5 5 0 0113 8"/><path d="M3 8l1.6-1.8M13 8l-1.6 1.8"/></svg>
           </div>
           <div>
-            <div class="card-title" id="fingerprint-rotate-toggle-label" data-i18n="optionsFingerprintRotateToggleLabel">Rotate noise every browser session</div>
+            <div class="card-title" id="fingerprint-rotate-toggle-label" data-i18n="optionsFingerprintRotateToggleLabel">New noise each session</div>
             <p class="hint muted" data-i18n="optionsFingerprintRotateToggleHint">
-              Generates fresh noise each time your browser restarts instead of reusing the same
-              noise forever, closer to Brave's model. A fingerprint that never changes can itself
-              become a stable identifier over time; rotating trades that off against sites seeing
-              a different "device" on every browser restart. (Off by default)
+              Regenerates the noise every time the browser restarts, so it can't settle into a
+              fixed identifier of its own. Sites see a slightly different device each session.
             </p>
           </div>
           <label class="switch">
@@ -323,10 +321,9 @@
             <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 2a6 6 0 000 12z" fill="currentColor"/></svg>
           </div>
           <div>
-            <div class="card-title" id="grayscale-toggle-label" data-i18n="optionsGrayscaleToggleLabel">Dim unblockable video ads</div>
+            <div class="card-title" id="grayscale-toggle-label" data-i18n="optionsGrayscaleToggleLabel">Gray out unblockable video ads</div>
             <p class="hint muted" data-i18n="optionsGrayscaleToggleHint">
-              Automatically grays out embedded video ads like YouTube that cannot be entirely
-              removed.
+              Fades in-stream video ads, like YouTube's, to grayscale while they play.
             </p>
           </div>
           <label class="switch">
@@ -339,10 +336,10 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5.5 6.5l5 5M10.5 6.5l-5 5"/></svg>
           </div>
           <div>
-            <div class="card-title" id="feed-scan-toggle-label" data-i18n="optionsFeedScanToggleLabel">Aggressively hide sponsored posts</div>
+            <div class="card-title" id="feed-scan-toggle-label" data-i18n="optionsFeedScanToggleLabel">Hide sponsored posts in feeds</div>
             <p class="hint muted" data-i18n="optionsFeedScanToggleHint">
-              Scans and removes sponsored or promoted posts from social feeds as you scroll. (Off
-              by default)
+              Removes sponsored and promoted posts from Instagram, LinkedIn, and YouTube as you
+              scroll.
             </p>
           </div>
           <label class="switch">
@@ -355,9 +352,9 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M3 6h10M3 10h6"/><path d="M11.5 10.5l1.5 1.5 2-2" stroke-linejoin="round"/></svg>
           </div>
           <div>
-            <div class="card-title" id="consent-reject-toggle-label" data-i18n="optionsConsentRejectToggleLabel">Auto reject cookie banners</div>
+            <div class="card-title" id="consent-reject-toggle-label" data-i18n="optionsConsentRejectToggleLabel">Auto-reject cookie banners</div>
             <p class="hint muted" data-i18n="optionsConsentRejectToggleHint">
-              Automatically clicks reject or decline on major consent banners. (Off by default)
+              Clicks “reject” or “decline” on common consent banners for you.
             </p>
           </div>
           <label class="switch">
@@ -372,7 +369,7 @@
           <div>
             <div class="card-title" id="cname-uncloak-toggle-label" data-i18n="optionsCnameToggleLabel">Uncloak disguised trackers (Firefox only)</div>
             <p class="hint muted" data-i18n="optionsCnameToggleHint">
-              Detects and blocks trackers hiding behind first party subdomains. (Off by default)
+              Blocks trackers that hide behind a subdomain of the site you're on.
             </p>
             <p class="hint muted" id="cname-unsupported-hint" hidden data-i18n="optionsCnameUnsupportedHint">
               Not available in this browser.
@@ -390,8 +387,8 @@
           <div>
             <div class="card-title" id="leaked-password-toggle-label" data-i18n="optionsLeakedPasswordToggleLabel">Check passwords against known breaches</div>
             <p class="hint muted" data-i18n="optionsLeakedPasswordToggleHint">
-              Warns if a password you type has appeared in a known data breach. Only a partial
-              hash ever leaves your device. (Off by default)
+              Warns if a password you type has appeared in a known breach. Only a short piece of
+              its hash ever leaves your device.
             </p>
           </div>
           <label class="switch">
@@ -401,16 +398,16 @@
         </div>
       </div>
 
-      <div class="filter-category" data-i18n="optionsFilterUpdatesCategory">Filter Updates</div>
+      <div class="filter-category" data-i18n="optionsFilterUpdatesCategory">Filter updates</div>
       <div class="card">
         <div class="card-title" data-i18n="optionsLiveListTitle">Live redirect-domain list</div>
-        <p class="hint muted" data-i18n="optionsLiveListHint">Fetches the latest popup and redirect blocks daily from GitHub.</p>
+        <p class="hint muted" data-i18n="optionsLiveListHint">Refreshes the popup and redirect blocklist from GitHub once a day.</p>
         <p class="hint" id="live-status" data-i18n="optionsLiveStatusNotChecked">Not checked yet.</p>
       </div>
 
       <div class="card">
         <div class="card-title" data-i18n="optionsExceptionsTitle">Exceptions</div>
-        <p class="hint muted" data-i18n="optionsExceptionsHint">Protection is completely disabled on these hostnames.</p>
+        <p class="hint muted" data-i18n="optionsExceptionsHint">Moat is turned off completely on these sites.</p>
         <ul class="site-list" id="site-list"></ul>
         <p class="empty-state" id="site-empty-state" data-i18n="optionsNoSitesAdded">No sites added.</p>
         <div class="add-row">
@@ -423,9 +420,9 @@
     <section data-tab-panel="filters" hidden>
       <div class="budget-warning" id="filter-budget-warning" hidden>
         <p data-i18n="optionsFilterBudgetWarning">
-          Some filter lists may not be fully active. Your browser's shared rule budget is often
-          exceeded when several ad-blocking or filter-heavy extensions are installed at once --
-          try disabling other such extensions, or turning off a filter list below.
+          Some filter lists aren't fully active. Browsers cap how many blocking rules all
+          extensions can share, and that cap is often reached when several ad blockers or privacy
+          extensions run together -- disable another one, or turn a list off below.
         </p>
         <p id="filter-budget-detail" hidden></p>
       </div>
@@ -442,12 +439,12 @@
           <button type="button" data-preset="standard" data-i18n="presetStandard">Standard</button>
           <button type="button" data-preset="strict" data-i18n="presetStrict">Strict</button>
         </div>
-        <p class="hint muted" id="preset-hint" data-i18n="presetHintStandard">Standard level blocks ads, trackers, and known malicious sites.</p>
+        <p class="hint muted" id="preset-hint" data-i18n="presetHintStandard">Ads, trackers, and known-malicious sites.</p>
       </div>
 
       <div class="card">
         <div class="card-title" data-i18n="optionsIndividualListsTitle">Individual filter lists</div>
-        <p class="hint muted" data-i18n="optionsIndividualListsHint">Fine tune your active filters. Changing these will switch your level to Custom.</p>
+        <p class="hint muted" data-i18n="optionsIndividualListsHint">Turn lists on or off individually. Any change sets the level to Custom.</p>
         <div id="filter-list-rows"></div>
       </div>
     </section>
@@ -455,7 +452,7 @@
     <section data-tab-panel="custom" hidden>
       <div class="card">
         <div class="card-title" data-i18n="optionsBlockedSitesTitle">Blocked sites</div>
-        <p class="hint muted" data-i18n="optionsBlockedSitesHint">Always block these domains regardless of filter lists.</p>
+        <p class="hint muted" data-i18n="optionsBlockedSitesHint">Always block these sites, whatever the filter lists say.</p>
         <ul class="site-list" id="custom-block-list"></ul>
         <p class="empty-state" id="custom-block-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
         <div class="add-row">
@@ -466,7 +463,7 @@
 
       <div class="card">
         <div class="card-title" data-i18n="optionsAllowedSitesTitle">Allowed sites</div>
-        <p class="hint muted" data-i18n="optionsAllowedSitesHint">Never block these domains, bypassing all active filter lists.</p>
+        <p class="hint muted" data-i18n="optionsAllowedSitesHint">Never block these sites, even when a filter list matches.</p>
         <ul class="site-list" id="custom-allow-list"></ul>
         <p class="empty-state" id="custom-allow-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
         <div class="add-row">
@@ -475,12 +472,11 @@
         </div>
       </div>
 
-      <div class="filter-category" data-i18n="optionsCosmeticCategory">Cosmetic Filtering</div>
+      <div class="filter-category" data-i18n="optionsCosmeticCategory">Cosmetic filtering</div>
       <div class="card">
         <div class="card-title" data-i18n="optionsHiddenElementsTitle">Hidden elements</div>
         <p class="hint muted" data-i18n="optionsHiddenElementsHint">
-          Elements you removed using the "Block an element" toolbar tool. Remove them here to
-          restore them.
+          Elements you hid with the “Block an element” tool. Remove one to bring it back.
         </p>
         <ul class="site-list" id="hidden-element-list"></ul>
         <p class="empty-state" id="hidden-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
@@ -489,7 +485,7 @@
       <div class="card">
         <div class="card-title" data-i18n="optionsDimmedElementsTitle">Dimmed elements</div>
         <p class="hint muted" data-i18n="optionsDimmedElementsHint">
-          Elements you selected to "Gray out". Remove them here to restore normal visibility.
+          Elements you grayed out with the picker. Remove one to restore it.
         </p>
         <ul class="site-list" id="grayscale-element-list"></ul>
         <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
@@ -507,47 +503,37 @@
           <h3 data-i18n="optionsAboutHeading">About Moat</h3>
           <p>
             Moat blocks ads, trackers, and hijacked popups on Chrome and Firefox. The
-            <a href="https://github.com/Samuelabhinav37/moat#readme" target="_blank" rel="noopener">
-              full README</a
-            >
-            explains exactly how the blocking, popup firewall, and cosmetic filtering work.
+            <a href="https://github.com/Samuelabhinav37/moat#readme" target="_blank" rel="noopener">full README</a>
+            explains how the blocking, popup firewall, and cosmetic filtering work.
           </p>
           <p>
             <strong>Keyboard shortcut:</strong> Ctrl+Shift+M (Cmd+Shift+M on Mac) toggles
-            protection on/off globally. Rebind or view it at
-            <code>chrome://extensions/shortcuts</code> (or the Firefox equivalent).
+            protection on and off. Rebind it at <code>chrome://extensions/shortcuts</code>.
           </p>
         </div>
         <div class="about-section">
           <h3 data-i18n="optionsPrivacyHeading">Privacy</h3>
           <p data-i18n="optionsPrivacyIntro">
-            Everything on this page is stored locally in your browser and never leaves your
-            device.
+            Everything on this page is stored locally in your browser and never sent to Moat's
+            developer. The privacy policy covers the few opt-in features -- breach checking and
+            settings sync -- that contact anyone else.
           </p>
           <p>
-            <strong>Filter Updates:</strong> Once a day, Moat pings GitHub to update its redirect
-            domain list and check for any emergency filter fixes. This is a standard network
-            request and carries no browsing data.
+            <strong>Filter updates:</strong> once a day Moat fetches its redirect list and any
+            emergency fixes from GitHub. That request carries no browsing data.
           </p>
           <p>
-            <strong>Fingerprinting:</strong> If "Reduce fingerprinting" is enabled, Moat generates
-            a random local identifier to block trackers. This identifier is never transmitted.
+            <strong>Breach checking:</strong> with this on, only the first five characters of a
+            password's SHA-1 hash go to Have I Been Pwned -- never the full hash, the password, or
+            anything to Moat.
           </p>
           <p>
-            <strong>Password-breach checking:</strong> If "Check passwords against known
-            breaches" is enabled, only the first 5 characters of a SHA-1 hash of a password you
-            type are ever sent, to Have I Been Pwned -- never the full hash or the password
-            itself, and never to Moat's developer. Off by default.
-          </p>
-          <p>
-            <strong>Settings sync:</strong> If "Sync settings" is enabled, your settings are
-            mirrored to your browser's own sync account (Google's for Chrome, Mozilla's for
-            Firefox) -- not a server Moat runs. Off by default.
+            <strong>Settings sync:</strong> with this on, your settings travel through your
+            browser's own sync account (Google's or Mozilla's), not a server Moat runs.
           </p>
           <p id="managed-notice" hidden>
-            <strong>Enterprise Notice:</strong> This installation is managed by your organization.
-            Your administrator can see and set the policies below but cannot see your individual
-            browsing history.
+            <strong>Managed install:</strong> your organization set the policies shown here. Your
+            administrator can see and change those policies, but not your browsing history.
           </p>
         </div>
         <div class="about-section">
@@ -562,16 +548,16 @@
         <div class="about-section">
           <h3 data-i18n="optionsDebuggingHeading">Debugging</h3>
           <p>
-            The <a href="logger.html" target="_blank" rel="noopener">rule match logger</a> is a
-            development tool that shows which compiled rules matched specific network requests. It
-            is only visible when the extension is loaded unpacked in developer mode.
+            The <a href="logger.html" target="_blank" rel="noopener">rule-match logger</a> is a
+            development tool that shows which compiled rules matched which network requests. It
+            only appears when Moat is loaded unpacked.
           </p>
         </div>
         <div class="about-section">
           <h3 data-i18n="optionsBackupHeading">Backup &amp; restore</h3>
           <p data-i18n="optionsBackupIntro">
-            Save your settings to a file, or load a previously saved one. Your device's
-            fingerprint-resistance identifier is never included.
+            Save your settings to a file, or load one back in. The fingerprint-resistance
+            identifier is never included.
           </p>
           <div class="about-links">
             <button id="export-settings-button" type="button" data-i18n="optionsExportButton">Download settings</button>
@@ -583,8 +569,8 @@
             <div>
               <div class="card-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">Sync settings across devices</div>
               <p class="hint muted" data-i18n="optionsSyncToggleHint">
-                Mirrors your settings through your browser's own sync account. Off by default.
-                Seeds a new install once; doesn't live-merge changes made on two devices at once.
+                Mirrors your settings through your browser's own sync account. A new install picks
+                them up once; it doesn't merge edits made on two devices at the same time.
               </p>
             </div>
             <label class="switch">

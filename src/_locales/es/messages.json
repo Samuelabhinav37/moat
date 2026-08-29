@@ -48,7 +48,7 @@
   },
   "optionsFingerprintRotateToggleLabel": { "message": "Rotar el ruido en cada sesión del navegador" },
   "optionsFingerprintRotateToggleHint": {
-    "message": "Genera ruido nuevo cada vez que reinicias el navegador en lugar de reutilizar siempre el mismo, más parecido al modelo de Brave. Una huella digital que nunca cambia puede convertirse en un identificador estable con el tiempo; rotarla intercambia eso por que los sitios vean un \"dispositivo\" distinto en cada reinicio. (Desactivado por defecto)"
+    "message": "Genera ruido nuevo cada vez que se reinicia el navegador, de modo que no pueda convertirse en un identificador fijo. Los sitios ven un dispositivo ligeramente distinto en cada sesión."
   },
   "optionsGrayscaleToggleLabel": { "message": "Atenuar anuncios de video que no se pueden bloquear" },
   "optionsGrayscaleToggleHint": {
