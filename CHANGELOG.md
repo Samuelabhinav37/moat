@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.41
+
+### Changed
+- **Visual polish across the popup and Settings.**
+  - **Links are now a distinct blue and underlined.** `--accent` was `#d7dae0`, near-white and
+    indistinguishable from body text; it's now `#6f9be0`, matching the blue the popup already uses
+    for the "protected" state.
+  - **Toned down the toggle-on green** from the acid `#4ae03f` to `#43c13a`.
+  - **Popup: removed the brown gradient.** The body faded from charcoal to an olive-brown
+    (`#34322d`); it's a flat neutral dark now. The dozen scattered `rgba(255,255,255,…)` values are
+    consolidated into four popup-local tokens.
+  - Popup: the Ads/Trackers/Popups chips are rounded rectangles instead of full pills, with 10px
+    (was 9px) labels; the three action buttons are one stacked group instead of a two-button row
+    plus a lone third.
+  - Settings: tighter type hierarchy (card titles 13px, hints 12.5px, section labels 11px bold),
+    and the Trackers tab uses spacing instead of divider lines between rows, with descriptions
+    trimmed to the first sentence (`buildCompanyInfo`) and clamped to two lines.
+
+486/486 tests (1 new), validate:rules/typecheck/build/lint:firefox clean.
+
 ## 0.11.40
 
 ### Added

@@ -14,7 +14,7 @@
         margin-top: 14px;
       }
       .card-title {
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 600;
         margin-bottom: 2px;
       }
@@ -53,6 +53,7 @@
       }
       p.hint {
         margin: 4px 0 0;
+        font-size: 12.5px;
         line-height: 1.5;
       }
       .add-row {
@@ -162,11 +163,12 @@
       }
 
       .filter-category {
-        font-size: 12px;
+        font-size: 11px;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.05em;
         color: var(--muted);
-        margin: 16px 0 8px;
+        margin: 18px 0 8px;
       }
       .filter-category:first-of-type {
         margin-top: 12px;
@@ -182,10 +184,11 @@
         color: var(--muted);
       }
 
-      .tracker-row + .tracker-row {
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid var(--border);
+      #tracker-rows {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
       }
       .tracker-row .tr-head {
         display: flex;
@@ -202,10 +205,14 @@
         white-space: nowrap;
       }
       .tracker-row .tr-desc {
-        margin: 4px 0 0;
+        margin: 3px 0 0;
         font-size: 12.5px;
         line-height: 1.5;
         color: var(--muted);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .about-section + .about-section {

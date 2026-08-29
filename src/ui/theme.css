@@ -3,10 +3,16 @@
   --bg: #1b191d;
   --card: #242229;
   --fg: #eceef0;
-  --muted: #9d97a1;
-  --accent: #d7dae0;
-  --on: #4ae03f;
-  --on-fg: #123010;
+  --muted: #a7a1ac;
+  /* Link/affordance colour. Deliberately a distinct blue -- the old value
+     (#d7dae0) was near-white and left links indistinguishable from body
+     text. Matches the blue the popup already uses for the "protected"
+     state. */
+  --accent: #6f9be0;
+  /* Toggle-on / primary. Toned down from the previous acid #4ae03f, which
+     read as neon against the dark surfaces. */
+  --on: #43c13a;
+  --on-fg: #0e2b0c;
   --danger: #fa6d6d;
   --danger-fg: #2c2c2f;
   --border: #37343b;
@@ -63,6 +69,13 @@ button.primary {
 
 a {
   color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
 }
 
 .switch {

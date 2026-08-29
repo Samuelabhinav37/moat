@@ -26,10 +26,21 @@ export function buildCompanyInfo(attributedCompanyNames, trackerDb) {
   const out = {};
   for (const name of attributedCompanyNames) {
     const org = byName.get(name);
-    const description = org?.description?.trim();
+    const description = firstSentence(org?.description?.trim());
     if (!description) continue;
     const url = org?.website_url?.trim();
     out[name] = { description, url: url || null };
   }
   return out;
+}
+
+// TrackerDB descriptions are often two or three formal sentences; the
+// Settings "Trackers" tab only needs the first. Falls back to the whole
+// string if the first sentence is suspiciously short (an abbreviation like
+// "Foo Inc." caught the terminator early).
+function firstSentence(text) {
+  if (!text) return "";
+  const match = text.match(/^.+?[.!?](?=\s|$)/);
+  if (match && match[0].length >= 40) return match[0];
+  return text;
 }
