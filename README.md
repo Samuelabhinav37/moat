@@ -520,6 +520,14 @@ by a user at all; it only exists to be provisioned by an organization's own devi
 policy, and every normal, personal, or open-source install of Moat behaves exactly as documented
 everywhere else in this README with it entirely absent.
 
+Worth naming plainly rather than leaving implicit: the 2026 security market is visibly
+consolidating toward exactly this shape — browser telemetry, email security, and identity
+correlated as one evidence graph, treated as a single problem rather than three separate tools
+(researched fresh, not assumed — see the enterprise-browser-security trend coverage this design
+was checked against). Every real example of that consolidation found in that research is a large
+commercial acquisition play. Nothing found does this specific combination as a small, open-source,
+self-hosted system — that's a genuine, current differentiator, not just an implementation choice.
+
 Add an `athena` object (see `src/managed_schema.json`) to the same managed policy shown above:
 
 ```json
