@@ -4,6 +4,7 @@
 // message handlers in background/index.ts and the storage.sync mirror in
 // settings.ts.
 import { DEFAULT_SETTINGS, type Settings } from "../types";
+import { isSafeCosmeticSelector } from "../shared/selectorSafety";
 
 export type ExportableSettings = Omit<Settings, "fingerprintSeed">;
 
@@ -24,22 +25,6 @@ export function exportSettings(settings: Settings): ExportableSettings {
 const MAX_ARRAY_LENGTH = 5000;
 const MAX_STRING_LENGTH = 500;
 const MAX_RECORD_KEYS = 2000;
-
-// Selectors are joined with "," and wrapped in a single `{...}` block by
-// cosmeticSelectors.ts's buildStyleText/buildGrayscaleStyleText, then set via
-// styleEl.textContent (never innerHTML, so this can't smuggle a <script> --
-// textContent never re-enters the HTML parser). What it CAN do if left
-// unvalidated: a selector containing "}" closes that block early and a
-// following "{...}" opens a new one, letting an imported selector string
-// inject an arbitrary extra CSS rule into every matching page instead of
-// just hiding/graying one. None of these characters have any legitimate
-// role in a CSS *selector* (as opposed to a full rule) -- a real selector
-// never needs to open/close a declaration block itself.
-const SELECTOR_DISALLOWED = /[{}<`]/;
-
-function isPlausibleSelector(value: string): boolean {
-  return value.length > 0 && value.length <= MAX_STRING_LENGTH && !SELECTOR_DISALLOWED.test(value);
-}
 
 function isBoundedStringArray(value: unknown): value is string[] {
   return (
@@ -72,7 +57,7 @@ function isSelectorMap(value: unknown): value is Record<string, string[]> {
       hostname.length <= MAX_STRING_LENGTH &&
       Array.isArray(selectors) &&
       selectors.length <= MAX_ARRAY_LENGTH &&
-      selectors.every((s) => typeof s === "string" && isPlausibleSelector(s))
+      selectors.every((s) => typeof s === "string" && isSafeCosmeticSelector(s))
   );
 }
 

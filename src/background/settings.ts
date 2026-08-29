@@ -7,6 +7,7 @@ import { applyCustomRules } from "./applyCustomRules";
 import { applyCnameUncloak } from "./cnameUncloak";
 import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
 import { exportSettings } from "./settingsPortability";
+import { isSafeCosmeticSelector } from "../shared/selectorSafety";
 
 // Deliberately a separate storage.local key, not part of Settings/STORAGE_KEY
 // -- it must never get swept into the blob that gets mirrored *to* sync
@@ -171,6 +172,15 @@ type SelectorMapField = "customCosmeticRules" | "customGrayscaleRules";
  * hostname -> selector[] maps with identical add/remove semantics. */
 function addSelectorRule(field: SelectorMapField, hostname: string, selector: string): Promise<Settings> {
   return mutateSettings((current) => {
+    // Same check settingsPortability.ts applies to imported selectors -- both
+    // paths end up in an injected <style> block, so neither may persist a
+    // selector that could close that block early and inject an unrelated CSS
+    // rule. generateSelector.ts never emits these characters; a rejection
+    // here means something else produced the string.
+    if (!isSafeCosmeticSelector(selector)) {
+      console.warn("moat: refusing to save an unsafe cosmetic selector");
+      return null;
+    }
     const existing = current[field][hostname] ?? [];
     if (existing.includes(selector)) return null;
     return { [field]: { ...current[field], [hostname]: [...existing, selector] } } as Partial<Settings>;

@@ -3,6 +3,35 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.36
+
+### Security
+- **Hardened the content-script `postMessage` trust boundary**, closing three findings from an
+  internal security pass. None were data exfiltration or RCE -- Moat's zero-telemetry posture was
+  never in question -- but each let a visited page weaken a protection or pollute a log it should
+  not be able to reach.
+  - **`blocked` messages are now token-guarded.** `bridge.ts` forwarded any same-window
+    `{source:"moat", type:"blocked"}` message to the background; only the `config` direction
+    carried the per-page-load `guardToken`. A page could post fake block events to inflate the
+    badge or, on an Athena-connected enterprise install, feed the org a fabricated
+    `popup-redirect` security event with an attacker-chosen domain. The guards now echo the
+    locked token and `bridge.ts` forwards only when it matches.
+  - **The `config` trust-on-first-use lock no longer loses the race.** `bridge.ts` sent its real
+    `config` message only after an async storage read, so a page's first inline script could post
+    its own `config` first and win the guards' lock -- pinning `disabled:true` (popup guard
+    silently off) or a known `fingerprintSeed` (predictable noise) while the popup still showed
+    protection as on. `bridge.ts` now claims the lock synchronously at `document_start`, before
+    any page script runs, with placeholder values matching the guards' existing pre-config
+    defaults; the real values follow under the same token.
+  - **Cosmetic-selector validation is unified.** The element-picker save path
+    (`settings.ts` `addSelectorRule`) skipped the `` `{ } < ` `` check that the settings-import
+    path already applied, though both feed the same injected `<style>` block. Both now call one
+    shared `isSafeCosmeticSelector` (`src/shared/selectorSafety.ts`). Not web-exploitable today
+    (no `externally_connectable`; `generateSelector.ts` never emits those characters), a
+    defense-in-depth consistency fix.
+
+4 new tests, 469/469 overall, typecheck/build/lint:firefox clean.
+
 ## 0.11.35
 
 ### Added
