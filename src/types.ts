@@ -159,6 +159,24 @@ export interface ToggleSiteMessage {
   disabled: boolean;
 }
 
+/** Sent by the Settings page's "Trackers" tab -- which has no page of its
+ * own -- to get the company breakdown for whatever normal tab the user last
+ * had open (see background/lastNormalTab.ts). */
+export interface GetCompanyBreakdownMessage {
+  type: "get-company-breakdown";
+}
+
+export interface CompanyBreakdownResponse {
+  /** Hostname of the remembered tab, or "" if there isn't one yet. */
+  hostname: string;
+  /** company name -> blocked-request count, same shape as StatusResponse's. */
+  companyBreakdown: Record<string, number>;
+  /** False where declarativeNetRequest.getMatchedRules is unavailable
+   * (Firefox), so the page can explain the empty list rather than implying
+   * "no trackers". */
+  supported: boolean;
+}
+
 /** Sent by elementPicker.ts (content script) -- kept as an explicit message rather than
  * importing the full settings module into that content script's bundle. */
 export interface SaveCosmeticRuleMessage {
@@ -264,6 +282,7 @@ export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
   | ToggleSiteMessage
+  | GetCompanyBreakdownMessage
   | SaveCosmeticRuleMessage
   | SaveGrayscaleRuleMessage
   | GetLogEntriesMessage

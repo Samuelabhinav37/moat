@@ -182,6 +182,32 @@
         color: var(--muted);
       }
 
+      .tracker-row + .tracker-row {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+      }
+      .tracker-row .tr-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .tracker-row .tr-name {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .tracker-row .tr-count {
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .tracker-row .tr-desc {
+        margin: 4px 0 0;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+
       .about-section + .about-section {
         margin-top: 14px;
         padding-top: 14px;
@@ -233,6 +259,7 @@
       <button class="tab-button" data-tab="protection" role="tab" aria-selected="true" data-i18n="tabProtection">Protection</button>
       <button class="tab-button" data-tab="filters" role="tab" aria-selected="false" data-i18n="tabFilters">Filter Lists</button>
       <button class="tab-button" data-tab="custom" role="tab" aria-selected="false" data-i18n="tabCustom">Custom Rules</button>
+      <button class="tab-button" data-tab="trackers" role="tab" aria-selected="false" data-i18n="tabTrackers">Trackers</button>
       <button class="tab-button" data-tab="about" role="tab" aria-selected="false" data-i18n="tabAbout">About</button>
     </nav>
 
@@ -489,6 +516,23 @@
         </p>
         <ul class="site-list" id="grayscale-element-list"></ul>
         <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
+      </div>
+    </section>
+
+    <section data-tab-panel="trackers" hidden>
+      <div class="card">
+        <div class="row">
+          <div class="card-title" data-i18n="optionsTrackersHeading">Trackers on the current tab</div>
+          <button id="trackers-refresh" type="button" data-i18n="optionsTrackersRefresh">Refresh</button>
+        </div>
+        <p class="hint muted" id="trackers-subhead" hidden></p>
+        <p class="hint muted" id="trackers-unsupported" hidden data-i18n="optionsTrackersUnsupported">
+          Per-request attribution is Chrome-only -- Firefox doesn't expose the needed API yet.
+        </p>
+        <div id="tracker-rows"></div>
+        <p class="empty-state" id="trackers-empty" hidden data-i18n="optionsTrackersEmpty">
+          No trackers attributed on the tab you last had open.
+        </p>
       </div>
     </section>
 

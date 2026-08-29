@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import { chunkBySize } from "./lib/chunkBySize.mjs";
 import { resolveRedirectResource } from "./lib/redirectResources.mjs";
 import { extractRuleDomain, lookupCompany } from "./lib/ruleCompany.mjs";
+import { buildCompanyInfo } from "./lib/companyInfo.mjs";
 import { pruneRedundantRules } from "./lib/pruneRedundantRules.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -375,6 +376,16 @@ writeFileSync(join(liveDir, "redirect-domains.json"), redirectDomainsJson);
 
 writeFileSync(join(outDir, "rule-companies.json"), JSON.stringify(ruleCompanies));
 
+// company-name -> { description, url } for the companies actually attributed
+// above, for the Settings "Trackers" tab (src/options/trackerView.ts). Fetched
+// lazily by the options page, never bundled into the popup.
+const attributedCompanyNames = new Set();
+for (const byRuleId of Object.values(ruleCompanies)) {
+  for (const name of Object.values(byRuleId)) attributedCompanyNames.add(name);
+}
+const companyInfo = trackerDb ? buildCompanyInfo(attributedCompanyNames, trackerDb) : {};
+writeFileSync(join(outDir, "company-info.json"), JSON.stringify(companyInfo));
+
 // Copy only the resource files $redirect rules actually reference (not
 // every file @adguard/scriptlets ships) into a tracked-shaped build output,
 // mirrored by scripts/build.mjs into web-accessible-resources/redirects/ so
@@ -398,3 +409,8 @@ console.log(
     ? `Attributed ${attributedRuleCount} rules to a company via TrackerDB -> rules/dnr/rule-companies.json`
     : "TrackerDB not found (npm install @ghostery/trackerdb) -- skipped company attribution"
 );
+if (trackerDb) {
+  console.log(
+    `Described ${Object.keys(companyInfo).length}/${attributedCompanyNames.size} attributed companies -> rules/dnr/company-info.json`
+  );
+}

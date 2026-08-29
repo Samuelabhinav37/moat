@@ -119,6 +119,32 @@ for (const [rulesetId, byRuleId] of Object.entries(ruleCompanies)) {
 }
 console.log(`rule-companies.json: ${attributedCount} rules attributed to a company`);
 
+// company-info.json: name -> { description: string, url: string | null },
+// keyed by the same company-name strings rule-companies.json uses. Every key
+// must actually appear as an attributed company, or the options "Trackers"
+// tab would carry descriptions for companies it can never show.
+const attributedCompanyNames = new Set(
+  Object.values(ruleCompanies).flatMap((byRuleId) => Object.values(byRuleId))
+);
+const companyInfo = JSON.parse(readFileSync(join(rulesDir, "company-info.json"), "utf8"));
+let describedCount = 0;
+for (const [name, entry] of Object.entries(companyInfo)) {
+  describedCount += 1;
+  if (typeof entry?.description !== "string" || entry.description.length === 0) {
+    console.error(`company-info.json: "${name}" has a missing or empty description`);
+    ok = false;
+  }
+  if (entry?.url !== null && typeof entry?.url !== "string") {
+    console.error(`company-info.json: "${name}" url must be a string or null`);
+    ok = false;
+  }
+  if (!attributedCompanyNames.has(name)) {
+    console.error(`company-info.json: "${name}" is not an attributed company in rule-companies.json`);
+    ok = false;
+  }
+}
+console.log(`company-info.json: ${describedCount} companies described`);
+
 if (!ok) {
   console.error("\nValidation failed.");
   process.exit(1);

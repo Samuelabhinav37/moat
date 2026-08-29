@@ -31,6 +31,7 @@
   "tabProtection": { "message": "Protection" },
   "tabFilters": { "message": "Listes de filtres" },
   "tabCustom": { "message": "Règles personnalisées" },
+  "tabTrackers": { "message": "Traqueurs" },
   "tabAbout": { "message": "À propos" },
   "optionsTagline": { "message": "Bloque les publicités, les traqueurs et les pop-ups détournés." },
 
@@ -116,6 +117,23 @@
   "optionsDimmedElementsTitle": { "message": "Éléments estompés" },
   "optionsDimmedElementsHint": {
     "message": "Éléments que vous avez choisi d'\"Estomper\". Supprimez-les ici pour restaurer leur visibilité normale."
+  },
+
+  "optionsTrackersHeading": { "message": "Traqueurs sur l'onglet actuel" },
+  "optionsTrackersRefresh": { "message": "Actualiser" },
+  "optionsTrackersSeenOn": {
+    "message": "Entreprises bloquées sur $HOST$.",
+    "placeholders": { "host": { "content": "$1" } }
+  },
+  "optionsTrackersCount": {
+    "message": "$COUNT$ bloqués",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "optionsTrackersEmpty": {
+    "message": "Aucun traqueur attribué sur le dernier onglet que vous avez eu ouvert."
+  },
+  "optionsTrackersUnsupported": {
+    "message": "L'attribution par requête est réservée à Chrome ; Firefox n'expose pas encore l'API nécessaire."
   },
 
   "optionsAboutHeading": { "message": "À propos de Moat" },

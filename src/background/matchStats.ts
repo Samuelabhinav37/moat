@@ -30,6 +30,16 @@ async function loadCompanies(): Promise<RuleCompanies> {
   return companiesCache;
 }
 
+// The single reference in the whole codebase to this Chrome-only DNR
+// feedback global (Firefox doesn't implement it) -- kept in one function
+// body, not at module scope, so it tree-shakes cleanly out of bundles that
+// don't use it (the options page) and `web-ext lint` only ever flags this
+// one line. The guard below and background/index.ts's company-breakdown
+// handler both go through this rather than reaching for `chrome.` again.
+function matchedRulesApi(): typeof chrome.declarativeNetRequest.getMatchedRules | undefined {
+  return chrome.declarativeNetRequest?.getMatchedRules;
+}
+
 const breakdownByTab = new Map<number, Breakdown>();
 const companiesByTab = new Map<number, Record<string, number>>();
 
@@ -45,6 +55,14 @@ export function getCompanyBreakdown(tabId: number): Record<string, number> {
   return companiesByTab.get(tabId) ?? EMPTY_COMPANIES;
 }
 
+/** Whether declarativeNetRequest match feedback exists at all -- false on
+ * Firefox, where the whole Ads/Trackers/Popups breakdown (and the company
+ * detail derived from it) stays at zero. Exported so callers outside this
+ * module don't each reach for the Chrome-only global themselves. */
+export function isMatchedRulesSupported(): boolean {
+  return Boolean(matchedRulesApi());
+}
+
 function clearTab(tabId: number): void {
   clearTabFromMaps(tabId, breakdownByTab, companiesByTab);
 }
@@ -54,13 +72,11 @@ export const forgetTab = clearTab;
 
 export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
   try {
-    // Raw chrome global rather than the browser (webextension-polyfill)
-    // import used elsewhere in this file: getMatchedRules is a Chrome-only,
-    // callback/promise-hybrid DNR feedback API the polyfill doesn't wrap.
-    // The whole block is wrapped in try/catch below, so a missing `chrome`
-    // global (shouldn't happen -- both targets expose it) fails the same
-    // safe way as a missing getMatchedRules does.
-    const getMatchedRules = chrome.declarativeNetRequest?.getMatchedRules;
+    // getMatchedRules is a Chrome-only, callback/promise-hybrid DNR feedback
+    // API the webextension-polyfill doesn't wrap -- undefined on Firefox,
+    // where this whole path no-ops. The block is also wrapped in try/catch,
+    // so a call that throws fails the same safe way.
+    const getMatchedRules = matchedRulesApi();
     if (!getMatchedRules) return getBreakdown(tabId);
 
     const [manifest, companies, { rulesMatchedInfo }] = await Promise.all([

@@ -128,6 +128,7 @@ function copyStaticAssets() {
     "manifest.json",
     "redirect-domains.json",
     "rule-companies.json",
+    "company-info.json",
     "consent-rules.json",
     "cname-cloak-destinations.json",
     ...cosmeticsFiles,

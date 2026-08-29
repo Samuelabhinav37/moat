@@ -31,6 +31,7 @@
   "tabProtection": { "message": "Protección" },
   "tabFilters": { "message": "Listas de filtros" },
   "tabCustom": { "message": "Reglas personalizadas" },
+  "tabTrackers": { "message": "Rastreadores" },
   "tabAbout": { "message": "Acerca de" },
   "optionsTagline": { "message": "Bloquea anuncios, rastreadores y ventanas emergentes secuestradas." },
 
@@ -116,6 +117,23 @@
   "optionsDimmedElementsTitle": { "message": "Elementos atenuados" },
   "optionsDimmedElementsHint": {
     "message": "Elementos que seleccionaste para \"Atenuar\". Elimínalos aquí para restaurar su visibilidad normal."
+  },
+
+  "optionsTrackersHeading": { "message": "Rastreadores en la pestaña actual" },
+  "optionsTrackersRefresh": { "message": "Actualizar" },
+  "optionsTrackersSeenOn": {
+    "message": "Empresas bloqueadas en $HOST$.",
+    "placeholders": { "host": { "content": "$1" } }
+  },
+  "optionsTrackersCount": {
+    "message": "$COUNT$ bloqueados",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "optionsTrackersEmpty": {
+    "message": "No se atribuyeron rastreadores en la última pestaña que tuviste abierta."
+  },
+  "optionsTrackersUnsupported": {
+    "message": "La atribución por solicitud es solo para Chrome; Firefox aún no expone la API necesaria."
   },
 
   "optionsAboutHeading": { "message": "Acerca de Moat" },

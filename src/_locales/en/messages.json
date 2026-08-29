@@ -35,6 +35,7 @@
   "tabProtection": { "message": "Protection" },
   "tabFilters": { "message": "Filter Lists" },
   "tabCustom": { "message": "Custom Rules" },
+  "tabTrackers": { "message": "Trackers" },
   "tabAbout": { "message": "About" },
   "optionsTagline": { "message": "Blocks ads, trackers, and hijacked popups." },
 
@@ -120,6 +121,23 @@
   "optionsDimmedElementsTitle": { "message": "Dimmed elements" },
   "optionsDimmedElementsHint": {
     "message": "Elements you grayed out with the picker. Remove one to restore it."
+  },
+
+  "optionsTrackersHeading": { "message": "Trackers on the current tab" },
+  "optionsTrackersRefresh": { "message": "Refresh" },
+  "optionsTrackersSeenOn": {
+    "message": "Companies blocked on $HOST$.",
+    "placeholders": { "host": { "content": "$1" } }
+  },
+  "optionsTrackersCount": {
+    "message": "$COUNT$ blocked",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "optionsTrackersEmpty": {
+    "message": "No trackers attributed on the tab you last had open."
+  },
+  "optionsTrackersUnsupported": {
+    "message": "Per-request attribution is Chrome-only -- Firefox doesn't expose the needed API yet."
   },
 
   "optionsAboutHeading": { "message": "About Moat" },

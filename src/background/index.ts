@@ -35,6 +35,7 @@ import { summarizeFilterLists } from "../shared/rulesetManifest";
 import { effectiveFilterGroupState } from "./filterGroupState";
 import type {
   AthenaBlockReasonResponse,
+  CompanyBreakdownResponse,
   ImportSettingsResponse,
   LogEntriesResponse,
   ReportContextResponse,
@@ -42,6 +43,12 @@ import type {
   StatusResponse,
 } from "../types";
 import type { PopupUiNotices } from "./updateNotice";
+import {
+  forgetTab as forgetLastNormalTab,
+  getLastNormalTabId,
+  noteTabUrl,
+} from "./lastNormalTab";
+import { isMatchedRulesSupported } from "./matchStats";
 
 initPopupGuard();
 initLiveUpdates();
@@ -112,7 +119,25 @@ browser.tabs.onRemoved.addListener((tabId) => {
   forgetTab(tabId);
   forgetLoggerTab(tabId);
   forgetBlockReasonTab(tabId);
+  forgetLastNormalTab(tabId);
 });
+
+// Track which normal web page the user last had focused, so the Settings
+// "Trackers" tab -- itself an extension page with no page of its own -- can
+// ask about it (see lastNormalTab.ts). onActivated has no url, so fetch it.
+browser.tabs.onActivated.addListener(({ tabId }) => {
+  void browser.tabs
+    .get(tabId)
+    .then((tab) => noteTabUrl(tabId, tab?.url))
+    .catch(() => {});
+});
+// Seed it once at startup with the currently-focused tab.
+void browser.tabs
+  .query({ active: true, lastFocusedWindow: true })
+  .then(([tab]) => {
+    if (tab?.id !== undefined) noteTabUrl(tab.id, tab.url);
+  })
+  .catch(() => {});
 
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId === 0) resetForNavigation(details.tabId);
@@ -135,7 +160,10 @@ browser.webNavigation.onBeforeNavigate.addListener((details) => {
 // finished loading and made its requests -- hence onCompleted, not
 // onCommitted (which only clears the stale numbers from the previous page).
 browser.webNavigation.onCompleted.addListener((details) => {
-  if (details.frameId === 0) void refreshStaticBreakdown(details.tabId);
+  if (details.frameId !== 0) return;
+  void refreshStaticBreakdown(details.tabId);
+  // Also covers navigating an already-active tab, which fires no onActivated.
+  noteTabUrl(details.tabId, details.url);
 });
 
 function hostnameOf(url: string | undefined): string {
@@ -201,6 +229,20 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
           blockedOnTab: tab?.id !== undefined ? combinedTotal(tab.id) : 0,
           breakdown: tab?.id !== undefined ? combinedBreakdown(tab.id) : { ads: 0, trackers: 0, popups: 0 },
           companyBreakdown: tab?.id !== undefined ? combinedCompanyBreakdown(tab.id) : {},
+        };
+      })();
+    }
+
+    case "get-company-breakdown": {
+      return (async (): Promise<CompanyBreakdownResponse> => {
+        const supported = isMatchedRulesSupported();
+        const tabId = getLastNormalTabId();
+        if (tabId === null) return { hostname: "", companyBreakdown: {}, supported };
+        const tab = await browser.tabs.get(tabId).catch(() => undefined);
+        return {
+          hostname: hostnameOf(tab?.url),
+          companyBreakdown: combinedCompanyBreakdown(tabId),
+          supported,
         };
       })();
     }

@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.40
+
+### Added
+- **A "Trackers" tab in Settings** — the Ghostery-style per-company drill-down from the
+  competitive-gap audit (item c), redone without touching the popup. The popup's flat "By company"
+  list is unchanged; the new tab shows the same list for whichever normal tab you last had open,
+  each company with a one-sentence description and website link. (An earlier version, v0.11.13,
+  put an expanding drill-down *inside* the popup and was reverted as unwanted popup UI.)
+  - Descriptions come from Ghostery's TrackerDB, already bundled for the attribution itself. A new
+    build step writes `rules/dnr/company-info.json` (company name → description + URL, deduped to
+    the ~1,300 companies actually attributed to a shipped rule — 1,313 this build). The options
+    page fetches it lazily, only when the tab is opened; it's never loaded by the popup.
+  - The background worker records the last focused `http(s)` tab (`src/background/lastNormalTab.ts`)
+    so the Settings page — which has no page of its own — knows which tab to report on. It holds a
+    single tab id and nothing about its contents.
+  - Firefox shows the tab with an explanatory line: per-request attribution needs
+    `declarativeNetRequest.getMatchedRules`, which Firefox doesn't implement.
+
+13 new tests (485/485 overall), validate:rules/typecheck/build/lint:firefox clean (5 warnings,
+unchanged).
+
 ## 0.11.39
 
 ### Changed

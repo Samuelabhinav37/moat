@@ -44,7 +44,8 @@ badge count.
   blocking can't reach.
 - **Real block-count breakdown** — the toolbar popup shows an Ads / Trackers / Popups split from
   the browser's own rule-match feedback, not estimates (Chrome only for now), plus a qualitative
-  read ("Light"/"Moderate"/"Heavy tracking blocked") and an optional "by company" attribution.
+  read ("Light"/"Moderate"/"Heavy tracking blocked") and an optional "by company" attribution,
+  expanded in Settings → Trackers with a one-sentence description per company.
 - **Element picker** — "Block an element…" for anything the filter lists miss: hide it
   permanently, hide it just for this page load, or gray it out if hiding would break the layout.
 - **Grayed-out video ads** — dims YouTube's in-stream ads instead of leaving them full-color,
@@ -174,7 +175,9 @@ are in [`docs/design-notes.md`](docs/design-notes.md).
   while the popup/redirect firewall count still works on both browsers. A collapsed-by-default "By
   company" disclosure attributes as many matches as it can to the organization behind them,
   correlated at build time against Ghostery's TrackerDB by target domain
-  (`scripts/lib/ruleCompany.mjs`), hidden entirely where TrackerDB has no data. A qualitative line
+  (`scripts/lib/ruleCompany.mjs`), hidden entirely where TrackerDB has no data; Settings → Trackers
+  shows the same list for the last tab you had open, each company with a one-sentence description
+  and link (also from TrackerDB, `rules/dnr/company-info.json`). A qualitative line
   (`src/shared/protectionLevel.ts`) buckets the same count into "Light"/"Moderate"/"Heavy tracking
   blocked" — deliberately not a before/after grade, since Moat has no counterfactual for what a
   page would have loaded without it.

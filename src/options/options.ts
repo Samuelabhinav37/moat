@@ -15,11 +15,14 @@ import { isSupported as isCnameUncloakSupported } from "../background/cnameUnclo
 import { detectPreset, presetPatch, type PresetName } from "../shared/filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import type {
+  CompanyBreakdownResponse,
   ExportSettingsMessage,
+  GetCompanyBreakdownMessage,
   ImportSettingsMessage,
   ImportSettingsResponse,
   Settings,
 } from "../types";
+import { joinCompanyBreakdown, type CompanyInfo } from "./trackerView";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 
 function tFallback(key: string, fallback: string, substitutions?: string | string[]): string {
@@ -39,7 +42,11 @@ function selectTab(name: string): void {
 }
 
 for (const button of tabButtons) {
-  button.addEventListener("click", () => selectTab(button.dataset.tab!));
+  button.addEventListener("click", () => {
+    const name = button.dataset.tab!;
+    selectTab(name);
+    if (name === "trackers") void renderTrackers();
+  });
 }
 
 // ---------- Protection tab ----------
@@ -630,6 +637,84 @@ exportSettingsButton.addEventListener("click", async () => {
 });
 
 importSettingsButton.addEventListener("click", () => importSettingsInput.click());
+
+// ---------- Trackers tab ----------
+
+const trackerRows = document.getElementById("tracker-rows") as HTMLElement;
+const trackersSubhead = document.getElementById("trackers-subhead") as HTMLElement;
+const trackersEmpty = document.getElementById("trackers-empty") as HTMLElement;
+const trackersUnsupported = document.getElementById("trackers-unsupported") as HTMLElement;
+const trackersRefresh = document.getElementById("trackers-refresh") as HTMLButtonElement;
+
+// company name -> { description, url }, fetched once on first view. Lazy on
+// purpose: it's ~450KB of text nobody needs unless they open this tab.
+let companyInfoCache: Record<string, CompanyInfo> | null = null;
+
+async function loadCompanyInfo(): Promise<Record<string, CompanyInfo>> {
+  if (companyInfoCache) return companyInfoCache;
+  try {
+    const url = browser.runtime.getURL("rules/company-info.json");
+    companyInfoCache = (await (await fetch(url)).json()) as Record<string, CompanyInfo>;
+  } catch {
+    companyInfoCache = {};
+  }
+  return companyInfoCache;
+}
+
+async function renderTrackers(): Promise<void> {
+  const message: GetCompanyBreakdownMessage = { type: "get-company-breakdown" };
+  const [status, info] = await Promise.all([
+    browser.runtime.sendMessage(message) as Promise<CompanyBreakdownResponse>,
+    loadCompanyInfo(),
+  ]);
+
+  trackersUnsupported.hidden = status.supported;
+  if (status.hostname) {
+    trackersSubhead.hidden = false;
+    trackersSubhead.textContent = tFallback(
+      "optionsTrackersSeenOn",
+      `Companies blocked on ${status.hostname}.`,
+      [status.hostname]
+    );
+  } else {
+    trackersSubhead.hidden = true;
+  }
+
+  const rows = joinCompanyBreakdown(status.companyBreakdown, info);
+  trackersEmpty.hidden = rows.length > 0;
+  trackerRows.replaceChildren(
+    ...rows.map((row) => {
+      const wrap = document.createElement("div");
+      wrap.className = "tracker-row";
+
+      const head = document.createElement("div");
+      head.className = "tr-head";
+      const name = document.createElement(row.url ? "a" : "span");
+      name.className = "tr-name";
+      name.textContent = row.company;
+      if (row.url && name instanceof HTMLAnchorElement) {
+        name.href = row.url;
+        name.target = "_blank";
+        name.rel = "noopener";
+      }
+      const count = document.createElement("span");
+      count.className = "tr-count";
+      count.textContent = tFallback("optionsTrackersCount", `${row.count} blocked`, String(row.count));
+      head.append(name, count);
+      wrap.append(head);
+
+      if (row.description) {
+        const desc = document.createElement("p");
+        desc.className = "tr-desc";
+        desc.textContent = row.description;
+        wrap.append(desc);
+      }
+      return wrap;
+    })
+  );
+}
+
+trackersRefresh.addEventListener("click", () => void renderTrackers());
 
 importSettingsInput.addEventListener("change", async () => {
   const file = importSettingsInput.files?.[0];
