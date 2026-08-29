@@ -44,7 +44,18 @@ let lockedGuardToken: string | null = null;
 const TRUST_WINDOW_MS = 1200;
 
 function report(kind: GuardBlockKind, url: string | null): void {
-  const message: BridgeMessage = { source: "moat", type: "blocked", kind, url };
+  // Echo the guardToken bridge.ts locked in via the first config message so
+  // bridge.ts can tell a real guard report from one the page posted itself.
+  // Empty until that first config lands -- a report that early is dropped by
+  // bridge.ts rather than trusted, which costs at most one uncounted block,
+  // never a missed block (the block itself already happened above).
+  const message: BridgeMessage = {
+    source: "moat",
+    type: "blocked",
+    kind,
+    url,
+    guardToken: lockedGuardToken ?? "",
+  };
   window.postMessage(message, "*");
 }
 

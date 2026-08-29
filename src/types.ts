@@ -288,7 +288,7 @@ export type BridgeMessage =
       fingerprintSeed: string;
       guardToken: string;
     }
-  | { source: "moat"; type: "blocked"; kind: GuardBlockKind; url: string | null };
+  | { source: "moat"; type: "blocked"; kind: GuardBlockKind; url: string | null; guardToken: string };
 
 /**
  * Read-only policy an org can push via Chrome's ExtensionSettings policy or
