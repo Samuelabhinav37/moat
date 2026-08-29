@@ -7,6 +7,8 @@ don't happen twice.
 
 ## Contents
 
+- [Architecture at a glance](#architecture-at-a-glance)
+- [How it works](#how-it-works)
 - [Source layout and the testing pattern](#source-layout-and-the-testing-pattern)
 - [Feature mechanics](#feature-mechanics)
   - [Grayed-out video ads](#grayed-out-video-ads)
@@ -18,6 +20,108 @@ don't happen twice.
   - [Rule-match logger](#rule-match-logger)
 - [Problems we hit and how we solved them](#problems-we-hit-and-how-we-solved-them)
 - [Researched but not built yet — full reasoning](#researched-but-not-built-yet--full-reasoning)
+
+## Architecture at a glance
+
+```mermaid
+flowchart TD
+    Nav["Page navigation"] --> DNR{"declarativeNetRequest<br/>static rulesets (~271k rules)"}
+    DNR -->|"matches ads/trackers/malware list"| Blocked["Request blocked<br/>(network level, before it loads)"]
+    DNR -->|"no match"| Loads["Request allowed through"]
+
+    Loads --> DocStart["document_start content scripts"]
+    DocStart --> Cosmetic["cosmeticFilter.ts<br/>fetch only the 1-3 domain-hash<br/>buckets this hostname needs,<br/>inject one &lt;style&gt; block"]
+    DocStart --> Guard["mainWorldGuard.ts (MAIN world)<br/>wraps window.open + click hijacks,<br/>drops popups without a real gesture"]
+
+    Loads --> DocIdle["document_idle content scripts<br/>(site-scoped, opt-in)"]
+    DocIdle --> Dimmer["youtubeAdDimmer.ts<br/>grayscale in-stream video ads"]
+    DocIdle --> Scanner["feedAdScanner.ts<br/>MutationObserver + label match,<br/>removes sponsored feed posts"]
+
+    Blocked --> Background["background/index.ts<br/>(service worker)"]
+    Guard --> Background
+    Background --> Badge["Per-tab badge count"]
+    Background --> Breakdown["Ads / Trackers / Popups<br/>breakdown (getMatchedRules)"]
+    Background --> SafetyNet["Tab safety net:<br/>closes popups that slipped past<br/>the content-script guard"]
+    Background --> LiveUpdates["Daily live redirect-domain<br/>refresh from GitHub"]
+```
+
+Network-level blocking (left branch) happens before a request ever loads. Everything else is
+reactive to a page that already loaded — cosmetic hiding, the popup guard, and the opt-in
+per-site features all run as content scripts, while the background service worker owns anything
+that needs to persist across pages (the badge, the breakdown, the safety net, live updates).
+
+## How it works
+
+The parts that need more than a sentence. Feature-level mechanics — the feed scanner, the consent
+interpreter, CNAME uncloaking, the fingerprint noise, the cosmetic-filtering internals — have
+their own sections further down.
+
+- **Network blocking** — ships `declarativeNetRequest` static rulesets refreshed from
+  `@adguard/dnr-rulesets`: 11 AdGuard lists (Base, Tracking Protection, URL Tracking, and Popups
+  for ads/trackers; Online Malicious URL, Phishing URL, Scam, and Badware-risks for actual
+  malware/phishing domains — the "firewall" half, which blocks known-bad sites outright, not just
+  ads; Social Media, Cookie Notices, and Other Annoyances for the rest), plus three small
+  first-party rulesets: the `Sec-GPC` header rule (`ruleset_privacy-headers`), ClearURLs-gap
+  URL-tracking params (`ruleset_url-tracking-extra`), and block rules for a handful of
+  error-reporting and social ad/conversion endpoints the bundled lists miss
+  (`ruleset_trackers-extra`). ~271,000 rules across 20 rulesets, well under the ceiling for most
+  installs (see the README's "Known limitations"), all running in the browser engine, not a JS
+  handler (which MV3 no longer allows for blocking). A slice are `$redirect` rules that point ad
+  scripts at a bundled no-op resource (`nooptext.js`, `1x1-transparent.gif`, etc.);
+  `scripts/update-filters.mjs` vendors the ~30 resource files those rules reference out of
+  `@adguard/scriptlets` into `web-accessible-resources/redirects/` so they resolve instead of
+  failing closed.
+- **Block-count breakdown** — the popup's Ads/Trackers/Popups strip is sourced from
+  `declarativeNetRequest.getMatchedRules()` (the `declarativeNetRequestFeedback` permission),
+  refreshed once per page load and mapped from the filter-list groups to three buckets. Real
+  counts, starting at zero on a fresh page and filling in as the page's own requests get matched.
+  Chrome-only: Firefox hasn't implemented `getMatchedRules`, so that slice stays at zero there
+  while the popup/redirect firewall count still works on both browsers. A collapsed-by-default "By
+  company" disclosure attributes as many matches as it can to the organization behind them,
+  correlated at build time against Ghostery's TrackerDB by target domain
+  (`scripts/lib/ruleCompany.mjs`), hidden entirely where TrackerDB has no data; Settings →
+  Trackers shows the same list for the last tab you had open, each company with a one-sentence
+  description and link (also from TrackerDB, `rules/dnr/company-info.json`). A qualitative line
+  (`src/shared/protectionLevel.ts`) buckets the same count into "Light"/"Moderate"/"Heavy tracking
+  blocked" — deliberately not a before/after grade, since Moat has no counterfactual for what a
+  page would have loaded without it.
+- **Popup/redirect firewall** — a content script injected into the page's own JS context
+  (`world: "MAIN"`) wraps `window.open` and intercepts script-dispatched clicks on
+  `target="_blank"` links. A new tab opens only when there's a genuine, recent, on-target user
+  gesture behind it (`navigator.userActivation` plus the actual clicked element, not just "some
+  click happened somewhere recently"). Everything else is dropped silently — no browser
+  popup-blocked notification bar. In case one slips past the content script (a frame the script
+  never ran in, a race), the background worker watches newly created tabs and silently closes any
+  that land on a domain from the AdGuard Popups/URL Tracking lists.
+- **Cosmetic filtering** — network blocking is network-only, so a build-time script
+  (`scripts/update-cosmetics.mjs`) parses standard `##selector` / `#@#`-exception cosmetic rules
+  out of the raw filter lists (skipping scriptlet and extended-selector syntax that needs a JS
+  engine), validates every selector against jsdom, and buckets per-domain selectors into 64 shard
+  files by a hash of the domain. A content script (`src/content/cosmeticFilter.ts`, top frame
+  only) fetches only the 1–3 shards its hostname hashes into and injects them as `<style>` blocks
+  at `document_start` — CSS rules, not a one-time DOM pass, so they keep working through SPA
+  navigation without a MutationObserver. This cut the JSON fetched per page load from ~5.8MB to
+  under 1MB. The generic-selector cleanup pass and the sharding details are under "Cosmetic
+  filtering internals" below.
+- **Live updates + emergency quick-fix channel** — the bulk of blocking stays static (MV3's
+  dynamic-rule budget can't hold ~271k rules), but two small lists refresh daily:
+  `live/redirect-domains.json` (~460 popup/redirect domains) and `live/quick-fixes.json`, an
+  AdGuard-"Quick Fixes filter"-style channel for patching an anti-adblock-circumvention script or
+  a filter-breakage report without waiting on a full store review cycle.
+  `src/background/liveUpdates.ts` fetches whatever's currently committed on GitHub and applies it
+  as dynamic `declarativeNetRequest` rules on top of the bundled baseline. Publishing a refresh is
+  just `npm run filters:update` + commit + push — no scheduled automation writes to the repo.
+  Trust here is GitHub account security plus TLS, with no extra signature/hash pinning; a
+  quick-fix entry can only block a request, allow-list one, or strip query params
+  (`src/background/quickFixRules.ts`), never redirect to an arbitrary URL, so a compromised feed
+  can't turn this into traffic hijacking. Both are empty by default and Settings shows the last
+  successful check.
+- **Enterprise-managed policy** — an admin can push settings org-wide via Chrome's
+  `ExtensionSettings` policy or Firefox's `policies.json` `3rdparty` key (schema:
+  `src/managed_schema.json`): force protection on, lock the filter-list toggles, or add an
+  org-wide blocklist. Locked controls show a "Managed by your organization" badge instead of
+  silently overriding the user. Full deployment details, and the optional Athena integration, are
+  in [`enterprise.md`](enterprise.md).
 
 ## Source layout and the testing pattern
 
