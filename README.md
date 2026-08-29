@@ -42,7 +42,8 @@ badge count.
 - **Cosmetic filtering** — hides the leftover ad containers and cookie banners that network-level
   blocking can't reach.
 - **Real block-count breakdown** — the toolbar popup shows an Ads / Trackers / Popups split
-  sourced from the browser's own rule-match feedback, not estimated (Chrome only for now).
+  sourced from the browser's own rule-match feedback, not estimated (Chrome only for now), plus a
+  qualitative read ("Light"/"Moderate"/"Heavy tracking blocked") over the same count.
 - **Element picker** — "Block an element…" for anything the filter lists miss: hide it
   permanently, hide it just for this page load, or gray it out if hiding would break the layout.
 - **Grayed-out video ads** — automatically dims YouTube's in-stream ads instead of leaving them
@@ -134,7 +135,12 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   as it can to the actual organization behind them (Google, Meta, Criteo, etc.), correlated at
   build time against Ghostery's TrackerDB by each rule's target domain — purely informational, no
   new decision asked of anyone, hidden entirely on requests TrackerDB doesn't cover (see
-  `scripts/lib/ruleCompany.mjs` and `src/shared/matchedRuleCompanies.ts`).
+  `scripts/lib/ruleCompany.mjs` and `src/shared/matchedRuleCompanies.ts`). A small qualitative line
+  under the count (`src/shared/protectionLevel.ts`) reframes the same real number into
+  "Light"/"Moderate"/"Heavy tracking blocked" — DuckDuckGo's most legible non-technical pattern
+  (a competitive-gap-audit opportunity), but deliberately not a before/after grade the way theirs
+  is: Moat has no counterfactual measurement of what a page would have loaded without it, so this
+  buckets the same accurate count shown numerically above it rather than fabricating a comparison.
 - **Rule-match logger** — a development tool, not a user feature: `logger.html` (linked from
   Settings → About → Debugging) lists every request `declarativeNetRequest.onRuleMatchedDebug`
   saw on the active tab and which specific rule matched it, for diagnosing a filter or heuristic

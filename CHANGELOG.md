@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.35
+
+### Added
+- **"Report card"-style popup summary**, closing another open competitive-gap-audit item. A small
+  qualitative line under the existing block count -- "Light"/"Moderate"/"Heavy tracking blocked" --
+  reframing DuckDuckGo's most legible non-technical pattern over data the popup already computes.
+  Deliberately not a before/after grade the way DuckDuckGo's is: Moat has no counterfactual
+  measurement of what a page would have loaded without it, so `shared/protectionLevel.ts` buckets
+  the same real, already-accurate count rather than fabricating a comparison. New locale strings
+  translated across all 3 languages shipped last version, keeping `localeParity.test.ts` green.
+
+5 new tests, 465/465 overall, typecheck/build/lint:firefox clean.
+
 ## 0.11.34
 
 ### Added

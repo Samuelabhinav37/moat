@@ -10,6 +10,7 @@ import type {
 import { buildIssueUrl } from "./reportIssue";
 import type { PopupUiNotices } from "../background/updateNotice";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
+import { PROTECTION_LEVEL_MESSAGE_KEY, protectionLevelForCount } from "../shared/protectionLevel";
 
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 
@@ -71,6 +72,16 @@ async function render(): Promise<void> {
   document.getElementById("count-ads")!.textContent = String(status.breakdown.ads);
   document.getElementById("count-trackers")!.textContent = String(status.breakdown.trackers);
   document.getElementById("count-popups")!.textContent = String(status.breakdown.popups);
+  // A qualitative read over the same real count shown numerically above it,
+  // not a new measurement -- see shared/protectionLevel.ts for why this
+  // isn't a before/after "grade" the way DuckDuckGo's is (Moat has no
+  // counterfactual "what this page would have loaded without protection").
+  const level = protectionLevelForCount(status.blockedOnTab);
+  document.getElementById("protection-level")!.textContent = getMessageOrFallback(
+    (key) => browser.i18n.getMessage(key),
+    PROTECTION_LEVEL_MESSAGE_KEY[level],
+    ""
+  );
   renderCompanyBreakdown(status.companyBreakdown);
 
   const hostnameEl = document.getElementById("hostname")!;

@@ -1,3 +1,10 @@
+/// <reference types="node" />
+// This file alone needs Node's ambient types (readFileSync et al.) --
+// tsconfig.json deliberately scopes `types` to `["chrome"]` for the rest of
+// this browser-extension codebase, so a directive here rather than a
+// project-wide tsconfig change. @types/node is already present transitively
+// (a Vite/Vitest dependency), just not declared as an ambient global.
+//
 // Static-data regression test, not a unit test of any module: reads every
 // _locales/*/messages.json straight off disk and checks each non-English
 // locale has the same keys and the same $PLACEHOLDER$ tokens as English --
