@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.34
+
+### Added
+- **First real translations: Spanish, French, and German**, closing the oldest open item from the
+  competitive-gap-audit (i18n infrastructure has existed since 0.11.8–10 with zero non-English
+  locales shipped until now). First-draft machine translations across all 119 message keys, not
+  yet reviewed by a native speaker -- treat as provisional. New
+  `src/_locales/localeParity.test.ts` checks every non-English locale against English for
+  identical keys and identical `$PLACEHOLDER$` tokens, so future drift (a new English string added
+  without its translations) fails CI immediately instead of surfacing as a silent fallback or a
+  literal `$COUNT$` shown to a user.
+
+10 new tests, 460/460 overall, typecheck/build/lint:firefox clean.
+
 ## 0.11.33
 
 ### Changed

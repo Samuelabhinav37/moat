@@ -376,10 +376,17 @@ that needs to persist across pages (the badge, the breakdown, the safety net, li
   in a public issue) and the filter groups currently enabled globally. Built from the same
   cross-browser, cheap data as the rest of the popup, not Chrome-only `getMatchedRules`, so it
   behaves identically on both browsers.
-- **Localization infrastructure** — all user-facing strings in the popup and options page route
-  through `_locales/en/messages.json` and `browser.i18n.getMessage()` rather than being hardcoded,
-  the standard WebExtension i18n mechanism. English-only for now; this is the plumbing a future
-  translation would drop into, not a translation itself.
+- **Localization** — all user-facing strings in the popup and options page route through
+  `_locales/<lang>/messages.json` and `browser.i18n.getMessage()`, the standard WebExtension i18n
+  mechanism, rather than being hardcoded. Spanish, French, and German joined English this pass —
+  first-draft machine translations, not yet reviewed by a native speaker of any of the three, so
+  treat the wording as provisional rather than polished. `src/_locales/localeParity.test.ts`
+  guards against future drift: every non-English locale is checked against English for identical
+  message keys and identical `$PLACEHOLDER$` tokens on every push, so a new English string added
+  without its translations following fails CI immediately instead of silently falling back to
+  English (harmless) or, worse, shipping a placeholder typo that never gets substituted (a user
+  sees the literal text `$COUNT$`). Adding another language is a new `_locales/<code>/` directory
+  with the same 119 keys — the parity test tells you immediately if anything's missing.
 
 See `src/` for the source layout: `background/` (service worker / event
 page), `content/` (the three content scripts — `mainWorldGuard.ts` for the

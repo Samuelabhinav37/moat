@@ -1,0 +1,184 @@
+{
+  "extName": { "message": "Moat" },
+  "extDescription": {
+    "message": "Blockiert Werbung und Tracker und schließt Pop-up- bzw. Weiterleitungs-Tabs lautlos, ohne nervige Hinweise."
+  },
+  "popupSettingsLink": { "message": "Einstellungen" },
+  "popupOnboardingCard": {
+    "message": "Moat blockiert Werbung und Tracker automatisch. Nutze den Schalter unten, um es auf einer Seite zu pausieren, oder Einstellungen für die Feinabstimmung."
+  },
+  "popupUpdatePrefix": { "message": "Aktualisiert auf v" },
+  "popupUpdateSeparator": { "message": " -- " },
+  "popupUpdateLinkText": { "message": "Neuerungen ansehen" },
+  "popupBlockedOnPage": { "message": "Auf dieser Seite blockiert" },
+  "popupAds": { "message": "Werbung" },
+  "popupTrackers": { "message": "Tracker" },
+  "popupPopups": { "message": "Pop-ups" },
+  "popupByCompany": { "message": "Nach Unternehmen" },
+  "popupPausedPrefix": { "message": "Pausiert auf " },
+  "popupPausedSuffix": { "message": ". Seite neu laden, um es entsperrt zu sehen." },
+  "popupProtected": { "message": "geschützt" },
+  "popupPaused": { "message": "pausiert" },
+  "popupReloadPage": { "message": "Seite neu laden" },
+  "popupBlockElement": { "message": "Element blockieren…" },
+  "popupReportProblem": { "message": "Problem melden…" },
+  "popupLoadError": { "message": "Status konnte nicht geladen werden. Versuche, das Popup erneut zu öffnen." },
+
+  "tabProtection": { "message": "Schutz" },
+  "tabFilters": { "message": "Filterlisten" },
+  "tabCustom": { "message": "Eigene Regeln" },
+  "tabAbout": { "message": "Über" },
+  "optionsTagline": { "message": "Blockiert Werbung, Tracker und gekaperte Pop-ups." },
+
+  "optionsMasterToggleLabel": { "message": "Schutz aktiviert" },
+  "optionsMasterToggleHint": { "message": "Schaltet die gesamte Blockierung global ein oder aus." },
+  "optionsManagedBadge": { "message": "Verwaltet durch deine Organisation" },
+  "optionsAdvancedProtectionCategory": { "message": "Erweiterter Schutz" },
+  "optionsCookiesToggleLabel": { "message": "Cookies von Drittanbietern blockieren" },
+  "optionsCookiesToggleHint": { "message": "Verhindert seitenübergreifendes Tracking in deinem Browser. (Standardmäßig aus)" },
+  "optionsWebrtcToggleLabel": { "message": "WebRTC-IP-Lecks verhindern" },
+  "optionsWebrtcToggleHint": { "message": "Verbirgt deine echte IP-Adresse bei Verwendung eines VPN." },
+  "optionsFingerprintToggleLabel": { "message": "Fingerprinting reduzieren" },
+  "optionsFingerprintToggleHint": {
+    "message": "Verfälscht Gerätedaten, um stilles Tracking zu verhindern. Kann gelegentlich Seitenfunktionen wie CAPTCHAs beeinträchtigen. (Standardmäßig aus)"
+  },
+  "optionsFingerprintRotateToggleLabel": { "message": "Rauschen bei jeder Browsersitzung neu erzeugen" },
+  "optionsFingerprintRotateToggleHint": {
+    "message": "Erzeugt bei jedem Neustart des Browsers neues Rauschen, anstatt immer dasselbe zu verwenden -- näher am Modell von Brave. Ein Fingerabdruck, der sich nie ändert, kann mit der Zeit selbst zu einem stabilen Identifikator werden; das Rotieren tauscht dies dagegen ein, dass Websites bei jedem Neustart ein anderes \"Gerät\" sehen. (Standardmäßig aus)"
+  },
+  "optionsGrayscaleToggleLabel": { "message": "Nicht blockierbare Videowerbung abdunkeln" },
+  "optionsGrayscaleToggleHint": {
+    "message": "Stellt eingebettete Videowerbung, etwa bei YouTube, die nicht vollständig entfernt werden kann, automatisch in Graustufen dar."
+  },
+  "optionsFeedScanToggleLabel": { "message": "Gesponserte Beiträge aggressiv ausblenden" },
+  "optionsFeedScanToggleHint": {
+    "message": "Durchsucht soziale Feeds beim Scrollen und entfernt gesponserte oder beworbene Beiträge. (Standardmäßig aus)"
+  },
+  "optionsConsentRejectToggleLabel": { "message": "Cookie-Banner automatisch ablehnen" },
+  "optionsConsentRejectToggleHint": {
+    "message": "Klickt bei den wichtigsten Einwilligungsbannern automatisch auf Ablehnen. (Standardmäßig aus)"
+  },
+  "optionsCnameToggleLabel": { "message": "Getarnte Tracker aufdecken (nur Firefox)" },
+  "optionsCnameToggleHint": {
+    "message": "Erkennt und blockiert Tracker, die sich hinter eigenen Subdomains der Website verstecken. (Standardmäßig aus)"
+  },
+  "optionsCnameUnsupportedHint": { "message": "In diesem Browser nicht verfügbar." },
+  "optionsFilterUpdatesCategory": { "message": "Filter-Updates" },
+  "optionsLiveListTitle": { "message": "Live-Liste der Weiterleitungsdomains" },
+  "optionsLiveListHint": { "message": "Ruft täglich die neuesten Pop-up- und Weiterleitungssperren von GitHub ab." },
+  "optionsLiveStatusNotChecked": { "message": "Noch nicht geprüft." },
+  "optionsExceptionsTitle": { "message": "Ausnahmen" },
+  "optionsExceptionsHint": { "message": "Der Schutz ist auf diesen Hostnamen vollständig deaktiviert." },
+  "optionsNoSitesAdded": { "message": "Keine Websites hinzugefügt." },
+  "commonAdd": { "message": "Hinzufügen" },
+  "commonHostnamePlaceholder": { "message": "beispiel.de" },
+
+  "optionsFilterBudgetWarning": {
+    "message": "Einige Filterlisten sind möglicherweise nicht vollständig aktiv. Das gemeinsame Regelbudget des Browsers wird oft überschritten, wenn mehrere werbeblockende oder filterintensive Erweiterungen gleichzeitig installiert sind -- versuche, andere solche Erweiterungen zu deaktivieren oder unten eine Filterliste auszuschalten."
+  },
+  "optionsFilterBudgetDetail": {
+    "message": "Chrome meldet aktuell $COUNT$ verfügbare statische Regeln für alle installierten Erweiterungen zusammen. Bleibt dieser Wert nach dem Deaktivieren anderer Erweiterungen und dem Neuladen von Moat niedrig, ist das Budget selbst möglicherweise zu klein für alle Filterlisten von Moat gleichzeitig -- versuche stattdessen, unten eine Filterliste zu deaktivieren (zuerst Störungen oder Cookie-Hinweise), statt weitere Erweiterungen zu entfernen.",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "optionsFilterBudgetDropped": {
+    "message": "Vorerst deaktiviert gelassen, damit der Rest deiner Filterlisten innerhalb des gemeinsamen Browser-Regelbudgets aktiv bleibt: $NAMES$.",
+    "placeholders": { "names": { "content": "$1" } }
+  },
+  "optionsFilterBudgetDroppedBadge": { "message": "Nicht aktiv (Regelbudget)" },
+  "optionsFilteringLevelTitle": { "message": "Filterstufe" },
+  "presetOff": { "message": "Aus" },
+  "presetLite": { "message": "Leicht" },
+  "presetEssential": { "message": "Grundlegend" },
+  "presetStandard": { "message": "Standard" },
+  "presetStrict": { "message": "Streng" },
+  "optionsIndividualListsTitle": { "message": "Einzelne Filterlisten" },
+  "optionsIndividualListsHint": {
+    "message": "Passe deine aktiven Filter an. Änderungen hier setzen deine Stufe auf Benutzerdefiniert."
+  },
+  "optionsLoadListsError": { "message": "Filterlisten konnten nicht geladen werden." },
+
+  "optionsBlockedSitesTitle": { "message": "Blockierte Websites" },
+  "optionsBlockedSitesHint": { "message": "Blockiert diese Domains immer, unabhängig von den Filterlisten." },
+  "commonBlock": { "message": "Blockieren" },
+  "optionsAllowedSitesTitle": { "message": "Erlaubte Websites" },
+  "optionsAllowedSitesHint": { "message": "Blockiert diese Domains nie, auch wenn eine aktive Filterliste dies vorsieht." },
+  "commonAllow": { "message": "Erlauben" },
+  "optionsCosmeticCategory": { "message": "Kosmetisches Filtern" },
+  "optionsHiddenElementsTitle": { "message": "Ausgeblendete Elemente" },
+  "optionsHiddenElementsHint": {
+    "message": "Elemente, die du mit dem Werkzeug \"Element blockieren\" in der Symbolleiste entfernt hast. Entferne sie hier, um sie wiederherzustellen."
+  },
+  "optionsNothingSelected": { "message": "Noch nichts ausgewählt." },
+  "optionsDimmedElementsTitle": { "message": "Abgedunkelte Elemente" },
+  "optionsDimmedElementsHint": {
+    "message": "Elemente, die du zum \"Abdunkeln\" ausgewählt hast. Entferne sie hier, um die normale Sichtbarkeit wiederherzustellen."
+  },
+
+  "optionsAboutHeading": { "message": "Über Moat" },
+  "optionsPrivacyHeading": { "message": "Datenschutz" },
+  "optionsPrivacyIntro": {
+    "message": "Alles auf dieser Seite wird lokal in deinem Browser gespeichert. Es wird nie an den Entwickler von Moat gesendet -- die vollständige Datenschutzerklärung erklärt die wenigen optionalen Funktionen (Prüfung auf geleakte Passwörter, Einstellungssynchronisierung), die mit jemand anderem kommunizieren."
+  },
+  "optionsVersionHeading": { "message": "Versionsdetails" },
+  "optionsDebuggingHeading": { "message": "Fehlersuche" },
+  "optionsBackupHeading": { "message": "Sicherung & Wiederherstellung" },
+  "optionsBackupIntro": {
+    "message": "Speichere deine Einstellungen in einer Datei oder lade eine zuvor gespeicherte. Die Fingerprint-Resistenz-Kennung deines Geräts wird nie einbezogen."
+  },
+  "optionsPrivacyPolicyLink": { "message": "Vollständige Datenschutzerklärung" },
+  "optionsChangelogLink": { "message": "Änderungsprotokoll" },
+  "optionsSourceCodeLink": { "message": "Quellcode" },
+  "optionsExportButton": { "message": "Einstellungen herunterladen" },
+  "optionsImportButton": { "message": "Einstellungen hochladen…" },
+  "optionsSyncToggleLabel": { "message": "Einstellungen geräteübergreifend synchronisieren" },
+  "optionsSyncToggleHint": {
+    "message": "Spiegelt deine Einstellungen über das eigene Sync-Konto deines Browsers. Standardmäßig aus. Initialisiert eine neue Installation einmalig; führt keine Live-Zusammenführung von Änderungen durch, die gleichzeitig auf zwei Geräten vorgenommen wurden."
+  },
+  "optionsSyncStatusFailed": {
+    "message": "Deine Einstellungen konnten nicht synchronisiert werden ($WHEN$) -- sie sind möglicherweise zu groß für den Sync-Speicher deines Browsers (eigene Regeln und Website-Listen zählen dazu). Deine Einstellungen sind trotzdem weiterhin lokal gespeichert.",
+    "placeholders": { "when": { "content": "$1" } }
+  },
+  "optionsVersionPrefix": {
+    "message": "v$VERSION$",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+
+  "presetHintOff": { "message": "Nichts wird blockiert." },
+  "presetHintLite": { "message": "Eine leichtere Version von Grundlegend -- lässt die größte Sicherheitsliste weg." },
+  "presetHintEssential": { "message": "Nur Werbung, Pop-ups und bekannte bösartige Websites." },
+  "presetHintStandard": { "message": "Die Stufe Standard blockiert Werbung, Tracker und bekannte bösartige Websites." },
+  "presetHintStrict": { "message": "Alles oben Genannte, plus die browserweiten Datenschutzschalter." },
+  "presetHintCustom": { "message": "Eine Kombination, die du selbst zusammengestellt hast." },
+  "categoryAds": { "message": "Werbung & Tracker" },
+  "categorySecurity": { "message": "Sicherheit" },
+  "categoryAnnoyance": { "message": "Störungen" },
+  "categoryCore": { "message": "Grundlage" },
+  "optionsLiveStatusOk": {
+    "message": "Zuletzt aktualisiert $WHEN$ — $COUNT$ Domains.",
+    "placeholders": { "when": { "content": "$1" }, "count": { "content": "$2" } }
+  },
+  "optionsLiveStatusFailed": {
+    "message": "Letzter Versuch fehlgeschlagen ($WHEN$) — bis zum nächsten Versuch wird die mitgelieferte Basis verwendet.",
+    "placeholders": { "when": { "content": "$1" } }
+  },
+  "optionsLiveStatusQuickFixes": {
+    "message": " $COUNT$ aktive Schnellkorrektur(en).",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "optionsRuleCount": {
+    "message": "$COUNT$ Regeln",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "optionsHostnameSelectorSeparator": { "message": " — " },
+  "commonResume": { "message": "Fortsetzen" },
+  "commonRemove": { "message": "Entfernen" },
+  "optionsImportedSuccess": { "message": "Einstellungen importiert." },
+  "optionsImportedInvalid": { "message": "Diese Datei scheint kein gültiger Moat-Einstellungsexport zu sein." },
+  "optionsImportReadError": { "message": "Diese Datei konnte nicht gelesen werden." },
+
+  "leakedPasswordWarning": { "message": "Dieses Passwort ist in bekannten Datenlecks aufgetaucht." },
+  "optionsLeakedPasswordToggleLabel": { "message": "Passwörter mit bekannten Datenlecks abgleichen" },
+  "optionsLeakedPasswordToggleHint": {
+    "message": "Warnt, wenn ein eingegebenes Passwort in einem bekannten Datenleck aufgetaucht ist. Nur ein teilweiser Hash verlässt jemals dein Gerät. (Standardmäßig aus)"
+  }
+}
