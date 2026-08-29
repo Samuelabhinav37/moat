@@ -3,6 +3,24 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.38
+
+### Fixed
+- **The extension would not load in Chrome at all** -- `chrome://extensions` "Load unpacked"
+  failed with *"Invalid type for attribute 'additionalProperties'. Could not load manifest."*
+  A regression from v0.11.31: that release added `"additionalProperties": false` to
+  `src/managed_schema.json` (three places -- the root, `athena`, and `athena.policyPublicKey`).
+  Chrome's managed-storage schema compiler is a restricted subset of JSON Schema where
+  `additionalProperties` **must** be a schema object (as `managedFilterGroups` already uses,
+  `{ "type": "boolean" }`); a bare `false` -- valid in standard JSON Schema -- makes Chrome
+  reject the whole file, and with it the extension. Firefox's `web-ext lint` doesn't validate
+  this, so CI stayed green and it only surfaced on a manual Chrome load. All three are removed;
+  disallowing unknown managed keys was documentation intent only (Chrome ignores unknown policy
+  keys regardless). New `src/managedSchema.test.ts` walks the schema and fails if any
+  `additionalProperties` is a boolean again.
+
+3 new tests, 472/472 overall, validate:rules/typecheck/build/lint:firefox clean.
+
 ## 0.11.37
 
 ### Added

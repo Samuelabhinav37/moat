@@ -1,6 +1,5 @@
 {
   "type": "object",
-  "additionalProperties": false,
   "properties": {
     "forceEnabled": {
       "type": "boolean",
@@ -27,7 +26,6 @@
     "athena": {
       "type": "object",
       "title": "Connects this install to a self-hosted Athena instance for minimized security-event reporting. Leave unset entirely for a normal/open-source install -- every field below is required for the integration to activate at all.",
-      "additionalProperties": false,
       "properties": {
         "tenantId": { "type": "string", "title": "This org's tenant id in Athena." },
         "agentId": { "type": "string", "title": "The immutable Athena agent id returned during enrollment." },
@@ -38,7 +36,6 @@
         "policyPublicKey": {
           "type": "object",
           "title": "Optional, paired with policyUrl. An Ed25519 public key as a JWK, used to verify every fetched policy before it is trusted.",
-          "additionalProperties": false,
           "properties": {
             "kty": { "type": "string" },
             "crv": { "type": "string" },
