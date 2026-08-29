@@ -293,6 +293,68 @@ manifestEntries.push({
   ruleCount: ownUrlTrackingRules.length,
 });
 
+// Our own rules, not sourced from AdGuard: plain block rules for a handful
+// of error-reporting and social ad/conversion endpoints the bundled lists
+// verifiably miss (docs/research/competitive-gap-audit.md, section 3f).
+// Each was checked against the shipped rulesets:
+//   - Bugsnag notify/sessions and the Sentry ingest hosts have no
+//     domain-anchored rule at all; sentry-cdn.com and bugsnag.com are only
+//     blocked behind an `adblock-tester.com` initiator, i.e. a test-page
+//     rule that never fires on a real site.
+//   - an.facebook.com (Audience Network) is only touched by a param-strip
+//     redirect on ||facebook.com^, which neither blocks nor matches the
+//     subdomain.
+//   - ads.pinterest.com is nominally caught by AdGuard's generic `://ads.`
+//     rule, but that rule excludes the `image` and `xmlhttprequest` types --
+//     exactly how the Pinterest tag phones home.
+// Scoped to the telemetry hostnames, not the vendors' own dashboards
+// (app.bugsnag.com, sentry.io), so using those products is unaffected.
+// `main_frame` is deliberately left out of resourceTypes: a direct
+// navigation to one of these hosts should still resolve, not hit a block.
+// Kept in a first-party file for the same reason as the two rulesets above
+// -- ruleset_trackers-*.json is regenerated wholesale from AdGuard each run.
+function trackerBlockRule(id, urlFilter) {
+  return {
+    id,
+    priority: 1,
+    action: { type: "block" },
+    condition: {
+      urlFilter,
+      resourceTypes: [
+        "sub_frame", "script", "image", "xmlhttprequest",
+        "ping", "media", "websocket", "other",
+      ],
+    },
+  };
+}
+
+const ownTrackerRules = [
+  trackerBlockRule(1, "||notify.bugsnag.com^"),
+  trackerBlockRule(2, "||sessions.bugsnag.com^"),
+  // ||ingest.sentry.io^ matches the oNNNNN.ingest[.region].sentry.io hosts
+  // real DSNs use -- `||` anchors the (sub)domain, not just the exact label.
+  trackerBlockRule(3, "||ingest.sentry.io^"),
+  trackerBlockRule(4, "||ingest.us.sentry.io^"),
+  trackerBlockRule(5, "||ingest.de.sentry.io^"),
+  trackerBlockRule(6, "||sentry-cdn.com^"),
+  trackerBlockRule(7, "||an.facebook.com^"),
+  trackerBlockRule(8, "||ads.pinterest.com^"),
+];
+writeFileSync(join(outDir, "ruleset_trackers-extra.json"), JSON.stringify(ownTrackerRules));
+// Same group as the AdGuard Tracking Protection filter above so it folds
+// into that one Filter Lists row (see summarizeFilterLists) and the popup's
+// "trackers" bucket (see matchedRuleCategories.ts), rather than adding a
+// separate row for what is conceptually the same list.
+manifestEntries.push({
+  id: "ruleset_trackers-extra",
+  group: "trackers",
+  category: "ads",
+  name: "Moat: Tracking Protection filter (coverage-gap fixes)",
+  enabled: true,
+  file: "ruleset_trackers-extra.json",
+  ruleCount: ownTrackerRules.length,
+});
+
 writeFileSync(
   join(outDir, "manifest.json"),
   JSON.stringify(manifestEntries, null, 2)

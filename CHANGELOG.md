@@ -3,6 +3,34 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.37
+
+### Added
+- **Closed the surviving coverage gaps from the competitive-gap audit**
+  (`docs/research/competitive-gap-audit.md`, section 3f): a new first-party ruleset
+  (`ruleset_trackers-extra.json`, generated in `scripts/update-filters.mjs` alongside the existing
+  GPC and ClearURLs-gap rules so it survives `filters:update` reruns) adds plain block rules for
+  eight error-reporting and social ad/conversion endpoints the bundled AdGuard lists verifiably
+  miss. Each was checked against the shipped rulesets first:
+  - **Bugsnag** (`notify.bugsnag.com`, `sessions.bugsnag.com`) and the **Sentry ingest hosts**
+    (`ingest.sentry.io`, `ingest.us.sentry.io`, `ingest.de.sentry.io`) had no domain-anchored rule
+    at all; `sentry-cdn.com` and `bugsnag.com` were only blocked behind an `adblock-tester.com`
+    initiator -- a test-page rule that never fires on a real site. `sentry-cdn.com` (the SDK
+    loader) is now blocked outright.
+  - **`an.facebook.com`** (Facebook Audience Network) was only touched by a param-strip redirect on
+    `||facebook.com^`, which neither blocks nor matches the subdomain.
+  - **`ads.pinterest.com`** (the Pinterest tag / conversions API) is nominally caught by AdGuard's
+    generic `://ads.` rule, but that rule excludes the `image` and `xmlhttprequest` resource types
+    -- exactly how the tag phones home.
+
+  Scoped to the telemetry hostnames, not the vendors' own dashboards (`app.bugsnag.com`,
+  `sentry.io`), so using those products is unaffected; `main_frame` is left out of the rules'
+  resource types so a direct navigation to one of these hosts still resolves rather than hitting a
+  block. Folds into the existing "AdGuard Tracking Protection filter" row in Filter Lists and the
+  popup's Trackers bucket rather than adding a separate row.
+
+469/469 tests unchanged, validate:rules/typecheck/build/lint:firefox clean.
+
 ## 0.11.36
 
 ### Security
