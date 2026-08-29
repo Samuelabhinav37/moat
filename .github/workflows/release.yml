@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Verify tag matches package.json version
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "v$PKG_VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json version $PKG_VERSION"
+            exit 1
+          fi
+          echo "PKG_VERSION=$PKG_VERSION" >> "$GITHUB_ENV"
+
+      - run: npm ci
+
+      - run: npm run filters:update
+      - run: npm run validate:rules
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run lint:firefox
+
+      - name: Package store zips
+        run: npm run zip
+
+      - name: Compute checksums
+        run: sha256sum chrome.zip firefox.zip | tee SHA256SUMS.txt
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          awk -v ver="## $PKG_VERSION" '
+            $0 == ver { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > RELEASE_NOTES.md
+          # Trim leading/trailing blank lines.
+          sed -i -e '/./,$!d' RELEASE_NOTES.md
+          if [ -s RELEASE_NOTES.md ]; then
+            echo "NOTES_ARGS=--notes-file RELEASE_NOTES.md" >> "$GITHUB_ENV"
+          else
+            echo "No '## $PKG_VERSION' section found in CHANGELOG.md; falling back to generated notes."
+            echo "See CHANGELOG.md for $PKG_VERSION." > RELEASE_NOTES.md
+            echo "NOTES_ARGS=--notes-file RELEASE_NOTES.md --generate-notes" >> "$GITHUB_ENV"
+          fi
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --draft \
+            --title "$GITHUB_REF_NAME" \
+            $NOTES_ARGS \
+            chrome.zip firefox.zip SHA256SUMS.txt
