@@ -13,7 +13,8 @@ import { securityMatches } from "../shared/securityRuleCategories";
 import { clearTabFromMaps } from "./tabMapCleanup";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import { getManagedPolicy } from "./managedPolicy";
-import { queueSecurityEvent } from "./athenaIntegration";
+import { isAthenaConfigured, queueSecurityEvent } from "./athenaIntegration";
+import { resolveSecurityRuleDomain } from "./securityRuleDomain";
 
 export type { Breakdown };
 
@@ -85,12 +86,20 @@ export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
     const flagged = securityMatches(manifest, matches);
     if (flagged.length > 0) {
       const policy = await getManagedPolicy();
+      // Domain resolution (a ruleset fetch-and-index) only runs when
+      // there's actually somewhere to send it -- isAthenaConfigured is the
+      // same cheap in-memory check queueSecurityEvent itself does, checked
+      // again here specifically to skip the heavier lookup on every normal,
+      // non-Athena install that happens to hit a security-list match.
+      const athenaConfigured = isAthenaConfigured(policy);
       for (const match of flagged) {
+        const domain = athenaConfigured ? await resolveSecurityRuleDomain(match.rulesetId, match.ruleId) : null;
         void queueSecurityEvent(policy, {
           category: "security-rule",
           riskTier: match.riskTier,
           rulesetId: match.rulesetId,
           ruleId: match.ruleId,
+          domain: domain ?? undefined,
         });
       }
     }

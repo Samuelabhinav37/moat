@@ -175,9 +175,14 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
       if (sender.tab?.id !== undefined) void recordDynamicCatch(sender.tab.id);
       // Cross-browser event source (unlike the getMatchedRules-based one in
       // matchStats.ts, which is Chrome-only) -- no-ops instantly on every
-      // normal install, same as that one.
+      // normal install, same as that one. message.url is already the exact
+      // thing the popup/redirect firewall caught -- domain-only, matching
+      // the same minimization the "override" event already uses, and the
+      // one AthenaSecurityEvent category that was silently omitting it
+      // despite having it on hand (see the systems audit this fixes).
+      const domain = hostnameOf(message.url ?? undefined) || undefined;
       void getManagedPolicy().then((policy) =>
-        queueSecurityEvent(policy, { category: "popup-redirect", riskTier: "medium" })
+        queueSecurityEvent(policy, { category: "popup-redirect", riskTier: "medium", domain })
       );
       return undefined;
     }

@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.33
+
+### Changed
+- **Athena security events now carry the actual domain, closing the audit finding that quietly
+  capped the new cross-product correlation feature.** `security-rule` events (Moat's malicious-
+  urls/phishing-urls/scam/badware DNR matches -- the primary detection path) and `popup-redirect`
+  events previously only carried an opaque `{rulesetId, ruleId}` reference or nothing at all, so
+  Athena's correlation query (which matches on domain) could essentially only ever fire for the
+  rare "override" event category. New `background/securityRuleDomain.ts` resolves a matched
+  security rule back to its domain by fetching and indexing the bundled ruleset -- only when
+  Athena is actually connected, so this costs nothing on a normal install even one that hits a
+  security-list match. `popup-redirect` events now read the domain directly off the intercepted
+  request, which was already available and simply wasn't being passed through. Deliberately more
+  permissive than the original design: the domain was never new information (it's already public,
+  sitting in Moat's own openly-published AdGuard-sourced filter lists), and this path only ever
+  runs under enterprise-managed, consented monitoring -- keeping it opaque only prevented the one
+  thing an Athena-connected deployment most wants.
+
+8 new tests (`securityRuleDomain.test.ts`), 450/450 overall, typecheck/build/lint:firefox clean.
+
 ## 0.11.32
 
 ### Changed

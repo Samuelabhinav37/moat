@@ -72,13 +72,14 @@ only to an organization's own infrastructure, never to Moat's developer.
    at any server Moat's developer operates. When active, it sends minimized
    security events for requests already blocked by Moat's malicious-URL,
    phishing, scam, and badware filter lists, and for popup/redirect-firewall
-   catches: a category, a risk tier, an opaque reference into the bundled
-   filter data, and a timestamp. An Athena-policy warning can additionally
-   send the already-policy-known hostname and the user's bounded report reason.
-   It never sends an unrelated URL, page content, email content, or
-   browsing history that triggered the block. If you use a personal or
-   open-source install of Moat, this section does not apply to you --
-   nothing about it can activate without your organization's own IT policy.
+   catches: a category, a risk tier, a timestamp, and the domain involved
+   (already public -- it comes straight from Moat's own openly-published
+   filter data) or, for a "Report mistake" override, the already-policy-known
+   hostname Athena itself named plus the user's bounded report reason. It
+   never sends the full URL, page content, email content, or browsing
+   history that triggered the block. If you use a personal or open-source
+   install of Moat, this section does not apply to you -- nothing about it
+   can activate without your organization's own IT policy.
 
 Nothing else in Moat makes a network request. In particular: the filter
 lists and cosmetic-hiding rules that block ads and trackers are bundled into

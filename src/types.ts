@@ -405,13 +405,10 @@ export interface AthenaSecurityEvent {
    * (see shared/securityRuleCategories.ts) or popup-redirect, "low" for an
    * override (a human decision, not a detection). */
   riskTier: "high" | "medium" | "low";
-  /** Opaque identifiers into the bundled ruleset that matched, not the
-   * domain itself -- resolving these to an actual hostname is a real
-   * follow-up (see planning notes), deliberately not done yet: it would
-   * mean bundling or fetching full rule content just to read it back out,
-   * a materially bigger privacy/complexity step than shipping ruleId
-   * references, which say nothing on their own without the same ruleset
-   * data Athena would need to already have out-of-band. */
+  /** Identifiers into the bundled ruleset that matched -- kept even now that
+   * `domain` below is populated for this category too, since rulesetId/
+   * ruleId pin the exact rule (useful for triage) in a way a bare domain
+   * string doesn't. */
   rulesetId?: string;
   ruleId?: number;
   /**
@@ -421,11 +418,17 @@ export interface AthenaSecurityEvent {
    */
   note?: string;
   /**
-   * Only set for category "override" -- unlike rulesetId/ruleId above, this
-   * is safe to include as a real hostname rather than an opaque reference:
-   * it's a domain the org's own Athena instance already named in its policy
-   * artifact (see AthenaPolicyArtifact.blockedDomains), not anything new
-   * being disclosed to it.
+   * Set for every category except "security-rule" being an opaque-reference
+   * holdout no longer applies -- see securityRuleDomain.ts for how it's
+   * resolved for that category specifically, and why: the domain is always
+   * already public (it's on Moat's own openly-published filter lists), and
+   * this only ever runs under enterprise-managed, consented monitoring, so
+   * keeping it opaque only withheld something Athena could trivially look
+   * up anyway, at the cost of making cross-product correlation (matching a
+   * domain Moat blocked against one Clutter separately flagged) not work
+   * for Moat's primary detection path. "popup-redirect" resolves it
+   * directly from the message that already carried it; "override" carries
+   * the domain Athena's own policy artifact already named.
    */
   domain?: string;
 }

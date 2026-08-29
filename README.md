@@ -530,14 +530,15 @@ the bounded local queue as individual idempotent security events: one for each r
 malicious-urls/phishing-urls/scam/badware filter lists specifically (not ordinary ads/trackers,
 which never generate an event), and one for each popup/redirect-firewall catch (the one source that
 also works on Firefox, where `getMatchedRules` doesn't exist), plus one for every "Report mistake"
-override submitted on the warning page below. Every event carries a category, a risk tier, and a
-timestamp; a security-rule/popup-redirect event's target is an opaque `{rulesetId, ruleId}`
-reference into the bundled filter data, never a domain -- an override event instead carries the
-already-policy-known hostname (Athena named it in its own policy artifact, so this discloses
-nothing new) and the user's typed reason. Never the URL, page content, or browsing history
-involved. Blocking itself never waits on any of this: by the time an event is queued, the block it
-describes has already happened locally, and a flush failure (Athena unreachable) just leaves the
-queue for the next attempt.
+override submitted on the warning page below. Every event carries a category, a risk tier, a
+timestamp, and the matched domain -- resolved from the bundled ruleset for a security-rule event
+(`background/securityRuleDomain.ts`, only when Athena is actually connected -- see its own header
+comment for why disclosing it is fine: the domain is already public, sitting in Moat's own
+openly-published filter data), read directly off the intercepted request for a popup-redirect
+event, or the already-policy-known hostname Athena itself named for an override. Never the full
+URL, page content, or browsing history involved. Blocking itself never waits on any of this: by the
+time an event is queued, the block it describes has already happened locally, and a flush failure
+(Athena unreachable) just leaves the queue for the next attempt.
 
 Athena now exposes the enrollment, token, event, and policy endpoints above. Policy artifacts are
 verified with the managed Ed25519 public key before Moat changes dynamic rules; invalid or
