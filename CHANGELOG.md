@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.42
+
+### Fixed
+- **A long hostname no longer pushes the popup's on/off toggle out of the site card.** The
+  hostname sits in a flex child that kept its full intrinsic width, so a hostname with no break
+  opportunity (one long label, no dots) shoved the switch past the card's right edge and out of
+  view. The wrapper now gets `min-width: 0`, and `.host` breaks anywhere and clamps to two lines
+  with an ellipsis instead of overflowing. The paused banner, which interpolates the same string
+  into a sentence, gets `overflow-wrap: anywhere` for the same reason.
+
+486/486 tests, typecheck/build/lint:firefox clean.
+
 ## 0.11.41
 
 ### Changed
