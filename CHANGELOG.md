@@ -3,6 +3,32 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.45
+
+### Fixed
+- **The Chrome Web Store / AMO submission zip was not actually a zip file.** `scripts/zip.mjs`
+  shelled out to `tar -a -c -f x.zip ...`, assuming Windows' bsdtar. GNU tar (which shadows
+  Windows' bsdtar on this machine's PATH via Git Bash, and is what `ubuntu-latest` uses in
+  `.github/workflows/release.yml`) doesn't know how to produce the zip container format via `-a` —
+  it silently fell through to writing a plain uncompressed tar archive with a `.zip` extension
+  (confirmed: `file chrome.zip` reported "POSIX tar archive," not a zip). Every past tagged
+  release's store-upload artifacts were almost certainly the same broken non-zip file, not just a
+  local dev-machine issue. Now uses each platform's real zip tool instead — `Compress-Archive` on
+  Windows, the `zip` CLI on POSIX/CI — verified end-to-end (`unzip -t` integrity check on every
+  entry, both targets).
+- **A test file (`src/_locales/localeParity.test.ts`) was shipping inside every built extension's
+  `_locales/` folder** — Chrome Web Store, AMO, and every local unpacked load included. Found while
+  fixing the zip script above (`scripts/build.mjs`'s `_locales` copy was a blanket recursive copy
+  with no filter). Harmless functionally, but real dead weight in every submission.
+- **Fixed a real bug in the zip fix's own first draft**: `Get-ChildItem -Exclude` is silently a
+  no-op when combined with `-LiteralPath` on Windows — caught by manually re-creating the exact
+  scenario it's meant to guard (a stale `_metadata/` dir from loading unpacked for local testing)
+  and confirming it still leaked into the archive. Switched to `-Path` with a wildcard, which is
+  what actually makes `-Exclude` take effect.
+
+492/492 tests, validate:rules/typecheck/build/lint:firefox clean; `unzip -t` integrity-verified
+both `chrome.zip` and `firefox.zip`, with and without a `_metadata/` dir present.
+
 ## 0.11.44
 
 ### Fixed

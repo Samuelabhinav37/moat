@@ -137,7 +137,13 @@ function copyStaticAssets() {
   }
 
   cpSync(resolve(root, "icons"), resolve(outDir, "icons"), { recursive: true });
-  cpSync(resolve(root, "src/_locales"), resolve(outDir, "_locales"), { recursive: true });
+  // src/_locales/ also holds localeParity.test.ts (a real vitest test, not a
+  // locale file) -- a plain recursive copy was shipping it into every build,
+  // Chrome Web Store/AMO submissions included.
+  cpSync(resolve(root, "src/_locales"), resolve(outDir, "_locales"), {
+    recursive: true,
+    filter: (src) => !src.endsWith(".test.ts"),
+  });
   cpSync(resolve(root, "src/ui/theme.css"), resolve(outDir, "theme.css"));
   cpSync(resolve(root, "src/popup/popup.html"), resolve(outDir, "popup.html"));
   cpSync(resolve(root, "src/options/options.html"), resolve(outDir, "options.html"));
