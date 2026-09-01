@@ -177,6 +177,19 @@ export function buildManifest(target: "chrome" | "firefox") {
       background: {
         service_worker: "background.js",
       },
+      // A static, ID-keyed web-accessible-resource path is directly
+      // probeable by any page (fetch("chrome-extension://<id>/...")) as a
+      // fraud/bot-detection signal -- documented and used for exactly this
+      // ("certain extensions can be indicative of specific user behaviours
+      // or potential fraud"). use_dynamic_url rotates the path per browser
+      // session instead, the same mitigation uBlock Origin Lite ships for
+      // its own DNR-redirect resources. Chrome/MV3-only: Firefox already
+      // randomizes the per-install extension UUID by design, so it needs no
+      // equivalent and this key is left out of its manifest entirely.
+      web_accessible_resources: manifest.web_accessible_resources.map((entry) => ({
+        ...entry,
+        use_dynamic_url: true,
+      })),
     };
   }
 

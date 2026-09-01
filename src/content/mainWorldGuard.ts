@@ -3,6 +3,7 @@
 // only ever talks back to the extension via window.postMessage.
 import type { BridgeMessage, GuardBlockKind } from "../types";
 import { isPlausibleTrigger } from "./isPlausibleTrigger";
+import { maskAsNative } from "./nativeToString";
 
 declare global {
   interface Navigator {
@@ -30,6 +31,7 @@ if (navigator.globalPrivacyControl !== true) {
 }
 
 const nativeOpen = window.open.bind(window);
+const nativeWindowOpen = window.open;
 
 let siteDisabled = false;
 let lastTrustedClick: { time: number; target: EventTarget | null; consumed: boolean } | null = null;
@@ -108,6 +110,8 @@ window.open = function guardedOpen(...args: Parameters<typeof window.open>): Ret
   report("window-open", typeof url === "string" ? url : url instanceof URL ? url.href : null);
   return null;
 };
+
+maskAsNative(window.open, nativeWindowOpen);
 
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;

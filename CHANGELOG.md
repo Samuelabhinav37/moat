@@ -3,6 +3,30 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.43
+
+### Security
+- **Reduced how easily Moat itself can be fingerprinted by fraud/bot-detection scripts.** Traced a
+  real report of banking/checkout and e-commerce sites hard-blocking or CAPTCHA-looping until Moat
+  was uninstalled to two documented detection techniques Moat had no defense against:
+  - **Chrome only:** the redirect-stub and Athena-warning `web_accessible_resources` entries used a
+    static, extension-ID-keyed path, directly probeable via
+    `fetch("chrome-extension://<id>/...")` — a known technique fraud vendors use to fingerprint
+    which extensions are installed. Now declared with `use_dynamic_url: true`, the same mitigation
+    uBlock Origin Lite ships for its own DNR-redirect resources; a fresh, unguessable path is
+    generated per browser session instead. Firefox needs no equivalent — it already randomizes the
+    per-install extension UUID by design.
+  - **Both browsers:** every native function/getter Moat patches (`window.open` — always installed,
+    not just opt-in; plus, only when fingerprint resistance is on, canvas `toDataURL`/`toBlob`/
+    `getImageData`, `AudioBuffer.getChannelData`, WebGL `getParameter`, and the
+    `hardwareConcurrency`/`deviceMemory` getters) still returned real JS source from
+    `Function.prototype.toString`, the standard native-tamper check fraud-detection vendors use —
+    ironically making the fingerprint-resistance feature *more* detectable than doing nothing. New
+    `src/content/nativeToString.ts` masks all of them to report as `[native code]`, matching what
+    the unpatched API would have returned.
+
+492/492 tests (6 new), validate:rules/typecheck/build/lint:firefox clean.
+
 ## 0.11.42
 
 ### Fixed

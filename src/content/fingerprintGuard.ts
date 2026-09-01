@@ -17,6 +17,7 @@ import {
   UNMASKED_RENDERER_WEBGL,
   UNMASKED_VENDOR_WEBGL,
 } from "./fingerprintNoise";
+import { maskAsNative } from "./nativeToString";
 import type { BridgeMessage } from "../types";
 
 let seed = "";
@@ -84,6 +85,10 @@ function patchCanvas(): void {
     if (active) noisifyRGBA(imageData.data, canvasSeed(this.canvas.width, this.canvas.height));
     return imageData;
   };
+
+  maskAsNative(canvasProto.toDataURL, nativeToDataURL);
+  maskAsNative(canvasProto.toBlob, nativeToBlob);
+  maskAsNative(ctxProto.getImageData, nativeGetImageData);
 }
 
 function patchAudio(): void {
@@ -99,6 +104,8 @@ function patchAudio(): void {
     if (active) noisifyFloatSamples(data, `${seed}:audio:${args[0]}`);
     return data;
   };
+
+  maskAsNative(proto.getChannelData, nativeGetChannelData);
 }
 
 function patchWebGL(): void {
@@ -119,6 +126,7 @@ function patchWebGL(): void {
       }
       return nativeGetParameter.call(this, pname);
     };
+    maskAsNative(ctor.prototype.getParameter, nativeGetParameter);
   }
 }
 
@@ -130,23 +138,27 @@ function patchNavigatorHints(): void {
   );
 
   if (nativeConcurrency?.get) {
+    const guardedGetter = function guardedHardwareConcurrency(this: Navigator) {
+      const actual = nativeConcurrency.get!.call(this) as number;
+      return active ? bucketHardwareConcurrency(actual) : actual;
+    };
     Object.defineProperty(Navigator.prototype, "hardwareConcurrency", {
       ...nativeConcurrency,
-      get(this: Navigator) {
-        const actual = nativeConcurrency.get!.call(this) as number;
-        return active ? bucketHardwareConcurrency(actual) : actual;
-      },
+      get: guardedGetter,
     });
+    maskAsNative(guardedGetter, nativeConcurrency.get);
   }
 
   if (nativeMemory?.get) {
+    const guardedGetter = function guardedDeviceMemory(this: Navigator) {
+      const actual = nativeMemory.get!.call(this) as number;
+      return active ? bucketDeviceMemory(actual) : actual;
+    };
     Object.defineProperty(Navigator.prototype, "deviceMemory", {
       ...nativeMemory,
-      get(this: Navigator) {
-        const actual = nativeMemory.get!.call(this) as number;
-        return active ? bucketDeviceMemory(actual) : actual;
-      },
+      get: guardedGetter,
     });
+    maskAsNative(guardedGetter, nativeMemory.get);
   }
 }
 
