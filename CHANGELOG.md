@@ -3,6 +3,24 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.44
+
+### Fixed
+- **Cosmetic filtering and consent auto-reject were silently broken in real Chrome usage.**
+  Live-testing the previous release surfaced `cosmetic-filter.js`/`consent-rejector.js` failing to
+  fetch `rules/cosmetics-manifest.json`/`rules/consent-rules.json` with "Resources must be listed
+  in the web_accessible_resources manifest key" — a pre-existing gap, not something the previous
+  release introduced (confirmed against this file's full history: `rules/*` was never declared).
+  Chrome attributes an isolated-world content script's `fetch()` of a `chrome-extension://` URL to
+  the page's own origin, so any resource it fetches needs the same `web_accessible_resources`
+  listing a page script would. Since cosmetic filtering runs on every page by default, this meant
+  the ad-remnant-hiding half of Moat (network blocking itself was unaffected) likely never actually
+  worked end-to-end in a real browser. New entry covers `rules/cosmetics-*.json` (manifest, meta,
+  and all 64 shard buckets) and `rules/consent-rules.json`; gets the same `use_dynamic_url` Chrome
+  treatment as the rest of `web_accessible_resources` automatically.
+
+492/492 tests, validate:rules/typecheck/build/lint:firefox clean.
+
 ## 0.11.43
 
 ### Security

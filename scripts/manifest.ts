@@ -96,6 +96,19 @@ function baseManifest() {
         resources: ["warning.html"],
         matches: ["<all_urls>"],
       },
+      {
+        // cosmeticFilter.ts and consentRejector.ts fetch these from an
+        // isolated-world content script, which Chrome treats as request
+        // activity attributed to the page's own origin (not the
+        // extension's) for this purpose -- same as any other
+        // chrome-extension:// resource a page tries to load, it 404s as
+        // "not listed in web_accessible_resources" without this, silently
+        // breaking cosmetic filtering and consent auto-reject on every
+        // page. Covers cosmetics-manifest.json, cosmetics-meta.json, and
+        // the (currently 64) cosmetics-bucket-N.json shards.
+        resources: ["rules/cosmetics-*.json", "rules/consent-rules.json"],
+        matches: ["<all_urls>"],
+      },
     ],
     content_scripts: [
       {
