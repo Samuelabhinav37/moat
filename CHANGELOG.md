@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.46
+
+### Changed
+- **Cut redundant per-page-load settings reads.** Up to 5 separate content scripts
+  (`cosmeticFilter.ts`, `consentRejector.ts`, `feedAdScanner.ts`, `youtubeAdDimmer.ts`,
+  `leakedPasswordCheck.ts`) each independently called `getEffectiveSettingsHere()` on every page
+  load — each its own `storage.local.get` + `storage.managed.get` pair for the identical data, up
+  to 5x redundant browser-storage IPC round trips per navigation. Each is built as its own
+  self-contained bundle (see `scripts/build.mjs`), so a plain module-level cache wouldn't have
+  deduped across them — they only share the page's JS global object, not any imported module's
+  state. The cache now lives on `globalThis` instead, shared across whichever of the 5 scripts
+  actually run on a given page, and is invalidated on the same `storage.onChanged` event several of
+  them already listen to for their own live-toggle behavior (e.g. `feedAdScanner.ts` stopping its
+  observer immediately when a setting is switched off in Settings, without needing a reload) — so
+  this doesn't trade the redundant reads for stale settings mid-session. New
+  `src/content/siteDisabled.test.ts` (7 tests) covers the caching, the cross-module sharing, and
+  the invalidation paths directly.
+
+499/499 tests (7 new), validate:rules/typecheck/build/lint:firefox clean.
+
 ## 0.11.45
 
 ### Fixed
