@@ -13,7 +13,8 @@
 
 No nag screens, no "rate us" prompts, no onboarding tabs. Moat blocks ads, trackers, and hijacked
 popups quietly and shows a badge count. Everything stays on your device — no accounts, no
-telemetry, no server.
+telemetry, no server, and nothing to sell: built for Manifest V3 from day one, not a stripped-down
+Lite port of an older extension.
 
 > **Project status:** active development. Builds and tests cover Chrome and Firefox; browser-store
 > review, real-world compatibility, and dependency review remain part of every release.
