@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCosmeticIndex, parseCosmeticLine } from "./parseCosmeticRules.mjs";
+import { buildCosmeticIndex, isSafeCssDeclarationText, parseCosmeticLine } from "./parseCosmeticRules.mjs";
 
 const alwaysValid = () => true;
 
@@ -54,8 +54,55 @@ describe("parseCosmeticLine", () => {
     });
   });
 
-  it("rejects CSS-injection rules (#$#)", () => {
-    expect(parseCosmeticLine("example.com#$#.ad { remove: true; }")).toBeNull();
+  it("parses a CSS-injection rule (#$#)", () => {
+    expect(parseCosmeticLine("example.com#$#.ad { display: none !important; }")).toEqual({
+      isException: false,
+      domains: ["example.com"],
+      selector: ".ad",
+      declaration: "display: none !important;",
+    });
+  });
+
+  it("parses a bare CSS-injection exception (#@$#), same shape as #@#", () => {
+    expect(parseCosmeticLine("example.com#@$#.ad")).toEqual({
+      isException: true,
+      domains: ["example.com"],
+      selector: ".ad",
+    });
+  });
+
+  it("fans a multi-domain CSS-injection rule out to every listed domain", () => {
+    expect(parseCosmeticLine("a.com,b.com#$#.ad { overflow: auto !important; }")).toEqual({
+      isException: false,
+      domains: ["a.com", "b.com"],
+      selector: ".ad",
+      declaration: "overflow: auto !important;",
+    });
+  });
+
+  it("rejects a CSS-injection rule with no selector before the brace", () => {
+    expect(parseCosmeticLine("example.com#$#{ display: none; }")).toBeNull();
+  });
+
+  it("rejects a CSS-injection rule that isn't `selector { declaration }` shaped", () => {
+    expect(parseCosmeticLine("example.com#$#.ad display: none;")).toBeNull();
+  });
+
+  it("rejects a CSS-injection declaration containing a forbidden token", () => {
+    expect(parseCosmeticLine('example.com#$#.ad { content: "</style>"; }')).toBeNull();
+    expect(parseCosmeticLine("example.com#$#.ad { content: `x`; }")).toBeNull();
+  });
+
+  it("isSafeCssDeclarationText rejects known escape/execution vectors", () => {
+    expect(isSafeCssDeclarationText("display: none !important;")).toBe(true);
+    expect(isSafeCssDeclarationText("")).toBe(false);
+    expect(isSafeCssDeclarationText("a".repeat(2001))).toBe(false);
+    expect(isSafeCssDeclarationText("width: expression(alert(1));")).toBe(false);
+    expect(isSafeCssDeclarationText("</style><script>alert(1)</script>")).toBe(false);
+  });
+
+  it("rejects a CSS-injection selector using extended-selector syntax", () => {
+    expect(parseCosmeticLine("example.com#$#div:contains(x) { display: none; }")).toBeNull();
   });
 
   it("rejects scriptlet rules (#%#)", () => {
@@ -124,5 +171,35 @@ describe("buildCosmeticIndex", () => {
   it("merges rules across multiple filter texts for the same domain", () => {
     const index = buildCosmeticIndex(["example.com##.ad-a", "example.com##.ad-b"], alwaysValid);
     expect(index.perDomain["example.com"]).toEqual([".ad-a", ".ad-b"]);
+  });
+
+  it("puts a generic CSS-injection rule into cssInjection.generic", () => {
+    const index = buildCosmeticIndex(["#$#.modal { display: none !important; }"], alwaysValid, alwaysValid);
+    expect(index.cssInjection.generic).toEqual([[".modal", "display: none !important;"]]);
+    expect(index.cssInjection.perDomain).toEqual({});
+    expect(index.generic).toEqual([]);
+  });
+
+  it("puts a domain-scoped CSS-injection rule into cssInjection.perDomain", () => {
+    const index = buildCosmeticIndex(["example.com#$#.modal { display: none !important; }"], alwaysValid, alwaysValid);
+    expect(index.cssInjection.perDomain).toEqual({ "example.com": [[".modal", "display: none !important;"]] });
+    expect(index.cssInjection.generic).toEqual([]);
+  });
+
+  it("routes a bare CSS-injection exception (#@$#) into the same exceptions map as #@#", () => {
+    const index = buildCosmeticIndex(["example.com#@$#.modal"], alwaysValid, alwaysValid);
+    expect(index.exceptions).toEqual({ "example.com": [".modal"] });
+    expect(index.cssInjection.generic).toEqual([]);
+    expect(index.cssInjection.perDomain).toEqual({});
+  });
+
+  it("drops a CSS-injection rule whose declaration fails validation", () => {
+    const index = buildCosmeticIndex(["#$#.modal { display: none; }"], alwaysValid, () => false);
+    expect(index.cssInjection.generic).toEqual([]);
+  });
+
+  it("does not require isValidDeclaration when no injection-syntax rules are present", () => {
+    const index = buildCosmeticIndex(["##.ad"], alwaysValid);
+    expect(index.generic).toEqual([".ad"]);
   });
 });

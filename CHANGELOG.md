@@ -3,6 +3,32 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.49
+
+### Added
+- **Cosmetic filtering now supports AdGuard's CSS-injection rules (`#$#`/`#@$#`),** not just plain
+  `##` hide rules. Measured directly against Moat's 7 bundled AdGuard filter lists before building
+  anything: of 119,391 real cosmetic-syntax lines, 8,778 (7.4%) are CSS-injection — most commonly a
+  cookie-banner hide paired with an `overflow`/`position` reset that un-sticks page scroll once the
+  banner's gone — silently dropped until now. Still plain CSS a `<style>` tag can express (no JS
+  engine, no MutationObserver, no new trust boundary): `scripts/lib/parseCosmeticRules.mjs` parses
+  the new syntax, `scripts/update-cosmetics.mjs` validates each declaration with a real jsdom CSS
+  parse (not just a substring check) plus a fast blocklist for known escape vectors (`</style`,
+  backtick, `@import`, `expression(`), and ships it through the same 64-bucket domain-hash sharding
+  hide selectors already use — no extra fetch per page load. `src/content/cosmeticFilter.ts`
+  injects matched rules into their own `<style>` block, kept separate from the generic hide block so
+  the existing `document_idle` unmatched-selector trim can never wipe them out.
+- **Decided not to build AdGuard/uBO's "extended selector" (procedural) filters** (`:contains()`,
+  `:matches-css()`, `:xpath()`, etc.), on the record. Same measurement pass found only 7 of 119,391
+  real cosmetic lines (0.0%) use this syntax — building a JS-matching-engine, MutationObserver-driven
+  architecture for 7 rules isn't justified. Documented in `docs/design-notes.md`'s "Researched but
+  not built yet" section alongside the reasoning for declining a countermeasure to YouTube's
+  ad-blocker-detection-and-playback-block escalation (first-party, server-side, actively litigated —
+  Moat's existing `youtubeAdDimmer.ts` already solves the narrower, safer problem of dimming ad
+  content, and that stays the right scope boundary).
+
+531/531 tests (23 new), typecheck/build/lint:firefox/validate:rules clean.
+
 ## 0.11.48
 
 ### Fixed

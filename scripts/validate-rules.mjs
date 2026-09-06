@@ -73,6 +73,8 @@ if (!Array.isArray(meta.generic)) {
 
 let domainCount = 0;
 let perDomainCount = 0;
+let injectDomainCount = 0;
+let injectPerDomainCount = 0;
 const seenDomains = new Set();
 const MAX_CHUNK_BYTES = 4.5 * 1024 * 1024;
 for (let i = 0; i < cosmeticsManifest.bucketCount; i += 1) {
@@ -83,21 +85,32 @@ for (let i = 0; i < cosmeticsManifest.bucketCount; i += 1) {
     ok = false;
   }
   const shard = JSON.parse(text);
-  for (const [domain, selectors] of Object.entries(shard)) {
+  // Each domain's entry is { h?: hide-selectors, i?: [selector,declaration]
+  // injection pairs } -- both optional, see scripts/update-cosmetics.mjs.
+  for (const [domain, entry] of Object.entries(shard)) {
     if (seenDomains.has(domain)) {
       console.error(`${file}: domain "${domain}" also appears in another shard`);
       ok = false;
     }
     seenDomains.add(domain);
-    domainCount += 1;
-    perDomainCount += selectors.length;
+    if (entry.h) {
+      domainCount += 1;
+      perDomainCount += entry.h.length;
+    }
+    if (entry.i) {
+      injectDomainCount += 1;
+      injectPerDomainCount += entry.i.length;
+    }
   }
 }
 
 const exceptionCount = Object.values(meta.exceptions ?? {}).reduce((sum, s) => sum + s.length, 0);
+const injectGenericCount = meta.injectGeneric?.length ?? 0;
 console.log(
   `cosmetics: ${meta.generic.length} generic, ${perDomainCount} domain-scoped selectors ` +
-    `across ${domainCount} domains (${cosmeticsManifest.bucketCount} shard buckets), ${exceptionCount} exceptions`
+    `across ${domainCount} domains (${cosmeticsManifest.bucketCount} shard buckets), ${exceptionCount} exceptions, ` +
+    `${injectGenericCount} generic + ${injectPerDomainCount} domain-scoped CSS-injection rules ` +
+    `across ${injectDomainCount} domains`
 );
 
 const ruleCompanies = JSON.parse(readFileSync(join(rulesDir, "rule-companies.json"), "utf8"));

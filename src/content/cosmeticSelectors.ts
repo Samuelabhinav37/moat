@@ -8,11 +8,29 @@ export interface CosmeticIndex {
   generic: string[];
   perDomain: Record<string, string[]>;
   exceptions: Record<string, string[]>;
+  // CSS-injection rules (selector + its own declaration, e.g. AdGuard's
+  // `#$#` syntax), optional so every existing generic/perDomain/exceptions
+  // literal (tests included) stays valid without listing these. Uses the
+  // same generic/perDomain split and the same `exceptions` map as the plain
+  // hide-selector fields above -- an injection rule and a hide rule can be
+  // excluded by the exact same domain#@#selector / domain#@$#selector
+  // mechanism, since both just mean "don't apply whatever targets this
+  // selector here."
+  injectGeneric?: Array<[selector: string, declaration: string]>;
+  injectPerDomain?: Record<string, Array<[selector: string, declaration: string]>>;
 }
 
 export interface CosmeticManifest {
   meta: string;
   bucketCount: number;
+}
+
+/** One entry of a raw per-domain shard file as written by
+ * scripts/update-cosmetics.mjs -- both keys optional since most domains
+ * populate only one. */
+export interface DomainShardEntry {
+  h?: string[];
+  i?: Array<[selector: string, declaration: string]>;
 }
 
 /**
@@ -27,9 +45,26 @@ export function shardIndicesForHostname(hostname: string, bucketCount: number): 
   return [...indices];
 }
 
-/** perDomain is sharded across multiple files to stay under Firefox's per-file lint size limit. */
-export function mergeDomainShards(shards: Record<string, string[]>[]): Record<string, string[]> {
+/** perDomain is sharded across multiple files to stay under Firefox's per-file lint size limit.
+ * Domain keys are unique per shard set (a domain always hashes to exactly one bucket), so a
+ * plain merge-by-key is safe regardless of what each entry's value looks like. */
+export function mergeDomainShards(shards: Record<string, DomainShardEntry>[]): Record<string, DomainShardEntry> {
   return Object.assign({}, ...shards);
+}
+
+/** Splits merged raw shard entries into the two separate maps CosmeticIndex
+ * expects, so cosmeticFilter.ts doesn't have to know the on-disk {h,i} shape. */
+export function splitDomainShards(merged: Record<string, DomainShardEntry>): {
+  perDomain: Record<string, string[]>;
+  injectPerDomain: Record<string, Array<[string, string]>>;
+} {
+  const perDomain: Record<string, string[]> = {};
+  const injectPerDomain: Record<string, Array<[string, string]>> = {};
+  for (const [domain, entry] of Object.entries(merged)) {
+    if (entry.h) perDomain[domain] = entry.h;
+    if (entry.i) injectPerDomain[domain] = entry.i;
+  }
+  return { perDomain, injectPerDomain };
 }
 
 function excludedForChain(index: CosmeticIndex, chain: string[]): Set<string> {
@@ -64,6 +99,25 @@ export function domainSelectorsForHostname(index: CosmeticIndex, hostname: strin
 /** Selectors that should be hidden on hostname: generic + domain-scoped, minus exceptions. */
 export function selectorsForHostname(index: CosmeticIndex, hostname: string): string[] {
   return [...new Set([...genericSelectorsForHostname(index, hostname), ...domainSelectorsForHostname(index, hostname)])];
+}
+
+/** The generic CSS-injection rules for hostname, minus exceptions -- same
+ * exceptions map genericSelectorsForHostname already consults, since an
+ * injection rule and a hide rule are excluded the same way. */
+export function genericInjectionRulesForHostname(index: CosmeticIndex, hostname: string): Array<[string, string]> {
+  const excluded = excludedForChain(index, domainChain(hostname));
+  return (index.injectGeneric ?? []).filter(([selector]) => !excluded.has(selector));
+}
+
+/** The per-domain CSS-injection rules for hostname (own domain + parents), minus exceptions. */
+export function domainInjectionRulesForHostname(index: CosmeticIndex, hostname: string): Array<[string, string]> {
+  const chain = domainChain(hostname);
+  const matched = new Map<string, string>();
+  for (const domain of chain) {
+    for (const [selector, declaration] of index.injectPerDomain?.[domain] ?? []) matched.set(selector, declaration);
+  }
+  const excluded = excludedForChain(index, chain);
+  return [...matched].filter(([selector]) => !excluded.has(selector));
 }
 
 /**
@@ -117,4 +171,11 @@ export function buildGrayscaleStyleText(selectors: string[]): string {
     rules.push(`${selectors.slice(i, i + SELECTORS_PER_RULE).join(",")}{filter:grayscale(1)!important}`);
   }
   return rules.join("\n");
+}
+
+/** Unlike buildStyleText/buildGrayscaleStyleText, each injection rule has
+ * its own declaration -- can't batch into one shared selector list, so this
+ * emits one `selector{declaration}` block per rule instead. */
+export function buildInjectionStyleText(rules: Array<[selector: string, declaration: string]>): string {
+  return rules.map(([selector, declaration]) => `${selector}{${declaration}}`).join("\n");
 }

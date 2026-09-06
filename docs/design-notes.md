@@ -273,31 +273,48 @@ failing (`src/content/bridge.ts`).
 ### Cosmetic filtering internals
 
 A build-time script (`scripts/update-cosmetics.mjs`) downloads the raw filter-list
-text, parses standard `##selector`/`#@#`-exception cosmetic rules (skipping
-AdGuard/uBO scriptlets and CSS-injection/extended-selector syntax that need a JS
-engine, not a `<style>` tag — see the comment atop
-`scripts/lib/parseCosmeticRules.mjs`), and validates every surviving selector against
-jsdom so nothing invalid ships. Per-domain selectors are bucketed into 64 shard files
-by a hash of the domain name (`bucketForDomain`, kept identical between
-`scripts/lib/domainBucket.mjs` and `src/shared/domainBucket.ts`, cross-checked by a
-test that runs both), so a content script only ever has to fetch the 1–3 buckets its
-own hostname's domain chain hashes into — a real fix, not a micro-op: it cut the JSON
-fetched on every single page load from ~5.8MB to well under 1MB (see "Problems we hit"
-below).
+text, parses standard `##selector`/`#@#`-exception cosmetic rules and AdGuard's
+`#$#`/`#@$#` CSS-injection syntax (skipping AdGuard/uBO scriptlets, HTML filters, and
+extended-selector syntax that need a JS engine, not a `<style>` tag — see the comment
+atop `scripts/lib/parseCosmeticRules.mjs`), and validates every surviving
+selector/declaration against jsdom so nothing invalid ships. Per-domain rules are
+bucketed into 64 shard files by a hash of the domain name (`bucketForDomain`, kept
+identical between `scripts/lib/domainBucket.mjs` and `src/shared/domainBucket.ts`,
+cross-checked by a test that runs both), so a content script only ever has to fetch
+the 1–3 buckets its own hostname's domain chain hashes into — a real fix, not a
+micro-op: it cut the JSON fetched on every single page load from ~5.8MB to well under
+1MB (see "Problems we hit" below).
+
+**CSS injection** (measured 2026-09: 8,778 of 119,391 real cosmetic lines across
+Moat's 7 bundled AdGuard lists, 7.4% — see `docs/design-notes.md`'s "Researched but
+not built yet" entry on extended selectors for the full measurement) pairs a
+selector with its own declaration instead of the implicit
+`{display:none!important}` every hide rule shares — most commonly a cookie-banner
+hide paired with an `overflow`/`position` reset that un-sticks page scroll once the
+banner's gone. Still plain CSS a `<style>` tag can express, just one rule per
+selector instead of one shared selector list, so it ships through the exact same
+trust model as hide selectors: build-time jsdom validation (a real `selector{decl}`
+parse, not a substring check), plus a fast substring blocklist
+(`isSafeCssDeclarationText` in `parseCosmeticRules.mjs`) for known escape vectors
+(`</style`, backtick, `@import`, `expression(`) before that. A `#@$#` exception is
+bare (no declaration) and is folded into the *same* `exceptions` map `#@#` already
+feeds — both just mean "don't apply whatever targets this selector here."
 
 A content script (`src/content/cosmeticFilter.ts`, top frame only) injects the
-resulting selectors as `<style>` blocks at `document_start` — CSS rules, not a
+resulting rules as `<style>` blocks at `document_start` — CSS rules, not a
 one-time DOM pass, so they keep hiding elements a site adds later (SPA navigation,
-lazy-loaded slots) without a MutationObserver. Per-domain and generic selectors go
-into two separate blocks so a one-time cleanup pass, triggered on `window`'s `load`
-event, can prune generic selectors that matched nothing anywhere in the final DOM
-without touching the intentionally-scoped per-domain block. This is a style-engine
-cleanup — fewer live selectors for the browser to keep evaluating on every later
-recalc, which matters most on long-lived SPA tabs like Instagram, YouTube, and
-LinkedIn — not a network optimization: the full generic set (~17k selectors) is still
-fetched and injected upfront exactly as before. Not a MutationObserver either — it
-runs once, after initial load, same "no persistent DOM watcher for cosmetic
-filtering" design as the rest of this feature (see `selectorsStillMatching` in
+lazy-loaded slots) without a MutationObserver. Per-domain/custom, generic, and
+CSS-injection rules go into three separate blocks: the generic one alone is subject
+to a one-time cleanup pass, triggered on `window`'s `load` event, that prunes
+selectors matching nothing anywhere in the final DOM; injection rules get their own
+block specifically so that rewrite (which fully replaces the generic block's
+`textContent`) can never wipe them out. This is a style-engine cleanup — fewer live
+selectors for the browser to keep evaluating on every later recalc, which matters
+most on long-lived SPA tabs like Instagram, YouTube, and LinkedIn — not a network
+optimization: the full generic set (~17k selectors) is still fetched and injected
+upfront exactly as before. Not a MutationObserver either — it runs once, after
+initial load, same "no persistent DOM watcher for cosmetic filtering" design as the
+rest of this feature (see `selectorsStillMatching` in
 `src/content/cosmeticSelectors.ts`).
 
 ### Rule-match logger
@@ -380,3 +397,36 @@ site-breakage risks and latency." A materially bigger trust/breakage step than
 anything Moat already does (including the popup firewall's `window.open` wrapper,
 which only intercepts a narrow, specific call, not a page's entire networking
 surface).
+
+### Countering YouTube's ad-blocker-detection-and-playback-block escalation
+
+`youtubeAdDimmer.ts` dims in-stream ad *content* — a narrower, safer problem than
+detecting and defeating YouTube's own detection of an active blocker, which is a
+separate, ongoing fight Moat doesn't attempt. Researched in
+[`docs/research/ad-blocker-mechanisms-and-user-irritation-2026-09.md`](research/ad-blocker-mechanisms-and-user-irritation-2026-09.md)
+§2.6: YouTube controls both the player code and the ad-serving decision server-side,
+so any client-side countermeasure is permanently reacting to whatever heuristic
+YouTube shipped most recently, with no way to get ahead of a change it can't see
+before it ships — a materially bigger, first-party-controlled, actively-litigated
+target (a formal ePrivacy complaint is pending with Ireland's DPC over the detection
+script itself) than the third-party anti-adblock suppliers Moat's filter lists already
+handle like any other tracker request. Declined for the same reason as the firewall
+matrix and `fetch`-monkeypatching above: materially higher maintenance burden and
+breakage/ToS-adjacent risk than anything else Moat does, for a fight structurally
+outside a client-side extension's control.
+
+### AdGuard/uBO "extended selector" (procedural) cosmetic filters
+
+`:contains()`, `:matches-css()`, `:xpath()`, `:remove()`, and friends need a JS
+matching engine re-evaluating the DOM as it mutates, not a `<style>` tag — a real
+architecture change (a MutationObserver-driven engine, a new execution surface),
+already flagged as a "candidate for Moat" in
+[`ad-blocker-architecture-and-roadmap.md`](research/ad-blocker-architecture-and-roadmap.md).
+Measured directly rather than assumed: fetching all 7 of Moat's bundled AdGuard
+filter lists and classifying every cosmetic-syntax line found extended-selector
+syntax in **7 of 119,391 lines (0.0%)** — statistically negligible. Building a JS
+matching engine for 7 rules isn't justified. (CSS-injection rules, a different and
+much more common dropped category at 7.4%, are a real gap and *are* built — see
+"Cosmetic filtering internals" above.) A future pass shouldn't re-open this without
+re-running the same measurement first, since filter-list composition drifts over
+time.

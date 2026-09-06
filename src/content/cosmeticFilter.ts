@@ -9,14 +9,19 @@
 import browser from "webextension-polyfill";
 import {
   buildGrayscaleStyleText,
+  buildInjectionStyleText,
   buildStyleText,
   customSelectorsForHostname,
+  domainInjectionRulesForHostname,
   domainSelectorsForHostname,
+  genericInjectionRulesForHostname,
   genericSelectorsForHostname,
   mergeDomainShards,
   selectorsStillMatching,
   shardIndicesForHostname,
+  splitDomainShards,
   type CosmeticManifest,
+  type DomainShardEntry,
 } from "./cosmeticSelectors";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 
@@ -31,11 +36,14 @@ async function run(): Promise<void> {
   const manifest = await fetchJson<CosmeticManifest>("rules/cosmetics-manifest.json");
   const bucketIndices = shardIndicesForHostname(location.hostname, manifest.bucketCount);
   const [meta, ...shards] = await Promise.all([
-    fetchJson<{ generic: string[]; exceptions: Record<string, string[]> }>(`rules/${manifest.meta}`),
-    ...bucketIndices.map((i) => fetchJson<Record<string, string[]>>(`rules/cosmetics-bucket-${i}.json`)),
+    fetchJson<{ generic: string[]; exceptions: Record<string, string[]>; injectGeneric: Array<[string, string]> }>(
+      `rules/${manifest.meta}`
+    ),
+    ...bucketIndices.map((i) => fetchJson<Record<string, DomainShardEntry>>(`rules/cosmetics-bucket-${i}.json`)),
   ]);
 
-  const index = { generic: meta.generic, exceptions: meta.exceptions, perDomain: mergeDomainShards(shards) };
+  const { perDomain, injectPerDomain } = splitDomainShards(mergeDomainShards(shards));
+  const index = { generic: meta.generic, exceptions: meta.exceptions, perDomain, injectGeneric: meta.injectGeneric, injectPerDomain };
   const customRules = { hide: effective.customCosmeticRules, gray: effective.customGrayscaleRules };
   const genericSelectors = genericSelectorsForHostname(index, location.hostname);
   const domainSelectors = [
@@ -43,7 +51,13 @@ async function run(): Promise<void> {
     ...customSelectorsForHostname(customRules.hide, location.hostname),
   ];
   const graySelectors = customSelectorsForHostname(customRules.gray, location.hostname);
-  if (genericSelectors.length === 0 && domainSelectors.length === 0 && graySelectors.length === 0) return;
+  const injectRules = [
+    ...genericInjectionRulesForHostname(index, location.hostname),
+    ...domainInjectionRulesForHostname(index, location.hostname),
+  ];
+  if (genericSelectors.length === 0 && domainSelectors.length === 0 && graySelectors.length === 0 && injectRules.length === 0) {
+    return;
+  }
 
   // Split into two <style> blocks purely so the document_idle trim below can
   // target the generic one without touching per-domain/custom selectors,
@@ -56,6 +70,18 @@ async function run(): Promise<void> {
       .filter(Boolean)
       .join("\n");
     document.documentElement.append(domainStyle);
+  }
+
+  // Own dedicated block, not merged into either block above: each injection
+  // rule carries its own declaration (buildInjectionStyleText can't batch
+  // them into one shared selector list the way the hide/gray blocks do),
+  // and it must stay untouched by the generic block's trim rewrite below,
+  // which fully overwrites that element's textContent on a timer.
+  if (injectRules.length > 0) {
+    const injectStyle = document.createElement("style");
+    injectStyle.id = "moat-cosmetic-inject";
+    injectStyle.textContent = buildInjectionStyleText(injectRules);
+    document.documentElement.append(injectStyle);
   }
 
   if (genericSelectors.length > 0) {

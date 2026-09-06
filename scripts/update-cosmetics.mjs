@@ -54,10 +54,31 @@ function isValidSelector(selector) {
   }
 }
 
+// Same "does this parse as real CSS" question as isValidSelector, but for a
+// css-injection rule's full `selector { declaration }` shape -- attaches a
+// throwaway <style> element to the validation doc's <head> and checks the
+// browser's own CSS parser actually produced exactly one rule with a real
+// declaration, not just "didn't throw." parseCosmeticRules.mjs's substring
+// blocklist (isSafeCssDeclarationText) already ran before this is called;
+// this is the structural check that blocklist doesn't attempt.
+function isValidDeclaration(selector, declaration) {
+  const style = validationDoc.createElement("style");
+  try {
+    style.textContent = `${selector}{${declaration}}`;
+    validationDoc.head.appendChild(style);
+    const rules = style.sheet?.cssRules;
+    return rules != null && rules.length === 1 && rules[0].style.length > 0;
+  } catch {
+    return false;
+  } finally {
+    style.remove();
+  }
+}
+
 console.log(`Fetching ${FILTER_IDS.length} filter lists...`);
 const texts = await Promise.all(FILTER_IDS.map(fetchFilterText));
 
-const index = buildCosmeticIndex(texts, isValidSelector);
+const index = buildCosmeticIndex(texts, isValidSelector, isValidDeclaration);
 
 // Our own additions, not sourced from AdGuard: the sidebar/in-feed ad cards
 // on YouTube's watch page (verified live -- a "Sponsored" card was showing,
@@ -117,15 +138,31 @@ if (existsSync(previousMetaPath)) {
 const BUCKET_COUNT = 64;
 const MAX_CHUNK_BYTES = 4.5 * 1024 * 1024;
 
+// Each bucket's per-domain value is { h?: hide-selectors, i?: [selector,
+// declaration] injection pairs } rather than a bare array -- most domains
+// only ever populate one of the two, but a uniform object shape (both keys
+// optional, never a union of "bare array OR object") keeps the merge/lookup
+// code in cosmeticSelectors.ts simple. Domains present in either the hide or
+// injection per-domain map get one shared bucket entry.
 const perDomainEntries = Object.entries(index.perDomain);
+const injectPerDomainEntries = Object.entries(index.cssInjection.perDomain);
+const hideByDomain = new Map(perDomainEntries);
+const injectByDomain = new Map(injectPerDomainEntries);
+const allPerDomainKeys = new Set([...hideByDomain.keys(), ...injectByDomain.keys()]);
+
 const buckets = Array.from({ length: BUCKET_COUNT }, () => ({}));
-for (const [domain, selectors] of perDomainEntries) {
-  buckets[bucketForDomain(domain, BUCKET_COUNT)][domain] = selectors;
+for (const domain of allPerDomainKeys) {
+  const entry = {};
+  const hide = hideByDomain.get(domain);
+  if (hide) entry.h = hide;
+  const inject = injectByDomain.get(domain);
+  if (inject) entry.i = inject;
+  buckets[bucketForDomain(domain, BUCKET_COUNT)][domain] = entry;
 }
 
 writeFileSync(
   join(outDir, "cosmetics-meta.json"),
-  JSON.stringify({ generic: index.generic, exceptions: index.exceptions })
+  JSON.stringify({ generic: index.generic, exceptions: index.exceptions, injectGeneric: index.cssInjection.generic })
 );
 
 const bucketSizesBytes = [];
@@ -148,12 +185,14 @@ writeFileSync(
 
 const perDomainCount = perDomainEntries.reduce((sum, [, s]) => sum + s.length, 0);
 const exceptionCount = Object.values(index.exceptions).reduce((sum, s) => sum + s.length, 0);
+const injectPerDomainCount = injectPerDomainEntries.reduce((sum, [, pairs]) => sum + pairs.length, 0);
 const largestBucketBytes = Math.max(...bucketSizesBytes);
 console.log(
   `Wrote ${1 + BUCKET_COUNT} cosmetics file(s): ${index.generic.length} generic selectors, ` +
     `${perDomainCount} domain-scoped selectors across ${perDomainEntries.length} domains ` +
     `(${BUCKET_COUNT} shard buckets, largest ${(largestBucketBytes / 1024).toFixed(1)}KB), ` +
-    `${exceptionCount} exceptions`
+    `${exceptionCount} exceptions, ${index.cssInjection.generic.length} generic + ${injectPerDomainCount} ` +
+    `domain-scoped CSS-injection rules across ${injectPerDomainEntries.length} domains`
 );
 if (previousSummary) {
   console.log(

@@ -3,26 +3,46 @@
 import { describe, expect, it } from "vitest";
 import {
   buildGrayscaleStyleText,
+  buildInjectionStyleText,
   buildStyleText,
   customSelectorsForHostname,
+  domainInjectionRulesForHostname,
   domainSelectorsForHostname,
+  genericInjectionRulesForHostname,
   genericSelectorsForHostname,
   mergeDomainShards,
   selectorsForHostname,
   selectorsStillMatching,
   shardIndicesForHostname,
+  splitDomainShards,
   type CosmeticIndex,
 } from "./cosmeticSelectors";
 import { bucketForDomain } from "../shared/domainBucket";
 
 describe("mergeDomainShards", () => {
   it("combines domain entries from multiple shard files into one object", () => {
-    const merged = mergeDomainShards([{ "a.com": [".x"] }, { "b.com": [".y"] }]);
-    expect(merged).toEqual({ "a.com": [".x"], "b.com": [".y"] });
+    const merged = mergeDomainShards([{ "a.com": { h: [".x"] } }, { "b.com": { h: [".y"] } }]);
+    expect(merged).toEqual({ "a.com": { h: [".x"] }, "b.com": { h: [".y"] } });
   });
 
   it("returns an empty object for no shards", () => {
     expect(mergeDomainShards([])).toEqual({});
+  });
+});
+
+describe("splitDomainShards", () => {
+  it("splits hide selectors and injection rules into separate maps", () => {
+    const { perDomain, injectPerDomain } = splitDomainShards({
+      "a.com": { h: [".ad"], i: [[".modal", "display:none"]] },
+      "b.com": { h: [".banner"] },
+      "c.com": { i: [[".x", "display:none"]] },
+    });
+    expect(perDomain).toEqual({ "a.com": [".ad"], "b.com": [".banner"] });
+    expect(injectPerDomain).toEqual({ "a.com": [[".modal", "display:none"]], "c.com": [[".x", "display:none"]] });
+  });
+
+  it("returns empty maps for no entries", () => {
+    expect(splitDomainShards({})).toEqual({ perDomain: {}, injectPerDomain: {} });
   });
 });
 
@@ -98,6 +118,87 @@ describe("domainSelectorsForHostname", () => {
       exceptions: { "example.com": [".ad"] },
     };
     expect(domainSelectorsForHostname(index, "example.com")).toEqual([".banner"]);
+  });
+});
+
+describe("genericInjectionRulesForHostname", () => {
+  it("returns generic injection rules, ignoring injectPerDomain entirely", () => {
+    const index: CosmeticIndex = {
+      generic: [],
+      perDomain: {},
+      exceptions: {},
+      injectGeneric: [[".modal", "display:none!important"]],
+      injectPerDomain: { "example.com": [[".other", "display:none"]] },
+    };
+    expect(genericInjectionRulesForHostname(index, "example.com")).toEqual([[".modal", "display:none!important"]]);
+  });
+
+  it("removes a generic injection rule excluded on this domain", () => {
+    const index: CosmeticIndex = {
+      generic: [],
+      perDomain: {},
+      exceptions: { "example.com": [".modal"] },
+      injectGeneric: [[".modal", "display:none"]],
+    };
+    expect(genericInjectionRulesForHostname(index, "example.com")).toEqual([]);
+  });
+
+  it("returns an empty array when injectGeneric is absent", () => {
+    const index: CosmeticIndex = { generic: [], perDomain: {}, exceptions: {} };
+    expect(genericInjectionRulesForHostname(index, "example.com")).toEqual([]);
+  });
+});
+
+describe("domainInjectionRulesForHostname", () => {
+  it("returns the per-domain injection rules, ignoring injectGeneric entirely", () => {
+    const index: CosmeticIndex = {
+      generic: [],
+      perDomain: {},
+      exceptions: {},
+      injectGeneric: [[".other", "display:none"]],
+      injectPerDomain: { "example.com": [[".modal", "display:none!important"]] },
+    };
+    expect(domainInjectionRulesForHostname(index, "example.com")).toEqual([[".modal", "display:none!important"]]);
+  });
+
+  it("matches a parent domain's injection rules when visiting a subdomain", () => {
+    const index: CosmeticIndex = {
+      generic: [],
+      perDomain: {},
+      exceptions: {},
+      injectPerDomain: { "example.com": [[".modal", "display:none"]] },
+    };
+    expect(domainInjectionRulesForHostname(index, "www.example.com")).toEqual([[".modal", "display:none"]]);
+  });
+
+  it("removes a domain-scoped injection rule excluded on this domain", () => {
+    const index: CosmeticIndex = {
+      generic: [],
+      perDomain: {},
+      exceptions: { "example.com": [".modal"] },
+      injectPerDomain: { "example.com": [[".modal", "display:none"]] },
+    };
+    expect(domainInjectionRulesForHostname(index, "example.com")).toEqual([]);
+  });
+
+  it("returns an empty array when injectPerDomain is absent", () => {
+    const index: CosmeticIndex = { generic: [], perDomain: {}, exceptions: {} };
+    expect(domainInjectionRulesForHostname(index, "example.com")).toEqual([]);
+  });
+});
+
+describe("buildInjectionStyleText", () => {
+  it("returns an empty string for no rules", () => {
+    expect(buildInjectionStyleText([])).toBe("");
+  });
+
+  it("emits one block per rule, each with its own declaration", () => {
+    expect(
+      buildInjectionStyleText([
+        [".modal", "display:none!important"],
+        ["body", "overflow:auto!important"],
+      ])
+    ).toBe(".modal{display:none!important}\nbody{overflow:auto!important}");
   });
 });
 
