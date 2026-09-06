@@ -8,6 +8,7 @@ import { applyCnameUncloak } from "./cnameUncloak";
 import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
 import { exportSettings } from "./settingsPortability";
 import { isSafeCosmeticSelector } from "../shared/selectorSafety";
+import { matchesDomainOrSubdomain } from "../shared/domainChain";
 
 // Deliberately a separate storage.local key, not part of Settings/STORAGE_KEY
 // -- it must never get swept into the blob that gets mirrored *to* sync
@@ -154,7 +155,7 @@ export async function reapplySettings(options: { force?: boolean } = {}): Promis
 
 export async function isSiteDisabled(hostname: string): Promise<boolean> {
   const settings = await getEffectiveSettings();
-  return !settings.enabled || settings.disabledSites.includes(hostname);
+  return !settings.enabled || matchesDomainOrSubdomain(hostname, settings.disabledSites);
 }
 
 export function setSiteDisabled(hostname: string, disabled: boolean): Promise<Settings> {

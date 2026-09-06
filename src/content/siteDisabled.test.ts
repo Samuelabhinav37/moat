@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_SETTINGS, STORAGE_KEY } from "../types";
+import { DEFAULT_SETTINGS, STORAGE_KEY, type Settings } from "../types";
 
 const localGet = vi.fn();
 const managedGet = vi.fn();
@@ -113,5 +113,25 @@ describe("getEffectiveSettingsHere caching", () => {
     await scriptB.getEffectiveSettingsHere();
 
     expect(onChangedListeners).toHaveLength(1);
+  });
+});
+
+describe("isDisabled", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("is true on a subdomain of a paused site", async () => {
+    vi.stubGlobal("location", { hostname: "shop.example.com" });
+    const { isDisabled } = await importFresh();
+    const settings: Settings = { ...DEFAULT_SETTINGS, disabledSites: ["example.com"] };
+    expect(isDisabled(settings)).toBe(true);
+  });
+
+  it("is false on a parent domain of a paused site", async () => {
+    vi.stubGlobal("location", { hostname: "example.com" });
+    const { isDisabled } = await importFresh();
+    const settings: Settings = { ...DEFAULT_SETTINGS, disabledSites: ["shop.example.com"] };
+    expect(isDisabled(settings)).toBe(false);
   });
 });

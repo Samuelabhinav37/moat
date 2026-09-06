@@ -230,6 +230,16 @@ describe("isSiteDisabled", () => {
     expect(await isSiteDisabled("example.com")).toBe(true);
   });
 
+  it("is true for a subdomain of a paused site", async () => {
+    await setSiteDisabled("example.com", true);
+    expect(await isSiteDisabled("shop.example.com")).toBe(true);
+  });
+
+  it("is false for a parent domain of a paused site", async () => {
+    await setSiteDisabled("shop.example.com", true);
+    expect(await isSiteDisabled("example.com")).toBe(false);
+  });
+
   it("is true everywhere once the master switch is off, even for untouched sites", async () => {
     await setSettings({ enabled: false });
     expect(await isSiteDisabled("never-paused.example.com")).toBe(true);

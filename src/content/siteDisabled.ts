@@ -12,6 +12,7 @@
 import browser from "webextension-polyfill";
 import { DEFAULT_SETTINGS, STORAGE_KEY, type Settings } from "../types";
 import { getManagedPolicy, applyManagedOverrides } from "../background/managedPolicy";
+import { matchesDomainOrSubdomain } from "../shared/domainChain";
 
 // Every script above is built as its own fully self-contained Rollup IIFE
 // (see scripts/build.mjs) -- each gets its OWN private copy of this file's
@@ -82,7 +83,7 @@ export async function getEffectiveSettingsHere(): Promise<Settings> {
 }
 
 export function isDisabled(effective: Settings): boolean {
-  return !effective.enabled || effective.disabledSites.includes(location.hostname);
+  return !effective.enabled || matchesDomainOrSubdomain(location.hostname, effective.disabledSites);
 }
 
 /** Convenience wrapper for callers that only need the boolean and have no

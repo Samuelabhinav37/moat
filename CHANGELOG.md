@@ -3,6 +3,24 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.47
+
+### Fixed
+- **"Pause on this site" ignored subdomains.** `disabledSites` was checked with a plain
+  `.includes(hostname)` in three places — `background/settings.ts`'s `isSiteDisabled` (drives the
+  popup's pause toggle and site-disabled badge), `content/siteDisabled.ts`'s `isDisabled` (read by
+  `cosmeticFilter.ts`, `consentRejector.ts`, `leakedPasswordCheck.ts`, `feedAdScanner.ts`, and
+  `youtubeAdDimmer.ts`), and `content/bridge.ts`'s `sendConfig` (drives the MAIN-world popup guard
+  and fingerprint guard). Pausing Moat on `example.com` left it fully active on `shop.example.com`
+  or `www.example.com` — the one hostname list in the codebase that didn't get subdomain-inclusive
+  matching, despite three other domain lists (`cosmeticSelectors.ts`, `cnameUncloakMatch.ts`,
+  `redirectDomainMatch.ts`) already having it via the shared `domainChain()` helper. Added
+  `matchesDomainOrSubdomain()` to `src/shared/domainChain.ts` and switched all three call sites to
+  it, so pausing a site now pauses that site and every subdomain of it, consistent with how the
+  rest of Moat already treats domain lists.
+
+508/508 tests (9 new), typecheck/test/build/lint:firefox clean.
+
 ## 0.11.46
 
 ### Changed

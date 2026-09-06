@@ -15,3 +15,11 @@ export function domainChain(hostname: string): string[] {
   }
   return chain;
 }
+
+/** True if hostname equals, or is a subdomain of, one of the entries in
+ * domains -- e.g. "shop.example.com" matches an entry of "example.com".
+ * Shared by every place a hostname needs to be checked against a flat
+ * domain list with subdomain-inclusive semantics. */
+export function matchesDomainOrSubdomain(hostname: string, domains: readonly string[]): boolean {
+  return domainChain(hostname).some((domain) => domains.includes(domain));
+}

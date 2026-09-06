@@ -5,6 +5,7 @@
 import browser from "webextension-polyfill";
 import { STORAGE_KEY, type BridgeMessage, type BlockedMessage } from "../types";
 import { getEffectiveSettings, getOrCreateFingerprintSeed, getOrCreateSessionFingerprintSeed } from "../background/settings";
+import { matchesDomainOrSubdomain } from "../shared/domainChain";
 
 // One token per page load, sent with every config message so the MAIN-world
 // guards can tell a real update from a later message spoofed by the page
@@ -34,7 +35,7 @@ function claimGuardToken(): void {
 
 async function sendConfig(): Promise<void> {
   const settings = await getEffectiveSettings();
-  const disabled = !settings.enabled || settings.disabledSites.includes(location.hostname);
+  const disabled = !settings.enabled || matchesDomainOrSubdomain(location.hostname, settings.disabledSites);
   const fingerprintResistance = settings.fingerprintResistance && !disabled;
   const fingerprintSeed = fingerprintResistance
     ? settings.fingerprintRotatePerSession
