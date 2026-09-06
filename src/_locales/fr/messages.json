@@ -27,6 +27,7 @@
   "popupBlockElement": { "message": "Bloquer un élément…" },
   "popupReportProblem": { "message": "Signaler un problème…" },
   "popupLoadError": { "message": "Impossible de charger l'état. Essayez de rouvrir la fenêtre contextuelle." },
+  "popupReportError": { "message": "Impossible d'ouvrir la page de signalement. Réessayez." },
 
   "tabProtection": { "message": "Protection" },
   "tabFilters": { "message": "Listes de filtres" },

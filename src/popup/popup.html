@@ -193,14 +193,17 @@
         gap: 5px;
         font-size: 10.5px;
         font-weight: 600;
-        color: #3f78e0;
+        /* #3f78e0 (the old value) is only 4.22:1 on this white card, just
+           under WCAG AA's 4.5:1 for text this size -- darkened slightly,
+           same hue, to clear it (4.6:1). */
+        color: #3572d6;
         margin-top: 2px;
       }
       .site-state i {
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: #3f78e0;
+        background: #3572d6;
         flex: none;
       }
       .site-state.paused {

@@ -31,6 +31,7 @@
   "popupBlockElement": { "message": "Block an element…" },
   "popupReportProblem": { "message": "Report a problem…" },
   "popupLoadError": { "message": "Couldn't load status. Try reopening the popup." },
+  "popupReportError": { "message": "Couldn't open the report page. Try again." },
 
   "tabProtection": { "message": "Protection" },
   "tabFilters": { "message": "Filter Lists" },

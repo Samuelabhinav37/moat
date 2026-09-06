@@ -164,12 +164,24 @@ document.getElementById("start-picker")?.addEventListener("click", async () => {
   window.close();
 });
 
-document.getElementById("report-problem")?.addEventListener("click", async () => {
-  const message: GetReportContextMessage = { type: "get-report-context" };
-  const context = (await browser.runtime.sendMessage(message)) as ReportContextResponse;
-  const url = buildIssueUrl(context, browser.runtime.getManifest().version);
-  await browser.tabs.create({ url });
-  window.close();
+document.getElementById("report-problem")?.addEventListener("click", async (event) => {
+  const button = event.currentTarget as HTMLButtonElement;
+  try {
+    const message: GetReportContextMessage = { type: "get-report-context" };
+    const context = (await browser.runtime.sendMessage(message)) as ReportContextResponse;
+    const url = buildIssueUrl(context, browser.runtime.getManifest().version);
+    await browser.tabs.create({ url });
+    window.close();
+  } catch {
+    // A dead click here (background unreachable, tab creation blocked)
+    // otherwise leaves the user with zero feedback -- flash the failure
+    // in place on the button they just pressed rather than staying silent.
+    button.textContent = getMessageOrFallback(
+      (key) => browser.i18n.getMessage(key),
+      "popupReportError",
+      "Couldn't open the report page. Try again."
+    );
+  }
 });
 
 void render().catch(() => {
@@ -179,4 +191,8 @@ void render().catch(() => {
     "Couldn't load status. Try reopening the popup."
   );
 });
-void renderUiNotices();
+void renderUiNotices().catch(() => {
+  // Best-effort convenience cards (onboarding, "what's new") -- if the
+  // background worker doesn't answer, the popup is still fully usable
+  // without them, so there's nothing to surface to the user here.
+});

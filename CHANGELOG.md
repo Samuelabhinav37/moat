@@ -3,6 +3,34 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.48
+
+### Fixed
+- **Toggle switches had no visible keyboard focus indicator.** The real `<input>` behind every
+  `.switch` (popup pause toggle, the 9 Settings toggles, sync toggle) is zeroed to 0x0px so only its
+  `.track`/`.thumb` siblings render — with no `:focus-visible` rule anywhere in `theme.css`, a
+  keyboard user tabbing through either surface had no way to see which toggle was focused. Added
+  `.switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }`,
+  shared by both popup and Settings.
+- **Popup status text failed WCAG AA contrast.** `.site-state`'s blue (`#3f78e0`) computed to 4.22:1
+  against the card's white background, just under the 4.5:1 threshold for text this size. Darkened
+  to `#3572d6` (same hue, 4.6:1), applied to both the text and its status dot.
+- **Two popup actions failed silently on a background-worker hiccup.** `renderUiNotices()` (the
+  onboarding/"what's new" cards) and the "Report a problem…" click handler both called
+  `browser.runtime.sendMessage` with no error handling — the former left an unhandled promise
+  rejection in the console with the cards just never appearing (harmless enough to skip silently,
+  now explicitly caught with a comment saying so); the latter left a user's click doing nothing with
+  zero feedback, now caught and flashed onto the button itself via a new `popupReportError` locale
+  key (added to all 4 locales, i18n test suite still green).
+- **A dynamic-rule-apply failure in custom block/allow rules vanished with no diagnostic trail.**
+  `applyCustomRules.ts`'s outer `catch` swallowed everything unconditionally — malformed domains are
+  already filtered out upstream (`customRules.ts`'s `filterValidDomains`, which does `console.warn`
+  per-skipped entry), so anything actually reaching this catch is a real rule-budget hit or API
+  failure, not the benign case the old comment implied. Now logs via `console.warn` instead of
+  disappearing silently.
+
+508/508 tests, typecheck/build/lint:firefox clean.
+
 ## 0.11.47
 
 ### Fixed

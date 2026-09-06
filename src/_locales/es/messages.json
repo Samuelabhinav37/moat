@@ -27,6 +27,7 @@
   "popupBlockElement": { "message": "Bloquear un elemento…" },
   "popupReportProblem": { "message": "Reportar un problema…" },
   "popupLoadError": { "message": "No se pudo cargar el estado. Intenta reabrir la ventana emergente." },
+  "popupReportError": { "message": "No se pudo abrir la página de reporte. Intenta de nuevo." },
 
   "tabProtection": { "message": "Protección" },
   "tabFilters": { "message": "Listas de filtros" },

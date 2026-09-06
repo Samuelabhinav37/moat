@@ -27,6 +27,7 @@
   "popupBlockElement": { "message": "Element blockieren…" },
   "popupReportProblem": { "message": "Problem melden…" },
   "popupLoadError": { "message": "Status konnte nicht geladen werden. Versuche, das Popup erneut zu öffnen." },
+  "popupReportError": { "message": "Die Meldeseite konnte nicht geöffnet werden. Versuche es erneut." },
 
   "tabProtection": { "message": "Schutz" },
   "tabFilters": { "message": "Filterlisten" },

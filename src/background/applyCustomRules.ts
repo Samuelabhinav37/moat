@@ -17,8 +17,12 @@ export async function applyCustomRules(settings: Settings): Promise<void> {
       removeRuleIds: allCustomAllowRuleIds(),
       addRules: buildCustomAllowRules(settings.customAllowedDomains),
     });
-  } catch {
-    // Malformed domain entry or a dynamic-rule budget hit -- the rest of
-    // the extension shouldn't go down because of a bad custom rule.
+  } catch (err) {
+    // Malformed domains are already filtered out before this call
+    // (filterValidDomains, in customRules.ts), so reaching here means a
+    // dynamic-rule budget hit or a real API failure -- the rest of the
+    // extension shouldn't go down because of it, but it's worth a log line
+    // instead of vanishing silently the way an unnamed catch would.
+    console.warn("Moat: failed to apply custom rules", err);
   }
 }
