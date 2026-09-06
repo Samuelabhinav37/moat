@@ -39,8 +39,10 @@ Lite port of an older extension.
   feeds by their rendered label.
 - **Auto-reject cookie banners** (opt-in) — clicks "reject" on the major consent platforms via a
   declarative rule format, never injected JS.
-- **Uncloak disguised trackers** (Firefox only, opt-in) — resolves CNAME-cloaked subdomains and
-  blocks the ones that lead to a tracker.
+- **Uncloak disguised trackers** (opt-in) — resolves CNAME-cloaked subdomains and blocks the ones
+  that lead to a tracker. Firefox does this with its own DNS resolver and blocks every request;
+  Chrome has no DNS API for extensions, so it uses a public DoH lookup instead and can't block the
+  very first request to a newly-found cloak — see "Known limitations."
 - **Opt-in privacy toggles** — fingerprint resistance, third-party cookie blocking, WebRTC leak
   protection; all off by default.
 - **Global Privacy Control** — sends `Sec-GPC`, a legally binding opt-out signal in a dozen US
@@ -99,6 +101,7 @@ copies without a store release.
 | `alarms` | Schedules the once-a-day live redirect-domain refresh. |
 | `dns` (Firefox only) | CNAME resolution for "Uncloak disguised trackers"; inert unless that toggle is on. Not requested on Chrome, which has no equivalent API. |
 | `webRequest` + `webRequestBlocking` (Firefox only) | Cancel a request once its resolved CNAME target matches a known tracker. Chrome no longer allows blocking `webRequest` under MV3. |
+| `webRequest` (Chrome only, non-blocking) | Observe candidate requests for "Uncloak disguised trackers" on Chrome, which gets a weaker DoH-based path instead of Firefox's synchronous one — see "Known limitations." Inert unless that toggle is on. |
 
 See [`PRIVACY.md`](PRIVACY.md) for the full policy — what Moat collects (nothing, for any normal
 install) and every case its code touches a network.
@@ -107,7 +110,11 @@ install) and every case its code touches a network.
 
 - **The breakdown and by-company detail are Chrome-only.** Firefox hasn't shipped
   `declarativeNetRequest.getMatchedRules`. The popup/redirect firewall count still works there.
-- **CNAME uncloaking is Firefox-only.** Chrome has no DNS-resolution API for extensions.
+- **CNAME uncloaking is weaker on Chrome than Firefox.** Chrome has no DNS-resolution API for
+  extensions, so it resolves candidate subdomains through a public DoH lookup (Cloudflare) instead
+  of Firefox's own resolver, and can't synchronously block the very first request to a
+  newly-discovered cloaked tracker in a session — only requests to it after that point. Firefox's
+  path blocks every request and involves no third party.
 - **The YouTube dimmer and feed scanner are DOM heuristics.** They track each site's current
   markup and can stop matching when it changes; both are togglable, and the feed scanner is off by
   default and English-only.

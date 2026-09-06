@@ -11,7 +11,8 @@ import {
 import { getManagedPolicy, isLocked } from "../background/managedPolicy";
 import { getLiveUpdateStatus } from "../background/liveUpdates";
 import { getFilterGroupStatus } from "../background/filterGroups";
-import { isSupported as isCnameUncloakSupported } from "../background/cnameUncloak";
+import { isSupported as isCnameUncloakFirefoxSupported } from "../background/cnameUncloak";
+import { isSupported as isCnameUncloakChromeSupported } from "../background/cnameUncloakChrome";
 import { detectPreset, presetPatch, type PresetName } from "../shared/filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import type {
@@ -66,6 +67,7 @@ const leakedPasswordToggle = document.getElementById("leaked-password-toggle") a
 const syncToggle = document.getElementById("sync-toggle") as HTMLInputElement;
 const syncStatus = document.getElementById("sync-status") as HTMLElement;
 const cnameUnsupportedHint = document.getElementById("cname-unsupported-hint") as HTMLElement;
+const cnameChromeDohHint = document.getElementById("cname-chrome-doh-hint") as HTMLElement;
 const liveStatus = document.getElementById("live-status") as HTMLElement;
 const siteList = document.getElementById("site-list") as HTMLUListElement;
 const siteEmptyState = document.getElementById("site-empty-state") as HTMLElement;
@@ -466,10 +468,17 @@ async function render(): Promise<void> {
   feedScanToggle.checked = settings.aggressiveFeedAdRemoval;
   consentRejectToggle.checked = settings.cookieBannerAutoReject;
 
-  const cnameSupported = isCnameUncloakSupported();
+  // Two independent, mutually-exclusive paths (see cnameUncloak.ts /
+  // cnameUncloakChrome.ts): Firefox's real synchronous block, or Chrome's
+  // weaker DoH-observational one. Only the Chrome-DoH hint's visibility
+  // needs to distinguish them -- the toggle itself just needs "is either
+  // available at all."
+  const cnameFirefoxSupported = isCnameUncloakFirefoxSupported();
+  const cnameChromeSupported = isCnameUncloakChromeSupported();
   cnameUncloakToggle.checked = settings.cnameUncloaking;
-  cnameUncloakToggle.disabled = !cnameSupported;
-  cnameUnsupportedHint.hidden = cnameSupported;
+  cnameUncloakToggle.disabled = !cnameFirefoxSupported && !cnameChromeSupported;
+  cnameUnsupportedHint.hidden = cnameFirefoxSupported || cnameChromeSupported;
+  cnameChromeDohHint.hidden = !cnameChromeSupported;
 
   leakedPasswordToggle.checked = settings.leakedPasswordCheck;
 

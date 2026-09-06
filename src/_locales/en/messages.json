@@ -68,11 +68,14 @@
   "optionsConsentRejectToggleHint": {
     "message": "Clicks “reject” or “decline” on common consent banners for you."
   },
-  "optionsCnameToggleLabel": { "message": "Uncloak disguised trackers (Firefox only)" },
+  "optionsCnameToggleLabel": { "message": "Uncloak disguised trackers" },
   "optionsCnameToggleHint": {
     "message": "Blocks trackers that hide behind a subdomain of the site you're on."
   },
   "optionsCnameUnsupportedHint": { "message": "Not available in this browser." },
+  "optionsCnameChromeDohHint": {
+    "message": "On Chrome this works differently than on Firefox: candidate subdomains are looked up through Cloudflare's public DNS resolver, and the very first request to a newly-found cloaked tracker isn't blocked -- only ones after it are. Firefox blocks every request, using no third party at all."
+  },
   "optionsFilterUpdatesCategory": { "message": "Filter updates" },
   "optionsLiveListTitle": { "message": "Live redirect-domain list" },
   "optionsLiveListHint": { "message": "Refreshes the popup and redirect blocklist from GitHub once a day." },

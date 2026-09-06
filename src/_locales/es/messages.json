@@ -64,11 +64,14 @@
   "optionsConsentRejectToggleHint": {
     "message": "Hace clic automáticamente en rechazar o declinar en los principales avisos de consentimiento. (Desactivado por defecto)"
   },
-  "optionsCnameToggleLabel": { "message": "Desenmascarar rastreadores disfrazados (solo Firefox)" },
+  "optionsCnameToggleLabel": { "message": "Desenmascarar rastreadores disfrazados" },
   "optionsCnameToggleHint": {
     "message": "Detecta y bloquea rastreadores que se esconden detrás de subdominios propios del sitio. (Desactivado por defecto)"
   },
   "optionsCnameUnsupportedHint": { "message": "No disponible en este navegador." },
+  "optionsCnameChromeDohHint": {
+    "message": "En Chrome esto funciona distinto que en Firefox: los subdominios candidatos se consultan mediante el resolutor DNS público de Cloudflare, y la primera solicitud a un rastreador disfrazado recién detectado no se bloquea -- solo las siguientes. Firefox bloquea cada solicitud, sin usar terceros en absoluto."
+  },
   "optionsFilterUpdatesCategory": { "message": "Actualizaciones de filtros" },
   "optionsLiveListTitle": { "message": "Lista de dominios de redirección en vivo" },
   "optionsLiveListHint": { "message": "Obtiene diariamente desde GitHub los últimos bloqueos de ventanas emergentes y redirecciones." },

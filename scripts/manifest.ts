@@ -187,6 +187,14 @@ export function buildManifest(target: "chrome" | "firefox") {
     return {
       ...manifest,
       minimum_chrome_version: "111",
+      // Non-blocking only -- MV3 disallows "webRequestBlocking" for regular
+      // extensions on Chrome (Firefox continues to allow it below). Lets
+      // background/cnameUncloakChrome.ts *observe* candidate requests for
+      // CNAME uncloaking's DoH lookup; it can't cancel one synchronously
+      // the way Firefox's blocking listener can, only add a dynamic
+      // declarativeNetRequest rule for next time -- see that file's own
+      // comment for the full trade-off.
+      permissions: [...manifest.permissions, "webRequest"],
       background: {
         service_worker: "background.js",
       },

@@ -64,11 +64,14 @@
   "optionsConsentRejectToggleHint": {
     "message": "Klickt bei den wichtigsten Einwilligungsbannern automatisch auf Ablehnen. (Standardmäßig aus)"
   },
-  "optionsCnameToggleLabel": { "message": "Getarnte Tracker aufdecken (nur Firefox)" },
+  "optionsCnameToggleLabel": { "message": "Getarnte Tracker aufdecken" },
   "optionsCnameToggleHint": {
     "message": "Erkennt und blockiert Tracker, die sich hinter eigenen Subdomains der Website verstecken. (Standardmäßig aus)"
   },
   "optionsCnameUnsupportedHint": { "message": "In diesem Browser nicht verfügbar." },
+  "optionsCnameChromeDohHint": {
+    "message": "Unter Chrome funktioniert das anders als unter Firefox: Kandidaten-Subdomains werden über Cloudflares öffentlichen DNS-Resolver abgefragt, und die allererste Anfrage an einen neu erkannten getarnten Tracker wird nicht blockiert -- erst nachfolgende Anfragen sind es. Firefox blockiert jede Anfrage, ganz ohne Drittanbieter."
+  },
   "optionsFilterUpdatesCategory": { "message": "Filter-Updates" },
   "optionsLiveListTitle": { "message": "Live-Liste der Weiterleitungsdomains" },
   "optionsLiveListHint": { "message": "Ruft täglich die neuesten Pop-up- und Weiterleitungssperren von GitHub ab." },

@@ -64,11 +64,14 @@
   "optionsConsentRejectToggleHint": {
     "message": "Clique automatiquement sur refuser ou décliner sur les principaux bandeaux de consentement. (Désactivé par défaut)"
   },
-  "optionsCnameToggleLabel": { "message": "Démasquer les traqueurs déguisés (Firefox uniquement)" },
+  "optionsCnameToggleLabel": { "message": "Démasquer les traqueurs déguisés" },
   "optionsCnameToggleHint": {
     "message": "Détecte et bloque les traqueurs se cachant derrière des sous-domaines du site lui-même. (Désactivé par défaut)"
   },
   "optionsCnameUnsupportedHint": { "message": "Non disponible dans ce navigateur." },
+  "optionsCnameChromeDohHint": {
+    "message": "Sur Chrome, cela fonctionne différemment que sur Firefox : les sous-domaines candidats sont interrogés via le résolveur DNS public de Cloudflare, et la toute première requête vers un traqueur déguisé nouvellement détecté n'est pas bloquée -- seules les suivantes le sont. Firefox bloque chaque requête, sans aucun tiers."
+  },
   "optionsFilterUpdatesCategory": { "message": "Mises à jour des filtres" },
   "optionsLiveListTitle": { "message": "Liste des domaines de redirection en direct" },
   "optionsLiveListHint": { "message": "Récupère quotidiennement depuis GitHub les derniers blocages de pop-up et de redirection." },

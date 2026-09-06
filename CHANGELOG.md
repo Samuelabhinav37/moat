@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.50
+
+### Added
+- **"Uncloak disguised trackers" now works on Chrome too**, not just Firefox. Chrome has neither
+  `dns.resolve()` nor a blocking `webRequest` listener (MV3 removed the latter), so this can't be a
+  port of the Firefox path (`background/cnameUncloak.ts`): the new `background/cnameUncloakChrome.ts`
+  observes (non-blocking) the same "is this hostname a disguised subdomain of the page you're on"
+  candidates Firefox already gates on, resolves via Cloudflare's public DoH endpoint, and on a
+  confirmed cloak adds a dynamic `declarativeNetRequest` block rule for that specific hostname going
+  forward. Two real, disclosed trade-offs against the Firefox path, spelled out in this setting's own
+  Chrome-specific copy in Settings, the README, and `PRIVACY.md`: the very first request to a
+  newly-discovered cloak in a session isn't blocked (nothing can synchronously delay a real request
+  while an async DoH lookup completes under MV3), and candidate hostnames are sent to a third party
+  (Cloudflare) rather than staying inside the browser's own resolver the way Firefox's path does.
+  Requires a new Chrome-only, non-blocking `webRequest` permission (added to `scripts/manifest.ts`) --
+  called out here rather than left for users to notice in an update diff. Stays opt-in, off by
+  default, same `cnameUncloaking` setting as before.
+
+542/542 tests (11 new), typecheck/build/lint:firefox clean.
+
 ## 0.11.49
 
 ### Added

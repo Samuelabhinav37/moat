@@ -5,6 +5,7 @@ import { applyPrivacySettings } from "./privacySettings";
 import { applyFilterGroupState } from "./filterGroups";
 import { applyCustomRules } from "./applyCustomRules";
 import { applyCnameUncloak } from "./cnameUncloak";
+import { applyCnameUncloakChrome } from "./cnameUncloakChrome";
 import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
 import { exportSettings } from "./settingsPortability";
 import { isSafeCosmeticSelector } from "../shared/selectorSafety";
@@ -53,7 +54,11 @@ async function applyEffectiveSettings(options: { forceFilterGroups?: boolean } =
     applyFilterGroupState(effective, { force: options.forceFilterGroups }),
     applyCustomRules(effective),
   ]);
+  // Each gates itself via its own isSupported() (Firefox's dns.resolve()
+  // path vs. Chrome's DoH-observational path) -- calling both here is safe
+  // on every browser, exactly one ever actually registers a listener.
   applyCnameUncloak(effective);
+  applyCnameUncloakChrome(effective);
 }
 
 // Every mutation below reads the current settings, merges a patch, and

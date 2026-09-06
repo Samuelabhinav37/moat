@@ -41,14 +41,19 @@ only to an organization's own infrastructure, never to Moat's developer.
    browsing, or your device is sent beyond what any HTTP request inherently
    includes (your IP address, to GitHub's CDN, the same as loading any web
    page).
-2. **DNS resolution for CNAME-uncloaking, Firefox only, off by default.** If
-   you turn on "Uncloak disguised trackers" in Settings, Moat asks Firefox to
-   resolve the canonical (CNAME) name of hostnames your browser contacts, so
-   it can tell whether a tracker is disguising itself behind a site's own
-   subdomain. This uses your browser's normal, already-configured DNS
-   resolver -- Moat does not run or contact any resolver of its own, and this
-   never runs at all unless you explicitly enable it. Not available on
-   Chrome, which has no equivalent API.
+2. **DNS resolution for CNAME-uncloaking, off by default.** If you turn on
+   "Uncloak disguised trackers" in Settings, Moat looks up the canonical
+   (CNAME) name of hostnames your browser contacts, so it can tell whether a
+   tracker is disguising itself behind a site's own subdomain -- checked only
+   for hostnames that already look like a subdomain of the page you're on,
+   not every request. On Firefox, this uses your browser's normal,
+   already-configured DNS resolver -- Moat does not run or contact any
+   resolver of its own. Chrome has no equivalent API for extensions, so
+   there Moat instead sends the candidate hostname to Cloudflare's public
+   DNS-over-HTTPS resolver (`cloudflare-dns.com`) -- a third party sees that
+   narrow, filtered set of hostnames, though never your full browsing
+   history or which page you were on. Either way, this never runs at all
+   unless you explicitly enable it.
 3. **Leaked-password check, off by default.** If you turn on "Check
    passwords against known breaches" in Settings, Moat checks a password you
    type into a page against Have I Been Pwned's Pwned Passwords database,
