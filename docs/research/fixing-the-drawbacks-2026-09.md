@@ -238,19 +238,23 @@ strongest and is currently invisible.
 
 ## Sequence
 
-1. **1.1 signing + 1.2 GitHub Pages** together — they reinforce (signing makes the host untrusted,
-   Pages removes the 7-day cache and the manual purge). Closes the two operational/security
-   drawbacks in the live channel.
-2. ~~3.1 subdomain pause~~ (already shipped v0.11.47) + **3.3 exception audit** + **1.3 scheduled
-   filter PR** + **Part 5 landing page** — all S, all independent, knock out the top feature and
-   distribution gaps.
-3. **1.5 arm publish.yml** + **1.4 trustedTesters path** — makes 1–2 shippable fast and adds a
-   beta safety valve.
-4. **2.1 DOM surveyor + 2.2 insertCSS split** — the big per-page performance win; do them as one
-   piece since 2.2 is the injection half of 2.1.
-5. **2.3 collapse-blocked-element** (route 1) alongside 2.1's build changes.
-6. **3.2 Firefox for Android** — a standalone M effort; the payoff is a new platform, not a fix to
-   an existing one, so it can slot wherever there's appetite.
+1. ✅ **1.1 signing** (v0.11.56) + **1.2 GitHub Pages** (v0.11.57) — live channel now signed +
+   Cloudflare-fronted, no manual purge.
+2. ✅ ~~3.1 subdomain pause~~ (already v0.11.47) + **3.3 exception audit** (v0.11.58, paused-sites
+   folded into Custom Rules) + **1.3 scheduled filter PR** (`filter-refresh.yml`) + **Part 5**
+   (`site/index.html` landing page, `PRIVACY.md` TL;DR, `docs/store-listing.md`).
+3. ✅ **1.4 trustedTesters path** (`publish.yml` `channel: beta`). **1.5 arm publish.yml** still
+   needs the maintainer's CWS/AMO secrets (see `docs/RELEASING.md`).
+4. ✅ **2.1 DOM surveyor** (v0.11.59–60) — generic selectors indexed by anchor-token hash, injected
+   by a self-disabling `MutationObserver` surveyor; `trimUnmatchedGenericRules` deleted. **2.2
+   insertCSS split — PARKED**: 2.1 delivered the core win (17k selectors → dozens, no trim freeze);
+   2.2 only moves *where* injection happens, for a smaller gain and real SW-lifecycle / cross-browser
+   / timing risk. Revisit only if page-thread injection shows up as a measured cost.
+5. ✅ **2.3 collapse-blocked-element** (v0.11.61) — curated-set route, not route 1: `rules/ad-networks.json`
+   (~100 verified ad-network domains) + `adCollapse.ts`. Route 1 (emit `iframe[src*=domain]`
+   selectors from all ~53k DNR domains) was rejected — they have no token anchor, so 2.1 would
+   inject all of them always-on.
+6. ✅ **3.2 Firefox for Android** (v0.11.62) — `gecko_android` (min 142), viewport metas, fluid popup.
 
 Everything except 3.2 preserves the zero-server / zero-telemetry identity, and none of it needs a
 backend.
