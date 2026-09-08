@@ -1,0 +1,92 @@
+name: Publish to stores
+
+# Manual, deliberate, and separate from release.yml (which only builds a draft
+# GitHub Release). Dormant until the CWS_* / AMO_* repository secrets exist --
+# each store step skips cleanly if its credentials are missing, so this file is
+# safe to merge before the secrets are set up. See docs/RELEASING.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Tag to publish (e.g. v0.11.54). Must match package.json."
+        required: true
+      targets:
+        description: "Which stores to submit to"
+        type: choice
+        options: [both, chrome, firefox]
+        default: both
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Verify the ref matches package.json
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "v$PKG_VERSION" != "${{ inputs.ref }}" ]; then
+            echo "::error::input ref ${{ inputs.ref }} does not match package.json v$PKG_VERSION"
+            exit 1
+          fi
+
+      - run: npm ci
+      - run: npm run filters:update
+      - run: npm run validate:rules
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run lint:firefox
+      - run: npm run zip
+
+      # ---- Chrome Web Store -------------------------------------------------
+      - name: Submit to the Chrome Web Store
+        if: ${{ inputs.targets != 'firefox' }}
+        env:
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+        run: |
+          if [ -z "$CLIENT_ID" ] || [ -z "$REFRESH_TOKEN" ] || [ -z "$EXTENSION_ID" ]; then
+            echo "::warning::CWS_* secrets not set -- skipping Chrome Web Store submission."
+            exit 0
+          fi
+          set -euo pipefail
+          TOKEN=$(curl -sf -X POST "https://oauth2.googleapis.com/token" \
+            -d "client_id=$CLIENT_ID" -d "client_secret=$CLIENT_SECRET" \
+            -d "refresh_token=$REFRESH_TOKEN" -d "grant_type=refresh_token" \
+            | node -p "JSON.parse(require('fs').readFileSync(0)).access_token")
+          echo "Uploading chrome.zip to item $EXTENSION_ID ..."
+          curl -sf -X PUT -H "Authorization: Bearer $TOKEN" -H "x-goog-api-version: 2" \
+            -T chrome.zip \
+            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/$EXTENSION_ID"
+          echo "Submitting for review ..."
+          curl -sf -X POST -H "Authorization: Bearer $TOKEN" -H "x-goog-api-version: 2" \
+            -H "Content-Length: 0" \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/$EXTENSION_ID/publish"
+          echo "Chrome Web Store: submitted for review."
+
+      # ---- Firefox Add-ons (AMO) -----------------------------------------
+      - name: Submit to AMO
+        if: ${{ inputs.targets != 'chrome' }}
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          if [ -z "$WEB_EXT_API_KEY" ] || [ -z "$WEB_EXT_API_SECRET" ]; then
+            echo "::warning::AMO_* secrets not set -- skipping AMO submission."
+            exit 0
+          fi
+          npx web-ext sign --channel=listed \
+            --source-dir=dist/firefox \
+            --artifacts-dir=web-ext-artifacts
+          echo "AMO: submitted for review."

@@ -18,11 +18,22 @@
 
    To reproduce locally: `npm run build && npm run zip && sha256sum chrome.zip firefox.zip`.
 
-## Ship (manual)
+## Ship
 
 6. Test the unpacked packages in supported Chrome and Firefox versions.
-7. Review the draft release's attached zips and checksums, then publish it and submit the
-   packages to the stores.
+7. Review the draft release's attached zips and checksums, then publish it.
+8. Submit to the stores — either by hand, or via the **Publish to stores** workflow
+   (`.github/workflows/publish.yml`, `workflow_dispatch`), which rebuilds from the tag,
+   re-runs the full gate, and submits `chrome.zip` / `firefox.zip` for review. It is a
+   deliberate manual trigger, never automatic on a tag, and each store step **skips cleanly
+   if its credentials are absent** — so it stays dormant until you set these repository
+   secrets:
+
+   | Secret | Store | How to get it |
+   |---|---|---|
+   | `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN` | Chrome Web Store | A Google Cloud OAuth client (type *Desktop*) with the Chrome Web Store API enabled; the refresh token from a one-time consent (`chrome-webstore-upload-keys` or the manual OAuth flow). |
+   | `CWS_EXTENSION_ID` | Chrome Web Store | The item id from the developer dashboard URL. |
+   | `AMO_JWT_ISSUER`, `AMO_JWT_SECRET` | AMO | addons.mozilla.org → *Manage API Keys*. |
 
 Store signing credentials and browser-store tokens stay outside the repository. A Git tag
 identifies exactly the source used for submitted packages.
