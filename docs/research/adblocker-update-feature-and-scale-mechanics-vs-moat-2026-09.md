@@ -269,3 +269,20 @@ single-maintainer extension: CI on every push, checksummed tag-driven releases, 
 lists, graceful degradation, and a deliberately capped live-update surface. The gaps are all in one
 place — the live channel's **hosting, caching, and policy posture** — and every fix above is small
 or medium, none require a server, and none cost the zero-telemetry property.
+
+---
+
+## Status — implemented 2026-09-07 (v0.11.51–v0.11.54)
+
+| Item | Done | How |
+|---|---|---|
+| **B1** (partial) | v0.11.51 | Dropped the `stripParams`→`redirect` ("unsafe" DNR type) path from `quickFixRules.ts`; the remote channel now compiles only `block`/`allow` (safe types). |
+| **B3, B4** | v0.11.52 | `ensureAlarm()` creates the alarm only if absent (no more reschedule-on-every-cold-start); `shouldSkipRefetch()` 18 h freshness guard; jittered first fetch; dropped `cache: "no-store"`. |
+| **B2** | v0.11.53 | Live files served from jsDelivr (`LIVE_BASE_URL`, one knob to move again). `scripts/update-live-manifest.mjs` writes `live/manifest.json` (SHA-256 of each payload, run in `filters:update`); `liveUpdates.ts` fetches the manifest then hash-verifies each payload before applying (corruption + atomicity, not a signature — documented). `scripts/purge-live-cdn.mjs` for post-push CDN purge. |
+| **B6b** | v0.11.54 | `live/cosmetic-fixes.json` (empty) → validated via `isSafeCosmeticSelector` → `storage.local` → merged by `cosmeticFilter.ts` through the existing `customSelectorsForHostname` path. Never becomes a DNR rule. |
+| **B8** | (CI) | `.github/workflows/publish.yml` — dormant `workflow_dispatch` job, skips cleanly without `CWS_*` / `AMO_*` secrets. `docs/RELEASING.md` step 8. |
+| **B1** (full), **B5**, **B6a**, **B7** | not done | Documented maintainer calls: bundling the redirect block-rules statically (UX cost), differential updates (payload too small), fully automating tag→submit, a beta CWS listing. |
+
+Follow-up the maintainer still owns: create the `CWS_*` / `AMO_*` secrets to arm `publish.yml`;
+optionally run `scripts/purge-live-cdn.mjs` in the `filters:update` push flow; live-test the
+jsDelivr path (branch-cache latency) once something is actually pushed to `live/`.
