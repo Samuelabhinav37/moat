@@ -12,14 +12,12 @@
 // fresher list reaches installed copies without waiting on a new store
 // release.
 //
-// Hosting: served from jsDelivr, a real CDN built to front GitHub repos --
-// unlike raw.githubusercontent.com, which is IP-rate-limited and whose AUP
-// forbids CDN-style use. A branch (`@master`) path can serve a stale copy for
-// up to jsDelivr's 7-day max-age, so `scripts/purge-live-cdn.mjs` MUST be run
-// after pushing a live fix. If this channel is used often, point LIVE_BASE_URL
-// at GitHub Pages instead (`<user>.github.io/moat/live`, ~10-min cache,
-// refreshed on every push, no purge step) -- the hash check below makes the
-// host swappable.
+// Hosting: GitHub Pages (gh-pages branch, published by
+// .github/workflows/publish-live.yml on any push that touches live/).
+// Cache-Control: max-age=600, Cloudflare-fronted, no rate limit, no AUP
+// problem, and a push propagates in minutes -- no purge step. LIVE_BASE_URL
+// is the only knob if this ever moves again (a bucket, Cloudflare Pages);
+// the signature + hash checks below make the host untrusted regardless.
 //
 // Integrity, two layers:
 //   1. Ed25519 signature over `manifest.json` (liveSignature.ts) -- when a
@@ -42,10 +40,7 @@ import { verifyLiveManifest } from "./liveSignature";
 import { reapplySettings } from "./settings";
 import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY } from "../types";
 
-// One base for all three live files. To move off jsDelivr later (GitHub Pages,
-// Cloudflare, an object bucket) only this constant changes -- the SHA-256
-// verification below makes the host untrusted either way.
-const LIVE_BASE_URL = "https://cdn.jsdelivr.net/gh/Samuelabhinav37/moat@master/live";
+const LIVE_BASE_URL = "https://samuelabhinav37.github.io/moat/live";
 
 /** Lowercase hex SHA-256 of `bytes`. Pure; exported for tests. */
 export async function sha256Hex(bytes: ArrayBuffer): Promise<string> {

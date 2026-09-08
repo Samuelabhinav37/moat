@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.57
+
+### Changed
+- **Live-update files now come from GitHub Pages, not jsDelivr.** A jsDelivr `@master` branch path
+  can serve a stale copy for up to 7 days and needed a flaky manual purge; GitHub Pages sends
+  `Cache-Control: max-age=600`, is Cloudflare-fronted, has no rate limit or CDN-use restriction,
+  and a push propagates in minutes. New `.github/workflows/publish-live.yml` copies `live/` (and
+  `site/`, if present) to a `gh-pages` branch on any push that touches them. `scripts/purge-live-cdn.mjs`
+  is deleted. `LIVE_BASE_URL` in `src/background/liveUpdates.ts` is the single knob if this moves
+  again — the signature + SHA-256 checks make the host untrusted regardless. **One-time setup:**
+  enable Pages on the `gh-pages` branch after the workflow's first run; until then the live fetch
+  404s and the extension keeps its bundled baseline (harmless while the payloads ship empty).
+  Drawback fix 1.2 from `docs/research/fixing-the-drawbacks-2026-09.md`.
+
+562/562 tests, typecheck/build/lint:firefox clean.
+
 ## 0.11.56
 
 ### Added

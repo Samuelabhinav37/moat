@@ -1,0 +1,55 @@
+name: Publish live channel
+
+# Copies live/ (and the landing page in site/, if present) to the gh-pages
+# branch so src/background/liveUpdates.ts can fetch it from GitHub Pages --
+# 10-minute cache, Cloudflare-fronted, no rate limit, no AUP problem, and a
+# push propagates in minutes. Replaces the jsDelivr @master path (up to a
+# 7-day cache + a flaky manual purge).
+#
+# One-time setup: after this runs once, enable Pages on the gh-pages branch
+# (Settings -> Pages -> Deploy from branch -> gh-pages / root). Until then the
+# live fetch 404s and the extension keeps its bundled baseline -- harmless
+# while the payloads ship empty.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "live/**"
+      - "site/**"
+      - ".github/workflows/publish-live.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-live
+  cancel-in-progress: true
+
+jobs:
+  publish-live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to gh-pages
+        run: |
+          set -euo pipefail
+          SRC="$(git rev-parse --short HEAD)"
+
+          rm -rf .deploy && mkdir -p .deploy/live
+          cp live/*.json .deploy/live/
+          [ -f live/manifest.json.sig ] && cp live/manifest.json.sig .deploy/live/
+          [ -d site ] && cp -r site/. .deploy/
+          touch .deploy/.nojekyll
+
+          cd .deploy
+          git init -q
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "live channel @ $SRC"
+          git push -fq "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" HEAD:gh-pages
+
+          echo "Published $(ls live/) to gh-pages."

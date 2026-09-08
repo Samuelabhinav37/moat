@@ -103,19 +103,26 @@ their own sections further down.
   navigation without a MutationObserver. This cut the JSON fetched per page load from ~5.8MB to
   under 1MB. The generic-selector cleanup pass and the sharding details are under "Cosmetic
   filtering internals" below.
-- **Live updates + emergency quick-fix channel** — the bulk of blocking stays static (MV3's
-  dynamic-rule budget can't hold ~271k rules), but two small lists refresh daily:
-  `live/redirect-domains.json` (~460 popup/redirect domains) and `live/quick-fixes.json`, an
-  AdGuard-"Quick Fixes filter"-style channel for patching an anti-adblock-circumvention script or
-  a filter-breakage report without waiting on a full store review cycle.
-  `src/background/liveUpdates.ts` fetches whatever's currently committed on GitHub and applies it
-  as dynamic `declarativeNetRequest` rules on top of the bundled baseline. Publishing a refresh is
-  just `npm run filters:update` + commit + push — no scheduled automation writes to the repo.
-  Trust here is GitHub account security plus TLS, with no extra signature/hash pinning; a
-  quick-fix entry can only block a request, allow-list one, or strip query params
-  (`src/background/quickFixRules.ts`), never redirect to an arbitrary URL, so a compromised feed
-  can't turn this into traffic hijacking. Both are empty by default and Settings shows the last
-  successful check.
+- **Live updates + emergency fix channels** — the bulk of blocking stays static (MV3's
+  dynamic-rule budget can't hold ~271k rules), but three small lists refresh at most daily
+  (`src/background/liveUpdates.ts`, 18h freshness guard, jittered alarm):
+  `live/redirect-domains.json` (~460 popup/redirect domains → dynamic `block` rules + the
+  popupGuard tab safety net), `live/quick-fixes.json` (an AdGuard-"Quick Fixes"-style channel,
+  `block`/`allow` only — no `redirect`/`modifyHeaders`, since those "unsafe" DNR types can't come
+  from a remote source), and `live/cosmetic-fixes.json` (`{hostname: [selector]}`, applied by the
+  content script as plain CSS data — never a rule). All ship empty; Settings shows the last check.
+
+  **Hosting + trust.** Files are on the `gh-pages` branch, published by
+  `.github/workflows/publish-live.yml` and served from GitHub Pages (10-min Cloudflare cache, no
+  purge step). `LIVE_BASE_URL` is the only knob. `live/manifest.json` carries a SHA-256 of each
+  payload (checked before apply — catches corruption + propagation races) and, when
+  `src/shared/liveSigningKey.ts` holds a public key, a detached Ed25519 signature
+  (`live/manifest.json.sig`, `src/background/liveSignature.ts`) — a manifest that doesn't verify is
+  rejected, so trust rests on an offline signing key rather than the GitHub account. Signing is
+  dormant until a key is set (`node scripts/gen-live-signing-key.mjs`); without it, and on engines
+  without WebCrypto Ed25519, the SHA-256 check alone applies. Either way the shape validators bound
+  a bad payload to "block/allow a domain set". Publishing a refresh: `npm run filters:update` +
+  commit + push (the workflow deploys, no manual purge).
 - **Enterprise-managed policy** — an admin can push settings org-wide via Chrome's
   `ExtensionSettings` policy or Firefox's `policies.json` `3rdparty` key (schema:
   `src/managed_schema.json`): force protection on, lock the filter-list toggles, or add an
