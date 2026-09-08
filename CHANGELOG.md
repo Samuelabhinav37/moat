@@ -3,6 +3,29 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.52
+
+### Changed
+- **Live-update fetch cadence hardened** (`src/background/liveUpdates.ts`), so the daily
+  `raw.githubusercontent.com` fetch stays ~daily regardless of how often the service worker
+  cycles, and stays polite at scale:
+  - The alarm is now **created only if it doesn't already exist**. `alarms.create` with an
+    existing name *replaces* it and resets its schedule, and `initLiveUpdates()` runs on every
+    service-worker cold start — so the old fixed `delayInMinutes: 1` could re-arm and fire far
+    more than once a day on a browser that churns its worker.
+  - A **freshness guard** (`shouldSkipRefetch`, pure + unit-tested): if the last fetch *succeeded*
+    within 18 h, the periodic tick does the filter-group budget re-check but skips the network
+    work. The 24 h alarm period still guarantees at least a daily refresh.
+  - The **first-ever** fetch delay is now jittered 30–180 min, so freshly-installed copies don't
+    hit the host in a synchronized burst.
+  - Dropped **`cache: "no-store"`** from both `fetch()` calls — it forced every request past the
+    CDN edge to origin. With the guard keeping this to ~once/day, honouring the host's
+    `Cache-Control` (an edge hit / 304) is the cheaper path.
+  - Second of the live-update-channel hardening set from
+    `docs/research/adblocker-update-feature-and-scale-mechanics-vs-moat-2026-09.md` (B3, B4).
+
+547/547 tests (5 new), typecheck/build/lint:firefox clean.
+
 ## 0.11.51
 
 ### Changed

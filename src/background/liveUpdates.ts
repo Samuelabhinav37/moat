@@ -29,6 +29,28 @@ const ALARM_NAME = "moat-live-update";
 const PERIOD_MINUTES = 24 * 60;
 const STATUS_KEY = "liveUpdateStatus";
 
+// A service-worker cold start re-runs initLiveUpdates(), and on some platforms
+// the periodic alarm can fire a little early. Without a guard, a browser that
+// cycles its worker often would hit the update host several times a day
+// instead of ~once. Skip the network work if the last fetch succeeded within
+// this window; the periodic alarm still guarantees at least a daily refresh.
+export const MIN_REFETCH_INTERVAL_MS = 18 * 60 * 60 * 1000;
+
+// First-ever fetch delay, jittered, so freshly-installed copies don't land on
+// the update host in a synchronized burst. (The periodic interval itself
+// naturally de-syncs over time; this only spreads the very first fire.)
+const INITIAL_DELAY_MIN = 30;
+const INITIAL_DELAY_JITTER_MIN = 150;
+
+/** Pure so it's testable without the alarms/storage APIs. */
+export function shouldSkipRefetch(
+  last: { ok: boolean; timestamp: number } | null,
+  now: number,
+  minIntervalMs: number = MIN_REFETCH_INTERVAL_MS,
+): boolean {
+  return last !== null && last.ok && now - last.timestamp < minIntervalMs;
+}
+
 interface LiveUpdateStatus {
   ok: boolean;
   timestamp: number;
@@ -49,7 +71,10 @@ async function setStatus(status: LiveUpdateStatus): Promise<void> {
 }
 
 async function refreshRedirectDomains(): Promise<number> {
-  const response = await fetch(LIVE_DATA_URL, { cache: "no-store" });
+  // No `cache: "no-store"`: it forced every fetch past the CDN edge to origin.
+  // The freshness guard above already keeps this to ~once/day, so honouring
+  // the host's Cache-Control (an edge hit / 304) is the cheaper path at scale.
+  const response = await fetch(LIVE_DATA_URL);
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
   const fetched = (await response.json()) as unknown;
   if (!Array.isArray(fetched)) throw new Error("live redirect-domains payload was not an array");
@@ -69,7 +94,7 @@ async function refreshRedirectDomains(): Promise<number> {
 }
 
 async function refreshQuickFixes(): Promise<number> {
-  const response = await fetch(QUICK_FIXES_URL, { cache: "no-store" });
+  const response = await fetch(QUICK_FIXES_URL);
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
   const fetched = (await response.json()) as unknown;
   if (!Array.isArray(fetched)) throw new Error("quick-fixes payload was not an array");
@@ -82,7 +107,9 @@ async function refreshQuickFixes(): Promise<number> {
   return entries.length;
 }
 
-async function refresh(): Promise<void> {
+async function fetchAndApply(): Promise<void> {
+  if (shouldSkipRefetch(await getLiveUpdateStatus(), Date.now())) return;
+
   try {
     const domainCount = await refreshRedirectDomains();
 
@@ -104,6 +131,10 @@ async function refresh(): Promise<void> {
     // baseline and try again on the next alarm tick.
     await setStatus({ ok: false, timestamp: Date.now() });
   }
+}
+
+async function refresh(): Promise<void> {
+  await fetchAndApply();
 
   // Piggybacks on this same daily alarm rather than adding a new one: a
   // filter group that got dropped for lack of shared static-rule budget
@@ -123,8 +154,23 @@ async function refresh(): Promise<void> {
   });
 }
 
+async function ensureAlarm(): Promise<void> {
+  // Create-if-absent, never unconditionally: alarms.create with an existing
+  // name *replaces* it and resets its schedule, so recreating on every
+  // service-worker cold start (which is when initLiveUpdates runs) kept
+  // pushing the first fire out and could fire far more than daily. Leaving an
+  // existing alarm alone keeps the ~24h cadence stable across worker churn;
+  // the jittered initial delay only applies to the very first creation.
+  const existing = await browser.alarms.get(ALARM_NAME);
+  if (existing) return;
+  await browser.alarms.create(ALARM_NAME, {
+    delayInMinutes: INITIAL_DELAY_MIN + Math.random() * INITIAL_DELAY_JITTER_MIN,
+    periodInMinutes: PERIOD_MINUTES,
+  });
+}
+
 export function initLiveUpdates(): void {
-  void browser.alarms.create(ALARM_NAME, { delayInMinutes: 1, periodInMinutes: PERIOD_MINUTES });
+  void ensureAlarm();
 
   browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === ALARM_NAME) void refresh();
