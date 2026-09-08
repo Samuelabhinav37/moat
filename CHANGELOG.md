@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.65
+
+### Changed
+- **The optional content scripts are no longer parsed on every page.** `element-picker.js` (~14 KB),
+  `consent-rejector.js` (~18 KB), and `leaked-password-check.js` (~13 KB) were registered
+  statically on `<all_urls>`, so ~45 KB of JS was parsed and executed on every page load even
+  though the picker is a one-shot manual action and the other two back features that are **off by
+  default**. Now: the picker is injected on click by `popup.ts` (`scripting.executeScript`, the
+  path it already used as a stale-tab fallback), and `consent-rejector` / `leaked-password-check`
+  are registered at runtime by the new `background/optionalContentScripts.ts` — via
+  `scripting.registerContentScripts` — only while their setting is on, reconciled on every
+  settings change and service-worker cold start (alongside the existing `reapplySettings` fan-out).
+  Each script keeps its own `isEnabled()` guard as the correctness boundary. `youtube-ad-dimmer.js`
+  and `feed-ad-scanner.js` stay static — already scoped to YouTube / IG+LI, so no `<all_urls>`
+  cost. No user-visible behaviour change; a feature toggled on while a tab is already open takes
+  effect on that tab's next navigation, same as before.
+
+620/620 tests (10 new), typecheck/build/lint:firefox clean (4 known warnings). Live check with the
+extension loaded (enable/disable "Auto-reject cookie banners", confirm the script loads/unloads;
+"Block an element" still works) recommended before release.
+
 ## 0.11.64
 
 ### Fixed

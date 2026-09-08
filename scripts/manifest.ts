@@ -136,14 +136,6 @@ function baseManifest() {
         run_at: "document_start",
       },
       {
-        // Top frame only, same reasoning as cosmetic-filter.js. Inactive
-        // until it receives a "start-picker" message -- document_idle is
-        // fine since there's no timing pressure.
-        matches: ["<all_urls>"],
-        js: ["element-picker.js"],
-        run_at: "document_idle",
-      },
-      {
         // Scoped to YouTube only -- see content/youtubeAdDimmer.ts. No-ops
         // immediately unless "Gray out unblockable video ads" is on.
         matches: ["*://www.youtube.com/*", "*://m.youtube.com/*"],
@@ -163,22 +155,13 @@ function baseManifest() {
         js: ["feed-ad-scanner.js"],
         run_at: "document_idle",
       },
-      {
-        // Top frame only, same reasoning as cosmetic-filter.js. No-ops
-        // immediately unless "Auto-reject cookie banners" is on (off by
-        // default) -- see content/consentRejector.ts.
-        matches: ["<all_urls>"],
-        js: ["consent-rejector.js"],
-        run_at: "document_idle",
-      },
-      {
-        // Top frame only. No-ops immediately unless "Check passwords
-        // against known breaches" is on (off by default) -- see
-        // content/leakedPasswordCheck.ts.
-        matches: ["<all_urls>"],
-        js: ["leaked-password-check.js"],
-        run_at: "document_idle",
-      },
+      // element-picker.js, consent-rejector.js and leaked-password-check.js
+      // are NOT registered here. The picker is injected on demand by
+      // popup.ts (scripting.executeScript) since it's a one-shot manual
+      // action with no setting; the other two are registered at runtime by
+      // background/optionalContentScripts.ts only while their (off-by-
+      // default) setting is on, so their ~13-18 KB bundles aren't parsed on
+      // every page load for a user who never enables them.
     ],
   };
 }

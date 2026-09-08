@@ -4,6 +4,7 @@ import { PRESETS } from "../shared/filterPresets";
 import { applyPrivacySettings } from "./privacySettings";
 import { applyFilterGroupState } from "./filterGroups";
 import { applyCustomRules } from "./applyCustomRules";
+import { reconcileOptionalContentScripts } from "./optionalContentScripts";
 import { applyCnameUncloak } from "./cnameUncloak";
 import { applyCnameUncloakChrome } from "./cnameUncloakChrome";
 import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
@@ -53,6 +54,7 @@ async function applyEffectiveSettings(options: { forceFilterGroups?: boolean } =
     applyPrivacySettings(effective),
     applyFilterGroupState(effective, { force: options.forceFilterGroups }),
     applyCustomRules(effective),
+    reconcileOptionalContentScripts(effective),
   ]);
   // Each gates itself via its own isSupported() (Firefox's dns.resolve()
   // path vs. Chrome's DoH-observational path) -- calling both here is safe
