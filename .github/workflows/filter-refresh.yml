@@ -1,0 +1,53 @@
+name: Weekly filter refresh
+
+# Runs `npm run filters:update` on a schedule and opens a PR with the rule
+# delta, so filter freshness doesn't depend on the maintainer remembering to
+# run it. The PR still gets the full CI gate and a human merge -- this only
+# removes the "did anyone refresh the lists?" failure mode.
+
+on:
+  schedule:
+    - cron: "17 6 * * 1" # Mondays 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+      - run: npm run filters:update
+
+      - name: Open / update the refresh PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "No filter changes this week."
+            exit 0
+          fi
+          BR="chore/filter-refresh"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BR"
+          git add -A
+          git commit -m "chore: weekly filter refresh ($(date -u +%Y-%m-%d))"
+          git push -f -u origin "$BR"
+          if gh pr view "$BR" --json state --jq .state 2>/dev/null | grep -q OPEN; then
+            echo "PR already open for $BR; force-push updated it."
+          else
+            gh pr create --base master --head "$BR" \
+              --title "chore: weekly filter refresh" \
+              --body "Automated \`npm run filters:update\`. Review the rule delta, then merge — CI runs the full gate on the PR."
+          fi

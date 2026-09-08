@@ -35,5 +35,27 @@
    | `CWS_PUBLISHER_ID`, `CWS_EXTENSION_ID` | Chrome Web Store | Publisher (developer account) id and the item id, both from the developer dashboard. The workflow uses the **v2** API (`chromewebstore.googleapis.com`); the v1 API is turned off 2026-10-15. |
    | `AMO_JWT_ISSUER`, `AMO_JWT_SECRET` | AMO | addons.mozilla.org → *Manage API Keys*. |
 
+   The workflow's **`channel`** input: `stable` = the public listing; `beta` = the CWS
+   trusted-testers track + an AMO unlisted build, for shaking down a risky filter/engine change
+   before it reaches everyone. Once the CWS item has >10k 7-day users you can also advance a
+   staged rollout (`deployPercentage`) without re-review — not wired into the workflow yet.
+
 Store signing credentials and browser-store tokens stay outside the repository. A Git tag
 identifies exactly the source used for submitted packages.
+
+## Live-update channel (one-time)
+
+- The live files (`live/*.json` + `live/manifest.json.sig`) are published to the **`gh-pages`**
+  branch by `.github/workflows/publish-live.yml`. After its first run, enable Pages:
+  *Settings → Pages → Deploy from a branch → `gh-pages` / `/` (root)*. Until then the extension's
+  live fetch 404s and it keeps its bundled baseline (harmless — the payloads ship empty).
+- To turn on **manifest signing**: `node scripts/gen-live-signing-key.mjs` once, put the private
+  key PEM in the `LIVE_SIGNING_PRIVATE_KEY` Actions secret, paste the public key into
+  `src/shared/liveSigningKey.ts`, and commit a `npm run filters:update` (which now also writes
+  `live/manifest.json.sig`).
+
+## Filter lists
+
+`.github/workflows/filter-refresh.yml` runs `npm run filters:update` every Monday and opens a
+`chore/filter-refresh` PR with the rule delta. Review the diff and merge — CI runs the full gate
+on the PR. Nothing auto-merges.

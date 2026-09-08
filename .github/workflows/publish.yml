@@ -16,6 +16,11 @@ on:
         type: choice
         options: [both, chrome, firefox]
         default: both
+      channel:
+        description: "stable = public listing; beta = CWS trusted testers + AMO unlisted"
+        type: choice
+        options: [stable, beta]
+        default: stable
 
 jobs:
   publish:
@@ -75,11 +80,14 @@ jobs:
           curl -sf -X POST -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/zip" --data-binary @chrome.zip \
             "$BASE/upload/v2/$ITEM:upload"
-          echo "Submitting for review ..."
+          PUBLISH_URL="$BASE/v2/$ITEM:publish"
+          if [ "${{ inputs.channel }}" = "beta" ]; then
+            PUBLISH_URL="$PUBLISH_URL?publishTarget=trustedTesters"
+          fi
+          echo "Submitting for review ($PUBLISH_URL) ..."
           curl -sf -X POST -H "Authorization: Bearer $TOKEN" \
-            -H "Content-Type: application/json" -d '{}' \
-            "$BASE/v2/$ITEM:publish"
-          echo "Chrome Web Store: submitted for review."
+            -H "Content-Type: application/json" -d '{}' "$PUBLISH_URL"
+          echo "Chrome Web Store: submitted."
 
       # ---- Firefox Add-ons (AMO) -----------------------------------------
       - name: Submit to AMO
@@ -92,7 +100,9 @@ jobs:
             echo "::warning::AMO_* secrets not set -- skipping AMO submission."
             exit 0
           fi
-          npx web-ext sign --channel=listed \
+          AMO_CHANNEL=listed
+          [ "${{ inputs.channel }}" = "beta" ] && AMO_CHANNEL=unlisted
+          npx web-ext sign --channel="$AMO_CHANNEL" \
             --source-dir=dist/firefox \
             --artifacts-dir=web-ext-artifacts
           echo "AMO: submitted for review."
