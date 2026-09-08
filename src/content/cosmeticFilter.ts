@@ -2,6 +2,13 @@
 // boxes/banners a blocked ad or cookie notice leaves behind, using the
 // AdGuard cosmetic (##) rules compiled by scripts/update-cosmetics.mjs.
 //
+// The bundled cosmetic dataset (rules/cosmetics-meta.json ~684 KB + the
+// domain-bucket shards) is fetched and parsed by the service worker
+// (background/cosmeticIndex.ts) and kept in memory there. This script asks
+// it, once per navigation, for the slice that applies to this hostname
+// (get-cosmetic-slice) instead of parsing ~1 MB of JSON on the page thread
+// at document_start.
+//
 // Plain CSS injected via <style> elements, not a one-time query-and-hide
 // pass -- the rules stay live and keep matching elements a site adds later
 // (SPA navigation, lazy-loaded ad slots) with no per-element work.
@@ -9,36 +16,21 @@
 // The generic (no-hostname) slice is split: `genericHigh` (selectors with
 // no anchoring class/id token) goes in up front on every page; the
 // token-anchored generic selectors are added progressively by
-// cosmeticSurveyor.ts as their tokens actually appear in the DOM, so the
-// style engine only ever evaluates the generic selectors relevant to this
-// page instead of the whole ~17k set.
+// cosmeticSurveyor.ts as their tokens actually appear in the DOM (each
+// resolved via a get-cosmetic-generics message), so the style engine only
+// ever evaluates the generic selectors relevant to this page instead of the
+// whole ~17k set.
 import browser from "webextension-polyfill";
 import {
   buildGrayscaleStyleText,
   buildInjectionStyleText,
   buildStyleText,
   customSelectorsForHostname,
-  domainInjectionRulesForHostname,
-  domainSelectorsForHostname,
-  genericInjectionRulesForHostname,
-  genericSelectorsForHostname,
-  mergeDomainShards,
-  shardIndicesForHostname,
-  splitDomainShards,
-  type CosmeticManifest,
-  type DomainShardEntry,
 } from "./cosmeticSelectors";
 import { startSurveyor } from "./cosmeticSurveyor";
 import { startAdCollapse } from "./adCollapse";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
-import { LIVE_COSMETIC_FIXES_KEY } from "../types";
-
-interface CosmeticMeta {
-  genericByHash: Record<string, string[]>;
-  genericHigh: string[];
-  exceptions: Record<string, string[]>;
-  injectGeneric: Array<[string, string]>;
-}
+import { LIVE_COSMETIC_FIXES_KEY, type CosmeticGenericsResponse, type CosmeticSliceResponse } from "../types";
 
 async function fetchJson<T>(path: string): Promise<T> {
   return (await fetch(browser.runtime.getURL(path))).json() as Promise<T>;
@@ -70,53 +62,59 @@ async function readLiveCosmeticFixes(): Promise<Record<string, string[]>> {
   }
 }
 
+// Ask the service worker for this hostname's bundled cosmetic slice. One
+// retry, then null -- a transient miss degrades this page to only the user's
+// own custom/live selectors, same visible effect as a failed fetch before.
+async function requestSlice(hostname: string): Promise<CosmeticSliceResponse | null> {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const res = (await browser.runtime.sendMessage({ type: "get-cosmetic-slice", hostname })) as
+        | CosmeticSliceResponse
+        | undefined;
+      if (res) return res;
+    } catch {
+      // Service worker asleep or restarting -- fall through to the retry.
+    }
+  }
+  return null;
+}
+
 async function run(): Promise<void> {
   const effective = await getEffectiveSettingsHere();
   if (isDisabled(effective)) return;
 
-  const manifest = await fetchJson<CosmeticManifest>("rules/cosmetics-manifest.json");
-  const bucketIndices = shardIndicesForHostname(location.hostname, manifest.bucketCount);
-  const [meta, liveFixes, adNetworks, ...shards] = await Promise.all([
-    fetchJson<CosmeticMeta>(`rules/${manifest.meta}`),
+  const [slice, liveFixes, adNetworks] = await Promise.all([
+    requestSlice(location.hostname),
     readLiveCosmeticFixes(),
     readAdNetworks(),
-    ...bucketIndices.map((i) => fetchJson<Record<string, DomainShardEntry>>(`rules/cosmetics-bucket-${i}.json`)),
   ]);
 
   // Collapse the empty space a network-blocked ad iframe/img leaves behind.
   // Independent of the selector-based hiding below; runs on its own timers.
   startAdCollapse(window, adNetworks);
 
-  const { perDomain, injectPerDomain } = splitDomainShards(mergeDomainShards(shards));
-  const index = {
-    genericByHash: meta.genericByHash,
-    genericHigh: meta.genericHigh,
-    exceptions: meta.exceptions,
-    perDomain,
-    injectGeneric: meta.injectGeneric,
-    injectPerDomain,
-  };
   const customRules = { hide: effective.customCosmeticRules, gray: effective.customGrayscaleRules };
-  const genericSelectors = genericSelectorsForHostname(index, location.hostname);
-  const hasTokenIndex = Object.keys(index.genericByHash).length > 0;
-  // Live cosmetic fixes ride the same domain-scoped hide path as the user's own
-  // element-picker rules -- plain data, never surveyed.
+
+  // Live cosmetic fixes and the user's own element-picker rules ride the same
+  // domain-scoped hide path as the bundled per-domain selectors -- plain
+  // data, never surveyed -- and don't depend on the service worker, so
+  // they're applied even if the slice request above failed.
   const domainSelectors = [
-    ...domainSelectorsForHostname(index, location.hostname),
+    ...(slice?.domainSelectors ?? []),
     ...customSelectorsForHostname(customRules.hide, location.hostname),
     ...customSelectorsForHostname(liveFixes, location.hostname),
   ];
   const graySelectors = customSelectorsForHostname(customRules.gray, location.hostname);
-  const injectRules = [
-    ...genericInjectionRulesForHostname(index, location.hostname),
-    ...domainInjectionRulesForHostname(index, location.hostname),
-  ];
+  const injectRules = slice?.injectRules ?? [];
+  const genericHigh = slice?.genericHigh ?? [];
+  const hasTokenIndex = slice?.hasTokenIndex ?? false;
+
   if (
-    genericSelectors.length === 0 &&
-    !hasTokenIndex &&
     domainSelectors.length === 0 &&
     graySelectors.length === 0 &&
-    injectRules.length === 0
+    injectRules.length === 0 &&
+    genericHigh.length === 0 &&
+    !hasTokenIndex
   ) {
     return;
   }
@@ -145,16 +143,24 @@ async function run(): Promise<void> {
     document.documentElement.append(injectStyle);
   }
 
-  if (genericSelectors.length > 0 || hasTokenIndex) {
+  if (genericHigh.length > 0 || hasTokenIndex) {
     const genericStyle = document.createElement("style");
     genericStyle.id = "moat-cosmetic-generic";
-    genericStyle.textContent = buildStyleText(genericSelectors);
+    genericStyle.textContent = buildStyleText(genericHigh);
     document.documentElement.append(genericStyle);
 
     if (hasTokenIndex) {
-      startSurveyor(document, index, location.hostname, genericSelectors, (fresh) => {
-        genericStyle.textContent = [genericStyle.textContent, buildStyleText(fresh)].filter(Boolean).join("\n");
-      });
+      startSurveyor(
+        document,
+        genericHigh,
+        (hashes) =>
+          browser.runtime
+            .sendMessage({ type: "get-cosmetic-generics", hostname: location.hostname, hashes })
+            .then((res) => (res as CosmeticGenericsResponse | undefined)?.selectors ?? []),
+        (fresh) => {
+          genericStyle.textContent = [genericStyle.textContent, buildStyleText(fresh)].filter(Boolean).join("\n");
+        }
+      );
     }
   }
 }

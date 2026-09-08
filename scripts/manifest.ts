@@ -97,17 +97,19 @@ function baseManifest() {
         matches: ["<all_urls>"],
       },
       {
-        // cosmeticFilter.ts and consentRejector.ts fetch these from an
+        // consentRejector.ts and adCollapse.ts fetch these from an
         // isolated-world content script, which Chrome treats as request
         // activity attributed to the page's own origin (not the
         // extension's) for this purpose -- same as any other
         // chrome-extension:// resource a page tries to load, it 404s as
         // "not listed in web_accessible_resources" without this, silently
-        // breaking cosmetic filtering and consent auto-reject on every
-        // page. Covers cosmetics-manifest.json, cosmetics-meta.json, the
-        // (currently 64) cosmetics-bucket-N.json shards, and
-        // ad-networks.json (adCollapse.ts).
-        resources: ["rules/cosmetics-*.json", "rules/consent-rules.json", "rules/ad-networks.json"],
+        // breaking consent auto-reject / ad-box collapse on every page.
+        // The cosmetics-*.json dataset is NOT here: the service worker
+        // (background/cosmeticIndex.ts) fetches it via runtime.getURL from
+        // its own context, which needs no web_accessible_resources entry --
+        // and keeping it out removes a directly-probeable
+        // chrome-extension://<id>/rules/cosmetics-meta.json fingerprint.
+        resources: ["rules/consent-rules.json", "rules/ad-networks.json"],
         matches: ["<all_urls>"],
       },
     ],

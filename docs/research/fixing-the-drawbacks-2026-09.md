@@ -156,6 +156,17 @@ long supported.
 
 **Effort:** M.
 
+**Status (v0.11.63): a *partial* split shipped instead.** The service worker
+(`background/cosmeticIndex.ts`) now owns the fetch + `JSON.parse` of `cosmetics-meta.json` + the
+domain buckets (~1 MB, previously on the page thread every navigation) and answers two messages —
+`get-cosmetic-slice` and `get-cosmetic-generics`. Injection stays as content-script `<style>`
+(identical timing, no `removeCSS` bookkeeping, no `insertCSS` origin quirk, no cross-browser API
+surface). This captures the bulk of the payoff — the ~1 MB parse leaves the page main thread — at
+S/M effort. The full `onCommitted` + `insertCSS` variant above stays deferred: from the partial
+baseline it only moves *where* the `<style>` goes, for a small marginal gain against real
+service-worker-lifecycle / first-paint-timing / cross-browser risk. Revisit only if content-script
+`<style>` injection shows up as a measured cost.
+
 ### 2.3 Collapse the blocked element (fixes the empty-ad-box gap)
 
 **[web]:** Brave ships this (brave-core#9144 — "Collapse HTML elements with blocked image/iframe
@@ -246,10 +257,14 @@ strongest and is currently invisible.
 3. ✅ **1.4 trustedTesters path** (`publish.yml` `channel: beta`). **1.5 arm publish.yml** still
    needs the maintainer's CWS/AMO secrets (see `docs/RELEASING.md`).
 4. ✅ **2.1 DOM surveyor** (v0.11.59–60) — generic selectors indexed by anchor-token hash, injected
-   by a self-disabling `MutationObserver` surveyor; `trimUnmatchedGenericRules` deleted. **2.2
-   insertCSS split — PARKED**: 2.1 delivered the core win (17k selectors → dozens, no trim freeze);
-   2.2 only moves *where* injection happens, for a smaller gain and real SW-lifecycle / cross-browser
-   / timing risk. Revisit only if page-thread injection shows up as a measured cost.
+   by a self-disabling `MutationObserver` surveyor; `trimUnmatchedGenericRules` deleted.
+   ✅ **2.2 partial split** (v0.11.63) — the service worker (`background/cosmeticIndex.ts`) now owns
+   the ~1 MB `cosmetics-meta.json` + domain-bucket fetch/parse that ran on the page thread every
+   navigation, and answers `get-cosmetic-slice` / `get-cosmetic-generics`; `<style>` injection
+   stays in the content script. **Full `onCommitted` + `insertCSS` variant — still PARKED**: from
+   the partial baseline it only moves *where* injection happens, for a small gain against real
+   SW-lifecycle / cross-browser / first-paint-timing risk. Revisit only if content-script `<style>`
+   injection shows up as a measured cost.
 5. ✅ **2.3 collapse-blocked-element** (v0.11.61) — curated-set route, not route 1: `rules/ad-networks.json`
    (~100 verified ad-network domains) + `adCollapse.ts`. Route 1 (emit `iframe[src*=domain]`
    selectors from all ~53k DNR domains) was rejected — they have no token anchor, so 2.1 would

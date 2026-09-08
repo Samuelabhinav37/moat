@@ -291,6 +291,48 @@ export interface ReportAthenaOverrideMessage {
   reason: string;
 }
 
+/** Sent by content/cosmeticFilter.ts once per top-frame navigation. The
+ * bundled cosmetic dataset (rules/cosmetics-meta.json + the domain-bucket
+ * shards, ~1 MB) is fetched and parsed by the service worker
+ * (background/cosmeticIndex.ts) and kept in memory there, so the page main
+ * thread never parses it -- it just asks for the slice that applies here.
+ * hostname, not URL: the selectors are matched same-or-parent-domain and
+ * nothing downstream needs the path or query. */
+export interface GetCosmeticSliceMessage {
+  type: "get-cosmetic-slice";
+  hostname: string;
+}
+
+export interface CosmeticSliceResponse {
+  /** Bundled per-domain (and parent-domain) element-hiding selectors for
+   * this hostname, minus its exceptions. The content script merges its own
+   * custom / element-picker / live-fix selectors on top. */
+  domainSelectors: string[];
+  /** Bundled CSS-injection rules (generic + per-domain, e.g. AdGuard `#$#`),
+   * each its own `[selector, declaration]` pair, minus exceptions. */
+  injectRules: Array<[selector: string, declaration: string]>;
+  /** The always-on generic slice: generic selectors with no anchoring
+   * class/id token, minus exceptions. Injected up front on every page. */
+  genericHigh: string[];
+  /** Whether the token-anchored generic index is non-empty, i.e. whether it
+   * is worth running the DOM surveyor at all. */
+  hasTokenIndex: boolean;
+}
+
+/** Sent repeatedly by content/cosmeticSurveyor.ts as new class/id tokens
+ * appear in the DOM: the hashes of those tokens, answered with the bundled
+ * generic selectors filed under them (minus this hostname's exceptions). */
+export interface GetCosmeticGenericsMessage {
+  type: "get-cosmetic-generics";
+  hostname: string;
+  /** tokenHash() values -- short base-36 strings. Capped at the boundary. */
+  hashes: string[];
+}
+
+export interface CosmeticGenericsResponse {
+  selectors: string[];
+}
+
 export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
@@ -306,7 +348,9 @@ export type RuntimeMessage =
   | DismissUpdateNoticeMessage
   | DismissOnboardingMessage
   | GetAthenaBlockReasonMessage
-  | ReportAthenaOverrideMessage;
+  | ReportAthenaOverrideMessage
+  | GetCosmeticSliceMessage
+  | GetCosmeticGenericsMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the

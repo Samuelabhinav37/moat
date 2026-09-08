@@ -49,6 +49,7 @@ import {
   noteTabUrl,
 } from "./lastNormalTab";
 import { isMatchedRulesSupported } from "./matchStats";
+import { cosmeticGenericsFor, cosmeticSliceFor } from "./cosmeticIndex";
 
 initPopupGuard();
 initLiveUpdates();
@@ -260,6 +261,21 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     case "save-grayscale-rule": {
       if (!isValidMessageString(message.hostname) || !isValidMessageString(message.selector)) return undefined;
       return addGrayscaleRule(message.hostname, message.selector).then(() => undefined);
+    }
+
+    case "get-cosmetic-slice": {
+      // hostname comes from location.hostname in a content script the TS
+      // types trust, but the listener validates the boundary itself -- same
+      // stance as every other case here.
+      if (!isValidMessageString(message.hostname)) return undefined;
+      return cosmeticSliceFor(message.hostname);
+    }
+
+    case "get-cosmetic-generics": {
+      if (!isValidMessageString(message.hostname) || !Array.isArray(message.hashes)) return undefined;
+      const hashes = message.hashes.filter((h): h is string => typeof h === "string" && h.length > 0 && h.length <= 16);
+      if (hashes.length === 0) return Promise.resolve({ selectors: [] });
+      return cosmeticGenericsFor(message.hostname, hashes);
     }
 
     case "get-report-context": {

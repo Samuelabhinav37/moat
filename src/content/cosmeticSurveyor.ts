@@ -1,16 +1,20 @@
 // Progressive generic-cosmetic injection. cosmeticFilter.ts injects the
 // always-on generic slice (genericHigh) and the domain-scoped rules up
 // front; this surveys the DOM for the class/id tokens that actually appear
-// on the page and asks for the token-anchored generic selectors
-// (genericByHash) that match them -- so a page's style engine evaluates the
+// on the page and asks the service worker for the token-anchored generic
+// selectors filed under them -- so a page's style engine evaluates the
 // handful of generic selectors relevant to it, not the whole ~17k set.
 //
 // Mirrors uBlock Origin's low-level-token surveyor: an initial pass, then a
 // batched MutationObserver, self-disabling once it stops finding anything
 // new or once it has walked MAX_SURVEY_NODES nodes (the backstop against a
 // pathological mutation flood).
+//
+// The token -> selector lookup lives in the service worker
+// (background/cosmeticIndex.ts, reached via get-cosmetic-generics) so the
+// ~684 KB generic index is never fetched or parsed on the page thread; this
+// module only collects tokens, hashes them, and applies what comes back.
 import { tokenHash } from "../shared/tokenHash";
-import { genericSelectorsForTokens, type CosmeticIndex } from "./cosmeticSelectors";
 
 const MAX_SURVEY_NODES = 100_000;
 const FLUSH_DELAY_MS = 250;
@@ -56,18 +60,23 @@ export interface SurveyorOptions {
   quietFlushesToStop?: number;
 }
 
+/** Resolve a batch of class/id token hashes to the bundled generic selectors
+ * filed under them (minus the current hostname's exceptions). Wired by
+ * cosmeticFilter.ts to a get-cosmetic-generics message; rejects if the
+ * service worker is momentarily unreachable. */
+export type ResolveHashes = (hashes: string[]) => Promise<string[]>;
+
 /**
  * Start surveying `doc` for cosmetic-relevant tokens. `alreadyInjected` is
- * the set of generic selectors cosmeticFilter.ts has already put on the
- * page (the genericHigh slice) so they're never re-emitted. `onNewSelectors`
- * is called, batched, with each new group of token-anchored generic
- * selectors to add.
+ * the set of generic selectors cosmeticFilter.ts has already put on the page
+ * (the genericHigh slice) so they're never re-emitted. `resolveHashes` turns
+ * a batch of token hashes into selectors; `onNewSelectors` is called,
+ * batched, with each new group to add.
  */
 export function startSurveyor(
   doc: Document,
-  index: CosmeticIndex,
-  hostname: string,
   alreadyInjected: Iterable<string>,
+  resolveHashes: ResolveHashes,
   onNewSelectors: (selectors: string[]) => void,
   options: SurveyorOptions = {}
 ): SurveyorHandle {
@@ -80,6 +89,9 @@ export function startSurveyor(
   let nodesSurveyed = 0;
   let quietFlushes = 0;
   let stopped = false;
+  // One resolveHashes call in flight at a time: keeps seenHashes / injected
+  // bookkeeping and the quiet-flush count race-free across the await.
+  let flushing = false;
   let pending: string[] = [];
   let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -93,35 +105,61 @@ export function startSurveyor(
     observer.disconnect();
   }
 
-  function consume(tokens: string[]): void {
-    const newHashes: string[] = [];
+  /** Not-yet-seen token hashes from `tokens`, marked seen as they're pulled. */
+  function newHashesFrom(tokens: string[]): string[] {
+    const fresh: string[] = [];
     for (const token of tokens) {
       const hash = tokenHash(token);
       if (!seenHashes.has(hash)) {
         seenHashes.add(hash);
-        newHashes.push(hash);
+        fresh.push(hash);
       }
     }
-    if (newHashes.length === 0) return;
-    const fresh = genericSelectorsForTokens(index, hostname, newHashes).filter((s) => !injected.has(s));
-    if (fresh.length === 0) return;
-    for (const selector of fresh) injected.add(selector);
-    onNewSelectors(fresh);
+    return fresh;
   }
 
-  function flush(): void {
+  /** Resolve `hashes` to selectors and inject the ones not already on the
+   * page. Returns whether anything new was added. Holds `flushing` for the
+   * duration so only one request is in flight at a time. */
+  async function consume(hashes: string[]): Promise<boolean> {
+    if (hashes.length === 0) return false;
+    flushing = true;
+    try {
+      const selectors = await resolveHashes(hashes);
+      if (stopped) return false;
+      const fresh = selectors.filter((selector) => !injected.has(selector));
+      if (fresh.length === 0) return false;
+      for (const selector of fresh) injected.add(selector);
+      onNewSelectors(fresh);
+      return true;
+    } catch {
+      // A dropped message (service worker restarting) just means this
+      // batch's generics don't land this round. The tokens stay marked seen
+      // so we don't hammer a struggling worker with the same request;
+      // genericHigh and the domain-scoped rules are already on the page.
+      return false;
+    } finally {
+      flushing = false;
+    }
+  }
+
+  async function flush(): Promise<void> {
     timer = undefined;
-    if (stopped) return;
-    const before = injected.size;
+    if (stopped || flushing) return;
     const batch = pending;
     pending = [];
-    consume(batch);
-    quietFlushes = injected.size > before ? 0 : quietFlushes + 1;
-    if (quietFlushes >= quietFlushesToStop || nodesSurveyed >= maxSurveyNodes) stop();
+    const added = await consume(newHashesFrom(batch));
+    if (stopped) return;
+    quietFlushes = added ? 0 : quietFlushes + 1;
+    if (quietFlushes >= quietFlushesToStop || nodesSurveyed >= maxSurveyNodes) {
+      stop();
+      return;
+    }
+    if (pending.length > 0) schedule();
   }
 
   function schedule(): void {
-    if (timer === undefined && !stopped) timer = setTimeout(flush, flushDelayMs);
+    if (timer === undefined && !stopped && !flushing) timer = setTimeout(() => void flush(), flushDelayMs);
   }
 
   const observer = new MutationObserver((records) => {
@@ -145,8 +183,12 @@ export function startSurveyor(
 
   // Initial pass over whatever the parser has produced so far (at
   // document_start that's usually just <html><head>; the rest arrives as
-  // mutations).
-  consume(collectTokens(doc));
+  // mutations). Kicked immediately rather than after flushDelayMs, and
+  // outside the quiet-flush accounting -- an empty first pass isn't a "quiet
+  // flush". If mutations land while it's in flight, pick them up after.
+  void consume(newHashesFrom(collectTokens(doc))).then(() => {
+    if (!stopped && pending.length > 0) schedule();
+  });
   observer.observe(doc.documentElement, {
     childList: true,
     subtree: true,

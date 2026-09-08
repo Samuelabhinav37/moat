@@ -3,6 +3,36 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.63
+
+### Changed
+- **The bundled cosmetic dataset is now parsed by the service worker, not the page.**
+  `content/cosmeticFilter.ts` used to `fetch` and `JSON.parse` `rules/cosmetics-meta.json`
+  (~684 KB) plus 1–3 `rules/cosmetics-bucket-N.json` shards (~110 KB each) on the **page main
+  thread** at `document_start`, every top-frame navigation — ~1 MB of parsing contending with the
+  page's own critical-path work. `background/cosmeticIndex.ts` now owns that data: it fetches and
+  parses the meta file and each domain bucket **once**, keeps them in memory for the life of the
+  worker, and answers two messages — `get-cosmetic-slice` (this hostname's per-domain +
+  generic-high + injection rules, up front) and `get-cosmetic-generics` (the DOM surveyor's
+  token-hash batches → generic selectors). The content script still injects the same `<style>`
+  blocks with the same timing; its per-navigation work drops to two `runtime.sendMessage`
+  round-trips (~1–5 ms against a warm worker) plus the small `<style>` build. `cosmeticSurveyor.ts`
+  no longer holds the generic index — it takes an async `resolveHashes` and keeps one request in
+  flight at a time. The user's own element-picker / custom / live-fix cosmetic rules are now built
+  independently of the bundled-list request, so a transient worker hiccup no longer drops them
+  too. Partial form of drawback fix 2.2 from `docs/research/fixing-the-drawbacks-2026-09.md`
+  (the full `scripting.insertCSS`-from-worker variant stays deferred — it only moves *where*
+  injection happens, for a smaller gain and real lifecycle/timing risk).
+- **`rules/cosmetics-*.json` dropped from `web_accessible_resources`.** The service worker fetches
+  it via `runtime.getURL` from its own context, which needs no WAR entry — and removing it closes
+  a directly-probeable `chrome-extension://<id>/rules/cosmetics-meta.json` fingerprinting surface.
+  `rules/consent-rules.json` and `rules/ad-networks.json` (still fetched from content scripts) stay.
+
+610/610 tests (updated `cosmeticSurveyor.test.ts` + new `cosmeticIndex.test.ts`),
+typecheck/build/lint:firefox clean (4 known warnings). Live smoke test with the extension loaded
+(cosmetic hiding on ad-heavy sites; behaviour after a service-worker cold start) recommended
+before release.
+
 ## 0.11.62
 
 ### Added
