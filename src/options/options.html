@@ -444,17 +444,6 @@
         <p class="hint muted" data-i18n="optionsLiveListHint">Refreshes the popup and redirect blocklist from GitHub once a day.</p>
         <p class="hint" id="live-status" data-i18n="optionsLiveStatusNotChecked">Not checked yet.</p>
       </div>
-
-      <div class="card">
-        <div class="card-title" data-i18n="optionsExceptionsTitle">Exceptions</div>
-        <p class="hint muted" data-i18n="optionsExceptionsHint">Moat is turned off completely on these sites.</p>
-        <ul class="site-list" id="site-list"></ul>
-        <p class="empty-state" id="site-empty-state" data-i18n="optionsNoSitesAdded">No sites added.</p>
-        <div class="add-row">
-          <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
-          <button id="add-button" data-i18n="commonAdd">Add</button>
-        </div>
-      </div>
     </section>
 
     <section data-tab-panel="filters" hidden>
@@ -490,6 +479,17 @@
     </section>
 
     <section data-tab-panel="custom" hidden>
+      <div class="card">
+        <div class="card-title" data-i18n="optionsExceptionsTitle">Paused sites</div>
+        <p class="hint muted" data-i18n="optionsExceptionsHint">Moat is turned off completely on these sites and their subdomains.</p>
+        <ul class="site-list" id="site-list"></ul>
+        <p class="empty-state" id="site-empty-state" data-i18n="optionsNoSitesAdded">No sites added.</p>
+        <div class="add-row">
+          <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
+          <button id="add-button" data-i18n="commonAdd">Add</button>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-title" data-i18n="optionsBlockedSitesTitle">Blocked sites</div>
         <p class="hint muted" data-i18n="optionsBlockedSitesHint">Always block these sites, whatever the filter lists say.</p>

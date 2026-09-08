@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.58
+
+### Changed
+- **The "Paused sites" list moved to the Custom Rules tab.** It was an "Exceptions" card at the
+  bottom of the Protection tab, separate from the blocked/allowed/hidden-element lists it belongs
+  with. Now every override — paused sites, custom block/allow domains, hidden and dimmed elements —
+  is on one "what have I overridden" surface. The card is retitled *Paused sites* and its hint now
+  says the pause covers subdomains too (true since v0.11.47). No behaviour or storage change; the
+  list, its add box, and the Resume buttons are the same wiring. Drawback fix 3.3 from
+  `docs/research/fixing-the-drawbacks-2026-09.md`.
+
+562/562 tests, typecheck/build/lint:firefox clean.
+
 ## 0.11.57
 
 ### Changed
