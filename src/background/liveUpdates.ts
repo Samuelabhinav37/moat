@@ -3,28 +3,59 @@
 // rules from update-filters.mjs) stays static/build-time -- MV3's dynamic
 // rule budget is nowhere near large enough to hold that. This narrow slice
 // (currently ~500 known popup/redirect domains) is small enough to live-
-// update: once a day, fetch whatever's currently committed to
-// live/redirect-domains.json on GitHub and apply it as dynamic
-// declarativeNetRequest rules plus feed the tab safety net (popupGuard.ts).
+// update: at most once a day, fetch whatever's currently committed to
+// live/redirect-domains.json and apply it as dynamic declarativeNetRequest
+// `block` rules plus feed the tab safety net (popupGuard.ts).
 //
-// That file only changes when someone runs `npm run filters:update` and
-// pushes the result -- there's no scheduled automation writing to the repo
-// on its own. This just means a fresher list reaches already-installed
-// copies of the extension without waiting on a new store release.
+// The live files change only when someone runs `npm run filters:update` and
+// pushes -- no scheduled automation writes to the repo. This just means a
+// fresher list reaches installed copies without waiting on a new store
+// release.
+//
+// Hosting: served from jsDelivr, a real CDN built to front GitHub repos --
+// unlike raw.githubusercontent.com, which is IP-rate-limited and whose AUP
+// forbids CDN-style use. jsDelivr caches a branch path for up to ~12h; run
+// scripts/purge-live-cdn.mjs after pushing a fix to cut that to minutes.
+//
+// Integrity: `manifest.json` (SHA-256 of each payload, from
+// scripts/update-live-manifest.mjs) is fetched first, then each payload is
+// verified against it. This does NOT add a trust anchor beyond TLS + the
+// GitHub account -- the manifest itself is fetched over the wire like the
+// payloads. What it does buy: corruption detection, and *atomicity* -- if the
+// CDN serves a fresh manifest against a still-propagating stale payload (or
+// vice versa) the mismatch is caught and the bundled baseline is kept, rather
+// than a half-applied update. Source-repo compromise is still bounded only by
+// the shape validators below (block/allow a set of domains -- nothing that can
+// send traffic anywhere), which is the same posture the raw-GitHub fetch had.
 import browser from "webextension-polyfill";
 import { addLiveRedirectDomains } from "./popupGuard";
 import { allLiveDynamicRuleIds, buildDynamicRedirectRules, filterValidRedirectDomains } from "./liveRedirectRules";
 import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from "./quickFixRules";
 import { reapplySettings } from "./settings";
 
-const LIVE_DATA_URL =
-  "https://raw.githubusercontent.com/Samuelabhinav37/moat/master/live/redirect-domains.json";
-// Same repo, same trust model, same daily alarm as the redirect-domain list
-// above -- an emergency anti-adblock-circumvention/breakage-fix channel
-// reusing the existing pipeline rather than standing up new infrastructure
-// (see quickFixRules.ts for the rule shapes this accepts). Empty (`[]`) by
-// default; this is the plumbing, not an active patch.
-const QUICK_FIXES_URL = "https://raw.githubusercontent.com/Samuelabhinav37/moat/master/live/quick-fixes.json";
+// One base for all three live files. To move off jsDelivr later (GitHub Pages,
+// Cloudflare, an object bucket) only this constant changes -- the SHA-256
+// verification below makes the host untrusted either way.
+const LIVE_BASE_URL = "https://cdn.jsdelivr.net/gh/Samuelabhinav37/moat@master/live";
+
+/** Lowercase hex SHA-256 of `bytes`. Pure; exported for tests. */
+export async function sha256Hex(bytes: ArrayBuffer): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** Fetch `${LIVE_BASE_URL}/${name}`, reject on a hash that doesn't match the
+ * shipped manifest, otherwise return the parsed JSON. */
+async function fetchVerified(name: string, expectedHash: string | undefined): Promise<unknown> {
+  if (!expectedHash) throw new Error(`live manifest has no hash for ${name}`);
+  const response = await fetch(`${LIVE_BASE_URL}/${name}`);
+  if (!response.ok) throw new Error(`${name}: ${response.status} ${response.statusText}`);
+  const bytes = await response.arrayBuffer();
+  const actual = await sha256Hex(bytes);
+  if (actual !== expectedHash) throw new Error(`${name}: hash mismatch (expected ${expectedHash}, got ${actual})`);
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
 const ALARM_NAME = "moat-live-update";
 const PERIOD_MINUTES = 24 * 60;
 const STATUS_KEY = "liveUpdateStatus";
@@ -70,19 +101,24 @@ async function setStatus(status: LiveUpdateStatus): Promise<void> {
   await browser.storage.local.set({ [STATUS_KEY]: status });
 }
 
-async function refreshRedirectDomains(): Promise<number> {
-  // No `cache: "no-store"`: it forced every fetch past the CDN edge to origin.
-  // The freshness guard above already keeps this to ~once/day, so honouring
-  // the host's Cache-Control (an edge hit / 304) is the cheaper path at scale.
-  const response = await fetch(LIVE_DATA_URL);
-  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-  const fetched = (await response.json()) as unknown;
+async function fetchLiveManifest(): Promise<Record<string, string>> {
+  // No `cache: "no-store"` anywhere in this file now: it forced every fetch
+  // past the CDN edge to origin. The freshness guard keeps this to ~once/day,
+  // so honouring the host's Cache-Control (an edge hit / 304) is cheaper.
+  const response = await fetch(`${LIVE_BASE_URL}/manifest.json`);
+  if (!response.ok) throw new Error(`manifest: ${response.status} ${response.statusText}`);
+  const parsed = (await response.json()) as { files?: unknown };
+  const files = parsed.files;
+  if (typeof files !== "object" || files === null) throw new Error("live manifest has no files map");
+  return files as Record<string, string>;
+}
+
+async function refreshRedirectDomains(expectedHash: string | undefined): Promise<number> {
+  const fetched = await fetchVerified("redirect-domains.json", expectedHash);
   if (!Array.isArray(fetched)) throw new Error("live redirect-domains payload was not an array");
 
-  // fetched is remote, GitHub-hosted content -- validate its shape before
-  // trusting it the same way customRules.ts validates user-typed domains,
-  // so one malformed upstream entry can't throw partway through and
-  // silently drop the whole day's refresh.
+  // Validate each entry's shape (same as customRules.ts does for user input)
+  // so one malformed entry can't throw partway through and drop the refresh.
   const { valid: domains } = filterValidRedirectDomains(fetched.filter((d): d is string => typeof d === "string"));
 
   await addLiveRedirectDomains(domains);
@@ -93,10 +129,8 @@ async function refreshRedirectDomains(): Promise<number> {
   return domains.length;
 }
 
-async function refreshQuickFixes(): Promise<number> {
-  const response = await fetch(QUICK_FIXES_URL);
-  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-  const fetched = (await response.json()) as unknown;
+async function refreshQuickFixes(expectedHash: string | undefined): Promise<number> {
+  const fetched = await fetchVerified("quick-fixes.json", expectedHash);
   if (!Array.isArray(fetched)) throw new Error("quick-fixes payload was not an array");
 
   const { valid: entries } = filterValidQuickFixes(fetched);
@@ -111,7 +145,8 @@ async function fetchAndApply(): Promise<void> {
   if (shouldSkipRefetch(await getLiveUpdateStatus(), Date.now())) return;
 
   try {
-    const domainCount = await refreshRedirectDomains();
+    const hashes = await fetchLiveManifest();
+    const domainCount = await refreshRedirectDomains(hashes["redirect-domains.json"]);
 
     // A quick-fixes fetch failure shouldn't fail the whole refresh or touch
     // whatever quick-fix rules are already applied from the last successful
@@ -119,7 +154,7 @@ async function fetchAndApply(): Promise<void> {
     // of this alarm, and updateDynamicRules is only called on success below.
     let quickFixCount: number | undefined;
     try {
-      const count = await refreshQuickFixes();
+      const count = await refreshQuickFixes(hashes["quick-fixes.json"]);
       quickFixCount = count > 0 ? count : undefined;
     } catch {
       // Keep whatever quick-fix rules (if any) are already active.
@@ -127,8 +162,8 @@ async function fetchAndApply(): Promise<void> {
 
     await setStatus({ ok: true, timestamp: Date.now(), domainCount, quickFixCount });
   } catch {
-    // Offline, GitHub unreachable, rate-limited -- keep the bundled
-    // baseline and try again on the next alarm tick.
+    // Offline, CDN unreachable, or a hash that didn't match the shipped
+    // manifest -- keep the bundled baseline and try again on the next tick.
     await setStatus({ ok: false, timestamp: Date.now() });
   }
 }

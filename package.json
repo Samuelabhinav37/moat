@@ -1,6 +1,6 @@
 {
   "name": "moat",
-  "version": "0.11.52",
+  "version": "0.11.53",
   "private": true,
   "license": "GPL-3.0",
   "description": "A quiet ad blocker and popup/redirect firewall for Chrome and Firefox.",
@@ -11,7 +11,7 @@
     "build:chrome": "node scripts/build.mjs chrome",
     "build:firefox": "node scripts/build.mjs firefox",
     "build": "npm run build:chrome && npm run build:firefox",
-    "filters:update": "node scripts/update-filters.mjs && node scripts/update-cosmetics.mjs && node scripts/vendor-consent-rules.mjs && node scripts/vendor-cname-list.mjs && node scripts/validate-rules.mjs",
+    "filters:update": "node scripts/update-filters.mjs && node scripts/update-cosmetics.mjs && node scripts/vendor-consent-rules.mjs && node scripts/vendor-cname-list.mjs && node scripts/update-live-manifest.mjs && node scripts/validate-rules.mjs",
     "validate:rules": "node scripts/validate-rules.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

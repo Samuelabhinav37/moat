@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.53
+
+### Changed
+- **Live-update files now come from jsDelivr instead of `raw.githubusercontent.com`, with a
+  SHA-256 payload check.** `raw.githubusercontent.com` is IP-rate-limited and its Acceptable Use
+  Policy forbids CDN-style use; jsDelivr is a real CDN built to front GitHub repos. New
+  `scripts/update-live-manifest.mjs` (run as the last step of `npm run filters:update`) writes
+  `live/manifest.json` — a SHA-256 index of the live payload files. `src/background/liveUpdates.ts`
+  fetches that manifest first, then verifies each payload's bytes against it before applying;
+  a mismatch (CDN corruption, or a stale payload racing a fresh manifest during jsDelivr
+  propagation) keeps the bundled baseline rather than half-applying an update. This is **not** a
+  signature — TLS + the GitHub account are still the source of trust, and the runtime shape
+  validators still bound what a compromised source could do (block/allow a set of domains —
+  nothing that can send traffic anywhere). New `scripts/purge-live-cdn.mjs` drops jsDelivr's
+  branch-path cache after a push so a fix propagates in minutes rather than up to ~12 h.
+  Third of the live-update-channel hardening set from
+  `docs/research/adblocker-update-feature-and-scale-mechanics-vs-moat-2026-09.md` (B2).
+
+549/549 tests (2 new), typecheck/build/lint:firefox clean.
+
 ## 0.11.52
 
 ### Changed

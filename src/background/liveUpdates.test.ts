@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 // in the node test env -- same pattern as athenaIntegration.test.ts.
 vi.mock("webextension-polyfill", () => ({ default: {} }));
 
-import { MIN_REFETCH_INTERVAL_MS, shouldSkipRefetch } from "./liveUpdates";
+import { MIN_REFETCH_INTERVAL_MS, sha256Hex, shouldSkipRefetch } from "./liveUpdates";
 
 const HOUR = 60 * 60 * 1000;
 
@@ -31,5 +31,21 @@ describe("shouldSkipRefetch", () => {
   it("uses an 18h default window (shorter than the 24h alarm period)", () => {
     expect(MIN_REFETCH_INTERVAL_MS).toBe(18 * HOUR);
     expect(MIN_REFETCH_INTERVAL_MS).toBeLessThan(24 * HOUR);
+  });
+});
+
+describe("sha256Hex", () => {
+  it("matches the known SHA-256 of an empty JSON array (the quick-fixes payload)", async () => {
+    const bytes = new TextEncoder().encode("[]").buffer;
+    expect(await sha256Hex(bytes)).toBe(
+      "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    );
+  });
+
+  it("is 64 lowercase hex chars and changes with the input", async () => {
+    const a = await sha256Hex(new TextEncoder().encode('["a.com"]').buffer);
+    const b = await sha256Hex(new TextEncoder().encode('["b.com"]').buffer);
+    expect(a).toMatch(/^[0-9a-f]{64}$/);
+    expect(a).not.toBe(b);
   });
 });
