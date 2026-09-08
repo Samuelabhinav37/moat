@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.60
+
+### Changed
+- **Dropped the flat `generic` array from `cosmetics-meta.json`.** Follow-up to v0.11.59 — nothing
+  reads it now that the runtime uses `genericByHash` + `genericHigh`. `validate-rules.mjs` checks
+  the two new fields' shape; the "partition drops nothing" assertion stays in `update-cosmetics.mjs`
+  (which still has the parser's flat list to compare against). Meta file is ~683 KB raw / ~214 KB
+  gzipped — the ~14.8k short hash keys cost ~100 KB gzipped over the old flat list, a one-time
+  cached fetch traded for never building the 17k-selector `<style>` or running the post-`load`
+  trim. Completes drawback fix 2.1.
+
+588/588 tests, typecheck/build/lint:firefox clean.
+
 ## 0.11.59
 
 ### Changed

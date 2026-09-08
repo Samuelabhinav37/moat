@@ -66,27 +66,22 @@ console.log(`\n${manifest.length} rulesets, ${totalRules} total rules`);
 
 const cosmeticsManifest = JSON.parse(readFileSync(join(rulesDir, "cosmetics-manifest.json"), "utf8"));
 const meta = JSON.parse(readFileSync(join(rulesDir, cosmeticsManifest.meta), "utf8"));
-if (!Array.isArray(meta.generic)) {
-  console.error(`${cosmeticsManifest.meta}: "generic" must be an array`);
-  ok = false;
-}
-if (!Array.isArray(meta.genericHigh)) {
-  console.error(`${cosmeticsManifest.meta}: "genericHigh" must be an array`);
+// Generic selectors: genericHigh (always-on) is a string array;
+// genericByHash maps a token hash to a string array. The "nothing dropped
+// in the partition" check lives in update-cosmetics.mjs, which still has the
+// flat parser output to compare against.
+if (!Array.isArray(meta.genericHigh) || meta.genericHigh.some((s) => typeof s !== "string")) {
+  console.error(`${cosmeticsManifest.meta}: "genericHigh" must be an array of strings`);
   ok = false;
 }
 if (typeof meta.genericByHash !== "object" || meta.genericByHash === null || Array.isArray(meta.genericByHash)) {
   console.error(`${cosmeticsManifest.meta}: "genericByHash" must be an object`);
   ok = false;
-} else {
-  // Every generic selector must land in genericHigh or under >=1 token
-  // hash -- the runtime surveyor can't recover one that fell through.
-  const filed = new Set(meta.genericHigh);
-  for (const list of Object.values(meta.genericByHash)) for (const s of list) filed.add(s);
-  const missing = Array.isArray(meta.generic) ? meta.generic.filter((s) => !filed.has(s)) : [];
-  if (missing.length > 0) {
-    console.error(`${cosmeticsManifest.meta}: ${missing.length} generic selector(s) not filed in genericByHash/genericHigh`);
-    ok = false;
-  }
+} else if (
+  Object.values(meta.genericByHash).some((v) => !Array.isArray(v) || v.some((s) => typeof s !== "string"))
+) {
+  console.error(`${cosmeticsManifest.meta}: every "genericByHash" value must be an array of strings`);
+  ok = false;
 }
 
 let domainCount = 0;
@@ -124,8 +119,10 @@ for (let i = 0; i < cosmeticsManifest.bucketCount; i += 1) {
 
 const exceptionCount = Object.values(meta.exceptions ?? {}).reduce((sum, s) => sum + s.length, 0);
 const injectGenericCount = meta.injectGeneric?.length ?? 0;
+const genericByHashCount = Object.values(meta.genericByHash ?? {}).reduce((sum, s) => sum + s.length, 0);
 console.log(
-  `cosmetics: ${meta.generic.length} generic, ${perDomainCount} domain-scoped selectors ` +
+  `cosmetics: ${meta.genericHigh.length} always-on + ${genericByHashCount} token-anchored generic ` +
+    `(${Object.keys(meta.genericByHash ?? {}).length} buckets), ${perDomainCount} domain-scoped selectors ` +
     `across ${domainCount} domains (${cosmeticsManifest.bucketCount} shard buckets), ${exceptionCount} exceptions, ` +
     `${injectGenericCount} generic + ${injectPerDomainCount} domain-scoped CSS-injection rules ` +
     `across ${injectDomainCount} domains`

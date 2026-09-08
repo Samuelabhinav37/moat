@@ -118,7 +118,8 @@ if (existsSync(previousMetaPath)) {
   try {
     const previous = JSON.parse(readFileSync(previousMetaPath, "utf8"));
     previousSummary = {
-      generic: previous.generic?.length ?? 0,
+      genericHigh: previous.genericHigh?.length ?? 0,
+      genericBuckets: Object.keys(previous.genericByHash ?? {}).length,
       exceptions: Object.values(previous.exceptions ?? {}).reduce((sum, s) => sum + s.length, 0),
     };
   } catch {
@@ -179,10 +180,7 @@ if (filedGeneric.size !== index.generic.length || index.generic.some((s) => !fil
 
 writeFileSync(
   join(outDir, "cosmetics-meta.json"),
-  // `generic` (the flat array) is still written for one release while the
-  // runtime switches over -- dropped in a follow-up once nothing reads it.
   JSON.stringify({
-    generic: index.generic,
     genericByHash,
     genericHigh,
     exceptions: index.exceptions,
@@ -224,11 +222,11 @@ console.log(
     `domain-scoped CSS-injection rules across ${injectPerDomainEntries.length} domains`
 );
 if (previousSummary) {
+  const delta = (from, to) => `${from} -> ${to} (${to - from >= 0 ? "+" : ""}${to - from})`;
   console.log(
-    `Compared to previous: generic ${previousSummary.generic} -> ${index.generic.length} ` +
-      `(${index.generic.length - previousSummary.generic >= 0 ? "+" : ""}${index.generic.length - previousSummary.generic}), ` +
-      `exceptions ${previousSummary.exceptions} -> ${exceptionCount} ` +
-      `(${exceptionCount - previousSummary.exceptions >= 0 ? "+" : ""}${exceptionCount - previousSummary.exceptions})`
+    `Compared to previous: always-on generic ${delta(previousSummary.genericHigh, genericHigh.length)}, ` +
+      `token buckets ${delta(previousSummary.genericBuckets, Object.keys(genericByHash).length)}, ` +
+      `exceptions ${delta(previousSummary.exceptions, exceptionCount)}`
   );
 } else {
   console.log("No previous cosmetics-meta.json to compare against.");
