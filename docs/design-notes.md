@@ -340,6 +340,21 @@ and there is no cleanup rewrite. Exceptions (`#@#` / `#@$#`) are applied to the
 surveyed slice exactly as to the rest (`genericSelectorsForTokens` in
 `src/content/cosmeticSelectors.ts`).
 
+#### Collapsing the blocked ad's empty box
+
+`src/content/adCollapse.ts`, started from the same content script, handles the
+gap a network-blocked ad leaves when the page still reserves its slot height and
+no cosmetic selector matched the wrapper. It is not selector-based: it does one
+pass on `load` plus a delayed second (for lazy slots) over just
+`iframe[src], img[src], ins.adsbygoogle`, hides any whose `src` host is on
+`rules/ad-networks.json` (a hand-curated ~100-domain list of display/native/video
+ad networks, each verified present in Moat's own DNR block set — checked into the
+repo, not generated, and validated by `validate-rules.mjs`), plus unfilled
+AdSense `<ins>` slots. For each, it walks up to three ancestors and collapses one
+only if it holds nothing else rendered and was reserving space (≥ 20 px tall, or
+a standard IAB box size) — never `<body>`, `<main>`, a `<section>`/`<article>`, or
+a landmark role. The whole pass is wrapped so a failure can never break the page.
+
 ### Rule-match logger
 
 A development tool, not a user feature: `logger.html` (linked from Settings → About →

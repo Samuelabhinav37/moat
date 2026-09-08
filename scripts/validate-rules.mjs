@@ -128,6 +128,34 @@ console.log(
     `across ${injectDomainCount} domains`
 );
 
+// ad-networks.json: hand-curated (not generated), lives in rules/ not
+// rules/dnr. src/content/adCollapse.ts collapses iframe/img whose host is
+// one of these. Must be a non-empty array of lowercase, de-duplicated,
+// path-free domain strings.
+const adNetworks = JSON.parse(readFileSync(join(rulesDir, "..", "ad-networks.json"), "utf8"));
+if (!Array.isArray(adNetworks) || adNetworks.length === 0) {
+  console.error("ad-networks.json: must be a non-empty array");
+  ok = false;
+} else {
+  const seen = new Set();
+  for (const d of adNetworks) {
+    if (typeof d !== "string" || !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(d)) {
+      console.error(`ad-networks.json: not a bare lowercase domain: ${JSON.stringify(d)}`);
+      ok = false;
+    } else if (seen.has(d)) {
+      console.error(`ad-networks.json: duplicate entry "${d}"`);
+      ok = false;
+    }
+    seen.add(d);
+  }
+  const sorted = [...adNetworks].sort();
+  if (adNetworks.some((d, i) => d !== sorted[i])) {
+    console.error("ad-networks.json: entries must be sorted");
+    ok = false;
+  }
+  console.log(`ad-networks.json: ${adNetworks.length} ad-network domains`);
+}
+
 const ruleCompanies = JSON.parse(readFileSync(join(rulesDir, "rule-companies.json"), "utf8"));
 let attributedCount = 0;
 for (const [rulesetId, byRuleId] of Object.entries(ruleCompanies)) {

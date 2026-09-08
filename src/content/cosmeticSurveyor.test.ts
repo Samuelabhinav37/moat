@@ -136,11 +136,11 @@ describe("startSurveyor", () => {
       "example.com",
       [],
       onNew,
-      { flushDelayMs: 0 }
+      { flushDelayMs: 0, quietFlushesToStop: 2 }
     );
 
-    // 8 quiet flushes (mutations that carry no matching token) trip the stop.
-    for (let i = 0; i < 9; i += 1) {
+    // Well past the threshold, even if some appends coalesce into one flush.
+    for (let i = 0; i < 6; i += 1) {
       const el = document.createElement("div");
       el.className = `noise-${i}`;
       document.body.append(el);

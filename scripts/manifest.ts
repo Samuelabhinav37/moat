@@ -104,9 +104,10 @@ function baseManifest() {
         // chrome-extension:// resource a page tries to load, it 404s as
         // "not listed in web_accessible_resources" without this, silently
         // breaking cosmetic filtering and consent auto-reject on every
-        // page. Covers cosmetics-manifest.json, cosmetics-meta.json, and
-        // the (currently 64) cosmetics-bucket-N.json shards.
-        resources: ["rules/cosmetics-*.json", "rules/consent-rules.json"],
+        // page. Covers cosmetics-manifest.json, cosmetics-meta.json, the
+        // (currently 64) cosmetics-bucket-N.json shards, and
+        // ad-networks.json (adCollapse.ts).
+        resources: ["rules/cosmetics-*.json", "rules/consent-rules.json", "rules/ad-networks.json"],
         matches: ["<all_urls>"],
       },
     ],

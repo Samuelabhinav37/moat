@@ -53,6 +53,7 @@ export interface SurveyorHandle {
 export interface SurveyorOptions {
   flushDelayMs?: number;
   maxSurveyNodes?: number;
+  quietFlushesToStop?: number;
 }
 
 /**
@@ -72,6 +73,7 @@ export function startSurveyor(
 ): SurveyorHandle {
   const flushDelayMs = options.flushDelayMs ?? FLUSH_DELAY_MS;
   const maxSurveyNodes = options.maxSurveyNodes ?? MAX_SURVEY_NODES;
+  const quietFlushesToStop = options.quietFlushesToStop ?? QUIET_FLUSHES_TO_STOP;
 
   const seenHashes = new Set<string>();
   const injected = new Set(alreadyInjected);
@@ -115,7 +117,7 @@ export function startSurveyor(
     pending = [];
     consume(batch);
     quietFlushes = injected.size > before ? 0 : quietFlushes + 1;
-    if (quietFlushes >= QUIET_FLUSHES_TO_STOP || nodesSurveyed >= maxSurveyNodes) stop();
+    if (quietFlushes >= quietFlushesToStop || nodesSurveyed >= maxSurveyNodes) stop();
   }
 
   function schedule(): void {

@@ -136,6 +136,11 @@ function copyStaticAssets() {
     cpSync(resolve(rulesDir, file), resolve(outDir, "rules", file));
   }
 
+  // Hand-curated, checked into the repo (not generated into rules/dnr): the
+  // ad-network domain list src/content/adCollapse.ts uses to collapse the
+  // empty space a blocked ad iframe/img leaves behind.
+  cpSync(resolve(root, "rules", "ad-networks.json"), resolve(outDir, "rules", "ad-networks.json"));
+
   cpSync(resolve(root, "icons"), resolve(outDir, "icons"), { recursive: true });
   // src/_locales/ also holds localeParity.test.ts (a real vitest test, not a
   // locale file) -- a plain recursive copy was shipping it into every build,

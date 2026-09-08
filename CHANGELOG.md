@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.61
+
+### Added
+- **Collapse the empty box a blocked ad leaves behind.** `src/content/adCollapse.ts` (started from
+  the cosmetic content script) does one pass on `load` plus a delayed second over
+  `iframe[src] / img[src] / ins.adsbygoogle`, hides any whose `src` host is on a new curated
+  `rules/ad-networks.json` (~100 display/native/video ad-network domains, each verified present in
+  Moat's own DNR block set — checked into the repo, not generated) plus unfilled AdSense slots, and
+  collapses up to three ancestors that were only reserving space for it (≥ 20 px tall or a standard
+  IAB box size; never `<body>`/`<main>`/`<section>`/`<article>`/a landmark). Not selector-based, so
+  it doesn't touch the style-engine hot path; wrapped so a failure can't break the page. Drawback
+  fix 2.3 (curated-set route) from `docs/research/fixing-the-drawbacks-2026-09.md`. `ad-networks.json`
+  is validated by `validate-rules.mjs` and copied into the build + web-accessible resources.
+
+602/602 tests (14 new), typecheck/build/lint:firefox clean. Live smoke test with the extension
+loaded (where DNR blocking is what creates the empty slots) still recommended before release.
+
 ## 0.11.60
 
 ### Changed

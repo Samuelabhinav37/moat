@@ -29,6 +29,7 @@ import {
   type DomainShardEntry,
 } from "./cosmeticSelectors";
 import { startSurveyor } from "./cosmeticSurveyor";
+import { startAdCollapse } from "./adCollapse";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { LIVE_COSMETIC_FIXES_KEY } from "../types";
 
@@ -41,6 +42,17 @@ interface CosmeticMeta {
 
 async function fetchJson<T>(path: string): Promise<T> {
   return (await fetch(browser.runtime.getURL(path))).json() as Promise<T>;
+}
+
+// The curated ad-network domain list adCollapse.ts uses. Best-effort: an
+// empty set just means the collapse pass no-ops.
+async function readAdNetworks(): Promise<Set<string>> {
+  try {
+    const list = await fetchJson<unknown>("rules/ad-networks.json");
+    return Array.isArray(list) ? new Set(list.filter((d): d is string => typeof d === "string")) : new Set();
+  } catch {
+    return new Set();
+  }
 }
 
 // The live cosmetic-fix map (background/liveUpdates.ts refreshes it from
@@ -64,11 +76,16 @@ async function run(): Promise<void> {
 
   const manifest = await fetchJson<CosmeticManifest>("rules/cosmetics-manifest.json");
   const bucketIndices = shardIndicesForHostname(location.hostname, manifest.bucketCount);
-  const [meta, liveFixes, ...shards] = await Promise.all([
+  const [meta, liveFixes, adNetworks, ...shards] = await Promise.all([
     fetchJson<CosmeticMeta>(`rules/${manifest.meta}`),
     readLiveCosmeticFixes(),
+    readAdNetworks(),
     ...bucketIndices.map((i) => fetchJson<Record<string, DomainShardEntry>>(`rules/cosmetics-bucket-${i}.json`)),
   ]);
+
+  // Collapse the empty space a network-blocked ad iframe/img leaves behind.
+  // Independent of the selector-based hiding below; runs on its own timers.
+  startAdCollapse(window, adNetworks);
 
   const { perDomain, injectPerDomain } = splitDomainShards(mergeDomainShards(shards));
   const index = {
