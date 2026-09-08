@@ -9,12 +9,16 @@
 // browser API, same as it.
 //
 // Deliberately NOT a general-purpose remote rule channel: entries can only
-// block, allow, or strip query params -- never `action.redirect.url` or
-// `regexSubstitution` to an arbitrary target. live/quick-fixes.json is
-// fetched over plain HTTPS with no additional signature pinning (same trust
-// model as the redirect-domain list -- GitHub account security plus TLS),
-// so a rule shape that could redirect traffic to attacker-controlled
-// infrastructure is not a risk worth taking for what this channel is for.
+// `block` or `allow`. Both are "safe" declarativeNetRequest rule types.
+// `redirect` (incl. query-param stripping via queryTransform), `modifyHeaders`
+// and `regexSubstitution` are "unsafe" types -- and applying an unsafe rule
+// from a *remotely fetched* source is precisely the pattern Chrome's MV3
+// review enforced against when it made AdGuard permanently remove its Quick
+// Fixes filter (early 2025). live/quick-fixes.json is fetched over HTTPS with
+// a SHA-256 payload check (see live/manifest.json) but no code-signing, so
+// block/allow -- which cannot send traffic anywhere -- is the whole safe
+// surface this channel gets. Query-param stripping that needs a live push
+// belongs in a bundled static ruleset refreshed by `npm run filters:update`.
 import type { DeclarativeNetRequest } from "webextension-polyfill";
 import { ALL_RESOURCE_TYPES } from "./customRules";
 
@@ -29,8 +33,7 @@ interface QuickFixBase {
 }
 export type QuickFixEntry =
   | (QuickFixBase & { action: "block" })
-  | (QuickFixBase & { action: "allow" })
-  | (QuickFixBase & { action: "stripParams"; removeParams: string[] });
+  | (QuickFixBase & { action: "allow" });
 
 function hasValidBase(e: Record<string, unknown>): e is Record<string, unknown> & QuickFixBase {
   if (typeof e.urlFilter !== "string" || e.urlFilter.length === 0) return false;
@@ -42,11 +45,7 @@ function isValidEntry(entry: unknown): entry is QuickFixEntry {
   if (typeof entry !== "object" || entry === null) return false;
   const e = entry as Record<string, unknown>;
   if (!hasValidBase(e)) return false;
-  if (e.action === "block" || e.action === "allow") return true;
-  if (e.action === "stripParams") {
-    return Array.isArray(e.removeParams) && e.removeParams.length > 0 && e.removeParams.every((p) => typeof p === "string" && p.length > 0);
-  }
-  return false;
+  return e.action === "block" || e.action === "allow";
 }
 
 /** Returns the valid entries plus how many were rejected, so callers can report/log it -- same
@@ -56,20 +55,12 @@ export function filterValidQuickFixes(entries: unknown[]): { valid: QuickFixEntr
   return { valid, rejectedCount: entries.length - valid.length };
 }
 
-function buildAction(entry: QuickFixEntry): DeclarativeNetRequest.RuleActionType {
-  if (entry.action === "block") return { type: "block" };
-  if (entry.action === "allow") return { type: "allow" };
-  return {
-    type: "redirect",
-    redirect: { transform: { queryTransform: { removeParams: entry.removeParams } } },
-  };
-}
-
 export function buildQuickFixRules(entries: QuickFixEntry[]): DeclarativeNetRequest.Rule[] {
   return entries.slice(0, MAX_QUICK_FIX_RULES).map((entry, index) => ({
     id: QUICK_FIX_ID_START + index,
     priority: 1,
-    action: buildAction(entry),
+    // Only "safe" action types reach here -- see isValidEntry / the module header.
+    action: { type: entry.action },
     condition: { urlFilter: entry.urlFilter, resourceTypes: entry.resourceTypes },
   }));
 }

@@ -10,17 +10,11 @@ import {
 
 const block: QuickFixEntry = { action: "block", urlFilter: "||anti-adblock.example^", resourceTypes: ["script"] };
 const allow: QuickFixEntry = { action: "allow", urlFilter: "||over-blocked.example^", resourceTypes: ["main_frame"] };
-const stripParams: QuickFixEntry = {
-  action: "stripParams",
-  urlFilter: "||news.example^",
-  resourceTypes: ["main_frame"],
-  removeParams: ["newparam"],
-};
 
 describe("filterValidQuickFixes", () => {
-  it("accepts well-formed block, allow, and stripParams entries", () => {
-    const { valid, rejectedCount } = filterValidQuickFixes([block, allow, stripParams]);
-    expect(valid).toEqual([block, allow, stripParams]);
+  it("accepts well-formed block and allow entries", () => {
+    const { valid, rejectedCount } = filterValidQuickFixes([block, allow]);
+    expect(valid).toEqual([block, allow]);
     expect(rejectedCount).toBe(0);
   });
 
@@ -28,6 +22,16 @@ describe("filterValidQuickFixes", () => {
     const { valid, rejectedCount } = filterValidQuickFixes([{ ...block, action: "redirect-anywhere" }]);
     expect(valid).toEqual([]);
     expect(rejectedCount).toBe(1);
+  });
+
+  it("rejects the removed stripParams action -- only block/allow are 'safe' rule types", () => {
+    const stripParams = {
+      action: "stripParams",
+      urlFilter: "||news.example^",
+      resourceTypes: ["main_frame"],
+      removeParams: ["newparam"],
+    };
+    expect(filterValidQuickFixes([stripParams]).valid).toEqual([]);
   });
 
   it("rejects an entry with a missing or empty urlFilter", () => {
@@ -40,19 +44,12 @@ describe("filterValidQuickFixes", () => {
     expect(filterValidQuickFixes([{ ...block, resourceTypes: ["not-a-real-type"] }]).valid).toEqual([]);
   });
 
-  it("rejects a stripParams entry with no removeParams", () => {
-    const withoutParams: Record<string, unknown> = { ...stripParams };
-    delete withoutParams.removeParams;
-    expect(filterValidQuickFixes([withoutParams]).valid).toEqual([]);
-    expect(filterValidQuickFixes([{ ...stripParams, removeParams: [] }]).valid).toEqual([]);
-  });
-
-  it("never lets action.redirect.url or regexSubstitution shapes through -- only the three known actions exist", () => {
+  it("never lets action.redirect.url or regexSubstitution shapes through -- only block/allow exist", () => {
     const { valid } = filterValidQuickFixes([
       { action: "block", urlFilter: "x", resourceTypes: ["script"], redirect: { url: "https://evil.example" } },
     ]);
-    // The extra "redirect" field is simply ignored by buildQuickFixRules -- buildAction only
-    // ever looks at entry.action, so there's no code path that could honor it even if present.
+    // The extra "redirect" field is simply ignored by buildQuickFixRules -- it only
+    // ever reads entry.action, so there's no code path that could honor it even if present.
     expect(valid).toHaveLength(1);
   });
 
@@ -77,17 +74,15 @@ describe("buildQuickFixRules", () => {
     expect(rules[0]?.action).toEqual({ type: "allow" });
   });
 
-  it("builds a stripParams entry as a redirect/queryTransform rule", () => {
-    const rules = buildQuickFixRules([stripParams]);
-    expect(rules[0]?.action).toEqual({
-      type: "redirect",
-      redirect: { transform: { queryTransform: { removeParams: ["newparam"] } } },
-    });
+  it("never emits an unsafe action type (redirect / modifyHeaders)", () => {
+    for (const rule of buildQuickFixRules([block, allow])) {
+      expect(["block", "allow"]).toContain(rule.action.type);
+    }
   });
 
   it("assigns unique, sequential ids with no gaps", () => {
-    const ids = buildQuickFixRules([block, allow, stripParams]).map((r) => r.id);
-    expect(ids).toEqual([QUICK_FIX_ID_START, QUICK_FIX_ID_START + 1, QUICK_FIX_ID_START + 2]);
+    const ids = buildQuickFixRules([block, allow]).map((r) => r.id);
+    expect(ids).toEqual([QUICK_FIX_ID_START, QUICK_FIX_ID_START + 1]);
   });
 
   it("caps at MAX_QUICK_FIX_RULES rather than exceeding the dynamic-rule budget", () => {

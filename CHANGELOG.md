@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.51
+
+### Changed
+- **The live "quick fixes" channel now only carries `block`/`allow` rules — the query-param-strip
+  (`stripParams`) shape is removed.** `stripParams` compiled to a `redirect`/`queryTransform`
+  `declarativeNetRequest` rule, and `redirect` is an *unsafe* DNR action type. Applying an unsafe
+  rule from a *remotely fetched* source (`live/quick-fixes.json`) is exactly the pattern Chrome's
+  MV3 Web Store review enforced against when it made AdGuard permanently remove its "Quick Fixes
+  filter" in early 2025. `block` and `allow` are *safe* action types and cannot send traffic
+  anywhere, so they're the whole surface this remote channel gets now. The channel ships empty
+  (`live/quick-fixes.json` is `[]`), so this is a policy-posture change with no behaviour change.
+  A query-param strip that genuinely needs a fast push belongs in a bundled static ruleset
+  refreshed by `npm run filters:update`. (`src/background/quickFixRules.ts`; first of a set of
+  live-update-channel hardening changes from `docs/research/adblocker-update-feature-and-scale-mechanics-vs-moat-2026-09.md`.)
+
+542/542 tests, typecheck/build/lint:firefox clean.
+
 ## 0.11.50
 
 ### Added
