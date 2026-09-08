@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Moat Hides Ads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+  :root {
+    --ground: #f3f5f8;
+    --surface: #ffffff;
+    --surface-2: #eef1f5;
+    --ink: #1a2431;
+    --muted: #5b6675;
+    --line: #d7dce4;
+    --accent: #2f6fce;
+    --accent-soft: #e5edfa;
+    --page: #2f8a53;       /* "runs on the page thread" */
+    --page-soft: #e2f1e8;
+    --worker: #2f6fce;      /* "runs in the service worker" */
+    --moved: #b5701a;       /* "the ~1 MB we relocated" */
+    --moved-soft: #f6ecdd;
+    --shadow: 0 1px 2px rgba(20, 30, 45, .06), 0 6px 20px rgba(20, 30, 45, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #12171e;
+      --surface: #1b232d;
+      --surface-2: #222c38;
+      --ink: #e7ecf2;
+      --muted: #98a3b1;
+      --line: #2d3745;
+      --accent: #79a4e6;
+      --accent-soft: #1e2c40;
+      --page: #62bd88;
+      --page-soft: #17281e;
+      --worker: #79a4e6;
+      --moved: #d99a52;
+      --moved-soft: #2c2317;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .28);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #12171e;
+    --surface: #1b232d;
+    --surface-2: #222c38;
+    --ink: #e7ecf2;
+    --muted: #98a3b1;
+    --line: #2d3745;
+    --accent: #79a4e6;
+    --accent-soft: #1e2c40;
+    --page: #62bd88;
+    --page-soft: #17281e;
+    --worker: #79a4e6;
+    --moved: #d99a52;
+    --moved-soft: #2c2317;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .28);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+    font-size: 18px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 28px 120px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  @media (min-width: 1040px) {
+    .shell {
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 56px;
+      padding-top: 72px;
+    }
+  }
+
+  /* ---- side nav ---- */
+  .toc { display: none; }
+  @media (min-width: 1040px) {
+    .toc {
+      display: block;
+      position: sticky;
+      top: 40px;
+      align-self: start;
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .toc .kicker {
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+    .toc li { counter-increment: toc; margin: 0 0 10px; }
+    .toc a {
+      color: var(--muted);
+      text-decoration: none;
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 8px;
+    }
+    .toc a::before { content: counter(toc, decimal-leading-zero); color: var(--accent); font-variant-numeric: tabular-nums; }
+    .toc a:hover { color: var(--ink); }
+  }
+
+  main { min-width: 0; }
+  .col { max-width: 68ch; }
+
+  /* ---- masthead ---- */
+  .masthead { max-width: 68ch; margin-bottom: 52px; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: .04em;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+  h1 {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 1.4rem + 2.6vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 0 0 20px;
+  }
+  .standfirst { font-size: 1.16rem; color: var(--muted); margin: 0; }
+  .standfirst strong { color: var(--ink); font-weight: 500; }
+
+  h2 {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    text-wrap: balance;
+    margin: 0 0 6px;
+  }
+  .sec { margin-top: 64px; scroll-margin-top: 32px; }
+  .sec > .num {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12.5px;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .sec-rule { border: 0; border-top: 1px solid var(--line); margin: 0 0 28px; max-width: 68ch; }
+
+  h3 {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1.06rem;
+    margin: 34px 0 4px;
+  }
+
+  p { margin: 16px 0; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+
+  code, .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .84em;
+  }
+  p code, li code, td code {
+    background: var(--surface-2);
+    padding: .1em .38em;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  ul, ol { padding-left: 1.3em; margin: 16px 0; }
+  li { margin: 8px 0; }
+  li::marker { color: var(--muted); }
+
+  strong { font-weight: 500; }
+  em.term { font-style: normal; font-weight: 500; color: var(--ink); }
+
+  /* ---- callouts / figures ---- */
+  figure { margin: 40px 0; }
+  .bleed { width: min(100%, 920px); }
+  figcaption {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-top: 14px;
+    max-width: 62ch;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 24px 26px;
+    margin: 32px 0;
+    max-width: 68ch;
+  }
+  .panel h3 { margin-top: 0; }
+  .panel.tight { padding: 18px 22px; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    margin: 10px 0 0;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid rgba(0,0,0,.12); }
+
+  /* ---- data table ---- */
+  .table-wrap { overflow-x: auto; margin: 28px 0; max-width: 68ch; }
+  table { border-collapse: collapse; width: 100%; font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 14px; }
+  caption {
+    text-align: left;
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 12px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th { color: var(--muted); font-weight: 600; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+  td.n { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: 0; }
+
+  /* ---- where-it-runs comparison ---- */
+  .split { display: grid; gap: 18px; margin: 32px 0; max-width: 68ch; }
+  @media (min-width: 620px) { .split { grid-template-columns: 1fr 1fr; } }
+  .lane {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 20px;
+    background: var(--surface);
+  }
+  .lane h4 {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 12px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .lane.page h4 { color: var(--page); }
+  .lane.worker h4 { color: var(--worker); }
+  .lane ul { margin: 0; padding-left: 1.15em; font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 14px; }
+  .lane li { margin: 7px 0; color: var(--muted); }
+  .lane li b { color: var(--ink); font-weight: 500; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .lane.page .dot { background: var(--page); }
+  .lane.worker .dot { background: var(--worker); }
+
+  /* ---- diagram ---- */
+  .diagram { width: 100%; height: auto; display: block; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+  .diagram .d-box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+  .diagram .d-box.page { fill: var(--page-soft); stroke: var(--page); }
+  .diagram .d-box.worker { fill: var(--accent-soft); stroke: var(--worker); }
+  .diagram .d-box.data { fill: var(--moved-soft); stroke: var(--moved); }
+  .diagram .d-lane { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 3 5; }
+  .diagram .d-lanelabel { fill: var(--muted); font-family: "IBM Plex Sans", sans-serif; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; }
+  .diagram .d-title { fill: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 13px; }
+  .diagram .d-sub { fill: var(--muted); font-family: "IBM Plex Sans", sans-serif; font-size: 11.5px; }
+  .diagram .d-arrow { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+  .diagram .d-arrow.accent { stroke: var(--accent); }
+  .diagram .d-msg { fill: var(--ink); font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  .diagram .d-msg.dim { fill: var(--muted); }
+  .diagram .d-head { fill: var(--muted); }
+  .diagram .d-head.accent { fill: var(--accent); }
+
+  /* ---- footer ---- */
+  .foot {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    max-width: 68ch;
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+  .foot code { font-size: 12.5px; }
+
+  /* ---- theme toggle ---- */
+  .toggle {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 10;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 13px;
+    cursor: pointer;
+  }
+  .toggle:hover { color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<button class="toggle" id="themeToggle" type="button" aria-label="Switch colour theme">theme</button>
+
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <p class="kicker">Contents</p>
+    <ol>
+      <li><a href="#engines">Two engines, one hot path</a></li>
+      <li><a href="#problem">What cosmetic hiding is up against</a></li>
+      <li><a href="#build">How the lists become an index</a></li>
+      <li><a href="#lifecycle">One navigation, step by step</a></li>
+      <li><a href="#split">Why the worker owns the dataset</a></li>
+      <li><a href="#edges">What stayed, what&rsquo;s deferred</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="masthead">
+      <p class="eyebrow">moat &middot; content-blocking internals &middot; v0.11.63</p>
+      <h1>How Moat hides ads</h1>
+      <p class="standfirst">Moat is a Manifest&nbsp;V3 ad and tracker blocker for Chrome and Firefox. Network requests are killed by the browser itself; the leftover empty boxes are hidden by filter-list selectors. This is how that second half works &mdash; and why, since v0.11.63, the <strong>service worker parses the selector dataset instead of the page</strong>.</p>
+    </header>
+
+    <section class="sec" id="engines">
+      <span class="num">01</span>
+      <h2>Two engines, one hot path</h2>
+      <hr class="sec-rule">
+      <div class="col">
+        <p>Blocking an ad happens in two unrelated places.</p>
+        <p><em class="term">Network blocking</em> is pure <code>declarativeNetRequest</code>. Moat ships <strong>271,270</strong> static DNR rules across 20 rulesets, compiled from 11 AdGuard lists plus three first-party ones. The browser loads that index once at install and matches every outgoing request against it in native code. There is no Moat JavaScript on this path &mdash; nothing to profile, nothing to optimise. A request to a known ad host simply never leaves the browser.</p>
+        <p><em class="term">Cosmetic filtering</em> is the part with actual runtime cost. When a page reserves a 300&times;250 slot, drops in an <code>&lt;iframe&gt;</code>, and the iframe request is blocked, the slot stays &mdash; an empty gap, sometimes with a &ldquo;advertisement&rdquo; label above it. Cosmetic rules are CSS selectors (AdGuard&rsquo;s <code>##</code> syntax) that hide those containers. Applying them means running Moat code in the page, on every navigation.</p>
+        <p>So the whole performance story is the cosmetic engine. Everything below is about keeping it cheap.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="problem">
+      <span class="num">02</span>
+      <h2>What cosmetic hiding is up against</h2>
+      <hr class="sec-rule">
+      <div class="col">
+        <p>Cosmetic selectors come in two kinds, and they scale very differently.</p>
+        <p><em class="term">Domain-scoped</em> selectors are tied to a hostname: <code>example.com##.promo-rail</code>. Moat carries <strong>138,392</strong> of them across <strong>52,776</strong> domains. For any given page only a handful apply, so the cost is finding <em>this</em> page&rsquo;s handful quickly.</p>
+        <p><em class="term">Generic</em> selectors have no hostname &mdash; <code>.ad-slot</code>, <code>.sponsored-post</code>, <code>[data-ad-unit]</code> &mdash; and are meant to fire everywhere. There are about <strong>17,100</strong> of them. Injecting all 17k as one stylesheet on every page is what a naive blocker does, and it makes the browser&rsquo;s style engine evaluate 17,000 selectors against every DOM mutation for the life of the page.</p>
+      </div>
+
+      <div class="panel">
+        <h3>The generic-selector split</h3>
+        <p style="margin-bottom:10px">Moat divides the generic set by whether a selector has an <em class="term">anchoring token</em> &mdash; a class or id that must be present for it to match anything:</p>
+        <div class="table-wrap" style="margin:6px 0 0">
+          <table>
+            <thead><tr><th>Slice</th><th>Count</th><th>When it&rsquo;s injected</th></tr></thead>
+            <tbody>
+              <tr><td><code>genericHigh</code></td><td class="n">1,068</td><td>Up front, every page &mdash; no usable anchor (<code>[data-ad]</code>, <code>div &gt; .x</code>)</td></tr>
+              <tr><td><code>genericByHash</code></td><td class="n">16,080</td><td>Only once its anchor token is seen in the DOM &mdash; filed under <strong>14,792</strong> token buckets</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="col">
+        <p>The bet: on a real page, only dozens of those 14,792 tokens ever appear, so the style engine only ever evaluates the few dozen generic selectors that could plausibly match. A <em class="term">DOM surveyor</em> watches for the tokens and asks for their selectors as they show up.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="build">
+      <span class="num">03</span>
+      <h2>How the lists become an index</h2>
+      <hr class="sec-rule">
+      <div class="col">
+        <p>At build time, <code>scripts/update-cosmetics.mjs</code> parses the raw AdGuard lists and emits:</p>
+        <ul>
+          <li><code>cosmetics-meta.json</code> &mdash; <strong>~684&nbsp;KB</strong> (~215&nbsp;KB gzipped). Holds <code>genericHigh</code>, the <code>genericByHash</code> map, all <strong>5,768</strong> exceptions (<code>domain#@#selector</code>), and the 5 generic CSS-injection rules.</li>
+          <li><code>cosmetics-bucket-0.json</code> &hellip; <code>-63.json</code> &mdash; the 138k domain-scoped selectors, sharded into <strong>64 files</strong> by a hash of the registrable domain so a page fetches ~1&ndash;3 small files, not one 6&nbsp;MB blob.</li>
+          <li><code>cosmetics-manifest.json</code> &mdash; 47 bytes: the meta filename and the bucket count.</li>
+        </ul>
+        <p>The token hash is <em class="term">FNV-1a</em>, emitted as a base-36 string so it&rsquo;s a compact JSON key. It has a byte-identical twin in <code>scripts/lib/tokenHash.mjs</code>, parity-checked in CI &mdash; the build files a selector under a token&rsquo;s hash, and the runtime hashes the tokens it finds; the two never communicate, so they must compute the same value. Same discipline as the 64-way domain bucketing (<code>bucketForDomain</code>, also FNV).</p>
+      </div>
+    </section>
+
+    <section class="sec" id="lifecycle">
+      <span class="num">04</span>
+      <h2>One navigation, step by step</h2>
+      <hr class="sec-rule">
+      <div class="col">
+        <p>The cosmetic content script runs at <code>document_start</code> in the top frame only. Here is what happens on a single page load.</p>
+      </div>
+
+      <figure class="bleed">
+        <svg class="diagram" viewBox="0 0 920 520" role="img" aria-labelledby="diagTitle diagDesc">
+          <title id="diagTitle">Cosmetic filtering message flow between the page and the service worker</title>
+          <desc id="diagDesc">The page-thread content scripts send get-cosmetic-slice and get-cosmetic-generics messages to the service worker, which parses the bundled cosmetic dataset once and answers with selectors.</desc>
+
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0L10 5L0 10z" class="d-head"></path>
+            </marker>
+            <marker id="ahA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0L10 5L0 10z" class="d-head accent"></path>
+            </marker>
+          </defs>
+
+          <!-- lane divider + labels -->
+          <line class="d-lane" x1="460" y1="44" x2="460" y2="500"></line>
+          <text class="d-lanelabel" x="40" y="30">Page main thread</text>
+          <text class="d-lanelabel" x="512" y="30">Service worker</text>
+
+          <!-- LEFT: cosmeticFilter.ts -->
+          <rect class="d-box page" x="40" y="52" width="330" height="60" rx="8"></rect>
+          <text class="d-title" x="58" y="80">cosmeticFilter.ts</text>
+          <text class="d-sub" x="58" y="98">runs at document_start, top frame</text>
+
+          <!-- LEFT: three style blocks -->
+          <rect class="d-box" x="40" y="212" width="330" height="74" rx="8"></rect>
+          <text class="d-title" x="58" y="238">3 &times; &lt;style&gt;</text>
+          <text class="d-sub" x="58" y="256">#moat-cosmetic-domain</text>
+          <text class="d-sub" x="58" y="272">#moat-cosmetic-inject &middot; -generic</text>
+
+          <!-- LEFT: surveyor -->
+          <rect class="d-box page" x="40" y="392" width="330" height="74" rx="8"></rect>
+          <text class="d-title" x="58" y="418">cosmeticSurveyor.ts</text>
+          <text class="d-sub" x="58" y="436">MutationObserver on class / id</text>
+          <text class="d-sub" x="58" y="452">self-disables: 8 quiet flushes / 100k nodes</text>
+
+          <!-- RIGHT: cosmeticIndex.ts -->
+          <rect class="d-box worker" x="550" y="52" width="330" height="60" rx="8"></rect>
+          <text class="d-title" x="568" y="80">cosmeticIndex.ts</text>
+          <text class="d-sub" x="568" y="98">message handlers + lazy loaders</text>
+
+          <!-- RIGHT: in-memory index -->
+          <rect class="d-box worker" x="550" y="212" width="330" height="60" rx="8"></rect>
+          <text class="d-title" x="568" y="240">parsed index (in memory)</text>
+          <text class="d-sub" x="568" y="258">kept for the life of the worker</text>
+
+          <!-- RIGHT: bundled files -->
+          <rect class="d-box data" x="550" y="372" width="330" height="94" rx="8"></rect>
+          <text class="d-title" x="568" y="398">bundled dataset &mdash; ~1 MB</text>
+          <text class="d-sub" x="568" y="416">cosmetics-meta.json &nbsp;~684 KB</text>
+          <text class="d-sub" x="568" y="432">+ cosmetics-bucket-N.json &times;64</text>
+          <text class="d-sub" x="568" y="448">fetched via runtime.getURL</text>
+
+          <!-- slice request / response -- labels sit in the gutter, clear of both boxes -->
+          <path class="d-arrow accent" d="M372 74 L544 74" marker-end="url(#ahA)"></path>
+          <text class="d-msg" x="458" y="46" text-anchor="middle">get-cosmetic-slice { hostname }</text>
+
+          <path class="d-arrow" d="M544 98 L374 98" marker-end="url(#ah)"></path>
+          <text class="d-msg dim" x="458" y="132" text-anchor="middle">genericHigh &middot; domainSelectors</text>
+          <text class="d-msg dim" x="458" y="148" text-anchor="middle">injectRules &middot; hasTokenIndex</text>
+
+          <!-- filter -> style blocks -->
+          <path class="d-arrow" d="M170 112 L170 208" marker-end="url(#ah)"></path>
+          <text class="d-sub" x="180" y="165" style="font-size:11px">build &amp; append</text>
+
+          <!-- surveyor <-> cosmeticIndex : generics, one two-headed arrow -->
+          <path class="d-arrow accent" d="M374 428 L544 106" marker-start="url(#ahA)" marker-end="url(#ahA)"></path>
+          <text class="d-msg" x="250" y="500">get-cosmetic-generics { hashes[] }  &#8646;  selectors, batched</text>
+
+          <!-- surveyor -> generic style : append -->
+          <path class="d-arrow" d="M110 392 L110 288" marker-end="url(#ah)"></path>
+          <text class="d-sub" x="120" y="344" style="font-size:11px">append matches</text>
+
+          <!-- index <-> in-memory -->
+          <path class="d-arrow" d="M715 112 L715 208" marker-end="url(#ah)"></path>
+          <!-- files -> in-memory : parsed once -->
+          <path class="d-arrow" d="M715 372 L715 276" marker-end="url(#ah)"></path>
+          <text class="d-sub" x="725" y="322" style="font-size:11px">parsed once &mdash;<tspan x="725" dy="14">first request or</tspan><tspan x="725" dy="14">SW cold start</tspan></text>
+        </svg>
+        <figcaption>The page never fetches or parses the ~1&nbsp;MB dataset. <span style="color:var(--accent)">Blue arrows</span> are requests from the page; grey arrows are the worker&rsquo;s replies. The surveyor keeps exactly one <code>get-cosmetic-generics</code> request in flight at a time.</figcaption>
+      </figure>
+
+      <div class="col">
+        <ol>
+          <li><strong>Disabled check.</strong> <code>cosmeticFilter.ts</code> reads effective settings from a per-page cache. If protection is paused for this host, it returns &mdash; nothing injected.</li>
+          <li><strong>Ask for the slice.</strong> It sends <code>get-cosmetic-slice&nbsp;{&nbsp;hostname&nbsp;}</code> to the service worker (one retry, then it degrades gracefully). The reply carries this host&rsquo;s <code>domainSelectors</code>, the merged <code>injectRules</code>, the <code>genericHigh</code> list, and a <code>hasTokenIndex</code> flag &mdash; all with this domain&rsquo;s exceptions already subtracted.</li>
+          <li><strong>Merge local selectors.</strong> The user&rsquo;s own element-picker rules, custom hides, and the live cosmetic-fix channel are added on top &mdash; these live in <code>storage.local</code>, cost nothing to read, and are applied <em>even if the slice request failed</em>.</li>
+          <li><strong>Inject three <code>&lt;style&gt;</code> blocks.</strong> <code>#moat-cosmetic-domain</code> (domain + custom + gray), <code>#moat-cosmetic-inject</code> (CSS-injection rules, each with its own declaration), and <code>#moat-cosmetic-generic</code> (the <code>genericHigh</code> slice). Selectors are batched 2,000 to a rule rather than one enormous list.</li>
+          <li><strong>Start the surveyor</strong> &mdash; only if <code>hasTokenIndex</code>. A batched <code>MutationObserver</code> watches <code>class</code> and <code>id</code> attributes, hashes each new token, and once every 250&nbsp;ms sends the new hashes as <code>get-cosmetic-generics&nbsp;{&nbsp;hashes[]&nbsp;}</code>. Returned selectors are appended to the <code>-generic</code> block. It stops itself after 8 consecutive empty flushes or 100,000 surveyed nodes.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="sec" id="split">
+      <span class="num">05</span>
+      <h2>Why the worker owns the dataset</h2>
+      <hr class="sec-rule">
+      <div class="col">
+        <p>Before v0.11.63, <code>cosmeticFilter.ts</code> did the fetching and <code>JSON.parse</code> itself, on the page&rsquo;s main thread, at <code>document_start</code> &mdash; the moment the page most needs that thread for its own parsing and first paint. That was <strong>~684&nbsp;KB</strong> of JSON for the meta file plus <strong>1&ndash;3</strong> domain-bucket shards at ~110&nbsp;KB each: roughly a megabyte of parse work per navigation, every navigation.</p>
+        <p>v0.11.63 moves it. <code>background/cosmeticIndex.ts</code> fetches and parses each file <strong>once</strong> and keeps the parsed structure in worker memory. The page just sends two small messages and gets selectors back.</p>
+      </div>
+
+      <div class="split">
+        <div class="lane page">
+          <h4><span class="dot"></span>Stays on the page thread</h4>
+          <ul>
+            <li>Two <code>runtime.sendMessage</code> round-trips &mdash; <b>~1&ndash;5&nbsp;ms</b> against a warm worker</li>
+            <li>Building and appending the <code>&lt;style&gt;</code> text (dozens&ndash;hundreds of selectors)</li>
+            <li>The <code>MutationObserver</code> survey loop &amp; token hashing</li>
+            <li>Reading the user&rsquo;s own picker / custom / live-fix selectors from <code>storage.local</code></li>
+          </ul>
+        </div>
+        <div class="lane worker">
+          <h4><span class="dot"></span>Moved to the service worker</h4>
+          <ul>
+            <li><code>fetch</code> + <code>JSON.parse</code> of <code>cosmetics-meta.json</code> &mdash; <b>~684&nbsp;KB</b></li>
+            <li><code>fetch</code> + <code>JSON.parse</code> of the domain-bucket shards</li>
+            <li>Merging shards, resolving the domain chain, subtracting exceptions</li>
+            <li>Token-hash &rarr; selector lookup for the surveyor</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col">
+        <h3>Warm worker vs. cold start</h3>
+        <p>While you&rsquo;re actively browsing, the worker stays alive and the parsed index is already resident &mdash; the message round-trip is a few milliseconds. After the worker has been idle long enough to be killed, the first <code>get-cosmetic-slice</code> wakes it and it re-parses lazily. That&rsquo;s comparable to the old cost, except the page thread is <em>waiting on a promise</em> rather than burning CPU itself &mdash; and the <code>genericByHash</code> map never touches the page at all.</p>
+        <h3>Graceful degradation</h3>
+        <p>If both message attempts fail (the worker restarting mid-flight), the page still applies the user&rsquo;s own selectors and the live-fix channel. Only the bundled-list slice is lost for that one load &mdash; the same visible outcome as a failed <code>fetch</code> before, but now the user&rsquo;s rules no longer share that failure path.</p>
+        <h3>One less fingerprint</h3>
+        <p>The worker reads the dataset through <code>runtime.getURL</code> from its own context, so <code>rules/cosmetics-*.json</code> no longer needs a <code>web_accessible_resources</code> entry. Dropping it closes a directly-probeable <code>chrome-extension://&lt;id&gt;/rules/cosmetics-meta.json</code> &mdash; a URL any page could <code>fetch</code> to detect Moat. <code>consent-rules.json</code> and <code>ad-networks.json</code>, still read from content scripts, stay listed.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="edges">
+      <span class="num">06</span>
+      <h2>What stayed, what&rsquo;s deferred</h2>
+      <hr class="sec-rule">
+      <div class="col">
+        <p>This is the <em>partial</em> form of a larger idea. The full version &mdash; mirroring uBlock Origin Lite &mdash; would have the worker compute selectors on <code>webNavigation.onCommitted</code> and inject them with <code>scripting.insertCSS</code> from the worker, leaving the content script running only the surveyor.</p>
+        <p>That stayed deferred on purpose. From the current baseline it only changes <em>where</em> the <code>&lt;style&gt;</code> goes, for a small gain, against real cost: <code>insertCSS</code> from <code>onCommitted</code> is only roughly <code>document_start</code>-class timing (a first-paint race), undoing it needs an exact <code>{ css, origin }</code> match and per-tab bookkeeping, and the cross-browser <code>origin: "USER"</code> behaviour has its own quirks. The partial split already took the megabyte of parsing off the page thread &mdash; the expensive part &mdash; with none of that risk.</p>
+      </div>
+
+      <div class="panel tight">
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--page)"></span>page thread</span>
+          <span><span class="swatch" style="background:var(--worker)"></span>service worker</span>
+          <span><span class="swatch" style="background:var(--moved)"></span>bundled data</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <p>Source of the numbers: <code>npm run validate:rules</code> against the v0.11.63 build &mdash; 271,270 DNR rules across 20 rulesets; 1,068 + 16,080 generic and 138,392 domain-scoped cosmetic selectors; 5,768 exceptions; 64 shard buckets. Key files: <code>src/background/cosmeticIndex.ts</code>, <code>src/content/cosmeticFilter.ts</code>, <code>src/content/cosmeticSurveyor.ts</code>, <code>src/content/cosmeticSelectors.ts</code>. Background reading: <code>docs/design-notes.md</code>, <code>docs/research/blocking-algorithm-cost-and-parallelism-2026-09.md</code>, <code>docs/research/fixing-the-drawbacks-2026-09.md</code>&nbsp;&sect;2.2.</p>
+    </footer>
+  </main>
+</div>
+
+<script>
+  (function () {
+    var btn = document.getElementById("themeToggle");
+    var root = document.documentElement;
+    function current() {
+      if (root.dataset.theme) return root.dataset.theme;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    btn.addEventListener("click", function () {
+      root.dataset.theme = current() === "dark" ? "light" : "dark";
+    });
+  })();
+</script>
+</body>
+</html>
