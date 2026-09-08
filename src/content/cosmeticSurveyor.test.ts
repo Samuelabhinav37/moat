@@ -3,9 +3,21 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { collectTokens, startSurveyor, tokensOfElement, type ResolveHashes } from "./cosmeticSurveyor";
 import { tokenHash } from "../shared/tokenHash";
 
-/** Let the MutationObserver microtask, the 0ms flush timer, and the async
- * resolveHashes round-trip all run. */
-const settle = () => new Promise((resolve) => setTimeout(resolve, 5));
+/** A short pause -- enough for the MutationObserver microtask under normal
+ * conditions. Used only where the expectation is that *nothing* happened. */
+const tick = () => new Promise((resolve) => setTimeout(resolve, 10));
+
+/** Poll `predicate` until it holds or the timeout elapses. Robust against a
+ * loaded machine slipping the 0ms flush timer + async resolveHashes hop past
+ * a fixed sleep (this suite runs alongside 60+ other files). */
+async function waitFor(predicate: () => boolean, timeout = 1000): Promise<void> {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    if (predicate()) return;
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  throw new Error(`waitFor: condition not met within ${timeout}ms`);
+}
 
 /** Fake of the service-worker get-cosmetic-generics lookup: a
  * genericByHash-style map, plus selectors this host excepts. */
@@ -53,20 +65,20 @@ describe("startSurveyor", () => {
     document.body.innerHTML = '<div class="ad-slot"></div>';
     const onNew = vi.fn();
     startSurveyor(document, [], resolver({ [tokenHash("ad-slot")]: [".ad-slot"] }), onNew, { flushDelayMs: 0 });
-    await settle();
+    await waitFor(() => onNew.mock.calls.length > 0);
     expect(onNew).toHaveBeenCalledWith([".ad-slot"]);
   });
 
   it("emits selectors when a matching token appears via a later mutation", async () => {
     const onNew = vi.fn();
     startSurveyor(document, [], resolver({ [tokenHash("promo-card")]: [".promo-card"] }), onNew, { flushDelayMs: 0 });
-    await settle();
+    await tick();
     expect(onNew).not.toHaveBeenCalled();
 
     const el = document.createElement("div");
     el.className = "promo-card";
     document.body.append(el);
-    await settle();
+    await waitFor(() => onNew.mock.calls.length > 0);
 
     expect(onNew).toHaveBeenCalledWith([".promo-card"]);
   });
@@ -75,7 +87,7 @@ describe("startSurveyor", () => {
     document.body.innerHTML = '<div class="ad"></div>';
     const onNew = vi.fn();
     startSurveyor(document, [".ad"], resolver({ [tokenHash("ad")]: [".ad", ".ad-wrap"] }), onNew, { flushDelayMs: 0 });
-    await settle();
+    await waitFor(() => onNew.mock.calls.length > 0);
     expect(onNew).toHaveBeenCalledWith([".ad-wrap"]);
   });
 
@@ -89,7 +101,7 @@ describe("startSurveyor", () => {
       onNew,
       { flushDelayMs: 0 }
     );
-    await settle();
+    await waitFor(() => onNew.mock.calls.length > 0);
     expect(onNew).toHaveBeenCalledWith([".ad"]);
   });
 
@@ -110,7 +122,7 @@ describe("startSurveyor", () => {
       document.body.append(el);
       await new Promise((r) => setTimeout(r, 1));
     }
-    await new Promise((r) => setTimeout(r, 60));
+    await new Promise((r) => setTimeout(r, 80));
     expect(maxActive).toBe(1);
   });
 
@@ -122,7 +134,7 @@ describe("startSurveyor", () => {
     const el = document.createElement("div");
     el.className = "late";
     document.body.append(el);
-    await settle();
+    await tick();
 
     expect(onNew).not.toHaveBeenCalled();
   });
@@ -135,17 +147,17 @@ describe("startSurveyor", () => {
     });
 
     // Well past the threshold, even if some appends coalesce into one flush.
-    for (let i = 0; i < 6; i += 1) {
+    for (let i = 0; i < 8; i += 1) {
       const el = document.createElement("div");
       el.className = `noise-${i}`;
       document.body.append(el);
-      await settle();
+      await new Promise((r) => setTimeout(r, 15));
     }
 
     const el = document.createElement("div");
     el.className = "wanted";
     document.body.append(el);
-    await settle();
+    await new Promise((r) => setTimeout(r, 60));
 
     expect(onNew).not.toHaveBeenCalled();
   });
