@@ -1,5 +1,3 @@
-// @vitest-environment jsdom -- selectorsStillMatching below needs a real DOM;
-// none of this file's other (pure-array) tests behave differently under it.
 import { describe, expect, it } from "vitest";
 import {
   buildGrayscaleStyleText,
@@ -10,14 +8,26 @@ import {
   domainSelectorsForHostname,
   genericInjectionRulesForHostname,
   genericSelectorsForHostname,
+  genericSelectorsForTokens,
   mergeDomainShards,
   selectorsForHostname,
-  selectorsStillMatching,
   shardIndicesForHostname,
   splitDomainShards,
   type CosmeticIndex,
 } from "./cosmeticSelectors";
+import { tokenHash } from "../shared/tokenHash";
 import { bucketForDomain } from "../shared/domainBucket";
+
+/** A CosmeticIndex with everything empty unless overridden -- keeps the many
+ * single-concern cases below readable now that the type carries both a
+ * genericByHash map and a genericHigh array. */
+const idx = (partial: Partial<CosmeticIndex>): CosmeticIndex => ({
+  genericByHash: {},
+  genericHigh: [],
+  perDomain: {},
+  exceptions: {},
+  ...partial,
+});
 
 describe("mergeDomainShards", () => {
   it("combines domain entries from multiple shard files into one object", () => {
@@ -47,143 +57,165 @@ describe("splitDomainShards", () => {
 });
 
 describe("selectorsForHostname", () => {
-  it("always includes generic selectors", () => {
-    const index: CosmeticIndex = { generic: [".ad"], perDomain: {}, exceptions: {} };
-    expect(selectorsForHostname(index, "example.com")).toEqual([".ad"]);
+  it("always includes the always-on generic slice", () => {
+    expect(selectorsForHostname(idx({ genericHigh: [".ad"] }), "example.com")).toEqual([".ad"]);
   });
 
   it("includes selectors scoped to the exact hostname", () => {
-    const index: CosmeticIndex = { generic: [], perDomain: { "example.com": [".ad"] }, exceptions: {} };
-    expect(selectorsForHostname(index, "example.com")).toEqual([".ad"]);
+    expect(selectorsForHostname(idx({ perDomain: { "example.com": [".ad"] } }), "example.com")).toEqual([".ad"]);
   });
 
   it("includes selectors scoped to a parent domain when visiting a subdomain", () => {
-    const index: CosmeticIndex = { generic: [], perDomain: { "example.com": [".ad"] }, exceptions: {} };
-    expect(selectorsForHostname(index, "www.example.com")).toEqual([".ad"]);
+    expect(selectorsForHostname(idx({ perDomain: { "example.com": [".ad"] } }), "www.example.com")).toEqual([".ad"]);
   });
 
   it("does not include selectors scoped to an unrelated domain", () => {
-    const index: CosmeticIndex = { generic: [], perDomain: { "other.com": [".ad"] }, exceptions: {} };
-    expect(selectorsForHostname(index, "example.com")).toEqual([]);
+    expect(selectorsForHostname(idx({ perDomain: { "other.com": [".ad"] } }), "example.com")).toEqual([]);
   });
 
   it("does not leak a subdomain's rules to its parent domain", () => {
-    const index: CosmeticIndex = { generic: [], perDomain: { "sub.example.com": [".ad"] }, exceptions: {} };
-    expect(selectorsForHostname(index, "example.com")).toEqual([]);
+    expect(selectorsForHostname(idx({ perDomain: { "sub.example.com": [".ad"] } }), "example.com")).toEqual([]);
   });
 
-  it("removes a selector excluded on this domain even though it's generic", () => {
-    const index: CosmeticIndex = { generic: [".ad", ".banner"], perDomain: {}, exceptions: { "example.com": [".ad"] } };
+  it("removes a selector excluded on this domain even though it's always-on generic", () => {
+    const index = idx({ genericHigh: [".ad", ".banner"], exceptions: { "example.com": [".ad"] } });
     expect(selectorsForHostname(index, "example.com")).toEqual([".banner"]);
   });
 
   it("does not exclude a selector on domains other than the excepted one", () => {
-    const index: CosmeticIndex = { generic: [".ad"], perDomain: {}, exceptions: { "example.com": [".ad"] } };
+    const index = idx({ genericHigh: [".ad"], exceptions: { "example.com": [".ad"] } });
     expect(selectorsForHostname(index, "other.com")).toEqual([".ad"]);
   });
 
-  it("de-duplicates when the same selector is both generic and domain-scoped", () => {
-    const index: CosmeticIndex = { generic: [".ad"], perDomain: { "example.com": [".ad"] }, exceptions: {} };
+  it("de-duplicates when the same selector is both always-on generic and domain-scoped", () => {
+    const index = idx({ genericHigh: [".ad"], perDomain: { "example.com": [".ad"] } });
     expect(selectorsForHostname(index, "example.com")).toEqual([".ad"]);
   });
 });
 
 describe("genericSelectorsForHostname", () => {
-  it("returns the generic slice, ignoring perDomain entirely", () => {
-    const index: CosmeticIndex = { generic: [".ad"], perDomain: { "example.com": [".other"] }, exceptions: {} };
+  it("returns the always-on (genericHigh) slice, ignoring genericByHash and perDomain", () => {
+    const index = idx({
+      genericHigh: [".ad"],
+      genericByHash: { [tokenHash("promo")]: [".promo"] },
+      perDomain: { "example.com": [".other"] },
+    });
     expect(genericSelectorsForHostname(index, "example.com")).toEqual([".ad"]);
   });
 
-  it("removes a generic selector excluded on this domain", () => {
-    const index: CosmeticIndex = { generic: [".ad", ".banner"], perDomain: {}, exceptions: { "example.com": [".ad"] } };
+  it("removes a genericHigh selector excluded on this domain", () => {
+    const index = idx({ genericHigh: [".ad", ".banner"], exceptions: { "example.com": [".ad"] } });
     expect(genericSelectorsForHostname(index, "example.com")).toEqual([".banner"]);
+  });
+});
+
+describe("genericSelectorsForTokens", () => {
+  it("returns the selectors filed under the given token hashes", () => {
+    const index = idx({
+      genericByHash: {
+        [tokenHash("ad-slot")]: [".ad-slot", ".x .ad-slot"],
+        [tokenHash("promo")]: [".promo"],
+      },
+    });
+    expect(genericSelectorsForTokens(index, "example.com", [tokenHash("ad-slot")])).toEqual([".ad-slot", ".x .ad-slot"]);
+  });
+
+  it("de-duplicates a selector filed under two of the requested hashes", () => {
+    const index = idx({
+      genericByHash: {
+        [tokenHash("a")]: [".a, .b"],
+        [tokenHash("b")]: [".a, .b"],
+      },
+    });
+    expect(genericSelectorsForTokens(index, "example.com", [tokenHash("a"), tokenHash("b")])).toEqual([".a, .b"]);
+  });
+
+  it("ignores a hash with no bucket", () => {
+    expect(genericSelectorsForTokens(idx({}), "example.com", [tokenHash("nothing")])).toEqual([]);
+  });
+
+  it("removes a selector excluded on this domain", () => {
+    const index = idx({
+      genericByHash: { [tokenHash("ad")]: [".ad", ".ad-wrap"] },
+      exceptions: { "example.com": [".ad"] },
+    });
+    expect(genericSelectorsForTokens(index, "example.com", [tokenHash("ad")])).toEqual([".ad-wrap"]);
+  });
+
+  it("applies a parent domain's exception when visiting a subdomain", () => {
+    const index = idx({
+      genericByHash: { [tokenHash("ad")]: [".ad"] },
+      exceptions: { "example.com": [".ad"] },
+    });
+    expect(genericSelectorsForTokens(index, "www.example.com", [tokenHash("ad")])).toEqual([]);
   });
 });
 
 describe("domainSelectorsForHostname", () => {
   it("returns the per-domain slice, ignoring generic entirely", () => {
-    const index: CosmeticIndex = { generic: [".ad"], perDomain: { "example.com": [".only-domain"] }, exceptions: {} };
+    const index = idx({ genericHigh: [".ad"], perDomain: { "example.com": [".only-domain"] } });
     expect(domainSelectorsForHostname(index, "example.com")).toEqual([".only-domain"]);
   });
 
   it("matches a parent domain's selectors when visiting a subdomain", () => {
-    const index: CosmeticIndex = { generic: [], perDomain: { "example.com": [".ad"] }, exceptions: {} };
-    expect(domainSelectorsForHostname(index, "www.example.com")).toEqual([".ad"]);
+    expect(domainSelectorsForHostname(idx({ perDomain: { "example.com": [".ad"] } }), "www.example.com")).toEqual([".ad"]);
   });
 
   it("removes a domain-scoped selector excluded on this domain", () => {
-    const index: CosmeticIndex = {
-      generic: [],
+    const index = idx({
       perDomain: { "example.com": [".ad", ".banner"] },
       exceptions: { "example.com": [".ad"] },
-    };
+    });
     expect(domainSelectorsForHostname(index, "example.com")).toEqual([".banner"]);
   });
 });
 
 describe("genericInjectionRulesForHostname", () => {
   it("returns generic injection rules, ignoring injectPerDomain entirely", () => {
-    const index: CosmeticIndex = {
-      generic: [],
-      perDomain: {},
-      exceptions: {},
+    const index = idx({
       injectGeneric: [[".modal", "display:none!important"]],
       injectPerDomain: { "example.com": [[".other", "display:none"]] },
-    };
+    });
     expect(genericInjectionRulesForHostname(index, "example.com")).toEqual([[".modal", "display:none!important"]]);
   });
 
   it("removes a generic injection rule excluded on this domain", () => {
-    const index: CosmeticIndex = {
-      generic: [],
-      perDomain: {},
+    const index = idx({
       exceptions: { "example.com": [".modal"] },
       injectGeneric: [[".modal", "display:none"]],
-    };
+    });
     expect(genericInjectionRulesForHostname(index, "example.com")).toEqual([]);
   });
 
   it("returns an empty array when injectGeneric is absent", () => {
-    const index: CosmeticIndex = { generic: [], perDomain: {}, exceptions: {} };
-    expect(genericInjectionRulesForHostname(index, "example.com")).toEqual([]);
+    expect(genericInjectionRulesForHostname(idx({}), "example.com")).toEqual([]);
   });
 });
 
 describe("domainInjectionRulesForHostname", () => {
   it("returns the per-domain injection rules, ignoring injectGeneric entirely", () => {
-    const index: CosmeticIndex = {
-      generic: [],
-      perDomain: {},
-      exceptions: {},
+    const index = idx({
       injectGeneric: [[".other", "display:none"]],
       injectPerDomain: { "example.com": [[".modal", "display:none!important"]] },
-    };
+    });
     expect(domainInjectionRulesForHostname(index, "example.com")).toEqual([[".modal", "display:none!important"]]);
   });
 
   it("matches a parent domain's injection rules when visiting a subdomain", () => {
-    const index: CosmeticIndex = {
-      generic: [],
-      perDomain: {},
-      exceptions: {},
-      injectPerDomain: { "example.com": [[".modal", "display:none"]] },
-    };
+    const index = idx({ injectPerDomain: { "example.com": [[".modal", "display:none"]] } });
     expect(domainInjectionRulesForHostname(index, "www.example.com")).toEqual([[".modal", "display:none"]]);
   });
 
   it("removes a domain-scoped injection rule excluded on this domain", () => {
-    const index: CosmeticIndex = {
-      generic: [],
-      perDomain: {},
+    const index = idx({
       exceptions: { "example.com": [".modal"] },
       injectPerDomain: { "example.com": [[".modal", "display:none"]] },
-    };
+    });
     expect(domainInjectionRulesForHostname(index, "example.com")).toEqual([]);
   });
 
   it("returns an empty array when injectPerDomain is absent", () => {
-    const index: CosmeticIndex = { generic: [], perDomain: {}, exceptions: {} };
-    expect(domainInjectionRulesForHostname(index, "example.com")).toEqual([]);
+    expect(domainInjectionRulesForHostname(idx({}), "example.com")).toEqual([]);
   });
 });
 
@@ -199,28 +231,6 @@ describe("buildInjectionStyleText", () => {
         ["body", "overflow:auto!important"],
       ])
     ).toBe(".modal{display:none!important}\nbody{overflow:auto!important}");
-  });
-});
-
-describe("selectorsStillMatching", () => {
-  it("keeps a selector that matches an element in the document", () => {
-    document.body.innerHTML = '<div class="ad"></div>';
-    expect(selectorsStillMatching(document, [".ad"])).toEqual([".ad"]);
-  });
-
-  it("drops a selector that matches nothing", () => {
-    document.body.innerHTML = "<div></div>";
-    expect(selectorsStillMatching(document, [".ad"])).toEqual([]);
-  });
-
-  it("keeps selectors that throw rather than risk un-hiding something real", () => {
-    document.body.innerHTML = "<div></div>";
-    expect(selectorsStillMatching(document, [":this-is-not-valid-css("])).toEqual([":this-is-not-valid-css("]);
-  });
-
-  it("preserves input order across a mix of matching and non-matching selectors", () => {
-    document.body.innerHTML = '<div class="a"></div><div class="c"></div>';
-    expect(selectorsStillMatching(document, [".a", ".b", ".c"])).toEqual([".a", ".c"]);
   });
 });
 

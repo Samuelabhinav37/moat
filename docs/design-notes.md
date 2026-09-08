@@ -30,7 +30,7 @@ flowchart TD
     DNR -->|"no match"| Loads["Request allowed through"]
 
     Loads --> DocStart["document_start content scripts"]
-    DocStart --> Cosmetic["cosmeticFilter.ts<br/>fetch only the 1-3 domain-hash<br/>buckets this hostname needs,<br/>inject one &lt;style&gt; block"]
+    DocStart --> Cosmetic["cosmeticFilter.ts<br/>fetch the 1-3 domain-hash buckets<br/>this hostname needs, inject &lt;style&gt;;<br/>DOM surveyor adds generic selectors<br/>as their class/id tokens appear"]
     DocStart --> Guard["mainWorldGuard.ts (MAIN world)<br/>wraps window.open + click hijacks,<br/>drops popups without a real gesture"]
 
     Loads --> DocIdle["document_idle content scripts<br/>(site-scoped, opt-in)"]
@@ -99,10 +99,12 @@ their own sections further down.
   engine), validates every selector against jsdom, and buckets per-domain selectors into 64 shard
   files by a hash of the domain. A content script (`src/content/cosmeticFilter.ts`, top frame
   only) fetches only the 1–3 shards its hostname hashes into and injects them as `<style>` blocks
-  at `document_start` — CSS rules, not a one-time DOM pass, so they keep working through SPA
-  navigation without a MutationObserver. This cut the JSON fetched per page load from ~5.8MB to
-  under 1MB. The generic-selector cleanup pass and the sharding details are under "Cosmetic
-  filtering internals" below.
+  at `document_start` — CSS rules, not a one-time DOM pass, so per-domain/custom/live selectors
+  keep working through SPA navigation with no per-element work. This cut the JSON fetched per page
+  load from ~5.8MB to under 1MB. The generic (no-hostname) selectors are indexed by a hash of
+  their anchoring class/id token and injected by a self-disabling DOM surveyor
+  (`src/content/cosmeticSurveyor.ts`) only as their tokens appear — details, and the sharding, are
+  under "Cosmetic filtering internals" below.
 - **Live updates + emergency fix channels** — the bulk of blocking stays static (MV3's
   dynamic-rule budget can't hold ~271k rules), but three small lists refresh at most daily
   (`src/background/liveUpdates.ts`, 18h freshness guard, jittered alarm):
@@ -309,19 +311,33 @@ feeds — both just mean "don't apply whatever targets this selector here."
 
 A content script (`src/content/cosmeticFilter.ts`, top frame only) injects the
 resulting rules as `<style>` blocks at `document_start` — CSS rules, not a
-one-time DOM pass, so they keep hiding elements a site adds later (SPA navigation,
-lazy-loaded slots) without a MutationObserver. Per-domain/custom, generic, and
-CSS-injection rules go into three separate blocks: the generic one alone is subject
-to a one-time cleanup pass, triggered on `window`'s `load` event, that prunes
-selectors matching nothing anywhere in the final DOM; injection rules get their own
-block specifically so that rewrite (which fully replaces the generic block's
-`textContent`) can never wipe them out. This is a style-engine cleanup — fewer live
-selectors for the browser to keep evaluating on every later recalc, which matters
-most on long-lived SPA tabs like Instagram, YouTube, and LinkedIn — not a network
-optimization: the full generic set (~17k selectors) is still fetched and injected
-upfront exactly as before. Not a MutationObserver either — it runs once, after
-initial load, same "no persistent DOM watcher for cosmetic filtering" design as the
-rest of this feature (see `selectorsStillMatching` in
+one-time DOM pass, so per-domain, custom, live, and CSS-injection selectors keep
+hiding elements a site adds later (SPA navigation, lazy-loaded slots) with no
+per-element work. Those go into their own blocks and are injected in full.
+
+The **generic** (no-hostname) selectors are handled differently, because injecting
+all ~17k of them made the style engine re-check the whole set on every recalc and
+forced a post-`load` cleanup pass (~0.5–4 s of main-thread work on a complex page).
+The build (`scripts/lib/genericTokenIndex.mjs`) splits them by the hash
+(`src/shared/tokenHash.ts` ↔ `scripts/lib/tokenHash.mjs`, FNV-1a, same
+build/runtime-parity discipline as `domainBucket`) of each selector's anchoring
+class/id token — the last class/id of its right-most compound:
+
+- `genericByHash: Record<tokenHash, selector[]>` — ~16k selectors across ~15k
+  buckets (avg ~1 selector each).
+- `genericHigh: string[]` — the ~6% with no usable anchor (attribute-only, bare
+  tag, pseudo-only); injected up front on every page.
+
+`cosmeticFilter.ts` injects `genericHigh` into the generic `<style>` immediately,
+then starts `src/content/cosmeticSurveyor.ts`: an initial token scan plus a
+**batched `MutationObserver`** (`{childList, subtree, attributes:['class','id']}`)
+that collects the class/id tokens actually present, hashes them, and appends the
+`genericByHash` buckets for tokens it has seen. It self-disables once eight
+consecutive flushes turn up no new selector, or after walking 100k nodes — the
+backstop against a pathological mutation flood. Net effect: the style engine
+evaluates the dozens of generic selectors relevant to a page instead of 17,148,
+and there is no cleanup rewrite. Exceptions (`#@#` / `#@$#`) are applied to the
+surveyed slice exactly as to the rest (`genericSelectorsForTokens` in
 `src/content/cosmeticSelectors.ts`).
 
 ### Rule-match logger

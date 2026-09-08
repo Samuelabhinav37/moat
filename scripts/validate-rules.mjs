@@ -70,6 +70,24 @@ if (!Array.isArray(meta.generic)) {
   console.error(`${cosmeticsManifest.meta}: "generic" must be an array`);
   ok = false;
 }
+if (!Array.isArray(meta.genericHigh)) {
+  console.error(`${cosmeticsManifest.meta}: "genericHigh" must be an array`);
+  ok = false;
+}
+if (typeof meta.genericByHash !== "object" || meta.genericByHash === null || Array.isArray(meta.genericByHash)) {
+  console.error(`${cosmeticsManifest.meta}: "genericByHash" must be an object`);
+  ok = false;
+} else {
+  // Every generic selector must land in genericHigh or under >=1 token
+  // hash -- the runtime surveyor can't recover one that fell through.
+  const filed = new Set(meta.genericHigh);
+  for (const list of Object.values(meta.genericByHash)) for (const s of list) filed.add(s);
+  const missing = Array.isArray(meta.generic) ? meta.generic.filter((s) => !filed.has(s)) : [];
+  if (missing.length > 0) {
+    console.error(`${cosmeticsManifest.meta}: ${missing.length} generic selector(s) not filed in genericByHash/genericHigh`);
+    ok = false;
+  }
+}
 
 let domainCount = 0;
 let perDomainCount = 0;

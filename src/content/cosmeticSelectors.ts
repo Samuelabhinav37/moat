@@ -5,7 +5,17 @@ import { domainChain } from "../shared/domainChain";
 import { bucketForDomain } from "../shared/domainBucket";
 
 export interface CosmeticIndex {
-  generic: string[];
+  // Generic (no-hostname) hide selectors, split by the build
+  // (scripts/lib/genericTokenIndex.mjs) into a token-anchored map and an
+  // always-on remainder:
+  //  - genericByHash: keyed by tokenHash() of the selector's anchoring
+  //    class/id token; the DOM surveyor injects a bucket only once that
+  //    token actually appears on the page (see genericSelectorsForTokens
+  //    and src/content/cosmeticSurveyor.ts).
+  //  - genericHigh: selectors with no usable anchor token -- injected up
+  //    front on every page, same as the whole `generic` array used to be.
+  genericByHash: Record<string, string[]>;
+  genericHigh: string[];
   perDomain: Record<string, string[]>;
   exceptions: Record<string, string[]>;
   // CSS-injection rules (selector + its own declaration, e.g. AdGuard's
@@ -75,14 +85,32 @@ function excludedForChain(index: CosmeticIndex, chain: string[]): Set<string> {
   return excluded;
 }
 
-/** The generic (no-hostname) slice alone, minus exceptions -- split out from
- * domainSelectorsForHostname so cosmeticFilter.ts can inject the two into
- * separate <style> blocks: generic selectors are the ones eligible for the
- * document_idle unmatched-selector trim (see selectorsStillMatching below),
- * per-domain selectors never are. */
+/** The always-on generic slice: selectors with no anchoring class/id token
+ * (index.genericHigh), minus this domain's exceptions. Injected up front on
+ * every page. The token-anchored generic selectors (index.genericByHash)
+ * are added progressively by the DOM surveyor as their tokens appear -- see
+ * genericSelectorsForTokens and src/content/cosmeticSurveyor.ts. */
 export function genericSelectorsForHostname(index: CosmeticIndex, hostname: string): string[] {
   const excluded = excludedForChain(index, domainChain(hostname));
-  return index.generic.filter((selector) => !excluded.has(selector));
+  return index.genericHigh.filter((selector) => !excluded.has(selector));
+}
+
+/** Generic selectors filed under any of `tokenHashes` (the hashes of
+ * class/id tokens the surveyor found on the page), minus this domain's
+ * exceptions and de-duplicated. */
+export function genericSelectorsForTokens(
+  index: CosmeticIndex,
+  hostname: string,
+  tokenHashes: Iterable<string>
+): string[] {
+  const excluded = excludedForChain(index, domainChain(hostname));
+  const out = new Set<string>();
+  for (const hash of tokenHashes) {
+    for (const selector of index.genericByHash[hash] ?? []) {
+      if (!excluded.has(selector)) out.add(selector);
+    }
+  }
+  return [...out];
 }
 
 /** The per-domain slice alone, minus exceptions. See genericSelectorsForHostname. */
@@ -118,26 +146,6 @@ export function domainInjectionRulesForHostname(index: CosmeticIndex, hostname: 
   }
   const excluded = excludedForChain(index, chain);
   return [...matched].filter(([selector]) => !excluded.has(selector));
-}
-
-/**
- * Which of `selectors` still match at least one element in `doc`. Used for
- * a one-time document_idle cleanup pass over the generic selector block
- * only (see cosmeticFilter.ts) -- a style-engine cleanup, not a network
- * optimization, since the full generic set is still fetched and injected
- * upfront exactly as before. Fails safe (keeps the selector) on anything
- * that throws rather than risk silently un-hiding something real; build
- * time already validates every selector against jsdom, so a throw here
- * would mean a runtime CSS-engine difference, not a genuinely bad rule.
- */
-export function selectorsStillMatching(doc: Pick<Document, "querySelector">, selectors: string[]): string[] {
-  return selectors.filter((selector) => {
-    try {
-      return doc.querySelector(selector) !== null;
-    } catch {
-      return true;
-    }
-  });
 }
 
 /** Selectors the user picked themselves (element picker), matched the same same-or-subdomain way as the bundled lists. */

@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.59
+
+### Changed
+- **Generic cosmetic filtering now surveys the page instead of injecting all ~17k selectors.**
+  The generic (no-hostname) element-hiding selectors are split at build time by the hash of each
+  selector's anchoring class/id token (`scripts/lib/genericTokenIndex.mjs`): against the current
+  lists, 1,068 have no usable anchor (`genericHigh`, ~6%) and the other ~16k are filed under
+  14,792 token buckets. `cosmeticFilter.ts` injects only `genericHigh` up front; a new
+  `cosmeticSurveyor.ts` (a batched `MutationObserver`, self-disabling once it stops finding
+  anything or after 100k nodes) watches which class/id tokens actually appear in the DOM and adds
+  just the matching generic selectors. The style engine now evaluates the dozens of generic
+  selectors relevant to a page, not all 17,148, and the post-`load` `trimUnmatchedGenericRules`
+  pass (~0.5–4 s of main-thread work on complex pages) is deleted along with `selectorsStillMatching`.
+  Per-domain, custom, live, and CSS-injection cosmetic paths are unchanged. Drawback fix 2.1 from
+  `docs/research/fixing-the-drawbacks-2026-09.md`. `cosmetics-meta.json` still carries the flat
+  `generic` array for one release; a follow-up drops it.
+
+588/588 tests (26 new), typecheck/build/lint:firefox clean. Live smoke test on ad-heavy sites
+still recommended before release.
+
 ## 0.11.58
 
 ### Changed
