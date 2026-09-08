@@ -235,6 +235,16 @@ export function buildManifest(target: "chrome" | "firefox") {
           required: ["none"],
         },
       },
+      // Firefox for Android runs the same WebExtension + MV3 DNR engine as
+      // desktop; extensions are only offered there when this key is present.
+      // Floor is 142.0, not the desktop 140.0: Firefox for Android only
+      // learned `browser_specific_settings.gecko.data_collection_permissions`
+      // (which this manifest sets) in 142. The popup and options pages carry
+      // a viewport meta and lay out fluid for the narrow screen /
+      // no-toolbar-anchor panel; content scripts and DNR need no change.
+      gecko_android: {
+        strict_min_version: "142.0",
+      },
     },
   };
 }

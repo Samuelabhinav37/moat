@@ -143,6 +143,18 @@ check used by both the popup safety net and cosmetic filtering), `types.ts` (sha
 message/settings shapes), and `scripts/manifest.ts` (builds `manifest.json` per
 browser target).
 
+`scripts/manifest.ts` emits two manifests. The Chrome one takes
+`minimum_chrome_version` and a `service_worker` background; the Firefox one takes
+`browser_specific_settings.gecko` (event-page background, `dns` + blocking
+`webRequest` for CNAME uncloaking) **and** `gecko_android` (min version 142),
+which is all Firefox for Android needs — same content scripts, same MV3 DNR
+engine, no Android-specific code. The extension pages carry a
+`width=device-width` viewport meta and the popup lays out fluid (capped and
+centred, not a fixed 260 px column) so it reads on a phone, where the action
+popup opens as a full-width panel with no toolbar anchor. There is no
+Chrome-for-Android target (Chrome has no extensions there) and Safari would be a
+separate Xcode port.
+
 The heuristics with the most test coverage each live in their own side-effect-free
 module so they're importable without a browser environment:
 `content/isPlausibleTrigger.ts` (the popup-firewall trigger check),

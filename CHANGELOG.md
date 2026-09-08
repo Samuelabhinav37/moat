@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.62
+
+### Added
+- **Firefox for Android support.** `scripts/manifest.ts` now emits
+  `browser_specific_settings.gecko_android` (min version 142 — the release that taught Android
+  `data_collection_permissions`), which is all the existing Firefox build needs to be offered on
+  Android: same content scripts, same MV3 `declarativeNetRequest` engine, no Android-specific code.
+  The popup, options, and warning pages get a `width=device-width` viewport meta, and the popup
+  lays out fluid — capped and centred instead of a fixed 260 px column — so it reads on a phone,
+  where the action popup opens as a full-width panel. Desktop layout is unchanged. Drawback fix 3.2
+  from `docs/research/fixing-the-drawbacks-2026-09.md`. Also clears a pre-existing
+  `FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION` web-ext warning (5 → 4).
+
+602/602 tests, typecheck/build/lint:firefox clean (4 known warnings).
+
 ## 0.11.61
 
 ### Added

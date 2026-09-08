@@ -20,7 +20,10 @@
 
 ## Ship
 
-6. Test the unpacked packages in supported Chrome and Firefox versions.
+6. Test the unpacked packages in supported Chrome and Firefox versions. The Firefox package also
+   declares `gecko_android` (min 142), so AMO lists it for Android automatically — spot-check the
+   popup and options pages on Firefox for Android (`web-ext run -t firefox-android`) when the UI
+   changed.
 7. Review the draft release's attached zips and checksums, then publish it.
 8. Submit to the stores — either by hand, or via the **Publish to stores** workflow
    (`.github/workflows/publish.yml`, `workflow_dispatch`), which rebuilds from the tag,
