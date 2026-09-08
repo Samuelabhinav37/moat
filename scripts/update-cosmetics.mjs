@@ -10,6 +10,7 @@ import { dirname, join } from "node:path";
 import { JSDOM } from "jsdom";
 import { buildCosmeticIndex } from "./lib/parseCosmeticRules.mjs";
 import { bucketForDomain } from "./lib/domainBucket.mjs";
+import { partitionGenericSelectors } from "./lib/genericTokenIndex.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -160,9 +161,33 @@ for (const domain of allPerDomainKeys) {
   buckets[bucketForDomain(domain, BUCKET_COUNT)][domain] = entry;
 }
 
+// Index the generic (no-hostname) selectors by their anchoring class/id
+// token's hash, so the runtime surveyor only injects the slice whose token
+// appears in the page instead of the whole set. genericHigh holds the ones
+// with no usable anchor -- always injected. Assert the partition drops
+// nothing: every generic selector must land in genericHigh or under at
+// least one hash (a selector list lands under several).
+const { genericByHash, genericHigh } = partitionGenericSelectors(index.generic);
+const filedGeneric = new Set(genericHigh);
+for (const list of Object.values(genericByHash)) for (const s of list) filedGeneric.add(s);
+if (filedGeneric.size !== index.generic.length || index.generic.some((s) => !filedGeneric.has(s))) {
+  throw new Error(
+    `generic-token partition lost selectors: ${index.generic.length} in, ${filedGeneric.size} filed. ` +
+      `Check scripts/lib/genericTokenIndex.mjs.`
+  );
+}
+
 writeFileSync(
   join(outDir, "cosmetics-meta.json"),
-  JSON.stringify({ generic: index.generic, exceptions: index.exceptions, injectGeneric: index.cssInjection.generic })
+  // `generic` (the flat array) is still written for one release while the
+  // runtime switches over -- dropped in a follow-up once nothing reads it.
+  JSON.stringify({
+    generic: index.generic,
+    genericByHash,
+    genericHigh,
+    exceptions: index.exceptions,
+    injectGeneric: index.cssInjection.generic,
+  })
 );
 
 const bucketSizesBytes = [];
@@ -187,8 +212,12 @@ const perDomainCount = perDomainEntries.reduce((sum, [, s]) => sum + s.length, 0
 const exceptionCount = Object.values(index.exceptions).reduce((sum, s) => sum + s.length, 0);
 const injectPerDomainCount = injectPerDomainEntries.reduce((sum, [, pairs]) => sum + pairs.length, 0);
 const largestBucketBytes = Math.max(...bucketSizesBytes);
+const genericHighPct = index.generic.length
+  ? ((genericHigh.length / index.generic.length) * 100).toFixed(1)
+  : "0.0";
 console.log(
-  `Wrote ${1 + BUCKET_COUNT} cosmetics file(s): ${index.generic.length} generic selectors, ` +
+  `Wrote ${1 + BUCKET_COUNT} cosmetics file(s): ${index.generic.length} generic selectors ` +
+    `(${Object.keys(genericByHash).length} token buckets, ${genericHigh.length} always-on / ${genericHighPct}%), ` +
     `${perDomainCount} domain-scoped selectors across ${perDomainEntries.length} domains ` +
     `(${BUCKET_COUNT} shard buckets, largest ${(largestBucketBytes / 1024).toFixed(1)}KB), ` +
     `${exceptionCount} exceptions, ${index.cssInjection.generic.length} generic + ${injectPerDomainCount} ` +
