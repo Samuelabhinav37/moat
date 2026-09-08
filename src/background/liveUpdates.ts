@@ -31,7 +31,9 @@ import browser from "webextension-polyfill";
 import { addLiveRedirectDomains } from "./popupGuard";
 import { allLiveDynamicRuleIds, buildDynamicRedirectRules, filterValidRedirectDomains } from "./liveRedirectRules";
 import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from "./quickFixRules";
+import { countCosmeticFixSelectors, filterValidCosmeticFixes } from "./liveCosmeticFixes";
 import { reapplySettings } from "./settings";
+import { LIVE_COSMETIC_FIXES_KEY } from "../types";
 
 // One base for all three live files. To move off jsDelivr later (GitHub Pages,
 // Cloudflare, an object bucket) only this constant changes -- the SHA-256
@@ -86,10 +88,11 @@ interface LiveUpdateStatus {
   ok: boolean;
   timestamp: number;
   domainCount?: number;
-  // Omitted entirely when there are no active quick fixes -- the common
-  // case -- rather than shown as "0 quick fixes" every time, keeping the
-  // status line quiet unless there's actually something to say.
+  // Omitted entirely when there are none active -- the common case -- rather
+  // than shown as "0" every time, keeping the status line quiet unless there's
+  // actually something to say.
   quickFixCount?: number;
+  cosmeticFixCount?: number;
 }
 
 export async function getLiveUpdateStatus(): Promise<LiveUpdateStatus | null> {
@@ -141,6 +144,15 @@ async function refreshQuickFixes(expectedHash: string | undefined): Promise<numb
   return entries.length;
 }
 
+async function refreshCosmeticFixes(expectedHash: string | undefined): Promise<number> {
+  const fetched = await fetchVerified("cosmetic-fixes.json", expectedHash);
+  const { valid } = filterValidCosmeticFixes(fetched);
+  // Wholesale replace: the fetch is the full current map, not a diff, so a
+  // selector removed upstream (fixed false positive) must actually go away.
+  await browser.storage.local.set({ [LIVE_COSMETIC_FIXES_KEY]: valid });
+  return countCosmeticFixSelectors(valid);
+}
+
 async function fetchAndApply(): Promise<void> {
   if (shouldSkipRefetch(await getLiveUpdateStatus(), Date.now())) return;
 
@@ -148,10 +160,9 @@ async function fetchAndApply(): Promise<void> {
     const hashes = await fetchLiveManifest();
     const domainCount = await refreshRedirectDomains(hashes["redirect-domains.json"]);
 
-    // A quick-fixes fetch failure shouldn't fail the whole refresh or touch
-    // whatever quick-fix rules are already applied from the last successful
-    // one -- the redirect-domain list above is the more load-bearing half
-    // of this alarm, and updateDynamicRules is only called on success below.
+    // A failure in either secondary channel shouldn't fail the whole refresh
+    // or disturb whatever's already applied from the last good one -- the
+    // redirect-domain list is the load-bearing half of this alarm.
     let quickFixCount: number | undefined;
     try {
       const count = await refreshQuickFixes(hashes["quick-fixes.json"]);
@@ -160,7 +171,15 @@ async function fetchAndApply(): Promise<void> {
       // Keep whatever quick-fix rules (if any) are already active.
     }
 
-    await setStatus({ ok: true, timestamp: Date.now(), domainCount, quickFixCount });
+    let cosmeticFixCount: number | undefined;
+    try {
+      const count = await refreshCosmeticFixes(hashes["cosmetic-fixes.json"]);
+      cosmeticFixCount = count > 0 ? count : undefined;
+    } catch {
+      // Keep whatever cosmetic fixes are already in storage.
+    }
+
+    await setStatus({ ok: true, timestamp: Date.now(), domainCount, quickFixCount, cosmeticFixCount });
   } catch {
     // Offline, CDN unreachable, or a hash that didn't match the shipped
     // manifest -- keep the bundled baseline and try again on the next tick.

@@ -195,6 +195,10 @@
     "message": " $COUNT$ active quick fix(es).",
     "placeholders": { "count": { "content": "$1" } }
   },
+  "optionsLiveStatusCosmeticFixes": {
+    "message": " $COUNT$ cosmetic fix(es).",
+    "placeholders": { "count": { "content": "$1" } }
+  },
   "optionsRuleCount": {
     "message": "$COUNT$ rules",
     "placeholders": { "count": { "content": "$1" } }

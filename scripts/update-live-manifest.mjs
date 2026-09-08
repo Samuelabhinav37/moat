@@ -18,7 +18,7 @@ import { dirname, join } from "node:path";
 const liveDir = join(dirname(fileURLToPath(import.meta.url)), "..", "live");
 
 // Everything in live/ except the manifest itself.
-const TRACKED_FILES = ["redirect-domains.json", "quick-fixes.json"];
+const TRACKED_FILES = ["redirect-domains.json", "quick-fixes.json", "cosmetic-fixes.json"];
 
 const sha256Hex = (buf) => createHash("sha256").update(buf).digest("hex");
 

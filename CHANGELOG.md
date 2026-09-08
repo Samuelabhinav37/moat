@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.54
+
+### Added
+- **Live cosmetic-fix channel** (`live/cosmetic-fixes.json`, ships empty). A `{ "<hostname>":
+  ["<selector>", ...] }` map the content script hides — plain CSS *data*, consumed via the same
+  `customSelectorsForHostname` path as the user's own element-picker rules, and validated on the
+  way in by the same `isSafeCosmeticSelector` sink (no `{ } < \``, bounded length; caps of 500
+  domains / 50 selectors each). Where the redirect-domain list and quick-fixes compile to
+  `declarativeNetRequest` rules — the grey zone of "remote content applied as rules" — a cosmetic
+  fix never becomes a rule, so this is the policy-clean way to patch the most common breakage
+  wave (a site changed the markup around its ad slot and the bundled selector went stale) without
+  waiting on a store review. `src/background/liveUpdates.ts` fetches + hash-verifies it alongside
+  the other two live files and writes the sanitised map to `storage.local`
+  (`LIVE_COSMETIC_FIXES_KEY`); `src/content/cosmeticFilter.ts` reads it and merges the
+  domain-scoped selectors in, kept out of the generic-selector trim. Options → live-update
+  status line shows an active count (`optionsLiveStatusCosmeticFixes`, es/fr/de added). B6b from
+  `docs/research/adblocker-update-feature-and-scale-mechanics-vs-moat-2026-09.md`.
+
+556/556 tests (7 new), typecheck/build/lint:firefox clean.
+
 ## 0.11.53
 
 ### Changed

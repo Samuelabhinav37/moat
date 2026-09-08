@@ -99,6 +99,11 @@ function renderLiveStatus(status: Awaited<ReturnType<typeof getLiveUpdateStatus>
       String(status.quickFixCount),
     ]);
   }
+  if (status.cosmeticFixCount) {
+    text += tFallback("optionsLiveStatusCosmeticFixes", ` ${status.cosmeticFixCount} cosmetic fix(es).`, [
+      String(status.cosmeticFixCount),
+    ]);
+  }
   liveStatus.textContent = text;
 }
 

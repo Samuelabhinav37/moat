@@ -24,9 +24,25 @@ import {
   type DomainShardEntry,
 } from "./cosmeticSelectors";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
+import { LIVE_COSMETIC_FIXES_KEY } from "../types";
 
 async function fetchJson<T>(path: string): Promise<T> {
   return (await fetch(browser.runtime.getURL(path))).json() as Promise<T>;
+}
+
+// The live cosmetic-fix map (background/liveUpdates.ts refreshes it from
+// live/cosmetic-fixes.json). Already shape- and safety-validated on the way
+// in; still an easy read to get wrong, so default hard to `{}`.
+async function readLiveCosmeticFixes(): Promise<Record<string, string[]>> {
+  try {
+    const stored = await browser.storage.local.get(LIVE_COSMETIC_FIXES_KEY);
+    const map = stored[LIVE_COSMETIC_FIXES_KEY];
+    return typeof map === "object" && map !== null && !Array.isArray(map)
+      ? (map as Record<string, string[]>)
+      : {};
+  } catch {
+    return {};
+  }
 }
 
 async function run(): Promise<void> {
@@ -35,10 +51,11 @@ async function run(): Promise<void> {
 
   const manifest = await fetchJson<CosmeticManifest>("rules/cosmetics-manifest.json");
   const bucketIndices = shardIndicesForHostname(location.hostname, manifest.bucketCount);
-  const [meta, ...shards] = await Promise.all([
+  const [meta, liveFixes, ...shards] = await Promise.all([
     fetchJson<{ generic: string[]; exceptions: Record<string, string[]>; injectGeneric: Array<[string, string]> }>(
       `rules/${manifest.meta}`
     ),
+    readLiveCosmeticFixes(),
     ...bucketIndices.map((i) => fetchJson<Record<string, DomainShardEntry>>(`rules/cosmetics-bucket-${i}.json`)),
   ]);
 
@@ -46,9 +63,12 @@ async function run(): Promise<void> {
   const index = { generic: meta.generic, exceptions: meta.exceptions, perDomain, injectGeneric: meta.injectGeneric, injectPerDomain };
   const customRules = { hide: effective.customCosmeticRules, gray: effective.customGrayscaleRules };
   const genericSelectors = genericSelectorsForHostname(index, location.hostname);
+  // Live cosmetic fixes ride the same domain-scoped hide path as the user's own
+  // element-picker rules -- plain data, never pruned by the generic trim below.
   const domainSelectors = [
     ...domainSelectorsForHostname(index, location.hostname),
     ...customSelectorsForHostname(customRules.hide, location.hostname),
+    ...customSelectorsForHostname(liveFixes, location.hostname),
   ];
   const graySelectors = customSelectorsForHostname(customRules.gray, location.hostname);
   const injectRules = [

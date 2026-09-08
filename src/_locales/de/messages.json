@@ -191,6 +191,10 @@
     "message": " $COUNT$ aktive Schnellkorrektur(en).",
     "placeholders": { "count": { "content": "$1" } }
   },
+  "optionsLiveStatusCosmeticFixes": {
+    "message": " $COUNT$ kosmetische Korrektur(en).",
+    "placeholders": { "count": { "content": "$1" } }
+  },
   "optionsRuleCount": {
     "message": "$COUNT$ Regeln",
     "placeholders": { "count": { "content": "$1" } }

@@ -126,6 +126,12 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export const STORAGE_KEY = "settings";
 
+// storage.local key holding the sanitised live cosmetic-fix map
+// ({ hostname: [selector, ...] }). Written by background/liveUpdates.ts,
+// read by content/cosmeticFilter.ts. Here (not in either module) so a
+// content script doesn't have to import a background module for it.
+export const LIVE_COSMETIC_FIXES_KEY = "liveCosmeticFixes";
+
 export type GuardBlockKind = "window-open" | "synthetic-click";
 
 export interface BlockedMessage {
