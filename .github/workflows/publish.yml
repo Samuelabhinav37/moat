@@ -69,6 +69,9 @@ jobs:
           BASE="https://chromewebstore.googleapis.com"
           ITEM="publishers/$PUBLISHER_ID/items/$EXTENSION_ID"
           echo "Uploading chrome.zip ..."
+          # Endpoints verified against developer.chrome.com v2 reference. If the
+          # first real run rejects the body, check the v2 media-upload docs for
+          # the exact Content-Type / multipart shape and adjust these two flags.
           curl -sf -X POST -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/zip" --data-binary @chrome.zip \
             "$BASE/upload/v2/$ITEM:upload"
