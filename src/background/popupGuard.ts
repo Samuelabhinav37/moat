@@ -5,6 +5,7 @@
 import browser from "webextension-polyfill";
 import { recordDynamicCatch } from "./blockStats";
 import { matchesKnownRedirectDomain, safeHostname } from "./redirectDomainMatch";
+import { LIVE_REDIRECT_DOMAINS_KEY } from "../types";
 
 // Bundled-at-build-time baseline (loaded once, never changes at runtime)
 // plus the live slice liveUpdates.ts refreshes daily -- kept as two sets so
@@ -30,6 +31,23 @@ function rebuildCombinedDomains(): Set<string> {
 async function loadRedirectDomains(): Promise<Set<string>> {
   await loadBaselineDomains();
   return combinedDomains ?? rebuildCombinedDomains();
+}
+
+// One-shot on service-worker start: seed the live slice from the copy
+// liveUpdates.ts persists, so a cold start doesn't leave popupGuard on the
+// bundled baseline alone until the next non-skipped fetch (which the 18h
+// freshness guard can defer). Best-effort; the DNR block rules cover the same
+// domains and are already durable.
+async function hydrateLiveFromStorage(): Promise<void> {
+  try {
+    const stored = await browser.storage.local.get(LIVE_REDIRECT_DOMAINS_KEY);
+    const list = stored[LIVE_REDIRECT_DOMAINS_KEY];
+    if (Array.isArray(list) && list.every((d) => typeof d === "string")) {
+      await addLiveRedirectDomains(list as string[]);
+    }
+  } catch {
+    // No persisted copy yet, or storage unavailable -- baseline is enough.
+  }
 }
 
 /** Replaces (not merges) the live slice of the tab safety net's domain set.
@@ -62,6 +80,7 @@ const WATCH_WINDOW_MS = 4000;
 
 export function initPopupGuard(): void {
   void loadRedirectDomains();
+  void hydrateLiveFromStorage();
 
   browser.webNavigation.onCreatedNavigationTarget.addListener(async (details) => {
     const domains = await loadRedirectDomains();

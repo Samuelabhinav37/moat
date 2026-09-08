@@ -31,8 +31,8 @@
 
    | Secret | Store | How to get it |
    |---|---|---|
-   | `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN` | Chrome Web Store | A Google Cloud OAuth client (type *Desktop*) with the Chrome Web Store API enabled; the refresh token from a one-time consent (`chrome-webstore-upload-keys` or the manual OAuth flow). |
-   | `CWS_EXTENSION_ID` | Chrome Web Store | The item id from the developer dashboard URL. |
+   | `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN` | Chrome Web Store | A Google Cloud OAuth client (type *Desktop*) with the Chrome Web Store API enabled; the refresh token from a one-time consent (`chrome-webstore-upload-keys` or the manual OAuth flow). Re-use it at least every 6 months or Google expires it. |
+   | `CWS_PUBLISHER_ID`, `CWS_EXTENSION_ID` | Chrome Web Store | Publisher (developer account) id and the item id, both from the developer dashboard. The workflow uses the **v2** API (`chromewebstore.googleapis.com`); the v1 API is turned off 2026-10-15. |
    | `AMO_JWT_ISSUER`, `AMO_JWT_SECRET` | AMO | addons.mozilla.org → *Manage API Keys*. |
 
 Store signing credentials and browser-store tokens stay outside the repository. A Git tag

@@ -3,6 +3,32 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.55
+
+### Fixed
+- **popupGuard's live redirect-domain slice now survives a service-worker cold start.** The 18 h
+  freshness guard added in 0.11.52 can skip a day's live fetch, and that fetch was the only thing
+  populating `popupGuard.ts`'s in-memory live set — so after a worker restart the tab safety net
+  could run on the bundled baseline alone until the next non-skipped refresh. `liveUpdates.ts` now
+  persists the validated live redirect-domain list (`LIVE_REDIRECT_DOMAINS_KEY`) and
+  `popupGuard.initPopupGuard()` re-hydrates from it on start. (The dynamic DNR block rules for the
+  same domains were already durable across restarts; this is the fallback-of-a-fallback.)
+
+### Changed
+- **`publish.yml` targets the Chrome Web Store API v2**, not v1 — v1 is turned off 2026-10-15.
+  New `chromewebstore.googleapis.com` endpoints; adds a `CWS_PUBLISHER_ID` secret. Still dormant
+  until the `CWS_*` / `AMO_*` secrets exist.
+- **`live/manifest.json` dropped its `generatedAt` field** so re-running `update-live-manifest.mjs`
+  (every `filters:update`, every CI run) produces no git diff unless a live file's hash actually
+  changed.
+- Corrected the jsDelivr cache note in `liveUpdates.ts` / `purge-live-cdn.mjs`: a branch (`@master`)
+  path can serve stale bytes for up to jsDelivr's **7-day** max-age, so running
+  `scripts/purge-live-cdn.mjs` after a live/ change is required, not optional. `LIVE_BASE_URL` can
+  be pointed at GitHub Pages (~10-min cache, refreshed on push, no purge step) if this channel is
+  used often — the hash check makes the host swappable.
+
+556/556 tests, typecheck/build/lint:firefox clean.
+
 ## 0.11.54
 
 ### Added

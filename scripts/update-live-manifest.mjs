@@ -35,9 +35,11 @@ for (const name of TRACKED_FILES) {
   files[name] = sha256Hex(Buffer.from(text, "utf8"));
 }
 
-const manifest = { generatedAt: new Date().toISOString(), files };
+// No timestamp field: the manifest is byte-stable when the hashes don't
+// change, so re-running this (every `filters:update`, every CI run) produces
+// no git diff unless a live file actually changed.
 const outPath = join(liveDir, "manifest.json");
-writeFileSync(outPath, JSON.stringify(manifest, null, 2) + "\n");
+writeFileSync(outPath, JSON.stringify({ files }, null, 2) + "\n");
 
 console.log(`live/manifest.json updated (${TRACKED_FILES.length} files)`);
 for (const [name, hash] of Object.entries(files)) console.log(`  ${name}  ${hash}`);

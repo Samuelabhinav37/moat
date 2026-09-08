@@ -1,6 +1,8 @@
 // Asks jsDelivr to drop its cached copy of the live/ files after you've
-// pushed a change to master. Without this, a branch path can serve stale
-// bytes for up to ~12h. Plain unauthenticated HTTPS GETs -- no token needed.
+// pushed a change to master. REQUIRED after any live/ change: a jsDelivr
+// branch path can otherwise serve stale bytes for up to its 7-day max-age.
+// Plain unauthenticated HTTPS GETs -- no token needed. Purge is best-effort
+// on jsDelivr's side; re-run if a client still reports the old hash.
 //
 //   git push && node scripts/purge-live-cdn.mjs
 const FILES = ["manifest.json", "redirect-domains.json", "quick-fixes.json"];

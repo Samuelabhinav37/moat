@@ -14,8 +14,12 @@
 //
 // Hosting: served from jsDelivr, a real CDN built to front GitHub repos --
 // unlike raw.githubusercontent.com, which is IP-rate-limited and whose AUP
-// forbids CDN-style use. jsDelivr caches a branch path for up to ~12h; run
-// scripts/purge-live-cdn.mjs after pushing a fix to cut that to minutes.
+// forbids CDN-style use. A branch (`@master`) path can serve a stale copy for
+// up to jsDelivr's 7-day max-age, so `scripts/purge-live-cdn.mjs` MUST be run
+// after pushing a live fix. If this channel is used often, point LIVE_BASE_URL
+// at GitHub Pages instead (`<user>.github.io/moat/live`, ~10-min cache,
+// refreshed on every push, no purge step) -- the hash check below makes the
+// host swappable.
 //
 // Integrity: `manifest.json` (SHA-256 of each payload, from
 // scripts/update-live-manifest.mjs) is fetched first, then each payload is
@@ -33,7 +37,7 @@ import { allLiveDynamicRuleIds, buildDynamicRedirectRules, filterValidRedirectDo
 import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from "./quickFixRules";
 import { countCosmeticFixSelectors, filterValidCosmeticFixes } from "./liveCosmeticFixes";
 import { reapplySettings } from "./settings";
-import { LIVE_COSMETIC_FIXES_KEY } from "../types";
+import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY } from "../types";
 
 // One base for all three live files. To move off jsDelivr later (GitHub Pages,
 // Cloudflare, an object bucket) only this constant changes -- the SHA-256
@@ -125,6 +129,9 @@ async function refreshRedirectDomains(expectedHash: string | undefined): Promise
   const { valid: domains } = filterValidRedirectDomains(fetched.filter((d): d is string => typeof d === "string"));
 
   await addLiveRedirectDomains(domains);
+  // Persist so popupGuard can re-hydrate its in-memory live slice on a cold
+  // start without waiting for the next non-skipped fetch.
+  await browser.storage.local.set({ [LIVE_REDIRECT_DOMAINS_KEY]: domains });
   await browser.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: allLiveDynamicRuleIds(),
     addRules: buildDynamicRedirectRules(domains),

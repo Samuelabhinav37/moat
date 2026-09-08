@@ -132,6 +132,13 @@ export const STORAGE_KEY = "settings";
 // content script doesn't have to import a background module for it.
 export const LIVE_COSMETIC_FIXES_KEY = "liveCosmeticFixes";
 
+// storage.local key holding the last validated live redirect-domain list.
+// Written by liveUpdates.ts, re-read by popupGuard.ts on every service-worker
+// start so the tab safety net's live slice survives a cold start even when the
+// freshness guard skips that day's network fetch. (The dynamic DNR block rules
+// this list also produces are already durable across restarts.)
+export const LIVE_REDIRECT_DOMAINS_KEY = "liveRedirectDomains";
+
 export type GuardBlockKind = "window-open" | "synthetic-click";
 
 export interface BlockedMessage {

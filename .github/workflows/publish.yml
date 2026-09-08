@@ -47,16 +47,17 @@ jobs:
       - run: npm run lint:firefox
       - run: npm run zip
 
-      # ---- Chrome Web Store -------------------------------------------------
+      # ---- Chrome Web Store (API v2 -- v1 is EOL 2026-10-15) --------------
       - name: Submit to the Chrome Web Store
         if: ${{ inputs.targets != 'firefox' }}
         env:
           CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
           EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
         run: |
-          if [ -z "$CLIENT_ID" ] || [ -z "$REFRESH_TOKEN" ] || [ -z "$EXTENSION_ID" ]; then
+          if [ -z "$CLIENT_ID" ] || [ -z "$REFRESH_TOKEN" ] || [ -z "$PUBLISHER_ID" ] || [ -z "$EXTENSION_ID" ]; then
             echo "::warning::CWS_* secrets not set -- skipping Chrome Web Store submission."
             exit 0
           fi
@@ -65,14 +66,16 @@ jobs:
             -d "client_id=$CLIENT_ID" -d "client_secret=$CLIENT_SECRET" \
             -d "refresh_token=$REFRESH_TOKEN" -d "grant_type=refresh_token" \
             | node -p "JSON.parse(require('fs').readFileSync(0)).access_token")
-          echo "Uploading chrome.zip to item $EXTENSION_ID ..."
-          curl -sf -X PUT -H "Authorization: Bearer $TOKEN" -H "x-goog-api-version: 2" \
-            -T chrome.zip \
-            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/$EXTENSION_ID"
+          BASE="https://chromewebstore.googleapis.com"
+          ITEM="publishers/$PUBLISHER_ID/items/$EXTENSION_ID"
+          echo "Uploading chrome.zip ..."
+          curl -sf -X POST -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/zip" --data-binary @chrome.zip \
+            "$BASE/upload/v2/$ITEM:upload"
           echo "Submitting for review ..."
-          curl -sf -X POST -H "Authorization: Bearer $TOKEN" -H "x-goog-api-version: 2" \
-            -H "Content-Length: 0" \
-            "https://www.googleapis.com/chromewebstore/v1.1/items/$EXTENSION_ID/publish"
+          curl -sf -X POST -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" -d '{}' \
+            "$BASE/v2/$ITEM:publish"
           echo "Chrome Web Store: submitted for review."
 
       # ---- Firefox Add-ons (AMO) -----------------------------------------
