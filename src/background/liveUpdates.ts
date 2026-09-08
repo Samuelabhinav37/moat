@@ -21,21 +21,24 @@
 // refreshed on every push, no purge step) -- the hash check below makes the
 // host swappable.
 //
-// Integrity: `manifest.json` (SHA-256 of each payload, from
-// scripts/update-live-manifest.mjs) is fetched first, then each payload is
-// verified against it. This does NOT add a trust anchor beyond TLS + the
-// GitHub account -- the manifest itself is fetched over the wire like the
-// payloads. What it does buy: corruption detection, and *atomicity* -- if the
-// CDN serves a fresh manifest against a still-propagating stale payload (or
-// vice versa) the mismatch is caught and the bundled baseline is kept, rather
-// than a half-applied update. Source-repo compromise is still bounded only by
-// the shape validators below (block/allow a set of domains -- nothing that can
-// send traffic anywhere), which is the same posture the raw-GitHub fetch had.
+// Integrity, two layers:
+//   1. Ed25519 signature over `manifest.json` (liveSignature.ts) -- when a
+//      public key is configured in src/shared/liveSigningKey.ts. A manifest
+//      whose signature doesn't verify is rejected outright, so trust rests on
+//      the offline signing key, not on the GitHub account or the CDN. Until a
+//      key is set the check is skipped and layer 2 alone applies (the
+//      behaviour that shipped before signing).
+//   2. SHA-256 of each payload, listed in the manifest, checked before apply.
+//      Catches corruption and *atomicity* -- a fresh manifest served against a
+//      still-propagating stale payload is caught and the baseline kept.
+// Either way, the shape validators below bound a bad payload to "block/allow a
+// set of domains" -- nothing that can send traffic anywhere.
 import browser from "webextension-polyfill";
 import { addLiveRedirectDomains } from "./popupGuard";
 import { allLiveDynamicRuleIds, buildDynamicRedirectRules, filterValidRedirectDomains } from "./liveRedirectRules";
 import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from "./quickFixRules";
 import { countCosmeticFixSelectors, filterValidCosmeticFixes } from "./liveCosmeticFixes";
+import { verifyLiveManifest } from "./liveSignature";
 import { reapplySettings } from "./settings";
 import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY } from "../types";
 
@@ -114,10 +117,26 @@ async function fetchLiveManifest(): Promise<Record<string, string>> {
   // so honouring the host's Cache-Control (an edge hit / 304) is cheaper.
   const response = await fetch(`${LIVE_BASE_URL}/manifest.json`);
   if (!response.ok) throw new Error(`manifest: ${response.status} ${response.statusText}`);
-  const parsed = (await response.json()) as { files?: unknown };
+  const bytes = await response.arrayBuffer();
+
+  // Ed25519 check first, when signing is configured. "bad" -> reject outright.
+  // "ok" / "unverified" -> fall through to the per-payload SHA-256 check.
+  const sigResult = await verifyLiveManifest(bytes, await fetchManifestSignature());
+  if (sigResult === "bad") throw new Error("live manifest signature did not verify");
+
+  const parsed = JSON.parse(new TextDecoder().decode(bytes)) as { files?: unknown };
   const files = parsed.files;
   if (typeof files !== "object" || files === null) throw new Error("live manifest has no files map");
   return files as Record<string, string>;
+}
+
+async function fetchManifestSignature(): Promise<string | null> {
+  try {
+    const res = await fetch(`${LIVE_BASE_URL}/manifest.json.sig`);
+    return res.ok ? (await res.text()).trim() : null;
+  } catch {
+    return null;
+  }
 }
 
 async function refreshRedirectDomains(expectedHash: string | undefined): Promise<number> {

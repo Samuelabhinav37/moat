@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.56
+
+### Added
+- **Optional Ed25519 signing for the live-update manifest.** With a public key configured in
+  `src/shared/liveSigningKey.ts` (generate the pair with `node scripts/gen-live-signing-key.mjs`,
+  put the private key in the `LIVE_SIGNING_PRIVATE_KEY` CI secret), `scripts/update-live-manifest.mjs`
+  writes a detached `live/manifest.json.sig`, and `src/background/liveUpdates.ts` rejects any
+  manifest whose signature doesn't verify (`src/background/liveSignature.ts`, WebCrypto Ed25519).
+  Trust then rests on the offline signing key, not on the GitHub account or the CDN — a compromised
+  account can no longer push block/allow rules. **Dormant until a key is set:** with no key, and on
+  engines without WebCrypto Ed25519 (Chrome < 137), the check returns `"unverified"` and the
+  channel runs on the per-payload SHA-256 check exactly as before. First of the drawback fixes from
+  `docs/research/fixing-the-drawbacks-2026-09.md` (1.1).
+
+562/562 tests (6 new), typecheck/build/lint:firefox clean.
+
 ## 0.11.55
 
 ### Fixed
