@@ -1,5 +1,20 @@
 # Privacy Policy
 
+**In four lines:**
+
+- **What Moat reads:** page content on sites you visit, entirely on your
+  device, to block ads/trackers/popups and hide ad elements.
+- **Where it goes:** nowhere. Moat has no server, no account, no analytics,
+  and no crash reporting. Its developer receives nothing about you, ever.
+- **What's stored:** your settings (filter lists, paused sites, custom
+  rules) in your browser's own local storage, never transmitted by default.
+- **What leaves your device:** roughly once a day Moat downloads a few small
+  static filter-fix files from a public GitHub Pages URL — a plain file
+  download that carries nothing about you. Two opt-in features (both off by
+  default) send something derived from what you type to a third party (never
+  to Moat); one enterprise-only feature sends security events to your own
+  organization's server. All four are detailed below.
+
 Moat does not collect, store, sell, or transmit any user data to Moat or
 its developer, ever, under any configuration. There is no crash reporting
 and no account or sign-in of any kind. For a personal or open-source
@@ -31,16 +46,21 @@ only to an organization's own infrastructure, never to Moat's developer.
 
 ## What reaches the network, and when
 
-1. **A once-a-day check for updated ad-redirect domains and emergency filter
-   fixes.** Moat's background service worker fetches two static JSON files
-   from this project's own GitHub repository (`raw.githubusercontent.com`):
-   a list of known ad-redirect domains for the popup/redirect firewall, and
-   an emergency "quick fixes" filter channel (empty by default; see the
-   README) for patching filter breakage faster than a full store release
-   allows. Both are plain file downloads -- no data about you, your
-   browsing, or your device is sent beyond what any HTTP request inherently
-   includes (your IP address, to GitHub's CDN, the same as loading any web
-   page).
+1. **A roughly once-a-day check for updated ad-redirect domains and
+   emergency filter fixes.** Moat's background service worker fetches a
+   small set of static files from this project's GitHub Pages site
+   (`samuelabhinav37.github.io/moat/live`): a signed `manifest.json` (plus
+   its `manifest.json.sig`), a list of known ad-redirect domains for the
+   popup/redirect firewall, an emergency "quick fixes" block/allow channel,
+   and a "cosmetic fixes" channel of element-hiding selectors -- all three
+   payloads empty by default (see the README), there to patch filter
+   breakage faster than a full store release allows. Moat verifies each file
+   against a SHA-256 hash in the manifest, and the manifest itself against a
+   bundled Ed25519 public key, before applying anything; a failed check
+   means Moat keeps its bundled baseline. These are plain file downloads --
+   no data about you, your browsing, or your device is sent beyond what any
+   HTTP request inherently includes (your IP address, to GitHub's CDN, the
+   same as loading any web page).
 2. **DNS resolution for CNAME-uncloaking, off by default.** If you turn on
    "Uncloak disguised trackers" in Settings, Moat looks up the canonical
    (CNAME) name of hostnames your browser contacts, so it can tell whether a
@@ -86,10 +106,11 @@ only to an organization's own infrastructure, never to Moat's developer.
    install of Moat, this section does not apply to you -- nothing about it
    can activate without your organization's own IT policy.
 
-Nothing else in Moat makes a network request. In particular: the filter
-lists and cosmetic-hiding rules that block ads and trackers are bundled into
-the extension at build time (see the project's README for exactly which
-lists), not fetched live -- only the two small files in item 1 above are.
+Nothing else in Moat makes a network request. In particular: the full
+filter lists and cosmetic-hiding rules that block ads and trackers are
+bundled into the extension at build time (see the project's README for
+exactly which lists), not fetched live -- only the small fix files in item 1
+above are, and those only patch the bundled baseline.
 
 ## Permissions
 

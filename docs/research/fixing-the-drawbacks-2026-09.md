@@ -178,15 +178,11 @@ Route 1 is the lower-risk default.
 
 ## Part 3 — Feature reach
 
-### 3.1 Subdomain-aware "Pause on this site" + "allow site & subdomains"
+### 3.1 Subdomain-aware "Pause on this site" — DONE (v0.11.47, `d42dd06`)
 
-Already scoped in `data-usage-optimization-ui-user-demand-2026-09.md` §5: `isSiteDisabled()` in
-`src/background/settings.ts` is exact-hostname-only; the repo already has **three** tested
-same-or-subdomain matchers (`redirectDomainMatch`, `cnameUncloakMatch`,
-`cosmeticSelectors` parent-domain walk). Wire one in; add a one-click "allow this site and its
-subdomains" that stores an eTLD+1 entry. **Highest value ÷ effort on the whole list.**
-
-**Effort:** S.
+`isSiteDisabled()` in `src/background/settings.ts` already calls
+`matchesDomainOrSubdomain(hostname, settings.disabledSites)`, so a bare-hostname pause entry
+covers every subdomain. Nothing left to wire. (This section described the pre-v0.11.47 state.)
 
 ### 3.2 Firefox for Android
 
@@ -245,8 +241,9 @@ strongest and is currently invisible.
 1. **1.1 signing + 1.2 GitHub Pages** together — they reinforce (signing makes the host untrusted,
    Pages removes the 7-day cache and the manual purge). Closes the two operational/security
    drawbacks in the live channel.
-2. **3.1 subdomain pause** + **3.3 exception audit** + **1.3 scheduled filter PR** + **Part 5
-   landing page** — all S, all independent, knock out the top feature and distribution gaps.
+2. ~~3.1 subdomain pause~~ (already shipped v0.11.47) + **3.3 exception audit** + **1.3 scheduled
+   filter PR** + **Part 5 landing page** — all S, all independent, knock out the top feature and
+   distribution gaps.
 3. **1.5 arm publish.yml** + **1.4 trustedTesters path** — makes 1–2 shippable fast and adds a
    beta safety valve.
 4. **2.1 DOM surveyor + 2.2 insertCSS split** — the big per-page performance win; do them as one
