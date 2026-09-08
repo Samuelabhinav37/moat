@@ -61,8 +61,8 @@ Lite port of an older extension.
 One codebase, Chrome and Firefox builds. The Firefox build also targets
 **Firefox for Android** (`browser_specific_settings.gecko_android`, min
 version 142) — same WebExtension APIs and MV3 DNR engine, no separate build;
-the popup and options pages lay out fluid for the phone screen. How each of
-these works is in [`docs/design-notes.md`](docs/design-notes.md).
+the options and warning pages carry a mobile viewport meta. How each of these
+works is in [`docs/design-notes.md`](docs/design-notes.md).
 
 ## Install & build
 

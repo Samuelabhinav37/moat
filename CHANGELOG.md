@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.64
+
+### Fixed
+- **The toolbar popup rendered shrunk.** v0.11.62 added a `width=device-width` viewport meta and a
+  `max-width: 100vw` / `@media (min-width: 400px)` rule to the popup `<body>` for Firefox Android's
+  full-width action panel. On Chrome the toolbar popup has no fixed viewport — it sizes itself to
+  its content — so a viewport meta plus a `vw`-based width puts it in a mobile viewport model where
+  `100vw` and the content width feed back on each other, Chrome resolves `100vw` small, and the
+  popup settles at a shrunken width. Reverted: the popup is a fixed 260 px column again, with a
+  comment blocking a re-introduction. `options.html` / `warning.html` keep their viewport meta
+  (real pages, opened in a tab — unaffected). Making the popup fill the Firefox Android panel needs
+  a separate, device-tested treatment.
+
 ## 0.11.63
 
 ### Changed

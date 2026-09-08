@@ -148,12 +148,15 @@ browser target).
 `browser_specific_settings.gecko` (event-page background, `dns` + blocking
 `webRequest` for CNAME uncloaking) **and** `gecko_android` (min version 142),
 which is all Firefox for Android needs — same content scripts, same MV3 DNR
-engine, no Android-specific code. The extension pages carry a
-`width=device-width` viewport meta and the popup lays out fluid (capped and
-centred, not a fixed 260 px column) so it reads on a phone, where the action
-popup opens as a full-width panel with no toolbar anchor. There is no
-Chrome-for-Android target (Chrome has no extensions there) and Safari would be a
-separate Xcode port.
+engine, no Android-specific code. `options.html` and `warning.html` (full
+pages opened in a tab) carry a `width=device-width` viewport meta so they read
+on a phone. The **popup does not**: a viewport meta or a `vw`-based width on
+the toolbar popup breaks Chrome's content-sizing of it and it renders shrunk
+(that shipped in v0.11.62 and was reverted in v0.11.64), so the popup stays a
+fixed 260 px column. Making the popup fill Firefox Android's full-width action
+panel needs a separate, device-tested treatment. There is no Chrome-for-Android
+target (Chrome has no extensions there) and Safari would be a separate Xcode
+port.
 
 The heuristics with the most test coverage each live in their own side-effect-free
 module so they're importable without a browser environment:

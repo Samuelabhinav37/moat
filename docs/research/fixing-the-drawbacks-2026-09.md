@@ -269,7 +269,10 @@ strongest and is currently invisible.
    (~100 verified ad-network domains) + `adCollapse.ts`. Route 1 (emit `iframe[src*=domain]`
    selectors from all ~53k DNR domains) was rejected — they have no token anchor, so 2.1 would
    inject all of them always-on.
-6. ✅ **3.2 Firefox for Android** (v0.11.62) — `gecko_android` (min 142), viewport metas, fluid popup.
+6. ✅ **3.2 Firefox for Android** (v0.11.62) — `gecko_android` (min 142), viewport metas on the
+   full-page views. (The v0.11.62 fluid-popup change broke Chrome's popup sizing — reverted in
+   v0.11.64; the popup stays a fixed 260 px column until an Android-panel treatment is
+   device-tested.)
 
 Everything except 3.2 preserves the zero-server / zero-telemetry identity, and none of it needs a
 backend.
