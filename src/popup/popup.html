@@ -123,6 +123,18 @@
         color: inherit;
         font-weight: 600;
       }
+      /* Unlike the other .notice uses (a single wrapping <span>), this one
+         lists up to three per-kind "Allow ... here" links -- the default
+         row layout crowds them on the 260px column, so it's overridden to
+         stack. */
+      #permission-guard-notice {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      #permission-guard-notice a {
+        display: block;
+      }
 
       .breakdown {
         display: flex;
@@ -351,6 +363,15 @@
           <span class="track"><span class="thumb"></span></span>
         </label>
       </div>
+    </div>
+
+    <div class="notice" id="permission-guard-notice" hidden>
+      <span data-i18n="popupPermissionGuardIntro">Moat's permission guard is blocking prompts on this site:</span>
+      <a href="#" id="permission-guard-allow-camera" hidden data-i18n="popupAllowCameraHere">Allow camera here</a>
+      <a href="#" id="permission-guard-allow-microphone" hidden data-i18n="popupAllowMicrophoneHere"
+        >Allow microphone here</a
+      >
+      <a href="#" id="permission-guard-allow-location" hidden data-i18n="popupAllowLocationHere">Allow location here</a>
     </div>
 
     <div class="actions">

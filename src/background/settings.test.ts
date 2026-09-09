@@ -113,6 +113,9 @@ describe("getSettings", () => {
       cnameUncloaking: false,
       syncEnabled: false,
       leakedPasswordCheck: false,
+      permissionGuardCamera: false,
+      permissionGuardMicrophone: false,
+      permissionGuardLocation: false,
     });
   });
 

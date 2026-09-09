@@ -64,6 +64,13 @@ const feedScanToggle = document.getElementById("feed-scan-toggle") as HTMLInputE
 const consentRejectToggle = document.getElementById("consent-reject-toggle") as HTMLInputElement;
 const cnameUncloakToggle = document.getElementById("cname-uncloak-toggle") as HTMLInputElement;
 const leakedPasswordToggle = document.getElementById("leaked-password-toggle") as HTMLInputElement;
+const permissionGuardCameraToggle = document.getElementById("permission-guard-camera-toggle") as HTMLInputElement;
+const permissionGuardMicrophoneToggle = document.getElementById(
+  "permission-guard-microphone-toggle"
+) as HTMLInputElement;
+const permissionGuardLocationToggle = document.getElementById(
+  "permission-guard-location-toggle"
+) as HTMLInputElement;
 const syncToggle = document.getElementById("sync-toggle") as HTMLInputElement;
 const syncStatus = document.getElementById("sync-status") as HTMLElement;
 const cnameUnsupportedHint = document.getElementById("cname-unsupported-hint") as HTMLElement;
@@ -486,6 +493,9 @@ async function render(): Promise<void> {
   cnameChromeDohHint.hidden = !cnameChromeSupported;
 
   leakedPasswordToggle.checked = settings.leakedPasswordCheck;
+  permissionGuardCameraToggle.checked = settings.permissionGuardCamera;
+  permissionGuardMicrophoneToggle.checked = settings.permissionGuardMicrophone;
+  permissionGuardLocationToggle.checked = settings.permissionGuardLocation;
 
   syncToggle.checked = settings.syncEnabled;
   renderSyncStatus(settings.syncEnabled, await getSyncStatus());
@@ -613,6 +623,18 @@ cnameUncloakToggle.addEventListener("change", async () => {
 
 leakedPasswordToggle.addEventListener("change", async () => {
   await setSettings({ leakedPasswordCheck: leakedPasswordToggle.checked });
+});
+
+permissionGuardCameraToggle.addEventListener("change", async () => {
+  await setSettings({ permissionGuardCamera: permissionGuardCameraToggle.checked });
+});
+
+permissionGuardMicrophoneToggle.addEventListener("change", async () => {
+  await setSettings({ permissionGuardMicrophone: permissionGuardMicrophoneToggle.checked });
+});
+
+permissionGuardLocationToggle.addEventListener("change", async () => {
+  await setSettings({ permissionGuardLocation: permissionGuardLocationToggle.checked });
 });
 
 syncToggle.addEventListener("change", async () => {

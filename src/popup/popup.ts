@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
 import type {
+  AllowPermissionGuardOriginMessage,
   GetReportContextMessage,
   GetStatusMessage,
   GetUiNoticesMessage,
@@ -80,6 +81,50 @@ function renderCompanyBreakdown(companyBreakdown: Record<string, number>): void 
   );
 }
 
+const PERMISSION_GUARD_LINK_IDS = {
+  camera: "permission-guard-allow-camera",
+  microphone: "permission-guard-allow-microphone",
+  location: "permission-guard-allow-location",
+} as const;
+
+// Only shows a kind's "Allow ... here" link when that kind's guard is
+// actually on (StatusResponse.permissionGuard) -- see
+// background/permissionGuard.ts. Each link is scoped to the tab's own
+// hostname; clicking one sends a one-shot message and hides itself rather
+// than tracking live contentSettings state back (getting that right would
+// need another round trip for a link the user is about to make irrelevant
+// anyway by clicking it).
+function renderPermissionGuardNotice(
+  hostname: string,
+  guard: StatusResponse["permissionGuard"]
+): void {
+  const notice = document.getElementById("permission-guard-notice")!;
+  let anyVisible = false;
+  for (const [kind, id] of Object.entries(PERMISSION_GUARD_LINK_IDS) as [
+    keyof typeof PERMISSION_GUARD_LINK_IDS,
+    string,
+  ][]) {
+    const link = document.getElementById(id) as HTMLAnchorElement;
+    if (!guard[kind]) {
+      link.hidden = true;
+      continue;
+    }
+    link.hidden = false;
+    anyVisible = true;
+    link.onclick = (event) => {
+      event.preventDefault();
+      const message: AllowPermissionGuardOriginMessage = {
+        type: "allow-permission-guard-origin",
+        hostname,
+        kind,
+      };
+      void browser.runtime.sendMessage(message);
+      link.hidden = true;
+    };
+  }
+  notice.hidden = !anyVisible;
+}
+
 async function render(): Promise<void> {
   const status = await getStatus();
 
@@ -127,6 +172,7 @@ async function render(): Promise<void> {
   reportButton.hidden = false;
   hostnameEl.textContent = status.hostname;
   pausedHostname.textContent = status.hostname;
+  renderPermissionGuardNotice(status.hostname, status.permissionGuard);
   toggle.checked = !status.siteDisabled;
   toggle.disabled = !status.enabled;
 

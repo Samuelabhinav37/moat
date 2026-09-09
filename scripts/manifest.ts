@@ -180,7 +180,13 @@ export function buildManifest(target: "chrome" | "firefox") {
       // the way Firefox's blocking listener can, only add a dynamic
       // declarativeNetRequest rule for next time -- see that file's own
       // comment for the full trade-off.
-      permissions: [...manifest.permissions, "webRequest"],
+      // contentSettings powers background/permissionGuard.ts (camera/mic/
+      // location ambush blocking). Chrome-only in this manifest: Firefox's
+      // contentSettings API doesn't cover camera/microphone/location at all
+      // (only the original small Chrome-parity surface -- cookies/images/
+      // javascript/popups/etc.), and its own manifest linter rejects the
+      // permission key outright if it's listed there regardless.
+      permissions: [...manifest.permissions, "webRequest", "contentSettings"],
       background: {
         service_worker: "background.js",
       },

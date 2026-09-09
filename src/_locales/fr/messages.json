@@ -212,5 +212,22 @@
   "optionsLeakedPasswordToggleLabel": { "message": "Vérifier les mots de passe par rapport aux fuites connues" },
   "optionsLeakedPasswordToggleHint": {
     "message": "Avertit si un mot de passe que vous saisissez est apparu dans une fuite de données connue. Seul un hachage partiel quitte jamais votre appareil. (Désactivé par défaut)"
+  },
+
+  "popupPermissionGuardIntro": { "message": "Le garde-permissions de Moat bloque des invites sur ce site :" },
+  "popupAllowCameraHere": { "message": "Autoriser la caméra ici" },
+  "popupAllowMicrophoneHere": { "message": "Autoriser le microphone ici" },
+  "popupAllowLocationHere": { "message": "Autoriser la localisation ici" },
+  "optionsPermissionGuardCameraToggleLabel": { "message": "Bloquer les invites surprise de caméra" },
+  "optionsPermissionGuardCameraToggleHint": {
+    "message": "Définit l'invite de caméra de chaque site comme bloquée par défaut, afin qu'une page ne puisse pas vous surprendre avec elle au chargement. Autorisez un site précis depuis le popup lorsque vous lui faites confiance."
+  },
+  "optionsPermissionGuardMicrophoneToggleLabel": { "message": "Bloquer les invites surprise de microphone" },
+  "optionsPermissionGuardMicrophoneToggleHint": {
+    "message": "Définit l'invite de microphone de chaque site comme bloquée par défaut. Autorisez un site précis depuis le popup lorsque vous lui faites confiance."
+  },
+  "optionsPermissionGuardLocationToggleLabel": { "message": "Bloquer les invites surprise de localisation" },
+  "optionsPermissionGuardLocationToggleHint": {
+    "message": "Définit l'invite de localisation de chaque site comme bloquée par défaut. Autorisez un site précis depuis le popup lorsque vous lui faites confiance."
   }
 }

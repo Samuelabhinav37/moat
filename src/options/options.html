@@ -437,6 +437,66 @@
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
+        <div class="toggle-row">
+          <div class="row-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="9" height="7" rx="1.5"/><path d="M6 5.5V4a2 2 0 014 0v1.5"/></svg>
+          </div>
+          <div>
+            <div class="card-title" id="permission-guard-camera-toggle-label" data-i18n="optionsPermissionGuardCameraToggleLabel">Block camera-ambush prompts</div>
+            <p class="hint muted" data-i18n="optionsPermissionGuardCameraToggleHint">
+              Sets every site's camera prompt to blocked by default, so a page can't surprise you
+              with it on load. Allow a specific site from the popup when you trust it.
+            </p>
+          </div>
+          <label class="switch">
+            <input
+              type="checkbox"
+              id="permission-guard-camera-toggle"
+              aria-labelledby="permission-guard-camera-toggle-label"
+            />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="row-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5a2 2 0 012 2v3.5a2 2 0 01-4 0V4.5a2 2 0 012-2z"/><path d="M5 7.5a3 3 0 006 0M8 10.5V13m-2 0h4"/></svg>
+          </div>
+          <div>
+            <div class="card-title" id="permission-guard-microphone-toggle-label" data-i18n="optionsPermissionGuardMicrophoneToggleLabel">Block microphone-ambush prompts</div>
+            <p class="hint muted" data-i18n="optionsPermissionGuardMicrophoneToggleHint">
+              Sets every site's microphone prompt to blocked by default. Allow a specific site from
+              the popup when you trust it.
+            </p>
+          </div>
+          <label class="switch">
+            <input
+              type="checkbox"
+              id="permission-guard-microphone-toggle"
+              aria-labelledby="permission-guard-microphone-toggle-label"
+            />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="row-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14s5-4.2 5-7.8A5 5 0 003 6.2C3 9.8 8 14 8 14z"/><circle cx="8" cy="6.2" r="1.6"/></svg>
+          </div>
+          <div>
+            <div class="card-title" id="permission-guard-location-toggle-label" data-i18n="optionsPermissionGuardLocationToggleLabel">Block location-ambush prompts</div>
+            <p class="hint muted" data-i18n="optionsPermissionGuardLocationToggleHint">
+              Sets every site's location prompt to blocked by default. Allow a specific site from
+              the popup when you trust it.
+            </p>
+          </div>
+          <label class="switch">
+            <input
+              type="checkbox"
+              id="permission-guard-location-toggle"
+              aria-labelledby="permission-guard-location-toggle-label"
+            />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
       </div>
 
       <div class="filter-category" data-i18n="optionsFilterUpdatesCategory">Filter updates</div>

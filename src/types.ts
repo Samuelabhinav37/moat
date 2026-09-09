@@ -101,6 +101,18 @@ export interface Settings {
    * never transmitted.
    */
   leakedPasswordCheck: boolean;
+  /**
+   * Sets the browser's own camera/microphone/location content-setting
+   * default to "block" for every origin (see background/permissionGuard.ts)
+   * so a site can't ambush you with the native permission prompt the
+   * instant it loads. Off by default, independently toggleable per kind:
+   * this is a real behavior change (camera/mic/location genuinely stop
+   * working on a site until explicitly allowed), not just a cosmetic
+   * blocking rule.
+   */
+  permissionGuardCamera: boolean;
+  permissionGuardMicrophone: boolean;
+  permissionGuardLocation: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -122,6 +134,9 @@ export const DEFAULT_SETTINGS: Settings = {
   cnameUncloaking: false,
   syncEnabled: false,
   leakedPasswordCheck: false,
+  permissionGuardCamera: false,
+  permissionGuardMicrophone: false,
+  permissionGuardLocation: false,
 };
 
 export const STORAGE_KEY = "settings";
@@ -170,12 +185,24 @@ export interface StatusResponse {
    * one-line notice when non-empty; the full detail + per-list badges are
    * on the options page. */
   droppedFilterGroups: string[];
+  /** Which permission-guard kinds are currently blocking by default -- the
+   * popup uses this to only show its "Allow camera/mic/location here"
+   * actions for a kind that's actually on (see background/permissionGuard.ts). */
+  permissionGuard: { camera: boolean; microphone: boolean; location: boolean };
 }
 
 export interface ToggleSiteMessage {
   type: "toggle-site";
   hostname: string;
   disabled: boolean;
+}
+
+/** Sent by the popup's "Allow camera/mic/location on this site" action --
+ * see background/permissionGuard.ts's allowPermissionGuardOrigin(). */
+export interface AllowPermissionGuardOriginMessage {
+  type: "allow-permission-guard-origin";
+  hostname: string;
+  kind: "camera" | "microphone" | "location";
 }
 
 /** Sent by the Settings page's "Trackers" tab -- which has no page of its
@@ -372,6 +399,7 @@ export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
   | ToggleSiteMessage
+  | AllowPermissionGuardOriginMessage
   | GetCompanyBreakdownMessage
   | SaveCosmeticRuleMessage
   | SaveGrayscaleRuleMessage

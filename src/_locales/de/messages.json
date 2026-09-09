@@ -212,5 +212,22 @@
   "optionsLeakedPasswordToggleLabel": { "message": "Passwörter mit bekannten Datenlecks abgleichen" },
   "optionsLeakedPasswordToggleHint": {
     "message": "Warnt, wenn ein eingegebenes Passwort in einem bekannten Datenleck aufgetaucht ist. Nur ein teilweiser Hash verlässt jemals dein Gerät. (Standardmäßig aus)"
+  },
+
+  "popupPermissionGuardIntro": { "message": "Moats Berechtigungswächter blockiert Anfragen auf dieser Seite:" },
+  "popupAllowCameraHere": { "message": "Kamera hier erlauben" },
+  "popupAllowMicrophoneHere": { "message": "Mikrofon hier erlauben" },
+  "popupAllowLocationHere": { "message": "Standort hier erlauben" },
+  "optionsPermissionGuardCameraToggleLabel": { "message": "Kamera-Überraschungsanfragen blockieren" },
+  "optionsPermissionGuardCameraToggleHint": {
+    "message": "Setzt die Kameraanfrage jeder Seite standardmäßig auf blockiert, damit eine Seite dich beim Laden nicht damit überraschen kann. Erlaube eine bestimmte Seite über das Popup, wenn du ihr vertraust."
+  },
+  "optionsPermissionGuardMicrophoneToggleLabel": { "message": "Mikrofon-Überraschungsanfragen blockieren" },
+  "optionsPermissionGuardMicrophoneToggleHint": {
+    "message": "Setzt die Mikrofonanfrage jeder Seite standardmäßig auf blockiert. Erlaube eine bestimmte Seite über das Popup, wenn du ihr vertraust."
+  },
+  "optionsPermissionGuardLocationToggleLabel": { "message": "Standort-Überraschungsanfragen blockieren" },
+  "optionsPermissionGuardLocationToggleHint": {
+    "message": "Setzt die Standortanfrage jeder Seite standardmäßig auf blockiert. Erlaube eine bestimmte Seite über das Popup, wenn du ihr vertraust."
   }
 }

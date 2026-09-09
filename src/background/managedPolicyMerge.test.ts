@@ -21,6 +21,9 @@ const baseSettings: Settings = {
   cnameUncloaking: false,
   syncEnabled: false,
   leakedPasswordCheck: false,
+  permissionGuardCamera: false,
+  permissionGuardMicrophone: false,
+  permissionGuardLocation: false,
 };
 
 describe("applyManagedOverrides", () => {

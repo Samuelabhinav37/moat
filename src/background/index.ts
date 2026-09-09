@@ -51,6 +51,7 @@ import {
 } from "./lastNormalTab";
 import { isMatchedRulesSupported } from "./matchStats";
 import { cosmeticGenericsFor, proceduralRulesFor } from "./cosmeticIndex";
+import { allowPermissionGuardOrigin } from "./permissionGuard";
 import { injectCosmeticsForCommit, injectGenericSelectors } from "./cosmeticInject";
 
 initPopupGuard();
@@ -239,6 +240,11 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
           breakdown: tab?.id !== undefined ? combinedBreakdown(tab.id) : { ads: 0, trackers: 0, popups: 0 },
           companyBreakdown: tab?.id !== undefined ? combinedCompanyBreakdown(tab.id) : {},
           droppedFilterGroups: filterStatus?.droppedGroups ?? [],
+          permissionGuard: {
+            camera: settings.permissionGuardCamera,
+            microphone: settings.permissionGuardMicrophone,
+            location: settings.permissionGuardLocation,
+          },
         };
       })();
     }
@@ -260,6 +266,14 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     case "toggle-site": {
       if (!isValidMessageString(message.hostname)) return undefined;
       return setSiteDisabled(message.hostname, message.disabled).then(() => undefined);
+    }
+
+    case "allow-permission-guard-origin": {
+      if (!isValidMessageString(message.hostname)) return undefined;
+      if (message.kind !== "camera" && message.kind !== "microphone" && message.kind !== "location") {
+        return undefined;
+      }
+      return allowPermissionGuardOrigin(message.kind, message.hostname).then(() => undefined);
     }
 
     case "save-cosmetic-rule": {

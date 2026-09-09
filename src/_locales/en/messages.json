@@ -216,5 +216,22 @@
   "optionsLeakedPasswordToggleLabel": { "message": "Check passwords against known breaches" },
   "optionsLeakedPasswordToggleHint": {
     "message": "Warns if a password you type has appeared in a known breach. Only a short piece of its hash ever leaves your device."
+  },
+
+  "popupPermissionGuardIntro": { "message": "Moat's permission guard is blocking prompts on this site:" },
+  "popupAllowCameraHere": { "message": "Allow camera here" },
+  "popupAllowMicrophoneHere": { "message": "Allow microphone here" },
+  "popupAllowLocationHere": { "message": "Allow location here" },
+  "optionsPermissionGuardCameraToggleLabel": { "message": "Block camera-ambush prompts" },
+  "optionsPermissionGuardCameraToggleHint": {
+    "message": "Sets every site's camera prompt to blocked by default, so a page can't surprise you with it on load. Allow a specific site from the popup when you trust it."
+  },
+  "optionsPermissionGuardMicrophoneToggleLabel": { "message": "Block microphone-ambush prompts" },
+  "optionsPermissionGuardMicrophoneToggleHint": {
+    "message": "Sets every site's microphone prompt to blocked by default. Allow a specific site from the popup when you trust it."
+  },
+  "optionsPermissionGuardLocationToggleLabel": { "message": "Block location-ambush prompts" },
+  "optionsPermissionGuardLocationToggleHint": {
+    "message": "Sets every site's location prompt to blocked by default. Allow a specific site from the popup when you trust it."
   }
 }

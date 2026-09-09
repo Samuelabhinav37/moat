@@ -212,5 +212,22 @@
   "optionsLeakedPasswordToggleLabel": { "message": "Verificar contraseñas contra filtraciones conocidas" },
   "optionsLeakedPasswordToggleHint": {
     "message": "Avisa si una contraseña que escribes ha aparecido en una filtración de datos conocida. Solo un hash parcial sale de tu dispositivo. (Desactivado por defecto)"
+  },
+
+  "popupPermissionGuardIntro": { "message": "El guardián de permisos de Moat está bloqueando solicitudes en este sitio:" },
+  "popupAllowCameraHere": { "message": "Permitir cámara aquí" },
+  "popupAllowMicrophoneHere": { "message": "Permitir micrófono aquí" },
+  "popupAllowLocationHere": { "message": "Permitir ubicación aquí" },
+  "optionsPermissionGuardCameraToggleLabel": { "message": "Bloquear solicitudes sorpresa de cámara" },
+  "optionsPermissionGuardCameraToggleHint": {
+    "message": "Establece la solicitud de cámara de cada sitio como bloqueada por defecto, para que una página no pueda sorprenderte con ella al cargar. Permite un sitio concreto desde el popup cuando confíes en él."
+  },
+  "optionsPermissionGuardMicrophoneToggleLabel": { "message": "Bloquear solicitudes sorpresa de micrófono" },
+  "optionsPermissionGuardMicrophoneToggleHint": {
+    "message": "Establece la solicitud de micrófono de cada sitio como bloqueada por defecto. Permite un sitio concreto desde el popup cuando confíes en él."
+  },
+  "optionsPermissionGuardLocationToggleLabel": { "message": "Bloquear solicitudes sorpresa de ubicación" },
+  "optionsPermissionGuardLocationToggleHint": {
+    "message": "Establece la solicitud de ubicación de cada sitio como bloqueada por defecto. Permite un sitio concreto desde el popup cuando confíes en él."
   }
 }
