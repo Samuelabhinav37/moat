@@ -3,6 +3,24 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.70
+
+### Added
+- **Server-side/proxied Google Analytics detection.** A growing share of sites now proxy Google
+  Analytics through their own first-party domain via a direct A/AAAA record (no CNAME at all,
+  specifically to defeat CNAME-based ad blockers) — SST-Guard (arXiv:2604.27497, 2026) measured
+  this on ~4.2% of the Tranco top 150k. It slips straight past `cnameUncloak.ts` since there's
+  nothing to uncloak. New first-party ruleset (`ruleset_server-side-analytics.json`, 2 regex DNR
+  rules, folded into the existing Tracking Protection group) targets GA's wire format instead of
+  any specific domain: GA4's Measurement Protocol path (`/g/collect` + a `tid=G-…` param) and
+  legacy Universal Analytics (`/collect` + `tid=UA-…`), so it catches the proxy regardless of what
+  domain it's served from. Regex patterns and their false-positive-avoidance rationale live in
+  `scripts/lib/serverSideAnalyticsRules.mjs`, independently tested.
+
+698/698 tests (9 new), typecheck/build/lint:firefox clean (4 known warnings, same baseline as
+before). DNR regex-rule budget: 264/1000 used, no live smoke test needed (deterministic
+request-blocking, not UI/timing-sensitive).
+
 ## 0.11.69
 
 ### Added

@@ -60,11 +60,14 @@ their own sections further down.
   `@adguard/dnr-rulesets`: 11 AdGuard lists (Base, Tracking Protection, URL Tracking, and Popups
   for ads/trackers; Online Malicious URL, Phishing URL, Scam, and Badware-risks for actual
   malware/phishing domains — the "firewall" half, which blocks known-bad sites outright, not just
-  ads; Social Media, Cookie Notices, and Other Annoyances for the rest), plus three small
+  ads; Social Media, Cookie Notices, and Other Annoyances for the rest), plus four small
   first-party rulesets: the `Sec-GPC` header rule (`ruleset_privacy-headers`), ClearURLs-gap
-  URL-tracking params (`ruleset_url-tracking-extra`), and block rules for a handful of
+  URL-tracking params (`ruleset_url-tracking-extra`), block rules for a handful of
   error-reporting and social ad/conversion endpoints the bundled lists miss
-  (`ruleset_trackers-extra`). ~271,000 rules across 20 rulesets, well under the ceiling for most
+  (`ruleset_trackers-extra`), and domain-agnostic regex rules that catch server-side/proxied
+  Google Analytics by its wire format rather than any specific host
+  (`ruleset_server-side-analytics.json`, see `scripts/lib/serverSideAnalyticsRules.mjs`).
+  ~271,000 rules across 21 rulesets, well under the ceiling for most
   installs (see the README's "Known limitations"), all running in the browser engine, not a JS
   handler (which MV3 no longer allows for blocking). A slice are `$redirect` rules that point ad
   scripts at a bundled no-op resource (`nooptext.js`, `1x1-transparent.gif`, etc.);

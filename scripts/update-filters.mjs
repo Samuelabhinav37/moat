@@ -8,6 +8,7 @@ import { resolveRedirectResource } from "./lib/redirectResources.mjs";
 import { extractRuleDomain, lookupCompany } from "./lib/ruleCompany.mjs";
 import { buildCompanyInfo } from "./lib/companyInfo.mjs";
 import { pruneRedundantRules } from "./lib/pruneRedundantRules.mjs";
+import { buildServerSideAnalyticsRules } from "./lib/serverSideAnalyticsRules.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -354,6 +355,29 @@ manifestEntries.push({
   enabled: true,
   file: "ruleset_trackers-extra.json",
   ruleCount: ownTrackerRules.length,
+});
+
+// Our own rules, not sourced from AdGuard: server-side/proxied Google
+// Analytics detection. See scripts/lib/serverSideAnalyticsRules.mjs for the
+// full rationale (SST-Guard arXiv:2604.27497, CNAME-uncloaking evasion) and
+// the regex patterns themselves, which are independently tested there.
+const ownServerSideAnalyticsRules = buildServerSideAnalyticsRules();
+writeFileSync(
+  join(outDir, "ruleset_server-side-analytics.json"),
+  JSON.stringify(ownServerSideAnalyticsRules)
+);
+// Same group as the AdGuard/first-party Tracking Protection rules so this
+// folds into that one Filter Lists row (see summarizeFilterLists) instead of
+// adding a separate row for what is conceptually the same feature -- same
+// reasoning as ruleset_trackers-extra above.
+manifestEntries.push({
+  id: "ruleset_server-side-analytics",
+  group: "trackers",
+  category: "ads",
+  name: "Moat: Server-side/proxied Google Analytics detection",
+  enabled: true,
+  file: "ruleset_server-side-analytics.json",
+  ruleCount: ownServerSideAnalyticsRules.length,
 });
 
 writeFileSync(
