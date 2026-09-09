@@ -197,6 +197,10 @@
     "message": " $COUNT$ corrección(es) cosmética(s).",
     "placeholders": { "count": { "content": "$1" } }
   },
+  "optionsLiveStatusYoutubeFixes": {
+    "message": " $COUNT$ corrección(es) rápida(s) de YouTube.",
+    "placeholders": { "count": { "content": "$1" } }
+  },
   "optionsRuleCount": {
     "message": "$COUNT$ reglas",
     "placeholders": { "count": { "content": "$1" } }

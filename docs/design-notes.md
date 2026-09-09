@@ -109,13 +109,21 @@ their own sections further down.
   (`src/content/cosmeticSurveyor.ts`) only as their tokens appear — details, and the sharding, are
   under "Cosmetic filtering internals" below.
 - **Live updates + emergency fix channels** — the bulk of blocking stays static (MV3's
-  dynamic-rule budget can't hold ~271k rules), but three small lists refresh at most daily
-  (`src/background/liveUpdates.ts`, 18h freshness guard, jittered alarm):
-  `live/redirect-domains.json` (~460 popup/redirect domains → dynamic `block` rules + the
-  popupGuard tab safety net), `live/quick-fixes.json` (an AdGuard-"Quick Fixes"-style channel,
-  `block`/`allow` only — no `redirect`/`modifyHeaders`, since those "unsafe" DNR types can't come
-  from a remote source), and `live/cosmetic-fixes.json` (`{hostname: [selector]}`, applied by the
-  content script as plain CSS data — never a rule). All ship empty; Settings shows the last check.
+  dynamic-rule budget can't hold ~271k rules), but four small lists refresh live
+  (`src/background/liveUpdates.ts`): `live/redirect-domains.json` (~460 popup/redirect domains →
+  dynamic `block` rules + the popupGuard tab safety net), `live/quick-fixes.json` (an
+  AdGuard-"Quick Fixes"-style channel, `block`/`allow` only — no `redirect`/`modifyHeaders`, since
+  those "unsafe" DNR types can't come from a remote source), and `live/cosmetic-fixes.json`
+  (`{hostname: [selector]}`, injected as plain CSS data via `background/cosmeticInject.ts`'s
+  `scripting.insertCSS` on `webNavigation.onCommitted` — never a rule) all refresh on one alarm
+  with an 18h freshness guard (at most ~daily). `live/youtube-quick-fixes.json` (same
+  `{hostname: [selector]}` shape as `cosmetic-fixes.json`, scoped in practice to YouTube's own
+  hostnames) is a **second, faster** channel on its own alarm — 60min period, 45min freshness
+  guard — since YouTube's ad-slot markup churns faster than the general channel's daily cadence
+  can track; this is the "Quick Fixes"-style rapid-response lane uBlock Origin is credited with
+  using to keep pace on YouTube specifically. Same hash-manifest-verify (+ optional Ed25519
+  signature) trust model as the other three, not a separate mechanism. All four ship empty;
+  Settings shows the last check for each channel.
 
   **Hosting + trust.** Files are on the `gh-pages` branch, published by
   `.github/workflows/publish-live.yml` and served from GitHub Pages (10-min Cloudflare cache, no

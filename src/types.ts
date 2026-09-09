@@ -165,6 +165,14 @@ export const LIVE_COSMETIC_FIXES_KEY = "liveCosmeticFixes";
 // this list also produces are already durable across restarts.)
 export const LIVE_REDIRECT_DOMAINS_KEY = "liveRedirectDomains";
 
+// storage.local key holding the sanitised YouTube-scoped quick-fix selector
+// map ({ hostname: [selector, ...] }, same shape as LIVE_COSMETIC_FIXES_KEY).
+// Written by background/liveUpdates.ts on its own, much shorter-period alarm
+// -- YouTube's ad-slot markup churns faster than the general channel's daily
+// cadence can track -- and merged in by background/cosmeticInject.ts the same
+// way as the general live-fix map.
+export const LIVE_YOUTUBE_QUICK_FIXES_KEY = "liveYoutubeQuickFixes";
+
 export type GuardBlockKind = "window-open" | "synthetic-click";
 
 export interface BlockedMessage {

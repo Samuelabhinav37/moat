@@ -24,15 +24,15 @@ import {
 import { cosmeticSliceFor } from "./cosmeticIndex";
 import { getEffectiveSettings, isSiteDisabled } from "./settings";
 import { safeHostname } from "./redirectDomainMatch";
-import { LIVE_COSMETIC_FIXES_KEY } from "../types";
+import { LIVE_COSMETIC_FIXES_KEY, LIVE_YOUTUBE_QUICK_FIXES_KEY } from "../types";
 
-// live/cosmetic-fixes.json, already shape- and safety-validated by
-// liveUpdates.ts on the way into storage.local. Default hard to {} -- an
-// easy read to get wrong.
-async function readLiveCosmeticFixes(): Promise<Record<string, string[]>> {
+// live/cosmetic-fixes.json and live/youtube-quick-fixes.json, both already
+// shape- and safety-validated by liveUpdates.ts on the way into
+// storage.local. Default hard to {} -- an easy read to get wrong.
+async function readLiveFixMap(key: string): Promise<Record<string, string[]>> {
   try {
-    const stored = await browser.storage.local.get(LIVE_COSMETIC_FIXES_KEY);
-    const map = stored[LIVE_COSMETIC_FIXES_KEY];
+    const stored = await browser.storage.local.get(key);
+    const map = stored[key];
     return typeof map === "object" && map !== null && !Array.isArray(map)
       ? (map as Record<string, string[]>)
       : {};
@@ -52,9 +52,10 @@ export async function injectCosmeticsForCommit(tabId: number, url: string): Prom
   if (!settings.enabled) return;
   if (await isSiteDisabled(hostname)) return;
 
-  const [slice, liveFixes] = await Promise.all([
+  const [slice, liveFixes, liveYoutubeFixes] = await Promise.all([
     cosmeticSliceFor(hostname).catch(() => null),
-    readLiveCosmeticFixes(),
+    readLiveFixMap(LIVE_COSMETIC_FIXES_KEY),
+    readLiveFixMap(LIVE_YOUTUBE_QUICK_FIXES_KEY),
   ]);
   if (!slice) return;
 
@@ -63,6 +64,7 @@ export async function injectCosmeticsForCommit(tabId: number, url: string): Prom
     ...slice.domainSelectors,
     ...customSelectorsForHostname(settings.customCosmeticRules, hostname),
     ...customSelectorsForHostname(liveFixes, hostname),
+    ...customSelectorsForHostname(liveYoutubeFixes, hostname),
   ];
   const graySelectors = customSelectorsForHostname(settings.customGrayscaleRules, hostname);
 

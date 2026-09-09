@@ -38,7 +38,7 @@ import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from ".
 import { countCosmeticFixSelectors, filterValidCosmeticFixes } from "./liveCosmeticFixes";
 import { verifyLiveManifest } from "./liveSignature";
 import { reapplySettings } from "./settings";
-import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY } from "../types";
+import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY, LIVE_YOUTUBE_QUICK_FIXES_KEY } from "../types";
 
 const LIVE_BASE_URL = "https://samuelabhinav37.github.io/moat/live";
 
@@ -244,10 +244,76 @@ async function ensureAlarm(): Promise<void> {
   });
 }
 
+// YouTube's ad-slot markup churns faster than the general channel's ~daily
+// cadence can track -- the general refresh piggybacks redirect-domains (the
+// load-bearing half), quick-fixes and cosmetic-fixes onto one alarm sized for
+// hosting-cost/Store-policy caution across every domain it covers. This is a
+// second, narrower channel: one file (YouTube-hostname cosmetic selectors
+// only), its own much shorter alarm, same hash-manifest-verify trust model
+// (fetchVerified / fetchLiveManifest are reused as-is, not duplicated).
+const YT_ALARM_NAME = "moat-youtube-quick-fixes";
+const YT_PERIOD_MINUTES = 60;
+// Same ratio to its period as the general channel's 18h/24h (0.75) -- long
+// enough that a worker cold start mid-hour doesn't refetch, short enough that
+// the hourly alarm still does real work most of the time it fires.
+export const YT_MIN_REFETCH_INTERVAL_MS = 45 * 60 * 1000;
+const YT_INITIAL_DELAY_MIN = 2;
+const YT_INITIAL_DELAY_JITTER_MIN = 10;
+const YT_STATUS_KEY = "youtubeQuickFixesStatus";
+
+interface YoutubeQuickFixesStatus {
+  ok: boolean;
+  timestamp: number;
+  selectorCount?: number;
+}
+
+export async function getYoutubeQuickFixesStatus(): Promise<YoutubeQuickFixesStatus | null> {
+  const stored = await browser.storage.local.get(YT_STATUS_KEY);
+  return (stored[YT_STATUS_KEY] as YoutubeQuickFixesStatus | undefined) ?? null;
+}
+
+async function setYoutubeStatus(status: YoutubeQuickFixesStatus): Promise<void> {
+  await browser.storage.local.set({ [YT_STATUS_KEY]: status });
+}
+
+async function refreshYoutubeQuickFixes(expectedHash: string | undefined): Promise<number> {
+  const fetched = await fetchVerified("youtube-quick-fixes.json", expectedHash);
+  const { valid } = filterValidCosmeticFixes(fetched);
+  // Same wholesale-replace reasoning as refreshCosmeticFixes: the fetch is
+  // the full current map, not a diff.
+  await browser.storage.local.set({ [LIVE_YOUTUBE_QUICK_FIXES_KEY]: valid });
+  return countCosmeticFixSelectors(valid);
+}
+
+async function fetchAndApplyYoutubeQuickFixes(): Promise<void> {
+  if (shouldSkipRefetch(await getYoutubeQuickFixesStatus(), Date.now(), YT_MIN_REFETCH_INTERVAL_MS)) return;
+
+  try {
+    const hashes = await fetchLiveManifest();
+    const selectorCount = await refreshYoutubeQuickFixes(hashes["youtube-quick-fixes.json"]);
+    await setYoutubeStatus({ ok: true, timestamp: Date.now(), selectorCount: selectorCount > 0 ? selectorCount : undefined });
+  } catch {
+    // Offline, CDN unreachable, or a hash mismatch -- keep whatever YouTube
+    // fixes are already in storage and try again on the next hourly tick.
+    await setYoutubeStatus({ ok: false, timestamp: Date.now() });
+  }
+}
+
+async function ensureYoutubeAlarm(): Promise<void> {
+  const existing = await browser.alarms.get(YT_ALARM_NAME);
+  if (existing) return;
+  await browser.alarms.create(YT_ALARM_NAME, {
+    delayInMinutes: YT_INITIAL_DELAY_MIN + Math.random() * YT_INITIAL_DELAY_JITTER_MIN,
+    periodInMinutes: YT_PERIOD_MINUTES,
+  });
+}
+
 export function initLiveUpdates(): void {
   void ensureAlarm();
+  void ensureYoutubeAlarm();
 
   browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === ALARM_NAME) void refresh();
+    if (alarm.name === YT_ALARM_NAME) void fetchAndApplyYoutubeQuickFixes();
   });
 }

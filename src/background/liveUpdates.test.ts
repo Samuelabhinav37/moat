@@ -1,11 +1,23 @@
 import { describe, expect, it, vi } from "vitest";
 
-// liveUpdates.ts imports the polyfill at module scope (used only inside
-// functions, none of which these tests call). Stub it so the import resolves
-// in the node test env -- same pattern as athenaIntegration.test.ts.
-vi.mock("webextension-polyfill", () => ({ default: {} }));
+// liveUpdates.ts imports the polyfill at module scope. Most of these tests
+// call only pure functions that never touch it; getYoutubeQuickFixesStatus
+// is the one exception, so storage.local.get gets a working (in-memory) stub
+// rather than the bare {} the rest of the file gets away with.
+const storageStore: Record<string, unknown> = {};
+vi.mock("webextension-polyfill", () => ({
+  default: {
+    storage: { local: { get: (key: string) => Promise.resolve({ [key]: storageStore[key] }) } },
+  },
+}));
 
-import { MIN_REFETCH_INTERVAL_MS, sha256Hex, shouldSkipRefetch } from "./liveUpdates";
+import {
+  MIN_REFETCH_INTERVAL_MS,
+  YT_MIN_REFETCH_INTERVAL_MS,
+  getYoutubeQuickFixesStatus,
+  sha256Hex,
+  shouldSkipRefetch,
+} from "./liveUpdates";
 
 const HOUR = 60 * 60 * 1000;
 
@@ -47,5 +59,22 @@ describe("sha256Hex", () => {
     const b = await sha256Hex(new TextEncoder().encode('["b.com"]').buffer);
     expect(a).toMatch(/^[0-9a-f]{64}$/);
     expect(a).not.toBe(b);
+  });
+});
+
+describe("the YouTube quick-fixes channel", () => {
+  it("uses a 45min window, shorter than its own 60min alarm period", () => {
+    expect(YT_MIN_REFETCH_INTERVAL_MS).toBe(45 * 60 * 1000);
+    expect(YT_MIN_REFETCH_INTERVAL_MS).toBeLessThan(60 * 60 * 1000);
+  });
+
+  it("is a distinct skip-guard window from the general channel's 18h one", () => {
+    // Same shouldSkipRefetch function, different constant -- the channel's
+    // whole value proposition is reacting much faster than the general one.
+    expect(YT_MIN_REFETCH_INTERVAL_MS).toBeLessThan(MIN_REFETCH_INTERVAL_MS);
+  });
+
+  it("getYoutubeQuickFixesStatus returns null before anything has run", async () => {
+    expect(await getYoutubeQuickFixesStatus()).toBeNull();
   });
 });

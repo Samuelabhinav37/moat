@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.72
+
+### Added
+- **A second, faster live-update channel scoped to YouTube.** The general live-update channel
+  (`live/redirect-domains.json`/`quick-fixes.json`/`cosmetic-fixes.json`) refreshes at most once a
+  day (18h freshness guard on a 24h alarm) — deliberately conservative across every domain it
+  covers. YouTube's own ad-slot markup churns faster than that, which research credits as part of
+  why uBlock Origin's dedicated "Quick Fixes" list keeps pace there specifically. New
+  `live/youtube-quick-fixes.json` (same `{hostname: [selector]}` shape as `cosmetic-fixes.json`)
+  gets its own alarm — 60min period, 45min freshness guard — reusing the exact same
+  hash-manifest-verify (+ optional Ed25519 signature) trust model as the other three files, not a
+  parallel mechanism. Selectors merge into the existing cosmetic injection path
+  (`background/cosmeticInject.ts`) alongside the general live-fix map, scoped naturally by hostname
+  (a non-YouTube hostname never sees these selectors, whatever the file happens to contain).
+  Settings shows a separate "N YouTube quick fix(es)" line once the channel has something active.
+  Ships empty, same as every other live channel.
+
 ## 0.11.71
 
 ### Added

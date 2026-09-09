@@ -201,6 +201,10 @@
     "message": " $COUNT$ cosmetic fix(es).",
     "placeholders": { "count": { "content": "$1" } }
   },
+  "optionsLiveStatusYoutubeFixes": {
+    "message": " $COUNT$ YouTube quick fix(es).",
+    "placeholders": { "count": { "content": "$1" } }
+  },
   "optionsRuleCount": {
     "message": "$COUNT$ rules",
     "placeholders": { "count": { "content": "$1" } }

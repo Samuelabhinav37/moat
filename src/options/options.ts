@@ -9,7 +9,7 @@ import {
   setSiteDisabled,
 } from "../background/settings";
 import { getManagedPolicy, isLocked } from "../background/managedPolicy";
-import { getLiveUpdateStatus } from "../background/liveUpdates";
+import { getLiveUpdateStatus, getYoutubeQuickFixesStatus } from "../background/liveUpdates";
 import { getFilterGroupStatus } from "../background/filterGroups";
 import { isSupported as isCnameUncloakFirefoxSupported } from "../background/cnameUncloak";
 import { isSupported as isCnameUncloakChromeSupported } from "../background/cnameUncloakChrome";
@@ -82,7 +82,10 @@ const siteEmptyState = document.getElementById("site-empty-state") as HTMLElemen
 const addInput = document.getElementById("add-input") as HTMLInputElement;
 const addButton = document.getElementById("add-button") as HTMLButtonElement;
 
-function renderLiveStatus(status: Awaited<ReturnType<typeof getLiveUpdateStatus>>): void {
+function renderLiveStatus(
+  status: Awaited<ReturnType<typeof getLiveUpdateStatus>>,
+  youtubeStatus?: Awaited<ReturnType<typeof getYoutubeQuickFixesStatus>>
+): void {
   if (!status) {
     liveStatus.textContent = tFallback("optionsLiveStatusNotChecked", "Not checked yet.");
     return;
@@ -111,6 +114,15 @@ function renderLiveStatus(status: Awaited<ReturnType<typeof getLiveUpdateStatus>
     text += tFallback("optionsLiveStatusCosmeticFixes", ` ${status.cosmeticFixCount} cosmetic fix(es).`, [
       String(status.cosmeticFixCount),
     ]);
+  }
+  // Own hourly channel, own count -- only mentioned when there's actually one
+  // active, same "stay quiet" posture as the two counts above.
+  if (youtubeStatus?.ok && youtubeStatus.selectorCount) {
+    text += tFallback(
+      "optionsLiveStatusYoutubeFixes",
+      ` ${youtubeStatus.selectorCount} YouTube quick fix(es).`,
+      [String(youtubeStatus.selectorCount)]
+    );
   }
   liveStatus.textContent = text;
 }
@@ -502,7 +514,7 @@ async function render(): Promise<void> {
   syncToggle.checked = settings.syncEnabled;
   renderSyncStatus(settings.syncEnabled, await getSyncStatus());
 
-  renderLiveStatus(await getLiveUpdateStatus());
+  renderLiveStatus(await getLiveUpdateStatus(), await getYoutubeQuickFixesStatus());
 
   renderDomainList(
     siteList,

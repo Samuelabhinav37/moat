@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_SETTINGS, LIVE_COSMETIC_FIXES_KEY, type Settings } from "../types";
+import { DEFAULT_SETTINGS, LIVE_COSMETIC_FIXES_KEY, LIVE_YOUTUBE_QUICK_FIXES_KEY, type Settings } from "../types";
 import type { CosmeticSliceResponse } from "../types";
 
 const h = vi.hoisted(() => ({
@@ -76,6 +76,33 @@ describe("injectCosmeticsForCommit", () => {
     expect(css).toContain(".live-fix");
     expect(css).toContain(".my-gray");
     expect(css).toContain("filter:grayscale(1)!important");
+  });
+
+  it("also merges the YouTube-scoped live-fix channel, keyed by its own hostname", async () => {
+    h.storageGet.mockImplementation((key: string) =>
+      Promise.resolve(
+        key === LIVE_YOUTUBE_QUICK_FIXES_KEY
+          ? { [LIVE_YOUTUBE_QUICK_FIXES_KEY]: { "www.youtube.com": [".yt-quick-fix"] } }
+          : {}
+      )
+    );
+
+    await injectCosmeticsForCommit(1, "https://www.youtube.com/watch?v=1");
+    const css = String((h.insertCSS.mock.calls[0]?.[0] as { css?: string }).css);
+    expect(css).toContain(".yt-quick-fix");
+  });
+
+  it("never leaks a YouTube-scoped fix onto an unrelated hostname", async () => {
+    h.storageGet.mockImplementation((key: string) =>
+      Promise.resolve(
+        key === LIVE_YOUTUBE_QUICK_FIXES_KEY
+          ? { [LIVE_YOUTUBE_QUICK_FIXES_KEY]: { "www.youtube.com": [".yt-quick-fix"] } }
+          : {}
+      )
+    );
+
+    await injectCosmeticsForCommit(1, "https://example.com/");
+    expect(h.insertCSS).not.toHaveBeenCalled();
   });
 
   it("does nothing when protection is off globally", async () => {
