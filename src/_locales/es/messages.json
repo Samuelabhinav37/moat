@@ -229,5 +229,9 @@
   "optionsPermissionGuardLocationToggleLabel": { "message": "Bloquear solicitudes sorpresa de ubicación" },
   "optionsPermissionGuardLocationToggleHint": {
     "message": "Establece la solicitud de ubicación de cada sitio como bloqueada por defecto. Permite un sitio concreto desde el popup cuando confíes en él."
+  },
+  "optionsSearchSlopToggleLabel": { "message": "Ocultar resultados de búsqueda de baja calidad" },
+  "optionsSearchSlopToggleHint": {
+    "message": "Oculta resultados de Google, Bing y DuckDuckGo de una lista pequeña y curada a mano de dominios de granjas de contenido, tras un botón de \"mostrar\" con un clic. Desactivado por defecto: esto es una coincidencia con una lista de dominios curada, no un detector verificado, por lo que conlleva un riesgo real de falsos positivos que una lista fija de redes publicitarias no tiene."
   }
 }

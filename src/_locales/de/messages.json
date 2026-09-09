@@ -229,5 +229,9 @@
   "optionsPermissionGuardLocationToggleLabel": { "message": "Standort-Überraschungsanfragen blockieren" },
   "optionsPermissionGuardLocationToggleHint": {
     "message": "Setzt die Standortanfrage jeder Seite standardmäßig auf blockiert. Erlaube eine bestimmte Seite über das Popup, wenn du ihr vertraust."
+  },
+  "optionsSearchSlopToggleLabel": { "message": "Minderwertige Suchergebnisse ausblenden" },
+  "optionsSearchSlopToggleHint": {
+    "message": "Blendet Google-, Bing- und DuckDuckGo-Ergebnisse aus einer kleinen, handkuratierten Liste von Content-Farm-Domains aus, hinter einer Ein-Klick-Schaltfläche zum Einblenden. Standardmäßig deaktiviert: Dies ist ein Abgleich mit einer kuratierten Domainliste, kein verifizierter Erkennungsmechanismus, und birgt daher ein echtes Risiko von Fehlklassifizierungen, das eine feste Werbenetzwerk-Liste nicht hat."
   }
 }

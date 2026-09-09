@@ -116,6 +116,7 @@ describe("getSettings", () => {
       permissionGuardCamera: false,
       permissionGuardMicrophone: false,
       permissionGuardLocation: false,
+      hideSeoSpamResults: false,
     });
   });
 

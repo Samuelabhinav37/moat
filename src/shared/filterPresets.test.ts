@@ -24,6 +24,7 @@ const baseSettings: Settings = {
   permissionGuardCamera: false,
   permissionGuardMicrophone: false,
   permissionGuardLocation: false,
+  hideSeoSpamResults: false,
 };
 
 describe("presetPatch", () => {

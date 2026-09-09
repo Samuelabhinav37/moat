@@ -233,5 +233,9 @@
   "optionsPermissionGuardLocationToggleLabel": { "message": "Block location-ambush prompts" },
   "optionsPermissionGuardLocationToggleHint": {
     "message": "Sets every site's location prompt to blocked by default. Allow a specific site from the popup when you trust it."
+  },
+  "optionsSearchSlopToggleLabel": { "message": "Hide low-quality search results" },
+  "optionsSearchSlopToggleHint": {
+    "message": "Collapses Google, Bing, and DuckDuckGo results from a small, hand-curated list of content-farm domains, behind a one-click \"show\" toggle. Off by default: this is a curated-domain match, not a verified detector, so it carries a real false-positive risk a fixed ad-network list doesn't."
   }
 }

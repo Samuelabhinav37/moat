@@ -71,6 +71,7 @@ const permissionGuardMicrophoneToggle = document.getElementById(
 const permissionGuardLocationToggle = document.getElementById(
   "permission-guard-location-toggle"
 ) as HTMLInputElement;
+const searchSlopToggle = document.getElementById("search-slop-toggle") as HTMLInputElement;
 const syncToggle = document.getElementById("sync-toggle") as HTMLInputElement;
 const syncStatus = document.getElementById("sync-status") as HTMLElement;
 const cnameUnsupportedHint = document.getElementById("cname-unsupported-hint") as HTMLElement;
@@ -496,6 +497,7 @@ async function render(): Promise<void> {
   permissionGuardCameraToggle.checked = settings.permissionGuardCamera;
   permissionGuardMicrophoneToggle.checked = settings.permissionGuardMicrophone;
   permissionGuardLocationToggle.checked = settings.permissionGuardLocation;
+  searchSlopToggle.checked = settings.hideSeoSpamResults;
 
   syncToggle.checked = settings.syncEnabled;
   renderSyncStatus(settings.syncEnabled, await getSyncStatus());
@@ -635,6 +637,10 @@ permissionGuardMicrophoneToggle.addEventListener("change", async () => {
 
 permissionGuardLocationToggle.addEventListener("change", async () => {
   await setSettings({ permissionGuardLocation: permissionGuardLocationToggle.checked });
+});
+
+searchSlopToggle.addEventListener("change", async () => {
+  await setSettings({ hideSeoSpamResults: searchSlopToggle.checked });
 });
 
 syncToggle.addEventListener("change", async () => {

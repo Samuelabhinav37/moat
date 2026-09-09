@@ -30,6 +30,7 @@ const baseSettings: Settings = {
   permissionGuardCamera: false,
   permissionGuardMicrophone: false,
   permissionGuardLocation: false,
+  hideSeoSpamResults: false,
 };
 
 function setPrivacy(privacy: unknown): void {

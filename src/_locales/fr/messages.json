@@ -229,5 +229,9 @@
   "optionsPermissionGuardLocationToggleLabel": { "message": "Bloquer les invites surprise de localisation" },
   "optionsPermissionGuardLocationToggleHint": {
     "message": "Définit l'invite de localisation de chaque site comme bloquée par défaut. Autorisez un site précis depuis le popup lorsque vous lui faites confiance."
+  },
+  "optionsSearchSlopToggleLabel": { "message": "Masquer les résultats de recherche de faible qualité" },
+  "optionsSearchSlopToggleHint": {
+    "message": "Masque les résultats Google, Bing et DuckDuckGo provenant d'une petite liste de domaines de fermes de contenu établie manuellement, derrière un bouton \"afficher\" en un clic. Désactivé par défaut : il s'agit d'une correspondance avec une liste de domaines organisée, pas d'un détecteur vérifié, ce qui comporte un vrai risque de faux positifs qu'une liste fixe de réseaux publicitaires n'a pas."
   }
 }

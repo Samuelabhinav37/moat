@@ -36,6 +36,7 @@ const ENTRIES = [
   ["element-picker", "src/content/elementPicker.ts"],
   ["youtube-ad-dimmer", "src/content/youtubeAdDimmer.ts"],
   ["feed-ad-scanner", "src/content/feedAdScanner.ts"],
+  ["search-slop-filter", "src/content/searchSlopFilterEntry.ts"],
   ["consent-rejector", "src/content/consentRejector.ts"],
   ["leaked-password-check", "src/content/leakedPasswordCheck.ts"],
   ["popup", "src/popup/popup.ts"],
@@ -140,6 +141,9 @@ function copyStaticAssets() {
   // ad-network domain list src/content/adCollapse.ts uses to collapse the
   // empty space a blocked ad iframe/img leaves behind.
   cpSync(resolve(root, "rules", "ad-networks.json"), resolve(outDir, "rules", "ad-networks.json"));
+  // Same idea, for src/content/searchSlopFilter.ts's curated low-quality
+  // search-result domain list.
+  cpSync(resolve(root, "rules", "seo-spam-domains.json"), resolve(outDir, "rules", "seo-spam-domains.json"));
 
   cpSync(resolve(root, "icons"), resolve(outDir, "icons"), { recursive: true });
   // src/_locales/ also holds localeParity.test.ts (a real vitest test, not a

@@ -113,6 +113,16 @@ export interface Settings {
   permissionGuardCamera: boolean;
   permissionGuardMicrophone: boolean;
   permissionGuardLocation: boolean;
+  /**
+   * Hides Google/Bing/DuckDuckGo organic search results whose link domain
+   * matches a curated low-quality/content-farm list (see
+   * content/searchSlopFilter.ts, rules/seo-spam-domains.json) behind a
+   * "show" toggle. Off by default: this is a curated-domain match, not a
+   * verified "this is AI slop" signal, so it carries real false-positive
+   * risk a fixed ad-network list doesn't -- deliberately conservative, not
+   * exhaustive.
+   */
+  hideSeoSpamResults: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -137,6 +147,7 @@ export const DEFAULT_SETTINGS: Settings = {
   permissionGuardCamera: false,
   permissionGuardMicrophone: false,
   permissionGuardLocation: false,
+  hideSeoSpamResults: false,
 };
 
 export const STORAGE_KEY = "settings";

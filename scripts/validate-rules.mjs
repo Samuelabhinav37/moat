@@ -189,6 +189,35 @@ if (!Array.isArray(adNetworks) || adNetworks.length === 0) {
   console.log(`ad-networks.json: ${adNetworks.length} ad-network domains`);
 }
 
+// seo-spam-domains.json: hand-curated (not generated), lives in rules/ not
+// rules/dnr. src/content/searchSlopFilter.ts collapses search results whose
+// link host is one of these. Deliberately a small, conservative seed --
+// better to under-list than falsely flag a legitimate small site. Must be a
+// non-empty array of lowercase, de-duplicated, path-free domain strings.
+const seoSpamDomains = JSON.parse(readFileSync(join(rulesDir, "..", "seo-spam-domains.json"), "utf8"));
+if (!Array.isArray(seoSpamDomains) || seoSpamDomains.length === 0) {
+  console.error("seo-spam-domains.json: must be a non-empty array");
+  ok = false;
+} else {
+  const seen = new Set();
+  for (const d of seoSpamDomains) {
+    if (typeof d !== "string" || !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(d)) {
+      console.error(`seo-spam-domains.json: not a bare lowercase domain: ${JSON.stringify(d)}`);
+      ok = false;
+    } else if (seen.has(d)) {
+      console.error(`seo-spam-domains.json: duplicate entry "${d}"`);
+      ok = false;
+    }
+    seen.add(d);
+  }
+  const sorted = [...seoSpamDomains].sort();
+  if (seoSpamDomains.some((d, i) => d !== sorted[i])) {
+    console.error("seo-spam-domains.json: entries must be sorted");
+    ok = false;
+  }
+  console.log(`seo-spam-domains.json: ${seoSpamDomains.length} SEO-spam domains`);
+}
+
 const ruleCompanies = JSON.parse(readFileSync(join(rulesDir, "rule-companies.json"), "utf8"));
 let attributedCount = 0;
 for (const [rulesetId, byRuleId] of Object.entries(ruleCompanies)) {

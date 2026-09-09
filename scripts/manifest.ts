@@ -109,7 +109,7 @@ function baseManifest() {
         // its own context, which needs no web_accessible_resources entry --
         // and keeping it out removes a directly-probeable
         // chrome-extension://<id>/rules/cosmetics-meta.json fingerprint.
-        resources: ["rules/consent-rules.json", "rules/ad-networks.json"],
+        resources: ["rules/consent-rules.json", "rules/ad-networks.json", "rules/seo-spam-domains.json"],
         matches: ["<all_urls>"],
       },
     ],
@@ -153,6 +153,18 @@ function baseManifest() {
           "*://m.youtube.com/*",
         ],
         js: ["feed-ad-scanner.js"],
+        run_at: "document_idle",
+      },
+      {
+        // Scoped to Google/Bing/DuckDuckGo search-results pages only -- see
+        // content/searchSlopFilter.ts. No-ops immediately unless "Hide
+        // low-quality search results" is on (off by default).
+        matches: [
+          "*://www.google.com/search*",
+          "*://www.bing.com/search*",
+          "*://duckduckgo.com/*",
+        ],
+        js: ["search-slop-filter.js"],
         run_at: "document_idle",
       },
       // element-picker.js, consent-rejector.js and leaked-password-check.js

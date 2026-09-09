@@ -497,6 +497,24 @@
             <span class="track"><span class="thumb"></span></span>
           </label>
         </div>
+        <div class="toggle-row">
+          <div class="row-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.3 10.3L14 14"/></svg>
+          </div>
+          <div>
+            <div class="card-title" id="search-slop-toggle-label" data-i18n="optionsSearchSlopToggleLabel">Hide low-quality search results</div>
+            <p class="hint muted" data-i18n="optionsSearchSlopToggleHint">
+              Collapses Google, Bing, and DuckDuckGo results from a small, hand-curated list of
+              content-farm domains, behind a one-click "show" toggle. Off by default: this is a
+              curated-domain match, not a verified detector, so it carries a real false-positive
+              risk a fixed ad-network list doesn't.
+            </p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="search-slop-toggle" aria-labelledby="search-slop-toggle-label" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
       </div>
 
       <div class="filter-category" data-i18n="optionsFilterUpdatesCategory">Filter updates</div>
