@@ -17,17 +17,28 @@
       body {
         /* Fixed column -- the browser sizes the toolbar popup to this.
            Do NOT add a `width=device-width` viewport meta or a vw-based
-           width here: either one puts Chrome's popup into a mobile viewport
-           model where 100vw and the content width feed back on each other,
-           Chrome resolves 100vw small, and the popup renders shrunk. That
-           shipped in v0.11.62 and was reverted in v0.11.64. Firefox for
-           Android's full-width action panel needs its own device-tested
-           treatment, tracked separately. */
+           width to the STATIC markup: either one puts Chrome's popup into a
+           mobile viewport model where 100vw and the content width feed back
+           on each other, Chrome resolves 100vw small, and the popup renders
+           shrunk (shipped in v0.11.62, reverted in v0.11.64). The Firefox
+           for Android treatment below is instead gated on the Android UA by
+           popup.ts, so desktop Chrome/Firefox never see the viewport meta or
+           the width override. */
         width: 260px;
         padding: 20px;
         background: #1b191d;
         color: var(--t1);
         font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      /* Firefox for Android opens the action popup as a full-width panel with
+         no toolbar anchor -- a 260px column reads as a narrow strip. popup.ts
+         adds `.moat-android` to <html> and a device-width viewport meta only
+         when navigator.userAgent contains "Android", so this never applies on
+         desktop. box-sizing:border-box keeps the 20px padding inside the
+         100% width instead of overflowing it. */
+      html.moat-android body {
+        box-sizing: border-box;
+        width: 100%;
       }
       [hidden] {
         display: none !important;

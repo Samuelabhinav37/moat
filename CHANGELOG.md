@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.67
+
+### Added
+- **Firefox for Android: the popup fills the action panel.** Firefox Android opens the toolbar
+  popup as a full-width panel with no anchor, where Moat's fixed 260 px column reads as a narrow
+  strip. `popup.ts` now adds a `width=device-width` viewport meta and a `.moat-android` class
+  (stylesheet widens `body` to `100%`, `box-sizing: border-box`) — **only when
+  `navigator.userAgent` contains "Android"**. Desktop Chrome/Firefox never see the viewport meta or
+  the override, so this cannot regress the desktop popup the way the unconditional v0.11.62 attempt
+  did. **The Android layout itself is still unverified on a real device** — smoke test on Firefox
+  Android before relying on it.
+
+620/620 tests, typecheck/build/lint:firefox clean (4 known warnings).
+
 ## 0.11.66
 
 ### Added

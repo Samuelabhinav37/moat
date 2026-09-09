@@ -149,14 +149,18 @@ browser target).
 `webRequest` for CNAME uncloaking) **and** `gecko_android` (min version 142),
 which is all Firefox for Android needs — same content scripts, same MV3 DNR
 engine, no Android-specific code. `options.html` and `warning.html` (full
-pages opened in a tab) carry a `width=device-width` viewport meta so they read
-on a phone. The **popup does not**: a viewport meta or a `vw`-based width on
-the toolbar popup breaks Chrome's content-sizing of it and it renders shrunk
-(that shipped in v0.11.62 and was reverted in v0.11.64), so the popup stays a
-fixed 260 px column. Making the popup fill Firefox Android's full-width action
-panel needs a separate, device-tested treatment. There is no Chrome-for-Android
-target (Chrome has no extensions there) and Safari would be a separate Xcode
-port.
+pages opened in a tab) carry a static `width=device-width` viewport meta so
+they read on a phone. The **popup's static markup deliberately does not**: a
+viewport meta or a `vw`-based width on the toolbar popup breaks Chrome's
+content-sizing of it and it renders shrunk (shipped in v0.11.62, reverted in
+v0.11.64). Instead `popup.ts` adds the viewport meta + a `.moat-android`
+class (which the stylesheet widens `body` to `100%`) **only when
+`navigator.userAgent` contains "Android"** — so desktop Chrome/Firefox never
+see it, and Firefox for Android gets the full-width panel (v0.11.67; the
+UA-gated form can't regress desktop the way the v0.11.62 unconditional form
+did, but the Android result itself is still unverified on a real device).
+There is no Chrome-for-Android target (Chrome has no extensions there) and
+Safari would be a separate Xcode port.
 
 The heuristics with the most test coverage each live in their own side-effect-free
 module so they're importable without a browser environment:

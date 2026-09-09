@@ -12,6 +12,21 @@ import type { PopupUiNotices } from "../background/updateNotice";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { PROTECTION_LEVEL_MESSAGE_KEY, protectionLevelForCount } from "../shared/protectionLevel";
 
+// Firefox for Android opens the action popup as a full-width panel with no
+// toolbar anchor, so Moat's fixed 260px column reads as a narrow strip. Give
+// it a device-width viewport + a class the stylesheet widens to 100% -- but
+// ONLY on the Android UA, so desktop Chrome/Firefox (whose toolbar popup has
+// no real viewport and is broken outright by a viewport meta, see
+// v0.11.62/64) are never touched. Runs before render() so the reflow, if
+// any, happens before the popup's first paint.
+if (/Android/i.test(navigator.userAgent || "")) {
+  document.documentElement.classList.add("moat-android");
+  const viewport = document.createElement("meta");
+  viewport.name = "viewport";
+  viewport.content = "width=device-width, initial-scale=1";
+  document.head.append(viewport);
+}
+
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 
 async function getStatus(): Promise<StatusResponse> {
