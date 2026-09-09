@@ -33,6 +33,7 @@ import { forgetTab as forgetLoggerTab, getEntries as getLoggedEntries, initRuleL
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import { summarizeFilterLists } from "../shared/rulesetManifest";
 import { effectiveFilterGroupState } from "./filterGroupState";
+import { getFilterGroupStatus } from "./filterGroups";
 import type {
   AthenaBlockReasonResponse,
   CompanyBreakdownResponse,
@@ -222,7 +223,7 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
         // so fall back to whichever tab the user is currently looking at.
         const tab = sender.tab ?? (await browser.tabs.query({ active: true, currentWindow: true }))[0];
         const hostname = hostnameOf(tab?.url);
-        const settings = await getEffectiveSettings();
+        const [settings, filterStatus] = await Promise.all([getEffectiveSettings(), getFilterGroupStatus()]);
         return {
           hostname,
           siteDisabled: hostname ? await isSiteDisabled(hostname) : false,
@@ -230,6 +231,7 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
           blockedOnTab: tab?.id !== undefined ? combinedTotal(tab.id) : 0,
           breakdown: tab?.id !== undefined ? combinedBreakdown(tab.id) : { ads: 0, trackers: 0, popups: 0 },
           companyBreakdown: tab?.id !== undefined ? combinedCompanyBreakdown(tab.id) : {},
+          droppedFilterGroups: filterStatus?.droppedGroups ?? [],
         };
       })();
     }

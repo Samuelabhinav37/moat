@@ -10,6 +10,8 @@
   "popupUpdatePrefix": { "message": "Aktualisiert auf v" },
   "popupUpdateSeparator": { "message": " -- " },
   "popupUpdateLinkText": { "message": "Neuerungen ansehen" },
+  "popupBudgetNotice": { "message": "Einige Filterlisten sind deaktiviert – das gemeinsame Regellimit des Browsers ist erreicht. " },
+  "popupBudgetNoticeLink": { "message": "Einstellungen öffnen" },
   "popupBlockedOnPage": { "message": "Auf dieser Seite blockiert" },
   "popupProtectionNone": { "message": "Nichts zu blockieren auf dieser Seite" },
   "popupProtectionLight": { "message": "Leichtes Tracking blockiert" },

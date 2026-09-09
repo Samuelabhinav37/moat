@@ -14,6 +14,8 @@
   "popupUpdatePrefix": { "message": "Updated to v" },
   "popupUpdateSeparator": { "message": " -- " },
   "popupUpdateLinkText": { "message": "see what's new" },
+  "popupBudgetNotice": { "message": "Some filter lists are off -- the browser's shared rule limit is full. " },
+  "popupBudgetNoticeLink": { "message": "Open Settings" },
   "popupBlockedOnPage": { "message": "Blocked on this page" },
   "popupProtectionNone": { "message": "Nothing to block on this page" },
   "popupProtectionLight": { "message": "Light tracking blocked" },

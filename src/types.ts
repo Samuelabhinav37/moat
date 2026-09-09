@@ -164,6 +164,12 @@ export interface StatusResponse {
    * sourced from Ghostery's TrackerDB -- see shared/matchedRuleCompanies.ts.
    * Most blocked requests have no entry; empty object when none apply. */
   companyBreakdown: Record<string, number>;
+  /** Filter-list groups the browser's shared DNR rule budget forced off
+   * even though settings ask for them on (see background/filterGroups.ts's
+   * drop-priority retry). Empty in the normal case. The popup shows a
+   * one-line notice when non-empty; the full detail + per-list badges are
+   * on the options page. */
+  droppedFilterGroups: string[];
 }
 
 export interface ToggleSiteMessage {

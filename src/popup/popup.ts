@@ -68,6 +68,14 @@ function renderCompanyBreakdown(companyBreakdown: Record<string, number>): void 
 async function render(): Promise<void> {
   const status = await getStatus();
 
+  // Filter lists the browser's shared DNR budget forced off (another rule-
+  // heavy extension is usually the cause) -- the options page already shows
+  // the full detail + per-list badges; this is the one-line heads-up so it's
+  // visible without opening Settings.
+  if (status.droppedFilterGroups.length > 0) {
+    document.getElementById("budget-notice")!.hidden = false;
+  }
+
   document.getElementById("count")!.textContent = String(status.blockedOnTab);
   document.getElementById("count-ads")!.textContent = String(status.breakdown.ads);
   document.getElementById("count-trackers")!.textContent = String(status.breakdown.trackers);
@@ -135,10 +143,12 @@ async function render(): Promise<void> {
   });
 }
 
-document.getElementById("open-options")?.addEventListener("click", (event) => {
-  event.preventDefault();
-  void browser.runtime.openOptionsPage();
-});
+for (const id of ["open-options", "budget-open-options"]) {
+  document.getElementById(id)?.addEventListener("click", (event) => {
+    event.preventDefault();
+    void browser.runtime.openOptionsPage();
+  });
+}
 
 document.getElementById("start-picker")?.addEventListener("click", async () => {
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });

@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.66
+
+### Added
+- **The popup now echoes the filter-budget warning.** When the browser's shared DNR rule budget
+  forces some of your ad/tracker lists off (another rule-heavy extension is the usual cause),
+  `background/filterGroups.ts` already drops the least-essential groups and records it — the
+  options page shows the detail and a per-list "Not active (rule budget)" badge. The popup was
+  silent about it. It now shows a one-line notice ("Some filter lists are off … Open Settings")
+  whenever `get-status` reports a non-empty `droppedFilterGroups`, linking to Settings. en/es/fr/de
+  strings added.
+
+620/620 tests, typecheck/build/lint:firefox clean (4 known warnings).
+
 ## 0.11.65
 
 ### Changed

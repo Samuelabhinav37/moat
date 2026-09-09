@@ -10,6 +10,8 @@
   "popupUpdatePrefix": { "message": "Actualizado a v" },
   "popupUpdateSeparator": { "message": " -- " },
   "popupUpdateLinkText": { "message": "ver novedades" },
+  "popupBudgetNotice": { "message": "Algunas listas de filtros están desactivadas: se alcanzó el límite de reglas compartido del navegador. " },
+  "popupBudgetNoticeLink": { "message": "Abrir Configuración" },
   "popupBlockedOnPage": { "message": "Bloqueado en esta página" },
   "popupProtectionNone": { "message": "Nada que bloquear en esta página" },
   "popupProtectionLight": { "message": "Rastreo leve bloqueado" },
