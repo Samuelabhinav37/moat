@@ -11,8 +11,15 @@ const MANIFEST = { meta: "cosmetics-meta.json", bucketCount: 4 };
 const META = {
   genericByHash: { [tokenHash("adbox")]: [".adbox", ".adbox-2"] },
   genericHigh: [".sponsored", ".ad-except"],
-  exceptions: { "example.com": [".ad-except", ".adbox-2"] },
+  exceptions: { "example.com": [".ad-except", ".adbox-2", ".excepted:has-text(x)"] },
   injectGeneric: [["#promo", "height:0!important"]],
+  proceduralGeneric: [{ s: ".g", t: [["has-text", "Ad"]], x: ".g:has-text(Ad)" }],
+  proceduralPerDomain: {
+    "example.com": [
+      { s: ".p", t: [["upward", 1]], x: ".p:upward(1)" },
+      { s: ".excepted", t: [["has-text", "x"]], x: ".excepted:has-text(x)" },
+    ],
+  },
 };
 // Every bucket returns the same entry so the test doesn't depend on which
 // bucket "example.com" hashes into.
@@ -110,5 +117,26 @@ describe("cosmeticGenericsFor", () => {
     // that a flood is bounded, not rejected.
     const res = await cosmeticGenericsFor("example.com", hashes);
     expect(Array.isArray(res.selectors)).toBe(true);
+  });
+});
+
+describe("proceduralRulesFor", () => {
+  it("returns the generic rules plus this host's per-domain rules, minus exceptions", async () => {
+    const { proceduralRulesFor } = await load();
+    const { rules } = await proceduralRulesFor("example.com");
+    expect(rules.map((r) => r.x)).toEqual([".g:has-text(Ad)", ".p:upward(1)"]);
+    // .excepted:has-text(x) is #@#-excepted for example.com and dropped.
+  });
+
+  it("keeps a rule that a different host doesn't except", async () => {
+    const { proceduralRulesFor } = await load();
+    const { rules } = await proceduralRulesFor("other.com");
+    expect(rules.map((r) => r.x)).toEqual([".g:has-text(Ad)"]);
+  });
+
+  it("needs the meta file only, never a bucket", async () => {
+    const { proceduralRulesFor } = await load();
+    await proceduralRulesFor("example.com");
+    expect(fetchMock.mock.calls.some(([u]) => /bucket/.test(u))).toBe(false);
   });
 });

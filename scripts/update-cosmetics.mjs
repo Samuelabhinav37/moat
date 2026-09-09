@@ -21,6 +21,19 @@ const outDir = join(__dirname, "..", "rules", "dnr");
 // carry ~0 cosmetic rules and aren't worth fetching here.
 const FILTER_IDS = [2, 3, 4, 18, 19, 21, 257];
 
+// uBlock Origin's "Annoyances - others" list, taken for its COSMETIC rules
+// only (its network rules are not touched -- buildCosmeticIndex ignores
+// them, so there's no DNR-budget impact). It's the one procedural-heavy
+// cosmetic source Moat carries: AdGuard's MV3 lists above barely use
+// :has-text()/:xpath()/:upward() etc., uBO's do. Targets in-page nags,
+// newsletter modals, app-install interstitials, cookie-wall leftovers.
+const UBO_COSMETIC_LISTS = [
+  {
+    label: "uBO annoyances-others",
+    url: "https://ublockorigin.github.io/uAssetsCDN/filters/annoyances-others.txt",
+  },
+];
+
 // Real AdGuard filter lists run tens of KB to several MB; anything under this
 // is almost certainly a truncated response or an error page served with a
 // 200, not a real list -- there's no hash/version pinning against upstream,
@@ -28,21 +41,23 @@ const FILTER_IDS = [2, 3, 4, 18, 19, 21, 257];
 // silently ships as "0 cosmetic rules for this list" instead of failing loud.
 const MIN_FILTER_BYTES = 2048;
 
-async function fetchFilterText(id) {
-  const url = `https://filters.adtidy.org/extension/chromium-mv3/filters/${id}.txt`;
+async function fetchListText(url, label) {
   const response = await fetchWithRetry(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch filter ${id}: ${response.status} ${response.statusText}`);
+    throw new Error(`Failed to fetch ${label}: ${response.status} ${response.statusText}`);
   }
   const text = await response.text();
   if (text.length < MIN_FILTER_BYTES) {
     throw new Error(
-      `Filter ${id} fetched only ${text.length} bytes, under the ${MIN_FILTER_BYTES}-byte sanity floor -- ` +
+      `${label} fetched only ${text.length} bytes, under the ${MIN_FILTER_BYTES}-byte sanity floor -- ` +
         `likely a truncated response or an error page, refusing to build cosmetic rules from it.`
     );
   }
   return text;
 }
+
+const fetchFilterText = (id) =>
+  fetchListText(`https://filters.adtidy.org/extension/chromium-mv3/filters/${id}.txt`, `AdGuard filter ${id}`);
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>");
 const validationDoc = dom.window.document;
@@ -76,8 +91,11 @@ function isValidDeclaration(selector, declaration) {
   }
 }
 
-console.log(`Fetching ${FILTER_IDS.length} filter lists...`);
-const texts = await Promise.all(FILTER_IDS.map(fetchFilterText));
+console.log(`Fetching ${FILTER_IDS.length + UBO_COSMETIC_LISTS.length} filter lists...`);
+const texts = await Promise.all([
+  ...FILTER_IDS.map(fetchFilterText),
+  ...UBO_COSMETIC_LISTS.map(({ url, label }) => fetchListText(url, label)),
+]);
 
 const index = buildCosmeticIndex(texts, isValidSelector, isValidDeclaration);
 
@@ -185,6 +203,8 @@ writeFileSync(
     genericHigh,
     exceptions: index.exceptions,
     injectGeneric: index.cssInjection.generic,
+    proceduralGeneric: index.procedural.generic,
+    proceduralPerDomain: index.procedural.perDomain,
   })
 );
 
@@ -209,6 +229,8 @@ writeFileSync(
 const perDomainCount = perDomainEntries.reduce((sum, [, s]) => sum + s.length, 0);
 const exceptionCount = Object.values(index.exceptions).reduce((sum, s) => sum + s.length, 0);
 const injectPerDomainCount = injectPerDomainEntries.reduce((sum, [, pairs]) => sum + pairs.length, 0);
+const proceduralPerDomainCount = Object.values(index.procedural.perDomain).reduce((sum, list) => sum + list.length, 0);
+const proceduralDomains = Object.keys(index.procedural.perDomain).length;
 const largestBucketBytes = Math.max(...bucketSizesBytes);
 const genericHighPct = index.generic.length
   ? ((genericHigh.length / index.generic.length) * 100).toFixed(1)
@@ -219,7 +241,9 @@ console.log(
     `${perDomainCount} domain-scoped selectors across ${perDomainEntries.length} domains ` +
     `(${BUCKET_COUNT} shard buckets, largest ${(largestBucketBytes / 1024).toFixed(1)}KB), ` +
     `${exceptionCount} exceptions, ${index.cssInjection.generic.length} generic + ${injectPerDomainCount} ` +
-    `domain-scoped CSS-injection rules across ${injectPerDomainEntries.length} domains`
+    `domain-scoped CSS-injection rules across ${injectPerDomainEntries.length} domains, ` +
+    `${index.procedural.generic.length} generic + ${proceduralPerDomainCount} domain-scoped procedural ` +
+    `rules across ${proceduralDomains} domains`
 );
 if (previousSummary) {
   const delta = (from, to) => `${from} -> ${to} (${to - from >= 0 ? "+" : ""}${to - from})`;

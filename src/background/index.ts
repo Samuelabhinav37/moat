@@ -50,7 +50,7 @@ import {
   noteTabUrl,
 } from "./lastNormalTab";
 import { isMatchedRulesSupported } from "./matchStats";
-import { cosmeticGenericsFor } from "./cosmeticIndex";
+import { cosmeticGenericsFor, proceduralRulesFor } from "./cosmeticIndex";
 import { injectCosmeticsForCommit, injectGenericSelectors } from "./cosmeticInject";
 
 initPopupGuard();
@@ -289,6 +289,11 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
         }
         return { selectors };
       })();
+    }
+
+    case "get-procedural-rules": {
+      if (!isValidMessageString(message.hostname)) return undefined;
+      return proceduralRulesFor(message.hostname);
     }
 
     case "get-report-context": {

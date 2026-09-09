@@ -27,7 +27,8 @@ Lite port of an older extension.
 - **Popup/redirect firewall** — silently drops hijacked new-tab popups and redirects, with a
   background tab safety net for anything that slips past.
 - **Cosmetic filtering** — hides the leftover ad boxes and cookie banners network blocking can't
-  reach.
+  reach, from the AdGuard lists plus uBlock Origin's "Annoyances" cosmetic rules, including
+  procedural (`:has-text` / `:xpath` / `:upward`) rules a plain stylesheet can't express.
 - **Block-count breakdown** — the popup shows a real Ads / Trackers / Popups split (Chrome only),
   a "Light / Moderate / Heavy" read, and an optional by-company list, expanded in Settings →
   Trackers with a one-line description per company.

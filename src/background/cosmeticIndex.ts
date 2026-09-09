@@ -23,19 +23,23 @@ import {
   genericSelectorsForHostname,
   genericSelectorsForTokens,
   mergeDomainShards,
+  proceduralRulesForHostname,
   shardIndicesForHostname,
   splitDomainShards,
   type CosmeticIndex,
   type CosmeticManifest,
   type DomainShardEntry,
+  type ProceduralRuleLike,
 } from "../content/cosmeticSelectors";
-import type { CosmeticGenericsResponse, CosmeticSliceResponse } from "../types";
+import type { CosmeticGenericsResponse, CosmeticSliceResponse, ProceduralRule, ProceduralRulesResponse } from "../types";
 
 interface CosmeticMeta {
   genericByHash: Record<string, string[]>;
   genericHigh: string[];
   exceptions: Record<string, string[]>;
   injectGeneric?: Array<[selector: string, declaration: string]>;
+  proceduralGeneric?: ProceduralRuleLike[];
+  proceduralPerDomain?: Record<string, ProceduralRuleLike[]>;
 }
 
 // Guards get-cosmetic-generics: the surveyor batches, but a pathological
@@ -125,4 +129,19 @@ export async function cosmeticGenericsFor(hostname: string, hashes: string[]): P
     perDomain: {},
   };
   return { selectors: genericSelectorsForTokens(index, hostname, hashes.slice(0, MAX_TOKEN_HASHES)) };
+}
+
+/** The procedural (extended-selector) cosmetic rules that apply on
+ * `hostname`, minus this domain's exceptions. Needs the meta file only. The
+ * content script (src/content/proceduralCosmetic.ts) evaluates these against
+ * the live DOM -- they can't run here. */
+export async function proceduralRulesFor(hostname: string): Promise<ProceduralRulesResponse> {
+  const meta = await loadMeta();
+  const rules = proceduralRulesForHostname(
+    meta.proceduralGeneric ?? [],
+    meta.proceduralPerDomain ?? {},
+    meta.exceptions,
+    hostname
+  );
+  return { rules: rules as ProceduralRule[] };
 }

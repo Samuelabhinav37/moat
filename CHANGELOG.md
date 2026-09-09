@@ -3,6 +3,35 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.69
+
+### Added
+- **Procedural (extended-selector) cosmetic filtering.** Rules a plain `<style>` can't express —
+  `:has-text()` / `:contains()`, `:matches-css()` (+`-before`/`-after`), `:xpath()`, `:upward()`
+  (n hops or a selector), `:min-text-length()`, `:remove()` — are now parsed at build time into a
+  task-chain shape (`scripts/lib/parseProceduralSelector.mjs`) and evaluated against the live DOM
+  by a new content-script engine (`src/content/proceduralCosmetic.ts`): an initial pass, then a
+  budgeted `MutationObserver` that self-disables once it stops finding anything, same discipline as
+  the generic-selector surveyor. Each rule is re-validated (`src/shared/proceduralSafety.ts` —
+  length caps, no braces/backticks/angle brackets) and its evaluation is isolated so a bad rule
+  can't break the page or the others. `<html>`/`<head>`/`<body>` are never removed.
+- **uBlock Origin's "Annoyances – others" list, cosmetic rules only.** Added as a cosmetic source
+  in `update-cosmetics.mjs` — its **network** rules are not touched, so there's **no
+  declarativeNetRequest-budget impact**. It's the procedural-heavy list the engine above is paired
+  with (AdGuard's MV3 lists barely use the syntax); it also adds in-page-annoyance cosmetic
+  coverage (newsletter modals, app-install interstitials, cookie-wall leftovers). Result:
+  **~2,100 procedural rules** across ~1,700 domains, plus ~650 more plain domain selectors.
+
+`cosmetics-meta.json` grows ~699 KB → ~900 KB (the `proceduralPerDomain` section is ~214 KB after
+the build strips each rule's original-selector string except where a `#@#` exception names it).
+It's fetched and parsed once by the service worker (v0.11.63), never on the page thread.
+`cosmetic-filter.js` 15.3 → 18.6 KB (the engine).
+
+664/664 tests (34 new), typecheck/build/lint:firefox clean (4 known warnings). **Live smoke test
+before release:** on annoyance-heavy pages (news sites with newsletter modals, forums), confirm
+procedural rules hide/remove the right elements and nothing legitimate; watch for any main-thread
+cost from the engine on a complex page.
+
 ## 0.11.68
 
 ### Changed

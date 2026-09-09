@@ -148,6 +148,47 @@ export function domainInjectionRulesForHostname(index: CosmeticIndex, hostname: 
   return [...matched].filter(([selector]) => !excluded.has(selector));
 }
 
+/** One procedural (extended-selector) cosmetic rule as stored in
+ * cosmetics-meta.json -- kept structurally loose here (the concrete shape is
+ * `ProceduralRule` in src/types.ts) so this module stays import-free. */
+export interface ProceduralRuleLike {
+  s: string;
+  t: unknown[];
+  r?: 1;
+  /** Original selector text -- present only on rules some exception names
+   * (the build strips it elsewhere; see scripts/lib/parseCosmeticRules.mjs). */
+  x?: string;
+}
+
+/** Procedural rules that apply on `hostname`: the generic set plus this
+ * domain chain's per-domain rules, minus any whose original selector text
+ * (`x`) is `#@#`-excepted for the chain. Rules that carry an `x` are also
+ * de-duplicated by it; rules without one (never exception-eligible) are all
+ * kept -- the build already deduped them. */
+export function proceduralRulesForHostname(
+  proceduralGeneric: ProceduralRuleLike[],
+  proceduralPerDomain: Record<string, ProceduralRuleLike[]>,
+  exceptions: Record<string, string[]>,
+  hostname: string
+): ProceduralRuleLike[] {
+  const chain = domainChain(hostname);
+  const excluded = new Set<string>();
+  for (const domain of chain) for (const selector of exceptions[domain] ?? []) excluded.add(selector);
+
+  const out: ProceduralRuleLike[] = [];
+  const seen = new Set<string>();
+  const add = (rule: ProceduralRuleLike): void => {
+    if (rule.x !== undefined) {
+      if (excluded.has(rule.x) || seen.has(rule.x)) return;
+      seen.add(rule.x);
+    }
+    out.push(rule);
+  };
+  for (const rule of proceduralGeneric) add(rule);
+  for (const domain of chain) for (const rule of proceduralPerDomain[domain] ?? []) add(rule);
+  return out;
+}
+
 /** Selectors the user picked themselves (element picker), matched the same same-or-subdomain way as the bundled lists. */
 export function customSelectorsForHostname(
   customCosmeticRules: Record<string, string[]>,

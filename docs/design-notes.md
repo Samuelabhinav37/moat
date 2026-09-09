@@ -301,11 +301,19 @@ failing (`src/content/bridge.ts`).
 ### Cosmetic filtering internals
 
 A build-time script (`scripts/update-cosmetics.mjs`) downloads the raw filter-list
-text, parses standard `##selector`/`#@#`-exception cosmetic rules and AdGuard's
-`#$#`/`#@$#` CSS-injection syntax (skipping AdGuard/uBO scriptlets, HTML filters, and
-extended-selector syntax that need a JS engine, not a `<style>` tag — see the comment
-atop `scripts/lib/parseCosmeticRules.mjs`), and validates every surviving
-selector/declaration against jsdom so nothing invalid ships. Per-domain rules are
+text — 7 AdGuard lists plus uBlock Origin's "Annoyances – others" list taken for its
+cosmetic rules only (no network rules, so no DNR-budget impact) — parses standard
+`##selector`/`#@#`-exception cosmetic rules, AdGuard's `#$#`/`#@$#` CSS-injection
+syntax, **and procedural (extended-selector) rules** — `:has-text()`, `:matches-css()`,
+`:xpath()`, `:upward()`, `:min-text-length()`, `:remove()` — into a task-chain shape
+(`scripts/lib/parseProceduralSelector.mjs`) that `src/content/proceduralCosmetic.ts`
+evaluates against the live DOM at runtime (a `<style>` tag can't express these).
+Scriptlets, HTML filtering (`##^…`), and the remaining extended pseudos
+(`:matches-attr`, `:style`, `+js(`, …) are still skipped — see the comment atop
+`scripts/lib/parseCosmeticRules.mjs`. Every surviving plain selector/declaration is
+validated against jsdom so nothing invalid ships; procedural prefixes + task args go
+through `src/shared/proceduralSafety.ts` (length caps, no braces/backticks/angle
+brackets). Per-domain rules are
 bucketed into 64 shard files by a hash of the domain name (`bucketForDomain`, kept
 identical between `scripts/lib/domainBucket.mjs` and `src/shared/domainBucket.ts`,
 cross-checked by a test that runs both), so a content script only ever has to fetch
@@ -472,18 +480,21 @@ matrix and `fetch`-monkeypatching above: materially higher maintenance burden an
 breakage/ToS-adjacent risk than anything else Moat does, for a fight structurally
 outside a client-side extension's control.
 
-### AdGuard/uBO "extended selector" (procedural) cosmetic filters
+### AdGuard/uBO "extended selector" (procedural) cosmetic filters — BUILT (v0.11.69)
 
-`:contains()`, `:matches-css()`, `:xpath()`, `:remove()`, and friends need a JS
-matching engine re-evaluating the DOM as it mutates, not a `<style>` tag — a real
-architecture change (a MutationObserver-driven engine, a new execution surface),
-already flagged as a "candidate for Moat" in
-[`ad-blocker-architecture-and-roadmap.md`](research/ad-blocker-architecture-and-roadmap.md).
-Measured directly rather than assumed: fetching all 7 of Moat's bundled AdGuard
-filter lists and classifying every cosmetic-syntax line found extended-selector
-syntax in **7 of 119,391 lines (0.0%)** — statistically negligible. Building a JS
-matching engine for 7 rules isn't justified. (CSS-injection rules, a different and
-much more common dropped category at 7.4%, are a real gap and *are* built — see
-"Cosmetic filtering internals" above.) A future pass shouldn't re-open this without
-re-running the same measurement first, since filter-list composition drifts over
-time.
+Originally declined: the first measurement classified extended-selector syntax at
+**7 of 119,391 lines (0.0%)** across Moat's AdGuard lists and a JS matching engine
+for 7 rules wasn't justified. That measurement undercounted — it keyed on
+`:contains(` and missed `:has-text(` (AdGuard's newer spelling). A re-run with the
+full marker set found ~1,770 in the AdGuard lists alone, and pairing that with
+uBlock Origin's "Annoyances – others" list (cosmetic rules only) brings the total to
+**~2,100 procedural rules**. So it's now built: a task-chain shape at build time
+(`scripts/lib/parseProceduralSelector.mjs`), a budgeted, self-disabling
+MutationObserver engine at runtime (`src/content/proceduralCosmetic.ts`) reusing the
+same discipline as `cosmeticSurveyor.ts`. Supported: `:has-text`/`:contains`,
+`:matches-css`(+`-before`/`-after`), `:xpath`, `:upward` (n or selector),
+`:min-text-length`, `:remove`. Still skipped: `:matches-attr`, `:matches-path`,
+`:style`, `:watch-attr`, `+js(`, `##^…` HTML filtering. `:xpath`/`:remove` are the
+new trust surface (`document.evaluate` over a filter-list string; DOM removal) —
+bounded by `src/shared/proceduralSafety.ts` and the same build-time-vendored,
+CSS-parser-validated list trust root as every plain selector.

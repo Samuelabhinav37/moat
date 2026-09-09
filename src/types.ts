@@ -333,6 +333,41 @@ export interface CosmeticGenericsResponse {
   selectors: string[];
 }
 
+/** One procedural (extended-selector) cosmetic rule -- the ones a plain
+ * <style> can't express. Built from the filter lists by
+ * scripts/lib/parseProceduralSelector.mjs, evaluated against the live DOM by
+ * src/content/proceduralCosmetic.ts. Compact keys: it ships in
+ * cosmetics-meta.json and crosses the message boundary per navigation. */
+export type ProceduralTask =
+  | ["has-text", string] // substring, or "/regex/flags"
+  | ["min-text-length", number]
+  | ["upward", number] // n parentElement hops
+  | ["upward-sel", string] // closest(selector)
+  | ["matches-css", "" | "before" | "after", string] // pseudo, "prop: valueOrRegex"
+  | ["xpath", string];
+
+export interface ProceduralRule {
+  /** Plain-CSS prefix, run through querySelectorAll first ("" = none, e.g. a
+   * bare :xpath()). */
+  s: string;
+  /** Task chain, applied left to right to narrow / walk the element set. */
+  t: ProceduralTask[];
+  /** Present + truthy => remove the matched element rather than hide it. */
+  r?: 1;
+  /** The original selector text -- present only when some #@# exception
+   * names it (the build strips it from every other rule to save space). */
+  x?: string;
+}
+
+export interface GetProceduralRulesMessage {
+  type: "get-procedural-rules";
+  hostname: string;
+}
+
+export interface ProceduralRulesResponse {
+  rules: ProceduralRule[];
+}
+
 export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
@@ -349,7 +384,8 @@ export type RuntimeMessage =
   | DismissOnboardingMessage
   | GetAthenaBlockReasonMessage
   | ReportAthenaOverrideMessage
-  | GetCosmeticGenericsMessage;
+  | GetCosmeticGenericsMessage
+  | GetProceduralRulesMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the

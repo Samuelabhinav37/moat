@@ -120,12 +120,45 @@ for (let i = 0; i < cosmeticsManifest.bucketCount; i += 1) {
 const exceptionCount = Object.values(meta.exceptions ?? {}).reduce((sum, s) => sum + s.length, 0);
 const injectGenericCount = meta.injectGeneric?.length ?? 0;
 const genericByHashCount = Object.values(meta.genericByHash ?? {}).reduce((sum, s) => sum + s.length, 0);
+
+// Procedural (extended-selector) rules: { s, t: task[], r?, x } -- generic
+// array + per-domain map, both may be absent on an old build.
+const VALID_TASK_OPS = new Set(["has-text", "min-text-length", "upward", "upward-sel", "matches-css", "xpath"]);
+function validProceduralRule(rule) {
+  return (
+    rule != null &&
+    typeof rule.s === "string" &&
+    (rule.x === undefined || typeof rule.x === "string") &&
+    Array.isArray(rule.t) &&
+    // A task chain, OR a bare `selector:remove()` (t empty, r set).
+    (rule.t.length > 0 || rule.r === 1) &&
+    rule.t.every((task) => Array.isArray(task) && VALID_TASK_OPS.has(task[0])) &&
+    (rule.r === undefined || rule.r === 1)
+  );
+}
+const proceduralGeneric = meta.proceduralGeneric ?? [];
+const proceduralPerDomain = meta.proceduralPerDomain ?? {};
+if (!Array.isArray(proceduralGeneric) || !proceduralGeneric.every(validProceduralRule)) {
+  console.error(`${cosmeticsManifest.meta}: "proceduralGeneric" must be an array of { s, t, x } rules`);
+  ok = false;
+}
+if (typeof proceduralPerDomain !== "object" || proceduralPerDomain === null || Array.isArray(proceduralPerDomain)) {
+  console.error(`${cosmeticsManifest.meta}: "proceduralPerDomain" must be an object`);
+  ok = false;
+} else if (!Object.values(proceduralPerDomain).every((list) => Array.isArray(list) && list.every(validProceduralRule))) {
+  console.error(`${cosmeticsManifest.meta}: every "proceduralPerDomain" value must be an array of { s, t, x } rules`);
+  ok = false;
+}
+const proceduralPerDomainCount = Object.values(proceduralPerDomain).reduce((sum, list) => sum + list.length, 0);
+
 console.log(
   `cosmetics: ${meta.genericHigh.length} always-on + ${genericByHashCount} token-anchored generic ` +
     `(${Object.keys(meta.genericByHash ?? {}).length} buckets), ${perDomainCount} domain-scoped selectors ` +
     `across ${domainCount} domains (${cosmeticsManifest.bucketCount} shard buckets), ${exceptionCount} exceptions, ` +
     `${injectGenericCount} generic + ${injectPerDomainCount} domain-scoped CSS-injection rules ` +
-    `across ${injectDomainCount} domains`
+    `across ${injectDomainCount} domains, ` +
+    `${proceduralGeneric.length} generic + ${proceduralPerDomainCount} domain-scoped procedural rules ` +
+    `across ${Object.keys(proceduralPerDomain).length} domains`
 );
 
 // ad-networks.json: hand-curated (not generated), lives in rules/ not

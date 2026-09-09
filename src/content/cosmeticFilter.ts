@@ -17,8 +17,9 @@
 import browser from "webextension-polyfill";
 import { startSurveyor } from "./cosmeticSurveyor";
 import { startAdCollapse } from "./adCollapse";
+import { startProceduralCosmetic } from "./proceduralCosmetic";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
-import type { CosmeticGenericsResponse } from "../types";
+import type { CosmeticGenericsResponse, ProceduralRulesResponse } from "../types";
 
 // The curated ad-network domain list adCollapse.ts uses. Best-effort: an
 // empty set just means the collapse pass no-ops.
@@ -38,6 +39,17 @@ async function run(): Promise<void> {
   if (isDisabled(effective)) return;
 
   startAdCollapse(window, await readAdNetworks());
+
+  // Procedural (extended-selector) rules -- evaluated against the live DOM
+  // here because :has-text/:matches-css/:xpath need it; the worker can't run
+  // them. Best-effort: a failed request just means no procedural hiding.
+  void browser.runtime
+    .sendMessage({ type: "get-procedural-rules", hostname: location.hostname })
+    .then((res) => {
+      const rules = (res as ProceduralRulesResponse | undefined)?.rules ?? [];
+      if (rules.length > 0) startProceduralCosmetic(document, rules);
+    })
+    .catch(() => {});
 
   startSurveyor(
     document,

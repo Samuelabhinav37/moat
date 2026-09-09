@@ -109,11 +109,37 @@ describe("parseCosmeticLine", () => {
     expect(parseCosmeticLine("example.com#%#//scriptlet('abort-on-property-read')")).toBeNull();
   });
 
-  it("rejects extended-selector pseudo-classes", () => {
-    expect(parseCosmeticLine("##div:contains(Advertisement)")).toBeNull();
-    expect(parseCosmeticLine("##div:matches-css(display: none)")).toBeNull();
-    expect(parseCosmeticLine("##div:xpath(//div)")).toBeNull();
+  it("still rejects the extended pseudos with no runtime support", () => {
     expect(parseCosmeticLine("##.ad+js(abort-on-property-read)")).toBeNull();
+    expect(parseCosmeticLine("##div:matches-attr(data-ad)")).toBeNull();
+    expect(parseCosmeticLine("##div:matches-path(/shop/)")).toBeNull();
+    expect(parseCosmeticLine("##div:style(display: none)")).toBeNull();
+    expect(parseCosmeticLine("##^script:has-text(adblock)")).toBeNull(); // HTML filtering
+  });
+
+  it("parses procedural pseudos (:has-text, :matches-css, :xpath, :upward, :remove)", () => {
+    expect(parseCosmeticLine("##div:contains(Advertisement)")).toMatchObject({
+      isException: false,
+      procedural: { s: "div", t: [["has-text", "Advertisement"]] },
+    });
+    expect(parseCosmeticLine("example.com##.box:has-text(Sponsored):upward(2)")).toMatchObject({
+      domains: ["example.com"],
+      procedural: { s: ".box", t: [["has-text", "Sponsored"], ["upward", 2]] },
+    });
+    expect(parseCosmeticLine("##:xpath(//div[@id='ad'])")).toMatchObject({
+      procedural: { s: "", t: [["xpath", "//div[@id='ad']"]] },
+    });
+    expect(parseCosmeticLine("##div:xpath(./span)")).toMatchObject({
+      procedural: { s: "div", t: [["xpath", "./span"]] },
+    });
+    expect(parseCosmeticLine("a.com#?#.promo:remove()")).toMatchObject({
+      procedural: { s: ".promo", t: [], r: 1 },
+    });
+    // #@?# and #@# on a procedural selector are string-matched exceptions.
+    expect(parseCosmeticLine("a.com#@?#.promo:has-text(x)")).toMatchObject({
+      isException: true,
+      selector: ".promo:has-text(x)",
+    });
   });
 
   it("returns null for a marker with no selector after it", () => {
@@ -201,5 +227,32 @@ describe("buildCosmeticIndex", () => {
   it("does not require isValidDeclaration when no injection-syntax rules are present", () => {
     const index = buildCosmeticIndex(["##.ad"], alwaysValid);
     expect(index.generic).toEqual([".ad"]);
+  });
+
+  it("routes a procedural rule into procedural.perDomain / .generic", () => {
+    const index = buildCosmeticIndex(
+      ["example.com##.card:has-text(Sponsored)", "##.g:min-text-length(30):remove()"],
+      alwaysValid
+    );
+    expect(index.procedural.perDomain["example.com"]).toEqual([
+      { s: ".card", t: [["has-text", "Sponsored"]] },
+    ]);
+    expect(index.procedural.generic).toEqual([{ s: ".g", t: [["min-text-length", 30]], r: 1 }]);
+    expect(index.generic).toEqual([]);
+  });
+
+  it("keeps `x` on a procedural rule only when an exception names it", () => {
+    const index = buildCosmeticIndex(
+      ["##.a:has-text(x)", "##.b:has-text(y)", "shop.com#@#.b:has-text(y)"],
+      alwaysValid
+    );
+    const rules = index.procedural.generic;
+    expect(rules.find((r) => r.s === ".a")).toEqual({ s: ".a", t: [["has-text", "x"]] });
+    expect(rules.find((r) => r.s === ".b")).toEqual({ s: ".b", t: [["has-text", "y"]], x: ".b:has-text(y)" });
+  });
+
+  it("validates a procedural rule's CSS prefix with isValidSelector", () => {
+    const index = buildCosmeticIndex(["##.bad:::(:has-text(x)"], () => false);
+    expect(index.procedural.generic).toEqual([]);
   });
 });

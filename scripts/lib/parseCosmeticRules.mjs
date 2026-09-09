@@ -1,5 +1,9 @@
 // Parses AdGuard/AdBlock Plus-style cosmetic filter lines into a structure
-// a content script can apply as plain CSS (see src/content/cosmeticFilter.ts).
+// a content script can apply -- mostly as plain CSS (cosmeticInject.ts),
+// with a procedural side channel (proceduralCosmetic.ts) for the extended
+// selectors.
+//
+import { isProceduralSelector, parseProceduralSelector } from "./parseProceduralSelector.mjs";
 //
 // We handle the standard element-hiding syntax:
 //   ##selector                    generic, applies everywhere
@@ -17,29 +21,25 @@
 //     Reuses the same exceptions map #@# already feeds, since both mean the
 //     same thing: don't apply whatever rule targets this selector here.)
 //
-// Deliberately NOT handled -- these aren't plain CSS, so a <style> tag
-// can't express them, and scriptlets execute arbitrary-ish logic we don't
-// want to run sight-unseen: scriptlets (#%#), HTML filters (#?#), and
-// AdGuard/uBO extended pseudo-classes that need a JS matching engine
-// (:contains, :matches-css, :xpath, :upward, :remove, +js(), etc.) -- the
-// latter measured directly against Moat's actual bundled lists at 7 of
-// 119,391 real cosmetic lines (0.0%), not worth a JS matching engine; see
-// docs/design-notes.md's "Researched but not built yet" section. Rules
-// using those are skipped, not mis-parsed. Native :has() is kept -- modern
-// Chrome/Firefox support it as real CSS.
-const EXTENDED_SELECTOR_MARKERS = [
-  ":contains(",
-  ":matches-css(",
-  ":matches-css-before(",
-  ":matches-css-after(",
-  ":xpath(",
-  ":upward(",
-  ":remove(",
+// Scriptlets (#%#) and HTML filters (#?# ... wait, #?# is procedural-hide;
+// HTML filtering is $$ / $@$) execute / rewrite markup and are still
+// skipped. Procedural (extended-selector) cosmetic rules -- :has-text,
+// :matches-css, :xpath, :upward, :min-text-length, :remove -- ARE now
+// handled, via parseProceduralSelector.mjs + src/content/proceduralCosmetic.ts
+// (added alongside the uBO "Annoyances - others" cosmetic list, which uses
+// them heavily; Moat's AdGuard lists barely do). Native :has() / :not() stay
+// plain CSS. These extended pseudos still need a JS engine we don't have, so
+// a rule using any of them is skipped, not mis-parsed:
+const UNSUPPORTED_EXTENDED_MARKERS = [
   ":matches-attr(",
   ":matches-property(",
+  ":matches-path(",
   ":nth-ancestor(",
+  ":watch-attr(",
+  ":others(",
   ":if(",
   ":if-not(",
+  ":style(",
   "-abp-",
   "[-ext-",
   "+js(",
@@ -85,9 +85,12 @@ function parseCssInjectionLine(line, domainsPart, marker, body) {
     if (!isSafeCssDeclarationText(declaration)) return null;
   }
   if (!selector) return null;
-  for (const forbidden of EXTENDED_SELECTOR_MARKERS) {
+  for (const forbidden of UNSUPPORTED_EXTENDED_MARKERS) {
     if (selector.includes(forbidden)) return null;
   }
+  // Injection rules with procedural selectors aren't supported (the runtime
+  // injection path is plain CSS) -- skip rather than mis-parse.
+  if (isProceduralSelector(selector)) return null;
 
   const domains = domainsPart
     ? domainsPart
@@ -99,19 +102,46 @@ function parseCssInjectionLine(line, domainsPart, marker, body) {
   return isException ? { isException: true, domains, selector } : { isException: false, domains, selector, declaration };
 }
 
+function splitDomains(domainsPart) {
+  return domainsPart
+    ? domainsPart
+        .split(",")
+        .map((d) => d.trim())
+        .filter(Boolean)
+    : [];
+}
+
 /**
- * Parse one filter-list line. Returns null if it's not a plain
- * element-hiding/exception or CSS-injection cosmetic rule (comments,
- * network rules, scriptlet/HTML-filter/extended-selector rules all return
- * null). An injection-rule result carries a `declaration` field; a plain
- * hide/exception result never does -- that presence/absence is how
- * buildCosmeticIndex tells the two apart, rather than a separate tag.
+ * Parse one filter-list line. Returns null if it's not a cosmetic rule this
+ * build understands (comments, network rules, scriptlets, HTML filters, and
+ * still-unsupported extended pseudos all return null). Result shapes:
+ *   { isException, domains, selector }                 plain hide / exception
+ *   { isException:false, domains, selector, declaration }  CSS injection
+ *   { isException:false, domains, selector, procedural }   procedural hide/remove
+ *   { isException:true,  domains, selector }               procedural exception too
+ * buildCosmeticIndex tells them apart by which extra field is present.
  */
 export function parseCosmeticLine(rawLine) {
   const line = rawLine.trim();
   if (!line || line.startsWith("!") || line.startsWith("[")) return null;
   if (line.includes("#@%#") || line.includes("#%#")) return null;
-  if (line.includes("#@?#") || line.includes("#?#")) return null;
+
+  // uBO's procedural markers: #?# = procedural hide, #@?# = its exception.
+  // (These are NOT HTML filtering -- that's $$/$@$ -- despite older comments
+  // in this file. Check #@?# first: "#?#" is not a substring of it.)
+  const procExcIndex = line.indexOf("#@?#");
+  if (procExcIndex !== -1) {
+    const selector = line.slice(procExcIndex + 4);
+    return selector ? { isException: true, domains: splitDomains(line.slice(0, procExcIndex)), selector } : null;
+  }
+  const procIndex = line.indexOf("#?#");
+  if (procIndex !== -1) {
+    const selector = line.slice(procIndex + 3);
+    const procedural = parseProceduralSelector(selector);
+    return procedural
+      ? { isException: false, domains: splitDomains(line.slice(0, procIndex)), selector, procedural }
+      : null;
+  }
 
   const injectExceptionIndex = line.indexOf(INJECT_EXCEPTION_MARKER);
   const injectIndex = line.indexOf(INJECT_MARKER);
@@ -141,16 +171,18 @@ export function parseCosmeticLine(rawLine) {
   const selector = line.slice(markerIndex + marker.length);
   if (!selector) return null;
 
-  for (const forbidden of EXTENDED_SELECTOR_MARKERS) {
+  const domains = splitDomains(domainsPart);
+
+  // A ## line can also carry procedural syntax (uBO writes both ## and #?#
+  // for these). An exception (#@#) is matched by selector string, so it
+  // needs no procedural parse.
+  if (!isException && isProceduralSelector(selector)) {
+    const procedural = parseProceduralSelector(selector);
+    return procedural ? { isException: false, domains, selector, procedural } : null;
+  }
+  for (const forbidden of UNSUPPORTED_EXTENDED_MARKERS) {
     if (selector.includes(forbidden)) return null;
   }
-
-  const domains = domainsPart
-    ? domainsPart
-        .split(",")
-        .map((d) => d.trim())
-        .filter(Boolean)
-    : [];
 
   return { isException, domains, selector };
 }
@@ -176,6 +208,11 @@ export function buildCosmeticIndex(filterTexts, isValidSelector, isValidDeclarat
   // hide selectors, just with a value to keep this time).
   const injectGeneric = new Map();
   const injectPerDomain = new Map();
+  // Procedural (extended-selector) rules -- a separate channel from the CSS
+  // above. Keyed the same positives/negatives/exceptions way.
+  const proceduralGeneric = [];
+  const proceduralPerDomain = new Map();
+  const proceduralGenericSeen = new Set();
 
   const addTo = (map, domain, selector) => {
     let set = map.get(domain);
@@ -195,18 +232,48 @@ export function buildCosmeticIndex(filterTexts, isValidSelector, isValidDeclarat
     inner.set(selector, declaration);
   };
 
+  const addProceduralTo = (domain, rule) => {
+    let list = proceduralPerDomain.get(domain);
+    if (!list) {
+      list = [];
+      proceduralPerDomain.set(domain, list);
+    }
+    if (!list.some((r) => r.x === rule.x)) list.push(rule);
+  };
+
   for (const text of filterTexts) {
     for (const line of text.split("\n")) {
       const rule = parseCosmeticLine(line);
-      if (!rule || !isValidSelector(rule.selector)) continue;
+      if (!rule) continue;
 
       // #@$# (bare exception) and #@# both mean "don't apply whatever rule
       // targets this selector here" -- parseCosmeticLine already returns
-      // the identical shape for both, so this one branch handles both.
+      // the identical shape for both (plain and procedural), so this one
+      // branch handles all of them.
       if (rule.isException) {
         for (const domain of rule.domains) addTo(exceptions, domain.replace(/^~/, ""), rule.selector);
         continue;
       }
+
+      if (rule.procedural) {
+        // The CSS prefix (if any) must parse; the task chain was already
+        // safety-checked in parseProceduralSelector.
+        if (rule.procedural.s && !isValidSelector(rule.procedural.s)) continue;
+        const positives = rule.domains.filter((d) => !d.startsWith("~"));
+        const negatives = rule.domains.filter((d) => d.startsWith("~")).map((d) => d.slice(1));
+        if (positives.length === 0) {
+          if (!proceduralGenericSeen.has(rule.procedural.x)) {
+            proceduralGenericSeen.add(rule.procedural.x);
+            proceduralGeneric.push(rule.procedural);
+          }
+        } else {
+          for (const domain of positives) addProceduralTo(domain, rule.procedural);
+        }
+        for (const domain of negatives) addTo(exceptions, domain, rule.selector);
+        continue;
+      }
+
+      if (!isValidSelector(rule.selector)) continue;
 
       if (rule.declaration !== undefined) {
         if (!isValidDeclaration(rule.selector, rule.declaration)) continue;
@@ -238,6 +305,19 @@ export function buildCosmeticIndex(filterTexts, isValidSelector, isValidDeclarat
   const toObject = (map) => Object.fromEntries([...map].map(([k, v]) => [k, [...v].sort()]));
   const sortedPairs = (map) => [...map].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
 
+  const byOriginalSelector = (a, b) => (a.x < b.x ? -1 : a.x > b.x ? 1 : 0);
+
+  // The `x` (original selector text) on a procedural rule is only there for
+  // #@# exception matching at runtime -- it roughly doubles each rule's JSON.
+  // Keep it only on rules some exception actually names; drop it from the
+  // rest. (Dedup already ran above, while every rule still had its `x`.)
+  const exceptedSelectors = new Set();
+  for (const set of exceptions.values()) for (const selector of set) exceptedSelectors.add(selector);
+  const trimX = (rule) =>
+    exceptedSelectors.has(rule.x)
+      ? { s: rule.s, t: rule.t, x: rule.x, ...(rule.r ? { r: rule.r } : {}) }
+      : { s: rule.s, t: rule.t, ...(rule.r ? { r: rule.r } : {}) };
+
   return {
     generic: [...generic].sort(),
     perDomain: toObject(perDomain),
@@ -245,6 +325,12 @@ export function buildCosmeticIndex(filterTexts, isValidSelector, isValidDeclarat
     cssInjection: {
       generic: sortedPairs(injectGeneric),
       perDomain: Object.fromEntries([...injectPerDomain].map(([domain, inner]) => [domain, sortedPairs(inner)])),
+    },
+    procedural: {
+      generic: [...proceduralGeneric].sort(byOriginalSelector).map(trimX),
+      perDomain: Object.fromEntries(
+        [...proceduralPerDomain].map(([domain, list]) => [domain, [...list].sort(byOriginalSelector).map(trimX)])
+      ),
     },
   };
 }
