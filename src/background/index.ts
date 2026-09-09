@@ -50,7 +50,8 @@ import {
   noteTabUrl,
 } from "./lastNormalTab";
 import { isMatchedRulesSupported } from "./matchStats";
-import { cosmeticGenericsFor, cosmeticSliceFor } from "./cosmeticIndex";
+import { cosmeticGenericsFor } from "./cosmeticIndex";
+import { injectCosmeticsForCommit, injectGenericSelectors } from "./cosmeticInject";
 
 initPopupGuard();
 initLiveUpdates();
@@ -142,7 +143,13 @@ void browser.tabs
   .catch(() => {});
 
 browser.webNavigation.onCommitted.addListener((details) => {
-  if (details.frameId === 0) resetForNavigation(details.tabId);
+  if (details.frameId !== 0) return;
+  resetForNavigation(details.tabId);
+  // Inject the bundled + user cosmetic CSS as a user-origin stylesheet from
+  // here, instead of the content script building a <style> on the page
+  // thread. Fires early enough to be roughly document_start-class; no-ops
+  // when protection is off/paused for this host.
+  void injectCosmeticsForCommit(details.tabId, details.url);
 });
 
 // Fires with the ORIGINAL requested URL, before declarativeNetRequest's
@@ -265,19 +272,23 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
       return addGrayscaleRule(message.hostname, message.selector).then(() => undefined);
     }
 
-    case "get-cosmetic-slice": {
-      // hostname comes from location.hostname in a content script the TS
-      // types trust, but the listener validates the boundary itself -- same
-      // stance as every other case here.
-      if (!isValidMessageString(message.hostname)) return undefined;
-      return cosmeticSliceFor(message.hostname);
-    }
-
     case "get-cosmetic-generics": {
+      // hostname/hashes come from the DOM surveyor in a content script the
+      // TS types trust, but the listener validates the boundary itself --
+      // same stance as every other case here.
       if (!isValidMessageString(message.hostname) || !Array.isArray(message.hashes)) return undefined;
       const hashes = message.hashes.filter((h): h is string => typeof h === "string" && h.length > 0 && h.length <= 16);
       if (hashes.length === 0) return Promise.resolve({ selectors: [] });
-      return cosmeticGenericsFor(message.hostname, hashes);
+      return (async () => {
+        const { selectors } = await cosmeticGenericsFor(message.hostname, hashes);
+        // Inject worker-side, same user-origin stylesheet path as the
+        // up-front CSS. The selectors are still returned so the surveyor
+        // knows the batch was productive (its self-disable counter).
+        if (sender.tab?.id !== undefined) {
+          void injectGenericSelectors(sender.tab.id, sender.frameId ?? 0, selectors);
+        }
+        return { selectors };
+      })();
     }
 
     case "get-report-context": {

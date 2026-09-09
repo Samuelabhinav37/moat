@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.68
+
+### Changed
+- **Cosmetic CSS is now injected by the service worker, not built on the page.** Completes the
+  drawback-fix 2.2 split that v0.11.63 started. The worker (`background/cosmeticInject.ts`) builds
+  the bundled + user cosmetic CSS for the committed URL and applies it with
+  `scripting.insertCSS({ origin: "USER" })` on `webNavigation.onCommitted` (top frame); the DOM
+  surveyor's later matches are injected the same way from the `get-cosmetic-generics` handler. The
+  content script (`cosmeticFilter.ts`, 17 → 15.3 KB) no longer builds any `<style>` — it runs only
+  `adCollapse` and the surveyor. The `get-cosmetic-slice` message is gone. Parity, not new
+  behaviour: injected once per top-frame navigation, gone with the document on the next; pausing a
+  site mid-page still takes effect only on the next navigation. No per-tab `removeCSS` bookkeeping.
+
+  **Timing trade-off:** `insertCSS` fired from `onCommitted` is roughly `document_start`-class but
+  can land slightly later than a declared `document_start` content script. **This needs a live
+  smoke test on ad-heavy pages before any release** — confirm no first-paint flash of unhidden ads
+  and that cosmetic hiding still works after a service-worker cold start.
+
+630/630 tests (10 new), typecheck/build/lint:firefox clean (4 known warnings).
+
 ## 0.11.67
 
 ### Added

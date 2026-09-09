@@ -5,10 +5,13 @@
 // PAGE main thread at document_start, every top-frame navigation. This module
 // moves that work here: the meta file and each bucket are fetched and parsed
 // once, kept in memory for the life of the worker, and re-parsed lazily after a
-// cold start. The content script now just asks for the slice that applies to
-// its hostname (get-cosmetic-slice) and, as the DOM surveyor turns up new
-// class/id tokens, for the generic selectors filed under them
-// (get-cosmetic-generics).
+// cold start.
+//
+//  - cosmeticSliceFor(hostname) is consumed by background/cosmeticInject.ts,
+//    which injects the result as a user-origin stylesheet on
+//    webNavigation.onCommitted.
+//  - cosmeticGenericsFor(hostname, hashes) answers the DOM surveyor's
+//    get-cosmetic-generics messages as new class/id tokens appear.
 //
 // No cache invalidation: this data only changes when the extension itself is
 // updated, which is a fresh worker anyway.

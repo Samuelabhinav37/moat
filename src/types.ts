@@ -297,31 +297,25 @@ export interface ReportAthenaOverrideMessage {
   reason: string;
 }
 
-/** Sent by content/cosmeticFilter.ts once per top-frame navigation. The
- * bundled cosmetic dataset (rules/cosmetics-meta.json + the domain-bucket
- * shards, ~1 MB) is fetched and parsed by the service worker
- * (background/cosmeticIndex.ts) and kept in memory there, so the page main
- * thread never parses it -- it just asks for the slice that applies here.
- * hostname, not URL: the selectors are matched same-or-parent-domain and
+/** What background/cosmeticIndex.ts's cosmeticSliceFor() returns for one
+ * hostname -- the bundled cosmetic rules that apply up front. Consumed
+ * worker-side by background/cosmeticInject.ts, which merges the user's own
+ * custom / element-picker / live-fix selectors and injects the lot as a
+ * user-origin stylesheet on webNavigation.onCommitted (there's no
+ * get-cosmetic-slice message any more -- the page thread does no <style>
+ * work). hostname, not URL: selectors match same-or-parent-domain and
  * nothing downstream needs the path or query. */
-export interface GetCosmeticSliceMessage {
-  type: "get-cosmetic-slice";
-  hostname: string;
-}
-
 export interface CosmeticSliceResponse {
   /** Bundled per-domain (and parent-domain) element-hiding selectors for
-   * this hostname, minus its exceptions. The content script merges its own
-   * custom / element-picker / live-fix selectors on top. */
+   * this hostname, minus its exceptions. */
   domainSelectors: string[];
   /** Bundled CSS-injection rules (generic + per-domain, e.g. AdGuard `#$#`),
    * each its own `[selector, declaration]` pair, minus exceptions. */
   injectRules: Array<[selector: string, declaration: string]>;
   /** The always-on generic slice: generic selectors with no anchoring
-   * class/id token, minus exceptions. Injected up front on every page. */
+   * class/id token, minus exceptions. */
   genericHigh: string[];
-  /** Whether the token-anchored generic index is non-empty, i.e. whether it
-   * is worth running the DOM surveyor at all. */
+  /** Whether the token-anchored generic index is non-empty. */
   hasTokenIndex: boolean;
 }
 
@@ -355,7 +349,6 @@ export type RuntimeMessage =
   | DismissOnboardingMessage
   | GetAthenaBlockReasonMessage
   | ReportAthenaOverrideMessage
-  | GetCosmeticSliceMessage
   | GetCosmeticGenericsMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN

@@ -156,16 +156,21 @@ long supported.
 
 **Effort:** M.
 
-**Status (v0.11.63): a *partial* split shipped instead.** The service worker
-(`background/cosmeticIndex.ts`) now owns the fetch + `JSON.parse` of `cosmetics-meta.json` + the
-domain buckets (~1 MB, previously on the page thread every navigation) and answers two messages —
-`get-cosmetic-slice` and `get-cosmetic-generics`. Injection stays as content-script `<style>`
-(identical timing, no `removeCSS` bookkeeping, no `insertCSS` origin quirk, no cross-browser API
-surface). This captures the bulk of the payoff — the ~1 MB parse leaves the page main thread — at
-S/M effort. The full `onCommitted` + `insertCSS` variant above stays deferred: from the partial
-baseline it only moves *where* the `<style>` goes, for a small marginal gain against real
-service-worker-lifecycle / first-paint-timing / cross-browser risk. Revisit only if content-script
-`<style>` injection shows up as a measured cost.
+**Status (v0.11.63 → v0.11.68): fully implemented.** v0.11.63 shipped the *partial* split — the
+service worker (`background/cosmeticIndex.ts`) took over the fetch + `JSON.parse` of
+`cosmetics-meta.json` + the domain buckets (~1 MB, previously on the page thread every navigation).
+v0.11.68 completes it: `background/cosmeticInject.ts` builds the bundled + user CSS and injects it
+with `scripting.insertCSS({ origin: "USER" })` on `webNavigation.onCommitted` (frame 0); the DOM
+surveyor's matches are injected the same way from the `get-cosmetic-generics` handler. The content
+script (`cosmeticFilter.ts`) no longer builds any `<style>` — it runs only `adCollapse` and the
+surveyor. Parity, not new capability: injected once per top-frame navigation, gone with the
+document on the next; pausing a site mid-page still takes effect on the next navigation only
+(`onCommitted` re-checks `isSiteDisabled`), so no per-tab `removeCSS` bookkeeping. `origin: "USER"`
+is set explicitly on both browsers. The page-thread saving is modest (`cosmetic-filter.js` 17 →
+15.3 KB) — the value is that injection is browser-managed and the page builds no stylesheet at all.
+**Timing trade-off, accepted:** `insertCSS` from `onCommitted` is roughly `document_start`-class,
+occasionally later than a declared `document_start` content script — needs a live smoke test on
+ad-heavy pages before release to confirm no first-paint flash of unhidden ads.
 
 ### 2.3 Collapse the blocked element (fixes the empty-ad-box gap)
 
@@ -258,13 +263,14 @@ strongest and is currently invisible.
    needs the maintainer's CWS/AMO secrets (see `docs/RELEASING.md`).
 4. ✅ **2.1 DOM surveyor** (v0.11.59–60) — generic selectors indexed by anchor-token hash, injected
    by a self-disabling `MutationObserver` surveyor; `trimUnmatchedGenericRules` deleted.
-   ✅ **2.2 partial split** (v0.11.63) — the service worker (`background/cosmeticIndex.ts`) now owns
-   the ~1 MB `cosmetics-meta.json` + domain-bucket fetch/parse that ran on the page thread every
-   navigation, and answers `get-cosmetic-slice` / `get-cosmetic-generics`; `<style>` injection
-   stays in the content script. **Full `onCommitted` + `insertCSS` variant — still PARKED**: from
-   the partial baseline it only moves *where* injection happens, for a small gain against real
-   SW-lifecycle / cross-browser / first-paint-timing risk. Revisit only if content-script `<style>`
-   injection shows up as a measured cost.
+   ✅ **2.2** — **partial split** (v0.11.63): the service worker (`background/cosmeticIndex.ts`) took
+   over the ~1 MB `cosmetics-meta.json` + domain-bucket fetch/parse that ran on the page thread
+   every navigation. **Completed** (v0.11.68): `background/cosmeticInject.ts` injects the CSS with
+   `scripting.insertCSS({ origin: "USER" })` on `webNavigation.onCommitted`; `cosmeticFilter.ts`
+   builds no `<style>` at all, running only `adCollapse` + the surveyor. Modest page-thread saving;
+   the point is browser-managed injection. Timing trade-off (`onCommitted` insertCSS is roughly
+   `document_start`-class, occasionally later) accepted — **needs a live smoke test before
+   release**.
 5. ✅ **2.3 collapse-blocked-element** (v0.11.61) — curated-set route, not route 1: `rules/ad-networks.json`
    (~100 verified ad-network domains) + `adCollapse.ts`. Route 1 (emit `iframe[src*=domain]`
    selectors from all ~53k DNR domains) was rejected — they have no token anchor, so 2.1 would
