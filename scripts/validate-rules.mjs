@@ -218,6 +218,38 @@ if (!Array.isArray(seoSpamDomains) || seoSpamDomains.length === 0) {
   console.log(`seo-spam-domains.json: ${seoSpamDomains.length} SEO-spam domains`);
 }
 
+// circumvention-services.json: hand-curated (not generated), lives in rules/
+// not rules/dnr. scripts/lib/circumventionServiceRules.mjs turns these into
+// network block rules. Deliberately a small, conservative seed -- only
+// domains independently confirmed as anti-adblock-circumvention service
+// vendors, not guessed. Must be a non-empty array of lowercase,
+// de-duplicated, path-free domain strings.
+const circumventionServices = JSON.parse(
+  readFileSync(join(rulesDir, "..", "circumvention-services.json"), "utf8")
+);
+if (!Array.isArray(circumventionServices) || circumventionServices.length === 0) {
+  console.error("circumvention-services.json: must be a non-empty array");
+  ok = false;
+} else {
+  const seen = new Set();
+  for (const d of circumventionServices) {
+    if (typeof d !== "string" || !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(d)) {
+      console.error(`circumvention-services.json: not a bare lowercase domain: ${JSON.stringify(d)}`);
+      ok = false;
+    } else if (seen.has(d)) {
+      console.error(`circumvention-services.json: duplicate entry "${d}"`);
+      ok = false;
+    }
+    seen.add(d);
+  }
+  const sorted = [...circumventionServices].sort();
+  if (circumventionServices.some((d, i) => d !== sorted[i])) {
+    console.error("circumvention-services.json: entries must be sorted");
+    ok = false;
+  }
+  console.log(`circumvention-services.json: ${circumventionServices.length} circumvention-service domains`);
+}
+
 const ruleCompanies = JSON.parse(readFileSync(join(rulesDir, "rule-companies.json"), "utf8"));
 let attributedCount = 0;
 for (const [rulesetId, byRuleId] of Object.entries(ruleCompanies)) {

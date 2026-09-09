@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.71
+
+### Added
+- **Anti-adblock-circumvention service blocklist.** A dedicated industry (AdDefend, and AdThrive —
+  now rebranded Raptive) sells publishers tooling specifically to proxy/obfuscate ad requests so
+  filter lists can't recognize them. A build-time audit of the vendored AdGuard ads/trackers
+  rulesets found neither `addefend.com` nor `adthrive.com` present as an actual network block-rule
+  domain (`adthrive.com` was already in `ad-networks.json`, but only for `adCollapse.ts`'s cosmetic
+  empty-box collapse — that hides the aftermath, it doesn't stop the circumvention script from
+  running). New first-party ruleset (`ruleset_circumvention-services.json`, folded into the
+  existing Tracking Protection group), sourced from a new hand-curated
+  `rules/circumvention-services.json` (same convention as `ad-networks.json`/
+  `seo-spam-domains.json`). Deliberately small and conservative — Publica (also named in the
+  original research) and Raptive's own post-rebrand serving domain were both left out rather than
+  guessed, since neither had a confirmable domain. See `scripts/lib/circumventionServiceRules.mjs`
+  for the full rationale.
+
 ## 0.11.70
 
 ### Added

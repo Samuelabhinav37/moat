@@ -9,6 +9,7 @@ import { extractRuleDomain, lookupCompany } from "./lib/ruleCompany.mjs";
 import { buildCompanyInfo } from "./lib/companyInfo.mjs";
 import { pruneRedundantRules } from "./lib/pruneRedundantRules.mjs";
 import { buildServerSideAnalyticsRules } from "./lib/serverSideAnalyticsRules.mjs";
+import { buildCircumventionServiceRules } from "./lib/circumventionServiceRules.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -378,6 +379,29 @@ manifestEntries.push({
   enabled: true,
   file: "ruleset_server-side-analytics.json",
   ruleCount: ownServerSideAnalyticsRules.length,
+});
+
+// Our own rules, not sourced from AdGuard: anti-adblock-circumvention
+// service vendors (AdDefend, AdThrive) -- see
+// scripts/lib/circumventionServiceRules.mjs for the full rationale (the
+// build-time audit that found neither already network-blocked) and
+// rules/circumvention-services.json for the curated domain list itself.
+const ownCircumventionServiceRules = buildCircumventionServiceRules();
+writeFileSync(
+  join(outDir, "ruleset_circumvention-services.json"),
+  JSON.stringify(ownCircumventionServiceRules)
+);
+// Same group as the other first-party additions above so this folds into
+// the one "Tracking Protection" Filter Lists row instead of adding a new
+// row for what is conceptually the same feature.
+manifestEntries.push({
+  id: "ruleset_circumvention-services",
+  group: "trackers",
+  category: "ads",
+  name: "Moat: Anti-adblock-circumvention service blocklist",
+  enabled: true,
+  file: "ruleset_circumvention-services.json",
+  ruleCount: ownCircumventionServiceRules.length,
 });
 
 writeFileSync(
