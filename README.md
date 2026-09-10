@@ -128,9 +128,9 @@ install) and every case its code touches a network.
   Moat ships ~271,000). With other rule-heavy extensions present, some lists may not enable —
   `filterGroups.ts` drops the least-essential first, the Filter Lists tab shows which, and fresh
   installs start on the smaller Lite preset. The ceiling can't be raised from within an extension.
-- **`web-ext lint` reports 5 expected warnings, 0 errors** — a Firefox-for-Android manifest-key
-  note, a false-positive coinminer hit on a blocked *domain name* inside a filter list, and
-  feature-detected references to Chrome-only APIs Firefox lacks.
+- **`web-ext lint` reports 4 expected warnings, 0 errors** — a false-positive coinminer hit on a
+  blocked *domain name* inside a filter list, and feature-detected references to three
+  Chrome-only `declarativeNetRequest` debug/feedback APIs Firefox doesn't implement.
 
 ## Licensing note
 
