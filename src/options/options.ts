@@ -1,13 +1,5 @@
 import browser from "webextension-polyfill";
-import {
-  getEffectiveSettings,
-  getSettings,
-  getSyncStatus,
-  removeCustomCosmeticRule,
-  removeGrayscaleRule,
-  setSettings,
-  setSiteDisabled,
-} from "../background/settings";
+import { getEffectiveSettings, getSyncStatus } from "../background/settings";
 import { getManagedPolicy, isLocked } from "../background/managedPolicy";
 import { getLiveUpdateStatus, getYoutubeQuickFixesStatus } from "../background/liveUpdates";
 import { getFilterGroupStatus } from "../background/filterGroups";
@@ -16,15 +8,69 @@ import { isSupported as isCnameUncloakChromeSupported } from "../background/cnam
 import { detectPreset, presetPatch, type PresetName } from "../shared/filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import type {
+  AddCustomDomainMessage,
   CompanyBreakdownResponse,
+  CustomDomainListField,
   ExportSettingsMessage,
   GetCompanyBreakdownMessage,
   ImportSettingsMessage,
   ImportSettingsResponse,
+  RemoveCosmeticRuleMessage,
+  RemoveCustomDomainMessage,
+  RemoveGrayscaleRuleMessage,
   Settings,
+  SetSettingsPatchMessage,
+  ToggleSiteMessage,
 } from "../types";
 import { joinCompanyBreakdown, type CompanyInfo } from "./trackerView";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
+
+// options.html is its own extension page -- a separate realm from the
+// background worker, same as bridge.ts was before it started routing
+// fingerprint-seed generation through a message instead of calling
+// background/settings.ts's mutators directly. These wrappers keep every
+// call site below unchanged (same names, same signatures) while actually
+// sending the mutation to the one background realm every other settings
+// change already goes through -- see SetSettingsPatchMessage's own comment
+// in types.ts for why this matters: two realms each computing a change
+// from their own separately-read "current settings" can silently discard
+// one another's change when both write back.
+async function setSettings(patch: Partial<Settings>): Promise<void> {
+  const message: SetSettingsPatchMessage = { type: "set-settings-patch", patch };
+  await browser.runtime.sendMessage(message);
+}
+
+async function setSiteDisabled(hostname: string, disabled: boolean): Promise<void> {
+  const message: ToggleSiteMessage = { type: "toggle-site", hostname, disabled };
+  await browser.runtime.sendMessage(message);
+}
+
+async function removeCustomCosmeticRule(hostname: string, selector: string): Promise<void> {
+  const message: RemoveCosmeticRuleMessage = { type: "remove-cosmetic-rule", hostname, selector };
+  await browser.runtime.sendMessage(message);
+}
+
+async function removeGrayscaleRule(hostname: string, selector: string): Promise<void> {
+  const message: RemoveGrayscaleRuleMessage = { type: "remove-grayscale-rule", hostname, selector };
+  await browser.runtime.sendMessage(message);
+}
+
+// The add/remove decision itself (is this hostname already in the list?)
+// happens on the background side, inside the same mutateSettings call that
+// writes it -- not here from a separately-read snapshot. See
+// settings.ts's addCustomDomain/removeCustomDomain for why that matters
+// even once the write itself is routed through the right realm: a
+// replacement array computed from a stale read can still discard an
+// unrelated concurrent change to the same list.
+async function sendAddCustomDomain(field: CustomDomainListField, hostname: string): Promise<void> {
+  const message: AddCustomDomainMessage = { type: "add-custom-domain", field, hostname };
+  await browser.runtime.sendMessage(message);
+}
+
+async function sendRemoveCustomDomain(field: CustomDomainListField, hostname: string): Promise<void> {
+  const message: RemoveCustomDomainMessage = { type: "remove-custom-domain", field, hostname };
+  await browser.runtime.sendMessage(message);
+}
 
 function tFallback(key: string, fallback: string, substitutions?: string | string[]): string {
   return getMessageOrFallback((k, s) => browser.i18n.getMessage(k, s), key, fallback, substitutions);
@@ -348,13 +394,10 @@ const customAllowEmpty = document.getElementById("custom-allow-empty") as HTMLEl
 const customAllowInput = document.getElementById("custom-allow-input") as HTMLInputElement;
 const customAllowAdd = document.getElementById("custom-allow-add") as HTMLButtonElement;
 
-async function addCustomDomain(field: "customBlockedDomains" | "customAllowedDomains", input: HTMLInputElement): Promise<void> {
+async function addCustomDomain(field: CustomDomainListField, input: HTMLInputElement): Promise<void> {
   const hostname = normalizeHostname(input.value);
   if (!hostname) return;
-  const settings = await getSettings();
-  const set = new Set(settings[field]);
-  set.add(hostname);
-  await setSettings({ [field]: [...set] });
+  await sendAddCustomDomain(field, hostname);
   input.value = "";
   await (field === "customBlockedDomains" ? rerenderCustomBlockList() : rerenderCustomAllowList());
 }
@@ -431,10 +474,7 @@ async function rerenderCustomBlockList(): Promise<void> {
     customBlockEmpty,
     settings.customBlockedDomains,
     tFallback("commonRemove", "Remove"),
-    async (domain) => {
-      const current = await getSettings();
-      await setSettings({ customBlockedDomains: current.customBlockedDomains.filter((d) => d !== domain) });
-    },
+    (domain) => sendRemoveCustomDomain("customBlockedDomains", domain),
     rerenderCustomBlockList
   );
 }
@@ -446,10 +486,7 @@ async function rerenderCustomAllowList(): Promise<void> {
     customAllowEmpty,
     settings.customAllowedDomains,
     tFallback("commonRemove", "Remove"),
-    async (domain) => {
-      const current = await getSettings();
-      await setSettings({ customAllowedDomains: current.customAllowedDomains.filter((d) => d !== domain) });
-    },
+    (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
     rerenderCustomAllowList
   );
 }
@@ -560,10 +597,7 @@ async function render(): Promise<void> {
     customBlockEmpty,
     settings.customBlockedDomains,
     tFallback("commonRemove", "Remove"),
-    async (domain) => {
-      const current = await getSettings();
-      await setSettings({ customBlockedDomains: current.customBlockedDomains.filter((d) => d !== domain) });
-    },
+    (domain) => sendRemoveCustomDomain("customBlockedDomains", domain),
     rerenderCustomBlockList
   );
   renderDomainList(
@@ -571,10 +605,7 @@ async function render(): Promise<void> {
     customAllowEmpty,
     settings.customAllowedDomains,
     tFallback("commonRemove", "Remove"),
-    async (domain) => {
-      const current = await getSettings();
-      await setSettings({ customAllowedDomains: current.customAllowedDomains.filter((d) => d !== domain) });
-    },
+    (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
     rerenderCustomAllowList
   );
   renderSelectorRules(

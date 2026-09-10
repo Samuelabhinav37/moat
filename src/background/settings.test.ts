@@ -77,6 +77,11 @@ const {
   setSiteDisabled,
   getOrCreateFingerprintSeed,
   getOrCreateSessionFingerprintSeed,
+  addCustomBlockedDomain,
+  removeCustomBlockedDomain,
+  addCustomAllowedDomain,
+  removeCustomAllowedDomain,
+  pickAllowedSettingsPatch,
   addCustomCosmeticRule,
   removeCustomCosmeticRule,
   addGrayscaleRule,
@@ -145,6 +150,81 @@ describe("setSiteDisabled", () => {
     await setSiteDisabled("other.example.com", true);
     await setSiteDisabled("ads.example.com", false);
     expect((await getSettings()).disabledSites).toEqual(["other.example.com"]);
+  });
+});
+
+describe("addCustomBlockedDomain / removeCustomBlockedDomain", () => {
+  it("adds a hostname", async () => {
+    await addCustomBlockedDomain("ads.example.com");
+    expect((await getSettings()).customBlockedDomains).toEqual(["ads.example.com"]);
+  });
+
+  it("is idempotent when adding the same hostname twice", async () => {
+    await addCustomBlockedDomain("ads.example.com");
+    await addCustomBlockedDomain("ads.example.com");
+    expect((await getSettings()).customBlockedDomains).toEqual(["ads.example.com"]);
+  });
+
+  it("removes only the named hostname, leaving the rest of a concurrently-added list intact", async () => {
+    // Simulates the exact bug this pair exists to prevent: a remove for one
+    // hostname landing while another hostname is also mid-flight, without
+    // either being computed from a stale pre-read snapshot that would
+    // silently drop the other's change.
+    await Promise.all([addCustomBlockedDomain("a.example.com"), addCustomBlockedDomain("b.example.com")]);
+    await removeCustomBlockedDomain("a.example.com");
+    expect((await getSettings()).customBlockedDomains).toEqual(["b.example.com"]);
+  });
+
+  it("does nothing when removing a hostname that isn't in the list", async () => {
+    await addCustomBlockedDomain("a.example.com");
+    await removeCustomBlockedDomain("never-added.example.com");
+    expect((await getSettings()).customBlockedDomains).toEqual(["a.example.com"]);
+  });
+});
+
+describe("addCustomAllowedDomain / removeCustomAllowedDomain", () => {
+  it("is independent of the blocked-domains list", async () => {
+    await addCustomBlockedDomain("blocked.example.com");
+    await addCustomAllowedDomain("allowed.example.com");
+    const settings = await getSettings();
+    expect(settings.customBlockedDomains).toEqual(["blocked.example.com"]);
+    expect(settings.customAllowedDomains).toEqual(["allowed.example.com"]);
+  });
+
+  it("removes a hostname", async () => {
+    await addCustomAllowedDomain("allowed.example.com");
+    await removeCustomAllowedDomain("allowed.example.com");
+    expect((await getSettings()).customAllowedDomains).toEqual([]);
+  });
+});
+
+describe("pickAllowedSettingsPatch", () => {
+  it("passes through fields on the allowlist", () => {
+    expect(pickAllowedSettingsPatch({ enabled: false, hideSeoSpamResults: true })).toEqual({
+      enabled: false,
+      hideSeoSpamResults: true,
+    });
+  });
+
+  it("drops fields not on the allowlist, e.g. fingerprintSeed", () => {
+    expect(pickAllowedSettingsPatch({ enabled: true, fingerprintSeed: "attacker-chosen" })).toEqual({
+      enabled: true,
+    });
+  });
+
+  it("drops disabledSites and the custom selector-map fields, which have their own dedicated messages", () => {
+    expect(
+      pickAllowedSettingsPatch({
+        disabledSites: ["evil.example.com"],
+        customCosmeticRules: { "evil.example.com": [".everything"] },
+      })
+    ).toEqual({});
+  });
+
+  it("returns an empty object for non-object input", () => {
+    expect(pickAllowedSettingsPatch(null)).toEqual({});
+    expect(pickAllowedSettingsPatch("not an object")).toEqual({});
+    expect(pickAllowedSettingsPatch(undefined)).toEqual({});
   });
 });
 

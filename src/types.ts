@@ -432,6 +432,79 @@ export interface FingerprintSeedResponse {
   seed: string;
 }
 
+/** The fields options.ts's own toggles/lists/presets patch. Same
+ * cross-realm reasoning as GetFingerprintSeedMessage above: options.html is
+ * its own extension page, a separate realm from the background worker, and
+ * used to call setSettings() directly -- if the options page and something
+ * else (a popup toggle, an element-picker save, a managed-policy sync) both
+ * mutate settings around the same moment, each realm's mutateSettings queue
+ * only serializes against itself, so whichever "current settings" snapshot
+ * a slower writer read first becomes stale, and its write silently
+ * overwrites the other's already-applied change. Routing through the
+ * background worker (which every mutation elsewhere already goes through)
+ * fixes that. The field list here is deliberately not "any Partial<Settings>
+ * patch" -- background/index.ts's handler drops any key not in this list, so
+ * a message of this shape can only ever touch fields options.ts's UI
+ * actually exposes, never e.g. fingerprintSeed (generated, not user-set) or
+ * disabledSites/customCosmeticRules/customGrayscaleRules (each already has
+ * its own narrower, purpose-built message). */
+export const SETTINGS_PATCH_ALLOWED_FIELDS = [
+  "enabled",
+  "blockThirdPartyCookies",
+  "webrtcLeakProtection",
+  "fingerprintResistance",
+  "fingerprintRotatePerSession",
+  "grayscaleUnblockableAds",
+  "aggressiveFeedAdRemoval",
+  "cookieBannerAutoReject",
+  "cnameUncloaking",
+  "leakedPasswordCheck",
+  "permissionGuardCamera",
+  "permissionGuardMicrophone",
+  "permissionGuardLocation",
+  "hideSeoSpamResults",
+  "syncEnabled",
+  "filterGroups",
+  "customBlockedDomains",
+  "customAllowedDomains",
+] as const satisfies readonly (keyof Settings)[];
+
+export type SettingsPatchField = (typeof SETTINGS_PATCH_ALLOWED_FIELDS)[number];
+
+export interface SetSettingsPatchMessage {
+  type: "set-settings-patch";
+  patch: Partial<Pick<Settings, SettingsPatchField>>;
+}
+
+/** options.ts's own equivalents of removeCustomCosmeticRule/
+ * removeGrayscaleRule -- same cross-realm reasoning, and symmetric with the
+ * existing SaveCosmeticRuleMessage/SaveGrayscaleRuleMessage for adding one. */
+export interface RemoveCosmeticRuleMessage {
+  type: "remove-cosmetic-rule";
+  hostname: string;
+  selector: string;
+}
+
+export interface RemoveGrayscaleRuleMessage {
+  type: "remove-grayscale-rule";
+  hostname: string;
+  selector: string;
+}
+
+export type CustomDomainListField = "customBlockedDomains" | "customAllowedDomains";
+
+export interface AddCustomDomainMessage {
+  type: "add-custom-domain";
+  field: CustomDomainListField;
+  hostname: string;
+}
+
+export interface RemoveCustomDomainMessage {
+  type: "remove-custom-domain";
+  field: CustomDomainListField;
+  hostname: string;
+}
+
 export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
@@ -451,7 +524,12 @@ export type RuntimeMessage =
   | ReportAthenaOverrideMessage
   | GetCosmeticGenericsMessage
   | GetProceduralRulesMessage
-  | GetFingerprintSeedMessage;
+  | GetFingerprintSeedMessage
+  | SetSettingsPatchMessage
+  | RemoveCosmeticRuleMessage
+  | RemoveGrayscaleRuleMessage
+  | AddCustomDomainMessage
+  | RemoveCustomDomainMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the

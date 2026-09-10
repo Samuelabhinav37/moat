@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import { DEFAULT_SETTINGS, STORAGE_KEY, type Settings } from "../types";
+import { DEFAULT_SETTINGS, SETTINGS_PATCH_ALLOWED_FIELDS, STORAGE_KEY, type Settings } from "../types";
 import { PRESETS } from "../shared/filterPresets";
 import { applyPrivacySettings } from "./privacySettings";
 import { applyFilterGroupState } from "./filterGroups";
@@ -152,6 +152,22 @@ export function setSettings(patch: Partial<Settings>): Promise<Settings> {
   return mutateSettings(() => patch);
 }
 
+/** Narrows an arbitrary object down to only the fields
+ * SETTINGS_PATCH_ALLOWED_FIELDS lists, dropping everything else -- the
+ * runtime half of the "set-settings-patch" message's trust boundary (see
+ * that constant's own comment in types.ts). Pulled out as its own pure
+ * function, the same way cnameUncloakMatch.ts/customRules.ts separate
+ * logic from browser-API wiring, so index.ts's message handler doesn't
+ * carry the only test coverage for what's actually a security boundary. */
+export function pickAllowedSettingsPatch(patch: unknown): Partial<Settings> {
+  if (typeof patch !== "object" || patch === null) return {};
+  const safe: Record<string, unknown> = {};
+  for (const field of SETTINGS_PATCH_ALLOWED_FIELDS) {
+    if (field in patch) safe[field] = (patch as Record<string, unknown>)[field];
+  }
+  return safe;
+}
+
 /** Re-applies everything against current settings -- call at startup, and
  * whenever managed policy itself changes. `force` bypasses filterGroups.ts's
  * "nothing changed since last fully-successful apply" fast path -- used
@@ -209,6 +225,39 @@ function removeSelectorRule(field: SelectorMapField, hostname: string, selector:
     return { [field]: next } as Partial<Settings>;
   });
 }
+
+type DomainListField = "customBlockedDomains" | "customAllowedDomains";
+
+/** Same reasoning as setSiteDisabled's Set-based patch above: the add/
+ * remove decision is computed from `current` *inside* the mutator, at the
+ * moment mutateSettings actually applies it -- not from a snapshot the
+ * caller read separately beforehand and turned into a full replacement
+ * array, which would silently discard whatever else changed to this same
+ * list in between the read and the write. */
+function addCustomDomain(field: DomainListField, hostname: string): Promise<Settings> {
+  return mutateSettings((current) => {
+    const set = new Set(current[field]);
+    if (set.has(hostname)) return null;
+    set.add(hostname);
+    return { [field]: [...set] } as Partial<Settings>;
+  });
+}
+
+function removeCustomDomain(field: DomainListField, hostname: string): Promise<Settings> {
+  return mutateSettings((current) => {
+    if (!current[field].includes(hostname)) return null;
+    return { [field]: current[field].filter((d) => d !== hostname) } as Partial<Settings>;
+  });
+}
+
+export const addCustomBlockedDomain = (hostname: string): Promise<Settings> =>
+  addCustomDomain("customBlockedDomains", hostname);
+export const removeCustomBlockedDomain = (hostname: string): Promise<Settings> =>
+  removeCustomDomain("customBlockedDomains", hostname);
+export const addCustomAllowedDomain = (hostname: string): Promise<Settings> =>
+  addCustomDomain("customAllowedDomains", hostname);
+export const removeCustomAllowedDomain = (hostname: string): Promise<Settings> =>
+  removeCustomDomain("customAllowedDomains", hostname);
 
 export const addCustomCosmeticRule = (hostname: string, selector: string): Promise<Settings> =>
   addSelectorRule("customCosmeticRules", hostname, selector);

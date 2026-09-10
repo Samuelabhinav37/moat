@@ -9,6 +9,8 @@ import {
   resetForNavigation,
 } from "./blockStats";
 import {
+  addCustomAllowedDomain,
+  addCustomBlockedDomain,
   addCustomCosmeticRule,
   addGrayscaleRule,
   applyFreshInstallDefaults,
@@ -17,7 +19,12 @@ import {
   getOrCreateSessionFingerprintSeed,
   getSettings,
   isSiteDisabled,
+  pickAllowedSettingsPatch,
   reapplySettings,
+  removeCustomAllowedDomain,
+  removeCustomBlockedDomain,
+  removeCustomCosmeticRule,
+  removeGrayscaleRule,
   seedFromSyncIfEmpty,
   setSettings,
   setSiteDisabled,
@@ -274,6 +281,38 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     case "save-grayscale-rule": {
       if (!isValidMessageString(message.hostname) || !isValidMessageString(message.selector)) return undefined;
       return addGrayscaleRule(message.hostname, message.selector).then(() => undefined);
+    }
+
+    case "remove-cosmetic-rule": {
+      if (!isValidMessageString(message.hostname) || !isValidMessageString(message.selector)) return undefined;
+      return removeCustomCosmeticRule(message.hostname, message.selector).then(() => undefined);
+    }
+
+    case "remove-grayscale-rule": {
+      if (!isValidMessageString(message.hostname) || !isValidMessageString(message.selector)) return undefined;
+      return removeGrayscaleRule(message.hostname, message.selector).then(() => undefined);
+    }
+
+    case "add-custom-domain": {
+      if (!isValidMessageString(message.hostname)) return undefined;
+      if (message.field !== "customBlockedDomains" && message.field !== "customAllowedDomains") return undefined;
+      const add = message.field === "customBlockedDomains" ? addCustomBlockedDomain : addCustomAllowedDomain;
+      return add(message.hostname).then(() => undefined);
+    }
+
+    case "remove-custom-domain": {
+      if (!isValidMessageString(message.hostname)) return undefined;
+      if (message.field !== "customBlockedDomains" && message.field !== "customAllowedDomains") return undefined;
+      const remove = message.field === "customBlockedDomains" ? removeCustomBlockedDomain : removeCustomAllowedDomain;
+      return remove(message.hostname).then(() => undefined);
+    }
+
+    // options.ts's own toggles/presets patch settings through this rather
+    // than importing setSettings directly -- see SETTINGS_PATCH_ALLOWED_FIELDS'
+    // own comment in types.ts for why pickAllowedSettingsPatch doesn't just
+    // trust message.patch as-is.
+    case "set-settings-patch": {
+      return setSettings(pickAllowedSettingsPatch(message.patch)).then(() => undefined);
     }
 
     case "get-cosmetic-generics": {
