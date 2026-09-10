@@ -66,6 +66,24 @@ describe("validateImportedSettings", () => {
     expect(validateImportedSettings({ filterGroups: ["ads"] })).toBeNull();
   });
 
+  it("rejects a filterGroups value with more keys than MAX_RECORD_KEYS", () => {
+    const tooMany: Record<string, boolean> = {};
+    for (let i = 0; i < 2001; i += 1) tooMany[`group${i}`] = true;
+    expect(validateImportedSettings({ filterGroups: tooMany })).toBeNull();
+  });
+
+  it("accepts a filterGroups value right at the MAX_RECORD_KEYS boundary", () => {
+    const atLimit: Record<string, boolean> = {};
+    for (let i = 0; i < 2000; i += 1) atLimit[`group${i}`] = true;
+    expect(validateImportedSettings({ filterGroups: atLimit })?.filterGroups).toEqual(atLimit);
+  });
+
+  it("rejects a customCosmeticRules value with more hostnames than MAX_RECORD_KEYS", () => {
+    const tooMany: Record<string, string[]> = {};
+    for (let i = 0; i < 2001; i += 1) tooMany[`site${i}.example.com`] = [".ad"];
+    expect(validateImportedSettings({ customCosmeticRules: tooMany })).toBeNull();
+  });
+
   it("rejects a customCosmeticRules entry mapping to a non-array", () => {
     expect(validateImportedSettings({ customCosmeticRules: { "example.com": ".ad" } })).toBeNull();
   });

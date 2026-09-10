@@ -35,12 +35,10 @@ function isBoundedStringArray(value: unknown): value is string[] {
 }
 
 function isBooleanRecord(value: unknown): value is Record<string, boolean> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value) &&
-    Object.values(value).every((entry) => typeof entry === "boolean")
-  );
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const entries = Object.entries(value);
+  if (entries.length > MAX_RECORD_KEYS) return false;
+  return entries.every(([, entry]) => typeof entry === "boolean");
 }
 
 /** Hostname -> selector[] shape (customCosmeticRules/customGrayscaleRules).
