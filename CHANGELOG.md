@@ -37,6 +37,46 @@ All notable changes to this project are documented here. Format loosely follows
   codebase is already routed rather than imported directly into a content script. Side benefit:
   `bridge.js` no longer bundles settings.ts's entire mutateSettings/applyEffectiveSettings
   pipeline into every page's content script — shrinks from ~21.1KB to ~12.5KB unminified.
+- **Chrome's "Uncloak disguised trackers" path never actually activated.** `isSupported()`
+  checked `typeof browser.webRequest?.onBeforeRequest === "function"` — `onBeforeRequest` is a
+  `chrome.events.Event` instance, never itself a function, so this was false in every real
+  browser. The whole Chrome DoH-based CNAME-uncloaking feature silently no-opped since it
+  shipped; the toggle could be switched on, but nothing happened, and the options page showed the
+  "not supported on this browser" hint instead of the intended trade-offs hint. Fixed to check
+  existence instead, matching the Firefox sibling file's own `isSupported()`. Also fixed:
+  disabling the toggle only ever removed the `webRequest` listener, never the
+  `declarativeNetRequest` dynamic rules already added for hostnames discovered that session —
+  they stayed blocked permanently. Cleanup now runs whenever the feature should not be running,
+  not just on the on-to-off transition, so rules left over from before this fix (or from a worker
+  restart while already off) get removed too.
+- **`applyCustomRules.ts`'s block/allow rules could end up inconsistent with each other.** Two
+  sequential `updateDynamicRules` calls meant a failure on the second (a dynamic-rule budget hit
+  shared with CNAME uncloaking, live redirect domains, and quick fixes) left custom block rules
+  updated to the new list while allow rules stayed stuck on the old one. Now one atomic call.
+- **`options.ts`'s entire settings-mutation surface (~20 call sites — every toggle, preset, and
+  list removal) bypassed the background worker**, importing `setSettings`/`setSiteDisabled`/
+  `removeCustomCosmeticRule`/`removeGrayscaleRule` directly from `background/settings.ts` into the
+  options page's own separate realm — the same class of cross-realm lost-update race `bridge.ts`
+  had. Two realms mutating settings around the same moment (the options page open while a popup
+  toggle, an element-picker save, or a managed-policy sync also touches settings) could silently
+  overwrite one another's already-applied change. Routed through message-passing, matching every
+  other part of the codebase. Also fixed a worse, related bug in the custom block/allow domain
+  lists specifically: the add/remove logic computed a full replacement array from a snapshot read
+  separately in the options page's own realm, a race message-passing alone wouldn't have fixed —
+  the add/remove decision now happens atomically inside the same mutation that reads current
+  settings, mirroring `setSiteDisabled`'s existing safe pattern.
+- **The search-slop filter (Google/Bing/DuckDuckGo low-quality-result hiding) was a near-total
+  no-op on live search pages**, confirmed by testing against real results pages. Each engine's
+  `linkSelector` was a single comma-separated CSS selector string with a specific selector first
+  and a generic `a[href]` fallback last — but `querySelector("A, B, C")` returns whichever
+  alternative's match comes first in *document order*, not whichever is listed first. Any result
+  card with an earlier, unrelated anchor (DuckDuckGo: a same-page "site:" refinement link; some
+  Google cards: an internal google.com thumbnail/favicon link) silently picked the wrong host, and
+  Bing wraps every result in a same-origin click-tracking redirect that never exposes the real
+  destination as a plain href at all — the actual host was recoverable only from the citation
+  element's display text. Fixed: an explicit ordered fallback chain per engine instead of one
+  comma-joined selector, an `a:has(h3)`-anchored primary selector for Google, and a citation-text
+  fallback for Bing.
 
 ## 0.11.72
 
