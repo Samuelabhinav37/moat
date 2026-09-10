@@ -121,6 +121,20 @@
         padding: 2px 8px;
         white-space: nowrap;
       }
+      /* An element's own `display` declaration overrides the [hidden]
+         attribute's native browser default (author styles always win over
+         the user-agent stylesheet, regardless of selector specificity) --
+         so every class here that sets its own `display` needs this explicit
+         re-assertion, same as .toggle-row[hidden]/[data-tab-panel][hidden]
+         below already do. Without it, options.ts setting .hidden = true on
+         these (protection-locked-badge, filters-locked-badge,
+         filter-budget-warning) has no visible effect at all -- they render
+         unconditionally, which on a normal, non-managed, non-budget-capped
+         install means an "Managed by your organization" badge and a filter-
+         budget warning banner showing up for absolutely no reason. */
+      .locked-badge[hidden] {
+        display: none;
+      }
       .locked-badge.budget-badge {
         color: var(--danger-fg);
         background: var(--danger);
@@ -137,6 +151,9 @@
         border-radius: 10px;
         padding: 10px 12px;
         margin-bottom: 12px;
+      }
+      .budget-warning[hidden] {
+        display: none;
       }
       .budget-warning p {
         margin: 0;
@@ -291,7 +308,7 @@
         </div>
       </div>
 
-      <div class="filter-category" data-i18n="optionsAdvancedProtectionCategory">Advanced protection</div>
+      <div class="filter-category" data-i18n="optionsAdvancedProtectionCategory">Extra protection</div>
       <div class="card">
         <div class="toggle-row">
           <div class="row-icon" aria-hidden="true">
@@ -311,8 +328,8 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M2 6a9 9 0 0112 0M4.4 8.6a5.5 5.5 0 017.2 0"/><circle cx="8" cy="12.3" r=".9" fill="currentColor" stroke="none"/><line x1="2" y1="2" x2="14" y2="14"/></svg>
           </div>
           <div>
-            <div class="card-title" id="webrtc-toggle-label" data-i18n="optionsWebrtcToggleLabel">Prevent WebRTC IP leaks</div>
-            <p class="hint muted" data-i18n="optionsWebrtcToggleHint">Stops a page from reading your real IP address behind a VPN.</p>
+            <div class="card-title" id="webrtc-toggle-label" data-i18n="optionsWebrtcToggleLabel">Stop IP address leaks</div>
+            <p class="hint muted" data-i18n="optionsWebrtcToggleHint">Keeps a website from seeing your real IP address if you're using a VPN.</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="webrtc-toggle" aria-labelledby="webrtc-toggle-label" />
@@ -324,10 +341,10 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M8 3.2a4.8 4.8 0 00-4.8 4.8v1.2M8 3.2A4.8 4.8 0 0112.8 8v2.1M8 5.4a2.6 2.6 0 00-2.6 2.6v1.2M8 5.4A2.6 2.6 0 0110.6 8v2M8 7.6a.4.4 0 00-.4.4v3.4"/></svg>
           </div>
           <div>
-            <div class="card-title" id="fingerprint-toggle-label" data-i18n="optionsFingerprintToggleLabel">Resist fingerprinting</div>
+            <div class="card-title" id="fingerprint-toggle-label" data-i18n="optionsFingerprintToggleLabel">Block browser fingerprinting</div>
             <p class="hint muted" data-i18n="optionsFingerprintToggleHint">
-              Adds a little noise to the device details sites use to identify you. Can occasionally
-              interfere with a CAPTCHA.
+              Randomly tweaks details about your device that sites use to recognize you across
+              visits. Can occasionally break a CAPTCHA.
             </p>
           </div>
           <label class="switch">
@@ -340,10 +357,10 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M13 8A5 5 0 013 8M3 8A5 5 0 0113 8"/><path d="M3 8l1.6-1.8M13 8l-1.6 1.8"/></svg>
           </div>
           <div>
-            <div class="card-title" id="fingerprint-rotate-toggle-label" data-i18n="optionsFingerprintRotateToggleLabel">New noise each session</div>
+            <div class="card-title" id="fingerprint-rotate-toggle-label" data-i18n="optionsFingerprintRotateToggleLabel">Use a new disguise each time you restart</div>
             <p class="hint muted" data-i18n="optionsFingerprintRotateToggleHint">
-              Regenerates the noise every time the browser restarts, so it can't settle into a
-              fixed identifier of its own. Sites see a slightly different device each session.
+              Creates a new browser disguise every time you restart, instead of keeping the same
+              one. This way sites can't use it to recognize you over time.
             </p>
           </div>
           <label class="switch">
@@ -402,18 +419,18 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
           </div>
           <div>
-            <div class="card-title" id="cname-uncloak-toggle-label" data-i18n="optionsCnameToggleLabel">Uncloak disguised trackers</div>
+            <div class="card-title" id="cname-uncloak-toggle-label" data-i18n="optionsCnameToggleLabel">Catch trackers hiding in disguise</div>
             <p class="hint muted" data-i18n="optionsCnameToggleHint">
-              Blocks trackers that hide behind a subdomain of the site you're on.
+              Some trackers disguise themselves as part of the site you're visiting. This finds
+              and blocks them anyway.
             </p>
             <p class="hint muted" id="cname-unsupported-hint" hidden data-i18n="optionsCnameUnsupportedHint">
               Not available in this browser.
             </p>
             <p class="hint muted" id="cname-chrome-doh-hint" hidden data-i18n="optionsCnameChromeDohHint">
-              On Chrome this works differently than on Firefox: candidate subdomains are looked up
-              through Cloudflare's public DNS resolver, and the very first request to a newly-found
-              cloaked tracker isn't blocked -- only ones after it are. Firefox blocks every request,
-              using no third party at all.
+              On Chrome, this checks disguised trackers using Cloudflare's public lookup service,
+              and may miss the very first one it finds -- it catches every one after that. Firefox
+              does this itself, more privately, and catches every one from the start.
             </p>
           </div>
           <label class="switch">
@@ -504,10 +521,9 @@
           <div>
             <div class="card-title" id="search-slop-toggle-label" data-i18n="optionsSearchSlopToggleLabel">Hide low-quality search results</div>
             <p class="hint muted" data-i18n="optionsSearchSlopToggleHint">
-              Collapses Google, Bing, and DuckDuckGo results from a small, hand-curated list of
-              content-farm domains, behind a one-click "show" toggle. Off by default: this is a
-              curated-domain match, not a verified detector, so it carries a real false-positive
-              risk a fixed ad-network list doesn't.
+              Hides search results that match a small, curated list of content-farm domains. Each
+              hidden batch stays one click away behind a "Show" link. Off by default, since this
+              list can misfire in ways a fixed ad-network list won't.
             </p>
           </div>
           <label class="switch">
@@ -519,8 +535,8 @@
 
       <div class="filter-category" data-i18n="optionsFilterUpdatesCategory">Filter updates</div>
       <div class="card">
-        <div class="card-title" data-i18n="optionsLiveListTitle">Live redirect-domain list</div>
-        <p class="hint muted" data-i18n="optionsLiveListHint">Refreshes the popup and redirect blocklist from GitHub once a day.</p>
+        <div class="card-title" data-i18n="optionsLiveListTitle">Daily popup-blocklist update</div>
+        <p class="hint muted" data-i18n="optionsLiveListHint">Keeps the list of known popup and redirect sites up to date, once a day.</p>
         <p class="hint" id="live-status" data-i18n="optionsLiveStatusNotChecked">Not checked yet.</p>
       </div>
     </section>
@@ -528,9 +544,10 @@
     <section data-tab-panel="filters" hidden>
       <div class="budget-warning" id="filter-budget-warning" hidden>
         <p data-i18n="optionsFilterBudgetWarning">
-          Some filter lists aren't fully active. Browsers cap how many blocking rules all
-          extensions can share, and that cap is often reached when several ad blockers or privacy
-          extensions run together -- disable another one, or turn a list off below.
+          Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules
+          extensions can use in total, and that limit is easy to hit if you have another ad
+          blocker or privacy extension running too. Try turning one of them off, or switch off a
+          list below.
         </p>
         <p id="filter-budget-detail" hidden></p>
       </div>
@@ -552,7 +569,7 @@
 
       <div class="card">
         <div class="card-title" data-i18n="optionsIndividualListsTitle">Individual filter lists</div>
-        <p class="hint muted" data-i18n="optionsIndividualListsHint">Turn lists on or off individually. Any change sets the level to Custom.</p>
+        <p class="hint muted" data-i18n="optionsIndividualListsHint">Turn each list on or off yourself. Changing any one switches your filtering level to Custom.</p>
         <div id="filter-list-rows"></div>
       </div>
     </section>
@@ -560,7 +577,7 @@
     <section data-tab-panel="custom" hidden>
       <div class="card">
         <div class="card-title" data-i18n="optionsExceptionsTitle">Paused sites</div>
-        <p class="hint muted" data-i18n="optionsExceptionsHint">Moat is turned off completely on these sites and their subdomains.</p>
+        <p class="hint muted" data-i18n="optionsExceptionsHint">Moat is completely turned off on these sites, and any pages under them.</p>
         <ul class="site-list" id="site-list"></ul>
         <p class="empty-state" id="site-empty-state" data-i18n="optionsNoSitesAdded">No sites added.</p>
         <div class="add-row">
@@ -591,7 +608,7 @@
         </div>
       </div>
 
-      <div class="filter-category" data-i18n="optionsCosmeticCategory">Cosmetic filtering</div>
+      <div class="filter-category" data-i18n="optionsCosmeticCategory">Element picker</div>
       <div class="card">
         <div class="card-title" data-i18n="optionsHiddenElementsTitle">Hidden elements</div>
         <p class="hint muted" data-i18n="optionsHiddenElementsHint">
@@ -619,11 +636,11 @@
         </div>
         <p class="hint muted" id="trackers-subhead" hidden></p>
         <p class="hint muted" id="trackers-unsupported" hidden data-i18n="optionsTrackersUnsupported">
-          Per-request attribution is Chrome-only -- Firefox doesn't expose the needed API yet.
+          This detailed tracker list only works in Chrome for now -- Firefox doesn't support it yet.
         </p>
         <div id="tracker-rows"></div>
         <p class="empty-state" id="trackers-empty" hidden data-i18n="optionsTrackersEmpty">
-          No trackers attributed on the tab you last had open.
+          No trackers found on the last tab you had open.
         </p>
       </div>
     </section>
@@ -650,18 +667,18 @@
         <div class="about-section">
           <h3 data-i18n="optionsPrivacyHeading">Privacy</h3>
           <p data-i18n="optionsPrivacyIntro">
-            Everything on this page is stored locally in your browser and never sent to Moat's
-            developer. The privacy policy covers the few opt-in features -- breach checking and
-            settings sync -- that contact anyone else.
+            Everything here stays on your device -- none of it is sent to Moat's developer. Only
+            two optional features (breach checking and settings sync) ever talk to anyone else;
+            see the privacy policy for details.
           </p>
           <p>
-            <strong>Filter updates:</strong> once a day Moat fetches its redirect list and any
-            emergency fixes from GitHub. That request carries no browsing data.
+            <strong>Filter updates:</strong> once a day, Moat checks for a fresher block list and
+            any urgent fixes. That check doesn't send any of your browsing history.
           </p>
           <p>
-            <strong>Breach checking:</strong> with this on, only the first five characters of a
-            password's SHA-1 hash go to Have I Been Pwned -- never the full hash, the password, or
-            anything to Moat.
+            <strong>Breach checking:</strong> with this on, only a short, scrambled piece of your
+            password goes to Have I Been Pwned -- never the real password, and nothing goes to
+            Moat at all.
           </p>
           <p>
             <strong>Settings sync:</strong> with this on, your settings travel through your
@@ -692,8 +709,8 @@
         <div class="about-section">
           <h3 data-i18n="optionsBackupHeading">Backup &amp; restore</h3>
           <p data-i18n="optionsBackupIntro">
-            Save your settings to a file, or load one back in. The fingerprint-resistance
-            identifier is never included.
+            Save your settings to a file, or load one back in later. Your fingerprint-protection
+            ID is never included, so it won't carry over.
           </p>
           <div class="about-links">
             <button id="export-settings-button" type="button" data-i18n="optionsExportButton">Download settings</button>
@@ -705,8 +722,9 @@
             <div>
               <div class="card-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">Sync settings across devices</div>
               <p class="hint muted" data-i18n="optionsSyncToggleHint">
-                Mirrors your settings through your browser's own sync account. A new install picks
-                them up once; it doesn't merge edits made on two devices at the same time.
+                Copies your settings using your browser's own sync account, like your Google or
+                Firefox account. A new install picks them up once, but editing settings on two
+                devices at the same time won't merge -- one will overwrite the other.
               </p>
             </div>
             <label class="switch">

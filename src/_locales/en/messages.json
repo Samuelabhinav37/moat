@@ -45,18 +45,18 @@
   "optionsMasterToggleLabel": { "message": "Protection" },
   "optionsMasterToggleHint": { "message": "Turn all blocking on or off, everywhere." },
   "optionsManagedBadge": { "message": "Managed by your organization" },
-  "optionsAdvancedProtectionCategory": { "message": "Advanced protection" },
+  "optionsAdvancedProtectionCategory": { "message": "Extra protection" },
   "optionsCookiesToggleLabel": { "message": "Block third-party cookies" },
   "optionsCookiesToggleHint": { "message": "Stops sites from tracking you as you move from one to the next." },
-  "optionsWebrtcToggleLabel": { "message": "Prevent WebRTC IP leaks" },
-  "optionsWebrtcToggleHint": { "message": "Stops a page from reading your real IP address behind a VPN." },
-  "optionsFingerprintToggleLabel": { "message": "Resist fingerprinting" },
+  "optionsWebrtcToggleLabel": { "message": "Stop IP address leaks" },
+  "optionsWebrtcToggleHint": { "message": "Keeps a website from seeing your real IP address if you're using a VPN." },
+  "optionsFingerprintToggleLabel": { "message": "Block browser fingerprinting" },
   "optionsFingerprintToggleHint": {
-    "message": "Adds a little noise to the device details sites use to identify you. Can occasionally interfere with a CAPTCHA."
+    "message": "Randomly tweaks details about your device that sites use to recognize you across visits. Can occasionally break a CAPTCHA."
   },
-  "optionsFingerprintRotateToggleLabel": { "message": "New noise each session" },
+  "optionsFingerprintRotateToggleLabel": { "message": "Use a new disguise each time you restart" },
   "optionsFingerprintRotateToggleHint": {
-    "message": "Regenerates the noise every time the browser restarts, so it can't settle into a fixed identifier of its own. Sites see a slightly different device each session."
+    "message": "Creates a new browser disguise every time you restart, instead of keeping the same one. This way sites can't use it to recognize you over time."
   },
   "optionsGrayscaleToggleLabel": { "message": "Gray out unblockable video ads" },
   "optionsGrayscaleToggleHint": {
@@ -70,36 +70,36 @@
   "optionsConsentRejectToggleHint": {
     "message": "Clicks “reject” or “decline” on common consent banners for you."
   },
-  "optionsCnameToggleLabel": { "message": "Uncloak disguised trackers" },
+  "optionsCnameToggleLabel": { "message": "Catch trackers hiding in disguise" },
   "optionsCnameToggleHint": {
-    "message": "Blocks trackers that hide behind a subdomain of the site you're on."
+    "message": "Some trackers disguise themselves as part of the site you're visiting. This finds and blocks them anyway."
   },
   "optionsCnameUnsupportedHint": { "message": "Not available in this browser." },
   "optionsCnameChromeDohHint": {
-    "message": "On Chrome this works differently than on Firefox: candidate subdomains are looked up through Cloudflare's public DNS resolver, and the very first request to a newly-found cloaked tracker isn't blocked -- only ones after it are. Firefox blocks every request, using no third party at all."
+    "message": "On Chrome, this checks disguised trackers using Cloudflare's public lookup service, and may miss the very first one it finds -- it catches every one after that. Firefox does this itself, more privately, and catches every one from the start."
   },
   "optionsFilterUpdatesCategory": { "message": "Filter updates" },
-  "optionsLiveListTitle": { "message": "Live redirect-domain list" },
-  "optionsLiveListHint": { "message": "Refreshes the popup and redirect blocklist from GitHub once a day." },
+  "optionsLiveListTitle": { "message": "Daily popup-blocklist update" },
+  "optionsLiveListHint": { "message": "Keeps the list of known popup and redirect sites up to date, once a day." },
   "optionsLiveStatusNotChecked": { "message": "Not checked yet." },
   "optionsExceptionsTitle": { "message": "Paused sites" },
-  "optionsExceptionsHint": { "message": "Moat is turned off completely on these sites and their subdomains." },
+  "optionsExceptionsHint": { "message": "Moat is completely turned off on these sites, and any pages under them." },
   "optionsNoSitesAdded": { "message": "No sites added." },
   "commonAdd": { "message": "Add" },
   "commonHostnamePlaceholder": { "message": "example.com" },
 
   "optionsFilterBudgetWarning": {
-    "message": "Some filter lists aren't fully active. Browsers cap how many blocking rules all extensions can share, and that cap is often reached when several ad blockers or privacy extensions run together -- disable another one, or turn a list off below."
+    "message": "Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules extensions can use in total, and that limit is easy to hit if you have another ad blocker or privacy extension running too. Try turning one of them off, or switch off a list below."
   },
   "optionsFilterBudgetDetail": {
-    "message": "Your browser reports $COUNT$ shared rule slots left across all extensions. If that stays low after disabling other extensions and reloading Moat, turn a list off below -- Annoyances or Cookie Notices first.",
+    "message": "Your browser says $COUNT$ rule slots are left for all your extensions combined. Still low after turning off other extensions and reloading Moat? Turn off a list below -- Annoyances or Cookie Notices first.",
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsFilterBudgetDropped": {
-    "message": "Turned off for now so the rest of your lists stay within the browser's shared rule limit: $NAMES$.",
+    "message": "Turned off for now to stay within your browser's rule limit: $NAMES$.",
     "placeholders": { "names": { "content": "$1" } }
   },
-  "optionsFilterBudgetDroppedBadge": { "message": "Not active (rule budget)" },
+  "optionsFilterBudgetDroppedBadge": { "message": "Not active (browser limit reached)" },
   "optionsFilteringLevelTitle": { "message": "Filtering level" },
   "presetOff": { "message": "Off" },
   "presetLite": { "message": "Lite" },
@@ -108,7 +108,7 @@
   "presetStrict": { "message": "Strict" },
   "optionsIndividualListsTitle": { "message": "Individual filter lists" },
   "optionsIndividualListsHint": {
-    "message": "Turn lists on or off individually. Any change sets the level to Custom."
+    "message": "Turn each list on or off yourself. Changing any one switches your filtering level to Custom."
   },
   "optionsLoadListsError": { "message": "Couldn't load filter lists." },
 
@@ -118,7 +118,7 @@
   "optionsAllowedSitesTitle": { "message": "Allowed sites" },
   "optionsAllowedSitesHint": { "message": "Never block these sites, even when a filter list matches." },
   "commonAllow": { "message": "Allow" },
-  "optionsCosmeticCategory": { "message": "Cosmetic filtering" },
+  "optionsCosmeticCategory": { "message": "Element picker" },
   "optionsHiddenElementsTitle": { "message": "Hidden elements" },
   "optionsHiddenElementsHint": {
     "message": "Elements you hid with the “Block an element” tool. Remove one to bring it back."
@@ -140,22 +140,22 @@
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsTrackersEmpty": {
-    "message": "No trackers attributed on the tab you last had open."
+    "message": "No trackers found on the last tab you had open."
   },
   "optionsTrackersUnsupported": {
-    "message": "Per-request attribution is Chrome-only -- Firefox doesn't expose the needed API yet."
+    "message": "This detailed tracker list only works in Chrome for now -- Firefox doesn't support it yet."
   },
 
   "optionsAboutHeading": { "message": "About Moat" },
   "optionsPrivacyHeading": { "message": "Privacy" },
   "optionsPrivacyIntro": {
-    "message": "Everything on this page is stored locally in your browser and never sent to Moat's developer. The privacy policy covers the few opt-in features -- breach checking and settings sync -- that contact anyone else."
+    "message": "Everything here stays on your device -- none of it is sent to Moat's developer. Only two optional features (breach checking and settings sync) ever talk to anyone else; see the privacy policy for details."
   },
   "optionsVersionHeading": { "message": "Version details" },
   "optionsDebuggingHeading": { "message": "Debugging" },
   "optionsBackupHeading": { "message": "Backup & restore" },
   "optionsBackupIntro": {
-    "message": "Save your settings to a file, or load one back in. The fingerprint-resistance identifier is never included."
+    "message": "Save your settings to a file, or load one back in later. Your fingerprint-protection ID is never included, so it won't carry over."
   },
   "optionsPrivacyPolicyLink": { "message": "Full privacy policy" },
   "optionsChangelogLink": { "message": "Changelog" },
@@ -164,10 +164,10 @@
   "optionsImportButton": { "message": "Upload settings…" },
   "optionsSyncToggleLabel": { "message": "Sync settings across devices" },
   "optionsSyncToggleHint": {
-    "message": "Mirrors your settings through your browser's own sync account. A new install picks them up once; it doesn't merge edits made on two devices at the same time."
+    "message": "Copies your settings using your browser's own sync account, like your Google or Firefox account. A new install picks them up once, but editing settings on two devices at the same time won't merge -- one will overwrite the other."
   },
   "optionsSyncStatusFailed": {
-    "message": "Couldn't sync your settings ($WHEN$) -- they may be over your browser's sync-storage limit (custom rules and site lists count toward it). They're still saved locally.",
+    "message": "Couldn't sync your settings ($WHEN$) -- you may have too many custom rules or sites for your browser's sync storage. They're still saved on this device.",
     "placeholders": { "when": { "content": "$1" } }
   },
   "optionsVersionPrefix": {
@@ -190,19 +190,19 @@
     "placeholders": { "when": { "content": "$1" }, "count": { "content": "$2" } }
   },
   "optionsLiveStatusFailed": {
-    "message": "Last attempt failed ($WHEN$) — using the bundled baseline until the next try.",
+    "message": "Last attempt failed ($WHEN$) -- still using the built-in list until the next try.",
     "placeholders": { "when": { "content": "$1" } }
   },
   "optionsLiveStatusQuickFixes": {
-    "message": " $COUNT$ active quick fix(es).",
+    "message": " $COUNT$ extra fix(es) applied.",
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsLiveStatusCosmeticFixes": {
-    "message": " $COUNT$ cosmetic fix(es).",
+    "message": " $COUNT$ layout fix(es) applied.",
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsLiveStatusYoutubeFixes": {
-    "message": " $COUNT$ YouTube quick fix(es).",
+    "message": " $COUNT$ YouTube fix(es) applied.",
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsRuleCount": {
@@ -240,6 +240,6 @@
   },
   "optionsSearchSlopToggleLabel": { "message": "Hide low-quality search results" },
   "optionsSearchSlopToggleHint": {
-    "message": "Collapses Google, Bing, and DuckDuckGo results from a small, hand-curated list of content-farm domains, behind a one-click \"show\" toggle. Off by default: this is a curated-domain match, not a verified detector, so it carries a real false-positive risk a fixed ad-network list doesn't."
+    "message": "Hides search results that match a small, curated list of content-farm domains. Each hidden batch stays one click away behind a \"Show\" link. Off by default, since this list can misfire in ways a fixed ad-network list won't."
   }
 }

@@ -140,7 +140,7 @@ function renderLiveStatus(
   if (!status.ok) {
     liveStatus.textContent = tFallback(
       "optionsLiveStatusFailed",
-      `Last attempt failed (${when}) — using the bundled baseline until the next try.`,
+      `Last attempt failed (${when}) -- still using the built-in list until the next try.`,
       [when]
     );
     return;
@@ -152,12 +152,12 @@ function renderLiveStatus(
   // Only mentioned when there's actually one active -- see liveUpdates.ts's
   // LiveUpdateStatus comment for why this stays quiet the rest of the time.
   if (status.quickFixCount) {
-    text += tFallback("optionsLiveStatusQuickFixes", ` ${status.quickFixCount} active quick fix(es).`, [
+    text += tFallback("optionsLiveStatusQuickFixes", ` ${status.quickFixCount} extra fix(es) applied.`, [
       String(status.quickFixCount),
     ]);
   }
   if (status.cosmeticFixCount) {
-    text += tFallback("optionsLiveStatusCosmeticFixes", ` ${status.cosmeticFixCount} cosmetic fix(es).`, [
+    text += tFallback("optionsLiveStatusCosmeticFixes", ` ${status.cosmeticFixCount} layout fix(es) applied.`, [
       String(status.cosmeticFixCount),
     ]);
   }
@@ -166,7 +166,7 @@ function renderLiveStatus(
   if (youtubeStatus?.ok && youtubeStatus.selectorCount) {
     text += tFallback(
       "optionsLiveStatusYoutubeFixes",
-      ` ${youtubeStatus.selectorCount} YouTube quick fix(es).`,
+      ` ${youtubeStatus.selectorCount} YouTube fix(es) applied.`,
       [String(youtubeStatus.selectorCount)]
     );
   }
@@ -185,8 +185,8 @@ function renderSyncStatus(syncEnabled: boolean, status: Awaited<ReturnType<typeo
   syncStatus.hidden = false;
   syncStatus.textContent = tFallback(
     "optionsSyncStatusFailed",
-    `Couldn't sync your settings (${when}) -- they may be over your browser's sync-storage limit ` +
-      `(custom rules and site lists count toward it). They're still saved locally.`,
+    `Couldn't sync your settings (${when}) -- you may have too many custom rules or sites for your ` +
+      `browser's sync storage. They're still saved on this device.`,
     [when]
   );
 }
@@ -348,7 +348,7 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
     if (droppedGroups.has(list.group)) {
       const badge = document.createElement("span");
       badge.className = "locked-badge budget-badge";
-      badge.textContent = tFallback("optionsFilterBudgetDroppedBadge", "Not active (rule budget)");
+      badge.textContent = tFallback("optionsFilterBudgetDroppedBadge", "Not active (browser limit reached)");
       label.append(badge);
     }
 
@@ -571,7 +571,7 @@ async function render(): Promise<void> {
     filterBudgetDetail.hidden = false;
     filterBudgetDetail.textContent = tFallback(
       "optionsFilterBudgetDropped",
-      `Turned off for now so the rest of your lists stay within the browser's shared rule limit: ${names}.`,
+      `Turned off for now to stay within your browser's rule limit: ${names}.`,
       [names]
     );
   } else if (filterGroupStatus?.availableStaticRuleCount !== undefined) {
@@ -579,7 +579,7 @@ async function render(): Promise<void> {
     filterBudgetDetail.hidden = false;
     filterBudgetDetail.textContent = tFallback(
       "optionsFilterBudgetDetail",
-      `Your browser reports ${availableCount} shared rule slots left across all extensions. If that stays low after disabling other extensions and reloading Moat, turn a list off below -- Annoyances or Cookie Notices first.`,
+      `Your browser says ${availableCount} rule slots are left for all your extensions combined. Still low after turning off other extensions and reloading Moat? Turn off a list below -- Annoyances or Cookie Notices first.`,
       [String(availableCount)]
     );
   } else {
