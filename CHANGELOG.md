@@ -3,7 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## 0.11.72
+## 0.11.73
+
+### Added
+- **Heuristic fallback for cookie banners outside the curated CMP list.** Consent-O-Matic's
+  curated rules (`rules/consent-rules.json`) only cover CMPs someone has hand-written a rule for.
+  Research (2025-2026) found manipulative visual-dominance patterns — oversized "Accept,"
+  visually-buried "Reject" — on 38% of even nominally GDPR-compliant banners that aren't in any
+  curated list. New `src/content/consent/heuristicFallback.ts` runs only after
+  `runConsentRejection` reports no curated CMP matched the current DOM snapshot: it finds the
+  tightest banner-shaped container mentioning cookies/consent/GDPR, then looks for exactly one
+  visible, enabled, unambiguous reject-family button by text match inside it. Same
+  selector-discovery-and-click boundary as the curated path (never injects or evaluates page
+  code), and only acts on genuine ambiguity-free matches — a wrong click here is worse than doing
+  nothing, so multiple conflicting candidates or no match at all means "do nothing." Deliberately
+  does *not* gate on accept/reject size or contrast (computed and returned for observability only)
+  — a reject button a site rendered small specifically to bury it is exactly the case this exists
+  to see past, not a reason to refuse to click it.
 
 ### Added
 - **A second, faster live-update channel scoped to YouTube.** The general live-update channel

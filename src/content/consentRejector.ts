@@ -10,6 +10,11 @@
 // consent category defaults to reject (consent/types.ts's REJECT_ALL),
 // Consent-O-Matic's own out-of-the-box default too.
 //
+// When no curated CMP matches a snapshot, consent/heuristicFallback.ts gets
+// a turn -- a text-pattern-only reject-button finder for banners outside
+// the curated list, same never-inject/eval boundary, only acts when
+// unambiguous. See that file's header for the confidence-gating design.
+//
 // A banner can mount well after the page's initial load (its own script
 // still loading, an async consent-platform handshake, etc.), so this polls
 // for one for a bounded window rather than running once and giving up --
@@ -19,6 +24,7 @@
 import browser from "webextension-polyfill";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { buildCmps, runConsentRejection } from "./consent/engine";
+import { runHeuristicFallback } from "./consent/heuristicFallback";
 import type { RuleSet } from "./consent/types";
 import { STORAGE_KEY } from "../types";
 
@@ -65,7 +71,15 @@ function watchAndReject(ruleSet: RuleSet): void {
     attemptInFlight = true;
     try {
       const result = await runConsentRejection(cmps);
-      if (result.handled) cleanup();
+      if (result.handled) {
+        cleanup();
+        return;
+      }
+      // No curated CMP matched this snapshot -- try the heuristic fallback
+      // for a banner Consent-O-Matic's list doesn't recognize. Never
+      // preempts a curated match: only reached when runConsentRejection
+      // just reported handled: false above.
+      if (runHeuristicFallback().handled) cleanup();
     } finally {
       attemptInFlight = false;
     }
