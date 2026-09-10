@@ -21,6 +21,25 @@ All notable changes to this project are documented here. Format loosely follows
   — a reject button a site rendered small specifically to bury it is exactly the case this exists
   to see past, not a reason to refuse to click it.
 
+### Fixed
+- **The leaked-password check silently stopped retrying after one failed HaveIBeenPwned
+  request.** `checkPassword()` marked a typed password as "already checked" before the network
+  call actually succeeded — a transient failure (offline, HIBP unreachable, non-2xx) permanently
+  suppressed future checks for that exact value on that field for the rest of the page's life,
+  with no retry and no visible signal. Now only marks a value checked once the request succeeds.
+- **Two tabs opened near-simultaneously right after a browser restart could get two different
+  fingerprint seeds.** `getOrCreateSessionFingerprintSeed`/`getOrCreateFingerprintSeed` were only
+  ever called from `bridge.ts`, a content script instantiated fresh per tab/frame — each tab's
+  copy of the generate-if-absent logic had its own independent state, so two racing first callers
+  could each mint a different seed, breaking the "one seed per browser session" guarantee. Now
+  routed through a new `get-fingerprint-seed` message to the background worker (the one shared
+  realm every tab's request funnels through), matching how every other settings mutation in this
+  codebase is already routed rather than imported directly into a content script. Side benefit:
+  `bridge.js` no longer bundles settings.ts's entire mutateSettings/applyEffectiveSettings
+  pipeline into every page's content script — shrinks from ~21.1KB to ~12.5KB unminified.
+
+## 0.11.72
+
 ### Added
 - **A second, faster live-update channel scoped to YouTube.** The general live-update channel
   (`live/redirect-domains.json`/`quick-fixes.json`/`cosmetic-fixes.json`) refreshes at most once a
