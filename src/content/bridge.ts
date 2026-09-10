@@ -3,9 +3,30 @@
 // fingerprint guard) whether this site is paused and what to do, and
 // relays their block reports back to the background worker.
 import browser from "webextension-polyfill";
-import { STORAGE_KEY, type BridgeMessage, type BlockedMessage } from "../types";
-import { getEffectiveSettings, getOrCreateFingerprintSeed, getOrCreateSessionFingerprintSeed } from "../background/settings";
+import {
+  STORAGE_KEY,
+  type BridgeMessage,
+  type BlockedMessage,
+  type FingerprintSeedResponse,
+  type GetFingerprintSeedMessage,
+} from "../types";
+import { getEffectiveSettings } from "../background/settings";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
+
+// Routed through the background worker rather than calling
+// getOrCreateFingerprintSeed/getOrCreateSessionFingerprintSeed directly the
+// way getEffectiveSettings (a plain read) is above -- this content script
+// is instantiated fresh per tab/frame, so two tabs generating a seed
+// directly would each run that module's generate-if-absent logic in their
+// own separate copy of it, with no shared state to serialize against.
+// Routing through the one background worker (which every tab's request
+// funnels through) is what actually makes "one seed per browser session"
+// hold; see types.ts's GetFingerprintSeedMessage.
+async function fetchFingerprintSeed(session: boolean): Promise<string> {
+  const message: GetFingerprintSeedMessage = { type: "get-fingerprint-seed", session };
+  const response = (await browser.runtime.sendMessage(message)) as FingerprintSeedResponse;
+  return response.seed;
+}
 
 // One token per page load, sent with every config message so the MAIN-world
 // guards can tell a real update from a later message spoofed by the page
@@ -39,13 +60,11 @@ async function sendConfig(): Promise<void> {
   const fingerprintResistance = settings.fingerprintResistance && !disabled;
   const fingerprintSeed = fingerprintResistance
     ? settings.fingerprintRotatePerSession
-      ? // storage.session needs the background worker to have already called
-        // setAccessLevel (see background/index.ts) before a content script
-        // can reach it -- on the very first page load after a browser
-        // restart that call might not have landed yet, so fall back to the
-        // permanent seed rather than fail the whole config message.
-        await getOrCreateSessionFingerprintSeed().catch(() => getOrCreateFingerprintSeed())
-      : await getOrCreateFingerprintSeed()
+      ? // The background worker may still be waking up right after a browser
+        // restart -- fall back to the permanent seed rather than fail the
+        // whole config message over a message-channel hiccup.
+        await fetchFingerprintSeed(true).catch(() => fetchFingerprintSeed(false))
+      : await fetchFingerprintSeed(false)
     : "";
 
   const message: BridgeMessage = {

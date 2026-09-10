@@ -13,6 +13,8 @@ import {
   addGrayscaleRule,
   applyFreshInstallDefaults,
   getEffectiveSettings,
+  getOrCreateFingerprintSeed,
+  getOrCreateSessionFingerprintSeed,
   getSettings,
   isSiteDisabled,
   reapplySettings,
@@ -37,6 +39,7 @@ import { getFilterGroupStatus } from "./filterGroups";
 import type {
   AthenaBlockReasonResponse,
   CompanyBreakdownResponse,
+  FingerprintSeedResponse,
   ImportSettingsResponse,
   LogEntriesResponse,
   ReportContextResponse,
@@ -60,19 +63,6 @@ initRuleLogger();
 // No-op on every normal install -- see athenaIntegration.ts. Only does
 // anything once an org's own managed policy provisions ManagedPolicy.athena.
 initAthenaIntegration(getManagedPolicy);
-// storage.session defaults to background/extension-page-only access; the
-// opt-in per-session fingerprint rotation toggle needs bridge.ts (a content
-// script) to read/write it too. Untyped in webextension-polyfill's storage
-// types even though both Chrome and Firefox support it (see MDN's
-// StorageArea.setAccessLevel), hence the loose cast. Best-effort: if this
-// fails (older browser, API missing), bridge.ts's session-seed read just
-// falls back to the permanent seed instead of throwing.
-type SessionAccessArea = { setAccessLevel(options: { accessLevel: string }): Promise<void> };
-void (browser.storage.session as unknown as SessionAccessArea)
-  .setAccessLevel({ accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS" })
-  .catch(() => {
-    // Older browser or API missing -- rotation silently falls back to the permanent seed.
-  });
 // Shared by both call sites below. seedFromSyncIfEmpty/applyFreshInstallDefaults
 // each independently check "is storage.local genuinely still empty?" right
 // before writing, so calling this twice in a row (once from the
@@ -308,6 +298,13 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     case "get-procedural-rules": {
       if (!isValidMessageString(message.hostname)) return undefined;
       return proceduralRulesFor(message.hostname);
+    }
+
+    case "get-fingerprint-seed": {
+      return (async (): Promise<FingerprintSeedResponse> => {
+        const seed = message.session ? await getOrCreateSessionFingerprintSeed() : await getOrCreateFingerprintSeed();
+        return { seed };
+      })();
     }
 
     case "get-report-context": {

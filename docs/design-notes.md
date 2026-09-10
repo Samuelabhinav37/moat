@@ -303,11 +303,18 @@ from the permanent per-install one to one stored in `browser.storage.session`
 fingerprint that never changes can itself become a durable cross-site identifier over
 time, which rotating trades off against sites seeing a different "device" on every
 restart. Off by default, layered under the parent toggle rather than replacing it,
-since the deterministic default is the safer one for compatibility. Content scripts
-can't reach `storage.session` until the background worker grants it access
-(`storage.session.setAccessLevel`, called once at startup); on the rare page load
-that races that call, this silently falls back to the permanent seed rather than
-failing (`src/content/bridge.ts`).
+since the deterministic default is the safer one for compatibility. `bridge.ts`
+(a content script, instantiated fresh per tab/frame) doesn't read or write
+`storage.session` itself — it asks the background worker for the seed via a
+`get-fingerprint-seed` message instead. That's not just an API-access
+question (a content script *can* reach `storage.session` once granted
+access): the seed is generate-if-absent, and two tabs each running that
+logic directly, in their own separate copy of the module holding it, could
+each mint a different seed for the same "session." Routing every tab's
+request through the one background worker is what makes "one seed per
+browser session" actually hold. On a message-channel hiccup (the background
+worker still waking up right after a browser restart), this falls back to
+the permanent seed rather than failing (`src/content/bridge.ts`).
 
 ### Cosmetic filtering internals
 

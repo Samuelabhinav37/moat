@@ -414,6 +414,24 @@ export interface ProceduralRulesResponse {
   rules: ProceduralRule[];
 }
 
+/** bridge.ts asks the background worker for a fingerprint seed rather than
+ * generating one itself -- see background/settings.ts's
+ * getOrCreateFingerprintSeed/getOrCreateSessionFingerprintSeed. The
+ * generate-if-absent logic needs a single shared realm to serialize
+ * against; a content script is instantiated fresh per tab/frame, so two
+ * tabs calling it directly (each with their own copy of that module's
+ * in-memory queue) could each mint a different seed. Routing through the
+ * one background worker, which every tab's request funnels through, is
+ * what actually makes "one seed per browser session" hold. */
+export interface GetFingerprintSeedMessage {
+  type: "get-fingerprint-seed";
+  session: boolean;
+}
+
+export interface FingerprintSeedResponse {
+  seed: string;
+}
+
 export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
@@ -432,7 +450,8 @@ export type RuntimeMessage =
   | GetAthenaBlockReasonMessage
   | ReportAthenaOverrideMessage
   | GetCosmeticGenericsMessage
-  | GetProceduralRulesMessage;
+  | GetProceduralRulesMessage
+  | GetFingerprintSeedMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the
