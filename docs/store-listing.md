@@ -67,3 +67,44 @@ Source (GPL-3.0): https://github.com/Samuelabhinav37/moat
   `Function()`, no script injection from the network.
 - `webRequest` (Chrome) is non-blocking, used only when "Uncloak disguised
   trackers" is enabled.
+
+---
+
+## Chrome Web Store dashboard fields (Privacy practices tab)
+
+**Privacy policy URL**
+
+> https://samuelabhinav37.github.io/moat/
+
+**Single purpose description**
+
+> Moat blocks ads, trackers, and hijacked popups/redirects, and hides the
+> cosmetic leftovers (empty ad boxes, cookie banners) that blocking can't
+> reach. Every other toggle (fingerprint resistance, feed ad removal, leaked-
+> password check, CNAME uncloaking, GPC) is a variant of the same purpose —
+> stopping a page from tracking, redirecting, or serving unwanted content to
+> the person viewing it — not an unrelated bundled feature.
+
+**Are you using remote code?**
+
+> No. `src/background/liveUpdates.ts` fetches signed/hash-verified JSON
+> (domain lists and CSS selector strings) from a GitHub Pages URL we control,
+> never executable code. Nothing is `eval`'d or run via `Function()`; fetched
+> selectors are passed through `isSafeCosmeticSelector` before use the same as
+> every bundled selector.
+
+**Permission justifications** (paste one per permission the dashboard flags)
+
+| Permission | Justification |
+| --- | --- |
+| Host permission `<all_urls>` | Core functionality: a content blocker must see requests and page content on every site to block/hide on it. No narrower host permission covers this. |
+| `tabs` | Read the URL/opener of a newly opened tab to distinguish a real navigation from a hijacked popup/redirect, and show the correct per-tab block count on the toolbar icon. |
+| `webNavigation` | Detect when a page opens a new tab/window and when navigation completes, to run the popup/redirect firewall at the right moment. |
+| `declarativeNetRequest` | Core network-blocking engine — all ad/tracker/malware blocking runs through this API, matched by the browser itself. |
+| `declarativeNetRequestFeedback` | Read-only match feedback (`getMatchedRules`) to show the user which categories (ads/trackers/popups) were blocked on the current page. |
+| `storage` | Store the user's own settings and per-site pause list locally on-device. Never transmitted. |
+| `privacy` | Backs the opt-in privacy toggles (third-party cookie blocking, WebRTC leak protection); inert unless the user turns one on. |
+| `alarms` | Schedule the daily check for a refreshed popup/redirect domain list and cosmetic-fix file. |
+| `scripting` | Register the optional content scripts (feed ad removal, YouTube dimmer) scoped only to the sites each applies to; inject cosmetic CSS from the background service worker; run the element picker only when the user clicks "Block an element…". |
+| `webRequest` (non-blocking) | Observe candidate requests for the opt-in "Uncloak disguised trackers" feature; inert unless that toggle is on. Chrome's MV3 `webRequest` can no longer block, so this is observation-only feeding `declarativeNetRequest` dynamic rules. |
+| `contentSettings` | Set the browser-level camera/microphone/location permission default to "block" for the opt-in ambush-prompt guard (a site requesting one with no user gesture). Inert unless that toggle is on. |
