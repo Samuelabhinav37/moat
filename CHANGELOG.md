@@ -77,6 +77,14 @@ All notable changes to this project are documented here. Format loosely follows
   element's display text. Fixed: an explicit ordered fallback chain per engine instead of one
   comma-joined selector, an `a:has(h3)`-anchored primary selector for Google, and a citation-text
   fallback for Bing.
+- **A crafted settings-import file could write an unbounded number of `filterGroups` keys.**
+  Every other array/record field in the import validator is length-capped against exactly this
+  (untrusted file content, not just untrusted shape) — `isBooleanRecord` was the one exception.
+- **Athena's enterprise security-event queue could silently drop an event.** `queueSecurityEvent`/
+  `flushSecurityEvents` did an unserialized read-modify-write of the same `storage.session` key —
+  the same race class as the fingerprint-seed bug above, but fully contained within the background
+  worker's one realm this time, so a straightforward serialization queue closes it without a
+  message-passing redesign.
 
 ## 0.11.72
 
