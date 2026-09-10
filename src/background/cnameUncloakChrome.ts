@@ -120,15 +120,46 @@ async function handleBeforeRequest(details: WebRequest.OnBeforeRequestDetailsTyp
 
 let registered = false;
 
+// Whether this worker instance has already made sure no stale dynamic
+// rules are left over from a previous session (or from before this cleanup
+// existed) while the feature is off. Separate from `registered` -- that
+// flag is about the *listener* and starts false on every fresh
+// service-worker instance regardless of whether the feature was left on or
+// off, so gating cleanup on "were we just registered in THIS instance"
+// would miss the far more common case: the toggle was already off (or was
+// turned off in a previous, now-gone worker instance) when this instance
+// starts up, and Chrome's dynamic declarativeNetRequest rules persist
+// across worker restarts even though this in-memory flag doesn't.
+let cleanupChecked = false;
+
 /** True only where Firefox's better, synchronous path (cnameUncloak.ts)
  * isn't available -- both files gate the same setting, and this one must
  * never also run on Firefox alongside it. */
 export function isSupported(): boolean {
   return (
-    typeof browser.webRequest?.onBeforeRequest === "function" &&
+    // onBeforeRequest is a chrome.events.Event *instance* (an object with
+    // addListener/removeListener methods), never itself a function -- same
+    // existence check cnameUncloak.ts's own isSupported() uses for this
+    // exact property. `typeof ... === "function"` here would be false in
+    // every real browser, Chrome included, silently disabling this entire
+    // feature path everywhere.
+    browser.webRequest?.onBeforeRequest !== undefined &&
     typeof browser.declarativeNetRequest?.updateDynamicRules === "function" &&
     typeof browser.dns?.resolve !== "function"
   );
+}
+
+/** Removes every dynamic rule this feature could have added and forgets
+ * this session's in-memory discoveries -- called whenever the feature
+ * should NOT be running, not just on the on-to-off transition, so rules
+ * left over from before this cleanup existed (or from a worker restart
+ * while the toggle was already off) actually get removed too. Safe to call
+ * even when nothing was ever added: removeRuleIds on IDs that don't exist
+ * is a no-op, not an error. */
+async function clearBlockedHostnames(): Promise<void> {
+  blockedHostnames = [];
+  checkedThisSession.clear();
+  await browser.declarativeNetRequest.updateDynamicRules({ removeRuleIds: allCnameDohBlockRuleIds() });
 }
 
 /** Adds/removes the observational listener to match current settings --
@@ -139,11 +170,25 @@ export function applyCnameUncloakChrome(settings: Settings): void {
   if (!isSupported()) return;
 
   const shouldRun = settings.enabled && settings.cnameUncloaking;
-  if (shouldRun && !registered) {
-    browser.webRequest.onBeforeRequest.addListener(onBeforeRequest, { urls: ["<all_urls>"] });
-    registered = true;
-  } else if (!shouldRun && registered) {
-    browser.webRequest.onBeforeRequest.removeListener(onBeforeRequest);
-    registered = false;
+  if (shouldRun) {
+    if (!registered) {
+      browser.webRequest.onBeforeRequest.addListener(onBeforeRequest, { urls: ["<all_urls>"] });
+      registered = true;
+    }
+    // Re-enabling later should get a real chance to clean up again too.
+    cleanupChecked = false;
+  } else {
+    if (registered) {
+      browser.webRequest.onBeforeRequest.removeListener(onBeforeRequest);
+      registered = false;
+    }
+    if (!cleanupChecked) {
+      cleanupChecked = true;
+      void clearBlockedHostnames().catch(() => {
+        // Best-effort -- retry on the next settings reapply rather than
+        // leaving stale rules stuck forever over one transient failure.
+        cleanupChecked = false;
+      });
+    }
   }
 }
