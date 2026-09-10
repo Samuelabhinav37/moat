@@ -107,54 +107,82 @@ async function getQueue(): Promise<AthenaSecurityEvent[]> {
   return Array.isArray(queue) ? (queue as AthenaSecurityEvent[]) : [];
 }
 
+// Both queueSecurityEvent and flushSecurityEvents do a read-modify-write of
+// the same storage.session key -- without serializing them, two blocked-
+// request events queued close together (plausible with multiple tabs) can
+// each read the same pre-write snapshot and the second write clobbers the
+// first, silently dropping it. flushSecurityEvents has a worse variant of
+// the same problem: it reads the queue once, then spends real wall-clock
+// time (one fetch per event) before writing back what's left -- a new
+// event queued during that window would otherwise get discarded by the
+// flush's own final write, computed from a snapshot that predates it.
+// Chaining every call through this queue means a queueSecurityEvent that
+// arrives mid-flush just waits its turn and gets appended after, rather
+// than racing (and losing to) the flush's write. Same single-file-queue
+// idea as settings.ts's `pending`/`sessionSeedQueue`, and safe to use the
+// same way here since, unlike that fingerprint-seed bug, every caller of
+// these two functions (matchStats.ts, index.ts, the alarm below) already
+// lives in this one background-worker realm -- no cross-realm gap to close.
+let sessionEventsQueue: Promise<unknown> = Promise.resolve();
+
+function serialized<T>(task: () => Promise<T>): Promise<T> {
+  const result = sessionEventsQueue.then(task);
+  sessionEventsQueue = result.catch(() => {});
+  return result;
+}
+
 /** No-ops instantly when Athena isn't configured, so every call site that
  * might fire on a normal install (matchStats.ts, index.ts) stays a single
  * cheap check, not a policy-read-and-branch at every call site. */
-export async function queueSecurityEvent(
+export function queueSecurityEvent(
   policy: ManagedPolicy,
   event: Omit<AthenaSecurityEvent, "eventId" | "timestamp">
 ): Promise<void> {
-  if (!isAthenaConfigured(policy)) return;
-  const queue = await getQueue();
-  queue.push({ ...event, eventId: crypto.randomUUID(), timestamp: Date.now() });
-  const trimmed = queue.length > MAX_QUEUE_LENGTH ? queue.slice(queue.length - MAX_QUEUE_LENGTH) : queue;
-  await browser.storage.session.set({ [QUEUE_KEY]: trimmed });
+  if (!isAthenaConfigured(policy)) return Promise.resolve();
+  return serialized(async () => {
+    const queue = await getQueue();
+    queue.push({ ...event, eventId: crypto.randomUUID(), timestamp: Date.now() });
+    const trimmed = queue.length > MAX_QUEUE_LENGTH ? queue.slice(queue.length - MAX_QUEUE_LENGTH) : queue;
+    await browser.storage.session.set({ [QUEUE_KEY]: trimmed });
+  });
 }
 
-export async function flushSecurityEvents(policy: ManagedPolicy): Promise<void> {
-  if (!isAthenaConfigured(policy)) return;
-  const queue = await getQueue();
-  if (queue.length === 0) return;
+export function flushSecurityEvents(policy: ManagedPolicy): Promise<void> {
+  if (!isAthenaConfigured(policy)) return Promise.resolve();
+  return serialized(async () => {
+    const queue = await getQueue();
+    if (queue.length === 0) return;
 
-  const session = await getAthenaSession(policy.athena);
-  if (!session) return; // Leave the queue intact -- retried on the next alarm tick.
+    const session = await getAthenaSession(policy.athena);
+    if (!session) return; // Leave the queue intact -- retried on the next alarm tick.
 
-  try {
-    let sent = 0;
-    for (const event of queue) {
-      const response = await fetch(policy.athena.eventsUrl, {
-        method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${session.token}` },
-        body: JSON.stringify({
-          source_event_id: event.eventId,
-          occurred_at: new Date(event.timestamp).toISOString(),
-          action: event.category === "override" ? "allowed_override" : "blocked",
-          severity: event.riskTier,
-          rule_id: event.rulesetId ? `${event.rulesetId}:${event.ruleId ?? "unknown"}` : event.category,
-          target_indicator: event.domain,
-          evidence: {
-            category: event.category,
-            ...(event.note ? { override_reason: event.note } : {}),
-          },
-        }),
-      });
-      if (!response.ok) break;
-      sent += 1;
+    try {
+      let sent = 0;
+      for (const event of queue) {
+        const response = await fetch(policy.athena.eventsUrl, {
+          method: "POST",
+          headers: { "content-type": "application/json", authorization: `Bearer ${session.token}` },
+          body: JSON.stringify({
+            source_event_id: event.eventId,
+            occurred_at: new Date(event.timestamp).toISOString(),
+            action: event.category === "override" ? "allowed_override" : "blocked",
+            severity: event.riskTier,
+            rule_id: event.rulesetId ? `${event.rulesetId}:${event.ruleId ?? "unknown"}` : event.category,
+            target_indicator: event.domain,
+            evidence: {
+              category: event.category,
+              ...(event.note ? { override_reason: event.note } : {}),
+            },
+          }),
+        });
+        if (!response.ok) break;
+        sent += 1;
+      }
+      if (sent > 0) await browser.storage.session.set({ [QUEUE_KEY]: queue.slice(sent) });
+    } catch {
+      // Unreachable -- same "keep going, try again next tick" posture as above.
     }
-    if (sent > 0) await browser.storage.session.set({ [QUEUE_KEY]: queue.slice(sent) });
-  } catch {
-    // Unreachable -- same "keep going, try again next tick" posture as above.
-  }
+  });
 }
 
 const ALARM_NAME = "moat-athena-flush";

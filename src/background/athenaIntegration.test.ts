@@ -173,4 +173,42 @@ describe("queueSecurityEvent / flushSecurityEvents", () => {
     const stored = (await browser.storage.session.get(key)) as Record<string, unknown[]>;
     expect(stored[key]).toHaveLength(1);
   });
+
+  it("keeps both events when two are queued concurrently, instead of one clobbering the other", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    await Promise.all([
+      queueSecurityEvent(CONFIGURED_POLICY, { category: "security-rule", riskTier: "high" }),
+      queueSecurityEvent(CONFIGURED_POLICY, { category: "popup-redirect", riskTier: "medium" }),
+    ]);
+
+    const key = "athenaEventQueue";
+    const stored = (await browser.storage.session.get(key)) as Record<string, unknown[]>;
+    expect(stored[key]).toHaveLength(2);
+  });
+
+  it("does not lose an event queued while a flush is still in flight", async () => {
+    const policy: ManagedPolicy = {
+      athena: { ...CONFIG, tenantId: "acme-flush-3", eventsUrl: "https://athena.acme.example/events-3" },
+    };
+    await queueSecurityEvent(policy, { category: "security-rule", riskTier: "high" });
+
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url === policy.athena!.bootstrapUrl) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ access_token: "tok", expires_at: new Date(Date.now() + 3_600_000).toISOString() }) });
+      }
+      // The events POST resolves only after a real microtask delay, giving a
+      // concurrently-issued queueSecurityEvent a window to race the flush's
+      // own eventual write-back.
+      return new Promise((resolve) => setTimeout(() => resolve({ ok: true, json: () => Promise.resolve({}) }), 10));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const flush = flushSecurityEvents(policy);
+    const queueDuringFlush = queueSecurityEvent(policy, { category: "popup-redirect", riskTier: "medium" });
+    await Promise.all([flush, queueDuringFlush]);
+
+    const key = "athenaEventQueue";
+    const stored = (await browser.storage.session.get(key)) as Record<string, unknown[]>;
+    expect(stored[key]).toHaveLength(1);
+  });
 });
