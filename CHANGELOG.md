@@ -85,6 +85,21 @@ All notable changes to this project are documented here. Format loosely follows
   the same race class as the fingerprint-seed bug above, but fully contained within the background
   worker's one realm this time, so a straightforward serialization queue closes it without a
   message-passing redesign.
+- **The "Managed by your organization" badge and the filter-budget warning banner rendered on
+  every install, not just managed/budget-capped ones.** Both `.locked-badge` and `.budget-warning`
+  set their own `display` property, which overrides the `[hidden]` attribute's native browser
+  default — author CSS always wins over the user-agent stylesheet regardless of selector
+  specificity. `options.ts` correctly set `.hidden = true` on a normal install; it just had no
+  visible effect. Added the same `.class[hidden] { display: none; }` re-assertion `.toggle-row`
+  and `[data-tab-panel]` already had.
+
+### Changed
+- **Rewrote the Settings page's toggle labels and descriptions in plainer language**, aimed at
+  someone without a technical background — dropped unexplained jargon (WebRTC, cosmetic filtering,
+  per-request attribution, SHA-1 hash, rule budget) for concrete, everyday phrasing, and tightened
+  hedging/dense sentences (the fingerprinting and search-slop hints especially) into shorter, more
+  direct ones, while keeping every real caveat the original text carried. The `es`/`fr`/`de`
+  machine translations are now stale against this wording and need a fresh translation pass.
 
 ## 0.11.72
 
