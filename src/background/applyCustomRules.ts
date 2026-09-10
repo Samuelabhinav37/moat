@@ -9,13 +9,17 @@ import type { Settings } from "../types";
 
 export async function applyCustomRules(settings: Settings): Promise<void> {
   try {
+    // One call, not two -- block and allow rule IDs are disjoint ranges
+    // (customRules.ts), so there's nothing stopping this from being one
+    // atomic update. Two separate calls would let the second one fail
+    // (a dynamic-rule budget hit, shared across every other feature that
+    // also uses dynamic rules -- CNAME uncloaking, live redirect domains,
+    // quick fixes) after the first already landed, leaving block rules
+    // updated to the user's new list while allow rules stay stuck on the
+    // old one.
     await browser.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: allCustomBlockRuleIds(),
-      addRules: buildCustomBlockRules(settings.customBlockedDomains),
-    });
-    await browser.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: allCustomAllowRuleIds(),
-      addRules: buildCustomAllowRules(settings.customAllowedDomains),
+      removeRuleIds: [...allCustomBlockRuleIds(), ...allCustomAllowRuleIds()],
+      addRules: [...buildCustomBlockRules(settings.customBlockedDomains), ...buildCustomAllowRules(settings.customAllowedDomains)],
     });
   } catch (err) {
     // Malformed domains are already filtered out before this call
