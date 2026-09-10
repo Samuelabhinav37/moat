@@ -106,6 +106,8 @@ copies without a store release.
 | `dns` (Firefox only) | CNAME resolution for "Uncloak disguised trackers"; inert unless that toggle is on. Not requested on Chrome, which has no equivalent API. |
 | `webRequest` + `webRequestBlocking` (Firefox only) | Cancel a request once its resolved CNAME target matches a known tracker. Chrome no longer allows blocking `webRequest` under MV3. |
 | `webRequest` (Chrome only, non-blocking) | Observe candidate requests for "Uncloak disguised trackers" on Chrome, which gets a weaker DoH-based path instead of Firefox's synchronous one — see "Known limitations." Inert unless that toggle is on. |
+| `scripting` | Registers the optional content scripts (feed ad removal, YouTube dimmer) only for the sites each is scoped to instead of every page; injects the service-worker-owned cosmetic CSS; runs the element picker only when you click "Block an element…". |
+| `contentSettings` | Sets the browser-level camera/mic/location permission default to "block" for the ambush-prompt guard — a site calling `getUserMedia()`/`getCurrentPosition()` with no user gesture. Chrome only; Firefox's `contentSettings` doesn't cover this surface, so the guard silently no-ops there. Inert unless that toggle is on. |
 
 See [`PRIVACY.md`](PRIVACY.md) for the full policy — what Moat collects (nothing, for any normal
 install) and every case its code touches a network.
