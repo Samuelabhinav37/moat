@@ -237,11 +237,27 @@ const SESSION_FINGERPRINT_SEED_KEY = "sessionFingerprintSeed";
  * lifetime already gives "one seed per browser session" for free; no
  * onStartup bookkeeping needed here.
  */
-export async function getOrCreateSessionFingerprintSeed(): Promise<string> {
-  const stored = await browser.storage.session.get(SESSION_FINGERPRINT_SEED_KEY);
-  const existing = stored[SESSION_FINGERPRINT_SEED_KEY] as string | undefined;
-  if (existing) return existing;
-  const seed = crypto.randomUUID();
-  await browser.storage.session.set({ [SESSION_FINGERPRINT_SEED_KEY]: seed });
-  return seed;
+// Same single-file-queue idea as `pending` above (and for the same reason):
+// without serializing, two callers racing before the very first
+// storage.session.set() lands (e.g. two tabs opened near-simultaneously
+// right after a browser restart) would each read "nothing stored yet",
+// each generate their own UUID, and each write -- clobbering one another
+// and, worse, handing the two callers two different seeds, breaking the
+// "one seed per browser session" guarantee this function exists for.
+// Chaining through this queue means the second caller's read only happens
+// after the first caller's write has landed, so it sees (and reuses) the
+// seed the first caller just created instead of racing it.
+let sessionSeedQueue: Promise<unknown> = Promise.resolve();
+
+export function getOrCreateSessionFingerprintSeed(): Promise<string> {
+  const result = sessionSeedQueue.then(async () => {
+    const stored = await browser.storage.session.get(SESSION_FINGERPRINT_SEED_KEY);
+    const existing = stored[SESSION_FINGERPRINT_SEED_KEY] as string | undefined;
+    if (existing) return existing;
+    const seed = crypto.randomUUID();
+    await browser.storage.session.set({ [SESSION_FINGERPRINT_SEED_KEY]: seed });
+    return seed;
+  });
+  sessionSeedQueue = result.catch(() => {});
+  return result;
 }

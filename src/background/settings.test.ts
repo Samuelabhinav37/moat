@@ -177,6 +177,15 @@ describe("getOrCreateSessionFingerprintSeed", () => {
     expect(second).toBe(first);
   });
 
+  it("gives two concurrent first-callers the same seed instead of a different UUID each", async () => {
+    // Simulates two tabs each requesting the seed near-simultaneously right
+    // after a browser restart, before either write has landed.
+    const [first, second] = await Promise.all([getOrCreateSessionFingerprintSeed(), getOrCreateSessionFingerprintSeed()]);
+    expect(second).toBe(first);
+    const stored = await browser.storage.session.get("sessionFingerprintSeed");
+    expect(stored.sessionFingerprintSeed).toBe(first);
+  });
+
   it("is independent of the permanent (storage.local) fingerprint seed", async () => {
     const permanent = await getOrCreateFingerprintSeed();
     const session = await getOrCreateSessionFingerprintSeed();
