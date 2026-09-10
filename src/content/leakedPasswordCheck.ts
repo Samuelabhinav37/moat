@@ -28,10 +28,13 @@ async function isEnabled(): Promise<boolean> {
 // privacy requirement, since the query is already k-anonymized.
 const lastChecked = new WeakMap<HTMLInputElement, string>();
 
-async function checkPassword(input: HTMLInputElement): Promise<void> {
+/** Exported only for leakedPasswordCheck.test.ts -- everything else here is
+ * import-time wiring (event listeners, storage.onChanged) that's exercised
+ * live rather than unit-tested, same convention as consentRejector.ts and
+ * feedAdScanner.ts. This is the one piece of real retry/dedupe logic. */
+export async function checkPassword(input: HTMLInputElement): Promise<void> {
   const value = input.value;
   if (!value || lastChecked.get(input) === value) return;
-  lastChecked.set(input, value);
 
   const hash = await sha1Hex(value);
   const { prefix, suffix } = splitHashForRangeQuery(hash);
@@ -39,12 +42,16 @@ async function checkPassword(input: HTMLInputElement): Promise<void> {
   let body: string;
   try {
     const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
-    if (!response.ok) return;
+    if (!response.ok) return; // best-effort -- retry on the next blur/submit, not marked checked
     body = await response.text();
   } catch {
-    return; // best-effort -- a network hiccup just means no warning this time
+    return; // network hiccup -- same, retry later rather than silently give up for this value
   }
 
+  // Only remember a value as checked once the request actually succeeded --
+  // marking it before the fetch (or on failure) would permanently suppress
+  // this value from ever being re-checked for the rest of the page's life.
+  lastChecked.set(input, value);
   if (isSuffixInRangeResponse(body, suffix)) showWarning(input);
 }
 
