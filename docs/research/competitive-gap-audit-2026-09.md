@@ -130,7 +130,9 @@ section — something like "built for Manifest V3 from day one, not a stripped-d
 would be accurate, timely, and costs nothing to verify. Purely a documentation/messaging
 opportunity, not a feature.
 
-**Status: not yet done — suggested for a future documentation pass, no urgency.**
+**Status: done, same commit as this doc (`3e48a6f`).** The suggested sentence landed in the
+README's intro verbatim: "built for Manifest V3 from day one, not a stripped-down Lite port."
+This status line was left stale when the doc was first written; corrected 2026-09-11.
 
 ### (b) Positioning: make the "we don't sell data" stance more explicit
 The Stands AdBlocker contrast (§2 above) is a concrete, current example of "free ad blocker,
@@ -143,8 +145,9 @@ opportunity rather than open a new one. Given the confidence caveat on the Stand
 (§2), this is worth folding into whatever eventually happens with opportunity (a) from the
 original audit's README pass, not acting on in isolation.
 
-**Status: not yet done — low priority, folds into an existing (already-done) messaging item rather
-than standing alone.**
+**Status: done, same commit as this doc (`3e48a6f`).** The README intro now also reads "nothing
+to sell," sharpening the data-selling contrast alongside (a)'s MV3 line. This status line was
+left stale when the doc was first written; corrected 2026-09-11.
 
 Nothing else surfaced this pass rose to the level of a concrete, actionable opportunity. This is
 itself the expected outcome of a ten-day re-scan following a thorough audit — most of what changed
