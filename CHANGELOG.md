@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.74
+
+### Changed
+- **Refreshed the Spanish, French, and German translations** for the 30 Settings-page strings
+  rewritten in plainer English in v0.11.73 (they'd gone stale against the new wording). Matched
+  each locale's existing tone (informal "tú" in Spanish, formal "vous" in French, informal "du"
+  in German) and kept each key's existing "off by default" annotation convention rather than
+  introducing it inconsistently. `localeParity.test.ts` (key/placeholder parity across locales)
+  still passes.
+
 ## 0.11.73
 
 ### Added

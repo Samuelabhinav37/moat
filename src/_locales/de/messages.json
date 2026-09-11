@@ -41,18 +41,18 @@
   "optionsMasterToggleLabel": { "message": "Schutz aktiviert" },
   "optionsMasterToggleHint": { "message": "Schaltet die gesamte Blockierung global ein oder aus." },
   "optionsManagedBadge": { "message": "Verwaltet durch deine Organisation" },
-  "optionsAdvancedProtectionCategory": { "message": "Erweiterter Schutz" },
+  "optionsAdvancedProtectionCategory": { "message": "Zusätzlicher Schutz" },
   "optionsCookiesToggleLabel": { "message": "Cookies von Drittanbietern blockieren" },
   "optionsCookiesToggleHint": { "message": "Verhindert seitenübergreifendes Tracking in deinem Browser. (Standardmäßig aus)" },
-  "optionsWebrtcToggleLabel": { "message": "WebRTC-IP-Lecks verhindern" },
-  "optionsWebrtcToggleHint": { "message": "Verbirgt deine echte IP-Adresse bei Verwendung eines VPN." },
-  "optionsFingerprintToggleLabel": { "message": "Fingerprinting reduzieren" },
+  "optionsWebrtcToggleLabel": { "message": "IP-Adressen-Lecks verhindern" },
+  "optionsWebrtcToggleHint": { "message": "Verhindert, dass eine Website deine echte IP-Adresse sieht, wenn du ein VPN nutzt." },
+  "optionsFingerprintToggleLabel": { "message": "Browser-Fingerprinting blockieren" },
   "optionsFingerprintToggleHint": {
-    "message": "Verfälscht Gerätedaten, um stilles Tracking zu verhindern. Kann gelegentlich Seitenfunktionen wie CAPTCHAs beeinträchtigen. (Standardmäßig aus)"
+    "message": "Verändert zufällig Gerätedetails, mit denen Websites dich bei wiederholten Besuchen wiedererkennen. Kann gelegentlich ein CAPTCHA stören. (Standardmäßig aus)"
   },
-  "optionsFingerprintRotateToggleLabel": { "message": "Rauschen bei jeder Browsersitzung neu erzeugen" },
+  "optionsFingerprintRotateToggleLabel": { "message": "Bei jedem Neustart eine neue Verkleidung verwenden" },
   "optionsFingerprintRotateToggleHint": {
-    "message": "Erzeugt bei jedem Neustart des Browsers neues Rauschen, damit es nicht selbst zu einem festen Erkennungsmerkmal wird. Websites sehen in jeder Sitzung ein leicht anderes Gerät."
+    "message": "Erzeugt bei jedem Neustart des Browsers eine neue Verkleidung, statt immer dieselbe zu behalten. So können Websites sie nicht nutzen, um dich über die Zeit wiederzuerkennen."
   },
   "optionsGrayscaleToggleLabel": { "message": "Nicht blockierbare Videowerbung abdunkeln" },
   "optionsGrayscaleToggleHint": {
@@ -66,36 +66,36 @@
   "optionsConsentRejectToggleHint": {
     "message": "Klickt bei den wichtigsten Einwilligungsbannern automatisch auf Ablehnen. (Standardmäßig aus)"
   },
-  "optionsCnameToggleLabel": { "message": "Getarnte Tracker aufdecken" },
+  "optionsCnameToggleLabel": { "message": "Getarnte Tracker aufspüren" },
   "optionsCnameToggleHint": {
-    "message": "Erkennt und blockiert Tracker, die sich hinter eigenen Subdomains der Website verstecken. (Standardmäßig aus)"
+    "message": "Manche Tracker tarnen sich als Teil der Website, die du besuchst. Das erkennt und blockiert sie trotzdem. (Standardmäßig aus)"
   },
   "optionsCnameUnsupportedHint": { "message": "In diesem Browser nicht verfügbar." },
   "optionsCnameChromeDohHint": {
-    "message": "Unter Chrome funktioniert das anders als unter Firefox: Kandidaten-Subdomains werden über Cloudflares öffentlichen DNS-Resolver abgefragt, und die allererste Anfrage an einen neu erkannten getarnten Tracker wird nicht blockiert -- erst nachfolgende Anfragen sind es. Firefox blockiert jede Anfrage, ganz ohne Drittanbieter."
+    "message": "Unter Chrome prüft dies getarnte Tracker über Cloudflares öffentlichen Abfragedienst und übersieht möglicherweise den allerersten gefundenen -- alle danach werden erkannt. Firefox macht das selbst, privater, und erkennt sie alle von Anfang an."
   },
   "optionsFilterUpdatesCategory": { "message": "Filter-Updates" },
-  "optionsLiveListTitle": { "message": "Live-Liste der Weiterleitungsdomains" },
-  "optionsLiveListHint": { "message": "Ruft täglich die neuesten Pop-up- und Weiterleitungssperren von GitHub ab." },
+  "optionsLiveListTitle": { "message": "Tägliches Update der Pop-up-Sperrliste" },
+  "optionsLiveListHint": { "message": "Hält die Liste bekannter Pop-up- und Weiterleitungsseiten einmal täglich aktuell." },
   "optionsLiveStatusNotChecked": { "message": "Noch nicht geprüft." },
   "optionsExceptionsTitle": { "message": "Pausierte Websites" },
-  "optionsExceptionsHint": { "message": "Der Schutz ist auf diesen Websites und ihren Subdomains vollständig deaktiviert." },
+  "optionsExceptionsHint": { "message": "Der Schutz ist auf diesen Websites und allen Seiten darunter vollständig deaktiviert." },
   "optionsNoSitesAdded": { "message": "Keine Websites hinzugefügt." },
   "commonAdd": { "message": "Hinzufügen" },
   "commonHostnamePlaceholder": { "message": "beispiel.de" },
 
   "optionsFilterBudgetWarning": {
-    "message": "Einige Filterlisten sind möglicherweise nicht vollständig aktiv. Das gemeinsame Regelbudget des Browsers wird oft überschritten, wenn mehrere werbeblockende oder filterintensive Erweiterungen gleichzeitig installiert sind -- versuche, andere solche Erweiterungen zu deaktivieren oder unten eine Filterliste auszuschalten."
+    "message": "Einige Filterlisten von Moat konnten nicht aktiviert werden. Browser begrenzen, wie viele Blockierregeln Erweiterungen insgesamt nutzen dürfen, und dieses Limit wird leicht erreicht, wenn ein weiterer Werbeblocker oder eine Datenschutz-Erweiterung parallel läuft. Versuche, eine davon zu deaktivieren, oder schalte unten eine Liste aus."
   },
   "optionsFilterBudgetDetail": {
-    "message": "Chrome meldet aktuell $COUNT$ verfügbare statische Regeln für alle installierten Erweiterungen zusammen. Bleibt dieser Wert nach dem Deaktivieren anderer Erweiterungen und dem Neuladen von Moat niedrig, ist das Budget selbst möglicherweise zu klein für alle Filterlisten von Moat gleichzeitig -- versuche stattdessen, unten eine Filterliste zu deaktivieren (zuerst Störungen oder Cookie-Hinweise), statt weitere Erweiterungen zu entfernen.",
+    "message": "Dein Browser meldet $COUNT$ verbleibende Regelplätze für alle deine Erweiterungen zusammen. Immer noch niedrig, nachdem du andere Erweiterungen deaktiviert und Moat neu geladen hast? Schalte unten eine Liste aus -- zuerst Störungen oder Cookie-Hinweise.",
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsFilterBudgetDropped": {
-    "message": "Vorerst deaktiviert gelassen, damit der Rest deiner Filterlisten innerhalb des gemeinsamen Browser-Regelbudgets aktiv bleibt: $NAMES$.",
+    "message": "Vorerst deaktiviert, um innerhalb des Regellimits deines Browsers zu bleiben: $NAMES$.",
     "placeholders": { "names": { "content": "$1" } }
   },
-  "optionsFilterBudgetDroppedBadge": { "message": "Nicht aktiv (Regelbudget)" },
+  "optionsFilterBudgetDroppedBadge": { "message": "Nicht aktiv (Browserlimit erreicht)" },
   "optionsFilteringLevelTitle": { "message": "Filterstufe" },
   "presetOff": { "message": "Aus" },
   "presetLite": { "message": "Leicht" },
@@ -104,7 +104,7 @@
   "presetStrict": { "message": "Streng" },
   "optionsIndividualListsTitle": { "message": "Einzelne Filterlisten" },
   "optionsIndividualListsHint": {
-    "message": "Passe deine aktiven Filter an. Änderungen hier setzen deine Stufe auf Benutzerdefiniert."
+    "message": "Schalte jede Liste selbst ein oder aus. Jede Änderung setzt deine Filterstufe auf Benutzerdefiniert."
   },
   "optionsLoadListsError": { "message": "Filterlisten konnten nicht geladen werden." },
 
@@ -114,7 +114,7 @@
   "optionsAllowedSitesTitle": { "message": "Erlaubte Websites" },
   "optionsAllowedSitesHint": { "message": "Blockiert diese Domains nie, auch wenn eine aktive Filterliste dies vorsieht." },
   "commonAllow": { "message": "Erlauben" },
-  "optionsCosmeticCategory": { "message": "Kosmetisches Filtern" },
+  "optionsCosmeticCategory": { "message": "Element-Auswahl" },
   "optionsHiddenElementsTitle": { "message": "Ausgeblendete Elemente" },
   "optionsHiddenElementsHint": {
     "message": "Elemente, die du mit dem Werkzeug \"Element blockieren\" in der Symbolleiste entfernt hast. Entferne sie hier, um sie wiederherzustellen."
@@ -136,22 +136,22 @@
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsTrackersEmpty": {
-    "message": "Für den zuletzt geöffneten Tab wurden keine Tracker zugeordnet."
+    "message": "Im zuletzt geöffneten Tab wurden keine Tracker gefunden."
   },
   "optionsTrackersUnsupported": {
-    "message": "Die Zuordnung pro Anfrage gibt es nur in Chrome; Firefox stellt die nötige API noch nicht bereit."
+    "message": "Diese detaillierte Tracker-Liste funktioniert vorerst nur in Chrome -- Firefox unterstützt sie noch nicht."
   },
 
   "optionsAboutHeading": { "message": "Über Moat" },
   "optionsPrivacyHeading": { "message": "Datenschutz" },
   "optionsPrivacyIntro": {
-    "message": "Alles auf dieser Seite wird lokal in deinem Browser gespeichert. Es wird nie an den Entwickler von Moat gesendet -- die vollständige Datenschutzerklärung erklärt die wenigen optionalen Funktionen (Prüfung auf geleakte Passwörter, Einstellungssynchronisierung), die mit jemand anderem kommunizieren."
+    "message": "Alles hier bleibt auf deinem Gerät -- nichts wird an den Entwickler von Moat gesendet. Nur zwei optionale Funktionen (Prüfung auf geleakte Passwörter und Einstellungssynchronisierung) kommunizieren überhaupt mit jemand anderem; Details in der Datenschutzerklärung."
   },
   "optionsVersionHeading": { "message": "Versionsdetails" },
   "optionsDebuggingHeading": { "message": "Fehlersuche" },
   "optionsBackupHeading": { "message": "Sicherung & Wiederherstellung" },
   "optionsBackupIntro": {
-    "message": "Speichere deine Einstellungen in einer Datei oder lade eine zuvor gespeicherte. Die Fingerprint-Resistenz-Kennung deines Geräts wird nie einbezogen."
+    "message": "Speichere deine Einstellungen in einer Datei oder lade sie später wieder. Deine Fingerprint-Schutz-Kennung wird nie einbezogen und daher nicht übertragen."
   },
   "optionsPrivacyPolicyLink": { "message": "Vollständige Datenschutzerklärung" },
   "optionsChangelogLink": { "message": "Änderungsprotokoll" },
@@ -160,10 +160,10 @@
   "optionsImportButton": { "message": "Einstellungen hochladen…" },
   "optionsSyncToggleLabel": { "message": "Einstellungen geräteübergreifend synchronisieren" },
   "optionsSyncToggleHint": {
-    "message": "Spiegelt deine Einstellungen über das eigene Sync-Konto deines Browsers. Standardmäßig aus. Initialisiert eine neue Installation einmalig; führt keine Live-Zusammenführung von Änderungen durch, die gleichzeitig auf zwei Geräten vorgenommen wurden."
+    "message": "Kopiert deine Einstellungen über das eigene Sync-Konto deines Browsers, etwa dein Google- oder Firefox-Konto. Eine neue Installation übernimmt sie einmalig, aber gleichzeitiges Bearbeiten auf zwei Geräten wird nicht zusammengeführt -- eines überschreibt das andere."
   },
   "optionsSyncStatusFailed": {
-    "message": "Deine Einstellungen konnten nicht synchronisiert werden ($WHEN$) -- sie sind möglicherweise zu groß für den Sync-Speicher deines Browsers (eigene Regeln und Website-Listen zählen dazu). Deine Einstellungen sind trotzdem weiterhin lokal gespeichert.",
+    "message": "Deine Einstellungen konnten nicht synchronisiert werden ($WHEN$) -- möglicherweise hast du zu viele eigene Regeln oder Websites für den Sync-Speicher deines Browsers. Sie sind weiterhin auf diesem Gerät gespeichert.",
     "placeholders": { "when": { "content": "$1" } }
   },
   "optionsVersionPrefix": {
@@ -186,19 +186,19 @@
     "placeholders": { "when": { "content": "$1" }, "count": { "content": "$2" } }
   },
   "optionsLiveStatusFailed": {
-    "message": "Letzter Versuch fehlgeschlagen ($WHEN$) — bis zum nächsten Versuch wird die mitgelieferte Basis verwendet.",
+    "message": "Letzter Versuch fehlgeschlagen ($WHEN$) -- bis zum nächsten Versuch wird weiterhin die integrierte Liste verwendet.",
     "placeholders": { "when": { "content": "$1" } }
   },
   "optionsLiveStatusQuickFixes": {
-    "message": " $COUNT$ aktive Schnellkorrektur(en).",
+    "message": " $COUNT$ zusätzliche Korrektur(en) angewendet.",
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsLiveStatusCosmeticFixes": {
-    "message": " $COUNT$ kosmetische Korrektur(en).",
+    "message": " $COUNT$ Layout-Korrektur(en) angewendet.",
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsLiveStatusYoutubeFixes": {
-    "message": " $COUNT$ YouTube-Schnellkorrektur(en).",
+    "message": " $COUNT$ YouTube-Korrektur(en) angewendet.",
     "placeholders": { "count": { "content": "$1" } }
   },
   "optionsRuleCount": {
@@ -236,6 +236,6 @@
   },
   "optionsSearchSlopToggleLabel": { "message": "Minderwertige Suchergebnisse ausblenden" },
   "optionsSearchSlopToggleHint": {
-    "message": "Blendet Google-, Bing- und DuckDuckGo-Ergebnisse aus einer kleinen, handkuratierten Liste von Content-Farm-Domains aus, hinter einer Ein-Klick-Schaltfläche zum Einblenden. Standardmäßig deaktiviert: Dies ist ein Abgleich mit einer kuratierten Domainliste, kein verifizierter Erkennungsmechanismus, und birgt daher ein echtes Risiko von Fehlklassifizierungen, das eine feste Werbenetzwerk-Liste nicht hat."
+    "message": "Blendet Suchergebnisse aus, die zu einer kleinen, handkuratierten Liste von Content-Farm-Domains passen. Jede ausgeblendete Gruppe bleibt einen Klick entfernt hinter einem \"Anzeigen\"-Link. Standardmäßig deaktiviert, da diese Liste auf eine Art danebenliegen kann, die eine feste Werbenetzwerk-Liste nicht kann."
   }
 }
