@@ -3,6 +3,7 @@ import {
   buildGrayscaleStyleText,
   buildInjectionStyleText,
   buildStyleText,
+  customRuleOriginsForHostname,
   customSelectorsForHostname,
   domainInjectionRulesForHostname,
   domainSelectorsForHostname,
@@ -254,6 +255,28 @@ describe("customSelectorsForHostname", () => {
   it("de-duplicates when the same selector appears at multiple levels of the domain chain", () => {
     const rules = { "example.com": ["#ad-1"], "www.example.com": ["#ad-1"] };
     expect(customSelectorsForHostname(rules, "www.example.com")).toEqual(["#ad-1"]);
+  });
+});
+
+describe("customRuleOriginsForHostname", () => {
+  it("pairs each selector with the saved hostname it came from", () => {
+    expect(customRuleOriginsForHostname({ "example.com": ["#ad-1"] }, "www.example.com")).toEqual([
+      { hostname: "example.com", selector: "#ad-1" },
+    ]);
+  });
+
+  it("keeps entries from different levels of the domain chain separate", () => {
+    const rules = { "example.com": ["#ad-1"], "www.example.com": ["#ad-2"] };
+    expect(customRuleOriginsForHostname(rules, "www.example.com")).toEqual(
+      expect.arrayContaining([
+        { hostname: "example.com", selector: "#ad-1" },
+        { hostname: "www.example.com", selector: "#ad-2" },
+      ])
+    );
+  });
+
+  it("returns an empty array when nothing was picked for this hostname", () => {
+    expect(customRuleOriginsForHostname({}, "example.com")).toEqual([]);
   });
 });
 

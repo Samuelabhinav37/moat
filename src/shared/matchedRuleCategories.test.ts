@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { summarizeMatchedRules } from "./matchedRuleCategories";
+import { summarizeMatchedRules, summarizeMatchesByGroup } from "./matchedRuleCategories";
 import type { RulesetManifestEntry } from "./rulesetManifest";
 
 function entry(id: string, group: string): RulesetManifestEntry {
@@ -49,5 +49,32 @@ describe("summarizeMatchedRules", () => {
 
   it("returns all zeros for no matches", () => {
     expect(summarizeMatchedRules(manifest, [])).toEqual({ ads: 0, trackers: 0, popups: 0 });
+  });
+});
+
+describe("summarizeMatchesByGroup", () => {
+  it("keeps chunked ad-list ids under their shared group, not collapsed into a bucket", () => {
+    const result = summarizeMatchesByGroup(manifest, [
+      { rulesetId: "ruleset_ads-1" },
+      { rulesetId: "ruleset_ads-2" },
+      { rulesetId: "ruleset_trackers" },
+    ]);
+    expect(result).toEqual({ ads: 2, trackers: 1 });
+  });
+
+  it("keeps url-tracking and malicious-urls as their own groups, unlike the 3-bucket summary", () => {
+    const result = summarizeMatchesByGroup(manifest, [
+      { rulesetId: "ruleset_url-tracking" },
+      { rulesetId: "ruleset_malicious-urls" },
+    ]);
+    expect(result).toEqual({ "url-tracking": 1, "malicious-urls": 1 });
+  });
+
+  it("ignores unknown ruleset ids", () => {
+    expect(summarizeMatchesByGroup(manifest, [{ rulesetId: "ruleset_does-not-exist" }])).toEqual({});
+  });
+
+  it("returns an empty object for no matches", () => {
+    expect(summarizeMatchesByGroup(manifest, [])).toEqual({});
   });
 });

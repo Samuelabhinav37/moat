@@ -47,3 +47,20 @@ export function summarizeMatchedRules(
   }
   return counts;
 }
+
+/** Same match data as summarizeMatchedRules, kept per filter-list group
+ * instead of collapsed into the 3-bucket popup summary -- what the Filter
+ * Lists tab's "matched n times on this page" line needs. */
+export function summarizeMatchesByGroup(
+  manifest: RulesetManifestEntry[],
+  matches: MatchedRuleRef[]
+): Record<string, number> {
+  const idToGroup = new Map(manifest.map((entry) => [entry.id, entry.group]));
+  const counts: Record<string, number> = {};
+  for (const match of matches) {
+    const group = idToGroup.get(match.rulesetId);
+    if (!group) continue;
+    counts[group] = (counts[group] ?? 0) + 1;
+  }
+  return counts;
+}

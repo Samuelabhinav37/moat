@@ -7,7 +7,7 @@
 // support lags, so getMatchedRules may simply not exist there -- the catch
 // below just leaves the breakdown at zero in that case.
 import browser from "webextension-polyfill";
-import { summarizeMatchedRules, type Breakdown } from "../shared/matchedRuleCategories";
+import { summarizeMatchedRules, summarizeMatchesByGroup, type Breakdown } from "../shared/matchedRuleCategories";
 import { summarizeCompanies, type RuleCompanies } from "../shared/matchedRuleCompanies";
 import { securityMatches } from "../shared/securityRuleCategories";
 import { clearTabFromMaps } from "./tabMapCleanup";
@@ -20,6 +20,7 @@ export type { Breakdown };
 
 const EMPTY: Breakdown = { ads: 0, trackers: 0, popups: 0 };
 const EMPTY_COMPANIES: Record<string, number> = {};
+const EMPTY_GROUPS: Record<string, number> = {};
 
 let companiesCache: RuleCompanies | null = null;
 
@@ -42,6 +43,7 @@ function matchedRulesApi(): typeof chrome.declarativeNetRequest.getMatchedRules 
 
 const breakdownByTab = new Map<number, Breakdown>();
 const companiesByTab = new Map<number, Record<string, number>>();
+const groupsByTab = new Map<number, Record<string, number>>();
 
 export function getBreakdown(tabId: number): Breakdown {
   return breakdownByTab.get(tabId) ?? EMPTY;
@@ -55,6 +57,14 @@ export function getCompanyBreakdown(tabId: number): Record<string, number> {
   return companiesByTab.get(tabId) ?? EMPTY_COMPANIES;
 }
 
+/** Same match data as getBreakdown, kept per filter-list group (e.g. "ads",
+ * "cookie-notices") instead of collapsed into the 3-bucket breakdown --
+ * what the Settings "Filter Lists" tab's "matched n times on this page"
+ * line reads. */
+export function getGroupBreakdown(tabId: number): Record<string, number> {
+  return groupsByTab.get(tabId) ?? EMPTY_GROUPS;
+}
+
 /** Whether declarativeNetRequest match feedback exists at all -- false on
  * Firefox, where the whole Ads/Trackers/Popups breakdown (and the company
  * detail derived from it) stays at zero. Exported so callers outside this
@@ -64,7 +74,7 @@ export function isMatchedRulesSupported(): boolean {
 }
 
 function clearTab(tabId: number): void {
-  clearTabFromMaps(tabId, breakdownByTab, companiesByTab);
+  clearTabFromMaps(tabId, breakdownByTab, companiesByTab, groupsByTab);
 }
 
 export const resetBreakdown = clearTab;
@@ -91,6 +101,7 @@ export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
     const breakdown = summarizeMatchedRules(manifest, matches);
     breakdownByTab.set(tabId, breakdown);
     companiesByTab.set(tabId, summarizeCompanies(companies, matches));
+    groupsByTab.set(tabId, summarizeMatchesByGroup(manifest, matches));
 
     // Cheap on every normal install: securityMatches is pure/in-memory, and
     // only reaches for the managed policy (the one part of this that costs

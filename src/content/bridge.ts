@@ -9,6 +9,7 @@ import {
   type BlockedMessage,
   type FingerprintSeedResponse,
   type GetFingerprintSeedMessage,
+  type RecordUsageSignalMessage,
 } from "../types";
 import { getEffectiveSettings } from "../background/settings";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
@@ -58,6 +59,14 @@ async function sendConfig(): Promise<void> {
   const settings = await getEffectiveSettings();
   const disabled = !settings.enabled || matchesDomainOrSubdomain(location.hostname, settings.disabledSites);
   const fingerprintResistance = settings.fingerprintResistance && !disabled;
+  if (fingerprintResistance) {
+    const signalMessage: RecordUsageSignalMessage = {
+      type: "record-usage-signal",
+      signal: "fingerprint",
+      hostname: location.hostname,
+    };
+    browser.runtime.sendMessage(signalMessage).catch(() => {});
+  }
   const fingerprintSeed = fingerprintResistance
     ? settings.fingerprintRotatePerSession
       ? // The background worker may still be waking up right after a browser

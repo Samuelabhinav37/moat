@@ -19,7 +19,16 @@
 // unblockable video ads").
 import browser from "webextension-polyfill";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
-import { STORAGE_KEY } from "../types";
+import { STORAGE_KEY, type RecordUsageSignalMessage } from "../types";
+
+function reportDimmed(): void {
+  const message: RecordUsageSignalMessage = {
+    type: "record-usage-signal",
+    signal: "grayscaleAds",
+    hostname: location.hostname,
+  };
+  browser.runtime.sendMessage(message).catch(() => {});
+}
 
 const DIM_CLASS = "moat-ad-dim";
 const STYLE_ELEMENT_ID = "moat-yt-ad-dim-style";
@@ -52,6 +61,7 @@ function syncDimState(player: Element): void {
   const showing = isAdShowing(player);
   if (player.classList.contains(DIM_CLASS) !== showing) {
     player.classList.toggle(DIM_CLASS, showing);
+    if (showing) reportDimmed();
   }
 }
 

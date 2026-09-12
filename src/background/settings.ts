@@ -12,6 +12,7 @@ import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
 import { exportSettings } from "./settingsPortability";
 import { isSafeCosmeticSelector } from "../shared/selectorSafety";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
+import { recordRuleCreated, recordRuleRemoved } from "./customRuleStats";
 
 // Deliberately a separate storage.local key, not part of Settings/STORAGE_KEY
 // -- it must never get swept into the blob that gets mirrored *to* sync
@@ -259,14 +260,35 @@ export const addCustomAllowedDomain = (hostname: string): Promise<Settings> =>
 export const removeCustomAllowedDomain = (hostname: string): Promise<Settings> =>
   removeCustomDomain("customAllowedDomains", hostname);
 
-export const addCustomCosmeticRule = (hostname: string, selector: string): Promise<Settings> =>
-  addSelectorRule("customCosmeticRules", hostname, selector);
-export const removeCustomCosmeticRule = (hostname: string, selector: string): Promise<Settings> =>
-  removeSelectorRule("customCosmeticRules", hostname, selector);
-export const addGrayscaleRule = (hostname: string, selector: string): Promise<Settings> =>
-  addSelectorRule("customGrayscaleRules", hostname, selector);
-export const removeGrayscaleRule = (hostname: string, selector: string): Promise<Settings> =>
-  removeSelectorRule("customGrayscaleRules", hostname, selector);
+// Each wrapper also stamps/clears this rule's entry in customRuleStats.ts's
+// separate local-only store (createdAt/hitCount/lastMatchedAt -- see the
+// Custom Rules tab's staleness feature). recordRuleCreated is idempotent
+// (a no-op if the rule already has stats, e.g. addSelectorRule found it
+// already existed) and recordRuleRemoved a no-op if it never had any, so
+// neither needs to know whether the underlying add/remove actually changed
+// anything -- and reconcileCustomRuleStats' startup sweep (background/
+// index.ts) cleans up the rare case where addSelectorRule rejected the
+// selector outright (an unsafe selector) but this still fired.
+export const addCustomCosmeticRule = async (hostname: string, selector: string): Promise<Settings> => {
+  const result = await addSelectorRule("customCosmeticRules", hostname, selector);
+  void recordRuleCreated("hide", hostname, selector);
+  return result;
+};
+export const removeCustomCosmeticRule = async (hostname: string, selector: string): Promise<Settings> => {
+  const result = await removeSelectorRule("customCosmeticRules", hostname, selector);
+  void recordRuleRemoved("hide", hostname, selector);
+  return result;
+};
+export const addGrayscaleRule = async (hostname: string, selector: string): Promise<Settings> => {
+  const result = await addSelectorRule("customGrayscaleRules", hostname, selector);
+  void recordRuleCreated("gray", hostname, selector);
+  return result;
+};
+export const removeGrayscaleRule = async (hostname: string, selector: string): Promise<Settings> => {
+  const result = await removeSelectorRule("customGrayscaleRules", hostname, selector);
+  void recordRuleRemoved("gray", hostname, selector);
+  return result;
+};
 
 /** Generates a random per-install seed the first time fingerprint resistance is turned on, then reuses it. */
 export async function getOrCreateFingerprintSeed(): Promise<string> {

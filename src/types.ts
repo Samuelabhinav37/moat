@@ -505,6 +505,103 @@ export interface RemoveCustomDomainMessage {
   hostname: string;
 }
 
+/**
+ * Protections with a real, verified per-hostname signal at their actual
+ * enforcement point -- see background/usageStats.ts and the surface-redesign
+ * plan's per-protection achievability table. Deliberately excludes
+ * blockThirdPartyCookies/webrtcLeakProtection (browser.privacy global
+ * toggles, no per-request feedback) and the permission-guard trio
+ * (chrome.contentSettings global per-origin defaults, no "a prompt was
+ * suppressed" event) -- those settings rows ship with no evidence line
+ * rather than a fabricated one.
+ */
+export type UsageSignal =
+  | "fingerprint"
+  | "cookieBannerReject"
+  | "feedAdRemoval"
+  | "grayscaleAds"
+  | "cnameUncloak"
+  | "leakedPasswordCheck"
+  | "searchSlop";
+
+/** Sent by a content script the moment one of the UsageSignal protections
+ * above actually did something on the current page -- see the call sites in
+ * bridge.ts/consentRejector.ts/feedAdScanner.ts/youtubeAdDimmer.ts/
+ * leakedPasswordCheck.ts/searchSlopFilterEntry.ts. cnameUncloak.ts/
+ * cnameUncloakChrome.ts record directly (background-side already). */
+export interface RecordUsageSignalMessage {
+  type: "record-usage-signal";
+  signal: UsageSignal;
+  hostname: string;
+  /** Defaults to 1 -- only searchSlop reports a real batch size (the number
+   * of results hidden in one pass). */
+  count?: number;
+}
+
+/** One protection's real, locally-derived evidence -- see options.ts's
+ * Protection-tab drawer and UsageSignal's own comment for what's excluded
+ * and why. */
+export interface UsageSignalSummary {
+  todayCount: number;
+  todayHostnameCount: number;
+  weekHostnameCount: number;
+  /** Per-day hostname count over the trailing 7 days, oldest to today --
+   * feeds the drawer's 7-bar chart. */
+  sevenDayBars: number[];
+}
+
+/** background/usageStats.ts's getUsageSummary() return shape -- read directly
+ * by options.ts (a storage.local read behaves identically from any
+ * extension context, same convention as getEffectiveSettings/
+ * getFilterGroupStatus elsewhere in this file's callers), not via a
+ * message. Only tab-scoped data that lives in the background worker's own
+ * in-memory state (e.g. FilterListMatchesResponse below) needs a message. */
+export interface UsageSummaryResponse {
+  today: { total: number; hostnameCount: number };
+  /** Null until at least 8 days of history exist (need last week's same
+   * weekday, not just "some earlier day"). */
+  lastWeekSameWeekday: { total: number } | null;
+  /** Total blocked per day, oldest to today -- 7 entries. */
+  sparkline: number[];
+  bySignal: Partial<Record<UsageSignal, UsageSignalSummary>>;
+  companiesThisWeek: Array<{ company: string; count: number; hostnameCount: number }>;
+}
+
+/** Sent by options.ts's Filter Lists tab -- same "no page of its own, ask
+ * about the last normal tab" pattern as GetCompanyBreakdownMessage. */
+export interface GetFilterListMatchesMessage {
+  type: "get-filter-list-matches";
+}
+
+export interface FilterListMatchesResponse {
+  hostname: string;
+  /** Filter-list group (see shared/rulesetManifest.ts) -> match count on
+   * that tab. */
+  matchesByGroup: Record<string, number>;
+  /** False on Firefox, same reasoning as CompanyBreakdownResponse.supported. */
+  supported: boolean;
+}
+
+/** Sent by content/cosmeticFilter.ts after checking which of this
+ * hostname's own saved element-picker selectors actually matched something
+ * in the live DOM -- see background/customRuleStats.ts. Only ever names
+ * selectors that matched; a selector that matched nothing this pass is
+ * simply omitted; it isn't reported as a miss. */
+export interface RecordCustomRuleMatchMessage {
+  type: "record-custom-rule-match";
+  hideHits: Array<{ hostname: string; selector: string }>;
+  grayscaleHits: Array<{ hostname: string; selector: string }>;
+}
+
+/** background/customRuleStats.ts's getCustomRuleStats() return shape -- also
+ * read directly by options.ts, same reasoning as UsageSummaryResponse above.
+ * Keyed the same way that module stores entries: `${"hide"|"gray"}:${hostname}:${selector}`. */
+export interface CustomRuleStat {
+  hitCount: number;
+  lastMatchedAt: number | null;
+  createdAt: number;
+}
+
 export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
@@ -529,7 +626,10 @@ export type RuntimeMessage =
   | RemoveCosmeticRuleMessage
   | RemoveGrayscaleRuleMessage
   | AddCustomDomainMessage
-  | RemoveCustomDomainMessage;
+  | RemoveCustomDomainMessage
+  | RecordUsageSignalMessage
+  | GetFilterListMatchesMessage
+  | RecordCustomRuleMatchMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the

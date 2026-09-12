@@ -26,7 +26,16 @@ import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { buildCmps, runConsentRejection } from "./consent/engine";
 import { runHeuristicFallback } from "./consent/heuristicFallback";
 import type { RuleSet } from "./consent/types";
-import { STORAGE_KEY } from "../types";
+import { STORAGE_KEY, type RecordUsageSignalMessage } from "../types";
+
+function reportRejected(): void {
+  const message: RecordUsageSignalMessage = {
+    type: "record-usage-signal",
+    signal: "cookieBannerReject",
+    hostname: location.hostname,
+  };
+  browser.runtime.sendMessage(message).catch(() => {});
+}
 
 const MAX_WAIT_MS = 8000;
 const POLL_INTERVAL_MS = 300;
@@ -72,6 +81,7 @@ function watchAndReject(ruleSet: RuleSet): void {
     try {
       const result = await runConsentRejection(cmps);
       if (result.handled) {
+        reportRejected();
         cleanup();
         return;
       }
@@ -79,7 +89,10 @@ function watchAndReject(ruleSet: RuleSet): void {
       // for a banner Consent-O-Matic's list doesn't recognize. Never
       // preempts a curated match: only reached when runConsentRejection
       // just reported handled: false above.
-      if (runHeuristicFallback().handled) cleanup();
+      if (runHeuristicFallback().handled) {
+        reportRejected();
+        cleanup();
+      }
     } finally {
       attemptInFlight = false;
     }

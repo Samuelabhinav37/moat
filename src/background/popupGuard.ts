@@ -67,7 +67,13 @@ async function closeSilently(tabId: number, openerTabId: number | undefined): Pr
   } catch {
     // Already closed by the time we got here -- nothing to do.
   }
-  if (openerTabId !== undefined) await recordDynamicCatch(openerTabId);
+  if (openerTabId === undefined) return;
+  // Attribute the local usage counter to the page that actually opened the
+  // popup, not the popup's own (about-to-be-closed) tab -- same "which
+  // hostname was the user actually on" reasoning as the "blocked" message
+  // handler in background/index.ts.
+  const openerTab = await browser.tabs.get(openerTabId).catch(() => undefined);
+  await recordDynamicCatch(openerTabId, safeHostname(openerTab?.url ?? "") ?? "");
 }
 
 interface PendingWatch {

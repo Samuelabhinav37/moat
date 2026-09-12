@@ -46,6 +46,7 @@ import { getFilterGroupStatus } from "./filterGroups";
 import type {
   AthenaBlockReasonResponse,
   CompanyBreakdownResponse,
+  FilterListMatchesResponse,
   FingerprintSeedResponse,
   ImportSettingsResponse,
   LogEntriesResponse,
@@ -59,7 +60,10 @@ import {
   getLastNormalTabId,
   noteTabUrl,
 } from "./lastNormalTab";
-import { isMatchedRulesSupported } from "./matchStats";
+import { getGroupBreakdown, isMatchedRulesSupported } from "./matchStats";
+import { recordSignalEvent } from "./usageStats";
+import { SIGNAL_KEYS } from "../shared/usageStatsState";
+import { reconcileCustomRuleStats, recordRuleMatches } from "./customRuleStats";
 import { cosmeticGenericsFor, proceduralRulesFor } from "./cosmeticIndex";
 import { allowPermissionGuardOrigin } from "./permissionGuard";
 import { injectCosmeticsForCommit, injectGenericSelectors } from "./cosmeticInject";
@@ -82,6 +86,11 @@ async function initializeSettings(reason?: Runtime.OnInstalledReason): Promise<v
   await seedFromSyncIfEmpty();
   if (reason === "install") await applyFreshInstallDefaults();
   await reapplySettings();
+  // Sweeps any customRuleStats.ts entry whose underlying rule no longer
+  // exists in Settings (an import, or a managed-policy change, that
+  // bypassed the explicit remove-rule wrappers) -- cheap and a no-op once
+  // nothing's orphaned, safe to run on every cold start.
+  void getEffectiveSettings().then(reconcileCustomRuleStats);
 }
 
 // Note: not a top-level `await` -- this module is built as a Rollup `iife`
@@ -168,7 +177,7 @@ browser.webNavigation.onBeforeNavigate.addListener((details) => {
 // onCommitted (which only clears the stale numbers from the previous page).
 browser.webNavigation.onCompleted.addListener((details) => {
   if (details.frameId !== 0) return;
-  void refreshStaticBreakdown(details.tabId);
+  void refreshStaticBreakdown(details.tabId, hostnameOf(details.url));
   // Also covers navigating an already-active tab, which fires no onActivated.
   noteTabUrl(details.tabId, details.url);
 });
@@ -201,13 +210,33 @@ function isValidMessageString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0 && value.length <= MAX_MESSAGE_STRING_LENGTH;
 }
 
+// Same shape check on both of record-custom-rule-match's arrays -- capped
+// independently of MAX_MESSAGE_STRING_LENGTH's per-string bound since this
+// bounds the array itself (a hostname's own picker rules are never anywhere
+// near this many).
+const MAX_RULE_MATCH_HITS = 200;
+
+function isHostnameSelectorHits(value: unknown): value is Array<{ hostname: string; selector: string }> {
+  return (
+    Array.isArray(value) &&
+    value.length <= MAX_RULE_MATCH_HITS &&
+    value.every(
+      (item): item is { hostname: string; selector: string } =>
+        typeof item === "object" &&
+        item !== null &&
+        isValidMessageString((item as Record<string, unknown>).hostname) &&
+        isValidMessageString((item as Record<string, unknown>).selector)
+    )
+  );
+}
+
 browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSender) => {
   if (!isRuntimeMessage(raw)) return undefined;
   const message = raw;
 
   switch (message.type) {
     case "blocked": {
-      if (sender.tab?.id !== undefined) void recordDynamicCatch(sender.tab.id);
+      if (sender.tab?.id !== undefined) void recordDynamicCatch(sender.tab.id, hostnameOf(sender.tab.url));
       // Cross-browser event source (unlike the getMatchedRules-based one in
       // matchStats.ts, which is Chrome-only) -- no-ops instantly on every
       // normal install, same as that one. message.url is already the exact
@@ -420,6 +449,30 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
       return getManagedPolicy().then((policy) =>
         queueSecurityEvent(policy, { category: "override", riskTier: "low", domain: hostname, note: message.reason })
       );
+    }
+
+    case "record-usage-signal": {
+      if (!isValidMessageString(message.hostname)) return undefined;
+      if (!(SIGNAL_KEYS as readonly string[]).includes(message.signal)) return undefined;
+      const count = typeof message.count === "number" && message.count > 0 && message.count <= 1000 ? message.count : 1;
+      return recordSignalEvent(message.signal, message.hostname, count).then(() => undefined);
+    }
+
+    case "get-filter-list-matches": {
+      return (async (): Promise<FilterListMatchesResponse> => {
+        const supported = isMatchedRulesSupported();
+        const tabId = getLastNormalTabId();
+        if (tabId === null) return { hostname: "", matchesByGroup: {}, supported };
+        const tab = await browser.tabs.get(tabId).catch(() => undefined);
+        return { hostname: hostnameOf(tab?.url), matchesByGroup: getGroupBreakdown(tabId), supported };
+      })();
+    }
+
+    case "record-custom-rule-match": {
+      if (!isHostnameSelectorHits(message.hideHits) || !isHostnameSelectorHits(message.grayscaleHits)) {
+        return undefined;
+      }
+      return recordRuleMatches(message.hideHits, message.grayscaleHits).then(() => undefined);
     }
 
     default:

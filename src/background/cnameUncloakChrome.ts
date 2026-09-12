@@ -27,6 +27,7 @@ import browser from "webextension-polyfill";
 import type { WebRequest } from "webextension-polyfill";
 import { isCandidateForUncloak, isCnameCloakDestination } from "./cnameUncloakMatch";
 import { safeHostname } from "./redirectDomainMatch";
+import { recordSignalEvent } from "./usageStats";
 import {
   buildCnameDohBlockRules,
   allCnameDohBlockRuleIds,
@@ -115,6 +116,7 @@ async function handleBeforeRequest(details: WebRequest.OnBeforeRequestDetailsTyp
   const [destinations, canonical] = await Promise.all([loadCloakDestinations(), resolveCnameViaDoh(requestHostname)]);
   if (canonical && isCnameCloakDestination(canonical, destinations)) {
     await blockHostnameGoingForward(requestHostname);
+    void recordSignalEvent("cnameUncloak", pageHostname);
   }
 }
 

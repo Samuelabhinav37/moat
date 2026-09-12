@@ -7,6 +7,18 @@
 import browser from "webextension-polyfill";
 import { engineConfigFor, runSearchSlopPass } from "./searchSlopFilter";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
+import type { RecordUsageSignalMessage } from "../types";
+
+function reportHidden(count: number): void {
+  if (count <= 0) return;
+  const message: RecordUsageSignalMessage = {
+    type: "record-usage-signal",
+    signal: "searchSlop",
+    hostname: location.hostname,
+    count,
+  };
+  browser.runtime.sendMessage(message).catch(() => {});
+}
 
 async function readSeoSpamDomains(): Promise<string[]> {
   try {
@@ -32,7 +44,7 @@ async function run(): Promise<void> {
 
   const pass = (): void => {
     try {
-      runSearchSlopPass(document, location.href, config, domains);
+      reportHidden(runSearchSlopPass(document, location.href, config, domains));
     } catch {
       // Best-effort; never let a filtering pass break the page.
     }

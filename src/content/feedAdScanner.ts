@@ -23,7 +23,18 @@
 import browser from "webextension-polyfill";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { findAdContainer, isAdLabel } from "./feedAdLabel";
-import { STORAGE_KEY } from "../types";
+import { STORAGE_KEY, type RecordUsageSignalMessage } from "../types";
+
+function reportHidden(count: number): void {
+  if (count <= 0) return;
+  const message: RecordUsageSignalMessage = {
+    type: "record-usage-signal",
+    signal: "feedAdRemoval",
+    hostname: location.hostname,
+    count,
+  };
+  browser.runtime.sendMessage(message).catch(() => {});
+}
 
 const HIDE_CLASS = "moat-feed-ad-hidden";
 const STYLE_ELEMENT_ID = "moat-feed-scanner-style";
@@ -44,6 +55,7 @@ function ensureStyle(): void {
 
 function scanSubtree(root: Element): void {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let hiddenCount = 0;
   let textNode: Node | null;
   while ((textNode = walker.nextNode())) {
     const text = textNode.textContent;
@@ -52,8 +64,10 @@ function scanSubtree(root: Element): void {
     const container = textNode.parentElement && findAdContainer(textNode.parentElement);
     if (container && !container.classList.contains(HIDE_CLASS)) {
       container.classList.add(HIDE_CLASS);
+      hiddenCount += 1;
     }
   }
+  reportHidden(hiddenCount);
 }
 
 let observer: MutationObserver | null = null;

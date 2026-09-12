@@ -14,8 +14,17 @@
 // fires during the capture phase for delegation purposes, never bubble).
 import browser from "webextension-polyfill";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
-import { STORAGE_KEY } from "../types";
+import { STORAGE_KEY, type RecordUsageSignalMessage } from "../types";
 import { isSuffixInRangeResponse, sha1Hex, splitHashForRangeQuery } from "../shared/hibp";
+
+function reportChecked(): void {
+  const message: RecordUsageSignalMessage = {
+    type: "record-usage-signal",
+    signal: "leakedPasswordCheck",
+    hostname: location.hostname,
+  };
+  browser.runtime.sendMessage(message).catch(() => {});
+}
 
 async function isEnabled(): Promise<boolean> {
   const effective = await getEffectiveSettingsHere();
@@ -52,6 +61,7 @@ export async function checkPassword(input: HTMLInputElement): Promise<void> {
   // marking it before the fetch (or on failure) would permanently suppress
   // this value from ever being re-checked for the rest of the page's life.
   lastChecked.set(input, value);
+  reportChecked();
   if (isSuffixInRangeResponse(body, suffix)) showWarning(input);
 }
 

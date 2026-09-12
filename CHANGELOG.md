@@ -3,6 +3,39 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.77
+
+### Added
+- **Local usage-counter data layer** (part of the surface-redesign handoff; no UI yet --
+  this is the plumbing the redesigned Settings page's metric rows/sparkline/drawer charts
+  will read from). Two new `storage.local`-only modules, both excluded from the settings
+  export/import payload and the opt-in `storage.sync` mirror by construction (separate
+  keys, never folded into the main settings blob, same posture as the existing sync-status
+  key): `background/usageStats.ts` keeps a rolling 14-day, locally-bucketed count of total
+  items blocked, distinct hostnames seen, and per-protection "evidence" events, fed by
+  `blockStats.ts` on every navigation/dynamic catch and by a new `record-usage-signal`
+  message from content scripts; `background/customRuleStats.ts` tracks each of the user's
+  own element-picker rules' hit count and last-matched time, fed by a new content-script
+  DOM check (`content/cosmeticFilter.ts`) since the CSS injection path that applies those
+  rules has no feedback of its own on whether a selector matched anything.
+  - Real per-site evidence is wired for every protection where one actually exists:
+    fingerprint resistance (`content/bridge.ts`), auto-rejected cookie banners
+    (`content/consentRejector.ts`), aggressive feed-ad removal (`content/feedAdScanner.ts`),
+    grayed-out YouTube ads (`content/youtubeAdDimmer.ts`), CNAME-uncloaked trackers
+    (`background/cnameUncloak(Chrome).ts`), completed breach checks
+    (`content/leakedPasswordCheck.ts`), and hidden search-slop results
+    (`content/searchSlopFilterEntry.ts`, which already computed a hidden-count internally
+    and simply wasn't reporting it).
+  - Third-party-cookie blocking, WebRTC leak protection, and the three permission-guard
+    toggles are **not** wired to any evidence signal: all five apply through global
+    browser APIs (`browser.privacy.*`, `chrome.contentSettings.*`) with no per-request or
+    per-origin feedback at all -- confirmed by reading each implementation, not assumed.
+    Fabricating a number for these was explicitly out of scope; the Settings page will
+    show these rows without an evidence line rather than a fake one.
+  - Also added: a filter-list-group-keyed view over `matchStats.ts`'s existing per-tab
+    match data (`getGroupBreakdown`), for a "matched N times on this page" line per filter
+    list with no new counter needed.
+
 ## 0.11.76
 
 ### Changed

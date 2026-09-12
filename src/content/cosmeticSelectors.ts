@@ -201,6 +201,51 @@ export function customSelectorsForHostname(
   return [...selectors];
 }
 
+/** Which of `origins`' selectors actually match something in `doc` right
+ * now. background/cosmeticInject.ts injects the corresponding CSS blind --
+ * `scripting.insertCSS` has no "did anything match" feedback -- so this is
+ * the only place that question can be answered, and only from a content
+ * script with a live DOM (see content/cosmeticFilter.ts). A selector that
+ * throws (a legacy one saved before shared/selectorSafety.ts started
+ * validating new picks) is treated as "didn't match," never left to break
+ * the page. */
+export function matchingCustomRuleOrigins(
+  doc: Document,
+  origins: Array<{ hostname: string; selector: string }>
+): Array<{ hostname: string; selector: string }> {
+  const matched: Array<{ hostname: string; selector: string }> = [];
+  for (const origin of origins) {
+    try {
+      if (doc.querySelectorAll(origin.selector).length > 0) matched.push(origin);
+    } catch {
+      // Malformed selector -- not a match, not a crash.
+    }
+  }
+  return matched;
+}
+
+/** Same domain-chain lookup as customSelectorsForHostname, but keeping which
+ * saved hostname each selector came from -- background/customRuleStats.ts
+ * keys its per-rule hit stats by that saved hostname, not by whatever
+ * subdomain the DOM check actually ran on, so a match on a subdomain must
+ * still be attributed to the parent domain the rule was saved under. */
+export function customRuleOriginsForHostname(
+  customCosmeticRules: Record<string, string[]>,
+  hostname: string
+): Array<{ hostname: string; selector: string }> {
+  const seen = new Set<string>();
+  const out: Array<{ hostname: string; selector: string }> = [];
+  for (const domain of domainChain(hostname)) {
+    for (const selector of customCosmeticRules[domain] ?? []) {
+      const key = `${domain}:${selector}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ hostname: domain, selector });
+    }
+  }
+  return out;
+}
+
 const SELECTORS_PER_RULE = 2000;
 
 /** Batches selectors into multiple `{display:none!important}` rules rather than one huge selector list. */

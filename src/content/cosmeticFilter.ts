@@ -19,7 +19,39 @@ import { startSurveyor } from "./cosmeticSurveyor";
 import { startAdCollapse } from "./adCollapse";
 import { startProceduralCosmetic } from "./proceduralCosmetic";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
-import type { CosmeticGenericsResponse, ProceduralRulesResponse } from "../types";
+import { customRuleOriginsForHostname, matchingCustomRuleOrigins } from "./cosmeticSelectors";
+import type { CosmeticGenericsResponse, ProceduralRulesResponse, RecordCustomRuleMatchMessage, Settings } from "../types";
+
+// Same two-pass timing as adCollapse.ts's own SECOND_PASS_DELAY_MS -- late-
+// rendering content (a lazy-loaded section, an SPA route change) can make a
+// selector start matching well after document_idle.
+const CUSTOM_RULE_CHECK_DELAY_MS = 2500;
+
+/** Checks whether this hostname's own saved element-picker selectors
+ * (customCosmeticRules/customGrayscaleRules) actually matched anything in
+ * the live DOM, and reports whichever ones did -- background/
+ * cosmeticInject.ts injects the corresponding CSS blind, with no feedback
+ * of its own on whether a selector found anything. Only ever reports a
+ * hostname/selector pair that actually matched this pass; a selector that
+ * matched nothing is simply omitted, not reported as a miss. No-ops
+ * entirely when this hostname has no custom rules of its own. */
+function watchCustomRuleMatches(effective: Settings): void {
+  const hideOrigins = customRuleOriginsForHostname(effective.customCosmeticRules, location.hostname);
+  const grayscaleOrigins = customRuleOriginsForHostname(effective.customGrayscaleRules, location.hostname);
+  if (hideOrigins.length === 0 && grayscaleOrigins.length === 0) return;
+
+  const report = (): void => {
+    const hideHits = matchingCustomRuleOrigins(document, hideOrigins);
+    const grayscaleHits = matchingCustomRuleOrigins(document, grayscaleOrigins);
+    if (hideHits.length === 0 && grayscaleHits.length === 0) return;
+    const message: RecordCustomRuleMatchMessage = { type: "record-custom-rule-match", hideHits, grayscaleHits };
+    browser.runtime.sendMessage(message).catch(() => {});
+  };
+
+  if (document.readyState === "complete") report();
+  else window.addEventListener("load", report, { once: true });
+  window.setTimeout(report, CUSTOM_RULE_CHECK_DELAY_MS);
+}
 
 // The curated ad-network domain list adCollapse.ts uses. Best-effort: an
 // empty set just means the collapse pass no-ops.
@@ -39,6 +71,7 @@ async function run(): Promise<void> {
   if (isDisabled(effective)) return;
 
   startAdCollapse(window, await readAdNetworks());
+  watchCustomRuleMatches(effective);
 
   // Procedural (extended-selector) rules -- evaluated against the live DOM
   // here because :has-text/:matches-css/:xpath need it; the worker can't run

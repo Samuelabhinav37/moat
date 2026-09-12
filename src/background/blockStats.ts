@@ -13,6 +13,7 @@ import {
   resetBreakdown,
   type Breakdown,
 } from "./matchStats";
+import { recordBlockedTotal, recordCompanyMatches } from "./usageStats";
 
 export type { Breakdown };
 
@@ -45,9 +46,15 @@ async function paint(tabId: number): Promise<void> {
   }
 }
 
-export async function recordDynamicCatch(tabId: number): Promise<void> {
+/** hostname is the real-time firewall's own best guess at what tab it caught
+ * this on (sender.tab.url in background/index.ts's "blocked" handler) --
+ * used only to attribute the local usage-counter total, never for blocking
+ * itself. Empty string (e.g. a tab with no committed URL yet) just skips
+ * that attribution rather than recording against "". */
+export async function recordDynamicCatch(tabId: number, hostname: string): Promise<void> {
   recordBlock(tabId);
   await paint(tabId);
+  if (hostname) void recordBlockedTotal(hostname, 1);
 }
 
 export function resetForNavigation(tabId: number): void {
@@ -56,9 +63,16 @@ export function resetForNavigation(tabId: number): void {
   void paint(tabId);
 }
 
-export async function refreshStaticBreakdown(tabId: number): Promise<void> {
-  await refreshBreakdown(tabId);
+/** Same hostname-attribution posture as recordDynamicCatch above -- the
+ * navigating tab's own hostname, from background/index.ts's
+ * webNavigation.onCompleted details.url. */
+export async function refreshStaticBreakdown(tabId: number, hostname: string): Promise<void> {
+  const breakdown = await refreshBreakdown(tabId);
   await paint(tabId);
+  if (!hostname) return;
+  const total = breakdown.ads + breakdown.trackers + breakdown.popups;
+  if (total > 0) void recordBlockedTotal(hostname, total);
+  void recordCompanyMatches(hostname, getCompanyBreakdown(tabId));
 }
 
 export function forgetTab(tabId: number): void {

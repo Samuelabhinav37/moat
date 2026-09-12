@@ -5,6 +5,7 @@ vi.mock("webextension-polyfill", () => ({
   default: {
     i18n: { getMessage: () => "" },
     storage: { onChanged: { addListener: () => {} } },
+    runtime: { sendMessage: vi.fn().mockResolvedValue(undefined) },
   },
 }));
 

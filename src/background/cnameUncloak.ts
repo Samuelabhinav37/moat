@@ -19,6 +19,7 @@
 import browser from "webextension-polyfill";
 import type { WebRequest } from "webextension-polyfill";
 import { isCandidateForUncloak, isCnameCloakDestination } from "./cnameUncloakMatch";
+import { recordSignalEvent } from "./usageStats";
 import type { Settings } from "../types";
 
 let cloakDestinations: Set<string> | null = null;
@@ -88,6 +89,7 @@ async function onBeforeRequest(details: WebRequest.OnBeforeRequestDetailsType): 
 
   const [destinations, canonical] = await Promise.all([loadCloakDestinations(), resolveCanonicalName(requestHostname)]);
   if (canonical && isCnameCloakDestination(canonical, destinations)) {
+    void recordSignalEvent("cnameUncloak", pageHostname);
     return { cancel: true };
   }
   return {};
