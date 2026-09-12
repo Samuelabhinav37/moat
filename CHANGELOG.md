@@ -3,6 +3,33 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.82
+
+### Fixed
+- **`live/manifest.json` was stale**, missing the `youtube-quick-fixes.json` entry that
+  `live/youtube-quick-fixes.json` and `liveUpdates.ts`'s `fetchAndApplyYoutubeQuickFixes()` have
+  both existed for since that channel shipped -- confirmed live on the deployed `gh-pages`
+  manifest too. Every fetch attempt was silently failing (`"live manifest has no hash for
+  youtube-quick-fixes.json"`, caught by its own try/catch), so this channel has been a
+  no-op in production. Regenerated via the existing `node scripts/update-live-manifest.mjs`.
+
+### Added
+- **Configured live-update manifest signing.** Generated the Ed25519 keypair and set the
+  public key in `src/shared/liveSigningKey.ts`. The private key isn't in this repo -- it
+  still needs to go into the `LIVE_SIGNING_PRIVATE_KEY` GitHub Actions secret, then a
+  `filters:update` run with that env var set produces `live/manifest.json.sig`, at which
+  point verification starts actually rejecting unsigned manifests. Until that `.sig` exists,
+  this change alone is a no-op (`verifyLiveManifest()` returns `"unverified"`, falling back
+  to the pre-existing hash check, when no signature is supplied).
+
+### Security
+- Resolved 2 of 7 `npm audit` findings (`adm-zip` symlink extraction, `js-yaml` CPU-DoS via
+  eslint) via `npm audit fix`'s non-breaking transitive bumps. The remaining 5
+  (esbuild/vite, image-size via addons-linter/web-ext) only have `--force` fixes that would
+  major-bump/downgrade `web-ext` and `vite` -- left alone deliberately, since that's a real
+  tradeoff decision and `web-ext` is what `lint:firefox` and the release pipeline depend on.
+  All are dev-tooling only; nothing here ships in the built extension.
+
 ## 0.11.81
 
 ### Added
