@@ -61,7 +61,9 @@ import type { PopupUiNotices } from "./updateNotice";
 import {
   forgetTab as forgetLastNormalTab,
   getLastNormalTabId,
+  isNormalPageUrl,
   noteTabUrl,
+  pickBestNormalTab,
 } from "./lastNormalTab";
 import { getGroupBreakdown, isMatchedRulesSupported } from "./matchStats";
 import { recordSignalEvent } from "./usageStats";
@@ -151,6 +153,27 @@ void browser.tabs
     if (tab?.id !== undefined) noteTabUrl(tab.id, tab.url);
   })
   .catch(() => {});
+
+/** getLastNormalTabId(), confirmed still open and still a normal page, with a
+ * live fallback when the cached pointer is stale or was never set at all.
+ * The pointer resets to null on every service-worker cold start (MV3 kills
+ * an idle worker routinely), and the startup reseed above only looks at the
+ * currently-focused tab -- if that happens to be the Settings page itself
+ * (open in its own tab, exactly when someone's most likely to be using it),
+ * noteTabUrl ignores it (extension pages never count, see lastNormalTab.ts)
+ * and the pointer is left null with nothing else to fall back on. A live
+ * query here fixes that instead of trusting state that may never exist,
+ * rather than silently failing "Pick an element" / the Trackers and Filter
+ * Lists tabs' per-tab breakdowns. */
+async function resolveNormalTabId(): Promise<number | null> {
+  const cached = getLastNormalTabId();
+  if (cached !== null) {
+    const tab = await browser.tabs.get(cached).catch(() => undefined);
+    if (isNormalPageUrl(tab?.url)) return cached;
+  }
+  const active = await browser.tabs.query({ active: true }).catch(() => []);
+  return pickBestNormalTab(active);
+}
 
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0) return;
@@ -281,7 +304,7 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     case "get-company-breakdown": {
       return (async (): Promise<CompanyBreakdownResponse> => {
         const supported = isMatchedRulesSupported();
-        const tabId = getLastNormalTabId();
+        const tabId = await resolveNormalTabId();
         if (tabId === null) return { hostname: "", companyBreakdown: {}, supported };
         const tab = await browser.tabs.get(tabId).catch(() => undefined);
         return {
@@ -471,7 +494,7 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     case "get-filter-list-matches": {
       return (async (): Promise<FilterListMatchesResponse> => {
         const supported = isMatchedRulesSupported();
-        const tabId = getLastNormalTabId();
+        const tabId = await resolveNormalTabId();
         if (tabId === null) return { hostname: "", matchesByGroup: {}, supported };
         const tab = await browser.tabs.get(tabId).catch(() => undefined);
         return { hostname: hostnameOf(tab?.url), matchesByGroup: getGroupBreakdown(tabId), supported };
@@ -491,7 +514,7 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
 
     case "start-element-picker": {
       return (async (): Promise<StartElementPickerResponse> => {
-        const tabId = getLastNormalTabId();
+        const tabId = await resolveNormalTabId();
         if (tabId === null) return { ok: false };
         try {
           const tab = await browser.tabs.get(tabId);

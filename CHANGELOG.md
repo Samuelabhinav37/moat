@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.88
+
+### Fixed
+- **"Pick an element" (and the Trackers/Filter Lists tabs' per-tab breakdowns) could
+  silently fail from the Settings page**, reported as "its not working." Root cause:
+  the Settings page opens in its own tab, so `background/index.ts` tracks "the last
+  normal web page you looked at" separately (`lastNormalTab.ts`), reseeded once at
+  service-worker startup from whichever tab is currently focused. Manifest V3 kills
+  an idle service worker routinely, and if that restart happened while the Settings
+  page itself was the focused tab, the reseed saw only an extension page (which this
+  tracker always and correctly ignores) and the pointer stayed `null` with nothing
+  else to fall back on -- "Pick an element" then failed outright
+  ("Couldn't start the picker there"), while the Trackers/Filter Lists tabs just
+  quietly showed empty data instead of erroring.
+
+  Fixed by adding a live `browser.tabs.query({active:true})` fallback
+  (`resolveNormalTabId` in `background/index.ts`, `pickBestNormalTab` in
+  `lastNormalTab.ts`) that runs whenever the cached pointer is missing or its tab
+  has since closed, instead of trusting state that may never have existed. Added
+  regression tests for the exact failure scenario (every candidate is the
+  extension's own page) plus the fallback's tab-selection logic.
+
 ## 0.11.87
 
 ### Changed
