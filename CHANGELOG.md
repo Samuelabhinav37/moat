@@ -3,6 +3,30 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.83
+
+### Fixed
+- **The entire Options/Settings page could render blank.** All 4 rail-nav buttons
+  (Protection/Filter Lists/Custom Rules/Trackers) had `data-i18n` on the `<button>`
+  itself, which also nested a badge/count `<span>` (e.g. `#rail-dot-protection`,
+  `#rail-count-filters`). `applyStaticI18n()` sets `.textContent` on every
+  `[data-i18n]` element by design (see its own tests) -- doing that on these
+  buttons silently destroyed their nested badge spans on page load, before
+  `render()` ever ran. The very first thing `render()` does is set
+  `rail-dot-protection.hidden`, which then threw `Cannot set properties of null`
+  and aborted the rest of `render()` entirely -- no filter lists, no custom
+  rules, no trackers, no version text, nothing. Fixed by moving `data-i18n`
+  onto a dedicated inner `<span>` with no children of its own, matching every
+  other `data-i18n` usage in the codebase. Added a regression test
+  (`src/shared/i18n.test.ts`) that loads the real HTML for every extension
+  page and fails if any `[data-i18n]` element ever gains child elements again.
+
+  Diagnosed without live browser access: built a jsdom harness that loads the
+  actual compiled `options.js`/`options.html` with mocked `chrome.*` APIs and
+  reproduces the exact crash and stack trace, then bisected line-by-line
+  (via an unminified `--watch` build) to the exact `.textContent` assignment
+  responsible.
+
 ## 0.11.82
 
 ### Fixed

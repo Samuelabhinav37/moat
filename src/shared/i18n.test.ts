@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { applyStaticI18n, getMessageOrFallback } from "./i18n";
 
@@ -54,5 +56,34 @@ describe("applyStaticI18n", () => {
     document.body.innerHTML = `<input data-i18n-placeholder="missingKey" placeholder="example.com" />`;
     applyStaticI18n(document.body, () => "");
     expect((document.querySelector("input") as HTMLInputElement).placeholder).toBe("example.com");
+  });
+});
+
+// Regression test for a real bug: a `[data-i18n]` element that also has
+// child elements gets those children silently destroyed the instant
+// applyStaticI18n() sets its textContent -- exactly what happened to the
+// rail-item buttons in options.html, each of which nested a badge/count
+// <span> (id="rail-dot-protection" etc.) inside a data-i18n-tagged <button>.
+// The badge span vanished on page load, so every later render() call that
+// tried to set its `.hidden`/`.textContent` threw "Cannot set properties of
+// null", aborting render() entirely -- the whole Options page stayed
+// unpopulated ("everything is dormant"). Fixed by moving data-i18n onto a
+// dedicated inner <span> that has no children of its own. This test reads
+// the real built page sources (not synthetic HTML) so a future data-i18n
+// addition that repeats the mistake fails here instead of silently bricking
+// a page.
+describe("data-i18n contract: no [data-i18n] element may have child elements", () => {
+  const pages = [
+    "options/options.html",
+    "popup/popup.html",
+    "warning/warning.html",
+    "logger/logger.html",
+  ];
+
+  it.each(pages)("%s", (relativePath) => {
+    const html = readFileSync(join(__dirname, "..", relativePath), "utf8");
+    document.body.innerHTML = html;
+    const offenders = [...document.querySelectorAll("[data-i18n]")].filter((el) => el.children.length > 0);
+    expect(offenders.map((el) => el.outerHTML.split(">")[0] + ">")).toEqual([]);
   });
 });
