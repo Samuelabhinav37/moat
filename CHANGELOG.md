@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.84
+
+### Fixed
+- **The Protection tab was visibly narrower than Filter Lists/Custom Rules/Trackers,
+  at all times.** Its content column reserved the slide-out drawer's 352px gutter
+  the instant the Protection tab was active, not just while the drawer was actually
+  open -- so the tab sat noticeably narrower/more left-aligned even before clicking
+  anything. Reworked so `.has-drawer` is only added when a row is actually clicked
+  open (`toggleDrawer`) and removed the instant it closes (`closeDrawer`), matching
+  the other three tabs' full width by default.
+
 ## 0.11.83
 
 ### Fixed

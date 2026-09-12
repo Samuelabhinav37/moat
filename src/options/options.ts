@@ -100,15 +100,12 @@ const drawer = document.getElementById("drawer") as HTMLElement;
 function closeDrawer(): void {
   openDrawerId = null;
   drawer.hidden = true;
+  contentColumn.classList.remove("has-drawer");
 }
 
 function selectTab(name: string): void {
   for (const button of tabButtons) button.setAttribute("aria-selected", String(button.dataset.tab === name));
   for (const panel of tabPanels) panel.hidden = panel.dataset.tabPanel !== name;
-  // Only the Protection tab's content reserves the drawer's 330px gutter --
-  // see options.html's .has-drawer comment. Leaving it on for every tab
-  // would waste a third of the page width on tabs that never open a drawer.
-  contentColumn.classList.toggle("has-drawer", name === "protection");
   if (name !== "protection") closeDrawer();
 }
 
@@ -666,6 +663,12 @@ function toggleDrawer(id: string): void {
   } else {
     openDrawerId = id;
     drawer.hidden = false;
+    // Only reserve the drawer's 352px gutter once a row is actually open --
+    // see options.html's .has-drawer comment. Reserving it just for being on
+    // the Protection tab would waste a third of the page width even when
+    // nothing's selected, and make Protection visibly narrower than every
+    // other tab at rest.
+    contentColumn.classList.add("has-drawer");
     populateDrawer(id);
   }
   if (lastSettings && lastUsage) renderProtectionGroups(lastSettings, lastUsage);
