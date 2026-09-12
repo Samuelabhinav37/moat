@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.86
+
+### Fixed
+- **The distributed extension package shipped with no license or third-party
+  attribution at all.** `LICENSE` and a new consolidated `NOTICE.md` (full license
+  text for every bundled third party -- AdGuard/uBlock Origin GPL-3.0, Ghostery
+  TrackerDB CC-BY-NC-SA-4.0, Consent-O-Matic and NextDNS MIT, webextension-polyfill
+  MPL-2.0) now ship inside `chrome.zip`/`firefox.zip` itself, not just the GitHub
+  repo, and are linked from the Options page's About tab ("Third-party licenses").
+  Verified against each upstream repo's actual LICENSE file via the GitHub API
+  rather than assumed from memory.
+- `NOTICE.md` states plainly, in one place, that Ghostery TrackerDB's
+  CC-BY-NC-SA-4.0 term is non-commercial-only and load-bearing: compliant today
+  because Moat has no ads/paid tier/monetization, but that data source would need
+  to be dropped or separately licensed before any future commercial use.
+
 ## 0.11.85
 
 ### Changed

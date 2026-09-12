@@ -352,6 +352,9 @@
   "optionsSourceCodeLink": {
     "message": "Quellcode"
   },
+  "optionsThirdPartyNoticesLink": {
+    "message": "Lizenzen von Drittanbietern"
+  },
   "optionsExportButton": {
     "message": "Einstellungen herunterladen"
   },

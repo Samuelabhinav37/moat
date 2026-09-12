@@ -160,5 +160,12 @@ function copyStaticAssets() {
   cpSync(resolve(root, "src/warning/warning.html"), resolve(outDir, "warning.html"));
   cpSync(resolve(root, "src/managed_schema.json"), resolve(outDir, "managed_schema.json"));
 
+  // GPL-3.0 and every bundled third party's own license terms (AdGuard/uBlock
+  // Origin GPL-3.0, Ghostery TrackerDB CC-BY-NC-SA-4.0, Consent-O-Matic/
+  // NextDNS MIT) need to travel with the distributed package itself, not
+  // live only in the source repository -- see NOTICE.md's own header.
+  cpSync(resolve(root, "LICENSE"), resolve(outDir, "LICENSE"));
+  cpSync(resolve(root, "NOTICE.md"), resolve(outDir, "NOTICE.md"));
+
   writeFileSync(resolve(outDir, "manifest.json"), JSON.stringify(buildManifest(target), null, 2));
 }

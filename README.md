@@ -134,13 +134,17 @@ install) and every case its code touches a network.
 
 ## Licensing note
 
-Moat's own code is [GPL-3.0](LICENSE), matching the bundled AdGuard/EasyList filter data so the
-whole package sits under one copyleft license. That filter data isn't original to this project —
-if you redistribute `rules/dnr/*.json`, keep the attribution and check current terms.
+Moat's own code is [GPL-3.0](LICENSE), matching the bundled AdGuard/EasyList/uBlock Origin filter
+data so the whole package sits under one copyleft license. Full third-party license texts —
+required by their own terms, not just courtesy — are in [`NOTICE.md`](NOTICE.md), which ships
+inside the built extension package itself (not just this repo), and is linked from the Options
+page's About tab.
 
 - **Company names** in the "By company" breakdown come from
   [Ghostery's TrackerDB](https://github.com/ghostery/trackerdb), [CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-  — free for non-commercial use, which Moat is.
+  — **non-commercial use only**. Compliant today because Moat has no ads, paid tier, or monetary
+  compensation tied to it; that would need to be revisited (drop the data, or get a commercial
+  license from Ghostery) before any future monetization.
 - **Cookie-banner rules** are vendored from [Consent-O-Matic](https://github.com/cavi-au/Consent-O-Matic)
   (Aarhus University CAVI), MIT. Moat's interpreter (`src/content/consent/`) is written from
   scratch against their schema, not copied.
@@ -155,4 +159,5 @@ if you redistribute `rules/dnr/*.json`, keep the attribution and check current t
 - [`docs/enterprise.md`](docs/enterprise.md) — managed-policy deployment and the optional,
   enterprise-only Athena integration.
 - [`PRIVACY.md`](PRIVACY.md) — full privacy policy.
+- [`NOTICE.md`](NOTICE.md) — every bundled third-party license, in full.
 - [`CHANGELOG.md`](CHANGELOG.md) — per-version history.

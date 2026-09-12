@@ -354,6 +354,9 @@
   "optionsSourceCodeLink": {
     "message": "Source code"
   },
+  "optionsThirdPartyNoticesLink": {
+    "message": "Third-party licenses"
+  },
   "optionsExportButton": {
     "message": "Download settings"
   },

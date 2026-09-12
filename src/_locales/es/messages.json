@@ -352,6 +352,9 @@
   "optionsSourceCodeLink": {
     "message": "Código fuente"
   },
+  "optionsThirdPartyNoticesLink": {
+    "message": "Licencias de terceros"
+  },
   "optionsExportButton": {
     "message": "Descargar configuración"
   },

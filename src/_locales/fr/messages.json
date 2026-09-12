@@ -352,6 +352,9 @@
   "optionsSourceCodeLink": {
     "message": "Code source"
   },
+  "optionsThirdPartyNoticesLink": {
+    "message": "Licences tierces"
+  },
   "optionsExportButton": {
     "message": "Télécharger les paramètres"
   },
