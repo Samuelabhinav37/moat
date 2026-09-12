@@ -8,4 +8,4 @@
 // Rotation, if the private key ever leaks: paste a new public key here and
 // ship an extension update. There is no PKI; the shipped build is the trust
 // anchor.
-export const LIVE_MANIFEST_PUBLIC_KEY = "";
+export const LIVE_MANIFEST_PUBLIC_KEY = "2djNlrqulKixwivtxY3K94OuAje3vk7U/39G/6ZchrQ=";
