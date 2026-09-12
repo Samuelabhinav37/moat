@@ -7,10 +7,422 @@
     <link rel="stylesheet" href="theme.css" />
     <style>
       body {
-        max-width: 560px;
-        margin: 48px auto;
-        padding: 0 20px 48px;
+        margin: 0;
       }
+      .shell {
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 30px 28px 48px;
+      }
+
+      /* ---------- Rail ---------- */
+      .rail {
+        flex: none;
+        width: 150px;
+      }
+      .rail .brand-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 22px;
+      }
+      .rail .brand-row img {
+        width: 22px;
+        height: 22px;
+        flex: none;
+      }
+      .rail .brand-row .brand-name {
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .rail-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+      .rail-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-size: 13px;
+        text-align: left;
+        border-radius: 7px;
+        padding: 7px 10px;
+      }
+      .rail-item[aria-selected="true"] {
+        background: var(--card);
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .rail-item:hover:not([aria-selected="true"]) {
+        color: var(--fg);
+      }
+      .rail-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--on);
+        flex: none;
+      }
+      .rail-dot[hidden] {
+        display: none;
+      }
+      .rail-count {
+        font-size: 11px;
+        font-weight: 600;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        color: var(--muted);
+        flex: none;
+      }
+
+      /* ---------- Content column ---------- */
+      .content {
+        flex: 1;
+        min-width: 0;
+        position: relative;
+      }
+      .content.has-drawer {
+        padding-right: 352px;
+      }
+      @media (max-width: 900px) {
+        .content.has-drawer {
+          padding-right: 0;
+        }
+        .drawer {
+          left: 0;
+          width: auto !important;
+        }
+      }
+
+      .page-title {
+        font-size: 19px;
+        font-weight: 600;
+        line-height: 1.4;
+        letter-spacing: -0.01em;
+        margin: 0 0 4px;
+      }
+      .page-desc {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      /* ---------- Metric row ---------- */
+      .metric-row {
+        display: flex;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 22px 36px;
+        margin: 26px 0 4px;
+      }
+      .metric-hero .value-row {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .hero-value {
+        font-size: 44px;
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      .delta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--accent);
+      }
+      .delta-chip svg {
+        width: 11px;
+        height: 11px;
+      }
+      .metric-baseline {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .sparkline-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .sparkline-caption {
+        font-size: 11.5px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        color: var(--muted);
+      }
+      .metric-right-group {
+        margin-left: auto;
+        display: flex;
+        gap: 30px;
+      }
+      .secondary-value {
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      .secondary-value .of-muted {
+        color: var(--muted);
+      }
+      .metric-label {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      .section-divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 22px 0 0;
+      }
+
+      /* ---------- Group headings + rows ---------- */
+      .group-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 10px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 22px 0 0;
+        padding-top: 22px;
+      }
+      .group-heading:first-of-type {
+        padding-top: 0;
+      }
+      .group-heading .group-count,
+      .group-heading .group-action {
+        text-transform: none;
+        letter-spacing: normal;
+        font-weight: 600;
+        font-size: 12px;
+      }
+      .group-heading .group-action {
+        color: var(--accent);
+      }
+      .row-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .protection-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--hairline);
+        border-radius: 6px;
+      }
+      .row-group .protection-row:last-child {
+        border-bottom: none;
+      }
+      .protection-row:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .protection-row.selected {
+        background: var(--card);
+        outline: 1px solid var(--selected);
+        outline-offset: -1px;
+      }
+      .protection-row .row-body {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+      .protection-row .row-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--fg);
+      }
+      .protection-row .row-title.off {
+        color: var(--muted);
+      }
+      .protection-row .row-evidence {
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      .protection-row .switch {
+        flex: none;
+      }
+      .protection-row .permission-chips {
+        display: flex;
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .protection-subrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0 10px 20px;
+        border-bottom: 1px solid var(--hairline);
+      }
+      .row-group .protection-subrow:last-child {
+        border-bottom: none;
+      }
+      .protection-subrow .row-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--fg);
+      }
+      .protection-subrow .switch {
+        margin-left: auto;
+        flex: none;
+      }
+      #metric-sparkline polyline {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      #metric-sparkline circle {
+        fill: var(--accent);
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 999px;
+        padding: 3px 9px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        background: transparent;
+      }
+      .chip.on {
+        border-color: var(--on);
+        background: rgba(67, 193, 58, 0.14);
+        color: var(--fg);
+      }
+
+      /* ---------- Drawer ---------- */
+      .drawer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 330px;
+        background: var(--card);
+        border-left: 1px solid var(--selected);
+        box-shadow: -28px 0 60px -16px rgba(0, 0, 0, 0.55);
+        border-radius: 0 10px 10px 0;
+        padding: 26px 24px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+      .drawer[hidden] {
+        display: none;
+      }
+      .drawer-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .drawer-title {
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0 0 2px;
+      }
+      .drawer-state {
+        font-size: 11.5px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        color: var(--muted);
+      }
+      .drawer-metric {
+        margin-top: 18px;
+      }
+      .drawer-metric .value {
+        font-size: 32px;
+        font-weight: 600;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      .drawer-metric .label {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .drawer-bars {
+        display: flex;
+        gap: 3px;
+        height: 28px;
+        align-items: flex-end;
+        margin-top: 14px;
+      }
+      .drawer-bars .bar {
+        flex: 1;
+        border-radius: 2px;
+        background: var(--border);
+        min-height: 2px;
+      }
+      .drawer-bars .bar.recent {
+        background: var(--accent);
+      }
+      .drawer-bars-caption {
+        font-size: 11.5px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+      .drawer-desc {
+        font-size: 13px;
+        color: var(--fg);
+        line-height: 1.5;
+        margin-top: 18px;
+      }
+      .drawer-caution {
+        display: flex;
+        gap: 8px;
+        margin-top: 14px;
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .drawer-caution svg {
+        flex: none;
+        width: 14px;
+        height: 14px;
+        color: var(--caution);
+        margin-top: 2px;
+      }
+      .drawer-footer {
+        margin-top: auto;
+        padding-top: 14px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      .drawer-footer[hidden] {
+        display: none;
+      }
+
+      /* ---------- Everything below: existing conventions, unchanged ---------- */
       .card + .card {
         margin-top: 14px;
       }
@@ -19,38 +431,13 @@
         font-weight: 600;
         margin-bottom: 2px;
       }
-      .row-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
-        background: var(--bg);
-        color: var(--accent);
-        flex: none;
-      }
-      .row-icon svg {
-        width: 16px;
-        height: 16px;
-      }
       .toggle-row {
         display: flex;
         align-items: center;
         gap: 12px;
       }
-      .toggle-row + .toggle-row {
-        margin-top: 12px;
-      }
       .toggle-row .switch {
         margin-left: auto;
-      }
-      .toggle-row.sub-row {
-        margin-left: 28px;
-        opacity: 0.9;
-      }
-      .toggle-row[hidden] {
-        display: none;
       }
       p.hint {
         margin: 4px 0 0;
@@ -76,31 +463,6 @@
         font-size: 13px;
       }
 
-      .tabs {
-        display: flex;
-        gap: 2px;
-        margin: 28px 0 20px;
-        padding: 3px;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-      }
-      .tab-button {
-        flex: 1;
-        border: none;
-        border-radius: 7px;
-        padding: 7px 8px;
-        font-size: 13px;
-        color: var(--muted);
-      }
-      .tab-button:hover {
-        color: var(--fg);
-      }
-      .tab-button[aria-selected="true"] {
-        background: var(--bg);
-        color: var(--fg);
-        font-weight: 600;
-      }
       [data-tab-panel] {
         display: flex;
         flex-direction: column;
@@ -125,13 +487,13 @@
          attribute's native browser default (author styles always win over
          the user-agent stylesheet, regardless of selector specificity) --
          so every class here that sets its own `display` needs this explicit
-         re-assertion, same as .toggle-row[hidden]/[data-tab-panel][hidden]
-         below already do. Without it, options.ts setting .hidden = true on
-         these (protection-locked-badge, filters-locked-badge,
-         filter-budget-warning) has no visible effect at all -- they render
-         unconditionally, which on a normal, non-managed, non-budget-capped
-         install means an "Managed by your organization" badge and a filter-
-         budget warning banner showing up for absolutely no reason. */
+         re-assertion, same as [data-tab-panel][hidden] above already does.
+         Without it, options.ts setting .hidden = true on these
+         (protection-locked-badge, filters-locked-badge, filter-budget-warning)
+         has no visible effect at all -- they render unconditionally, which
+         on a normal, non-managed, non-budget-capped install means an
+         "Managed by your organization" badge and a filter-budget warning
+         banner showing up for absolutely no reason. */
       .locked-badge[hidden] {
         display: none;
       }
@@ -252,490 +614,323 @@
         gap: 14px;
         font-size: 13px;
       }
-
-      .brand-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 6px;
-      }
-      .brand-row img {
-        width: 26px;
-        height: 26px;
-        flex: none;
-      }
-      .brand-row h1 {
-        margin: 0;
-        font-size: 17px;
-      }
-      .tagline {
-        margin: 0;
-      }
     </style>
   </head>
   <body>
-    <div class="brand-row">
-      <img src="icons/icon48.png" alt="" />
-      <h1>Moat</h1>
-    </div>
-    <p class="muted tagline" data-i18n="optionsTagline">Blocks ads, trackers, and hijacked popups.</p>
+    <div class="shell">
+      <nav class="rail" role="tablist">
+        <div class="brand-row">
+          <img src="icons/icon48.png" alt="" />
+          <span class="brand-name">Moat</span>
+        </div>
+        <div class="rail-list">
+          <button class="rail-item" data-tab="protection" role="tab" aria-selected="true" data-i18n="tabProtection">
+            Protection
+            <span class="rail-dot" id="rail-dot-protection" hidden></span>
+          </button>
+          <button class="rail-item" data-tab="filters" role="tab" aria-selected="false" data-i18n="tabFilters">
+            Filter Lists
+            <span class="rail-count" id="rail-count-filters"></span>
+          </button>
+          <button class="rail-item" data-tab="custom" role="tab" aria-selected="false" data-i18n="tabCustom">
+            Custom Rules
+            <span class="rail-count" id="rail-count-custom"></span>
+          </button>
+          <button class="rail-item" data-tab="trackers" role="tab" aria-selected="false" data-i18n="tabTrackers">
+            Trackers
+            <span class="rail-count" id="rail-count-trackers"></span>
+          </button>
+          <button class="rail-item" data-tab="about" role="tab" aria-selected="false" data-i18n="tabAbout">About</button>
+        </div>
+      </nav>
 
-    <nav class="tabs" role="tablist">
-      <button class="tab-button" data-tab="protection" role="tab" aria-selected="true" data-i18n="tabProtection">Protection</button>
-      <button class="tab-button" data-tab="filters" role="tab" aria-selected="false" data-i18n="tabFilters">Filter Lists</button>
-      <button class="tab-button" data-tab="custom" role="tab" aria-selected="false" data-i18n="tabCustom">Custom Rules</button>
-      <button class="tab-button" data-tab="trackers" role="tab" aria-selected="false" data-i18n="tabTrackers">Trackers</button>
-      <button class="tab-button" data-tab="about" role="tab" aria-selected="false" data-i18n="tabAbout">About</button>
-    </nav>
-
-    <section data-tab-panel="protection">
-      <div class="card">
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M8 1.3l5.2 1.9v3.7c0 3.8-2.3 6.1-5.2 7.5-2.9-1.4-5.2-3.7-5.2-7.5V3.2L8 1.3z"/></svg>
-          </div>
-          <div>
-            <div class="row" style="justify-content: flex-start; gap: 8px">
-              <span class="card-title" id="master-toggle-label" data-i18n="optionsMasterToggleLabel">Protection</span>
-              <span class="locked-badge" id="protection-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
-            </div>
-            <p class="hint muted" data-i18n="optionsMasterToggleHint">Turn all blocking on or off, everywhere.</p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="master-toggle" aria-labelledby="master-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-      </div>
-
-      <div class="filter-category" data-i18n="optionsAdvancedProtectionCategory">Extra protection</div>
-      <div class="card">
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6"/><circle cx="6.2" cy="6" r=".7" fill="currentColor" stroke="none"/><circle cx="10" cy="6.8" r=".7" fill="currentColor" stroke="none"/><circle cx="6.8" cy="9.8" r=".7" fill="currentColor" stroke="none"/><circle cx="10.2" cy="10.2" r=".7" fill="currentColor" stroke="none"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="cookies-toggle-label" data-i18n="optionsCookiesToggleLabel">Block third-party cookies</div>
-            <p class="hint muted" data-i18n="optionsCookiesToggleHint">Stops sites from tracking you as you move from one to the next.</p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="cookies-toggle" aria-labelledby="cookies-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M2 6a9 9 0 0112 0M4.4 8.6a5.5 5.5 0 017.2 0"/><circle cx="8" cy="12.3" r=".9" fill="currentColor" stroke="none"/><line x1="2" y1="2" x2="14" y2="14"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="webrtc-toggle-label" data-i18n="optionsWebrtcToggleLabel">Stop IP address leaks</div>
-            <p class="hint muted" data-i18n="optionsWebrtcToggleHint">Keeps a website from seeing your real IP address if you're using a VPN.</p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="webrtc-toggle" aria-labelledby="webrtc-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M8 3.2a4.8 4.8 0 00-4.8 4.8v1.2M8 3.2A4.8 4.8 0 0112.8 8v2.1M8 5.4a2.6 2.6 0 00-2.6 2.6v1.2M8 5.4A2.6 2.6 0 0110.6 8v2M8 7.6a.4.4 0 00-.4.4v3.4"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="fingerprint-toggle-label" data-i18n="optionsFingerprintToggleLabel">Block browser fingerprinting</div>
-            <p class="hint muted" data-i18n="optionsFingerprintToggleHint">
-              Randomly tweaks details about your device that sites use to recognize you across
-              visits. Can occasionally break a CAPTCHA.
-            </p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="fingerprint-toggle" aria-labelledby="fingerprint-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row sub-row" id="fingerprint-rotate-row" hidden>
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M13 8A5 5 0 013 8M3 8A5 5 0 0113 8"/><path d="M3 8l1.6-1.8M13 8l-1.6 1.8"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="fingerprint-rotate-toggle-label" data-i18n="optionsFingerprintRotateToggleLabel">Use a new disguise each time you restart</div>
-            <p class="hint muted" data-i18n="optionsFingerprintRotateToggleHint">
-              Creates a new browser disguise every time you restart, instead of keeping the same
-              one. This way sites can't use it to recognize you over time.
-            </p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="fingerprint-rotate-toggle" aria-labelledby="fingerprint-rotate-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 2a6 6 0 000 12z" fill="currentColor"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="grayscale-toggle-label" data-i18n="optionsGrayscaleToggleLabel">Gray out unblockable video ads</div>
-            <p class="hint muted" data-i18n="optionsGrayscaleToggleHint">
-              Fades in-stream video ads, like YouTube's, to grayscale while they play.
-            </p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="grayscale-toggle" aria-labelledby="grayscale-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5.5 6.5l5 5M10.5 6.5l-5 5"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="feed-scan-toggle-label" data-i18n="optionsFeedScanToggleLabel">Hide sponsored posts in feeds</div>
-            <p class="hint muted" data-i18n="optionsFeedScanToggleHint">
-              Removes sponsored and promoted posts from Instagram, LinkedIn, and YouTube as you
-              scroll.
-            </p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="feed-scan-toggle" aria-labelledby="feed-scan-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M3 6h10M3 10h6"/><path d="M11.5 10.5l1.5 1.5 2-2" stroke-linejoin="round"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="consent-reject-toggle-label" data-i18n="optionsConsentRejectToggleLabel">Auto-reject cookie banners</div>
-            <p class="hint muted" data-i18n="optionsConsentRejectToggleHint">
-              Clicks “reject” or “decline” on common consent banners for you.
-            </p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="consent-reject-toggle" aria-labelledby="consent-reject-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="cname-uncloak-toggle-label" data-i18n="optionsCnameToggleLabel">Catch trackers hiding in disguise</div>
-            <p class="hint muted" data-i18n="optionsCnameToggleHint">
-              Some trackers disguise themselves as part of the site you're visiting. This finds
-              and blocks them anyway.
-            </p>
-            <p class="hint muted" id="cname-unsupported-hint" hidden data-i18n="optionsCnameUnsupportedHint">
-              Not available in this browser.
-            </p>
-            <p class="hint muted" id="cname-chrome-doh-hint" hidden data-i18n="optionsCnameChromeDohHint">
-              On Chrome, this checks disguised trackers using Cloudflare's public lookup service,
-              and may miss the very first one it finds -- it catches every one after that. Firefox
-              does this itself, more privately, and catches every one from the start.
-            </p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="cname-uncloak-toggle" aria-labelledby="cname-uncloak-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.2"/><path d="M5.5 7V4.8a2.5 2.5 0 015 0V7"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="leaked-password-toggle-label" data-i18n="optionsLeakedPasswordToggleLabel">Check passwords against known breaches</div>
-            <p class="hint muted" data-i18n="optionsLeakedPasswordToggleHint">
-              Warns if a password you type has appeared in a known breach. Only a short piece of
-              its hash ever leaves your device.
-            </p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="leaked-password-toggle" aria-labelledby="leaked-password-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="9" height="7" rx="1.5"/><path d="M6 5.5V4a2 2 0 014 0v1.5"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="permission-guard-camera-toggle-label" data-i18n="optionsPermissionGuardCameraToggleLabel">Block camera-ambush prompts</div>
-            <p class="hint muted" data-i18n="optionsPermissionGuardCameraToggleHint">
-              Sets every site's camera prompt to blocked by default, so a page can't surprise you
-              with it on load. Allow a specific site from the popup when you trust it.
-            </p>
-          </div>
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="permission-guard-camera-toggle"
-              aria-labelledby="permission-guard-camera-toggle-label"
-            />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5a2 2 0 012 2v3.5a2 2 0 01-4 0V4.5a2 2 0 012-2z"/><path d="M5 7.5a3 3 0 006 0M8 10.5V13m-2 0h4"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="permission-guard-microphone-toggle-label" data-i18n="optionsPermissionGuardMicrophoneToggleLabel">Block microphone-ambush prompts</div>
-            <p class="hint muted" data-i18n="optionsPermissionGuardMicrophoneToggleHint">
-              Sets every site's microphone prompt to blocked by default. Allow a specific site from
-              the popup when you trust it.
-            </p>
-          </div>
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="permission-guard-microphone-toggle"
-              aria-labelledby="permission-guard-microphone-toggle-label"
-            />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14s5-4.2 5-7.8A5 5 0 003 6.2C3 9.8 8 14 8 14z"/><circle cx="8" cy="6.2" r="1.6"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="permission-guard-location-toggle-label" data-i18n="optionsPermissionGuardLocationToggleLabel">Block location-ambush prompts</div>
-            <p class="hint muted" data-i18n="optionsPermissionGuardLocationToggleHint">
-              Sets every site's location prompt to blocked by default. Allow a specific site from
-              the popup when you trust it.
-            </p>
-          </div>
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="permission-guard-location-toggle"
-              aria-labelledby="permission-guard-location-toggle-label"
-            />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="row-icon" aria-hidden="true">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.3 10.3L14 14"/></svg>
-          </div>
-          <div>
-            <div class="card-title" id="search-slop-toggle-label" data-i18n="optionsSearchSlopToggleLabel">Hide low-quality search results</div>
-            <p class="hint muted" data-i18n="optionsSearchSlopToggleHint">
-              Hides search results that match a small, curated list of content-farm domains. Each
-              hidden batch stays one click away behind a "Show" link. Off by default, since this
-              list can misfire in ways a fixed ad-network list won't.
-            </p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="search-slop-toggle" aria-labelledby="search-slop-toggle-label" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-      </div>
-
-      <div class="filter-category" data-i18n="optionsFilterUpdatesCategory">Filter updates</div>
-      <div class="card">
-        <div class="card-title" data-i18n="optionsLiveListTitle">Daily popup-blocklist update</div>
-        <p class="hint muted" data-i18n="optionsLiveListHint">Keeps the list of known popup and redirect sites up to date, once a day.</p>
-        <p class="hint" id="live-status" data-i18n="optionsLiveStatusNotChecked">Not checked yet.</p>
-      </div>
-    </section>
-
-    <section data-tab-panel="filters" hidden>
-      <div class="budget-warning" id="filter-budget-warning" hidden>
-        <p data-i18n="optionsFilterBudgetWarning">
-          Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules
-          extensions can use in total, and that limit is easy to hit if you have another ad
-          blocker or privacy extension running too. Try turning one of them off, or switch off a
-          list below.
-        </p>
-        <p id="filter-budget-detail" hidden></p>
-      </div>
-
-      <div class="card">
-        <div class="row">
-          <div class="card-title" data-i18n="optionsFilteringLevelTitle">Filtering level</div>
-          <span class="locked-badge" id="filters-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
-        </div>
-        <div class="preset-row" id="preset-row">
-          <button type="button" data-preset="off" data-i18n="presetOff">Off</button>
-          <button type="button" data-preset="lite" data-i18n="presetLite">Lite</button>
-          <button type="button" data-preset="essential" data-i18n="presetEssential">Essential</button>
-          <button type="button" data-preset="standard" data-i18n="presetStandard">Standard</button>
-          <button type="button" data-preset="strict" data-i18n="presetStrict">Strict</button>
-        </div>
-        <p class="hint muted" id="preset-hint" data-i18n="presetHintStandard">Ads, trackers, and known-malicious sites.</p>
-      </div>
-
-      <div class="card">
-        <div class="card-title" data-i18n="optionsIndividualListsTitle">Individual filter lists</div>
-        <p class="hint muted" data-i18n="optionsIndividualListsHint">Turn each list on or off yourself. Changing any one switches your filtering level to Custom.</p>
-        <div id="filter-list-rows"></div>
-      </div>
-    </section>
-
-    <section data-tab-panel="custom" hidden>
-      <div class="card">
-        <div class="card-title" data-i18n="optionsExceptionsTitle">Paused sites</div>
-        <p class="hint muted" data-i18n="optionsExceptionsHint">Moat is completely turned off on these sites, and any pages under them.</p>
-        <ul class="site-list" id="site-list"></ul>
-        <p class="empty-state" id="site-empty-state" data-i18n="optionsNoSitesAdded">No sites added.</p>
-        <div class="add-row">
-          <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
-          <button id="add-button" data-i18n="commonAdd">Add</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title" data-i18n="optionsBlockedSitesTitle">Blocked sites</div>
-        <p class="hint muted" data-i18n="optionsBlockedSitesHint">Always block these sites, whatever the filter lists say.</p>
-        <ul class="site-list" id="custom-block-list"></ul>
-        <p class="empty-state" id="custom-block-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
-        <div class="add-row">
-          <input type="text" id="custom-block-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
-          <button id="custom-block-add" data-i18n="commonBlock">Block</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title" data-i18n="optionsAllowedSitesTitle">Allowed sites</div>
-        <p class="hint muted" data-i18n="optionsAllowedSitesHint">Never block these sites, even when a filter list matches.</p>
-        <ul class="site-list" id="custom-allow-list"></ul>
-        <p class="empty-state" id="custom-allow-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
-        <div class="add-row">
-          <input type="text" id="custom-allow-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
-          <button id="custom-allow-add" data-i18n="commonAllow">Allow</button>
-        </div>
-      </div>
-
-      <div class="filter-category" data-i18n="optionsCosmeticCategory">Element picker</div>
-      <div class="card">
-        <div class="card-title" data-i18n="optionsHiddenElementsTitle">Hidden elements</div>
-        <p class="hint muted" data-i18n="optionsHiddenElementsHint">
-          Elements you hid with the “Block an element” tool. Remove one to bring it back.
-        </p>
-        <ul class="site-list" id="hidden-element-list"></ul>
-        <p class="empty-state" id="hidden-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
-      </div>
-
-      <div class="card">
-        <div class="card-title" data-i18n="optionsDimmedElementsTitle">Dimmed elements</div>
-        <p class="hint muted" data-i18n="optionsDimmedElementsHint">
-          Elements you grayed out with the picker. Remove one to restore it.
-        </p>
-        <ul class="site-list" id="grayscale-element-list"></ul>
-        <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
-      </div>
-    </section>
-
-    <section data-tab-panel="trackers" hidden>
-      <div class="card">
-        <div class="row">
-          <div class="card-title" data-i18n="optionsTrackersHeading">Trackers on the current tab</div>
-          <button id="trackers-refresh" type="button" data-i18n="optionsTrackersRefresh">Refresh</button>
-        </div>
-        <p class="hint muted" id="trackers-subhead" hidden></p>
-        <p class="hint muted" id="trackers-unsupported" hidden data-i18n="optionsTrackersUnsupported">
-          This detailed tracker list only works in Chrome for now -- Firefox doesn't support it yet.
-        </p>
-        <div id="tracker-rows"></div>
-        <p class="empty-state" id="trackers-empty" hidden data-i18n="optionsTrackersEmpty">
-          No trackers found on the last tab you had open.
-        </p>
-      </div>
-    </section>
-
-    <!-- The prose paragraphs below that mix plain text with an inline <a>/<strong>/<code>
-         aren't migrated to data-i18n -- applyStaticI18n replaces an element's whole
-         textContent, which would silently delete the embedded link/emphasis. Left as
-         English-only static markup rather than risk that; everything else on this page is
-         migrated. -->
-    <section data-tab-panel="about" hidden>
-      <div class="card">
-        <div class="about-section">
-          <h3 data-i18n="optionsAboutHeading">About Moat</h3>
-          <p>
-            Moat blocks ads, trackers, and hijacked popups on Chrome and Firefox. The
-            <a href="https://github.com/Samuelabhinav37/moat#readme" target="_blank" rel="noopener">full README</a>
-            explains how the blocking, popup firewall, and cosmetic filtering work.
+      <div class="content has-drawer" id="content-column">
+        <section data-tab-panel="protection">
+          <h2 class="page-title" data-i18n="optionsProtectionTitle">Protection</h2>
+          <p class="page-desc" data-i18n="optionsProtectionDesc">
+            What Moat blocks, and what it leaves alone. Everything here runs on your device.
           </p>
-          <p>
-            <strong>Keyboard shortcut:</strong> Ctrl+Shift+M (Cmd+Shift+M on Mac) toggles
-            protection on and off. Rebind it at <code>chrome://extensions/shortcuts</code>.
-          </p>
-        </div>
-        <div class="about-section">
-          <h3 data-i18n="optionsPrivacyHeading">Privacy</h3>
-          <p data-i18n="optionsPrivacyIntro">
-            Everything here stays on your device -- none of it is sent to Moat's developer. Only
-            two optional features (breach checking and settings sync) ever talk to anyone else;
-            see the privacy policy for details.
-          </p>
-          <p>
-            <strong>Filter updates:</strong> once a day, Moat checks for a fresher block list and
-            any urgent fixes. That check doesn't send any of your browsing history.
-          </p>
-          <p>
-            <strong>Breach checking:</strong> with this on, only a short, scrambled piece of your
-            password goes to Have I Been Pwned -- never the real password, and nothing goes to
-            Moat at all.
-          </p>
-          <p>
-            <strong>Settings sync:</strong> with this on, your settings travel through your
-            browser's own sync account (Google's or Mozilla's), not a server Moat runs.
-          </p>
-          <p id="managed-notice" hidden>
-            <strong>Managed install:</strong> your organization set the policies shown here. Your
-            administrator can see and change those policies, but not your browsing history.
-          </p>
-        </div>
-        <div class="about-section">
-          <h3 data-i18n="optionsVersionHeading">Version details</h3>
-          <p id="version-text">—</p>
-          <div class="about-links">
-            <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener" data-i18n="optionsPrivacyPolicyLink">Full privacy policy</a>
-            <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="optionsChangelogLink">Changelog</a>
-            <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="optionsSourceCodeLink">Source code</a>
-          </div>
-        </div>
-        <div class="about-section">
-          <h3 data-i18n="optionsDebuggingHeading">Debugging</h3>
-          <p>
-            The <a href="logger.html" target="_blank" rel="noopener">rule-match logger</a> is a
-            development tool that shows which compiled rules matched which network requests. It
-            only appears when Moat is loaded unpacked.
-          </p>
-        </div>
-        <div class="about-section">
-          <h3 data-i18n="optionsBackupHeading">Backup &amp; restore</h3>
-          <p data-i18n="optionsBackupIntro">
-            Save your settings to a file, or load one back in later. Your fingerprint-protection
-            ID is never included, so it won't carry over.
-          </p>
-          <div class="about-links">
-            <button id="export-settings-button" type="button" data-i18n="optionsExportButton">Download settings</button>
-            <button id="import-settings-button" type="button" data-i18n="optionsImportButton">Upload settings…</button>
-          </div>
-          <input type="file" id="import-settings-input" accept="application/json" hidden />
-          <p class="hint muted" id="import-settings-status" hidden></p>
-          <div class="toggle-row" style="margin-top: 10px">
-            <div>
-              <div class="card-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">Sync settings across devices</div>
-              <p class="hint muted" data-i18n="optionsSyncToggleHint">
-                Copies your settings using your browser's own sync account, like your Google or
-                Firefox account. A new install picks them up once, but editing settings on two
-                devices at the same time won't merge -- one will overwrite the other.
-              </p>
+
+          <div class="protection-row" id="master-toggle-row" style="margin-top: 14px">
+            <div class="row-body">
+              <div class="row" style="justify-content: flex-start; gap: 8px">
+                <span class="row-title" id="master-toggle-label" data-i18n="optionsMasterToggleLabel">Protection</span>
+                <span class="locked-badge" id="protection-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
+              </div>
             </div>
             <label class="switch">
-              <input type="checkbox" id="sync-toggle" aria-labelledby="sync-toggle-label" />
+              <input type="checkbox" id="master-toggle" aria-labelledby="master-toggle-label" />
               <span class="track"><span class="thumb"></span></span>
             </label>
           </div>
-          <p class="hint" id="sync-status" hidden></p>
-        </div>
+
+          <div class="metric-row">
+            <div class="metric-hero">
+              <div class="value-row">
+                <span class="hero-value" id="metric-blocked-today">—</span>
+                <span class="delta-chip" id="metric-blocked-delta" hidden>
+                  <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 8l3.5-5L9 8" />
+                  </svg>
+                  <span id="metric-blocked-delta-value"></span>
+                </span>
+              </div>
+              <p class="metric-baseline" id="metric-blocked-baseline" data-i18n="optionsBlockedTodayBaseline">
+                blocked today
+              </p>
+            </div>
+            <div class="sparkline-wrap">
+              <svg width="132" height="40" viewBox="0 0 132 40" id="metric-sparkline" aria-hidden="true"></svg>
+              <span class="sparkline-caption" data-i18n="optionsSparklineCaption">last 7 days</span>
+            </div>
+            <div class="metric-right-group">
+              <div>
+                <div class="secondary-value" id="metric-sites-today">—</div>
+                <p class="metric-label" data-i18n="optionsSitesTodayLabel">sites today</p>
+              </div>
+              <div>
+                <div class="secondary-value" id="metric-protections-on">—</div>
+                <p class="metric-label" data-i18n="optionsProtectionsOnLabel">protections on</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="section-divider" />
+
+          <div id="protection-groups"></div>
+        </section>
+
+        <aside class="drawer" id="drawer" hidden>
+          <div class="drawer-header">
+            <div>
+              <p class="drawer-title" id="drawer-title"></p>
+              <span class="drawer-state" id="drawer-state"></span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="drawer-toggle" />
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="drawer-metric" id="drawer-metric" hidden>
+            <div class="value" id="drawer-metric-value"></div>
+            <p class="label" id="drawer-metric-label"></p>
+          </div>
+
+          <div id="drawer-bars-wrap" hidden>
+            <div class="drawer-bars" id="drawer-bars"></div>
+            <p class="drawer-bars-caption" data-i18n="optionsDrawerBarsCaption">Mon — Sun</p>
+          </div>
+
+          <p class="drawer-desc" id="drawer-desc"></p>
+
+          <div class="drawer-caution" id="drawer-caution" hidden>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 1.5l7 12.5H1z" />
+              <path d="M8 6.2v3.4" stroke-linecap="round" />
+              <circle cx="8" cy="11.6" r="0.7" fill="currentColor" stroke="none" />
+            </svg>
+            <span id="drawer-caution-text"></span>
+          </div>
+        </aside>
+
+        <section data-tab-panel="filters" hidden>
+          <div class="budget-warning" id="filter-budget-warning" hidden>
+            <p data-i18n="optionsFilterBudgetWarning">
+              Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules
+              extensions can use in total, and that limit is easy to hit if you have another ad
+              blocker or privacy extension running too. Try turning one of them off, or switch off a
+              list below.
+            </p>
+            <p id="filter-budget-detail" hidden></p>
+          </div>
+
+          <div class="card">
+            <div class="row">
+              <div class="card-title" data-i18n="optionsFilteringLevelTitle">Filtering level</div>
+              <span class="locked-badge" id="filters-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
+            </div>
+            <div class="preset-row" id="preset-row">
+              <button type="button" data-preset="off" data-i18n="presetOff">Off</button>
+              <button type="button" data-preset="lite" data-i18n="presetLite">Lite</button>
+              <button type="button" data-preset="essential" data-i18n="presetEssential">Essential</button>
+              <button type="button" data-preset="standard" data-i18n="presetStandard">Standard</button>
+              <button type="button" data-preset="strict" data-i18n="presetStrict">Strict</button>
+            </div>
+            <p class="hint muted" id="preset-hint" data-i18n="presetHintStandard">Ads, trackers, and known-malicious sites.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title" data-i18n="optionsIndividualListsTitle">Individual filter lists</div>
+            <p class="hint muted" data-i18n="optionsIndividualListsHint">Turn each list on or off yourself. Changing any one switches your filtering level to Custom.</p>
+            <div id="filter-list-rows"></div>
+          </div>
+        </section>
+
+        <section data-tab-panel="custom" hidden>
+          <div class="card">
+            <div class="card-title" data-i18n="optionsExceptionsTitle">Paused sites</div>
+            <p class="hint muted" data-i18n="optionsExceptionsHint">Moat is completely turned off on these sites, and any pages under them.</p>
+            <ul class="site-list" id="site-list"></ul>
+            <p class="empty-state" id="site-empty-state" data-i18n="optionsNoSitesAdded">No sites added.</p>
+            <div class="add-row">
+              <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
+              <button id="add-button" data-i18n="commonAdd">Add</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" data-i18n="optionsBlockedSitesTitle">Blocked sites</div>
+            <p class="hint muted" data-i18n="optionsBlockedSitesHint">Always block these sites, whatever the filter lists say.</p>
+            <ul class="site-list" id="custom-block-list"></ul>
+            <p class="empty-state" id="custom-block-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
+            <div class="add-row">
+              <input type="text" id="custom-block-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
+              <button id="custom-block-add" data-i18n="commonBlock">Block</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" data-i18n="optionsAllowedSitesTitle">Allowed sites</div>
+            <p class="hint muted" data-i18n="optionsAllowedSitesHint">Never block these sites, even when a filter list matches.</p>
+            <ul class="site-list" id="custom-allow-list"></ul>
+            <p class="empty-state" id="custom-allow-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
+            <div class="add-row">
+              <input type="text" id="custom-allow-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
+              <button id="custom-allow-add" data-i18n="commonAllow">Allow</button>
+            </div>
+          </div>
+
+          <div class="filter-category" data-i18n="optionsCosmeticCategory">Element picker</div>
+          <div class="card">
+            <div class="card-title" data-i18n="optionsHiddenElementsTitle">Hidden elements</div>
+            <p class="hint muted" data-i18n="optionsHiddenElementsHint">
+              Elements you hid with the “Block an element” tool. Remove one to bring it back.
+            </p>
+            <ul class="site-list" id="hidden-element-list"></ul>
+            <p class="empty-state" id="hidden-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title" data-i18n="optionsDimmedElementsTitle">Dimmed elements</div>
+            <p class="hint muted" data-i18n="optionsDimmedElementsHint">
+              Elements you grayed out with the picker. Remove one to restore it.
+            </p>
+            <ul class="site-list" id="grayscale-element-list"></ul>
+            <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
+          </div>
+        </section>
+
+        <section data-tab-panel="trackers" hidden>
+          <div class="card">
+            <div class="row">
+              <div class="card-title" data-i18n="optionsTrackersHeading">Trackers on the current tab</div>
+              <button id="trackers-refresh" type="button" data-i18n="optionsTrackersRefresh">Refresh</button>
+            </div>
+            <p class="hint muted" id="trackers-subhead" hidden></p>
+            <p class="hint muted" id="trackers-unsupported" hidden data-i18n="optionsTrackersUnsupported">
+              This detailed tracker list only works in Chrome for now -- Firefox doesn't support it yet.
+            </p>
+            <div id="tracker-rows"></div>
+            <p class="empty-state" id="trackers-empty" hidden data-i18n="optionsTrackersEmpty">
+              No trackers found on the last tab you had open.
+            </p>
+          </div>
+        </section>
+
+        <!-- The prose paragraphs below that mix plain text with an inline <a>/<strong>/<code>
+             aren't migrated to data-i18n -- applyStaticI18n replaces an element's whole
+             textContent, which would silently delete the embedded link/emphasis. Left as
+             English-only static markup rather than risk that; everything else on this page is
+             migrated. -->
+        <section data-tab-panel="about" hidden>
+          <div class="card">
+            <div class="about-section">
+              <h3 data-i18n="optionsAboutHeading">About Moat</h3>
+              <p>
+                Moat blocks ads, trackers, and hijacked popups on Chrome and Firefox. The
+                <a href="https://github.com/Samuelabhinav37/moat#readme" target="_blank" rel="noopener">full README</a>
+                explains how the blocking, popup firewall, and cosmetic filtering work.
+              </p>
+              <p>
+                <strong>Keyboard shortcut:</strong> Ctrl+Shift+M (Cmd+Shift+M on Mac) toggles
+                protection on and off. Rebind it at <code>chrome://extensions/shortcuts</code>.
+              </p>
+            </div>
+            <div class="about-section">
+              <h3 data-i18n="optionsPrivacyHeading">Privacy</h3>
+              <p data-i18n="optionsPrivacyIntro">
+                Everything here stays on your device -- none of it is sent to Moat's developer. Only
+                two optional features (breach checking and settings sync) ever talk to anyone else;
+                see the privacy policy for details.
+              </p>
+              <p>
+                <strong>Filter updates:</strong> once a day, Moat checks for a fresher block list and
+                any urgent fixes. That check doesn't send any of your browsing history.
+              </p>
+              <p>
+                <strong>Breach checking:</strong> with this on, only a short, scrambled piece of your
+                password goes to Have I Been Pwned -- never the real password, and nothing goes to
+                Moat at all.
+              </p>
+              <p>
+                <strong>Settings sync:</strong> with this on, your settings travel through your
+                browser's own sync account (Google's or Mozilla's), not a server Moat runs.
+              </p>
+              <p id="managed-notice" hidden>
+                <strong>Managed install:</strong> your organization set the policies shown here. Your
+                administrator can see and change those policies, but not your browsing history.
+              </p>
+            </div>
+            <div class="about-section">
+              <h3 data-i18n="optionsVersionHeading">Version details</h3>
+              <p id="version-text">—</p>
+              <div class="about-links">
+                <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener" data-i18n="optionsPrivacyPolicyLink">Full privacy policy</a>
+                <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="optionsChangelogLink">Changelog</a>
+                <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="optionsSourceCodeLink">Source code</a>
+              </div>
+            </div>
+            <div class="about-section">
+              <h3 data-i18n="optionsDebuggingHeading">Debugging</h3>
+              <p>
+                The <a href="logger.html" target="_blank" rel="noopener">rule-match logger</a> is a
+                development tool that shows which compiled rules matched which network requests. It
+                only appears when Moat is loaded unpacked.
+              </p>
+            </div>
+            <div class="about-section">
+              <h3 data-i18n="optionsBackupHeading">Backup &amp; restore</h3>
+              <p data-i18n="optionsBackupIntro">
+                Save your settings to a file, or load one back in later. Your fingerprint-protection
+                ID is never included, so it won't carry over.
+              </p>
+              <div class="about-links">
+                <button id="export-settings-button" type="button" data-i18n="optionsExportButton">Download settings</button>
+                <button id="import-settings-button" type="button" data-i18n="optionsImportButton">Upload settings…</button>
+              </div>
+              <input type="file" id="import-settings-input" accept="application/json" hidden />
+              <p class="hint muted" id="import-settings-status" hidden></p>
+              <div class="toggle-row" style="margin-top: 10px">
+                <div>
+                  <div class="card-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">Sync settings across devices</div>
+                  <p class="hint muted" data-i18n="optionsSyncToggleHint">
+                    Copies your settings using your browser's own sync account, like your Google or
+                    Firefox account. A new install picks them up once, but editing settings on two
+                    devices at the same time won't merge -- one will overwrite the other.
+                  </p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="sync-toggle" aria-labelledby="sync-toggle-label" />
+                  <span class="track"><span class="thumb"></span></span>
+                </label>
+              </div>
+              <p class="hint" id="sync-status" hidden></p>
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <script src="options.js"></script>
   </body>

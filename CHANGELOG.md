@@ -3,6 +3,30 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.78
+
+### Changed
+- **Rebuilt the Options page's shell and Protection tab** (design `9a` of the surface-
+  redesign handoff). The page moves from a top tab bar to a 150px left rail (brand row +
+  tab list), each tab now carrying a live indicator — a green dot when master protection
+  is on, and an enabled-count for Filter Lists/Custom Rules/Trackers. The Protection tab
+  itself drops its eleven identically-weighted bordered cards for borderless hairline rows
+  regrouped under three headings (Privacy / Annoyances / Safety instead of one flat "Extra
+  protection" list), a real metric row (items blocked today + delta vs. the same weekday
+  last week, a 7-day sparkline, sites protected today, protections-on count — all read from
+  the usage-counter data layer added in v0.11.77), and a slide-out drawer per setting
+  (opens on clicking the row, not the switch) holding that setting's own 7-day bar chart,
+  full description, and any caveat that used to live in the row's body copy. Enabled
+  protections now show a one-line evidence string ("Blocked on 38 of 42 sites today");
+  disabled ones show only their title — the asymmetry is deliberate, so the page's overall
+  state reads without opening anything. The three permission-guard toggles (camera/
+  microphone/location) collapse into one row with three independent chips, since they were
+  one decision presented three times. Toggle labels and hints were rewritten to their first
+  sentence, with the caveat/exception prose that used to follow moved into the drawer.
+  Filter Lists, Custom Rules, Trackers, and About keep their existing internals for now —
+  only the rail/shell around them is new; their own redesigns (`10a`/`10b`/`10c`) are the
+  next piece of this handoff. `es`/`fr`/`de` translations added for every new string.
+
 ## 0.11.77
 
 ### Added

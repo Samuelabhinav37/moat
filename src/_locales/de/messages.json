@@ -1,139 +1,302 @@
 {
-  "extName": { "message": "Moat" },
+  "extName": {
+    "message": "Moat"
+  },
   "extDescription": {
     "message": "Blockiert Werbung und Tracker und schließt Pop-up- bzw. Weiterleitungs-Tabs lautlos, ohne nervige Hinweise."
   },
-  "popupSettingsLink": { "message": "Einstellungen" },
+  "popupSettingsLink": {
+    "message": "Einstellungen"
+  },
   "popupOnboardingCard": {
     "message": "Moat blockiert Werbung und Tracker automatisch. Nutze den Schalter unten, um es auf einer Seite zu pausieren, oder Einstellungen für die Feinabstimmung."
   },
-  "popupUpdatePrefix": { "message": "Aktualisiert auf v" },
-  "popupUpdateSeparator": { "message": " -- " },
-  "popupUpdateLinkText": { "message": "Neuerungen ansehen" },
-  "popupBudgetNotice": { "message": "Einige Filterlisten sind deaktiviert – das gemeinsame Regellimit des Browsers ist erreicht. " },
-  "popupBudgetNoticeLink": { "message": "Einstellungen öffnen" },
-  "popupBlockedOnPage": { "message": "Auf dieser Seite blockiert" },
-  "popupProtectionNone": { "message": "Nichts zu blockieren auf dieser Seite" },
-  "popupProtectionLight": { "message": "Leichtes Tracking blockiert" },
-  "popupProtectionModerate": { "message": "Mäßiges Tracking blockiert" },
-  "popupProtectionHeavy": { "message": "Starkes Tracking blockiert" },
-  "popupAds": { "message": "Werbung" },
-  "popupTrackers": { "message": "Tracker" },
-  "popupPopups": { "message": "Pop-ups" },
-  "popupByCompany": { "message": "Nach Unternehmen" },
-  "popupPausedPrefix": { "message": "Pausiert auf " },
-  "popupPausedSuffix": { "message": ". Seite neu laden, um es entsperrt zu sehen." },
-  "popupProtected": { "message": "geschützt" },
-  "popupPaused": { "message": "pausiert" },
-  "popupReloadPage": { "message": "Seite neu laden" },
-  "popupBlockElement": { "message": "Element blockieren…" },
-  "popupReportProblem": { "message": "Problem melden…" },
-  "popupLoadError": { "message": "Status konnte nicht geladen werden. Versuche, das Popup erneut zu öffnen." },
-  "popupReportError": { "message": "Die Meldeseite konnte nicht geöffnet werden. Versuche es erneut." },
-
-  "tabProtection": { "message": "Schutz" },
-  "tabFilters": { "message": "Filterlisten" },
-  "tabCustom": { "message": "Eigene Regeln" },
-  "tabTrackers": { "message": "Tracker" },
-  "tabAbout": { "message": "Über" },
-  "optionsTagline": { "message": "Blockiert Werbung, Tracker und gekaperte Pop-ups." },
-
-  "optionsMasterToggleLabel": { "message": "Schutz aktiviert" },
-  "optionsMasterToggleHint": { "message": "Schaltet die gesamte Blockierung global ein oder aus." },
-  "optionsManagedBadge": { "message": "Verwaltet durch deine Organisation" },
-  "optionsAdvancedProtectionCategory": { "message": "Zusätzlicher Schutz" },
-  "optionsCookiesToggleLabel": { "message": "Cookies von Drittanbietern blockieren" },
-  "optionsCookiesToggleHint": { "message": "Verhindert seitenübergreifendes Tracking in deinem Browser. (Standardmäßig aus)" },
-  "optionsWebrtcToggleLabel": { "message": "IP-Adressen-Lecks verhindern" },
-  "optionsWebrtcToggleHint": { "message": "Verhindert, dass eine Website deine echte IP-Adresse sieht, wenn du ein VPN nutzt." },
-  "optionsFingerprintToggleLabel": { "message": "Browser-Fingerprinting blockieren" },
+  "popupUpdatePrefix": {
+    "message": "Aktualisiert auf v"
+  },
+  "popupUpdateSeparator": {
+    "message": " -- "
+  },
+  "popupUpdateLinkText": {
+    "message": "Neuerungen ansehen"
+  },
+  "popupBudgetNotice": {
+    "message": "Einige Filterlisten sind deaktiviert – das gemeinsame Regellimit des Browsers ist erreicht. "
+  },
+  "popupBudgetNoticeLink": {
+    "message": "Einstellungen öffnen"
+  },
+  "popupBlockedOnPage": {
+    "message": "Auf dieser Seite blockiert"
+  },
+  "popupProtectionNone": {
+    "message": "Nichts zu blockieren auf dieser Seite"
+  },
+  "popupProtectionLight": {
+    "message": "Leichtes Tracking blockiert"
+  },
+  "popupProtectionModerate": {
+    "message": "Mäßiges Tracking blockiert"
+  },
+  "popupProtectionHeavy": {
+    "message": "Starkes Tracking blockiert"
+  },
+  "popupAds": {
+    "message": "Werbung"
+  },
+  "popupTrackers": {
+    "message": "Tracker"
+  },
+  "popupPopups": {
+    "message": "Pop-ups"
+  },
+  "popupByCompany": {
+    "message": "Nach Unternehmen"
+  },
+  "popupPausedPrefix": {
+    "message": "Pausiert auf "
+  },
+  "popupPausedSuffix": {
+    "message": ". Seite neu laden, um es entsperrt zu sehen."
+  },
+  "popupProtected": {
+    "message": "geschützt"
+  },
+  "popupPaused": {
+    "message": "pausiert"
+  },
+  "popupReloadPage": {
+    "message": "Seite neu laden"
+  },
+  "popupBlockElement": {
+    "message": "Element blockieren…"
+  },
+  "popupReportProblem": {
+    "message": "Problem melden…"
+  },
+  "popupLoadError": {
+    "message": "Status konnte nicht geladen werden. Versuche, das Popup erneut zu öffnen."
+  },
+  "popupReportError": {
+    "message": "Die Meldeseite konnte nicht geöffnet werden. Versuche es erneut."
+  },
+  "tabProtection": {
+    "message": "Schutz"
+  },
+  "tabFilters": {
+    "message": "Filterlisten"
+  },
+  "tabCustom": {
+    "message": "Eigene Regeln"
+  },
+  "tabTrackers": {
+    "message": "Tracker"
+  },
+  "tabAbout": {
+    "message": "Über"
+  },
+  "optionsTagline": {
+    "message": "Blockiert Werbung, Tracker und gekaperte Pop-ups."
+  },
+  "optionsMasterToggleLabel": {
+    "message": "Schutz aktiviert"
+  },
+  "optionsMasterToggleHint": {
+    "message": "Schaltet die gesamte Blockierung global ein oder aus."
+  },
+  "optionsManagedBadge": {
+    "message": "Verwaltet durch deine Organisation"
+  },
+  "optionsAdvancedProtectionCategory": {
+    "message": "Zusätzlicher Schutz"
+  },
+  "optionsCookiesToggleLabel": {
+    "message": "Cookies von Drittanbietern blockieren"
+  },
+  "optionsCookiesToggleHint": {
+    "message": "Verhindert seitenübergreifendes Tracking in deinem Browser. (Standardmäßig aus)"
+  },
+  "optionsWebrtcToggleLabel": {
+    "message": "IP-Adressen-Lecks verhindern"
+  },
+  "optionsWebrtcToggleHint": {
+    "message": "Verhindert, dass eine Website deine echte IP-Adresse sieht, wenn du ein VPN nutzt."
+  },
+  "optionsFingerprintToggleLabel": {
+    "message": "Browser-Fingerprinting blockieren"
+  },
   "optionsFingerprintToggleHint": {
     "message": "Verändert zufällig Gerätedetails, mit denen Websites dich bei wiederholten Besuchen wiedererkennen. Kann gelegentlich ein CAPTCHA stören. (Standardmäßig aus)"
   },
-  "optionsFingerprintRotateToggleLabel": { "message": "Bei jedem Neustart eine neue Verkleidung verwenden" },
+  "optionsFingerprintRotateToggleLabel": {
+    "message": "Bei jedem Neustart eine neue Verkleidung verwenden"
+  },
   "optionsFingerprintRotateToggleHint": {
     "message": "Erzeugt bei jedem Neustart des Browsers eine neue Verkleidung, statt immer dieselbe zu behalten. So können Websites sie nicht nutzen, um dich über die Zeit wiederzuerkennen."
   },
-  "optionsGrayscaleToggleLabel": { "message": "Nicht blockierbare Videowerbung abdunkeln" },
+  "optionsGrayscaleToggleLabel": {
+    "message": "Nicht blockierbare Videowerbung abdunkeln"
+  },
   "optionsGrayscaleToggleHint": {
     "message": "Stellt eingebettete Videowerbung, etwa bei YouTube, die nicht vollständig entfernt werden kann, automatisch in Graustufen dar."
   },
-  "optionsFeedScanToggleLabel": { "message": "Gesponserte Beiträge aggressiv ausblenden" },
+  "optionsFeedScanToggleLabel": {
+    "message": "Gesponserte Beiträge aggressiv ausblenden"
+  },
   "optionsFeedScanToggleHint": {
     "message": "Durchsucht soziale Feeds beim Scrollen und entfernt gesponserte oder beworbene Beiträge. (Standardmäßig aus)"
   },
-  "optionsConsentRejectToggleLabel": { "message": "Cookie-Banner automatisch ablehnen" },
+  "optionsConsentRejectToggleLabel": {
+    "message": "Cookie-Banner automatisch ablehnen"
+  },
   "optionsConsentRejectToggleHint": {
     "message": "Klickt bei den wichtigsten Einwilligungsbannern automatisch auf Ablehnen. (Standardmäßig aus)"
   },
-  "optionsCnameToggleLabel": { "message": "Getarnte Tracker aufspüren" },
+  "optionsCnameToggleLabel": {
+    "message": "Getarnte Tracker aufspüren"
+  },
   "optionsCnameToggleHint": {
     "message": "Manche Tracker tarnen sich als Teil der Website, die du besuchst. Das erkennt und blockiert sie trotzdem. (Standardmäßig aus)"
   },
-  "optionsCnameUnsupportedHint": { "message": "In diesem Browser nicht verfügbar." },
+  "optionsCnameUnsupportedHint": {
+    "message": "In diesem Browser nicht verfügbar."
+  },
   "optionsCnameChromeDohHint": {
     "message": "Unter Chrome prüft dies getarnte Tracker über Cloudflares öffentlichen Abfragedienst und übersieht möglicherweise den allerersten gefundenen -- alle danach werden erkannt. Firefox macht das selbst, privater, und erkennt sie alle von Anfang an."
   },
-  "optionsFilterUpdatesCategory": { "message": "Filter-Updates" },
-  "optionsLiveListTitle": { "message": "Tägliches Update der Pop-up-Sperrliste" },
-  "optionsLiveListHint": { "message": "Hält die Liste bekannter Pop-up- und Weiterleitungsseiten einmal täglich aktuell." },
-  "optionsLiveStatusNotChecked": { "message": "Noch nicht geprüft." },
-  "optionsExceptionsTitle": { "message": "Pausierte Websites" },
-  "optionsExceptionsHint": { "message": "Der Schutz ist auf diesen Websites und allen Seiten darunter vollständig deaktiviert." },
-  "optionsNoSitesAdded": { "message": "Keine Websites hinzugefügt." },
-  "commonAdd": { "message": "Hinzufügen" },
-  "commonHostnamePlaceholder": { "message": "beispiel.de" },
-
+  "optionsFilterUpdatesCategory": {
+    "message": "Filter-Updates"
+  },
+  "optionsLiveListTitle": {
+    "message": "Tägliches Update der Pop-up-Sperrliste"
+  },
+  "optionsLiveListHint": {
+    "message": "Hält die Liste bekannter Pop-up- und Weiterleitungsseiten einmal täglich aktuell."
+  },
+  "optionsLiveStatusNotChecked": {
+    "message": "Noch nicht geprüft."
+  },
+  "optionsExceptionsTitle": {
+    "message": "Pausierte Websites"
+  },
+  "optionsExceptionsHint": {
+    "message": "Der Schutz ist auf diesen Websites und allen Seiten darunter vollständig deaktiviert."
+  },
+  "optionsNoSitesAdded": {
+    "message": "Keine Websites hinzugefügt."
+  },
+  "commonAdd": {
+    "message": "Hinzufügen"
+  },
+  "commonHostnamePlaceholder": {
+    "message": "beispiel.de"
+  },
   "optionsFilterBudgetWarning": {
     "message": "Einige Filterlisten von Moat konnten nicht aktiviert werden. Browser begrenzen, wie viele Blockierregeln Erweiterungen insgesamt nutzen dürfen, und dieses Limit wird leicht erreicht, wenn ein weiterer Werbeblocker oder eine Datenschutz-Erweiterung parallel läuft. Versuche, eine davon zu deaktivieren, oder schalte unten eine Liste aus."
   },
   "optionsFilterBudgetDetail": {
     "message": "Dein Browser meldet $COUNT$ verbleibende Regelplätze für alle deine Erweiterungen zusammen. Immer noch niedrig, nachdem du andere Erweiterungen deaktiviert und Moat neu geladen hast? Schalte unten eine Liste aus -- zuerst Störungen oder Cookie-Hinweise.",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "optionsFilterBudgetDropped": {
     "message": "Vorerst deaktiviert, um innerhalb des Regellimits deines Browsers zu bleiben: $NAMES$.",
-    "placeholders": { "names": { "content": "$1" } }
+    "placeholders": {
+      "names": {
+        "content": "$1"
+      }
+    }
   },
-  "optionsFilterBudgetDroppedBadge": { "message": "Nicht aktiv (Browserlimit erreicht)" },
-  "optionsFilteringLevelTitle": { "message": "Filterstufe" },
-  "presetOff": { "message": "Aus" },
-  "presetLite": { "message": "Leicht" },
-  "presetEssential": { "message": "Grundlegend" },
-  "presetStandard": { "message": "Standard" },
-  "presetStrict": { "message": "Streng" },
-  "optionsIndividualListsTitle": { "message": "Einzelne Filterlisten" },
+  "optionsFilterBudgetDroppedBadge": {
+    "message": "Nicht aktiv (Browserlimit erreicht)"
+  },
+  "optionsFilteringLevelTitle": {
+    "message": "Filterstufe"
+  },
+  "presetOff": {
+    "message": "Aus"
+  },
+  "presetLite": {
+    "message": "Leicht"
+  },
+  "presetEssential": {
+    "message": "Grundlegend"
+  },
+  "presetStandard": {
+    "message": "Standard"
+  },
+  "presetStrict": {
+    "message": "Streng"
+  },
+  "optionsIndividualListsTitle": {
+    "message": "Einzelne Filterlisten"
+  },
   "optionsIndividualListsHint": {
     "message": "Schalte jede Liste selbst ein oder aus. Jede Änderung setzt deine Filterstufe auf Benutzerdefiniert."
   },
-  "optionsLoadListsError": { "message": "Filterlisten konnten nicht geladen werden." },
-
-  "optionsBlockedSitesTitle": { "message": "Blockierte Websites" },
-  "optionsBlockedSitesHint": { "message": "Blockiert diese Domains immer, unabhängig von den Filterlisten." },
-  "commonBlock": { "message": "Blockieren" },
-  "optionsAllowedSitesTitle": { "message": "Erlaubte Websites" },
-  "optionsAllowedSitesHint": { "message": "Blockiert diese Domains nie, auch wenn eine aktive Filterliste dies vorsieht." },
-  "commonAllow": { "message": "Erlauben" },
-  "optionsCosmeticCategory": { "message": "Element-Auswahl" },
-  "optionsHiddenElementsTitle": { "message": "Ausgeblendete Elemente" },
+  "optionsLoadListsError": {
+    "message": "Filterlisten konnten nicht geladen werden."
+  },
+  "optionsBlockedSitesTitle": {
+    "message": "Blockierte Websites"
+  },
+  "optionsBlockedSitesHint": {
+    "message": "Blockiert diese Domains immer, unabhängig von den Filterlisten."
+  },
+  "commonBlock": {
+    "message": "Blockieren"
+  },
+  "optionsAllowedSitesTitle": {
+    "message": "Erlaubte Websites"
+  },
+  "optionsAllowedSitesHint": {
+    "message": "Blockiert diese Domains nie, auch wenn eine aktive Filterliste dies vorsieht."
+  },
+  "commonAllow": {
+    "message": "Erlauben"
+  },
+  "optionsCosmeticCategory": {
+    "message": "Element-Auswahl"
+  },
+  "optionsHiddenElementsTitle": {
+    "message": "Ausgeblendete Elemente"
+  },
   "optionsHiddenElementsHint": {
     "message": "Elemente, die du mit dem Werkzeug \"Element blockieren\" in der Symbolleiste entfernt hast. Entferne sie hier, um sie wiederherzustellen."
   },
-  "optionsNothingSelected": { "message": "Noch nichts ausgewählt." },
-  "optionsDimmedElementsTitle": { "message": "Abgedunkelte Elemente" },
+  "optionsNothingSelected": {
+    "message": "Noch nichts ausgewählt."
+  },
+  "optionsDimmedElementsTitle": {
+    "message": "Abgedunkelte Elemente"
+  },
   "optionsDimmedElementsHint": {
     "message": "Elemente, die du zum \"Abdunkeln\" ausgewählt hast. Entferne sie hier, um die normale Sichtbarkeit wiederherzustellen."
   },
-
-  "optionsTrackersHeading": { "message": "Tracker im aktuellen Tab" },
-  "optionsTrackersRefresh": { "message": "Aktualisieren" },
+  "optionsTrackersHeading": {
+    "message": "Tracker im aktuellen Tab"
+  },
+  "optionsTrackersRefresh": {
+    "message": "Aktualisieren"
+  },
   "optionsTrackersSeenOn": {
     "message": "Auf $HOST$ blockierte Unternehmen.",
-    "placeholders": { "host": { "content": "$1" } }
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
   },
   "optionsTrackersCount": {
     "message": "$COUNT$ blockiert",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "optionsTrackersEmpty": {
     "message": "Im zuletzt geöffneten Tab wurden keine Tracker gefunden."
@@ -141,101 +304,345 @@
   "optionsTrackersUnsupported": {
     "message": "Diese detaillierte Tracker-Liste funktioniert vorerst nur in Chrome -- Firefox unterstützt sie noch nicht."
   },
-
-  "optionsAboutHeading": { "message": "Über Moat" },
-  "optionsPrivacyHeading": { "message": "Datenschutz" },
+  "optionsAboutHeading": {
+    "message": "Über Moat"
+  },
+  "optionsPrivacyHeading": {
+    "message": "Datenschutz"
+  },
   "optionsPrivacyIntro": {
     "message": "Alles hier bleibt auf deinem Gerät -- nichts wird an den Entwickler von Moat gesendet. Nur zwei optionale Funktionen (Prüfung auf geleakte Passwörter und Einstellungssynchronisierung) kommunizieren überhaupt mit jemand anderem; Details in der Datenschutzerklärung."
   },
-  "optionsVersionHeading": { "message": "Versionsdetails" },
-  "optionsDebuggingHeading": { "message": "Fehlersuche" },
-  "optionsBackupHeading": { "message": "Sicherung & Wiederherstellung" },
+  "optionsVersionHeading": {
+    "message": "Versionsdetails"
+  },
+  "optionsDebuggingHeading": {
+    "message": "Fehlersuche"
+  },
+  "optionsBackupHeading": {
+    "message": "Sicherung & Wiederherstellung"
+  },
   "optionsBackupIntro": {
     "message": "Speichere deine Einstellungen in einer Datei oder lade sie später wieder. Deine Fingerprint-Schutz-Kennung wird nie einbezogen und daher nicht übertragen."
   },
-  "optionsPrivacyPolicyLink": { "message": "Vollständige Datenschutzerklärung" },
-  "optionsChangelogLink": { "message": "Änderungsprotokoll" },
-  "optionsSourceCodeLink": { "message": "Quellcode" },
-  "optionsExportButton": { "message": "Einstellungen herunterladen" },
-  "optionsImportButton": { "message": "Einstellungen hochladen…" },
-  "optionsSyncToggleLabel": { "message": "Einstellungen geräteübergreifend synchronisieren" },
+  "optionsPrivacyPolicyLink": {
+    "message": "Vollständige Datenschutzerklärung"
+  },
+  "optionsChangelogLink": {
+    "message": "Änderungsprotokoll"
+  },
+  "optionsSourceCodeLink": {
+    "message": "Quellcode"
+  },
+  "optionsExportButton": {
+    "message": "Einstellungen herunterladen"
+  },
+  "optionsImportButton": {
+    "message": "Einstellungen hochladen…"
+  },
+  "optionsSyncToggleLabel": {
+    "message": "Einstellungen geräteübergreifend synchronisieren"
+  },
   "optionsSyncToggleHint": {
     "message": "Kopiert deine Einstellungen über das eigene Sync-Konto deines Browsers, etwa dein Google- oder Firefox-Konto. Eine neue Installation übernimmt sie einmalig, aber gleichzeitiges Bearbeiten auf zwei Geräten wird nicht zusammengeführt -- eines überschreibt das andere."
   },
   "optionsSyncStatusFailed": {
     "message": "Deine Einstellungen konnten nicht synchronisiert werden ($WHEN$) -- möglicherweise hast du zu viele eigene Regeln oder Websites für den Sync-Speicher deines Browsers. Sie sind weiterhin auf diesem Gerät gespeichert.",
-    "placeholders": { "when": { "content": "$1" } }
+    "placeholders": {
+      "when": {
+        "content": "$1"
+      }
+    }
   },
   "optionsVersionPrefix": {
     "message": "v$VERSION$",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
-
-  "presetHintOff": { "message": "Nichts wird blockiert." },
-  "presetHintLite": { "message": "Eine leichtere Version von Grundlegend -- lässt die größte Sicherheitsliste weg." },
-  "presetHintEssential": { "message": "Nur Werbung, Pop-ups und bekannte bösartige Websites." },
-  "presetHintStandard": { "message": "Die Stufe Standard blockiert Werbung, Tracker und bekannte bösartige Websites." },
-  "presetHintStrict": { "message": "Alles oben Genannte, plus die browserweiten Datenschutzschalter." },
-  "presetHintCustom": { "message": "Eine Kombination, die du selbst zusammengestellt hast." },
-  "categoryAds": { "message": "Werbung & Tracker" },
-  "categorySecurity": { "message": "Sicherheit" },
-  "categoryAnnoyance": { "message": "Störungen" },
-  "categoryCore": { "message": "Grundlage" },
+  "presetHintOff": {
+    "message": "Nichts wird blockiert."
+  },
+  "presetHintLite": {
+    "message": "Eine leichtere Version von Grundlegend -- lässt die größte Sicherheitsliste weg."
+  },
+  "presetHintEssential": {
+    "message": "Nur Werbung, Pop-ups und bekannte bösartige Websites."
+  },
+  "presetHintStandard": {
+    "message": "Die Stufe Standard blockiert Werbung, Tracker und bekannte bösartige Websites."
+  },
+  "presetHintStrict": {
+    "message": "Alles oben Genannte, plus die browserweiten Datenschutzschalter."
+  },
+  "presetHintCustom": {
+    "message": "Eine Kombination, die du selbst zusammengestellt hast."
+  },
+  "categoryAds": {
+    "message": "Werbung & Tracker"
+  },
+  "categorySecurity": {
+    "message": "Sicherheit"
+  },
+  "categoryAnnoyance": {
+    "message": "Störungen"
+  },
+  "categoryCore": {
+    "message": "Grundlage"
+  },
   "optionsLiveStatusOk": {
     "message": "Zuletzt aktualisiert $WHEN$ — $COUNT$ Domains.",
-    "placeholders": { "when": { "content": "$1" }, "count": { "content": "$2" } }
+    "placeholders": {
+      "when": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
   },
   "optionsLiveStatusFailed": {
     "message": "Letzter Versuch fehlgeschlagen ($WHEN$) -- bis zum nächsten Versuch wird weiterhin die integrierte Liste verwendet.",
-    "placeholders": { "when": { "content": "$1" } }
+    "placeholders": {
+      "when": {
+        "content": "$1"
+      }
+    }
   },
   "optionsLiveStatusQuickFixes": {
     "message": " $COUNT$ zusätzliche Korrektur(en) angewendet.",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "optionsLiveStatusCosmeticFixes": {
     "message": " $COUNT$ Layout-Korrektur(en) angewendet.",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "optionsLiveStatusYoutubeFixes": {
     "message": " $COUNT$ YouTube-Korrektur(en) angewendet.",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "optionsRuleCount": {
     "message": "$COUNT$ Regeln",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
-  "optionsHostnameSelectorSeparator": { "message": " — " },
-  "commonResume": { "message": "Fortsetzen" },
-  "commonRemove": { "message": "Entfernen" },
-  "optionsImportedSuccess": { "message": "Einstellungen importiert." },
-  "optionsImportedInvalid": { "message": "Diese Datei scheint kein gültiger Moat-Einstellungsexport zu sein." },
-  "optionsImportReadError": { "message": "Diese Datei konnte nicht gelesen werden." },
-
-  "leakedPasswordWarning": { "message": "Dieses Passwort ist in bekannten Datenlecks aufgetaucht." },
-  "optionsLeakedPasswordToggleLabel": { "message": "Passwörter mit bekannten Datenlecks abgleichen" },
+  "optionsHostnameSelectorSeparator": {
+    "message": " — "
+  },
+  "commonResume": {
+    "message": "Fortsetzen"
+  },
+  "commonRemove": {
+    "message": "Entfernen"
+  },
+  "optionsImportedSuccess": {
+    "message": "Einstellungen importiert."
+  },
+  "optionsImportedInvalid": {
+    "message": "Diese Datei scheint kein gültiger Moat-Einstellungsexport zu sein."
+  },
+  "optionsImportReadError": {
+    "message": "Diese Datei konnte nicht gelesen werden."
+  },
+  "leakedPasswordWarning": {
+    "message": "Dieses Passwort ist in bekannten Datenlecks aufgetaucht."
+  },
+  "optionsLeakedPasswordToggleLabel": {
+    "message": "Passwörter mit bekannten Datenlecks abgleichen"
+  },
   "optionsLeakedPasswordToggleHint": {
     "message": "Warnt, wenn ein eingegebenes Passwort in einem bekannten Datenleck aufgetaucht ist. Nur ein teilweiser Hash verlässt jemals dein Gerät. (Standardmäßig aus)"
   },
-
-  "popupPermissionGuardIntro": { "message": "Moats Berechtigungswächter blockiert Anfragen auf dieser Seite:" },
-  "popupAllowCameraHere": { "message": "Kamera hier erlauben" },
-  "popupAllowMicrophoneHere": { "message": "Mikrofon hier erlauben" },
-  "popupAllowLocationHere": { "message": "Standort hier erlauben" },
-  "optionsPermissionGuardCameraToggleLabel": { "message": "Kamera-Überraschungsanfragen blockieren" },
+  "popupPermissionGuardIntro": {
+    "message": "Moats Berechtigungswächter blockiert Anfragen auf dieser Seite:"
+  },
+  "popupAllowCameraHere": {
+    "message": "Kamera hier erlauben"
+  },
+  "popupAllowMicrophoneHere": {
+    "message": "Mikrofon hier erlauben"
+  },
+  "popupAllowLocationHere": {
+    "message": "Standort hier erlauben"
+  },
+  "optionsPermissionGuardCameraToggleLabel": {
+    "message": "Kamera-Überraschungsanfragen blockieren"
+  },
   "optionsPermissionGuardCameraToggleHint": {
     "message": "Setzt die Kameraanfrage jeder Seite standardmäßig auf blockiert, damit eine Seite dich beim Laden nicht damit überraschen kann. Erlaube eine bestimmte Seite über das Popup, wenn du ihr vertraust."
   },
-  "optionsPermissionGuardMicrophoneToggleLabel": { "message": "Mikrofon-Überraschungsanfragen blockieren" },
+  "optionsPermissionGuardMicrophoneToggleLabel": {
+    "message": "Mikrofon-Überraschungsanfragen blockieren"
+  },
   "optionsPermissionGuardMicrophoneToggleHint": {
     "message": "Setzt die Mikrofonanfrage jeder Seite standardmäßig auf blockiert. Erlaube eine bestimmte Seite über das Popup, wenn du ihr vertraust."
   },
-  "optionsPermissionGuardLocationToggleLabel": { "message": "Standort-Überraschungsanfragen blockieren" },
+  "optionsPermissionGuardLocationToggleLabel": {
+    "message": "Standort-Überraschungsanfragen blockieren"
+  },
   "optionsPermissionGuardLocationToggleHint": {
     "message": "Setzt die Standortanfrage jeder Seite standardmäßig auf blockiert. Erlaube eine bestimmte Seite über das Popup, wenn du ihr vertraust."
   },
-  "optionsSearchSlopToggleLabel": { "message": "Minderwertige Suchergebnisse ausblenden" },
+  "optionsSearchSlopToggleLabel": {
+    "message": "Minderwertige Suchergebnisse ausblenden"
+  },
   "optionsSearchSlopToggleHint": {
     "message": "Blendet Suchergebnisse aus, die zu einer kleinen, handkuratierten Liste von Content-Farm-Domains passen. Jede ausgeblendete Gruppe bleibt einen Klick entfernt hinter einem \"Anzeigen\"-Link. Standardmäßig deaktiviert, da diese Liste auf eine Art danebenliegen kann, die eine feste Werbenetzwerk-Liste nicht kann."
+  },
+  "optionsProtectionTitle": {
+    "message": "Schutz"
+  },
+  "optionsProtectionDesc": {
+    "message": "Was Moat blockiert und was nicht. Das läuft alles auf deinem Gerät."
+  },
+  "optionsBlockedTodayBaseline": {
+    "message": "heute blockiert"
+  },
+  "optionsBlockedTodayComparison": {
+    "message": " · gegenüber $COUNT$ am selben Tag letzte Woche",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsSparklineCaption": {
+    "message": "letzte 7 Tage"
+  },
+  "optionsSitesTodayLabel": {
+    "message": "Websites heute"
+  },
+  "optionsProtectionsOnLabel": {
+    "message": "aktive Schutzfunktionen"
+  },
+  "optionsDrawerBarsCaption": {
+    "message": "Mo — So"
+  },
+  "optionsGroupOnCount": {
+    "message": "$COUNT$ von $TOTAL$ aktiv",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "optionsPrivacyCategory": {
+    "message": "Privatsphäre"
+  },
+  "optionsAnnoyancesCategory": {
+    "message": "Störfaktoren"
+  },
+  "optionsSafetyCategory": {
+    "message": "Sicherheit"
+  },
+  "optionsFingerprintDrawerDesc": {
+    "message": "Verändert zufällig Geräte-Details, an denen dich Websites über mehrere Besuche hinweg wiedererkennen."
+  },
+  "optionsFingerprintCaution": {
+    "message": "Kann gelegentlich ein CAPTCHA oder die Geräteprüfung einer Bank stören. Wenn eine Website Probleme macht, schalte das zuerst aus."
+  },
+  "optionsCnameDrawerDesc": {
+    "message": "Manche Tracker tarnen sich als Teil der Website, die du besuchst."
+  },
+  "optionsSearchSlopDrawerDesc": {
+    "message": "Blendet Suchergebnisse aus, die auf einer kleinen, kuratierten Liste von Content-Farm-Domains stehen."
+  },
+  "optionsSearchSlopCaution": {
+    "message": "Jeder ausgeblendete Stapel bleibt einen Klick entfernt hinter einem „Anzeigen“-Link. Standardmäßig aus, da diese Liste auf eine Weise danebenliegen kann, wie es eine feste Werbenetzwerk-Liste nicht tut."
+  },
+  "optionsLeakedPasswordDrawerDesc": {
+    "message": "Warnt dich, wenn ein eingegebenes Passwort in einem bekannten Datenleck aufgetaucht ist."
+  },
+  "optionsLeakedPasswordCaution": {
+    "message": "Nur ein kurzer Teil des Hashwerts verlässt dein Gerät."
+  },
+  "optionsPermissionGuardMergedLabel": {
+    "message": "Überraschende Berechtigungsanfragen blockieren"
+  },
+  "optionsPermissionGuardMergedDesc": {
+    "message": "Blockiert standardmäßig Kamera-, Mikrofon- und Standortanfragen jeder Website, damit dich eine Seite beim Laden nicht überrascht. Erlaube eine bestimmte Website über das Popup, wenn du ihr vertraust."
+  },
+  "optionsChipCameraLabel": {
+    "message": "Kamera"
+  },
+  "optionsChipMicrophoneLabel": {
+    "message": "Mikrofon"
+  },
+  "optionsChipLocationLabel": {
+    "message": "Standort"
+  },
+  "optionsFingerprintMetricLabel": {
+    "message": "randomisierte Websites diese Woche"
+  },
+  "optionsCnameMetricLabel": {
+    "message": "geschützte Websites diese Woche"
+  },
+  "optionsGrayscaleMetricLabel": {
+    "message": "abgedunkelte Anzeigen heute"
+  },
+  "optionsFeedScanMetricLabel": {
+    "message": "ausgeblendete Beiträge diese Woche"
+  },
+  "optionsConsentRejectMetricLabel": {
+    "message": "abgelehnte Banner diese Woche"
+  },
+  "optionsLeakedPasswordMetricLabel": {
+    "message": "geprüfte Passwörter diese Woche"
+  },
+  "optionsSearchSlopMetricLabel": {
+    "message": "ausgeblendete Ergebnisse diese Woche"
+  },
+  "optionsProtectionEvidenceToday": {
+    "message": "$COUNT$ Websites heute",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsProtectionEvidenceWeek": {
+    "message": "$COUNT$ Websites diese Woche",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsGrayscaleEvidenceToday": {
+    "message": "$COUNT$ abgedunkelte Anzeigen heute",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsDrawerStateOn": {
+    "message": "An"
+  },
+  "optionsDrawerStateOff": {
+    "message": "Aus"
+  },
+  "optionsDrawerStateAdvanced": {
+    "message": "erweitert"
   }
 }
