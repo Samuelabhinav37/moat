@@ -29,21 +29,28 @@ const trackerDb = existsSync(trackerDbPath) ? JSON.parse(readFileSync(trackerDbP
 // AdGuard filter IDs. See https://filters.adtidy.org/extension/chromium-mv3/filters.json
 // `category` groups these for the Filter Lists settings tab: "ads" (ads/trackers/redirects),
 // "security" (known-malicious domains, not just ads), "annoyance" (widgets/banners/notices).
+// `name` is what the Filter Lists settings tab actually displays -- kept as
+// a plain functional description (what the list blocks), not the upstream
+// list's own brand/product name, even though `id` below is AdGuard's filter
+// id and used to fetch their compiled data. Attribution to AdGuard/uBlock
+// Origin/EasyList still lives in full in README.md's "Licensing note" (a
+// GPL-3.0 term, not optional) and in this file's own header comment -- this
+// is just what a user sees in the product itself.
 const RULESETS = [
   // Ads / redirects
-  { id: 2, slug: "ads", name: "AdGuard Base filter", category: "ads", enabled: true },
-  { id: 3, slug: "trackers", name: "AdGuard Tracking Protection filter", category: "ads", enabled: true },
-  { id: 17, slug: "url-tracking", name: "AdGuard URL Tracking filter", category: "ads", enabled: true },
-  { id: 19, slug: "popups", name: "AdGuard Popups filter", category: "ads", enabled: true },
+  { id: 2, slug: "ads", name: "Ads filter", category: "ads", enabled: true },
+  { id: 3, slug: "trackers", name: "Tracking protection filter", category: "ads", enabled: true },
+  { id: 17, slug: "url-tracking", name: "URL-tracking filter", category: "ads", enabled: true },
+  { id: 19, slug: "popups", name: "Popup filter", category: "ads", enabled: true },
   // Security -- known-malicious domains, not just ads.
   { id: 208, slug: "malicious-urls", name: "Online Malicious URL Blocklist", category: "security", enabled: true },
   { id: 255, slug: "phishing-urls", name: "Phishing URL Blocklist", category: "security", enabled: true },
   { id: 256, slug: "scam", name: "Scam Blocklist", category: "security", enabled: true },
-  { id: 257, slug: "badware", name: "uBlock Origin - Badware risks", category: "security", enabled: true },
+  { id: 257, slug: "badware", name: "Malware & badware filter", category: "security", enabled: true },
   // Additional privacy / annoyance coverage.
-  { id: 4, slug: "social-widgets", name: "AdGuard Social Media filter", category: "annoyance", enabled: true },
-  { id: 18, slug: "cookie-notices", name: "AdGuard Cookie Notices filter", category: "annoyance", enabled: true },
-  { id: 21, slug: "annoyances", name: "AdGuard Other Annoyances filter", category: "annoyance", enabled: true },
+  { id: 4, slug: "social-widgets", name: "Social-media widgets filter", category: "annoyance", enabled: true },
+  { id: 18, slug: "cookie-notices", name: "Cookie-notice filter", category: "annoyance", enabled: true },
+  { id: 21, slug: "annoyances", name: "Other annoyances filter", category: "annoyance", enabled: true },
 ];
 
 if (!existsSync(sourceDir)) {

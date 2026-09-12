@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.85
+
+### Changed
+- **Removed competitor/third-party brand names from what the product itself shows.**
+  The Filter Lists tab was literally displaying upstream list names like "AdGuard Base
+  filter" and "uBlock Origin - Badware risks" -- renamed to plain functional
+  descriptions ("Ads filter", "Malware & badware filter", etc.) in
+  `scripts/update-filters.mjs`; rule counts and coverage are unchanged, only the
+  display name. The About tab's "Breach checking" blurb named Have I Been Pwned
+  directly -- reworded to "a breach-checking service," with a pointer to the full
+  privacy policy for anyone who wants the exact name.
+
+  This is a product-surface change only. Required legal attribution (AdGuard/EasyList
+  and uBlock Origin's GPL-3.0 terms, Ghostery TrackerDB's CC-BY-NC-SA-4.0, Consent-O-
+  Matic's and NextDNS's MIT terms) is untouched in `README.md`'s Licensing note,
+  `LICENSE`, and the source comments documenting where ported code and vendored data
+  actually came from -- removing those would be a license violation, not a rebrand.
+  `PRIVACY.md`'s disclosure of exactly which third party a password hash prefix goes
+  to is also untouched, since naming the actual recipient there is the point of a
+  privacy policy, not incidental credit.
+
 ## 0.11.84
 
 ### Fixed
