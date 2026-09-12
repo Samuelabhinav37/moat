@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.87
+
+### Changed
+- **"Other annoyances filter" didn't say what it actually blocks.** Renamed to
+  "Promo banners & anti-copy scripts filter" in the Filter Lists tab, matching the
+  list's own upstream description (promotional offers and restrictions on copying/
+  text selection, verified against `filters.adtidy.org`'s own filter metadata).
+  Same rule count, same coverage; only the display name changed.
+- **Rewrote README.md for readability.** It had 38 em dashes across ~160 lines,
+  nearly every bullet following the same "**Title** — description" template.
+  Rewrote using varied, plainer punctuation (periods, colons, parentheses) and
+  restructured the repeated bullet pattern -- no factual or content changes,
+  same permissions table, same feature list, same links.
+
 ## 0.11.86
 
 ### Fixed

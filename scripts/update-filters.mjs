@@ -50,7 +50,13 @@ const RULESETS = [
   // Additional privacy / annoyance coverage.
   { id: 4, slug: "social-widgets", name: "Social-media widgets filter", category: "annoyance", enabled: true },
   { id: 18, slug: "cookie-notices", name: "Cookie-notice filter", category: "annoyance", enabled: true },
-  { id: 21, slug: "annoyances", name: "Other annoyances filter", category: "annoyance", enabled: true },
+  // Upstream's own description (filters.adtidy.org/extension/chromium-mv3/filters.json,
+  // filter 21): "Blocks irritating elements that do not fall under popular
+  // categories of annoyances, such as website promotional offers and
+  // restrictions on copying and text selection." "Other annoyances" alone
+  // doesn't say what that actually covers -- naming the two concrete things
+  // it blocks in the Filter Lists tab does.
+  { id: 21, slug: "annoyances", name: "Promo banners & anti-copy scripts filter", category: "annoyance", enabled: true },
 ];
 
 if (!existsSync(sourceDir)) {
