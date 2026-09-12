@@ -10,6 +10,25 @@
         margin: 32px auto;
         padding: 0 20px 48px;
       }
+      .title-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .title-row h1 {
+        margin: 0;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 2px 9px;
+        white-space: nowrap;
+      }
       p.lede {
         color: var(--muted);
         font-size: 12.5px;
@@ -25,51 +44,89 @@
         font-size: 12.5px;
         color: var(--muted);
       }
+      .toolbar .match-summary {
+        margin-left: auto;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+        color: var(--muted);
+      }
       #unsupported,
       #empty {
         color: var(--muted);
         font-size: 13px;
       }
-      table {
-        width: 100%;
-        border-collapse: collapse;
+      .grid {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
         font-size: 12px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
       }
-      th,
-      td {
-        text-align: left;
-        padding: 6px 8px;
-        border-bottom: 1px solid var(--border);
+      .grid-row {
+        display: grid;
+        grid-template-columns: 72px 128px 62px 74px minmax(0, 1fr);
+      }
+      .grid-header {
+        background: var(--card);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--muted);
+      }
+      .grid-cell {
+        padding: 7px 10px;
+        border-top: 1px solid var(--hairline);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 0;
+        min-width: 0;
       }
-      td.url {
-        max-width: 420px;
+      .grid-header .grid-cell {
+        border-top: none;
       }
-      th {
+      .grid-cell.rule-id {
+        text-align: right;
         color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .ruleset-chip {
+        display: inline-block;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 11px;
         font-weight: 600;
-        font-size: 10.5px;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
+        background: var(--border);
+        border-radius: 5px;
+        padding: 2px 7px;
+      }
+      .ruleset-chip.live {
+        background: var(--on);
+        color: var(--on-fg);
+      }
+      .footer-note {
+        margin-top: 10px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+        color: var(--muted);
       }
     </style>
   </head>
   <body>
-    <h1>Rule-match logger</h1>
+    <div class="title-row">
+      <h1>Rule-match logger</h1>
+      <span class="pill">Unpacked builds only</span>
+    </div>
     <p class="lede">
-      Diagnostic tool, not a general feature: shows which of Moat's compiled rules matched each
-      request on the active tab, sourced from
-      <code>declarativeNetRequest.onRuleMatchedDebug</code>. Chrome only fires that event for
-      extensions loaded unpacked (developer mode) — it will never populate on a Web Store install,
-      and Firefox doesn't implement it at all.
+      Shows which of Moat's compiled rules matched each request on the active tab. Chrome
+      only fires this event for extensions loaded in developer mode — it will never populate
+      on a store install, and Firefox doesn't implement it.
     </p>
 
     <div class="toolbar">
       <button id="refresh" class="primary">Refresh</button>
       <span class="host" id="host"></span>
+      <span class="match-summary" id="match-summary" hidden></span>
     </div>
 
     <p id="unsupported" hidden>
@@ -78,18 +135,20 @@
     </p>
     <p id="empty" hidden>No matches recorded yet for this tab. Reload the page and refresh.</p>
 
-    <table id="table" hidden>
-      <thead>
-        <tr>
-          <th>Time</th>
-          <th>Ruleset</th>
-          <th>Rule</th>
-          <th>Type</th>
-          <th class="url">URL</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
+    <div class="grid" id="table" hidden>
+      <div class="grid-row grid-header">
+        <span class="grid-cell">Time</span>
+        <span class="grid-cell">Ruleset</span>
+        <span class="grid-cell rule-id">Rule</span>
+        <span class="grid-cell">Type</span>
+        <span class="grid-cell">URL</span>
+      </div>
+      <div id="rows"></div>
+    </div>
+    <p class="footer-note" id="footer-note" hidden>
+      Rule ids are grouped by ruleset, not global. A live tag means the rule came from the
+      daily update, not the bundle.
+    </p>
 
     <script src="logger.js"></script>
   </body>

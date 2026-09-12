@@ -16,6 +16,17 @@
   --danger: #fa6d6d;
   --danger-fg: #2c2c2f;
   --border: #37343b;
+  /* Row separator inside a borderless list -- sits between --bg and --border
+     so it reads as a rule, not an edge. */
+  --hairline: #2b282f;
+  /* Amber: "worth knowing" warnings, stale rules, heavy-page badges.
+     Distinct from --danger, which means blocked -- red here would say
+     "this might break something" when it should say "this is refused". */
+  --caution: #e0b16f;
+  /* Border of a selected list row / keycap outline. */
+  --selected: #4a4550;
+  /* Extension-icon background plate -- see icons/logo.svg. */
+  --plate: #030307;
 }
 
 * {

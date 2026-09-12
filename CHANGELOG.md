@@ -3,6 +3,35 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.76
+
+### Changed
+- **Polish pass on the warning page and rule-match logger** (part of the surface-redesign
+  handoff). Warning page (`src/warning/warning.html`): the card's border is now the ordinary
+  `--border` instead of `--danger` — a red outline around the whole page read as "something
+  crashed" rather than "policy decision," so red is now confined to the badge. The hostname
+  moved out of the `<h1>` into its own bordered, monospaced field, so a long domain can't
+  wrap the headline into nonsense. "Go back" is now the solid light button
+  (`background:--fg`); "Report a mistake" (renamed from "Report mistake") stays outlined —
+  the previous green "Go back" read as "this site is fine, proceed." The report form drops
+  the redundant "if they agree, they can update the policy" sentence and gains a "Goes to
+  your IT team, not to Moat." caption beside Submit. Rule-match logger
+  (`src/logger/logger.html`/`.ts`): gains an "Unpacked builds only" pill next to the title
+  (the developer-mode constraint is now visible before reading, not a paragraph after), a
+  real `N matches · last Ns` summary computed from the actual span the current ring buffer
+  covers (not a hardcoded figure), a ruleset column rendered as a chip, and an `--on`-filled
+  "live" chip for rules whose id falls in `liveRedirectRules.ts`'s reserved dynamic-rule
+  range (distinguishing the daily-update channel from the bundled rulesets). The table is
+  now a CSS grid with the spec's fixed column widths instead of an auto-layout `<table>`,
+  with the URL column taking the remaining space and keeping its ellipsis. Both pages are
+  English-only static markup already (not wired through the i18n system) — no locale changes
+  needed.
+- **Added four new `theme.css` tokens** for the surface-redesign handoff: `--hairline`
+  (row separator inside a borderless list), `--caution` (amber, for "worth knowing"
+  warnings — kept distinct from `--danger`, which means "blocked"), `--selected` (border
+  of a selected list row), and `--plate` (extension-icon background plate). No visual
+  change on their own; consumed starting with this release's warning/logger pass.
+
 ## 0.11.75
 
 ### Fixed

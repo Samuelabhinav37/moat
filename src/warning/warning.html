@@ -14,9 +14,9 @@
         padding: 24px;
       }
       .card {
-        max-width: 480px;
+        max-width: 440px;
         width: 100%;
-        border: 1px solid var(--danger);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 28px;
         background: var(--card);
@@ -31,24 +31,37 @@
         letter-spacing: 0.04em;
         padding: 3px 8px;
         border-radius: 6px;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
       }
       h1 {
         font-size: 18px;
-        margin: 0 0 6px;
+        margin: 0 0 10px;
       }
       #hostname {
+        display: block;
         font-family: ui-monospace, monospace;
+        font-size: 15px;
+        color: var(--fg);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 11px;
         word-break: break-all;
       }
       p.lede {
         color: var(--muted);
         font-size: 12.5px;
-        margin: 10px 0 22px;
+        margin: 14px 0 22px;
       }
       .actions {
         display: flex;
         gap: 10px;
+      }
+      .actions #go-back {
+        background: var(--fg);
+        color: var(--bg);
+        border-color: var(--fg);
+        font-weight: 600;
       }
       #override-form {
         margin-top: 18px;
@@ -67,6 +80,14 @@
         padding: 8px 10px;
         margin-bottom: 10px;
       }
+      .submit-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .submit-row .muted {
+        font-size: 12px;
+      }
       #override-status {
         font-size: 12.5px;
         color: var(--muted);
@@ -77,24 +98,28 @@
   <body>
     <div class="card">
       <span class="badge">Blocked by organization policy</span>
-      <h1>This site was blocked: <span id="hostname">—</span></h1>
+      <h1>This site was blocked</h1>
+      <span id="hostname">—</span>
       <p class="lede">
-        Your organization's security policy, distributed through Athena, blocks this site. This
-        isn't Moat's own bundled filter list — it's a domain your organization specifically named.
+        Your organization's security policy blocks this site. This isn't Moat's own filter
+        list — it's a domain your organization specifically named.
       </p>
 
       <div class="actions">
-        <button id="go-back" class="primary">Go back</button>
-        <button id="show-override">Report mistake</button>
+        <button id="go-back">Go back</button>
+        <button id="show-override">Report a mistake</button>
       </div>
 
       <div id="override-form" hidden>
         <p class="muted">
-          This sends a note to your organization's security team for review — it does not unblock
-          the site. If they agree, they can update the policy for everyone.
+          This sends a note to your organization's security team for review — it does not
+          unblock the site.
         </p>
         <textarea id="reason" maxlength="500" placeholder="Why do you think this was blocked in error?"></textarea>
-        <button id="submit-override" class="primary">Submit</button>
+        <div class="submit-row">
+          <button id="submit-override" class="primary">Submit</button>
+          <span class="muted">Goes to your IT team, not to Moat.</span>
+        </div>
         <p id="override-status" hidden></p>
       </div>
     </div>
