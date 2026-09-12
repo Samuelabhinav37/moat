@@ -41,19 +41,25 @@ build time) so gets a lighter pass below.
 
 ### `src/content/cosmeticSelectors.ts` -- runs once per page load
 
-- `shardIndicesForHostname`/`genericSelectorsForHostname`/`domainSelectorsForHostname`: all
-  O(chain-depth × selectors-per-domain) or a single O(G) filter pass over the generic set
-  (G ≈ 17,000 selectors currently). A plain linear scan over a flat array with `Set` lookups for
-  exceptions -- no quadratic behavior, no repeated re-scans.
-- `selectorsStillMatching` (the document_idle "prune what matched nothing" pass): O(G) calls to
-  `doc.querySelector`, each of which is not O(1) -- selector matching against a large/complex DOM
-  can cost real time per call. This is the one place in the content-script path whose real-world
-  cost scales with page complexity, not just G. **Already identified and explicitly documented in
-  the code itself** (`cosmeticFilter.ts`'s own comment names the jank risk and the
-  `requestIdleCallback`/batching mitigation if it's ever reported as real jank) -- not a new
-  finding, confirmed correct via the Big-O reasoning here, and confirmed to be running once per
-  page load (via a one-time `window.addEventListener("load", ..., { once: true })`), not on every
-  DOM mutation.
+> **Corrected 2026-09-12.** This section originally described a page-thread
+> "inject all ~17,000 generics, then prune what matched nothing after `load`"
+> pipeline. That pipeline shipped in v0.11.63/64 and no longer exists — see
+> `docs/research/README.md` for why this is a correction, not a silent rewrite.
+> There is no `selectorsStillMatching` prune pass anymore because nothing is
+> over-injected in the first place. Corrected complexity below.
+
+- `shardIndicesForHostname`/`domainSelectorsForHostname`/`genericSelectorsForHostname`: all
+  O(chain-depth) domain-chain walks with `Set`/`Map` lookups for exceptions and per-domain
+  shards -- no quadratic behavior, no full scan of the generic set.
+- `genericSelectorsForTokens` (`cosmeticIndex.ts`'s `cosmeticGenericsFor`, called from
+  `background/index.ts`'s `get-cosmetic-generics` handler as the DOM surveyor in
+  `content/cosmeticSurveyor.ts` finds new class/id tokens): O(T) hash-map lookups into
+  `genericByHash` for T new tokens per batch, T bounded by what a debounced (250ms)
+  `MutationObserver` actually finds, itself capped at 100,000 surveyed nodes / 8 quiet
+  flushes. Runs in the **service worker**, not the page thread; the page thread's own cost is
+  just the surveyor's DOM walk plus a message round-trip. The always-on `genericHigh` slice
+  (currently 1,069 of 16,089 selectors -- see `scripts/update-cosmetics.mjs`'s own build-time
+  percentage log) is injected unconditionally via `scripting.insertCSS`, also worker-side.
 
 ### `src/content/fingerprintNoise.ts` -- runs per canvas/audio read, opt-in feature
 

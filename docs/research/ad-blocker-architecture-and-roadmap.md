@@ -434,13 +434,18 @@ tension with it.
    *that* something was blocked) and published separately as WhoTracks.me, "the
    world's largest statistical report on tracking online."
    ([ghostery/trackerdb README](https://github.com/ghostery/trackerdb/blob/main/README.md); [Introducing TrackerDB](https://www.ghostery.com/blog/introducing-trackerdb))
-   **Fit:** Low tension, genuinely additive. This is purely informational — it
+   **Corrected 2026-09-12: this is not a gap — Moat has shipped TrackerDB-sourced
+   company attribution since v0.11.40**, also stale on the day this doc was written.
+   The "which company" drill-down described below as a future fit already exists in
+   the toolbar breakdown; this entry is kept only as a record of the (already-closed)
+   gap it once named — see `docs/research/README.md` for the correction convention.
+   ~~**Fit:** Low tension, genuinely additive. This is purely informational — it
    doesn't ask the user to decide anything, it just gives Moat's existing
    Ads/Trackers/Popups toolbar breakdown a "which company" drill-down instead of a
    bare count, which is a natural, quiet extension of a feature Moat already ships
    (real block-count breakdown via `getMatchedRules()`). Licensing is CC-BY-NC-SA-4.0
    ("free to use for non-commercial purposes"), which Moat would need to check
-   against its own licensing model before adopting the data directly.
+   against its own licensing model before adopting the data directly.~~
 
 5. **Brave Shields' per-site granular toggle panel.** A toolbar panel scoped to the
    current site that lets a user turn Shields off entirely *for this site only*, or
@@ -491,28 +496,23 @@ tension with it.
 Concrete, scoped suggestions only — each tagged with backing source(s) and a rough
 implementation-cost estimate.
 
-1. **Ship AdGuard's bundled `$redirect` resource files (noopjs, 1x1-transparent.gif,
-   click2load.html, etc.) to stop dropping the ~990 `$redirect` rules.** AdGuard's
-   `Scriptlets` package already publishes exactly this set of no-op resource files as
-   `dist/redirects.yml`, and `@adguard/dnr-rulesets` bakes web-accessible-resource
-   paths pointing at them directly into the compiled DNR rules. Moat already consumes
-   `@adguard/dnr-rulesets` for its 11 lists — closing this gap may be closer to
-   "bundle the resource files this package already ships and wire up
-   `web_accessible_resources`" than building anything new.
-   Source: [AdguardTeam/Scriptlets](https://github.com/AdguardTeam/Scriptlets), [npm @adguard/scriptlets](https://www.npmjs.com/package/@adguard/scriptlets).
-   **Cost: small.**
+1. ~~Ship AdGuard's bundled `$redirect` resource files...~~ **Already shipped, as of
+   v0.7.5 — this item was stale on the day this doc was written.** A 2026-09-12
+   verification pass (`docs/research/redirect-resources-and-cname-list-adoption-2026-09.md`)
+   confirmed `@adguard/scriptlets` v2.4.2's `dist/redirect-files/` resource bytes are
+   already bundled via `scripts/lib/redirectResources.mjs`, with 997 `extensionPath`
+   rules resolved and 0 dropped. No remaining work here.
+   **Cost: none — done.**
 
-2. **Adopt NextDNS's public CNAME-cloak-destination list as a heuristic (not true
-   uncloaking) signal.** Moat can't resolve CNAMEs on Chrome (confirmed no-solution
-   gap, §2), but NextDNS's openly licensed list of known cloak-*destination* domains
-   could be cross-referenced against Moat's existing tracker-domain matching without
-   needing DNS access at all, if Moat is willing to also treat matches against that
-   destination list as tracker-equivalent wherever it can otherwise infer a CNAME
-   relationship (e.g. via a self-issued DoH lookup, see item 3). As a standalone list
-   addition with no DoH component, this is low-risk and directly usable today.
-   Source: [nextdns/cname-cloaking-blocklist](https://github.com/nextdns/cname-cloaking-blocklist).
-   **Cost: small** (list-only) **to medium** (if paired with self-issued DoH lookups
-   per item 3).
+2. ~~Adopt NextDNS's public CNAME-cloak-destination list...~~ **Already shipped, as of
+   v0.9.0 — also stale on the day this doc was written.** The same 2026-09-12
+   verification pass confirmed NextDNS's list (MIT-licensed, 35 domains, vendored via
+   `scripts/vendor-cname-list.mjs` into `rules/dnr/cname-cloak-destinations.json`) is
+   already consumed by `cnameUncloak.ts`/`cnameUncloakChrome.ts` via
+   `isCnameCloakDestination` (aliased `matchesKnownRedirectDomain`). Note the source
+   list has been stale since 2022-01-22 upstream, independent of Moat's adoption of it.
+   **Cost: none — done.** Item 3 below (self-issued DoH lookups) remains genuinely
+   unbuilt and is the only real open work in this trio.
 
 3. **(Exploratory, flag for a design decision, not a default-yes) Background-worker
    DoH lookup for CNAME uncloaking on Chrome.** No primary source among the five

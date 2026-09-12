@@ -1,5 +1,24 @@
 # Moat's blocking algorithm: where the cost is, how the field keeps it low, and how it behaves on many machines at once (2026-09)
 
+> **SUPERSEDED 2026-09-12 — Parts 1–3 below describe a pipeline Moat no longer
+> has.** Every "still open" recommendation this doc makes (A: DOM-surveyor
+> gating, B: worker-side `insertCSS`, D: on-demand element-picker loading, E:
+> gating the two opt-in content scripts) **shipped in v0.11.63/64**, verified
+> directly against the current source of `cosmeticInject.ts`, `cosmeticIndex.ts`,
+> `cosmeticSurveyor.ts`, and `scripts/manifest.ts` during a 2026-09-12 algorithm
+> audit. Concretely, as of that date: the cosmetics meta file (904KB, 14,801
+> tokens / 16,089 selectors, only 1,069 always-on) is fetched and parsed **once
+> per service-worker lifetime**, not per page; injection happens from the
+> **service worker** via `scripting.insertCSS(origin:"USER")`, never a
+> page-thread `fetch`/`JSON.parse`/`<style>` build; and `element-picker.js`/
+> `consent-rejector.js`/`leaked-password-check.js` are already loaded on-demand
+> or dynamically registered only while their setting is on. There is no
+> remaining "still open" item from this doc's Part 3. The body below is kept for
+> the historical reasoning that led to that fix, not as a description of the
+> current pipeline — see "How Moat actually blocks things" (2026-09-12 audit
+> artifact) for the current numbers, and
+> `docs/research/README.md` for why this notice exists instead of a silent edit.
+
 Four questions:
 
 1. What algorithm does Moat actually run to block a page, and where does the cost land?
