@@ -3,6 +3,40 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.79
+
+### Changed
+- **Restyled the Filter Lists, Custom Rules, and Trackers tabs** to match the Protection
+  tab's hairline-row language (designs `10a`/`10b`/`10c` of the surface-redesign handoff),
+  and wired each one to real data instead of leaving it as a plain list:
+  - **Filter Lists**: a metric row shows the real sum of currently-enabled rules against
+    Chrome's documented global static-rule cap (330,000), a budget bar (turns amber past
+    90%), how many domains came from the last daily update, and how long ago that check
+    ran. Each list's row now appends "· matched N times on this page" using the real
+    per-tab `getMatchedRules` data (already fetched for the popup's ads/trackers/popups
+    breakdown, now also kept grouped by filter list). "Check for updates" bypasses the
+    daily freshness guard for this one explicit action (`liveUpdates.ts`'s `fetchAndApply`
+    gained a `force` option).
+  - **Custom Rules**: a new "Pick an element" button starts the picker on whichever normal
+    tab was last focused (a new `start-element-picker` message, since the options page is
+    its own tab and can't assume it's looking at the right one) -- previously the picker
+    could only be started from the toolbar popup. Each hidden/dimmed rule now shows a real
+    hit count and "Added N days ago", and a rule that hasn't matched in 30 days is flagged
+    stale (dimmed selector, amber note, accent-colored Remove) using v0.11.77's per-rule
+    stats layer, joined via a new content-script DOM check
+    (`content/cosmeticFilter.ts`/`cosmeticSelectors.ts`) since the CSS-injection path that
+    applies these rules has no feedback of its own on whether a selector matched anything.
+  - **Trackers**: a weekly metric row (companies seen this week, a 7-day company-count
+    sparkline, total attempts blocked) sits above the existing live per-tab breakdown.
+    Deliberately **not** implemented as specified: the design mock's sparkline caption
+    reads "last 7 weeks" and its per-company "reach" reads as "N of M sites" — this ships
+    as a 7-*day* trend (the usage-counter layer only retains 14 days of history) and a
+    plain "N sites" count (there's no tracked denominator for "sites visited" to make a
+    fraction honest). Bar width is relative to the top company's count, not a total, since
+    only a fraction of blocked requests carry a known company mapping.
+  - "Clear history" and the two tabs' "N more, show all" truncation from the design mock
+    are not implemented — out of scope for this pass.
+
 ## 0.11.78
 
 ### Changed

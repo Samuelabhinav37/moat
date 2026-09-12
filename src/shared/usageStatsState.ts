@@ -206,11 +206,20 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
     .map(([company, { count, hostnames }]) => ({ company, count, hostnameCount: hostnames.size }))
     .sort((a, b) => b.count - a.count);
 
+  // Distinct companies per day, oldest to today -- the Trackers tab's own
+  // sparkline. Only 14 days of history are ever retained (see
+  // RETENTION_DAYS), so this is a 7-*day* trend, not the design mock's
+  // illustrative "last 7 weeks" -- there's no honest way to show a 7-week
+  // trend without keeping ~49 days of raw per-company data, which nothing
+  // else here needs.
+  const companiesTrend = last7.map((date) => Object.keys(dayOrEmpty(state, date).companies).length);
+
   return {
     today: { total: today.total, hostnameCount: today.hostnames.length },
     lastWeekSameWeekday,
     sparkline,
     bySignal,
     companiesThisWeek,
+    companiesTrend,
   };
 }

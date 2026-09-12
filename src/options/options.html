@@ -288,14 +288,132 @@
         margin-left: auto;
         flex: none;
       }
-      #metric-sparkline polyline {
+      .budget-bar-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .budget-bar {
+        width: 190px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--hairline);
+        overflow: hidden;
+      }
+      .budget-bar-fill {
+        height: 100%;
+        background: var(--accent);
+      }
+      .budget-bar-fill.caution {
+        background: var(--caution);
+      }
+      .budget-bar-caption {
+        font-size: 11.5px;
+        color: var(--muted);
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      }
+      .rule-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--hairline);
+      }
+      .row-group .rule-row:last-child {
+        border-bottom: none;
+      }
+      .rule-row .rule-main {
+        min-width: 0;
+      }
+      .rule-row .rule-selector {
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 13px;
+        color: var(--fg);
+      }
+      .rule-row .rule-selector.stale {
+        color: var(--muted);
+      }
+      .rule-row .rule-site {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-left: 8px;
+      }
+      .rule-row .rule-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .rule-row .rule-meta svg {
+        flex: none;
+        width: 12px;
+        height: 12px;
+        color: var(--caution);
+      }
+      .rule-row .rule-remove {
+        flex: none;
+        font-size: 12.5px;
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 0;
+        text-decoration: underline;
+      }
+      .rule-row .rule-remove.stale-remove {
+        color: var(--accent);
+      }
+      .weekly-tracker-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--hairline);
+      }
+      .row-group .weekly-tracker-row:last-child {
+        border-bottom: none;
+      }
+      .weekly-tracker-row .wt-name-cell {
+        width: 132px;
+        flex: none;
+      }
+      .weekly-tracker-row .wt-name {
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+      .weekly-tracker-row .wt-reach {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .weekly-tracker-row .wt-bar-track {
+        flex: 1;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--hairline);
+        overflow: hidden;
+      }
+      .weekly-tracker-row .wt-bar-fill {
+        height: 100%;
+        background: var(--accent);
+      }
+      .weekly-tracker-row .wt-count {
+        width: 46px;
+        flex: none;
+        text-align: right;
+        font-size: 13px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      }
+      .sparkline-svg polyline {
         fill: none;
         stroke: var(--accent);
         stroke-width: 2;
         stroke-linecap: round;
         stroke-linejoin: round;
       }
-      #metric-sparkline circle {
+      .sparkline-svg circle {
         fill: var(--accent);
       }
       .chip {
@@ -542,28 +660,6 @@
         font-weight: 600;
       }
 
-      .filter-category {
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--muted);
-        margin: 18px 0 8px;
-      }
-      .filter-category:first-of-type {
-        margin-top: 12px;
-      }
-      .filter-row + .filter-row {
-        margin-top: 10px;
-      }
-      .filter-row .name {
-        font-size: 13px;
-      }
-      .filter-row .count {
-        font-size: 12px;
-        color: var(--muted);
-      }
-
       #tracker-rows {
         margin-top: 10px;
         display: flex;
@@ -680,7 +776,7 @@
               </p>
             </div>
             <div class="sparkline-wrap">
-              <svg width="132" height="40" viewBox="0 0 132 40" id="metric-sparkline" aria-hidden="true"></svg>
+              <svg width="132" height="40" viewBox="0 0 132 40" id="metric-sparkline" class="sparkline-svg" aria-hidden="true"></svg>
               <span class="sparkline-caption" data-i18n="optionsSparklineCaption">last 7 days</span>
             </div>
             <div class="metric-right-group">
@@ -735,6 +831,12 @@
         </aside>
 
         <section data-tab-panel="filters" hidden>
+          <h2 class="page-title" data-i18n="tabFilters">Filter Lists</h2>
+          <p class="page-desc" data-i18n="optionsFilterListsDesc">
+            The rule sets Moat compiles into the browser's own blocker. All six ship inside the
+            extension — nothing is fetched to make them work.
+          </p>
+
           <div class="budget-warning" id="filter-budget-warning" hidden>
             <p data-i18n="optionsFilterBudgetWarning">
               Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules
@@ -744,6 +846,31 @@
             </p>
             <p id="filter-budget-detail" hidden></p>
           </div>
+
+          <div class="metric-row">
+            <div class="metric-hero">
+              <div class="value-row">
+                <span class="hero-value" id="filters-metric-active">—</span>
+              </div>
+              <p class="metric-baseline" id="filters-metric-baseline"></p>
+            </div>
+            <div class="budget-bar-wrap">
+              <div class="budget-bar"><div class="budget-bar-fill" id="filters-budget-fill"></div></div>
+              <span class="budget-bar-caption" id="filters-budget-caption"></span>
+            </div>
+            <div class="metric-right-group">
+              <div>
+                <div class="secondary-value" id="filters-metric-live">—</div>
+                <p class="metric-label" data-i18n="optionsFromDailyUpdatesLabel">from daily updates</p>
+              </div>
+              <div>
+                <div class="secondary-value" id="filters-metric-since-check">—</div>
+                <p class="metric-label" data-i18n="optionsSinceLastCheckLabel">since last check</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="section-divider" />
 
           <div class="card">
             <div class="row">
@@ -760,16 +887,61 @@
             <p class="hint muted" id="preset-hint" data-i18n="presetHintStandard">Ads, trackers, and known-malicious sites.</p>
           </div>
 
-          <div class="card">
-            <div class="card-title" data-i18n="optionsIndividualListsTitle">Individual filter lists</div>
-            <p class="hint muted" data-i18n="optionsIndividualListsHint">Turn each list on or off yourself. Changing any one switches your filtering level to Custom.</p>
-            <div id="filter-list-rows"></div>
+          <div class="group-heading" style="padding-top: 22px">
+            <span data-i18n="optionsIndividualListsTitle">Individual filter lists</span>
+            <a href="#" id="filter-check-updates" class="group-action" data-i18n="optionsCheckForUpdatesLink">Check for updates</a>
           </div>
+          <div class="row-group" id="filter-list-rows"></div>
         </section>
 
         <section data-tab-panel="custom" hidden>
+          <div class="row" style="align-items: flex-start">
+            <div>
+              <h2 class="page-title" data-i18n="tabCustom">Custom Rules</h2>
+              <p class="page-desc" data-i18n="optionsCustomRulesDesc">
+                Everything you've hidden yourself with the element picker. These override the
+                filter lists and never leave your browser.
+              </p>
+            </div>
+            <button type="button" id="pick-element-button" style="flex: none">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="var(--caution)" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px">
+                <path d="M3 2l10 4.2-4 1.6-1.6 4z" />
+              </svg>
+              <span data-i18n="optionsPickElementButton">Pick an element</span>
+            </button>
+          </div>
+          <p class="hint muted" id="pick-element-status" hidden></p>
+
+          <div class="metric-row">
+            <div class="metric-hero">
+              <div class="value-row">
+                <span class="hero-value" id="custom-metric-count">—</span>
+              </div>
+              <p class="metric-baseline" id="custom-metric-baseline"></p>
+            </div>
+            <div class="metric-right-group">
+              <div>
+                <div class="secondary-value" id="custom-metric-matching">—</div>
+                <p class="metric-label" data-i18n="optionsRulesStillMatchingLabel">still matching</p>
+              </div>
+              <div>
+                <div class="secondary-value" id="custom-metric-stale">—</div>
+                <p class="metric-label" data-i18n="optionsRulesStaleLabel">gone stale</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="section-divider" />
+
+          <div class="row-group" id="hidden-element-rows"></div>
+          <p class="empty-state" id="hidden-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
+
+          <div class="group-heading" style="padding-top: 22px" data-i18n="optionsDimmedElementsTitle">Dimmed elements</div>
+          <div class="row-group" id="grayscale-element-rows"></div>
+          <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
+
+          <div class="group-heading" style="padding-top: 22px" data-i18n="optionsExceptionsTitle">Paused sites</div>
           <div class="card">
-            <div class="card-title" data-i18n="optionsExceptionsTitle">Paused sites</div>
             <p class="hint muted" data-i18n="optionsExceptionsHint">Moat is completely turned off on these sites, and any pages under them.</p>
             <ul class="site-list" id="site-list"></ul>
             <p class="empty-state" id="site-empty-state" data-i18n="optionsNoSitesAdded">No sites added.</p>
@@ -779,8 +951,8 @@
             </div>
           </div>
 
+          <div class="group-heading" style="padding-top: 22px" data-i18n="optionsBlockedSitesTitle">Blocked sites</div>
           <div class="card">
-            <div class="card-title" data-i18n="optionsBlockedSitesTitle">Blocked sites</div>
             <p class="hint muted" data-i18n="optionsBlockedSitesHint">Always block these sites, whatever the filter lists say.</p>
             <ul class="site-list" id="custom-block-list"></ul>
             <p class="empty-state" id="custom-block-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
@@ -790,8 +962,8 @@
             </div>
           </div>
 
+          <div class="group-heading" style="padding-top: 22px" data-i18n="optionsAllowedSitesTitle">Allowed sites</div>
           <div class="card">
-            <div class="card-title" data-i18n="optionsAllowedSitesTitle">Allowed sites</div>
             <p class="hint muted" data-i18n="optionsAllowedSitesHint">Never block these sites, even when a filter list matches.</p>
             <ul class="site-list" id="custom-allow-list"></ul>
             <p class="empty-state" id="custom-allow-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
@@ -800,42 +972,54 @@
               <button id="custom-allow-add" data-i18n="commonAllow">Allow</button>
             </div>
           </div>
-
-          <div class="filter-category" data-i18n="optionsCosmeticCategory">Element picker</div>
-          <div class="card">
-            <div class="card-title" data-i18n="optionsHiddenElementsTitle">Hidden elements</div>
-            <p class="hint muted" data-i18n="optionsHiddenElementsHint">
-              Elements you hid with the “Block an element” tool. Remove one to bring it back.
-            </p>
-            <ul class="site-list" id="hidden-element-list"></ul>
-            <p class="empty-state" id="hidden-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
-          </div>
-
-          <div class="card">
-            <div class="card-title" data-i18n="optionsDimmedElementsTitle">Dimmed elements</div>
-            <p class="hint muted" data-i18n="optionsDimmedElementsHint">
-              Elements you grayed out with the picker. Remove one to restore it.
-            </p>
-            <ul class="site-list" id="grayscale-element-list"></ul>
-            <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
-          </div>
         </section>
 
         <section data-tab-panel="trackers" hidden>
-          <div class="card">
-            <div class="row">
-              <div class="card-title" data-i18n="optionsTrackersHeading">Trackers on the current tab</div>
-              <button id="trackers-refresh" type="button" data-i18n="optionsTrackersRefresh">Refresh</button>
+          <h2 class="page-title" data-i18n="tabTrackers">Trackers</h2>
+          <p class="page-desc" data-i18n="optionsTrackersDesc">
+            Which companies tried to follow you, and how far they got. Counted on your device
+            from the browser's own match data — this list is never uploaded.
+          </p>
+
+          <div class="metric-row">
+            <div class="metric-hero">
+              <div class="value-row">
+                <span class="hero-value" id="weekly-metric-companies">—</span>
+              </div>
+              <p class="metric-baseline" data-i18n="optionsCompaniesSeenBaseline">companies seen this week</p>
             </div>
-            <p class="hint muted" id="trackers-subhead" hidden></p>
-            <p class="hint muted" id="trackers-unsupported" hidden data-i18n="optionsTrackersUnsupported">
-              This detailed tracker list only works in Chrome for now -- Firefox doesn't support it yet.
-            </p>
-            <div id="tracker-rows"></div>
-            <p class="empty-state" id="trackers-empty" hidden data-i18n="optionsTrackersEmpty">
-              No trackers found on the last tab you had open.
-            </p>
+            <div class="sparkline-wrap">
+              <svg width="132" height="40" viewBox="0 0 132 40" id="weekly-sparkline" class="sparkline-svg" aria-hidden="true"></svg>
+              <span class="sparkline-caption" data-i18n="optionsSparklineCaption">last 7 days</span>
+            </div>
+            <div class="metric-right-group">
+              <div>
+                <div class="secondary-value" id="weekly-metric-attempts">—</div>
+                <p class="metric-label" data-i18n="optionsAttemptsBlockedLabel">attempts blocked</p>
+              </div>
+              <div>
+                <div class="secondary-value" id="weekly-metric-got-through">0</div>
+                <p class="metric-label" data-i18n="optionsGotThroughLabel">got through</p>
+              </div>
+            </div>
           </div>
+
+          <hr class="section-divider" />
+
+          <div class="row-group" id="weekly-tracker-rows"></div>
+
+          <div class="group-heading" style="padding-top: 22px">
+            <span data-i18n="optionsTrackersHeading">Trackers on the current tab</span>
+            <a href="#" id="trackers-refresh" class="group-action" data-i18n="optionsTrackersRefresh">Refresh</a>
+          </div>
+          <p class="hint muted" id="trackers-subhead" hidden></p>
+          <p class="hint muted" id="trackers-unsupported" hidden data-i18n="optionsTrackersUnsupported">
+            This detailed tracker list only works in Chrome for now -- Firefox doesn't support it yet.
+          </p>
+          <div id="tracker-rows"></div>
+          <p class="empty-state" id="trackers-empty" hidden data-i18n="optionsTrackersEmpty">
+            No trackers found on the last tab you had open.
+          </p>
         </section>
 
         <!-- The prose paragraphs below that mix plain text with an inline <a>/<strong>/<code>

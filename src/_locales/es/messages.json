@@ -644,5 +644,109 @@
   },
   "optionsDrawerStateAdvanced": {
     "message": "avanzado"
+  },
+  "optionsFilterListsDesc": {
+    "message": "Los conjuntos de reglas que Moat compila en el bloqueador propio del navegador. Los seis vienen incluidos en la extensión: no se descarga nada para que funcionen."
+  },
+  "optionsRulesActiveBaseline": {
+    "message": "reglas activas · el límite de Chrome es $CAP$",
+    "placeholders": {
+      "cap": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsBudgetPercentUsed": {
+    "message": "$PERCENT$ % del límite usado",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsFromDailyUpdatesLabel": {
+    "message": "de actualizaciones diarias"
+  },
+  "optionsSinceLastCheckLabel": {
+    "message": "desde la última comprobación"
+  },
+  "optionsCheckForUpdatesLink": {
+    "message": "Buscar actualizaciones"
+  },
+  "optionsFilterMatchedOnPage": {
+    "message": " · coincidió $COUNT$ veces en esta página",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsCustomRulesDesc": {
+    "message": "Todo lo que has ocultado tú mismo con el selector de elementos. Esto tiene prioridad sobre las listas de filtros y nunca sale de tu navegador."
+  },
+  "optionsPickElementButton": {
+    "message": "Elegir un elemento"
+  },
+  "optionsPickElementFailed": {
+    "message": "No se pudo iniciar el selector ahí."
+  },
+  "optionsCustomRulesBaseline": {
+    "message": "$COUNT$ reglas, en $SITES$ sitios",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "sites": {
+        "content": "$2"
+      }
+    }
+  },
+  "optionsHiddenTimesBaseline": {
+    "message": "Ocultado $COUNT$ veces hasta ahora",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsRulesStillMatchingLabel": {
+    "message": "aún coinciden"
+  },
+  "optionsRulesStaleLabel": {
+    "message": "obsoletas"
+  },
+  "optionsRuleAddedMeta": {
+    "message": "Añadida hace $DAYS$ días · oculto $COUNT$ veces desde entonces",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "optionsRuleStaleMeta": {
+    "message": "No coincide desde hace 30 días — probablemente el sitio cambió"
+  },
+  "optionsTrackersDesc": {
+    "message": "Qué empresas intentaron seguirte y hasta dónde llegaron. Se cuenta en tu dispositivo a partir de los datos de coincidencia del propio navegador; esta lista nunca se sube a ningún sitio."
+  },
+  "optionsCompaniesSeenBaseline": {
+    "message": "empresas detectadas esta semana"
+  },
+  "optionsAttemptsBlockedLabel": {
+    "message": "intentos bloqueados"
+  },
+  "optionsGotThroughLabel": {
+    "message": "lograron pasar"
+  },
+  "optionsCompanyReach": {
+    "message": "$COUNT$ sitios",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

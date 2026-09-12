@@ -9,12 +9,18 @@ import { isSupported as isCnameUncloakChromeSupported } from "../background/cnam
 import { detectPreset, presetPatch, type PresetName } from "../shared/filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { getUsageSummary } from "../background/usageStats";
+import { getCustomRuleStats } from "../background/customRuleStats";
+import { customRuleStatKey, isStale } from "../shared/customRuleStats";
 import type {
   AddCustomDomainMessage,
+  CheckForLiveUpdatesMessage,
   CompanyBreakdownResponse,
   CustomDomainListField,
+  CustomRuleStat,
   ExportSettingsMessage,
+  FilterListMatchesResponse,
   GetCompanyBreakdownMessage,
+  GetFilterListMatchesMessage,
   ImportSettingsMessage,
   ImportSettingsResponse,
   RemoveCosmeticRuleMessage,
@@ -22,6 +28,8 @@ import type {
   RemoveGrayscaleRuleMessage,
   Settings,
   SetSettingsPatchMessage,
+  StartElementPickerMessage,
+  StartElementPickerResponse,
   ToggleSiteMessage,
   UsageSignal,
   UsageSummaryResponse,
@@ -385,8 +393,8 @@ function renderDomainList(
 
 // ---------- Metric row + sparkline ----------
 
-function renderSparkline(values: number[]): void {
-  const svg = document.getElementById("metric-sparkline") as unknown as SVGSVGElement;
+function renderSparkline(values: number[], elementId = "metric-sparkline"): void {
+  const svg = document.getElementById(elementId) as unknown as SVGSVGElement;
   const width = 132;
   const height = 40;
   const pad = 3;
@@ -781,6 +789,7 @@ const filtersLockedBadge = document.getElementById("filters-locked-badge") as HT
 const filterListRows = document.getElementById("filter-list-rows") as HTMLElement;
 const filterBudgetWarning = document.getElementById("filter-budget-warning") as HTMLElement;
 const filterBudgetDetail = document.getElementById("filter-budget-detail") as HTMLElement;
+const filterCheckUpdates = document.getElementById("filter-check-updates") as HTMLAnchorElement;
 
 // Keyed by both the i18n message key and its English fallback (used via
 // tFallback below) -- kept as one table so the two can't drift apart.
@@ -793,12 +802,14 @@ const PRESET_HINTS: Record<PresetName | "custom", { key: string; fallback: strin
   custom: { key: "presetHintCustom", fallback: "A mix you've set up yourself." },
 };
 
-const CATEGORY_LABELS: Record<RulesetManifestEntry["category"], { key: string; fallback: string }> = {
-  ads: { key: "categoryAds", fallback: "Ads & trackers" },
-  security: { key: "categorySecurity", fallback: "Security" },
-  annoyance: { key: "categoryAnnoyance", fallback: "Annoyances" },
-  core: { key: "categoryCore", fallback: "Core" },
-};
+// Chrome's historical global cap on the sum of *enabled* static rules across
+// every installed extension combined (declarativeNetRequest's shared
+// budget) -- framing the "rules active" hero number against this is the
+// only comparison that makes a six-figure number mean anything, and it's
+// why lists can't all just stay on forever. Not the same number as
+// getAvailableStaticRuleCount()'s live remaining-budget figure below, which
+// also accounts for every *other* extension's own usage.
+const CHROME_GLOBAL_STATIC_RULE_LIMIT = 330_000;
 
 let manifestCache: RulesetManifestEntry[] | null = null;
 
@@ -828,6 +839,52 @@ async function countEnabledFilterLists(settings: Settings): Promise<number> {
   return Object.values(state).filter(Boolean).length;
 }
 
+/** Real, not a fabricated span -- "1h"/"45m"/"3d" since the live-update
+ * channel's own last-recorded check, same rounding idiom as logger.ts's
+ * formatSince for the rule-match log. */
+function formatSinceShort(when: number): string {
+  const minutes = Math.max(0, Math.round((Date.now() - when) / 60_000));
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  return `${Math.round(hours / 24)}d`;
+}
+
+async function renderFilterListsMetricRow(
+  settings: Settings,
+  lists: ReturnType<typeof summarizeFilterLists>,
+  liveStatus: Awaited<ReturnType<typeof getLiveUpdateStatus>>
+): Promise<void> {
+  const state = effectiveFilterGroupState(
+    settings.enabled,
+    settings.filterGroups,
+    lists.map((list) => list.group)
+  );
+  const activeRuleCount = lists.filter((list) => state[list.group]).reduce((sum, list) => sum + list.ruleCount, 0);
+
+  document.getElementById("filters-metric-active")!.textContent = activeRuleCount.toLocaleString();
+  document.getElementById("filters-metric-baseline")!.textContent = tFallback(
+    "optionsRulesActiveBaseline",
+    `rules active · Chrome's cap is ${CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString()}`,
+    CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString()
+  );
+
+  const percent = Math.min(100, Math.round((activeRuleCount / CHROME_GLOBAL_STATIC_RULE_LIMIT) * 100));
+  const fill = document.getElementById("filters-budget-fill") as HTMLElement;
+  fill.style.width = `${percent}%`;
+  fill.className = percent >= 90 ? "budget-bar-fill caution" : "budget-bar-fill";
+  document.getElementById("filters-budget-caption")!.textContent = tFallback(
+    "optionsBudgetPercentUsed",
+    `${percent}% of budget used`,
+    String(percent)
+  );
+
+  document.getElementById("filters-metric-live")!.textContent = (liveStatus?.domainCount ?? 0).toLocaleString();
+  document.getElementById("filters-metric-since-check")!.textContent = liveStatus
+    ? formatSinceShort(liveStatus.timestamp)
+    : "—";
+}
+
 /** Updated synchronously (before any await) on every checkbox change below,
  * so two filter-list toggles fired in quick succession each merge onto the
  * other's already-applied change instead of racing two independent
@@ -854,29 +911,32 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
     button.setAttribute("aria-pressed", String(button.dataset.preset === preset));
   }
 
+  await renderFilterListsMetricRow(settings, lists, await getLiveUpdateStatus());
+
+  const matchesMessage: GetFilterListMatchesMessage = { type: "get-filter-list-matches" };
+  const matches = (await browser.runtime.sendMessage(matchesMessage)) as FilterListMatchesResponse;
+
   filterListRows.replaceChildren();
-  let lastCategory = "";
-  for (const list of lists.sort((a, b) => a.category.localeCompare(b.category))) {
-    if (list.category !== lastCategory) {
-      const heading = document.createElement("div");
-      heading.className = "filter-category";
-      heading.textContent = tFallback(CATEGORY_LABELS[list.category].key, CATEGORY_LABELS[list.category].fallback);
-      filterListRows.append(heading);
-      lastCategory = list.category;
-    }
-
+  for (const list of lists.sort((a, b) => b.ruleCount - a.ruleCount)) {
     const row = document.createElement("div");
-    row.className = "row filter-row";
+    row.className = "protection-row";
 
-    const label = document.createElement("div");
-    const name = document.createElement("div");
-    name.className = "name";
+    const body = document.createElement("div");
+    body.className = "row-body";
+    const name = document.createElement("span");
+    name.className = "row-title";
     name.id = `filter-list-${list.group}-label`;
     name.textContent = list.name;
-    const count = document.createElement("div");
-    count.className = "count";
-    count.textContent = tFallback("optionsRuleCount", `${list.ruleCount.toLocaleString()} rules`, list.ruleCount.toLocaleString());
-    label.append(name, count);
+    body.append(name);
+
+    const matchCount = matches.matchesByGroup[list.group] ?? 0;
+    const countText = tFallback("optionsRuleCount", `${list.ruleCount.toLocaleString()} rules`, list.ruleCount.toLocaleString());
+    const matchedSuffix =
+      matchCount > 0 ? tFallback("optionsFilterMatchedOnPage", ` · matched ${matchCount} times on this page`, String(matchCount)) : "";
+    const evidence = document.createElement("span");
+    evidence.className = "row-evidence";
+    evidence.textContent = countText + matchedSuffix;
+    body.append(evidence);
 
     // The toggle below reflects what the user *asked for* (settings.filterGroups), which isn't
     // necessarily what's actually enabled in Chrome right now -- a toggle showing "on" while the
@@ -887,28 +947,16 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
       const badge = document.createElement("span");
       badge.className = "locked-badge budget-badge";
       badge.textContent = tFallback("optionsFilterBudgetDroppedBadge", "Not active (browser limit reached)");
-      label.append(badge);
+      body.append(badge);
     }
 
-    const toggle = document.createElement("label");
-    toggle.className = "switch";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.setAttribute("aria-labelledby", name.id);
-    input.checked = settings.filterGroups[list.group] ?? true;
-    const track = document.createElement("span");
-    track.className = "track";
-    track.innerHTML = '<span class="thumb"></span>';
-    toggle.append(input, track);
-
-    input.addEventListener("change", async () => {
-      const updated = { ...(currentFilterGroups ?? settings.filterGroups), [list.group]: input.checked };
+    const toggle = buildSwitch(settings.filterGroups[list.group] ?? true, name.id, (checked) => {
+      const updated = { ...(currentFilterGroups ?? settings.filterGroups), [list.group]: checked };
       currentFilterGroups = updated;
-      await setSettings({ filterGroups: updated });
-      await render();
+      void setSettings({ filterGroups: updated }).then(() => render());
     });
 
-    row.append(label, toggle);
+    row.append(body, toggle);
     filterListRows.append(row);
   }
 }
@@ -919,6 +967,12 @@ for (const button of presetRow.querySelectorAll<HTMLButtonElement>("[data-preset
     await render();
   });
 }
+
+filterCheckUpdates.addEventListener("click", (event) => {
+  event.preventDefault();
+  const message: CheckForLiveUpdatesMessage = { type: "check-for-live-updates" };
+  void browser.runtime.sendMessage(message).then(() => render());
+});
 
 // ---------- Custom Rules tab ----------
 
@@ -950,33 +1004,122 @@ customAllowInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") customAllowAdd.click();
 });
 
-const hiddenElementList = document.getElementById("hidden-element-list") as HTMLUListElement;
+const hiddenElementRows = document.getElementById("hidden-element-rows") as HTMLElement;
 const hiddenElementEmpty = document.getElementById("hidden-element-empty") as HTMLElement;
-const grayscaleElementList = document.getElementById("grayscale-element-list") as HTMLUListElement;
+const grayscaleElementRows = document.getElementById("grayscale-element-rows") as HTMLElement;
 const grayscaleElementEmpty = document.getElementById("grayscale-element-empty") as HTMLElement;
+const pickElementButton = document.getElementById("pick-element-button") as HTMLButtonElement;
+const pickElementStatus = document.getElementById("pick-element-status") as HTMLElement;
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+/** Built via the DOM rather than an innerHTML template -- web-ext lint flags
+ * any innerHTML assignment it can't statically prove is a literal, even a
+ * safe hardcoded one, as UNSAFE_VAR_ASSIGNMENT. */
+function buildStaleTriangleIcon(): SVGSVGElement {
+  const icon = document.createElementNS(SVG_NS, "svg");
+  icon.setAttribute("viewBox", "0 0 16 16");
+  icon.setAttribute("fill", "none");
+  icon.setAttribute("stroke", "currentColor");
+  icon.setAttribute("stroke-width", "1.4");
+
+  const outline = document.createElementNS(SVG_NS, "path");
+  outline.setAttribute("d", "M8 1.5l7 12.5H1z");
+  outline.setAttribute("stroke-linejoin", "round");
+
+  const stem = document.createElementNS(SVG_NS, "path");
+  stem.setAttribute("d", "M8 6.2v3.4");
+  stem.setAttribute("stroke-linecap", "round");
+
+  const dot = document.createElementNS(SVG_NS, "circle");
+  dot.setAttribute("cx", "8");
+  dot.setAttribute("cy", "11.6");
+  dot.setAttribute("r", "0.7");
+  dot.setAttribute("fill", "currentColor");
+  dot.setAttribute("stroke", "none");
+
+  icon.append(outline, stem, dot);
+  return icon;
+}
 
 /** Shared by the picker's "Hide" and "Gray out" saved-rule lists -- both are
- * hostname -> selector[] maps rendered the same way. */
-function renderSelectorRules(
-  list: HTMLUListElement,
+ * hostname -> selector[] maps, joined against customRuleStats.ts's separate
+ * per-rule hit/staleness store (see the surface-redesign plan) keyed the
+ * same way that module stores entries. */
+function buildRuleRow(
+  kind: "hide" | "gray",
+  hostname: string,
+  selector: string,
+  stats: Record<string, CustomRuleStat>,
+  onRemove: (hostname: string, selector: string) => Promise<unknown>,
+  rerenderSelf: () => Promise<void>
+): HTMLElement {
+  const now = Date.now();
+  const stat = stats[customRuleStatKey(kind, hostname, selector)];
+  const stale = stat ? isStale(stat, now) : false;
+
+  const row = document.createElement("div");
+  row.className = "rule-row";
+
+  const main = document.createElement("div");
+  main.className = "rule-main";
+  const selectorEl = document.createElement("span");
+  selectorEl.className = stale ? "rule-selector stale" : "rule-selector";
+  selectorEl.textContent = selector;
+  const siteEl = document.createElement("span");
+  siteEl.className = "rule-site";
+  siteEl.textContent = hostname;
+  main.append(selectorEl, siteEl);
+
+  const meta = document.createElement("div");
+  meta.className = "rule-meta";
+  if (stale) {
+    meta.append(
+      buildStaleTriangleIcon(),
+      document.createTextNode(
+        tFallback("optionsRuleStaleMeta", "Hasn't matched in 30 days — the site probably changed")
+      )
+    );
+  } else if (stat) {
+    const days = Math.max(0, Math.floor((now - stat.createdAt) / 86_400_000));
+    meta.textContent = tFallback(
+      "optionsRuleAddedMeta",
+      `Added ${days} days ago · hidden ${stat.hitCount} times since`,
+      [String(days), String(stat.hitCount)]
+    );
+  }
+  if (stale || stat) main.append(meta);
+
+  // Stale-rule removal is immediate with no confirm dialog -- the rule is
+  // already doing nothing, so there's nothing a confirm step would protect
+  // against.
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = stale ? "rule-remove stale-remove" : "rule-remove";
+  remove.textContent = tFallback("commonRemove", "Remove");
+  remove.addEventListener("click", async () => {
+    await onRemove(hostname, selector);
+    await rerenderSelf();
+  });
+
+  row.append(main, remove);
+  return row;
+}
+
+function renderRuleGroup(
+  kind: "hide" | "gray",
+  container: HTMLElement,
   emptyState: HTMLElement,
   rules: Record<string, string[]>,
+  stats: Record<string, CustomRuleStat>,
   onRemove: (hostname: string, selector: string) => Promise<unknown>,
   rerenderSelf: () => Promise<void>
 ): void {
   const rows = Object.entries(rules)
     .flatMap(([hostname, selectors]) => selectors.map((selector) => ({ hostname, selector })))
     .sort((a, b) => a.hostname.localeCompare(b.hostname));
-
-  renderRows(
-    list,
-    emptyState,
-    rows,
-    (row) => `${row.hostname}${tFallback("optionsHostnameSelectorSeparator", " — ")}${row.selector}`,
-    tFallback("commonRemove", "Remove"),
-    (row) => onRemove(row.hostname, row.selector),
-    rerenderSelf
-  );
+  emptyState.style.display = rows.length ? "none" : "block";
+  container.replaceChildren(...rows.map((r) => buildRuleRow(kind, r.hostname, r.selector, stats, onRemove, rerenderSelf)));
 }
 
 function countCustomRules(settings: Settings): number {
@@ -984,6 +1127,49 @@ function countCustomRules(settings: Settings): number {
   const gray = Object.values(settings.customGrayscaleRules).reduce((sum, selectors) => sum + selectors.length, 0);
   return hide + gray;
 }
+
+async function renderCustomRulesMetricRow(settings: Settings): Promise<void> {
+  const stats = await getCustomRuleStats();
+  const hideEntries = Object.entries(settings.customCosmeticRules).flatMap(([hostname, selectors]) =>
+    selectors.map((selector) => ({ kind: "hide" as const, hostname, selector }))
+  );
+  const grayEntries = Object.entries(settings.customGrayscaleRules).flatMap(([hostname, selectors]) =>
+    selectors.map((selector) => ({ kind: "gray" as const, hostname, selector }))
+  );
+  const all = [...hideEntries, ...grayEntries];
+  const now = Date.now();
+
+  let staleCount = 0;
+  let totalHits = 0;
+  for (const entry of all) {
+    const stat = stats[customRuleStatKey(entry.kind, entry.hostname, entry.selector)];
+    if (!stat) continue;
+    totalHits += stat.hitCount;
+    if (isStale(stat, now)) staleCount += 1;
+  }
+
+  const siteCount = new Set(all.map((entry) => entry.hostname)).size;
+  document.getElementById("custom-metric-count")!.textContent = String(all.length);
+  document.getElementById("custom-metric-baseline")!.textContent =
+    tFallback("optionsCustomRulesBaseline", `${all.length} rules, across ${siteCount} sites`, [
+      String(all.length),
+      String(siteCount),
+    ]) +
+    " · " +
+    tFallback("optionsHiddenTimesBaseline", `Hidden ${totalHits} times so far`, String(totalHits));
+  document.getElementById("custom-metric-matching")!.textContent = String(all.length - staleCount);
+  document.getElementById("custom-metric-stale")!.textContent = String(staleCount);
+}
+
+pickElementButton.addEventListener("click", async () => {
+  pickElementStatus.hidden = true;
+  const message: StartElementPickerMessage = { type: "start-element-picker" };
+  const result = (await browser.runtime.sendMessage(message)) as StartElementPickerResponse;
+  if (!result.ok) {
+    pickElementStatus.hidden = false;
+    pickElementStatus.textContent = tFallback("optionsPickElementFailed", "Couldn't start the picker there.");
+  }
+});
 
 // ---------- About tab ----------
 
@@ -1036,31 +1222,38 @@ async function rerenderCustomAllowList(): Promise<void> {
 }
 
 async function rerenderHiddenElementList(): Promise<void> {
-  const settings = await getEffectiveSettings();
-  renderSelectorRules(
-    hiddenElementList,
+  const [settings, stats] = await Promise.all([getEffectiveSettings(), getCustomRuleStats()]);
+  renderRuleGroup(
+    "hide",
+    hiddenElementRows,
     hiddenElementEmpty,
     settings.customCosmeticRules,
+    stats,
     removeCustomCosmeticRule,
     rerenderHiddenElementList
   );
+  await renderCustomRulesMetricRow(settings);
 }
 
 async function rerenderGrayscaleElementList(): Promise<void> {
-  const settings = await getEffectiveSettings();
-  renderSelectorRules(
-    grayscaleElementList,
+  const [settings, stats] = await Promise.all([getEffectiveSettings(), getCustomRuleStats()]);
+  renderRuleGroup(
+    "gray",
+    grayscaleElementRows,
     grayscaleElementEmpty,
     settings.customGrayscaleRules,
+    stats,
     removeGrayscaleRule,
     rerenderGrayscaleElementList
   );
+  await renderCustomRulesMetricRow(settings);
 }
 
 async function render(): Promise<void> {
   const [settings, policy] = await Promise.all([getEffectiveSettings(), getManagedPolicy()]);
 
   await renderProtectionTab(settings, policy);
+  if (lastUsage) renderWeeklyTrackers(lastUsage);
 
   renderSyncStatus(settings.syncEnabled, await getSyncStatus());
   renderLiveStatus(await getLiveUpdateStatus(), await getYoutubeQuickFixesStatus());
@@ -1121,20 +1314,26 @@ async function render(): Promise<void> {
     (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
     rerenderCustomAllowList
   );
-  renderSelectorRules(
-    hiddenElementList,
+  const customRuleStats = await getCustomRuleStats();
+  renderRuleGroup(
+    "hide",
+    hiddenElementRows,
     hiddenElementEmpty,
     settings.customCosmeticRules,
+    customRuleStats,
     removeCustomCosmeticRule,
     rerenderHiddenElementList
   );
-  renderSelectorRules(
-    grayscaleElementList,
+  renderRuleGroup(
+    "gray",
+    grayscaleElementRows,
     grayscaleElementEmpty,
     settings.customGrayscaleRules,
+    customRuleStats,
     removeGrayscaleRule,
     rerenderGrayscaleElementList
   );
+  await renderCustomRulesMetricRow(settings);
   railCountCustom.textContent = String(countCustomRules(settings));
 
   const version = browser.runtime.getManifest().version;
@@ -1186,7 +1385,58 @@ const trackerRows = document.getElementById("tracker-rows") as HTMLElement;
 const trackersSubhead = document.getElementById("trackers-subhead") as HTMLElement;
 const trackersEmpty = document.getElementById("trackers-empty") as HTMLElement;
 const trackersUnsupported = document.getElementById("trackers-unsupported") as HTMLElement;
-const trackersRefresh = document.getElementById("trackers-refresh") as HTMLButtonElement;
+const trackersRefresh = document.getElementById("trackers-refresh") as HTMLAnchorElement;
+
+/** The weekly aggregate (fed by usageStats.ts, real local history) sits
+ * above the existing live per-tab breakdown below -- unrelated data
+ * sources, both real, shown together. */
+function renderWeeklyTrackers(usage: UsageSummaryResponse): void {
+  document.getElementById("weekly-metric-companies")!.textContent = usage.companiesThisWeek.length.toLocaleString();
+  renderSparkline(usage.companiesTrend, "weekly-sparkline");
+
+  const totalAttempts = usage.companiesThisWeek.reduce((sum, company) => sum + company.count, 0);
+  document.getElementById("weekly-metric-attempts")!.textContent = totalAttempts.toLocaleString();
+  // "got through" stays a hardcoded 0 in the markup -- Moat has no signal
+  // for a tracker that got through undetected (there would be nothing to
+  // count), so showing anything else here would be a fabricated number.
+
+  const container = document.getElementById("weekly-tracker-rows") as HTMLElement;
+  const top = usage.companiesThisWeek.slice(0, 20);
+  const maxCount = Math.max(...top.map((company) => company.count), 1);
+  container.replaceChildren(
+    ...top.map((company) => {
+      const row = document.createElement("div");
+      row.className = "weekly-tracker-row";
+
+      const nameCell = document.createElement("div");
+      nameCell.className = "wt-name-cell";
+      const name = document.createElement("div");
+      name.className = "wt-name";
+      name.textContent = company.company;
+      const reach = document.createElement("div");
+      reach.className = "wt-reach";
+      reach.textContent = tFallback("optionsCompanyReach", `${company.hostnameCount} sites`, String(company.hostnameCount));
+      nameCell.append(name, reach);
+
+      // Fill is relative to the top company's own count, not a total -- a
+      // share-of-100% chart would imply a completeness this data doesn't
+      // have (only a fraction of trackers carry a known company mapping).
+      const track = document.createElement("div");
+      track.className = "wt-bar-track";
+      const fill = document.createElement("div");
+      fill.className = "wt-bar-fill";
+      fill.style.width = `${Math.max((company.count / maxCount) * 100, 4)}%`;
+      track.append(fill);
+
+      const count = document.createElement("div");
+      count.className = "wt-count";
+      count.textContent = company.count.toLocaleString();
+
+      row.append(nameCell, track, count);
+      return row;
+    })
+  );
+}
 
 // company name -> { description, url }, fetched once on first view. Lazy on
 // purpose: it's ~450KB of text nobody needs unless they open this tab.
@@ -1256,7 +1506,10 @@ async function renderTrackers(): Promise<void> {
   );
 }
 
-trackersRefresh.addEventListener("click", () => void renderTrackers());
+trackersRefresh.addEventListener("click", (event) => {
+  event.preventDefault();
+  void renderTrackers();
+});
 
 importSettingsInput.addEventListener("change", async () => {
   const file = importSettingsInput.files?.[0];

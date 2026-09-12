@@ -170,5 +170,15 @@ describe("summarize", () => {
     expect(summary.sparkline).toEqual([0, 0, 0, 0, 0, 0, 0]);
     expect(summary.bySignal).toEqual({});
     expect(summary.companiesThisWeek).toEqual([]);
+    expect(summary.companiesTrend).toEqual([0, 0, 0, 0, 0, 0, 0]);
+  });
+
+  it("counts distinct companies per day for companiesTrend", () => {
+    let state = recordCompanyMatches(EMPTY_STATE, "example.com", { Acme: 1, Globex: 1 }, NOW);
+    state = recordCompanyMatches(state, "example.com", { Acme: 1 }, NOW - DAY_MS);
+    const trend = summarize(state, NOW).companiesTrend;
+    expect(trend).toHaveLength(7);
+    expect(trend[6]).toBe(2); // today: Acme + Globex
+    expect(trend[5]).toBe(1); // yesterday: Acme only
   });
 });

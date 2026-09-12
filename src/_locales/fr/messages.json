@@ -644,5 +644,109 @@
   },
   "optionsDrawerStateAdvanced": {
     "message": "avancé"
+  },
+  "optionsFilterListsDesc": {
+    "message": "Les jeux de règles que Moat compile dans le bloqueur natif du navigateur. Les six sont inclus dans l'extension : rien n'est téléchargé pour qu'ils fonctionnent."
+  },
+  "optionsRulesActiveBaseline": {
+    "message": "règles actives · la limite de Chrome est de $CAP$",
+    "placeholders": {
+      "cap": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsBudgetPercentUsed": {
+    "message": "$PERCENT$ % du quota utilisé",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsFromDailyUpdatesLabel": {
+    "message": "issues des mises à jour quotidiennes"
+  },
+  "optionsSinceLastCheckLabel": {
+    "message": "depuis la dernière vérification"
+  },
+  "optionsCheckForUpdatesLink": {
+    "message": "Rechercher des mises à jour"
+  },
+  "optionsFilterMatchedOnPage": {
+    "message": " · a correspondu $COUNT$ fois sur cette page",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsCustomRulesDesc": {
+    "message": "Tout ce que vous avez masqué vous-même avec le sélecteur d'éléments. Cela prime sur les listes de filtres et ne quitte jamais votre navigateur."
+  },
+  "optionsPickElementButton": {
+    "message": "Choisir un élément"
+  },
+  "optionsPickElementFailed": {
+    "message": "Impossible de démarrer le sélecteur ici."
+  },
+  "optionsCustomRulesBaseline": {
+    "message": "$COUNT$ règles, sur $SITES$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "sites": {
+        "content": "$2"
+      }
+    }
+  },
+  "optionsHiddenTimesBaseline": {
+    "message": "Masqué $COUNT$ fois jusqu'ici",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsRulesStillMatchingLabel": {
+    "message": "correspondent toujours"
+  },
+  "optionsRulesStaleLabel": {
+    "message": "obsolètes"
+  },
+  "optionsRuleAddedMeta": {
+    "message": "Ajoutée il y a $DAYS$ jours · masqué $COUNT$ fois depuis",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "optionsRuleStaleMeta": {
+    "message": "Aucune correspondance depuis 30 jours — le site a probablement changé"
+  },
+  "optionsTrackersDesc": {
+    "message": "Quelles entreprises ont tenté de vous suivre, et jusqu'où. Calculé sur votre appareil à partir des données de correspondance du navigateur lui-même — cette liste n'est jamais envoyée où que ce soit."
+  },
+  "optionsCompaniesSeenBaseline": {
+    "message": "entreprises détectées cette semaine"
+  },
+  "optionsAttemptsBlockedLabel": {
+    "message": "tentatives bloquées"
+  },
+  "optionsGotThroughLabel": {
+    "message": "sont passées"
+  },
+  "optionsCompanyReach": {
+    "message": "$COUNT$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

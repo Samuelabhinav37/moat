@@ -646,5 +646,109 @@
   },
   "optionsDrawerStateAdvanced": {
     "message": "advanced"
+  },
+  "optionsFilterListsDesc": {
+    "message": "The rule sets Moat compiles into the browser's own blocker. All six ship inside the extension — nothing is fetched to make them work."
+  },
+  "optionsRulesActiveBaseline": {
+    "message": "rules active · Chrome's cap is $CAP$",
+    "placeholders": {
+      "cap": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsBudgetPercentUsed": {
+    "message": "$PERCENT$% of budget used",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsFromDailyUpdatesLabel": {
+    "message": "from daily updates"
+  },
+  "optionsSinceLastCheckLabel": {
+    "message": "since last check"
+  },
+  "optionsCheckForUpdatesLink": {
+    "message": "Check for updates"
+  },
+  "optionsFilterMatchedOnPage": {
+    "message": " · matched $COUNT$ times on this page",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsCustomRulesDesc": {
+    "message": "Everything you've hidden yourself with the element picker. These override the filter lists and never leave your browser."
+  },
+  "optionsPickElementButton": {
+    "message": "Pick an element"
+  },
+  "optionsPickElementFailed": {
+    "message": "Couldn't start the picker there."
+  },
+  "optionsCustomRulesBaseline": {
+    "message": "$COUNT$ rules, across $SITES$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "sites": {
+        "content": "$2"
+      }
+    }
+  },
+  "optionsHiddenTimesBaseline": {
+    "message": "Hidden $COUNT$ times so far",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsRulesStillMatchingLabel": {
+    "message": "still matching"
+  },
+  "optionsRulesStaleLabel": {
+    "message": "gone stale"
+  },
+  "optionsRuleAddedMeta": {
+    "message": "Added $DAYS$ days ago · hidden $COUNT$ times since",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "optionsRuleStaleMeta": {
+    "message": "Hasn't matched in 30 days — the site probably changed"
+  },
+  "optionsTrackersDesc": {
+    "message": "Which companies tried to follow you, and how far they got. Counted on your device from the browser's own match data — this list is never uploaded."
+  },
+  "optionsCompaniesSeenBaseline": {
+    "message": "companies seen this week"
+  },
+  "optionsAttemptsBlockedLabel": {
+    "message": "attempts blocked"
+  },
+  "optionsGotThroughLabel": {
+    "message": "got through"
+  },
+  "optionsCompanyReach": {
+    "message": "$COUNT$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

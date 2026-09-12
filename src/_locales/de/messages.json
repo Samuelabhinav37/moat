@@ -644,5 +644,109 @@
   },
   "optionsDrawerStateAdvanced": {
     "message": "erweitert"
+  },
+  "optionsFilterListsDesc": {
+    "message": "Die Regelsätze, die Moat in den browsereigenen Blocker kompiliert. Alle sechs sind in der Erweiterung enthalten — für ihre Funktion wird nichts nachgeladen."
+  },
+  "optionsRulesActiveBaseline": {
+    "message": "aktive Regeln · Chromes Obergrenze liegt bei $CAP$",
+    "placeholders": {
+      "cap": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsBudgetPercentUsed": {
+    "message": "$PERCENT$ % des Kontingents genutzt",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsFromDailyUpdatesLabel": {
+    "message": "aus täglichen Updates"
+  },
+  "optionsSinceLastCheckLabel": {
+    "message": "seit der letzten Prüfung"
+  },
+  "optionsCheckForUpdatesLink": {
+    "message": "Nach Updates suchen"
+  },
+  "optionsFilterMatchedOnPage": {
+    "message": " · $COUNT$ Treffer auf dieser Seite",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsCustomRulesDesc": {
+    "message": "Alles, was du selbst mit dem Element-Picker ausgeblendet hast. Das hat Vorrang vor den Filterlisten und verlässt nie deinen Browser."
+  },
+  "optionsPickElementButton": {
+    "message": "Element auswählen"
+  },
+  "optionsPickElementFailed": {
+    "message": "Der Picker konnte dort nicht gestartet werden."
+  },
+  "optionsCustomRulesBaseline": {
+    "message": "$COUNT$ Regeln auf $SITES$ Websites",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "sites": {
+        "content": "$2"
+      }
+    }
+  },
+  "optionsHiddenTimesBaseline": {
+    "message": "Bisher $COUNT$ Mal ausgeblendet",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsRulesStillMatchingLabel": {
+    "message": "noch aktiv"
+  },
+  "optionsRulesStaleLabel": {
+    "message": "veraltet"
+  },
+  "optionsRuleAddedMeta": {
+    "message": "Vor $DAYS$ Tagen hinzugefügt · seitdem $COUNT$ Mal ausgeblendet",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "optionsRuleStaleMeta": {
+    "message": "Seit 30 Tagen kein Treffer mehr — die Website hat sich wahrscheinlich geändert"
+  },
+  "optionsTrackersDesc": {
+    "message": "Welche Unternehmen versucht haben, dich zu verfolgen, und wie weit sie kamen. Wird auf deinem Gerät aus den eigenen Treffer­daten des Browsers gezählt — diese Liste wird nie hochgeladen."
+  },
+  "optionsCompaniesSeenBaseline": {
+    "message": "diese Woche erkannte Unternehmen"
+  },
+  "optionsAttemptsBlockedLabel": {
+    "message": "blockierte Versuche"
+  },
+  "optionsGotThroughLabel": {
+    "message": "kamen durch"
+  },
+  "optionsCompanyReach": {
+    "message": "$COUNT$ Websites",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

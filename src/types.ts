@@ -565,6 +565,10 @@ export interface UsageSummaryResponse {
   sparkline: number[];
   bySignal: Partial<Record<UsageSignal, UsageSignalSummary>>;
   companiesThisWeek: Array<{ company: string; count: number; hostnameCount: number }>;
+  /** Distinct companies per day, oldest to today -- 7 entries. Real data
+   * only supports a 7-*day* trend (14-day retention), not the design mock's
+   * illustrative "last 7 weeks". */
+  companiesTrend: number[];
 }
 
 /** Sent by options.ts's Filter Lists tab -- same "no page of its own, ask
@@ -580,6 +584,31 @@ export interface FilterListMatchesResponse {
   matchesByGroup: Record<string, number>;
   /** False on Firefox, same reasoning as CompanyBreakdownResponse.supported. */
   supported: boolean;
+}
+
+/** Sent by options.ts's Filter Lists tab "Check for updates" link -- bypasses
+ * liveUpdates.ts's daily freshness guard for this one explicit user action. */
+export interface CheckForLiveUpdatesMessage {
+  type: "check-for-live-updates";
+}
+
+/** Sent by options.ts's Custom Rules tab "Pick an element" button --
+ * options.html is its own tab, not necessarily the one the user wants to
+ * pick an element on, so it asks the background worker (which already
+ * tracks the last normal tab for the Trackers tab's own
+ * GetCompanyBreakdownMessage) to focus that tab and start the picker there,
+ * the same inject-on-demand fallback popup.ts's own "Block an element…"
+ * button already uses when a tab has no content script listening yet. */
+export interface StartElementPickerMessage {
+  type: "start-element-picker";
+}
+
+export interface StartElementPickerResponse {
+  /** False when there's no remembered normal tab, or the picker couldn't be
+   * reached/injected there (a chrome://, Web Store, or similarly restricted
+   * page) -- options.ts shows a brief inline note rather than doing nothing
+   * silently. */
+  ok: boolean;
 }
 
 /** Sent by content/cosmeticFilter.ts after checking which of this
@@ -629,7 +658,9 @@ export type RuntimeMessage =
   | RemoveCustomDomainMessage
   | RecordUsageSignalMessage
   | GetFilterListMatchesMessage
-  | RecordCustomRuleMatchMessage;
+  | RecordCustomRuleMatchMessage
+  | StartElementPickerMessage
+  | CheckForLiveUpdatesMessage;
 
 /** Message shape used on the window.postMessage bridge between the MAIN
  * world guard(s) and the isolated-world content script (postMessage is the

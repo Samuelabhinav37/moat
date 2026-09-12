@@ -174,8 +174,12 @@ async function refreshCosmeticFixes(expectedHash: string | undefined): Promise<n
   return countCosmeticFixSelectors(valid);
 }
 
-async function fetchAndApply(): Promise<void> {
-  if (shouldSkipRefetch(await getLiveUpdateStatus(), Date.now())) return;
+/** `force` bypasses the "already checked recently" freshness guard --
+ * used by the Settings page's "Check for updates" link (an explicit user
+ * action), same posture as reapplySettings' own `force` option elsewhere in
+ * this file. Every other caller (the daily alarm) leaves it off. */
+export async function fetchAndApply(options: { force?: boolean } = {}): Promise<void> {
+  if (!options.force && shouldSkipRefetch(await getLiveUpdateStatus(), Date.now())) return;
 
   try {
     const hashes = await fetchLiveManifest();

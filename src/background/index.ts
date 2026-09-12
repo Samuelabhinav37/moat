@@ -32,7 +32,7 @@ import {
 import { exportSettings, validateImportedSettings } from "./settingsPortability";
 import { dismissOnboarding, dismissUpdateNotice, getPopupUiNotices, recordUpdateSeen } from "./updateNotice";
 import { initPopupGuard } from "./popupGuard";
-import { initLiveUpdates } from "./liveUpdates";
+import { fetchAndApply, initLiveUpdates } from "./liveUpdates";
 import { getManagedPolicy } from "./managedPolicy";
 import { initAthenaIntegration, queueSecurityEvent } from "./athenaIntegration";
 import { isPolicyBlockedHostname } from "./athenaPolicySync";
@@ -52,6 +52,7 @@ import type {
   LogEntriesResponse,
   ReportContextResponse,
   RuntimeMessage,
+  StartElementPickerResponse,
   StatusResponse,
 } from "../types";
 import type { PopupUiNotices } from "./updateNotice";
@@ -473,6 +474,42 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
         return undefined;
       }
       return recordRuleMatches(message.hideHits, message.grayscaleHits).then(() => undefined);
+    }
+
+    case "check-for-live-updates": {
+      return fetchAndApply({ force: true }).then(() => undefined);
+    }
+
+    case "start-element-picker": {
+      return (async (): Promise<StartElementPickerResponse> => {
+        const tabId = getLastNormalTabId();
+        if (tabId === null) return { ok: false };
+        try {
+          const tab = await browser.tabs.get(tabId);
+          if (tab.windowId !== undefined) await browser.windows.update(tab.windowId, { focused: true });
+          await browser.tabs.update(tabId, { active: true });
+        } catch {
+          return { ok: false };
+        }
+        // Same inject-on-demand fallback as popup.ts's "Block an element…"
+        // button: element-picker.js only auto-injects on page load, so a
+        // tab left open since before the extension was last installed/
+        // reloaded has no receiver yet.
+        try {
+          await browser.tabs.sendMessage(tabId, { type: "start-picker" });
+          return { ok: true };
+        } catch {
+          try {
+            await browser.scripting.executeScript({ target: { tabId }, files: ["element-picker.js"] });
+            await browser.tabs.sendMessage(tabId, { type: "start-picker" });
+            return { ok: true };
+          } catch {
+            // A restricted page (chrome://, the Web Store) that content
+            // scripts can never run on -- nothing more we can do.
+            return { ok: false };
+          }
+        }
+      })();
     }
 
     default:
