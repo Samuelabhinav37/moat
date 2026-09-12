@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moat — a quiet ad blocker that keeps to itself</title>
+<meta name="description" content="Moat is a Manifest V3 ad blocker and popup/redirect firewall for Chrome and Firefox. No server, no account, no telemetry — everything runs on your device.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23030307'/%3E%3Cline x1='24' y1='8' x2='16' y2='16' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Cline x1='16' y1='16' x2='9' y2='25' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Cline x1='16' y1='16' x2='5.5' y2='11' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Ccircle cx='24' cy='8' r='4' fill='%23fff'/%3E%3Ccircle cx='16' cy='16' r='2.8' fill='rgba(255,255,255,.85)'/%3E%3Ccircle cx='9' cy='25' r='2.2' fill='rgba(255,255,255,.7)'/%3E%3Ccircle cx='5.5' cy='11' r='2' fill='rgba(255,255,255,.62)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --surface: #ffffff;
+    --surface-2: #eceff2;
+    --border: #d7dde3;
+    --ink: #18202c;
+    --ink-soft: #586573;
+    --ink-faint: #8a95a1;
+    --accent: #c1791f;
+    --accent-line: #c1791f;
+    --accent-soft: #f4e7d3;
+    --good: #2f7d54;
+    --bad: #b23b3b;
+    --track: #e7ebef;
+    --shadow: 0 1px 2px rgba(20, 30, 45, .05), 0 8px 24px -12px rgba(20, 30, 45, .12);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1621;
+      --surface: #16202b;
+      --surface-2: #1c2734;
+      --border: #2a3745;
+      --ink: #e7ecf2;
+      --ink-soft: #94a1b0;
+      --ink-faint: #6b7886;
+      --accent: #e0982f;
+      --accent-line: #e0982f;
+      --accent-soft: #392e1c;
+      --good: #55b482;
+      --bad: #d76b6b;
+      --track: #1a2530;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -14px rgba(0, 0, 0, .55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1621;
+    --surface: #16202b;
+    --surface-2: #1c2734;
+    --border: #2a3745;
+    --ink: #e7ecf2;
+    --ink-soft: #94a1b0;
+    --ink-faint: #6b7886;
+    --accent: #e0982f;
+    --accent-line: #e0982f;
+    --accent-soft: #392e1c;
+    --good: #55b482;
+    --bad: #d76b6b;
+    --track: #1a2530;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -14px rgba(0, 0, 0, .55);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 15px/1.6 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; }
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 56px 28px 72px;
+  }
+  code, .mono {
+    font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .88em;
+  }
+  code {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: .06em .38em;
+    color: var(--ink);
+  }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* ---- header ------------------------------------------------------- */
+  header { margin-bottom: 44px; }
+  header .eyebrow { display: flex; align-items: center; gap: 8px; }
+  header .mark {
+    width: 18px; height: 18px; flex: none;
+    color: var(--accent);
+  }
+  h1 {
+    font-size: clamp(30px, 5.4vw, 46px);
+    line-height: 1.08;
+    margin: 16px 0 14px;
+    max-width: 20ch;
+  }
+  .lede {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 60ch;
+  }
+  .lede b { color: var(--ink); font-weight: 500; }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+  }
+  .cta a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    color: var(--ink);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .cta a.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  :root[data-theme="dark"] .cta a.primary,
+  :root:not([data-theme="light"]) .cta a.primary { color: #17110a; }
+  .cta a svg { width: 15px; height: 15px; flex: none; }
+
+  .avail {
+    margin-top: 16px;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    font-family: "IBM Plex Mono", monospace;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    margin-top: 40px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .stat { background: var(--surface); padding: 16px 18px; }
+  .stat .n {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 21px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .stat .l {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 3px;
+  }
+
+  /* ---- section scaffold ---------------------------------------------- */
+  .loop { margin-top: 52px; }
+  .loop-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 22px;
+  }
+  .loop-head .cycle {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .loop-head .cycle::before {
+    content: "\21BB";
+    font-size: 15px;
+    line-height: 1;
+  }
+  .loop-head .tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: .02em;
+    color: var(--accent);
+  }
+  .loop-head h2 { font-size: 20px; }
+  .loop-head .runs {
+    margin-left: auto;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+  .loop-head .runs b { color: var(--ink-soft); font-weight: 500; }
+  .loop > p.note {
+    margin: -8px 0 22px;
+    color: var(--ink-soft);
+    font-size: 14px;
+    max-width: 74ch;
+  }
+
+  .track {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+  .stage {
+    flex: 0 0 auto;
+    min-width: 132px;
+    max-width: 210px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 13px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .stage .t { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+  .stage .d { font-size: 12px; color: var(--ink-soft); line-height: 1.45; }
+  .stage .d code { font-size: 11px; padding: .02em .3em; }
+  .stage.live { border-color: var(--accent); }
+  .stage.live .t { color: var(--accent); }
+  .stage.term { background: var(--surface-2); box-shadow: none; }
+
+  .arrow {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 30px;
+    height: 2px;
+    background: var(--ink-faint);
+    position: relative;
+    margin: 0 -1px;
+  }
+  .arrow::after {
+    content: "";
+    position: absolute;
+    right: -1px; top: 50%;
+    width: 7px; height: 7px;
+    border-top: 2px solid var(--ink-faint);
+    border-right: 2px solid var(--ink-faint);
+    transform: translateY(-50%) rotate(45deg);
+  }
+  .arrow.live, .arrow.live::after { background: var(--accent-line); border-color: var(--accent-line); }
+
+  .branch {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: auto 30px 1fr;
+    align-items: center;
+    min-width: 320px;
+  }
+  .branch .q {
+    background: var(--surface);
+    border: 1px dashed var(--accent);
+    border-radius: 8px;
+    padding: 11px 13px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    max-width: 160px;
+  }
+  .branch .legs { display: flex; flex-direction: column; gap: 8px; }
+  .leg { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .leg .cond {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 999px;
+    flex: none;
+  }
+  .leg.yes .cond { background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
+  .leg.no .cond { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad); }
+  .leg .out {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 11px;
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+  .leg .out b { color: var(--ink); font-weight: 500; }
+
+  .feeds {
+    margin-top: 16px;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .feeds .dash { flex: none; width: 46px; border-top: 2px dashed var(--accent-line); }
+  .feeds b { color: var(--ink-soft); font-weight: 500; }
+
+  /* ---- panels ------------------------------------------------------- */
+  .panels {
+    margin-top: 52px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 22px 24px;
+    box-shadow: var(--shadow);
+  }
+  .panel h3 {
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 14px;
+  }
+  .panel h3 .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .panel.sec h3 .dot { background: var(--good); }
+  .panel.scale h3 .dot { background: var(--accent); }
+  .panel ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .panel li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .panel li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+  }
+  .panel li b { color: var(--ink); font-weight: 500; }
+  .panel li code { font-size: 11.5px; }
+
+  /* ---- footer ------------------------------------------------------- */
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+    align-items: center;
+  }
+  footer a { color: var(--ink-soft); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+  footer b { color: var(--ink-soft); font-weight: 500; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 40px 18px 56px; }
+    .loop-head .runs { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <line x1="24" y1="8" x2="16" y2="16" stroke="currentColor" stroke-width="2.4"/>
+        <line x1="16" y1="16" x2="9" y2="25" stroke="currentColor" stroke-width="2.4"/>
+        <line x1="16" y1="16" x2="5.5" y2="11" stroke="currentColor" stroke-width="2.4"/>
+        <circle cx="24" cy="8" r="4" fill="currentColor"/>
+        <circle cx="16" cy="16" r="2.8" fill="currentColor"/>
+        <circle cx="9" cy="25" r="2.2" fill="currentColor"/>
+        <circle cx="5.5" cy="11" r="2" fill="currentColor"/>
+      </svg>
+      Moat &nbsp;·&nbsp; ad blocker &amp; popup / redirect firewall
+    </div>
+    <h1>A quiet ad blocker that keeps to itself.</h1>
+    <p class="lede">
+      Moat blocks ads, trackers, and hijacked popups on Chrome and Firefox &mdash; and then does
+      nothing else. <b>No server. No account. No telemetry. No crash reporting.</b> Everything it
+      does runs on your device, against pages already in your browser. Its developer receives
+      nothing about you, under any setting, ever. Built for Manifest&nbsp;V3 from day one, not a
+      stripped-down port of an older extension.
+    </p>
+
+    <div class="cta">
+      <a class="primary" href="https://github.com/Samuelabhinav37/moat#install--build">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Get Moat
+      </a>
+      <a href="https://github.com/Samuelabhinav37/moat">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.7 11.7 0 0 0-6 0C6.3 3 5.3 3.3 5.3 3.3a4.3 4.3 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.7c0 4.6 2.7 5.7 5.5 6-.4.4-.6 1-.5 1.6V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Source code
+      </a>
+      <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        Privacy policy
+      </a>
+    </div>
+    <p class="avail">
+      Status: active development &mdash; install unpacked from source today; Chrome Web Store and
+      Firefox Add-ons submissions are part of the release process, not yet live.
+    </p>
+
+    <div class="stats">
+      <div class="stat"><div class="n">0</div><div class="l">servers the developer operates</div></div>
+      <div class="stat"><div class="n">0</div><div class="l">telemetry / analytics events</div></div>
+      <div class="stat"><div class="n">271,274</div><div class="l">bundled <code>declarativeNetRequest</code> rules</div></div>
+      <div class="stat"><div class="n">GPL-3.0</div><div class="l">source, auditable end to end</div></div>
+    </div>
+  </header>
+
+  <!-- ============ WHAT LEAVES YOUR DEVICE ============ -->
+  <section class="loop">
+    <div class="loop-head">
+      <span class="tag">In four lines</span>
+      <h2>What Moat reads, and where it goes</h2>
+    </div>
+    <div class="panels" style="margin-top:0">
+      <div class="panel sec">
+        <h3><span class="dot"></span> Stays on your device</h3>
+        <ul>
+          <li><b>Page content</b> on sites you visit &mdash; read locally to block ads, trackers, and popups and to hide ad elements. Never sent anywhere.</li>
+          <li><b>Your settings</b> (filter lists, paused sites, custom block/allow and cosmetic rules) live in your browser's own local storage.</li>
+          <li><b>The block counts</b> in the toolbar badge are computed locally from the browser's own match data.</li>
+          <li><b>A rolling 14-day usage history</b> (what got blocked, per-site and per-setting) backs the Settings page's own charts &mdash; kept in local storage only, never part of the settings sync payload, and excluded from settings export/import.</li>
+        </ul>
+      </div>
+      <div class="panel scale">
+        <h3><span class="dot"></span> Leaves your device</h3>
+        <ul>
+          <li><b>Roughly once a day:</b> a few small static filter-fix files downloaded from a public GitHub&nbsp;Pages URL. A plain file fetch &mdash; it carries nothing about you beyond the IP any HTTP request shows.</li>
+          <li><b>Two opt-in features, off by default:</b> a leaked-password check (a 5-char hash prefix to Have&nbsp;I&nbsp;Been&nbsp;Pwned) and tracker CNAME-uncloaking (a hostname to a public DNS resolver, on Chrome only). Third parties, never Moat.</li>
+          <li><b>One enterprise-only integration:</b> minimized security events to <em>your own organization's</em> server, only if IT policy provisions it. Impossible to enable as a regular user.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note" style="margin-top:22px">
+      That is the complete list. The full detail, case by case, is in
+      <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md">PRIVACY.md</a>.
+    </p>
+  </section>
+
+  <!-- ============ CYCLE : ENFORCE ============ -->
+  <section class="loop">
+    <div class="loop-head">
+      <span class="cycle">Enforce</span>
+      <h2>What happens on every page load</h2>
+      <span class="runs">runs: <b>every navigation</b></span>
+    </div>
+    <p class="note">
+      Three enforcement layers act in parallel, all locally: the declarative network filter, the
+      page-side content scripts, and a tab-level safety net for popups the scripts never saw.
+    </p>
+    <div class="track">
+      <div class="stage">
+        <span class="t">Network request</span>
+        <span class="d">Any subresource, frame, or navigation the page makes.</span>
+      </div>
+      <div class="arrow"></div>
+      <div class="branch">
+        <div class="q">Matches a static DNR rule?</div>
+        <div class="arrow"></div>
+        <div class="legs">
+          <div class="leg yes"><span class="cond">match</span><span class="out"><b>Block</b> or redirect to a neutered stub resource.</span></div>
+          <div class="leg no"><span class="cond">no match</span><span class="out">Request proceeds normally.</span></div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="stage">
+        <span class="t">Content scripts @ <code>document_start</code></span>
+        <span class="d">Inject cosmetic CSS (<code>##</code> selectors), scriptlets, and the fingerprint guard in the MAIN world.</span>
+      </div>
+      <div class="arrow"></div>
+      <div class="branch">
+        <div class="q">New tab lands on a known redirect / popup domain?</div>
+        <div class="arrow"></div>
+        <div class="legs">
+          <div class="leg yes"><span class="cond">match</span><span class="out"><b>Close the tab silently.</b> Baseline list + the live slice.</span></div>
+          <div class="leg no"><span class="cond">no match</span><span class="out">Watched briefly for a late script-driven redirect, then released.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CYCLE : REFRESH ============ -->
+  <section class="loop">
+    <div class="loop-head">
+      <span class="cycle">Refresh</span>
+      <h2>The live-update channel</h2>
+      <span class="runs">runs: <b>every ~24&nbsp;h</b></span>
+    </div>
+    <p class="note">
+      A deliberately narrow slice &mdash; ~460 popup domains, an emergency block/allow list, and
+      cosmetic-selector fixes &mdash; kept fresher than the store-release cadence. The manifest is
+      verified against a <b>bundled Ed25519 public key</b>, and every payload against a
+      <b>SHA-256</b> in that manifest, before anything is applied; a failed check keeps the bundled
+      baseline. Hosted on GitHub&nbsp;Pages (10-minute cache), so the host holds no trust of its own.
+    </p>
+    <div class="track">
+      <div class="stage live">
+        <span class="t">Alarm fires</span>
+        <span class="d">Periodic ~24&nbsp;h, <b>create-if-absent</b> so a service-worker restart can't re-arm it early. First fire jittered 30&ndash;180&nbsp;min.</span>
+      </div>
+      <div class="arrow live"></div>
+      <div class="branch">
+        <div class="q">Last fetch OK &lt; 18&nbsp;h ago?</div>
+        <div class="arrow live"></div>
+        <div class="legs">
+          <div class="leg yes"><span class="cond">fresh</span><span class="out"><b>Skip the network.</b> popupGuard re-hydrates its live set from <code>storage.local</code>.</span></div>
+          <div class="leg no"><span class="cond">stale</span><span class="out">Fetch <code>manifest.json</code> + <code>.sig</code> from GitHub&nbsp;Pages.</span></div>
+        </div>
+      </div>
+      <div class="arrow live"></div>
+      <div class="branch">
+        <div class="q">Signature + per-payload SHA-256 verify?</div>
+        <div class="arrow live"></div>
+        <div class="legs">
+          <div class="leg no"><span class="cond">fails</span><span class="out"><b>Keep the bundled baseline.</b> Status = failed, retry next tick.</span></div>
+          <div class="leg yes"><span class="cond">verifies</span><span class="out"><b>Apply</b> the three payloads &mdash; see below.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feeds"><span class="dash"></span> On a verified apply, the three payloads feed straight into enforcement:</div>
+    <div class="track" style="margin-top:12px">
+      <div class="stage live">
+        <span class="t">redirect-domains</span>
+        <span class="d">&rarr; dynamic <code>block</code> DNR rules (persistent) <b>+</b> popupGuard's live set, also persisted for cold starts.</span>
+      </div>
+      <div class="stage live">
+        <span class="t">quick-fixes</span>
+        <span class="d">&rarr; dynamic <code>block</code> / <code>allow</code> rules only. No <code>redirect</code> / <code>modifyHeaders</code> &mdash; those "unsafe" types can't come from a remote source.</span>
+      </div>
+      <div class="stage live">
+        <span class="t">cosmetic-fixes</span>
+        <span class="d">&rarr; validated CSS selectors written to <code>storage.local</code>, applied by the content script on the <b>next</b> page load.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PANELS ============ -->
+  <div class="panels">
+    <div class="panel sec">
+      <h3><span class="dot"></span> Why the privacy claim holds</h3>
+      <ul>
+        <li><b>Nothing to sell.</b> No telemetry, no account, no server &mdash; an ownership change would have little to monetise.</li>
+        <li><b>The remote channel carries data, not code.</b> Only <code>block</code>/<code>allow</code> rules and CSS selectors, each run through the same <code>isSafeCosmeticSelector</code> sink as your own rules, with length and count caps.</li>
+        <li><b>Signed, then hashed.</b> The manifest is checked against a bundled Ed25519 key; each payload against a SHA-256 in the manifest. The shape validators bound even a fully compromised source to "block/allow a domain set".</li>
+        <li><b>Explicit CSP</b>, all scripts same-origin, no <code>eval</code>, no remote script. The dashboard renders via <code>createElement</code> + <code>textContent</code> only.</li>
+        <li><b><code>&lt;all_urls&gt;</code> at install</b> &mdash; standard for a content blocker; there is no other way to inspect requests on every site.</li>
+      </ul>
+    </div>
+
+    <div class="panel scale">
+      <h3><span class="dot"></span> Why it holds at scale</h3>
+      <ul>
+        <li><b>No shared bottleneck.</b> Every install runs independently; the browser stores absorb distribution and auto-update. 10k or 10M users is Google / Mozilla / GitHub's load, not a Moat server's.</li>
+        <li>The <b>only</b> recurring outbound call for a consumer install is the daily GitHub&nbsp;Pages pull &mdash; a few KB, ~1&ndash;2&times;/day per user, behind Cloudflare's cache.</li>
+        <li><b>Chrome's static-rule budget is shared</b> across every installed extension. Moat reacts to budget pressure and offers a smaller Lite preset; the ceiling can't be raised from inside an extension.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <span><b>v0.11.81</b></span>
+    <span><b>811</b> tests green</span>
+    <span>Manifest V3</span>
+    <span>Chrome &bull; Firefox</span>
+    <span>GPL-3.0</span>
+    <a href="https://github.com/Samuelabhinav37/moat">github.com/Samuelabhinav37/moat</a>
+  </footer>
+</div>
+</body>
+</html>
