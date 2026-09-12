@@ -5,6 +5,7 @@ import type {
   GetStatusMessage,
   GetUiNoticesMessage,
   ReportContextResponse,
+  SetPerSiteOverrideMessage,
   StatusResponse,
   ToggleSiteMessage,
 } from "../types";
@@ -12,6 +13,8 @@ import { buildIssueUrl } from "./reportIssue";
 import type { PopupUiNotices } from "../background/updateNotice";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { PROTECTION_LEVEL_MESSAGE_KEY, protectionLevelForCount } from "../shared/protectionLevel";
+import { getEffectiveSettings } from "../background/settings";
+import { effectiveValue, OVERRIDABLE_KEYS, type OverridableSettingKey } from "../shared/perSiteOverrides";
 
 // Firefox for Android opens the action popup as a full-width panel with no
 // toolbar anchor, so Moat's fixed 260px column reads as a narrow strip. Give
@@ -79,6 +82,84 @@ function renderCompanyBreakdown(companyBreakdown: Record<string, number>): void 
       return li;
     })
   );
+}
+
+const OVERRIDE_LABEL_KEYS: Record<OverridableSettingKey, string> = {
+  fingerprintResistance: "popupOverrideFingerprint",
+  cookieBannerAutoReject: "popupOverrideCookieBanner",
+  aggressiveFeedAdRemoval: "popupOverrideFeedAds",
+  hideSeoSpamResults: "popupOverrideSeoSpam",
+};
+
+// Always shown when a hostname is known -- these 4 settings' isEnabled()
+// gates already call effectiveValue() themselves (see content/bridge.ts,
+// consentRejector.ts, feedAdScanner.ts, searchSlopFilterEntry.ts), so
+// toggling a row here takes effect on the next check with no other plumbing.
+// One direct getEffectiveSettings() read, same pattern options.ts already
+// uses -- this panel doesn't go through StatusResponse since it needs the
+// full settings object, not just the popup's existing per-tab summary.
+async function renderSiteOverrides(hostname: string): Promise<void> {
+  const details = document.getElementById("site-overrides")!;
+  const list = document.getElementById("site-overrides-list")!;
+  const settings = await getEffectiveSettings();
+
+  list.replaceChildren(
+    ...OVERRIDABLE_KEYS.map((key) => {
+      const row = document.createElement("div");
+      row.className = "override-row";
+
+      const labelWrap = document.createElement("div");
+      labelWrap.className = "label";
+      const labelText = document.createElement("span");
+      labelText.textContent = getMessageOrFallback(
+        (k) => browser.i18n.getMessage(k),
+        OVERRIDE_LABEL_KEYS[key],
+        key
+      );
+      const resetButton = document.createElement("button");
+      resetButton.type = "button";
+      resetButton.className = "reset";
+      resetButton.textContent = getMessageOrFallback(
+        (k) => browser.i18n.getMessage(k),
+        "popupOverrideReset",
+        "Reset"
+      );
+      resetButton.hidden = settings.perSiteOverrides[hostname]?.[key] === undefined;
+      labelWrap.append(labelText, resetButton);
+
+      const switchLabel = document.createElement("label");
+      switchLabel.className = "switch";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = effectiveValue(settings, hostname, key);
+      const track = document.createElement("span");
+      track.className = "track";
+      const thumb = document.createElement("span");
+      thumb.className = "thumb";
+      track.append(thumb);
+      switchLabel.append(input, track);
+
+      function send(value: boolean | null): void {
+        const message: SetPerSiteOverrideMessage = { type: "set-per-site-override", hostname, key, value };
+        void browser.runtime.sendMessage(message);
+      }
+
+      input.addEventListener("change", () => {
+        send(input.checked);
+        resetButton.hidden = false;
+      });
+      resetButton.addEventListener("click", () => {
+        send(null);
+        input.checked = settings[key];
+        resetButton.hidden = true;
+      });
+
+      row.append(labelWrap, switchLabel);
+      return row;
+    })
+  );
+
+  details.hidden = false;
 }
 
 const PERMISSION_GUARD_LINK_IDS = {
@@ -173,6 +254,10 @@ async function render(): Promise<void> {
   hostnameEl.textContent = status.hostname;
   pausedHostname.textContent = status.hostname;
   renderPermissionGuardNotice(status.hostname, status.permissionGuard);
+  void renderSiteOverrides(status.hostname).catch(() => {
+    // Best-effort -- the core pause/protect toggle above still works fine
+    // without this panel if the settings read fails.
+  });
   toggle.checked = !status.siteDisabled;
   toggle.disabled = !status.enabled;
 

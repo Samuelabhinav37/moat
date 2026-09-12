@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.81
+
+### Added
+- **Per-site override panel for 4 protections**, in the popup under a new "Customize for
+  this site" disclosure: fingerprint resistance, cookie-banner auto-reject, aggressive
+  feed-ad removal, and low-quality search-result hiding can each now be turned on or off
+  for one specific site without touching the global setting, with a "Reset" affordance
+  that clears the override and reverts to the global value. Scoped down from a prior
+  audit's original 4-candidate guess after finding that 2 of the 4
+  (`webrtcLeakProtection`, `blockThirdPartyCookies`) apply via `browser.privacy.*`
+  APIs with no per-origin variant at all -- not actually implementable per-site. Stored
+  as a new `Settings.perSiteOverrides` field (hostname -> per-setting boolean map,
+  domain-chain resolved via `shared/perSiteOverrides.ts`'s `effectiveValue()`, most
+  specific override wins), included in settings export/import and the opt-in sync
+  mirror. Popup-only for this pass; the options page and `cnameUncloaking` are natural
+  follow-ons, not built here.
+
 ## 0.11.80
 
 ### Changed

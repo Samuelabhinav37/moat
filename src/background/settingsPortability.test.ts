@@ -11,6 +11,7 @@ const FULL_SETTINGS: Settings = {
   customAllowedDomains: ["good.example"],
   customCosmeticRules: { "example.com": [".ad"] },
   customGrayscaleRules: { "example.com": [".video-ad"] },
+  perSiteOverrides: { "example.com": { hideSeoSpamResults: false } },
 };
 
 describe("exportSettings", () => {
@@ -119,5 +120,35 @@ describe("validateImportedSettings", () => {
 
   it("rejects an empty-string entry in a plain string array field", () => {
     expect(validateImportedSettings({ disabledSites: [""] })).toBeNull();
+  });
+
+  it("accepts a valid perSiteOverrides map", () => {
+    const patch = validateImportedSettings({
+      perSiteOverrides: { "example.com": { hideSeoSpamResults: false, cookieBannerAutoReject: true } },
+    });
+    expect(patch?.perSiteOverrides).toEqual({
+      "example.com": { hideSeoSpamResults: false, cookieBannerAutoReject: true },
+    });
+  });
+
+  it("rejects a perSiteOverrides entry with a key outside the 4 known overridable settings", () => {
+    expect(validateImportedSettings({ perSiteOverrides: { "example.com": { enabled: false } } })).toBeNull();
+  });
+
+  it("rejects a perSiteOverrides entry whose value isn't a boolean", () => {
+    expect(
+      validateImportedSettings({ perSiteOverrides: { "example.com": { hideSeoSpamResults: "off" } } })
+    ).toBeNull();
+  });
+
+  it("rejects a perSiteOverrides value that isn't a hostname-keyed object", () => {
+    expect(validateImportedSettings({ perSiteOverrides: ["example.com"] })).toBeNull();
+    expect(validateImportedSettings({ perSiteOverrides: "example.com" })).toBeNull();
+  });
+
+  it("rejects a perSiteOverrides map with more hostnames than MAX_RECORD_KEYS", () => {
+    const tooMany: Record<string, { hideSeoSpamResults: boolean }> = {};
+    for (let i = 0; i < 2001; i += 1) tooMany[`site${i}.example.com`] = { hideSeoSpamResults: true };
+    expect(validateImportedSettings({ perSiteOverrides: tooMany })).toBeNull();
   });
 });

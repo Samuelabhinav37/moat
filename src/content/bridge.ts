@@ -13,6 +13,7 @@ import {
 } from "../types";
 import { getEffectiveSettings } from "../background/settings";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
+import { effectiveValue } from "../shared/perSiteOverrides";
 
 // Routed through the background worker rather than calling
 // getOrCreateFingerprintSeed/getOrCreateSessionFingerprintSeed directly the
@@ -58,7 +59,8 @@ function claimGuardToken(): void {
 async function sendConfig(): Promise<void> {
   const settings = await getEffectiveSettings();
   const disabled = !settings.enabled || matchesDomainOrSubdomain(location.hostname, settings.disabledSites);
-  const fingerprintResistance = settings.fingerprintResistance && !disabled;
+  const fingerprintResistance =
+    effectiveValue(settings, location.hostname, "fingerprintResistance") && !disabled;
   if (fingerprintResistance) {
     const signalMessage: RecordUsageSignalMessage = {
       type: "record-usage-signal",

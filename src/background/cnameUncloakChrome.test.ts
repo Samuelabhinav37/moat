@@ -39,6 +39,7 @@ const baseSettings: Settings = {
   permissionGuardMicrophone: false,
   permissionGuardLocation: false,
   hideSeoSpamResults: false,
+  perSiteOverrides: {},
 };
 
 // applyCnameUncloakChrome tracks "have we already cleaned up" in module-level

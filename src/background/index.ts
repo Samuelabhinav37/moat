@@ -26,9 +26,11 @@ import {
   removeCustomCosmeticRule,
   removeGrayscaleRule,
   seedFromSyncIfEmpty,
+  setPerSiteOverride,
   setSettings,
   setSiteDisabled,
 } from "./settings";
+import { OVERRIDABLE_KEYS } from "../shared/perSiteOverrides";
 import { exportSettings, validateImportedSettings } from "./settingsPortability";
 import { dismissOnboarding, dismissUpdateNotice, getPopupUiNotices, recordUpdateSeen } from "./updateNotice";
 import { initPopupGuard } from "./popupGuard";
@@ -293,6 +295,13 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     case "toggle-site": {
       if (!isValidMessageString(message.hostname)) return undefined;
       return setSiteDisabled(message.hostname, message.disabled).then(() => undefined);
+    }
+
+    case "set-per-site-override": {
+      if (!isValidMessageString(message.hostname)) return undefined;
+      if (!OVERRIDABLE_KEYS.includes(message.key)) return undefined;
+      if (message.value !== null && typeof message.value !== "boolean") return undefined;
+      return setPerSiteOverride(message.hostname, message.key, message.value).then(() => undefined);
     }
 
     case "allow-permission-guard-origin": {

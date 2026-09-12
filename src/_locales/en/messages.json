@@ -55,6 +55,24 @@
   "popupByCompany": {
     "message": "By company"
   },
+  "popupCustomizeSite": {
+    "message": "Customize for this site"
+  },
+  "popupOverrideFingerprint": {
+    "message": "Block fingerprinting"
+  },
+  "popupOverrideCookieBanner": {
+    "message": "Auto-reject cookie banners"
+  },
+  "popupOverrideFeedAds": {
+    "message": "Hide sponsored posts"
+  },
+  "popupOverrideSeoSpam": {
+    "message": "Hide low-quality results"
+  },
+  "popupOverrideReset": {
+    "message": "Reset"
+  },
   "popupPausedPrefix": {
     "message": "Paused on "
   },

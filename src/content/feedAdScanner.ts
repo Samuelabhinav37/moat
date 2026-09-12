@@ -23,6 +23,7 @@
 import browser from "webextension-polyfill";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { findAdContainer, isAdLabel } from "./feedAdLabel";
+import { effectiveValue } from "../shared/perSiteOverrides";
 import { STORAGE_KEY, type RecordUsageSignalMessage } from "../types";
 
 function reportHidden(count: number): void {
@@ -42,7 +43,7 @@ const SCAN_DELAY_MS = 200;
 
 async function isEnabled(): Promise<boolean> {
   const effective = await getEffectiveSettingsHere();
-  return effective.aggressiveFeedAdRemoval && !isDisabled(effective);
+  return effectiveValue(effective, location.hostname, "aggressiveFeedAdRemoval") && !isDisabled(effective);
 }
 
 function ensureStyle(): void {

@@ -5,6 +5,7 @@
 // settings.ts.
 import { DEFAULT_SETTINGS, type Settings } from "../types";
 import { isSafeCosmeticSelector } from "../shared/selectorSafety";
+import { OVERRIDABLE_KEYS } from "../shared/perSiteOverrides";
 
 export type ExportableSettings = Omit<Settings, "fingerprintSeed">;
 
@@ -59,9 +60,29 @@ function isSelectorMap(value: unknown): value is Record<string, string[]> {
   );
 }
 
+/** Hostname -> { one of the 4 OVERRIDABLE_KEYS: boolean } shape
+ * (Settings.perSiteOverrides). Same per-layer bounds as isSelectorMap, but
+ * each per-host object may only contain known override keys with boolean
+ * values -- unlike customCosmeticRules' open-ended selector strings, this
+ * field's whole point is a closed, small vocabulary, so anything else means
+ * the import is malformed rather than just from a newer build. */
+function isPerSiteOverrideMap(value: unknown): value is Settings["perSiteOverrides"] {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const entries = Object.entries(value);
+  if (entries.length > MAX_RECORD_KEYS) return false;
+  return entries.every(([hostname, overrides]) => {
+    if (hostname.length === 0 || hostname.length > MAX_STRING_LENGTH) return false;
+    if (typeof overrides !== "object" || overrides === null || Array.isArray(overrides)) return false;
+    return Object.entries(overrides).every(
+      ([key, v]) => (OVERRIDABLE_KEYS as readonly string[]).includes(key) && typeof v === "boolean"
+    );
+  });
+}
+
 const STRING_ARRAY_FIELDS = new Set(["disabledSites", "customBlockedDomains", "customAllowedDomains"]);
 const BOOLEAN_RECORD_FIELDS = new Set(["filterGroups"]);
 const SELECTOR_MAP_FIELDS = new Set(["customCosmeticRules", "customGrayscaleRules"]);
+const PER_SITE_OVERRIDE_FIELDS = new Set(["perSiteOverrides"]);
 
 /** Rejects the whole payload (returns null) rather than partially applying
  * anything malformed -- checks every DEFAULT_SETTINGS key present in the
@@ -94,6 +115,8 @@ export function validateImportedSettings(value: unknown): Partial<Settings> | nu
       if (!isBooleanRecord(actual)) return null;
     } else if (SELECTOR_MAP_FIELDS.has(key)) {
       if (!isSelectorMap(actual)) return null;
+    } else if (PER_SITE_OVERRIDE_FIELDS.has(key)) {
+      if (!isPerSiteOverrideMap(actual)) return null;
     } else if (typeof actual !== "boolean") {
       return null;
     }

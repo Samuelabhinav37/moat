@@ -23,6 +23,7 @@
 // budget below runs out.
 import browser from "webextension-polyfill";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
+import { effectiveValue } from "../shared/perSiteOverrides";
 import { buildCmps, runConsentRejection } from "./consent/engine";
 import { runHeuristicFallback } from "./consent/heuristicFallback";
 import type { RuleSet } from "./consent/types";
@@ -42,7 +43,7 @@ const POLL_INTERVAL_MS = 300;
 
 async function isEnabled(): Promise<boolean> {
   const effective = await getEffectiveSettingsHere();
-  return effective.cookieBannerAutoReject && !isDisabled(effective);
+  return effectiveValue(effective, location.hostname, "cookieBannerAutoReject") && !isDisabled(effective);
 }
 
 async function fetchRuleSet(): Promise<RuleSet> {

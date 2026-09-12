@@ -7,6 +7,7 @@
 import browser from "webextension-polyfill";
 import { engineConfigFor, runSearchSlopPass } from "./searchSlopFilter";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
+import { effectiveValue } from "../shared/perSiteOverrides";
 import type { RecordUsageSignalMessage } from "../types";
 
 function reportHidden(count: number): void {
@@ -31,7 +32,7 @@ async function readSeoSpamDomains(): Promise<string[]> {
 
 async function isEnabled(): Promise<boolean> {
   const effective = await getEffectiveSettingsHere();
-  return effective.hideSeoSpamResults && !isDisabled(effective);
+  return effectiveValue(effective, location.hostname, "hideSeoSpamResults") && !isDisabled(effective);
 }
 
 async function run(): Promise<void> {

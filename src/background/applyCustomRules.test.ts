@@ -33,6 +33,7 @@ const baseSettings: Settings = {
   permissionGuardMicrophone: false,
   permissionGuardLocation: false,
   hideSeoSpamResults: false,
+  perSiteOverrides: {},
 };
 
 beforeEach(() => {

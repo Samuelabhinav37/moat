@@ -53,6 +53,24 @@
   "popupByCompany": {
     "message": "Por empresa"
   },
+  "popupCustomizeSite": {
+    "message": "Personalizar para este sitio"
+  },
+  "popupOverrideFingerprint": {
+    "message": "Bloquear huella digital"
+  },
+  "popupOverrideCookieBanner": {
+    "message": "Rechazar automáticamente cookies"
+  },
+  "popupOverrideFeedAds": {
+    "message": "Ocultar publicaciones patrocinadas"
+  },
+  "popupOverrideSeoSpam": {
+    "message": "Ocultar resultados de baja calidad"
+  },
+  "popupOverrideReset": {
+    "message": "Restablecer"
+  },
   "popupPausedPrefix": {
     "message": "Pausado en "
   },

@@ -123,7 +123,22 @@ export interface Settings {
    * exhaustive.
    */
   hideSeoSpamResults: boolean;
+  /**
+   * Per-hostname overrides for a small subset of settings (see
+   * shared/perSiteOverrides.ts's OVERRIDABLE_KEYS), keyed by hostname. A
+   * hostname with no entry, or a key missing from its entry, falls back to
+   * the matching global setting above -- this is additive/quiet by design,
+   * never a second source of truth for settings this map doesn't cover.
+   */
+  perSiteOverrides: Record<string, Partial<Pick<Settings, OverridableSettingKey>>>;
 }
+
+/** Settings a per-site override can apply to -- see shared/perSiteOverrides.ts. */
+export type OverridableSettingKey =
+  | "fingerprintResistance"
+  | "cookieBannerAutoReject"
+  | "aggressiveFeedAdRemoval"
+  | "hideSeoSpamResults";
 
 export const DEFAULT_SETTINGS: Settings = {
   disabledSites: [],
@@ -148,6 +163,7 @@ export const DEFAULT_SETTINGS: Settings = {
   permissionGuardMicrophone: false,
   permissionGuardLocation: false,
   hideSeoSpamResults: false,
+  perSiteOverrides: {},
 };
 
 export const STORAGE_KEY = "settings";
@@ -214,6 +230,16 @@ export interface ToggleSiteMessage {
   type: "toggle-site";
   hostname: string;
   disabled: boolean;
+}
+
+/** Sent by the popup's per-site "Customize for this site" panel -- see
+ * shared/perSiteOverrides.ts. `value: null` clears the override for that
+ * hostname/key, reverting to the global setting. */
+export interface SetPerSiteOverrideMessage {
+  type: "set-per-site-override";
+  hostname: string;
+  key: OverridableSettingKey;
+  value: boolean | null;
 }
 
 /** Sent by the popup's "Allow camera/mic/location on this site" action --
@@ -635,6 +661,7 @@ export type RuntimeMessage =
   | BlockedMessage
   | GetStatusMessage
   | ToggleSiteMessage
+  | SetPerSiteOverrideMessage
   | AllowPermissionGuardOriginMessage
   | GetCompanyBreakdownMessage
   | SaveCosmeticRuleMessage

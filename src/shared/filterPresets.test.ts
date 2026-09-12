@@ -25,6 +25,7 @@ const baseSettings: Settings = {
   permissionGuardMicrophone: false,
   permissionGuardLocation: false,
   hideSeoSpamResults: false,
+  perSiteOverrides: {},
 };
 
 describe("presetPatch", () => {

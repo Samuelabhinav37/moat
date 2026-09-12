@@ -1,5 +1,11 @@
 import browser from "webextension-polyfill";
-import { DEFAULT_SETTINGS, SETTINGS_PATCH_ALLOWED_FIELDS, STORAGE_KEY, type Settings } from "../types";
+import {
+  DEFAULT_SETTINGS,
+  SETTINGS_PATCH_ALLOWED_FIELDS,
+  STORAGE_KEY,
+  type OverridableSettingKey,
+  type Settings,
+} from "../types";
 import { PRESETS } from "../shared/filterPresets";
 import { applyPrivacySettings } from "./privacySettings";
 import { applyFilterGroupState } from "./filterGroups";
@@ -224,6 +230,31 @@ function removeSelectorRule(field: SelectorMapField, hostname: string, selector:
       delete next[hostname];
     }
     return { [field]: next } as Partial<Settings>;
+  });
+}
+
+/** value: null clears the override for hostname/key, reverting to the
+ * global setting -- see shared/perSiteOverrides.ts's effectiveValue(). Tidies
+ * up an empty per-host entry entirely, same as removeSelectorRule above. */
+export function setPerSiteOverride(
+  hostname: string,
+  key: OverridableSettingKey,
+  value: boolean | null
+): Promise<Settings> {
+  return mutateSettings((current) => {
+    const next = { ...current.perSiteOverrides };
+    const existing = { ...next[hostname] };
+    if (value === null) {
+      delete existing[key];
+    } else {
+      existing[key] = value;
+    }
+    if (Object.keys(existing).length > 0) {
+      next[hostname] = existing;
+    } else {
+      delete next[hostname];
+    }
+    return { perSiteOverrides: next };
   });
 }
 
