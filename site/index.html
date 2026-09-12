@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Moat — a quiet ad blocker that keeps to itself</title>
 <meta name="description" content="Moat is a Manifest V3 ad blocker and popup/redirect firewall for Chrome and Firefox. No server, no account, no telemetry — everything runs on your device.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23030307'/%3E%3Cline x1='24' y1='8' x2='16' y2='16' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Cline x1='16' y1='16' x2='9' y2='25' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Cline x1='16' y1='16' x2='5.5' y2='11' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Ccircle cx='24' cy='8' r='4' fill='%23fff'/%3E%3Ccircle cx='16' cy='16' r='2.8' fill='rgba(255,255,255,.85)'/%3E%3Ccircle cx='9' cy='25' r='2.2' fill='rgba(255,255,255,.7)'/%3E%3Ccircle cx='5.5' cy='11' r='2' fill='rgba(255,255,255,.62)'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -400,11 +401,14 @@
 <div class="wrap">
   <header>
     <div class="eyebrow">
-      <svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 2.5 20 6v6c0 5-3.4 8.3-8 9.5C7.4 20.3 4 17 4 12V6l8-3.5Z"
-              stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-        <path d="M8.5 12.2l2.4 2.4 4.6-5" stroke="currentColor" stroke-width="1.8"
-              stroke-linecap="round" stroke-linejoin="round"/>
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <line x1="24" y1="8" x2="16" y2="16" stroke="currentColor" stroke-width="2.4"/>
+        <line x1="16" y1="16" x2="9" y2="25" stroke="currentColor" stroke-width="2.4"/>
+        <line x1="16" y1="16" x2="5.5" y2="11" stroke="currentColor" stroke-width="2.4"/>
+        <circle cx="24" cy="8" r="4" fill="currentColor"/>
+        <circle cx="16" cy="16" r="2.8" fill="currentColor"/>
+        <circle cx="9" cy="25" r="2.2" fill="currentColor"/>
+        <circle cx="5.5" cy="11" r="2" fill="currentColor"/>
       </svg>
       Moat &nbsp;·&nbsp; ad blocker &amp; popup / redirect firewall
     </div>
@@ -439,7 +443,7 @@
     <div class="stats">
       <div class="stat"><div class="n">0</div><div class="l">servers the developer operates</div></div>
       <div class="stat"><div class="n">0</div><div class="l">telemetry / analytics events</div></div>
-      <div class="stat"><div class="n">271,270</div><div class="l">bundled <code>declarativeNetRequest</code> rules</div></div>
+      <div class="stat"><div class="n">271,274</div><div class="l">bundled <code>declarativeNetRequest</code> rules</div></div>
       <div class="stat"><div class="n">GPL-3.0</div><div class="l">source, auditable end to end</div></div>
     </div>
   </header>
@@ -457,6 +461,7 @@
           <li><b>Page content</b> on sites you visit &mdash; read locally to block ads, trackers, and popups and to hide ad elements. Never sent anywhere.</li>
           <li><b>Your settings</b> (filter lists, paused sites, custom block/allow and cosmetic rules) live in your browser's own local storage.</li>
           <li><b>The block counts</b> in the toolbar badge are computed locally from the browser's own match data.</li>
+          <li><b>A rolling 14-day usage history</b> (what got blocked, per-site and per-setting) backs the Settings page's own charts &mdash; kept in local storage only, never part of the settings sync payload, and excluded from settings export/import.</li>
         </ul>
       </div>
       <div class="panel scale">
@@ -596,8 +601,8 @@
   </div>
 
   <footer>
-    <span><b>v0.11.57</b></span>
-    <span><b>562</b> tests green</span>
+    <span><b>v0.11.81</b></span>
+    <span><b>811</b> tests green</span>
     <span>Manifest V3</span>
     <span>Chrome &bull; Firefox</span>
     <span>GPL-3.0</span>
