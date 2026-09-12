@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.80
+
+### Changed
+- **Added an automated watch threshold for the generic-cosmetic-selector split.**
+  `scripts/update-cosmetics.mjs` already computed and logged what fraction of the generic
+  selector set can't be sharded by content-driven token (the "always-on" `genericHigh`
+  slice, injected unconditionally on every page) on every `filters:update` run -- it just
+  never surfaced past a log line. Added a `MAX_GENERIC_HIGH_PCT` threshold (15%, current
+  real value 6.2%) that prints a loud warning, not a hard failure, if crossed -- this is
+  the whole fix for a 2026-09-12 algorithm audit's sharding-drift watch item;
+  content-driven (adblock-rust-style) sharding of the always-on set stays correctly
+  unbuilt until this actually fires.
+
 ## 0.11.79
 
 ### Changed

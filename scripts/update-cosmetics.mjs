@@ -157,6 +157,7 @@ if (existsSync(previousMetaPath)) {
 // scripts/lib/domainBucket.test.mjs.
 const BUCKET_COUNT = 64;
 const MAX_CHUNK_BYTES = 4.5 * 1024 * 1024;
+const MAX_GENERIC_HIGH_PCT = 15;
 
 // Each bucket's per-domain value is { h?: hide-selectors, i?: [selector,
 // declaration] injection pairs } rather than a bare array -- most domains
@@ -235,6 +236,15 @@ const largestBucketBytes = Math.max(...bucketSizesBytes);
 const genericHighPct = index.generic.length
   ? ((genericHigh.length / index.generic.length) * 100).toFixed(1)
   : "0.0";
+if (Number(genericHighPct) > MAX_GENERIC_HIGH_PCT) {
+  console.warn(
+    `WARNING: always-on generic selectors are ${genericHighPct}% of the generic set, ` +
+      `over the ${MAX_GENERIC_HIGH_PCT}% watch threshold (${genericHigh.length} of ${index.generic.length}). ` +
+      `This isn't a broken build, but it means token-based sharding is catching fewer selectors than ` +
+      `expected -- worth a human look at whether content-driven (adblock-rust-style) sharding of the ` +
+      `always-on set is now worth building. See docs/research/blocking-algorithm-cost-and-parallelism-2026-09.md.`
+  );
+}
 console.log(
   `Wrote ${1 + BUCKET_COUNT} cosmetics file(s): ${index.generic.length} generic selectors ` +
     `(${Object.keys(genericByHash).length} token buckets, ${genericHigh.length} always-on / ${genericHighPct}%), ` +
