@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.75
+
+### Fixed
+- **The extension icon was effectively invisible on a light toolbar.** `icons/logo.svg` (the
+  source for `icon16/32/48/128.png`) had no background plate — only `icons/logo-banner.svg`
+  did — so the mark rendered white-on-transparent against Chrome's default light toolbar.
+  Separately, the two smallest constellation nodes were sub-pixel at 16px (`r="1.43"` on a
+  32-unit grid, or 0.7px rendered), and a `feGaussianBlur` glow sized for a full-page mark
+  smeared a third of the icon at favicon scale. Fixed by giving both SVGs the same `#030307`
+  rounded-rect plate at every size, resizing the four constellation nodes to `4/2.8/2.2/2.0`
+  (smallest now a real 1px at 16px), snapping node coordinates to the pixel grid, dropping
+  the blur filter and its duplicate blurred circle entirely, and regenerating
+  `icon16/32/48/128.png` from the fixed SVG. The inline copy of the old mark in the popup's
+  brand row (`src/popup/popup.html`) is replaced the same way; `options.html`'s brand row
+  already referenced the PNG and picks up the fix automatically.
+
 ## 0.11.74
 
 ### Changed
