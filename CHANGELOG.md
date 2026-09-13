@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.89
+
+### Fixed
+- **The popup's "Customize for this site" panel was invisible.** Its text used the
+  page's dark-background color tokens (`var(--t1)`/`--t2`/`--t3`, near-white), but the
+  panel is nested inside the site-card's *white* background -- rendering as
+  near-invisible white-on-white. Never caught until this session's first real visual
+  pass in an actual browser (every prior check was jsdom-based, which doesn't compute
+  colors against a real background). Fixed to match `.host`/`.site-state`'s existing
+  on-white palette.
+- **Its 4 toggle labels showed raw setting-key names** ("fingerprintResistance"
+  instead of "Block fingerprinting") whenever the i18n lookup came back empty, since
+  the fallback argument was accidentally the loop's key variable instead of real
+  English text -- inconsistent with every other `getMessageOrFallback` call in the
+  codebase, which always passes a real fallback string. Fixed to use the same
+  `[messageKey, fallback]` tuple convention `options.ts`'s own toggle list already
+  uses. Dormant in production today (the real locale file has always had the correct
+  strings), but a real gap if a translation ever went missing.
+
 ## 0.11.88
 
 ### Fixed

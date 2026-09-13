@@ -84,11 +84,14 @@ function renderCompanyBreakdown(companyBreakdown: Record<string, number>): void 
   );
 }
 
-const OVERRIDE_LABEL_KEYS: Record<OverridableSettingKey, string> = {
-  fingerprintResistance: "popupOverrideFingerprint",
-  cookieBannerAutoReject: "popupOverrideCookieBanner",
-  aggressiveFeedAdRemoval: "popupOverrideFeedAds",
-  hideSeoSpamResults: "popupOverrideSeoSpam",
+// [messageKey, English fallback] -- same tuple convention options.ts's own
+// PROTECTIONS list uses for titleKey/descKey, so a missing/failed i18n
+// lookup falls back to real text instead of the raw settings-key name.
+const OVERRIDE_LABEL_KEYS: Record<OverridableSettingKey, readonly [string, string]> = {
+  fingerprintResistance: ["popupOverrideFingerprint", "Block fingerprinting"],
+  cookieBannerAutoReject: ["popupOverrideCookieBanner", "Auto-reject cookie banners"],
+  aggressiveFeedAdRemoval: ["popupOverrideFeedAds", "Hide sponsored posts"],
+  hideSeoSpamResults: ["popupOverrideSeoSpam", "Hide low-quality results"],
 };
 
 // Always shown when a hostname is known -- these 4 settings' isEnabled()
@@ -113,8 +116,7 @@ async function renderSiteOverrides(hostname: string): Promise<void> {
       const labelText = document.createElement("span");
       labelText.textContent = getMessageOrFallback(
         (k) => browser.i18n.getMessage(k),
-        OVERRIDE_LABEL_KEYS[key],
-        key
+        ...OVERRIDE_LABEL_KEYS[key]
       );
       const resetButton = document.createElement("button");
       resetButton.type = "button";

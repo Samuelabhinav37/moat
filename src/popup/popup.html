@@ -200,7 +200,12 @@
       }
       #site-overrides summary {
         cursor: pointer;
-        color: var(--t2);
+        /* Nested inside #site-card's white background, not the page's dark
+           one -- var(--t2) etc. are near-white and were rendering invisibly
+           here until this was actually looked at in a browser, not just
+           jsdom (which doesn't compute against a real background). Matches
+           .host/.site-state's own on-white palette below instead. */
+        color: #737278;
         user-select: none;
       }
       #site-overrides-list {
@@ -222,12 +227,12 @@
         min-width: 0;
       }
       .override-row .label span:first-child {
-        color: var(--t1);
+        color: #38373b;
       }
       .override-row .reset {
         border: none;
         background: none;
-        color: var(--t3);
+        color: #737278;
         font-size: 10.5px;
         text-decoration: underline;
         cursor: pointer;
