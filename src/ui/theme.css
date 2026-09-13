@@ -137,6 +137,23 @@ a:hover {
   transform: translateX(16px);
 }
 
+/* Generic keyboard-focus ring for everything else clickable -- rail tabs,
+   filter-preset buttons, clickable protection rows, permission chips,
+   <summary> disclosures, custom-rule remove links. One shared rule rather
+   than bespoke styling per component, same reasoning as the switch's own
+   focus ring above (which needs its own rule only because the real
+   checkbox is visually zeroed out). Everything here already has a visible
+   focus state from the browser's own default outline; this just matches it
+   to the rest of the product's polish instead of leaving it unstyled. */
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .card {
   background: var(--card);
   border: 1px solid var(--border);

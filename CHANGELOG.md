@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.90
+
+### Added
+- **Render + contrast checks in CI**, closing the audit's top-ranked follow-up.
+  v0.11.89's two bugs (invisible text, raw-key labels) were only found by manually
+  rendering the real pages with mock data in a browser -- that check is now
+  permanent: `options.render.test.ts` and `popup.render.test.ts` load the real
+  `options.html`/`popup.html` against a mocked `webextension-polyfill`, run the
+  real `options.ts`/`popup.ts` source, then assert the page actually finished
+  populating real content and that no text renders below a 2:1 contrast ratio
+  against its own background (`src/shared/colorContrast.ts` +
+  `findInvisibleText.ts`). Verified red-capable against both real historical bugs
+  (the v0.11.83 crash and the v0.11.89 invisible-text regression) before calling
+  this done -- reintroduced each on top of the new tests and watched them fail,
+  then confirmed green again with the real fix restored.
+- **Keyboard focus is now visible on every interactive element**, not just
+  toggles. `theme.css` had exactly one `:focus-visible` rule, scoped to the
+  switch component; everything else (rail tabs, filter presets, clickable
+  protection rows, permission chips, disclosures) relied on the browser's own
+  default outline. Added one shared rule using the existing `--accent` token,
+  matching the polish already given to toggles.
+
 ## 0.11.89
 
 ### Fixed
