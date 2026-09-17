@@ -30,4 +30,9 @@ export function applyStaticI18n(root: ParentNode, getMessage: GetMessage): void 
     if (!key) continue;
     el.placeholder = getMessageOrFallback(getMessage, key, el.placeholder);
   }
+  for (const el of root.querySelectorAll<HTMLElement>("[data-i18n-aria-label]")) {
+    const key = el.dataset.i18nAriaLabel;
+    if (!key) continue;
+    el.setAttribute("aria-label", getMessageOrFallback(getMessage, key, el.getAttribute("aria-label") ?? ""));
+  }
 }

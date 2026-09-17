@@ -462,6 +462,32 @@
         justify-content: space-between;
         gap: 10px;
       }
+      .drawer-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex: none;
+      }
+      /* Esc / outside-click / clicking the row again all close the drawer
+         too, but none of those are visible -- a user who doesn't already
+         know those conventions needs something on-screen to click. */
+      .drawer-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        border: none;
+        border-radius: 7px;
+        background: none;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .drawer-close:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--fg);
+      }
       .drawer-title {
         font-size: 15px;
         font-weight: 600;
@@ -776,7 +802,7 @@
                 </span>
               </div>
               <p class="metric-baseline" id="metric-blocked-baseline" data-i18n="optionsBlockedTodayBaseline">
-                blocked today
+                ads and trackers stopped today
               </p>
             </div>
             <div class="sparkline-wrap">
@@ -806,10 +832,23 @@
               <p class="drawer-title" id="drawer-title"></p>
               <span class="drawer-state" id="drawer-state"></span>
             </div>
-            <label class="switch">
-              <input type="checkbox" id="drawer-toggle" />
-              <span class="track"><span class="thumb"></span></span>
-            </label>
+            <div class="drawer-header-actions">
+              <label class="switch">
+                <input type="checkbox" id="drawer-toggle" />
+                <span class="track"><span class="thumb"></span></span>
+              </label>
+              <button
+                type="button"
+                class="drawer-close"
+                id="drawer-close"
+                data-i18n-aria-label="optionsDrawerCloseLabel"
+                aria-label="Close"
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                  <path d="M3 3l10 10M13 3L3 13" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div class="drawer-metric" id="drawer-metric" hidden>

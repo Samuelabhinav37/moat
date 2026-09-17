@@ -59,14 +59,26 @@
   "popupOverrideFingerprint": {
     "message": "Bloquear huella digital"
   },
+  "popupOverrideFingerprintSub": {
+    "message": "Hace que tu navegador se vea un poco distinto cada visita, para que los sitios no te reconozcan."
+  },
   "popupOverrideCookieBanner": {
     "message": "Rechazar automáticamente cookies"
+  },
+  "popupOverrideCookieBannerSub": {
+    "message": "Hace clic en “rechazar” en los avisos de cookies por ti."
   },
   "popupOverrideFeedAds": {
     "message": "Ocultar publicaciones patrocinadas"
   },
+  "popupOverrideFeedAdsSub": {
+    "message": "Oculta publicaciones patrocinadas mientras navegas."
+  },
   "popupOverrideSeoSpam": {
     "message": "Ocultar resultados de baja calidad"
+  },
+  "popupOverrideSeoSpamSub": {
+    "message": "Oculta resultados de búsqueda de sitios de baja calidad conocidos."
   },
   "popupOverrideReset": {
     "message": "Restablecer"
@@ -129,10 +141,10 @@
     "message": "Protección adicional"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Bloquear cookies de terceros"
+    "message": "Evita que los sitios te rastreen por la web"
   },
   "optionsCookiesToggleHint": {
-    "message": "Evita el rastreo entre sitios en tu navegador. (Desactivado por defecto)"
+    "message": "Evita que los sitios te rastreen de uno a otro (bloquea las cookies de terceros)."
   },
   "optionsWebrtcToggleLabel": {
     "message": "Evitar fugas de tu dirección IP"
@@ -141,7 +153,7 @@
     "message": "Evita que un sitio vea tu dirección IP real cuando usas una VPN."
   },
   "optionsFingerprintToggleLabel": {
-    "message": "Bloquear la huella digital del navegador"
+    "message": "Evita que los sitios reconozcan tu dispositivo"
   },
   "optionsFingerprintToggleHint": {
     "message": "Modifica al azar los datos de tu dispositivo que los sitios usan para reconocerte entre visitas. Puede romper ocasionalmente un CAPTCHA. (Desactivado por defecto)"
@@ -534,7 +546,7 @@
     "message": "Qué bloquea Moat y qué no. Todo esto funciona en tu dispositivo."
   },
   "optionsBlockedTodayBaseline": {
-    "message": "bloqueados hoy"
+    "message": "anuncios y rastreadores detenidos hoy"
   },
   "optionsBlockedTodayComparison": {
     "message": " · frente a $COUNT$ el mismo día de la semana pasada",
@@ -555,6 +567,9 @@
   },
   "optionsDrawerBarsCaption": {
     "message": "lun. — dom."
+  },
+  "optionsDrawerCloseLabel": {
+    "message": "Cerrar"
   },
   "optionsGroupOnCount": {
     "message": "$COUNT$ de $TOTAL$ activadas",

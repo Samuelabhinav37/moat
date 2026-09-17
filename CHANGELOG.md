@@ -3,6 +3,46 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.93
+
+### Added
+- **Plain-language pass on Options and the popup**, aimed at readers who
+  aren't already familiar with ad-blocker or privacy-tool terminology.
+  Researched Nielsen Norman Group's senior-usability findings and plain-
+  language guidance first: define technical terms in place or don't use
+  them, and don't make a bare number the whole message. Applied:
+  - The Protection tab's two most jargon-heavy toggle titles now lead with
+    the plain consequence instead of the mechanism -- "Block third-party
+    cookies" -> "Stop sites tracking you across the web", "Block browser
+    fingerprinting" -> "Stop sites recognizing your device". The technical
+    term moves into the row's hint text (drawer copy), not gone, just not
+    the first thing a reader has to parse. This is the one line most
+    people will actually read, since a collapsed row shows nothing else.
+  - The popup's 4 per-site override toggles get a one-line plain-language
+    subtitle each (`popup.ts`'s `OVERRIDE_SUBTITLE_KEYS`) -- previously the
+    only explanation available was the options page's drawer, which this
+    panel has no link to.
+  - The hero "blocked today" stat now reads "ads and trackers stopped
+    today" -- naming what was stopped, not just a bare count next to an
+    unexplained verb. Borrowed from how Safari's own Privacy Report always
+    finishes the sentence ("X trackers prevented from profiling you")
+    before showing a number.
+  - The options drawer, which previously only closed via Esc / outside-click
+    / clicking the row again -- none of them visible -- now also has a
+    plain close (X) button in its header, for anyone who wouldn't already
+    know those conventions.
+  - New `data-i18n-aria-label` support in `shared/i18n.ts`, alongside the
+    existing `data-i18n`/`data-i18n-placeholder`, so the close button's
+    label is translatable like everything else.
+  - All new/changed strings translated across all 4 shipped locales
+    (en/de/es/fr), not just English.
+
+  Bigger, not-yet-decided items flagged during this pass, not built here:
+  Moat still has no first-run onboarding at all (the redesign handoff doc
+  already flags this as a real decision, not a copy fix); `blockThirdPartyCookies`
+  still can't get a per-site exception the way fingerprintResistance can,
+  a `browser.privacy` API limitation, not a copy problem.
+
 ## 0.11.92
 
 ### Changed

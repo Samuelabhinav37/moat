@@ -61,14 +61,26 @@
   "popupOverrideFingerprint": {
     "message": "Block fingerprinting"
   },
+  "popupOverrideFingerprintSub": {
+    "message": "Makes your browser look slightly different each visit, so sites can't recognize you."
+  },
   "popupOverrideCookieBanner": {
     "message": "Auto-reject cookie banners"
+  },
+  "popupOverrideCookieBannerSub": {
+    "message": "Automatically clicks “reject” on cookie pop-ups for you."
   },
   "popupOverrideFeedAds": {
     "message": "Hide sponsored posts"
   },
+  "popupOverrideFeedAdsSub": {
+    "message": "Hides sponsored and promoted posts as you scroll."
+  },
   "popupOverrideSeoSpam": {
     "message": "Hide low-quality results"
+  },
+  "popupOverrideSeoSpamSub": {
+    "message": "Hides search results from a list of known low-quality sites."
   },
   "popupOverrideReset": {
     "message": "Reset"
@@ -131,10 +143,10 @@
     "message": "Extra protection"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Block third-party cookies"
+    "message": "Stop sites tracking you across the web"
   },
   "optionsCookiesToggleHint": {
-    "message": "Stops sites from tracking you as you move from one to the next."
+    "message": "Stops sites from tracking you as you move from one to the next (blocks third-party cookies)."
   },
   "optionsWebrtcToggleLabel": {
     "message": "Stop IP address leaks"
@@ -143,7 +155,7 @@
     "message": "Keeps a website from seeing your real IP address if you're using a VPN."
   },
   "optionsFingerprintToggleLabel": {
-    "message": "Block browser fingerprinting"
+    "message": "Stop sites recognizing your device"
   },
   "optionsFingerprintToggleHint": {
     "message": "Randomly tweaks details about your device that sites use to recognize you across visits. Can occasionally break a CAPTCHA."
@@ -536,7 +548,7 @@
     "message": "What Moat blocks, and what it leaves alone. Everything here runs on your device."
   },
   "optionsBlockedTodayBaseline": {
-    "message": "blocked today"
+    "message": "ads and trackers stopped today"
   },
   "optionsBlockedTodayComparison": {
     "message": " · vs $COUNT$ same day last week",
@@ -557,6 +569,9 @@
   },
   "optionsDrawerBarsCaption": {
     "message": "Mon — Sun"
+  },
+  "optionsDrawerCloseLabel": {
+    "message": "Close"
   },
   "optionsGroupOnCount": {
     "message": "$COUNT$ of $TOTAL$ on",

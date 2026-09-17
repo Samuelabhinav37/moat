@@ -150,8 +150,11 @@ const PROTECTIONS: ProtectionDef[] = [
     id: "cookies",
     settingKey: "blockThirdPartyCookies",
     group: "privacy",
-    titleKey: ["optionsCookiesToggleLabel", "Block third-party cookies"],
-    descKey: ["optionsCookiesToggleHint", "Stops sites from tracking you as you move from one to the next."],
+    titleKey: ["optionsCookiesToggleLabel", "Stop sites tracking you across the web"],
+    descKey: [
+      "optionsCookiesToggleHint",
+      "Stops sites from tracking you as you move from one to the next (blocks third-party cookies).",
+    ],
   },
   {
     id: "webrtc",
@@ -169,7 +172,7 @@ const PROTECTIONS: ProtectionDef[] = [
     group: "privacy",
     signal: "fingerprint",
     evidenceUnit: "week",
-    titleKey: ["optionsFingerprintToggleLabel", "Block browser fingerprinting"],
+    titleKey: ["optionsFingerprintToggleLabel", "Stop sites recognizing your device"],
     descKey: [
       "optionsFingerprintDrawerDesc",
       "Randomly tweaks details about your device that sites use to recognize you across visits.",
@@ -296,6 +299,7 @@ const drawerBarsEl = document.getElementById("drawer-bars") as HTMLElement;
 const drawerDescEl = document.getElementById("drawer-desc") as HTMLElement;
 const drawerCautionEl = document.getElementById("drawer-caution") as HTMLElement;
 const drawerCautionTextEl = document.getElementById("drawer-caution-text") as HTMLElement;
+const drawerCloseEl = document.getElementById("drawer-close") as HTMLButtonElement;
 
 const cnameUnsupportedHint = tFallback("optionsCnameUnsupportedHint", "Not available in this browser.");
 const cnameChromeDohHint = tFallback(
@@ -424,7 +428,7 @@ function renderMetricRow(usage: UsageSummaryResponse): void {
   const deltaEl = document.getElementById("metric-blocked-delta") as HTMLElement;
   const deltaValueEl = document.getElementById("metric-blocked-delta-value") as HTMLElement;
   const baselineEl = document.getElementById("metric-blocked-baseline") as HTMLElement;
-  const baseline = tFallback("optionsBlockedTodayBaseline", "blocked today");
+  const baseline = tFallback("optionsBlockedTodayBaseline", "ads and trackers stopped today");
 
   if (usage.lastWeekSameWeekday) {
     const lastWeekTotal = usage.lastWeekSameWeekday.total;
@@ -684,6 +688,8 @@ document.addEventListener("click", (event) => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && openDrawerId) closeDrawer();
 });
+
+drawerCloseEl.addEventListener("click", () => closeDrawer());
 
 function renderProtectionGroups(settings: Settings, usage: UsageSummaryResponse): void {
   const groups = GROUP_ORDER.map((group) => {

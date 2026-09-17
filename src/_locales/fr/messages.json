@@ -59,14 +59,26 @@
   "popupOverrideFingerprint": {
     "message": "Bloquer l'empreinte numérique"
   },
+  "popupOverrideFingerprintSub": {
+    "message": "Fait paraître votre navigateur légèrement différent à chaque visite, pour que les sites ne vous reconnaissent pas."
+  },
   "popupOverrideCookieBanner": {
     "message": "Refuser automatiquement les cookies"
+  },
+  "popupOverrideCookieBannerSub": {
+    "message": "Clique automatiquement sur « refuser » sur les bannières de cookies."
   },
   "popupOverrideFeedAds": {
     "message": "Masquer les publications sponsorisées"
   },
+  "popupOverrideFeedAdsSub": {
+    "message": "Masque les publications sponsorisées pendant que vous défilez."
+  },
   "popupOverrideSeoSpam": {
     "message": "Masquer les résultats de faible qualité"
+  },
+  "popupOverrideSeoSpamSub": {
+    "message": "Masque les résultats de recherche provenant de sites de faible qualité connus."
   },
   "popupOverrideReset": {
     "message": "Réinitialiser"
@@ -129,10 +141,10 @@
     "message": "Protection supplémentaire"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Bloquer les cookies tiers"
+    "message": "Empêcher les sites de vous suivre sur le web"
   },
   "optionsCookiesToggleHint": {
-    "message": "Empêche le suivi intersites dans votre navigateur. (Désactivé par défaut)"
+    "message": "Empêche les sites de vous suivre d'un site à l'autre (bloque les cookies tiers)."
   },
   "optionsWebrtcToggleLabel": {
     "message": "Empêcher les fuites d'adresse IP"
@@ -141,7 +153,7 @@
     "message": "Empêche un site de voir votre adresse IP réelle lorsque vous utilisez un VPN."
   },
   "optionsFingerprintToggleLabel": {
-    "message": "Bloquer l'empreinte numérique du navigateur"
+    "message": "Empêcher les sites de reconnaître votre appareil"
   },
   "optionsFingerprintToggleHint": {
     "message": "Modifie aléatoirement les détails de votre appareil que les sites utilisent pour vous reconnaître d'une visite à l'autre. Peut occasionnellement casser un CAPTCHA. (Désactivé par défaut)"
@@ -534,7 +546,7 @@
     "message": "Ce que Moat bloque, et ce qu'il laisse passer. Tout se passe sur votre appareil."
   },
   "optionsBlockedTodayBaseline": {
-    "message": "bloqués aujourd'hui"
+    "message": "publicités et traceurs bloqués aujourd'hui"
   },
   "optionsBlockedTodayComparison": {
     "message": " · contre $COUNT$ le même jour la semaine dernière",
@@ -555,6 +567,9 @@
   },
   "optionsDrawerBarsCaption": {
     "message": "lun. — dim."
+  },
+  "optionsDrawerCloseLabel": {
+    "message": "Fermer"
   },
   "optionsGroupOnCount": {
     "message": "$COUNT$ sur $TOTAL$ activées",

@@ -57,6 +57,19 @@ describe("applyStaticI18n", () => {
     applyStaticI18n(document.body, () => "");
     expect((document.querySelector("input") as HTMLInputElement).placeholder).toBe("example.com");
   });
+
+  it("sets the aria-label attribute for [data-i18n-aria-label] elements", () => {
+    document.body.innerHTML = `<button data-i18n-aria-label="closeLabel" aria-label="Close"></button>`;
+    const getMessage = (key: string) => (key === "closeLabel" ? "Schließen" : "");
+    applyStaticI18n(document.body, getMessage);
+    expect(document.querySelector("button")?.getAttribute("aria-label")).toBe("Schließen");
+  });
+
+  it("falls back to the existing aria-label for a missing key", () => {
+    document.body.innerHTML = `<button data-i18n-aria-label="missingKey" aria-label="Close"></button>`;
+    applyStaticI18n(document.body, () => "");
+    expect(document.querySelector("button")?.getAttribute("aria-label")).toBe("Close");
+  });
 });
 
 // Regression test for a real bug: a `[data-i18n]` element that also has

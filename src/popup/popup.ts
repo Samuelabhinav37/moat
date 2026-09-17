@@ -94,6 +94,30 @@ const OVERRIDE_LABEL_KEYS: Record<OverridableSettingKey, readonly [string, strin
   hideSeoSpamResults: ["popupOverrideSeoSpam", "Hide low-quality results"],
 };
 
+// One-line plain-language explanation under each override's title -- this
+// panel is the first place a lot of people see these settings at all, with
+// no drawer to click into for more detail the way options.ts's Protection
+// tab has. Someone who's never heard "fingerprinting" or "SEO" shouldn't
+// have to already know the term to know what the switch does.
+const OVERRIDE_SUBTITLE_KEYS: Record<OverridableSettingKey, readonly [string, string]> = {
+  fingerprintResistance: [
+    "popupOverrideFingerprintSub",
+    "Makes your browser look slightly different each visit, so sites can't recognize you.",
+  ],
+  cookieBannerAutoReject: [
+    "popupOverrideCookieBannerSub",
+    "Automatically clicks “reject” on cookie pop-ups for you.",
+  ],
+  aggressiveFeedAdRemoval: [
+    "popupOverrideFeedAdsSub",
+    "Hides sponsored and promoted posts as you scroll.",
+  ],
+  hideSeoSpamResults: [
+    "popupOverrideSeoSpamSub",
+    "Hides search results from a list of known low-quality sites.",
+  ],
+};
+
 // Always shown when a hostname is known -- these 4 settings' isEnabled()
 // gates already call effectiveValue() themselves (see content/bridge.ts,
 // consentRejector.ts, feedAdScanner.ts, searchSlopFilterEntry.ts), so
@@ -118,6 +142,12 @@ async function renderSiteOverrides(hostname: string): Promise<void> {
         (k) => browser.i18n.getMessage(k),
         ...OVERRIDE_LABEL_KEYS[key]
       );
+      const subtitleText = document.createElement("span");
+      subtitleText.className = "sub";
+      subtitleText.textContent = getMessageOrFallback(
+        (k) => browser.i18n.getMessage(k),
+        ...OVERRIDE_SUBTITLE_KEYS[key]
+      );
       const resetButton = document.createElement("button");
       resetButton.type = "button";
       resetButton.className = "reset";
@@ -127,7 +157,7 @@ async function renderSiteOverrides(hostname: string): Promise<void> {
         "Reset"
       );
       resetButton.hidden = settings.perSiteOverrides[hostname]?.[key] === undefined;
-      labelWrap.append(labelText, resetButton);
+      labelWrap.append(labelText, subtitleText, resetButton);
 
       const switchLabel = document.createElement("label");
       switchLabel.className = "switch";

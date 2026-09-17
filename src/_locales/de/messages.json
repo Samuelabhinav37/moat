@@ -59,14 +59,26 @@
   "popupOverrideFingerprint": {
     "message": "Fingerprinting blockieren"
   },
+  "popupOverrideFingerprintSub": {
+    "message": "Lässt Ihren Browser bei jedem Besuch etwas anders aussehen, damit Websites Sie nicht wiedererkennen."
+  },
   "popupOverrideCookieBanner": {
     "message": "Cookie-Banner automatisch ablehnen"
+  },
+  "popupOverrideCookieBannerSub": {
+    "message": "Klickt automatisch auf „Ablehnen“ bei Cookie-Hinweisen."
   },
   "popupOverrideFeedAds": {
     "message": "Gesponserte Beiträge ausblenden"
   },
+  "popupOverrideFeedAdsSub": {
+    "message": "Blendet gesponserte und beworbene Beiträge beim Scrollen aus."
+  },
   "popupOverrideSeoSpam": {
     "message": "Minderwertige Ergebnisse ausblenden"
+  },
+  "popupOverrideSeoSpamSub": {
+    "message": "Blendet Suchergebnisse von bekannten minderwertigen Websites aus."
   },
   "popupOverrideReset": {
     "message": "Zurücksetzen"
@@ -129,10 +141,10 @@
     "message": "Zusätzlicher Schutz"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Cookies von Drittanbietern blockieren"
+    "message": "Verhindert, dass Websites Sie verfolgen"
   },
   "optionsCookiesToggleHint": {
-    "message": "Verhindert seitenübergreifendes Tracking in deinem Browser. (Standardmäßig aus)"
+    "message": "Verhindert, dass Websites Sie von einer Seite zur nächsten verfolgen (blockiert Cookies von Drittanbietern)."
   },
   "optionsWebrtcToggleLabel": {
     "message": "IP-Adressen-Lecks verhindern"
@@ -141,7 +153,7 @@
     "message": "Verhindert, dass eine Website deine echte IP-Adresse sieht, wenn du ein VPN nutzt."
   },
   "optionsFingerprintToggleLabel": {
-    "message": "Browser-Fingerprinting blockieren"
+    "message": "Verhindert, dass Websites Ihr Gerät wiedererkennen"
   },
   "optionsFingerprintToggleHint": {
     "message": "Verändert zufällig Gerätedetails, mit denen Websites dich bei wiederholten Besuchen wiedererkennen. Kann gelegentlich ein CAPTCHA stören. (Standardmäßig aus)"
@@ -534,7 +546,7 @@
     "message": "Was Moat blockiert und was nicht. Das läuft alles auf deinem Gerät."
   },
   "optionsBlockedTodayBaseline": {
-    "message": "heute blockiert"
+    "message": "Werbung und Tracker heute gestoppt"
   },
   "optionsBlockedTodayComparison": {
     "message": " · gegenüber $COUNT$ am selben Tag letzte Woche",
@@ -555,6 +567,9 @@
   },
   "optionsDrawerBarsCaption": {
     "message": "Mo — So"
+  },
+  "optionsDrawerCloseLabel": {
+    "message": "Schließen"
   },
   "optionsGroupOnCount": {
     "message": "$COUNT$ von $TOTAL$ aktiv",
