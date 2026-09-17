@@ -3,6 +3,31 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.102
+
+### Added
+- **Strips the `Referer` header on cross-site sub-resource requests** —
+  Phase 3 item 3 of the cross-team audit. Trackers, ad pixels, and
+  analytics beacons embedded on a page otherwise learn exactly which page
+  you were on, even under modern browsers' `strict-origin-when-cross-origin`
+  default, if the embedding page opts into a more permissive policy for
+  its own outgoing requests. Added as a second rule alongside the existing
+  GPC header rule in `ruleset_privacy-headers` (same always-on "core"
+  category, same `modifyHeaders` mechanism). Scoped to `domainType:
+  "thirdParty"` so a site's own same-origin requests are untouched, and
+  deliberately excludes `main_frame`/`sub_frame` navigations -- some
+  sites' login/payment/OAuth-redirect flows check the navigation referrer
+  as an integrity signal, and unlike the sub-resource cases the referrer
+  there can serve a purpose a user actually benefits from. Verified
+  end-to-end against the real `filters:update` pipeline.
+
+  Skipped, per discussion: an HTTPS-upgrade DNR rule (Phase 3 item 2).
+  `declarativeNetRequest`'s `upgradeScheme` action has no fallback the way
+  browsers' own native HTTPS-first modes do -- a genuinely HTTP-only site
+  would just break outright instead of falling back, which both Chrome
+  and Firefox's own increasingly-default HTTPS-first modes already avoid
+  more safely than a blanket DNR rule could.
+
 ## 0.11.101
 
 ### Added

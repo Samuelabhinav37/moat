@@ -61,7 +61,8 @@ their own sections further down.
   for ads/trackers; Online Malicious URL, Phishing URL, Scam, and Badware-risks for actual
   malware/phishing domains — the "firewall" half, which blocks known-bad sites outright, not just
   ads; Social Media, Cookie Notices, and Other Annoyances for the rest), plus three small
-  first-party rulesets: the `Sec-GPC` header rule (`ruleset_privacy-headers`), ClearURLs-gap
+  first-party rulesets: the `Sec-GPC` header rule plus stripping the `Referer` header on
+  cross-site sub-resource requests (`ruleset_privacy-headers`), ClearURLs-gap
   URL-tracking params (`ruleset_url-tracking-extra`), and a combined tracking-gap ruleset
   (`ruleset_trackers-extra`) covering block rules for error-reporting/social ad-conversion
   endpoints the bundled lists miss, domain-agnostic regex rules for server-side/proxied Google

@@ -238,6 +238,44 @@ const ownPrivacyRules = [
       ],
     },
   },
+  // Strips the Referer header on cross-site sub-resource requests --
+  // trackers/ad pixels/analytics beacons embedded on a page otherwise learn
+  // exactly which page you were on when they loaded. `domainType:
+  // "thirdParty"` scopes this to requests whose target domain differs from
+  // the page's own, so a site's own same-origin requests (which some sites'
+  // own navigation/asset logic can reasonably expect a referrer on) are
+  // untouched. Deliberately excludes main_frame/sub_frame (top-level and
+  // iframe *navigations*, not sub-resources): some sites' login/payment/
+  // OAuth-redirect flows check the navigation Referer as a lightweight
+  // integrity signal, and DNR's modifyHeaders has no way to know which of
+  // those a stripped referrer would break -- unlike the sub-resource cases
+  // below, where the referrer serves no purpose a user benefits from.
+  {
+    id: 2,
+    priority: 1,
+    action: {
+      type: "modifyHeaders",
+      requestHeaders: [{ header: "Referer", operation: "remove" }],
+    },
+    condition: {
+      domainType: "thirdParty",
+      resourceTypes: [
+        "stylesheet",
+        "script",
+        "image",
+        "font",
+        "object",
+        "xmlhttprequest",
+        "ping",
+        "csp_report",
+        "media",
+        "websocket",
+        "webtransport",
+        "webbundle",
+        "other",
+      ],
+    },
+  },
 ];
 writeFileSync(join(outDir, "ruleset_privacy-headers.json"), JSON.stringify(ownPrivacyRules));
 manifestEntries.push({
@@ -245,9 +283,10 @@ manifestEntries.push({
   group: "privacy-headers",
   // Not a user-toggleable filter list -- the Filter Lists UI skips anything
   // in the "core" category, since turning this off has no meaningful
-  // "less filtering" effect for the user, it just stops sending GPC.
+  // "less filtering" effect for the user, it just stops sending GPC/
+  // stripping cross-site referrers.
   category: "core",
-  name: "Moat: Global Privacy Control header",
+  name: "Moat: Global Privacy Control + cross-site referrer stripping",
   enabled: true,
   file: "ruleset_privacy-headers.json",
   ruleCount: ownPrivacyRules.length,
