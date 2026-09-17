@@ -137,6 +137,12 @@ interface ProtectionDef {
   signal?: UsageSignal;
   metricLabelKey?: readonly [string, string];
   evidenceUnit?: EvidenceUnit;
+  /** Only rendered when browser.privacy.websites exposes the Firefox-only
+   * BrowserSettings this row's settingKey maps to -- see
+   * isFirefoxPrivacyWebsitesSupported below. A toggle that would silently do
+   * nothing on Chrome (that API surface doesn't exist there at all) is worse
+   * than not showing it. */
+  firefoxOnly?: boolean;
 }
 
 // Real, per-protection evidence only exists for the mechanisms with an
@@ -195,6 +201,36 @@ const PROTECTIONS: ProtectionDef[] = [
       "Some trackers disguise themselves as part of the site you're visiting.",
     ],
     metricLabelKey: ["optionsCnameMetricLabel", "sites protected this week"],
+  },
+  {
+    id: "firefoxResistFingerprinting",
+    settingKey: "firefoxResistFingerprinting",
+    group: "privacy",
+    firefoxOnly: true,
+    titleKey: ["optionsFirefoxRFPToggleLabel", "Use Firefox's own device-disguise mode"],
+    descKey: [
+      "optionsFirefoxRFPToggleHint",
+      "Turns on Firefox's own built-in fingerprint protection -- the same one Tor Browser uses, reaching deeper than Moat can on its own (window size, fonts, timezone, and more).",
+    ],
+    cautionKey: [
+      "optionsFirefoxRFPCaution",
+      "Can be more disruptive than Moat's own fingerprint protection above -- it changes real browser behavior, not just what a page can see. Worth trying for a few days before relying on it.",
+    ],
+  },
+  {
+    id: "firefoxFirstPartyIsolate",
+    settingKey: "firefoxFirstPartyIsolate",
+    group: "privacy",
+    firefoxOnly: true,
+    titleKey: ["optionsFirefoxFPIToggleLabel", "Stop trackers linking you across sites"],
+    descKey: [
+      "optionsFirefoxFPIToggleHint",
+      "Keeps every site's stored data separate, so the same tracker embedded on two different sites can't connect what it saw on each.",
+    ],
+    cautionKey: [
+      "optionsFirefoxFPICaution",
+      "Can break logging in with a Google or Facebook account on a third-party site. If a login stops working, pause this first.",
+    ],
   },
   {
     id: "grayscale",
@@ -262,6 +298,13 @@ const PROTECTIONS: ProtectionDef[] = [
   },
 ];
 
+// browser.privacy.websites.resistFingerprinting/firstPartyIsolate are real
+// BrowserSettings on Firefox and simply don't exist on Chrome (see
+// background/privacySettings.ts) -- checked once here rather than per-render,
+// since which browser this is doesn't change during a session.
+const isFirefoxPrivacyWebsitesSupported = typeof browser.privacy?.websites?.resistFingerprinting !== "undefined";
+const VISIBLE_PROTECTIONS = PROTECTIONS.filter((def) => !def.firefoxOnly || isFirefoxPrivacyWebsitesSupported);
+
 const GROUP_ORDER: ProtectionGroup[] = ["privacy", "annoyances", "safety"];
 const GROUP_LABELS: Record<ProtectionGroup, readonly [string, string]> = {
   privacy: ["optionsPrivacyCategory", "Privacy"],
@@ -278,7 +321,7 @@ function isAnyPermissionGuardOn(settings: Settings): boolean {
   return settings.permissionGuardCamera || settings.permissionGuardMicrophone || settings.permissionGuardLocation;
 }
 
-const TOTAL_PROTECTIONS = PROTECTIONS.length + 1; // +1 for the merged permission-guard row
+const TOTAL_PROTECTIONS = VISIBLE_PROTECTIONS.length + 1; // +1 for the merged permission-guard row
 
 const masterToggle = document.getElementById("master-toggle") as HTMLInputElement;
 const protectionLockedBadge = document.getElementById("protection-locked-badge") as HTMLElement;
@@ -456,7 +499,7 @@ function renderMetricRow(usage: UsageSummaryResponse): void {
   document.getElementById("metric-sites-today")!.textContent = usage.today.hostnameCount.toLocaleString();
 
   const onCount =
-    PROTECTIONS.filter((def) => Boolean(lastSettings?.[def.settingKey])).length +
+    VISIBLE_PROTECTIONS.filter((def) => Boolean(lastSettings?.[def.settingKey])).length +
     (lastSettings && isAnyPermissionGuardOn(lastSettings) ? 1 : 0);
   const protectionsOnEl = document.getElementById("metric-protections-on") as HTMLElement;
   const suffix = document.createElement("span");
@@ -607,7 +650,7 @@ function renderBars(values: number[]): HTMLElement[] {
 }
 
 function populateDrawer(id: string): void {
-  const def = PROTECTIONS.find((p) => p.id === id);
+  const def = VISIBLE_PROTECTIONS.find((p) => p.id === id);
   if (!def || !lastSettings) return;
   const settings = lastSettings;
   const usage = lastUsage;
@@ -693,7 +736,7 @@ drawerCloseEl.addEventListener("click", () => closeDrawer());
 
 function renderProtectionGroups(settings: Settings, usage: UsageSummaryResponse): void {
   const groups = GROUP_ORDER.map((group) => {
-    const defs = PROTECTIONS.filter((def) => def.group === group);
+    const defs = VISIBLE_PROTECTIONS.filter((def) => def.group === group);
     const extra = group === "safety" ? 1 : 0; // the merged permission-guard row
     const onCount =
       defs.filter((def) => Boolean(settings[def.settingKey])).length +

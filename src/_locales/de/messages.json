@@ -633,6 +633,24 @@
   "optionsCnameMetricLabel": {
     "message": "geschützte Websites diese Woche"
   },
+  "optionsFirefoxRFPToggleLabel": {
+    "message": "Firefox' eigenen Tarnmodus verwenden"
+  },
+  "optionsFirefoxRFPToggleHint": {
+    "message": "Aktiviert Firefox' eigenen Fingerprinting-Schutz -- denselben, den der Tor-Browser nutzt, und der tiefer eingreift, als Moat es selbst kann (Fenstergröße, Schriftarten, Zeitzone und mehr)."
+  },
+  "optionsFirefoxRFPCaution": {
+    "message": "Kann stärker eingreifen als Moats eigener Fingerprinting-Schutz oben -- er ändert echtes Browser-Verhalten, nicht nur das, was eine Seite sehen kann. Am besten ein paar Tage ausprobieren, bevor Sie sich darauf verlassen."
+  },
+  "optionsFirefoxFPIToggleLabel": {
+    "message": "Verhindert, dass Tracker Sie seitenübergreifend verknüpfen"
+  },
+  "optionsFirefoxFPIToggleHint": {
+    "message": "Hält die gespeicherten Daten jeder Website getrennt, sodass derselbe Tracker auf zwei verschiedenen Websites nicht verbinden kann, was er auf jeder gesehen hat."
+  },
+  "optionsFirefoxFPICaution": {
+    "message": "Kann die Anmeldung mit einem Google- oder Facebook-Konto auf einer Drittanbieter-Website verhindern. Wenn eine Anmeldung nicht mehr funktioniert, pausieren Sie zuerst diese Funktion."
+  },
   "optionsGrayscaleMetricLabel": {
     "message": "abgedunkelte Anzeigen heute"
   },

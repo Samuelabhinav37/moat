@@ -13,6 +13,8 @@ const baseSettings: Settings = {
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,
+  firefoxResistFingerprinting: false,
+  firefoxFirstPartyIsolate: false,
   fingerprintResistance: false,
   fingerprintSeed: "",
   fingerprintRotatePerSession: false,
@@ -114,5 +116,35 @@ describe("applyPrivacySettings", () => {
     setPrivacy({ network: { webRTCIPHandlingPolicy } });
 
     await expect(applyPrivacySettings({ ...baseSettings, webrtcLeakProtection: true })).resolves.toBeUndefined();
+  });
+
+  it("sets Firefox's resistFingerprinting/firstPartyIsolate when their toggles are on, clears them when off", async () => {
+    const resistFingerprinting = { set: vi.fn(() => Promise.resolve()), clear: vi.fn(() => Promise.resolve()) };
+    const firstPartyIsolate = { set: vi.fn(() => Promise.resolve()), clear: vi.fn(() => Promise.resolve()) };
+    setPrivacy({ websites: { resistFingerprinting, firstPartyIsolate } });
+
+    await applyPrivacySettings({ ...baseSettings, firefoxResistFingerprinting: true, firefoxFirstPartyIsolate: true });
+    expect(resistFingerprinting.set).toHaveBeenCalledWith({ value: true });
+    expect(firstPartyIsolate.set).toHaveBeenCalledWith({ value: true });
+
+    resistFingerprinting.set.mockClear();
+    firstPartyIsolate.set.mockClear();
+    await applyPrivacySettings({ ...baseSettings, firefoxResistFingerprinting: false, firefoxFirstPartyIsolate: false });
+    expect(resistFingerprinting.clear).toHaveBeenCalledWith({});
+    expect(firstPartyIsolate.clear).toHaveBeenCalledWith({});
+    expect(resistFingerprinting.set).not.toHaveBeenCalled();
+    expect(firstPartyIsolate.set).not.toHaveBeenCalled();
+  });
+
+  it("does nothing for resistFingerprinting/firstPartyIsolate on Chrome, where they don't exist", async () => {
+    // Chrome's privacy.websites has no resistFingerprinting/firstPartyIsolate
+    // at all -- same shape privacySettings.ts already handles for
+    // thirdPartyCookiesAllowed vs. cookieConfig, just both undefined here.
+    const thirdPartyCookiesAllowed = { set: vi.fn(() => Promise.resolve()) };
+    setPrivacy({ websites: { thirdPartyCookiesAllowed } });
+
+    await expect(
+      applyPrivacySettings({ ...baseSettings, firefoxResistFingerprinting: true, firefoxFirstPartyIsolate: true })
+    ).resolves.toBeUndefined();
   });
 });

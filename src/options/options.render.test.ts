@@ -79,4 +79,25 @@ describe("options.html render", () => {
     const findings = findInvisibleText(document.body);
     expect(findings).toEqual([]);
   });
+
+  it("hides the Firefox-only privacy.websites rows on the default (Chrome-shaped) mock", async () => {
+    await renderOptions();
+    expect(document.getElementById("protection-firefoxResistFingerprinting-label")).toBeNull();
+    expect(document.getElementById("protection-firefoxFirstPartyIsolate-label")).toBeNull();
+  });
+
+  it("shows the Firefox-only privacy.websites rows when that API surface exists", async () => {
+    const { browser } = createMockBrowser({ hostname: "example.com" });
+    const websites = browser.privacy.websites as Record<string, unknown>;
+    websites.resistFingerprinting = { set: () => Promise.resolve(), get: () => Promise.resolve({ value: false }) };
+    websites.firstPartyIsolate = { set: () => Promise.resolve(), get: () => Promise.resolve({ value: false }) };
+    vi.doMock("webextension-polyfill", () => ({ default: browser }));
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+    await import("./options");
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(document.getElementById("protection-firefoxResistFingerprinting-label")).not.toBeNull();
+    expect(document.getElementById("protection-firefoxFirstPartyIsolate-label")).not.toBeNull();
+  });
 });

@@ -287,26 +287,35 @@ different cost/trust profile than everything else.
 
 ### Opt-in fingerprint resistance
 
-A toggle, off by default: deterministic per-install noise on canvas
+A toggle, off by default: deterministic noise on canvas
 (`toDataURL`/`toBlob`/`getImageData`) and `AudioBuffer.getChannelData` reads, a
 generic WebGL vendor/renderer string in place of your real GPU, and
 `navigator.hardwareConcurrency`/`deviceMemory` rounded to common values.
-"Deterministic" matters here: the same canvas content on the same install always
-noises the same way, so a site re-reading it twice can't tell anything changed — but
-different installs get different noise, which is what actually defeats cross-site
-fingerprint correlation. Off by default because, unlike blocking, this is the one
-feature that can occasionally change what a page observes (e.g. a canvas-based
-CAPTCHA).
+"Deterministic" matters here: the same canvas content on the same page always
+noises the same way, so a site re-reading it twice can't tell anything changed. Off
+by default because, unlike blocking, this is the one feature that can occasionally
+change what a page observes (e.g. a canvas-based CAPTCHA).
 
-A second, nested opt-in — **rotate noise every browser session** — switches the seed
-from the permanent per-install one to one stored in `browser.storage.session`
-(in-memory, cleared on browser/extension restart), closer to Brave's model: a
-fingerprint that never changes can itself become a durable cross-site identifier over
-time, which rotating trades off against sites seeing a different "device" on every
-restart. Off by default, layered under the parent toggle rather than replacing it,
-since the deterministic default is the safer one for compatibility. `bridge.ts`
-(a content script, instantiated fresh per tab/frame) doesn't read or write
-`storage.session` itself — it asks the background worker for the seed via a
+What actually defeats cross-site correlation isn't "different installs get different
+noise" — a per-install seed reused identically everywhere is itself a stable,
+trackable fingerprint (the same failure mode Tor Browser's own design doc warns a
+*consistent* randomizer can produce). `background/settings.ts`'s
+`scopeFingerprintSeedToSite()` folds the top-level site's hostname into the seed
+before it's ever sent to a page, so two different sites get different, uncorrelated
+noise from the same underlying seed, while one site's own repeated reads stay stable.
+Resolved from `sender.tab.url` in the `get-fingerprint-seed` message handler, never a
+frame's own `location.hostname` — a third-party iframe's own domain doesn't change
+across the different sites embedding it, which would let exactly the cross-site
+correlation this exists to prevent slip through the one place it matters most.
+
+A second opt-in, **rotate noise every browser session** (on by default as of this
+scoping fix), switches the underlying seed from the permanent per-install one to one
+stored in `browser.storage.session` (in-memory, cleared on browser/extension
+restart), closer to Brave's model — kept as a real toggle rather than removed, since
+an install-permanent seed is a legitimate choice for someone who's decided the
+stability is worth it, and site-scoping applies to either seed the same way.
+`bridge.ts` (a content script, instantiated fresh per tab/frame) doesn't read or
+write `storage.session` itself — it asks the background worker for the seed via a
 `get-fingerprint-seed` message instead. That's not just an API-access
 question (a content script *can* reach `storage.session` once granted
 access): the seed is generate-if-absent, and two tabs each running that
@@ -316,6 +325,28 @@ request through the one background worker is what makes "one seed per
 browser session" actually hold. On a message-channel hiccup (the background
 worker still waking up right after a browser restart), this falls back to
 the permanent seed rather than failing (`src/content/bridge.ts`).
+
+### Firefox-only engine-level privacy settings
+
+Two more opt-in toggles, shown only when `browser.privacy.websites` actually exposes
+them (Firefox only — Chrome doesn't have this API surface at all, see
+`options.ts`'s `isFirefoxPrivacyWebsitesSupported`): **resistFingerprinting** and
+**firstPartyIsolate**. Neither is something Moat implements itself — both are real
+Firefox `BrowserSetting`s (`background/privacySettings.ts`) that reach into the
+engine in ways a content-script/DNR-based extension structurally cannot: window-size
+letterboxing, font-list restriction, and timer-precision clamping for
+resistFingerprinting (the same protections Tor Browser ships, upstreamed into
+Firefox itself); real per-top-level-site storage partitioning for firstPartyIsolate,
+predating and inspiring Firefox's own Total Cookie Protection. Detecting and
+exposing a toggle for engine features Mozilla already ships, rather than trying to
+approximate them in JS, is the only way a WebExtension gets this class of protection
+at all. Off by default, same reasoning as `webrtcLeakProtection`/
+`blockThirdPartyCookies`: both are real behavior changes outside what's on-screen,
+and `firstPartyIsolate` specifically can break logging in with a third-party
+Google/Facebook account, the same class of breakage the login-domain default
+overrides (`shared/knownLoginDomains.ts`) exist to soften for Moat's own
+fingerprint/cookie-banner features — but this one is a global Firefox setting, not
+something a per-site override can carve an exception out of.
 
 ### Cosmetic filtering internals
 

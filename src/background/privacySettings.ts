@@ -71,6 +71,13 @@ export async function applyPrivacySettings(settings: Settings): Promise<void> {
     });
   }
 
+  // Firefox-only: both undefined on Chrome, so applyOrClear's own `if
+  // (!setting) return` already makes this a no-op there -- see these two
+  // settings' own doc comment in types.ts for why an extension can't
+  // replicate either one itself.
+  await applyOrClear(websites?.resistFingerprinting, settings.firefoxResistFingerprinting, true);
+  await applyOrClear(websites?.firstPartyIsolate, settings.firefoxFirstPartyIsolate, true);
+
   // Firefox-only native setting that makes it send the GPC signal (and
   // expose navigator.globalPrivacyControl) itself, on top of the DNR header
   // rule and page-context patch we apply everywhere. Not gated by an

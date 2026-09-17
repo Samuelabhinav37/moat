@@ -3,6 +3,39 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.101
+
+### Added
+- **Two new opt-in toggles exposing Firefox's own engine-level privacy
+  settings** — Phase 3 item 1 of the cross-team audit, the standout idea
+  from researching Tor Browser: Firefox ships `resistFingerprinting`
+  (window-size letterboxing, font-list restriction, timer-precision
+  clamping -- the same protections Tor Browser uses, upstreamed into
+  Firefox itself) and `firstPartyIsolate` (real per-top-level-site storage
+  partitioning, predating and inspiring Firefox's own Total Cookie
+  Protection) as real, user-togglable `browser.privacy.websites`
+  BrowserSettings. Neither is something Moat could ever implement itself —
+  both reach into the engine in ways a content-script/DNR-based extension
+  structurally cannot. Detecting and exposing a toggle for what Mozilla
+  already ships is the only way a WebExtension gets this class of
+  protection at all.
+
+  Chrome doesn't expose this API surface to extensions at all, so both
+  rows only render when `browser.privacy.websites.resistFingerprinting`
+  actually exists — a toggle that would silently do nothing is worse than
+  not showing it. Off by default, same as every other browser-wide
+  privacy toggle Moat has; `firstPartyIsolate` carries a caution that it
+  can break logging in with a third-party Google/Facebook account, the
+  same class of breakage the login-domain overrides exist to soften for
+  Moat's own features elsewhere, except this one is a global Firefox
+  setting no per-site override can carve an exception out of.
+
+  Also corrected `docs/design-notes.md`'s fingerprint-resistance section,
+  which had gone stale describing the pre-v0.11.96 behavior (a per-install
+  seed as what "defeats cross-site correlation," rotation off by default)
+  instead of the actual per-site-scoped, rotate-by-default behavior
+  shipped in this session's earlier security-audit work.
+
 ## 0.11.100
 
 ### Changed

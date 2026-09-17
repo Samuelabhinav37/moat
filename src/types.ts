@@ -12,6 +12,25 @@ export interface Settings {
   webrtcLeakProtection: boolean;
   blockThirdPartyCookies: boolean;
   /**
+   * Firefox-only engine-level settings, not something Moat implements
+   * itself -- see background/privacySettings.ts. `resistFingerprinting`
+   * (letterboxing, font-list restriction, timer-precision clamping) and
+   * `firstPartyIsolate` (Total-Cookie-Protection-style storage
+   * partitioning) are both real `browser.privacy.websites` BrowserSettings
+   * Mozilla ships, and both do things a content-script/DNR-based extension
+   * fundamentally cannot replicate on its own (see the Tor Browser research
+   * behind the fingerprint-seed fix elsewhere in this file). `undefined` on
+   * Chrome, which doesn't expose this API surface to extensions at all --
+   * applyPrivacySettings() already no-ops safely there, same as every other
+   * feature-detected `privacy.*` setting. Off by default, same reasoning as
+   * webrtcLeakProtection/blockThirdPartyCookies above: a real behavior
+   * change outside what's on-screen, and resistFingerprinting specifically
+   * carries the same real "can occasionally change what a page observes"
+   * cost Moat's own fingerprintResistance has.
+   */
+  firefoxResistFingerprinting: boolean;
+  firefoxFirstPartyIsolate: boolean;
+  /**
    * Canvas/AudioContext/WebGL noise + navigator property bucketing. Off by
    * default: unlike blocking, this can occasionally change what a page
    * observes (e.g. a canvas-based CAPTCHA), so it needs an explicit opt-in.
@@ -153,6 +172,8 @@ export const DEFAULT_SETTINGS: Settings = {
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,
+  firefoxResistFingerprinting: false,
+  firefoxFirstPartyIsolate: false,
   fingerprintResistance: false,
   fingerprintSeed: "",
   fingerprintRotatePerSession: true,
@@ -486,6 +507,8 @@ export const SETTINGS_PATCH_ALLOWED_FIELDS = [
   "enabled",
   "blockThirdPartyCookies",
   "webrtcLeakProtection",
+  "firefoxResistFingerprinting",
+  "firefoxFirstPartyIsolate",
   "fingerprintResistance",
   "fingerprintRotatePerSession",
   "grayscaleUnblockableAds",

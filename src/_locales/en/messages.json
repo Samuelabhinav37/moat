@@ -635,6 +635,24 @@
   "optionsCnameMetricLabel": {
     "message": "sites protected this week"
   },
+  "optionsFirefoxRFPToggleLabel": {
+    "message": "Use Firefox's own device-disguise mode"
+  },
+  "optionsFirefoxRFPToggleHint": {
+    "message": "Turns on Firefox's own built-in fingerprint protection -- the same one Tor Browser uses, reaching deeper than Moat can on its own (window size, fonts, timezone, and more)."
+  },
+  "optionsFirefoxRFPCaution": {
+    "message": "Can be more disruptive than Moat's own fingerprint protection above -- it changes real browser behavior, not just what a page can see. Worth trying for a few days before relying on it."
+  },
+  "optionsFirefoxFPIToggleLabel": {
+    "message": "Stop trackers linking you across sites"
+  },
+  "optionsFirefoxFPIToggleHint": {
+    "message": "Keeps every site's stored data separate, so the same tracker embedded on two different sites can't connect what it saw on each."
+  },
+  "optionsFirefoxFPICaution": {
+    "message": "Can break logging in with a Google or Facebook account on a third-party site. If a login stops working, pause this first."
+  },
   "optionsGrayscaleMetricLabel": {
     "message": "ads dimmed today"
   },

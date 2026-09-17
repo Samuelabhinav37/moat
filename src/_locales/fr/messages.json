@@ -633,6 +633,24 @@
   "optionsCnameMetricLabel": {
     "message": "sites protégés cette semaine"
   },
+  "optionsFirefoxRFPToggleLabel": {
+    "message": "Utiliser le mode de camouflage propre à Firefox"
+  },
+  "optionsFirefoxRFPToggleHint": {
+    "message": "Active la protection intégrée de Firefox contre l'empreinte numérique -- la même que celle utilisée par Tor Browser, allant plus loin que ce que Moat peut faire seul (taille de fenêtre, polices, fuseau horaire et plus)."
+  },
+  "optionsFirefoxRFPCaution": {
+    "message": "Peut être plus perturbant que la propre protection d'empreinte de Moat ci-dessus -- elle modifie le comportement réel du navigateur, pas seulement ce qu'un site peut voir. Mieux vaut l'essayer quelques jours avant d'en dépendre."
+  },
+  "optionsFirefoxFPIToggleLabel": {
+    "message": "Empêcher les traceurs de vous relier entre les sites"
+  },
+  "optionsFirefoxFPIToggleHint": {
+    "message": "Garde les données stockées de chaque site séparées, afin que le même traceur intégré sur deux sites différents ne puisse pas relier ce qu'il a vu sur chacun."
+  },
+  "optionsFirefoxFPICaution": {
+    "message": "Peut empêcher la connexion avec un compte Google ou Facebook sur un site tiers. Si une connexion cesse de fonctionner, mettez d'abord ceci en pause."
+  },
   "optionsGrayscaleMetricLabel": {
     "message": "publicités estompées aujourd'hui"
   },

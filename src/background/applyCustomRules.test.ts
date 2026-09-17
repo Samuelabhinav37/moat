@@ -18,6 +18,8 @@ const baseSettings: Settings = {
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,
+  firefoxResistFingerprinting: false,
+  firefoxFirstPartyIsolate: false,
   fingerprintResistance: false,
   fingerprintSeed: "",
   fingerprintRotatePerSession: false,

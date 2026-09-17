@@ -633,6 +633,24 @@
   "optionsCnameMetricLabel": {
     "message": "sitios protegidos esta semana"
   },
+  "optionsFirefoxRFPToggleLabel": {
+    "message": "Usar el propio modo de camuflaje de Firefox"
+  },
+  "optionsFirefoxRFPToggleHint": {
+    "message": "Activa la protección contra huellas digitales integrada de Firefox -- la misma que usa Tor Browser, que llega más lejos de lo que Moat puede por sí solo (tamaño de ventana, fuentes, zona horaria y más)."
+  },
+  "optionsFirefoxRFPCaution": {
+    "message": "Puede ser más disruptivo que la propia protección de huella digital de Moat descrita arriba: cambia el comportamiento real del navegador, no solo lo que un sitio puede ver. Conviene probarlo unos días antes de confiar en él."
+  },
+  "optionsFirefoxFPIToggleLabel": {
+    "message": "Evita que los rastreadores te vinculen entre sitios"
+  },
+  "optionsFirefoxFPIToggleHint": {
+    "message": "Mantiene separados los datos almacenados de cada sitio, para que el mismo rastreador incrustado en dos sitios distintos no pueda relacionar lo que vio en cada uno."
+  },
+  "optionsFirefoxFPICaution": {
+    "message": "Puede impedir iniciar sesión con una cuenta de Google o Facebook en un sitio de terceros. Si un inicio de sesión deja de funcionar, pausa esto primero."
+  },
   "optionsGrayscaleMetricLabel": {
     "message": "anuncios atenuados hoy"
   },

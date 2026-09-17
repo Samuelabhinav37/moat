@@ -105,6 +105,8 @@ describe("getSettings", () => {
       enabled: true,
       webrtcLeakProtection: false,
       blockThirdPartyCookies: false,
+      firefoxResistFingerprinting: false,
+      firefoxFirstPartyIsolate: false,
       fingerprintResistance: false,
       fingerprintSeed: "",
       fingerprintRotatePerSession: true,
