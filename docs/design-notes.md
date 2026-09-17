@@ -60,17 +60,18 @@ their own sections further down.
   `@adguard/dnr-rulesets`: 11 AdGuard lists (Base, Tracking Protection, URL Tracking, and Popups
   for ads/trackers; Online Malicious URL, Phishing URL, Scam, and Badware-risks for actual
   malware/phishing domains — the "firewall" half, which blocks known-bad sites outright, not just
-  ads; Social Media, Cookie Notices, and Other Annoyances for the rest), plus four small
+  ads; Social Media, Cookie Notices, and Other Annoyances for the rest), plus three small
   first-party rulesets: the `Sec-GPC` header rule (`ruleset_privacy-headers`), ClearURLs-gap
-  URL-tracking params (`ruleset_url-tracking-extra`), block rules for a handful of
-  error-reporting and social ad/conversion endpoints the bundled lists miss
-  (`ruleset_trackers-extra`), and domain-agnostic regex rules that catch server-side/proxied
-  Google Analytics by its wire format rather than any specific host
-  (`ruleset_server-side-analytics.json`, see `scripts/lib/serverSideAnalyticsRules.mjs`).
-  ~271,000 rules across 21 rulesets, well under the ceiling for most
-  installs (see the README's "Known limitations"), all running in the browser engine, not a JS
-  handler (which MV3 no longer allows for blocking). A slice are `$redirect` rules that point ad
-  scripts at a bundled no-op resource (`nooptext.js`, `1x1-transparent.gif`, etc.);
+  URL-tracking params (`ruleset_url-tracking-extra`), and a combined tracking-gap ruleset
+  (`ruleset_trackers-extra`) covering block rules for error-reporting/social ad-conversion
+  endpoints the bundled lists miss, domain-agnostic regex rules for server-side/proxied Google
+  Analytics (`scripts/lib/serverSideAnalyticsRules.mjs`), and anti-adblock-circumvention service
+  vendors (`scripts/lib/circumventionServiceRules.mjs`) — three independently-authored,
+  independently-tested rule sources folded into one shipped file/manifest entry at build time
+  since none of them touch AdGuard-sourced content. ~271,000 rules across 20 rulesets, well under
+  the ceiling for most installs (see the README's "Known limitations"), all running in the browser
+  engine, not a JS handler (which MV3 no longer allows for blocking). A slice are `$redirect` rules
+  that point ad scripts at a bundled no-op resource (`nooptext.js`, `1x1-transparent.gif`, etc.);
   `scripts/update-filters.mjs` vendors the ~30 resource files those rules reference out of
   `@adguard/scriptlets` into `web-accessible-resources/redirects/` so they resolve instead of
   failing closed.

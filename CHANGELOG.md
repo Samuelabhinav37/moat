@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.98
+
+### Changed
+- **Folded 2 of the small first-party DNR rulesets into `ruleset_trackers-extra.json`**,
+  cutting registered rulesets from 22 to 20 with the same 271,274 total
+  rules. Phase 2 item 2 of the cross-team audit's resource/performance
+  follow-up. `ruleset_server-side-analytics.json` and
+  `ruleset_circumvention-services.json` were each a standalone file/manifest
+  entry for 1-2 rules; combined into the existing `ruleset_trackers-extra`
+  file, with each source's own id range offset (never reordered) to stay
+  unique within the one shipped file, which is all `declarativeNetRequest`
+  requires. `ruleset_privacy-headers` and `ruleset_url-tracking-extra`
+  stay separate on purpose: their only "parent" is the ruleset AdGuard's
+  own source regenerates wholesale on every `filters:update`, and splicing
+  first-party rules into that would mean either losing them on the next
+  regeneration or hand-maintaining an insert step -- a real risk for a
+  cosmetic file-count reduction with no user-visible difference either way.
+  Verified end-to-end: ran the real `filters:update` pipeline, confirmed
+  all 12 merged rules present with unique ids and no functional change,
+  and confirmed the built Chrome manifest now registers 20 rulesets.
+
 ## 0.11.97
 
 ### Changed

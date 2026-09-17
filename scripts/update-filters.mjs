@@ -356,7 +356,40 @@ const ownTrackerRules = [
   trackerBlockRule(7, "||an.facebook.com^"),
   trackerBlockRule(8, "||ads.pinterest.com^"),
 ];
-writeFileSync(join(outDir, "ruleset_trackers-extra.json"), JSON.stringify(ownTrackerRules));
+
+// Our own rules, not sourced from AdGuard: server-side/proxied Google
+// Analytics detection. See scripts/lib/serverSideAnalyticsRules.mjs for the
+// full rationale (SST-Guard arXiv:2604.27497, CNAME-uncloaking evasion) and
+// the regex patterns themselves, which are independently tested there.
+const ownServerSideAnalyticsRules = buildServerSideAnalyticsRules();
+
+// Our own rules, not sourced from AdGuard: anti-adblock-circumvention
+// service vendors (AdDefend, AdThrive) -- see
+// scripts/lib/circumventionServiceRules.mjs for the full rationale (the
+// build-time audit that found neither already network-blocked) and
+// rules/circumvention-services.json for the curated domain list itself.
+const ownCircumventionServiceRules = buildCircumventionServiceRules();
+
+// The three lists above are all first-party, all scoped to the "trackers"
+// group, and each generator owns its own small, independently-tested 1-based
+// id range -- shipped as one combined file/manifest entry instead of three,
+// re-numbered (never re-ordered) so ids stay unique *within this one file*,
+// which is all DNR requires. Deliberately not merged into ruleset_trackers-*
+// above: those are regenerated wholesale from AdGuard's source every run, so
+// splicing Moat's own rules into the same file would mean either losing them
+// on the next regeneration or hand-maintaining an insert step against
+// content this script doesn't control the shape of. Merging these three
+// first-party lists with each other has none of that risk -- every id in
+// the combined file is one this script assigns itself.
+function withIdOffset(rules, offset) {
+  return rules.map((rule) => ({ ...rule, id: rule.id + offset }));
+}
+const ownTrackerExtraRules = [
+  ...ownTrackerRules,
+  ...withIdOffset(ownServerSideAnalyticsRules, ownTrackerRules.length),
+  ...withIdOffset(ownCircumventionServiceRules, ownTrackerRules.length + ownServerSideAnalyticsRules.length),
+];
+writeFileSync(join(outDir, "ruleset_trackers-extra.json"), JSON.stringify(ownTrackerExtraRules));
 // Same group as the AdGuard Tracking Protection filter above so it folds
 // into that one Filter Lists row (see summarizeFilterLists) and the popup's
 // "trackers" bucket (see matchedRuleCategories.ts), rather than adding a
@@ -368,53 +401,7 @@ manifestEntries.push({
   name: "Moat: Tracking Protection filter (coverage-gap fixes)",
   enabled: true,
   file: "ruleset_trackers-extra.json",
-  ruleCount: ownTrackerRules.length,
-});
-
-// Our own rules, not sourced from AdGuard: server-side/proxied Google
-// Analytics detection. See scripts/lib/serverSideAnalyticsRules.mjs for the
-// full rationale (SST-Guard arXiv:2604.27497, CNAME-uncloaking evasion) and
-// the regex patterns themselves, which are independently tested there.
-const ownServerSideAnalyticsRules = buildServerSideAnalyticsRules();
-writeFileSync(
-  join(outDir, "ruleset_server-side-analytics.json"),
-  JSON.stringify(ownServerSideAnalyticsRules)
-);
-// Same group as the AdGuard/first-party Tracking Protection rules so this
-// folds into that one Filter Lists row (see summarizeFilterLists) instead of
-// adding a separate row for what is conceptually the same feature -- same
-// reasoning as ruleset_trackers-extra above.
-manifestEntries.push({
-  id: "ruleset_server-side-analytics",
-  group: "trackers",
-  category: "ads",
-  name: "Moat: Server-side/proxied Google Analytics detection",
-  enabled: true,
-  file: "ruleset_server-side-analytics.json",
-  ruleCount: ownServerSideAnalyticsRules.length,
-});
-
-// Our own rules, not sourced from AdGuard: anti-adblock-circumvention
-// service vendors (AdDefend, AdThrive) -- see
-// scripts/lib/circumventionServiceRules.mjs for the full rationale (the
-// build-time audit that found neither already network-blocked) and
-// rules/circumvention-services.json for the curated domain list itself.
-const ownCircumventionServiceRules = buildCircumventionServiceRules();
-writeFileSync(
-  join(outDir, "ruleset_circumvention-services.json"),
-  JSON.stringify(ownCircumventionServiceRules)
-);
-// Same group as the other first-party additions above so this folds into
-// the one "Tracking Protection" Filter Lists row instead of adding a new
-// row for what is conceptually the same feature.
-manifestEntries.push({
-  id: "ruleset_circumvention-services",
-  group: "trackers",
-  category: "ads",
-  name: "Moat: Anti-adblock-circumvention service blocklist",
-  enabled: true,
-  file: "ruleset_circumvention-services.json",
-  ruleCount: ownCircumventionServiceRules.length,
+  ruleCount: ownTrackerExtraRules.length,
 });
 
 writeFileSync(
