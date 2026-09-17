@@ -3,6 +3,36 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.100
+
+### Changed
+- **`proceduralCosmetic.ts` no longer re-parses the same regex pattern on
+  every element on every mutation-batch flush.** Phase 2 item 5 of the
+  cross-team audit's resource/performance follow-up (scoped down from the
+  original idea -- see below). `:has-text()` and `:matches-css()` patterns
+  are static once a rule is loaded, but `toRegExp()` was re-parsing the
+  same literal `/pattern/flags` string from scratch on every single
+  element check, on every one of up to 60 passes, for as long as a page's
+  observer stays alive. Now cached by pattern string. Reusing one compiled
+  `RegExp` instance safely (rather than a fresh one every call, which is
+  what made this safe before caching) required resetting `lastIndex`
+  before every `test()` -- a global/sticky-flagged pattern advances that
+  as a side effect, which would otherwise make later elements/passes see
+  stale, wrong results. Added regression tests that fail without the
+  reset (verified red before green) to keep that guarantee.
+
+  Deliberately did **not** attempt the more aggressive "scope
+  re-evaluation to the mutated subtree instead of the whole document"
+  idea from the original audit finding: correctly scoping arbitrary CSS
+  selectors and procedural tasks (`:upward()`, `:matches-css()`,
+  sibling/descendant combinators) to just a mutated subtree is a real
+  correctness hazard for a security-relevant cosmetic-hiding engine --
+  it's easy to silently miss a legitimate match a full-document
+  re-query would have caught. The engine is already bounded (300ms
+  debounce, max 60 passes, self-disables after 6 quiet flushes), so the
+  actual cost this would save is real but modest, and not worth that risk
+  without a much more careful design pass.
+
 ## 0.11.99
 
 ### Changed

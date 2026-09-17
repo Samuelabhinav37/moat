@@ -21,19 +21,44 @@ const QUIET_FLUSHES_TO_STOP = 6;
 const MAX_PASSES = 60;
 const HIDDEN_ATTR = "data-moat-proc-hidden";
 
+// A rule's task patterns are static strings fixed at parse time -- the same
+// pattern gets re-parsed by toRegExp() on every element, on every pass, for
+// as long as the observer stays alive (up to MAX_PASSES), which is pure
+// waste once compiled the first time. Cached by pattern string rather than
+// precomputed once per rule up front, since the same literal pattern can
+// legitimately appear in more than one rule's tasks.
+const regexCache = new Map<string, RegExp | null>();
+
 function toRegExp(pattern: string): RegExp | null {
+  const cached = regexCache.get(pattern);
+  if (cached !== undefined) return cached;
   const m = pattern.match(/^\/(.*)\/([a-z]*)$/is);
-  if (!m) return null;
-  try {
-    return new RegExp(m[1] ?? "", m[2] ?? "");
-  } catch {
-    return null;
+  let compiled: RegExp | null = null;
+  if (m) {
+    try {
+      compiled = new RegExp(m[1] ?? "", m[2] ?? "");
+    } catch {
+      compiled = null;
+    }
   }
+  regexCache.set(pattern, compiled);
+  return compiled;
+}
+
+// Resetting lastIndex before every test() is what makes reusing one cached
+// RegExp instance across many calls safe: a /pattern/g or /pattern/y match
+// advances lastIndex as a side effect, and a *fresh* RegExp (what this file
+// used to create on every single call, before caching) never carried that
+// state between calls in the first place. A no-op for the vastly more common
+// non-global/non-sticky pattern, so this costs nothing to always do.
+function testRegExp(re: RegExp, text: string): boolean {
+  re.lastIndex = 0;
+  return re.test(text);
 }
 
 function textMatches(text: string, pattern: string): boolean {
   const re = toRegExp(pattern);
-  return re ? re.test(text) : text.includes(pattern);
+  return re ? testRegExp(re, text) : text.includes(pattern);
 }
 
 function xpathFrom(doc: Document, context: Node, expr: string): Element[] {
@@ -79,7 +104,7 @@ function runTask(task: ProceduralTask, els: Element[], doc: Document): Element[]
       const wantRe = toRegExp(wantRaw);
       return els.filter((el) => {
         const got = getComputedStyle(el, pseudo).getPropertyValue(prop).trim();
-        return wantRe ? wantRe.test(got) : got === wantRaw;
+        return wantRe ? testRegExp(wantRe, got) : got === wantRaw;
       });
     }
     case "xpath": {

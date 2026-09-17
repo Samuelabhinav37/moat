@@ -71,6 +71,65 @@ describe("startProceduralCosmetic — task types", () => {
   });
 });
 
+// Regression coverage for the regex-compilation cache: a /pattern/ literal is
+// now parsed once per pattern string and reused across every element/pass,
+// instead of being re-parsed from scratch every time. A cached RegExp with a
+// global or sticky flag advances its own lastIndex as a side effect of
+// test() -- reusing the *same instance* across several elements or passes
+// without resetting it first would make later test() calls on later
+// elements/passes see the wrong (stale-lastIndex) result. These would have
+// been fine before caching, since every call used to build a brand-new
+// RegExp; they're only a real risk once the cache reuses one.
+describe("startProceduralCosmetic — regex cache correctness", () => {
+  it("matches every element with a /pattern/g has-text, not just alternating ones", () => {
+    document.body.innerHTML = `
+      <div class="card">Sponsored one</div>
+      <div class="card">Sponsored two</div>
+      <div class="card">Sponsored three</div>
+    `;
+    startProceduralCosmetic(document, [rule({ s: ".card", t: [["has-text", "/Sponsored/g"]] })]);
+    const cards = document.querySelectorAll(".card");
+    expect([...cards].every((el) => isHidden(el))).toBe(true);
+  });
+
+  it("keeps matching correctly on a second pass with the same cached pattern", async () => {
+    document.body.innerHTML = `<div class="card">Sponsored</div>`;
+    startProceduralCosmetic(document, [rule({ s: ".card", t: [["has-text", "/Sponsored/g"]] })], {
+      flushDelayMs: 0,
+    });
+    expect(isHidden(document.querySelector(".card"))).toBe(true);
+
+    // A second element added after the first pass exercises the same cached
+    // RegExp instance again, on a later pass.
+    const el = document.createElement("div");
+    el.className = "card";
+    el.textContent = "Sponsored again";
+    document.body.append(el);
+    await settle();
+    expect(isHidden(el)).toBe(true);
+  });
+
+  it("gives an unrelated pattern its own independent cache entry", () => {
+    document.body.innerHTML = `<div class="a">Sponsored</div><div class="b">Promoted</div>`;
+    startProceduralCosmetic(document, [
+      rule({ s: ".a", t: [["has-text", "/Sponsored/gi"]] }),
+      rule({ s: ".b", t: [["has-text", "/Promoted/gi"]] }),
+    ]);
+    expect(isHidden(document.querySelector(".a"))).toBe(true);
+    expect(isHidden(document.querySelector(".b"))).toBe(true);
+  });
+
+  it(":matches-css also stays correct with a global-flagged value pattern", () => {
+    document.body.innerHTML = `<div class="x" style="color: rgb(255, 0, 0)">a</div><div class="x" style="color: rgb(0, 128, 0)">b</div>`;
+    startProceduralCosmetic(document, [
+      rule({ s: ".x", t: [["matches-css", "", "color: /rgb\\(255, 0, 0\\)/g"]] }),
+    ]);
+    const els = document.querySelectorAll(".x");
+    expect(isHidden(els[0]!)).toBe(true);
+    expect(isHidden(els[1]!)).toBe(false);
+  });
+});
+
 describe("startProceduralCosmetic — lifecycle", () => {
   it("applies to nodes added later, then self-disables", async () => {
     startProceduralCosmetic(document, [rule({ s: ".late", t: [["has-text", "promo"]] })], {
