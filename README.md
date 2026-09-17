@@ -125,9 +125,10 @@ install) and every case its code touches a network.
   default and English-only.
 - **Chrome's static-rule budget is shared across every installed extension** (~30,000 guaranteed;
   Moat ships ~271,000). With other rule-heavy extensions present, some lists may not enable:
-  `filterGroups.ts` drops the least-essential first, the Filter Lists tab shows which, and fresh
-  installs start on the smaller Lite preset. The ceiling itself can't be raised from within an
-  extension.
+  `filterGroups.ts` drops the least-essential first and the Filter Lists tab shows which. Fresh
+  installs start on the Standard preset (real tracker blocking, not just ads/security); drop to
+  Lite or Essential from the Filter Lists tab for the smallest footprint. The ceiling itself can't
+  be raised from within an extension.
 - **`web-ext lint` reports 4 expected warnings, 0 errors.** A false-positive coinminer hit on a
   blocked *domain name* inside a filter list, plus feature-detected references to three
   Chrome-only `declarativeNetRequest` debug/feedback APIs Firefox doesn't implement.

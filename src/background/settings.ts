@@ -137,21 +137,35 @@ export async function seedFromSyncIfEmpty(): Promise<void> {
  * longer empty by the time this runs, so this is a no-op and the synced
  * settings win, exactly like every other "only if truly empty" check here.
  *
- * Otherwise, a brand new install starts from the "lite" preset instead of
- * DEFAULT_SETTINGS' implicit filterGroups: {} (which effectiveFilterGroupState
- * reads as "every group on"). Moat's bundled filter lists sum to roughly
- * 276,000 rules across all 11 groups -- about 9x the 30,000 static rules
- * Chrome guarantees any one extension, with the remainder drawn from a pool
- * shared across every installed extension (see README's Known Limitations
- * section, and applyFilterGroupState's graceful-degradation retry loop,
- * which this doesn't replace -- it just gives that retry loop a much
- * smaller number to start from on day one).
+ * Otherwise, a brand new install starts from the "standard" preset instead
+ * of DEFAULT_SETTINGS' implicit filterGroups: {} (which
+ * effectiveFilterGroupState reads as "every group on", i.e. "strict").
+ * Standard is real tracker blocking out of the box, not just ads/security --
+ * that's the actual product -- while skipping the two heaviest cosmetic/
+ * annoyance-style groups (`social-widgets`, `annoyances`) most likely to
+ * misfire on a random site's markup on day one. It also leaves the three
+ * opt-in privacy toggles (fingerprint resistance, third-party-cookie
+ * blocking, WebRTC leak protection) off, same as every preset except Strict
+ * -- those are the ones with real login-flow friction (see
+ * shared/knownLoginDomains.ts), not something to default a stranger into.
+ *
+ * Moat's bundled filter lists sum to roughly 276,000 rules across all 11
+ * groups -- about 9x the 30,000 static rules Chrome guarantees any one
+ * extension, with the remainder drawn from a pool shared across every
+ * installed extension (see README's Known Limitations section). Standard's
+ * ~200,000 rules can still exceed that guarantee on a browser with several
+ * other rule-heavy extensions; applyFilterGroupState's graceful-degradation
+ * retry loop handles that by dropping the least-essential group first, same
+ * as it always has -- this default just doesn't pre-emptively shrink for
+ * every fresh install to dodge a problem most installs won't actually hit.
+ * A user who does hit it, or who just wants the smallest footprint, can
+ * still drop to Lite or Essential from the Filter Lists tab.
  */
 export async function applyFreshInstallDefaults(): Promise<void> {
   const local = await browser.storage.local.get(STORAGE_KEY);
   if (STORAGE_KEY in local) return;
   await browser.storage.local.set({
-    [STORAGE_KEY]: { ...DEFAULT_SETTINGS, filterGroups: PRESETS.lite.filterGroups },
+    [STORAGE_KEY]: { ...DEFAULT_SETTINGS, filterGroups: PRESETS.standard.filterGroups },
   });
 }
 

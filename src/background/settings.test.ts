@@ -387,9 +387,9 @@ describe("seedFromSyncIfEmpty", () => {
 });
 
 describe("applyFreshInstallDefaults", () => {
-  it("seeds the lite preset's filter groups when local is genuinely empty", async () => {
+  it("seeds the standard preset's filter groups when local is genuinely empty", async () => {
     await applyFreshInstallDefaults();
-    expect((await getSettings()).filterGroups).toEqual(PRESETS.lite.filterGroups);
+    expect((await getSettings()).filterGroups).toEqual(PRESETS.standard.filterGroups);
   });
 
   it("does nothing when local settings already exist (e.g. seedFromSyncIfEmpty already ran)", async () => {
@@ -408,6 +408,6 @@ describe("applyFreshInstallDefaults", () => {
     await applyFreshInstallDefaults();
     const settings = await getSettings();
     expect(settings.disabledSites).toEqual(["synced.example.com"]);
-    expect(settings.filterGroups).toEqual({}); // sync's value wins, not the lite defaults
+    expect(settings.filterGroups).toEqual({}); // sync's value wins, not the standard defaults
   });
 });

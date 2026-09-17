@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.92
+
+### Changed
+- **Fresh installs now start on the Standard preset** (security + ads +
+  trackers + url-tracking) instead of Lite (security + ads only). Lite
+  existed purely to dodge Chrome's shared static-rule budget on day one, but
+  it meant a brand-new install did no tracker blocking at all -- the actual
+  product -- until the user found the Filter Lists tab. Standard still skips
+  the two heaviest cosmetic/annoyance groups (only Strict enables those),
+  and still leaves fingerprint resistance/third-party-cookie blocking/WebRTC
+  protection off (only Strict enables those too, and only Strict has any
+  known login-flow friction -- see 0.11.91). Users on a rule-heavy browser
+  who hit the budget ceiling, or who just want the smallest footprint, can
+  still drop to Lite or Essential from the Filter Lists tab.
+
 ## 0.11.91
 
 ### Added
