@@ -13,7 +13,7 @@
 // Run as the last step of `npm run filters:update`, and by hand any time a
 // live/*.json is edited (then `git push`).
 import { createHash, sign as edSign, createPrivateKey } from "node:crypto";
-import { readFileSync, writeFileSync, rmSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -55,8 +55,22 @@ if (keyPem && keyPem.includes("PRIVATE KEY")) {
   const sig = edSign(null, manifestBytes, createPrivateKey(keyPem));
   writeFileSync(sigPath, sig.toString("base64") + "\n");
   console.log(`live/manifest.json + .sig updated (${TRACKED_FILES.length} files, signed)`);
+} else if (existsSync(sigPath)) {
+  // A committed .sig with no key available this run used to be silently
+  // deleted here, which would let the live channel quietly regress from
+  // signed to hash-only trust with no CI failure and no visible diff other
+  // than a deleted file in the same commit as everything else
+  // filters:update touches. Refuse instead -- this should never happen in
+  // ordinary CI (no workflow sets this var today), so hitting it means
+  // either a real key was expected and isn't present, or someone means to
+  // drop signing on purpose and should say so explicitly.
+  console.error(
+    "live/manifest.json.sig exists but LIVE_SIGNING_PRIVATE_KEY is not set for this run -- " +
+      "refusing to silently drop the signature. If you're deliberately turning signing off, " +
+      "remove live/manifest.json.sig yourself first (git rm live/manifest.json.sig)."
+  );
+  process.exit(1);
 } else {
-  if (existsSync(sigPath)) rmSync(sigPath);
   console.log(`live/manifest.json updated (${TRACKED_FILES.length} files, unsigned)`);
 }
 for (const [name, hash] of Object.entries(files)) console.log(`  ${name}  ${hash}`);

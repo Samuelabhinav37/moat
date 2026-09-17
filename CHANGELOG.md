@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.95
+
+### Fixed
+- **The live-update signing channel could regress from signed to hash-only
+  trust silently, with nothing in CI to catch it.** Phase 1b of the
+  cross-team audit. `liveSignature.ts` fully implements Ed25519
+  verification and a real public key is configured, but no CI workflow has
+  ever set `LIVE_SIGNING_PRIVATE_KEY` -- so `update-live-manifest.mjs`
+  would take its unsigned fallback path every run and **silently delete**
+  any existing `live/manifest.json.sig`, and `validate-rules.mjs` never
+  checked a signature was present or valid either way. Fixed on both ends:
+  `update-live-manifest.mjs` now refuses to run (loud failure, not a
+  silent delete) if a `.sig` exists but no signing key is available for
+  that run, and `validate-rules.mjs` now verifies any checked-in
+  `live/manifest.json.sig` against `LIVE_MANIFEST_PUBLIC_KEY` and fails CI
+  if it doesn't match -- using the same Ed25519/SPKI verification
+  `liveSignature.ts` uses at runtime, so anything this check accepts is
+  guaranteed to be something the extension itself accepts too. The channel
+  still runs on hash-only trust today (nothing generates a `.sig` yet --
+  that needs an actual signing key provisioned into CI, a manual step, not
+  a code fix), but a future regression can no longer ship unnoticed.
+
 ## 0.11.94
 
 ### Fixed

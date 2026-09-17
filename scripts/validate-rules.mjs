@@ -2,9 +2,11 @@
 // only schema-legal top-level keys, and no duplicate rule ids within a
 // file (DNR requires uniqueness per-ruleset, not globally). Run after
 // `npm run filters:update`, before building.
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
+import { createPublicKey, verify as edVerify } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { LIVE_MANIFEST_PUBLIC_KEY } from "../src/shared/liveSigningKey.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rulesDir = join(__dirname, "..", "rules", "dnr");
@@ -294,6 +296,50 @@ for (const [name, entry] of Object.entries(companyInfo)) {
   }
 }
 console.log(`company-info.json: ${describedCount} companies described`);
+
+// live/manifest.json.sig: if a signature file is checked in, it must
+// actually verify against LIVE_MANIFEST_PUBLIC_KEY. Before this check
+// existed, nothing enforced that a stale or mismatched .sig couldn't ship --
+// the runtime (liveSignature.ts) would reject it at fetch time, but only
+// after it was already published, and CI would have shown green the whole
+// way there. Same Ed25519/SPKI wrapping liveSignature.ts uses, so a
+// signature this check accepts is guaranteed to be one the runtime accepts
+// too. No signature file at all is fine -- that's today's actual state
+// (see update-live-manifest.mjs: no CI workflow sets LIVE_SIGNING_PRIVATE_KEY
+// yet), and the live-update channel is designed to run on hash-only trust
+// until that changes.
+const liveDir = join(__dirname, "..", "live");
+const liveSigPath = join(liveDir, "manifest.json.sig");
+if (existsSync(liveSigPath)) {
+  const manifestBytes = Buffer.from(
+    readFileSync(join(liveDir, "manifest.json"), "utf8").replace(/\r\n/g, "\n"),
+    "utf8"
+  );
+  const signature = Buffer.from(readFileSync(liveSigPath, "utf8").trim(), "base64");
+  // Fixed 12-byte SPKI/DER prefix for an Ed25519 public key -- identical to
+  // liveSignature.ts's ED25519_SPKI_PREFIX, wrapping the raw 32-byte key so
+  // Node's createPublicKey (which wants a recognized key format) can import it.
+  const ED25519_SPKI_PREFIX = Buffer.from([0x30, 0x2a, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x03, 0x21, 0x00]);
+  const spkiDer = Buffer.concat([ED25519_SPKI_PREFIX, Buffer.from(LIVE_MANIFEST_PUBLIC_KEY, "base64")]);
+  let verified = false;
+  try {
+    const publicKey = createPublicKey({ key: spkiDer, format: "der", type: "spki" });
+    verified = edVerify(null, manifestBytes, publicKey, signature);
+  } catch (err) {
+    console.error(`live/manifest.json.sig: failed to verify (${err.message})`);
+  }
+  if (!verified) {
+    console.error(
+      "live/manifest.json.sig exists but does not verify against LIVE_MANIFEST_PUBLIC_KEY -- " +
+        "refusing to ship a corrupt or mismatched signature."
+    );
+    ok = false;
+  } else {
+    console.log("live/manifest.json.sig: verifies OK");
+  }
+} else {
+  console.log("live/manifest.json.sig: not present (hash-only trust) -- signing not yet configured.");
+}
 
 if (!ok) {
   console.error("\nValidation failed.");
