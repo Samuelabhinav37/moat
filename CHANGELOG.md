@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.99
+
+### Changed
+- **The Athena flush alarm no longer exists at all on a normal install.**
+  Phase 2 item 3 of the cross-team audit's resource/performance follow-up.
+  `initAthenaIntegration()` used to unconditionally register a 5-minute
+  recurring alarm -- the most frequent scheduled wake in the entire
+  extension -- even though every exported function in `athenaIntegration.ts`
+  already no-ops instantly unless an org's own MDM/Group Policy has
+  provisioned real Athena config, which is true for ~100% of installs (this
+  is an open-source extension with no Settings toggle that can turn Athena
+  on). New `reconcileAthenaAlarm()` creates the alarm only once
+  `isAthenaConfigured()` is actually true, and clears it if policy is later
+  removed; hooked into both extension startup and the existing
+  managed-policy-change listener, so an org pushing or revoking Athena
+  config takes effect immediately, not just on the next restart. Safe to
+  call repeatedly -- an already-correct alarm is left alone rather than
+  having its schedule reset on every service-worker cold start.
+
 ## 0.11.98
 
 ### Changed

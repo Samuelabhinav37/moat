@@ -1,9 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import browser from "webextension-polyfill";
-import { flushSecurityEvents, getAthenaSession, isAthenaConfigured, queueSecurityEvent } from "./athenaIntegration";
+import {
+  flushSecurityEvents,
+  getAthenaSession,
+  isAthenaConfigured,
+  queueSecurityEvent,
+  reconcileAthenaAlarm,
+} from "./athenaIntegration";
 import type { AthenaConfig, ManagedPolicy } from "../types";
 
 const sessionStore: Record<string, unknown> = {};
+// Name -> alarm info, mirroring real browser.alarms' own keyed-by-name store
+// closely enough for reconcileAthenaAlarm's get/create/clear calls.
+const alarmStore = new Map<string, { name: string }>();
 
 vi.mock("webextension-polyfill", () => {
   return {
@@ -18,7 +27,15 @@ vi.mock("webextension-polyfill", () => {
         },
       },
       alarms: {
-        create: () => Promise.resolve(),
+        create: (name: string) => {
+          alarmStore.set(name, { name });
+          return Promise.resolve();
+        },
+        get: (name: string) => Promise.resolve(alarmStore.get(name)),
+        clear: (name: string) => {
+          const existed = alarmStore.delete(name);
+          return Promise.resolve(existed);
+        },
         onAlarm: { addListener: () => {} },
       },
     },
@@ -38,6 +55,7 @@ const CONFIGURED_POLICY: ManagedPolicy = { athena: CONFIG };
 beforeEach(() => {
   vi.unstubAllGlobals();
   for (const key of Object.keys(sessionStore)) delete sessionStore[key];
+  alarmStore.clear();
 });
 
 describe("isAthenaConfigured", () => {
@@ -57,6 +75,42 @@ describe("isAthenaConfigured", () => {
   it("is false when bootstrapUrl or eventsUrl isn't https (a misconfigured http:// endpoint would leak the secret/token)", () => {
     expect(isAthenaConfigured({ athena: { ...CONFIG, bootstrapUrl: "http://athena.acme.example/bootstrap" } })).toBe(false);
     expect(isAthenaConfigured({ athena: { ...CONFIG, eventsUrl: "http://athena.acme.example/events" } })).toBe(false);
+  });
+});
+
+describe("reconcileAthenaAlarm", () => {
+  it("does not create the flush alarm on a normal, unconfigured install", async () => {
+    await reconcileAthenaAlarm({});
+    expect(await browser.alarms.get("moat-athena-flush")).toBeUndefined();
+  });
+
+  it("creates the flush alarm once Athena is configured", async () => {
+    await reconcileAthenaAlarm(CONFIGURED_POLICY);
+    expect(await browser.alarms.get("moat-athena-flush")).toBeDefined();
+  });
+
+  it("clears an existing flush alarm if Athena policy is later removed", async () => {
+    await reconcileAthenaAlarm(CONFIGURED_POLICY);
+    expect(await browser.alarms.get("moat-athena-flush")).toBeDefined();
+
+    await reconcileAthenaAlarm({});
+    expect(await browser.alarms.get("moat-athena-flush")).toBeUndefined();
+  });
+
+  it("leaves an already-running alarm alone rather than re-creating it", async () => {
+    const create = vi.spyOn(browser.alarms, "create");
+    await reconcileAthenaAlarm(CONFIGURED_POLICY);
+    expect(create).toHaveBeenCalledTimes(1);
+
+    await reconcileAthenaAlarm(CONFIGURED_POLICY);
+    expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  it("does nothing when called repeatedly while unconfigured", async () => {
+    const clear = vi.spyOn(browser.alarms, "clear");
+    await reconcileAthenaAlarm({});
+    await reconcileAthenaAlarm({});
+    expect(clear).not.toHaveBeenCalled();
   });
 });
 

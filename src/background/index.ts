@@ -37,7 +37,7 @@ import { dismissOnboarding, dismissUpdateNotice, getPopupUiNotices, recordUpdate
 import { initPopupGuard } from "./popupGuard";
 import { fetchAndApply, initLiveUpdates } from "./liveUpdates";
 import { getManagedPolicy } from "./managedPolicy";
-import { initAthenaIntegration, queueSecurityEvent } from "./athenaIntegration";
+import { initAthenaIntegration, queueSecurityEvent, reconcileAthenaAlarm } from "./athenaIntegration";
 import { isPolicyBlockedHostname } from "./athenaPolicySync";
 import { forgetTab as forgetBlockReasonTab, getBlockedHostname, recordBlockedHostname } from "./athenaBlockReason";
 import { safeHostname } from "./redirectDomainMatch";
@@ -118,9 +118,15 @@ browser.runtime.onInstalled.addListener((details) => {
 
 // An admin can push/change managed policy at any point during a session
 // (not just at browser startup) -- reapply everything when that happens,
-// same as we already do for the user's own settings changes.
+// same as we already do for the user's own settings changes. Also
+// reconciles the Athena flush alarm's existence (see reconcileAthenaAlarm's
+// own comment): a policy push that newly configures or removes Athena
+// should create or clear that alarm right away, not only on the next
+// service-worker restart.
 browser.storage.onChanged.addListener((_changes, area) => {
-  if (area === "managed") void reapplySettings();
+  if (area !== "managed") return;
+  void reapplySettings();
+  void getManagedPolicy().then(reconcileAthenaAlarm);
 });
 
 browser.commands.onCommand.addListener((command) => {

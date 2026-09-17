@@ -4,7 +4,9 @@
 // (or returns null/empty) the instant isAthenaConfigured() is false, which is
 // the case for every normal, open-source, non-enterprise install: there is no
 // Settings toggle anywhere that can turn this on, only an org's own policy
-// push can.
+// push can. The flush alarm itself doesn't exist at all on those installs
+// either -- see reconcileAthenaAlarm() -- so an ordinary install pays no
+// recurring service-worker wake for this file, not just no network traffic.
 //
 // What this file does, end to end: local blocking decisions already made
 // elsewhere (matchStats.ts's security-rule matches, index.ts's popup/redirect
@@ -191,8 +193,30 @@ const ALARM_NAME = "moat-athena-flush";
 // already-declared `alarms` permission, no new permission needed.
 const PERIOD_MINUTES = 5;
 
+/**
+ * Creates or clears the flush alarm to match whether Athena is actually
+ * configured right now, instead of the alarm always existing (a 5-minute
+ * service-worker wake for every install, including the ~100% that are
+ * plain open-source installs with no org policy at all -- the least
+ * frequent thing this file could possibly need to do is more often than
+ * anything else in the extension wakes up for). Safe to call repeatedly
+ * with no state change: browser.alarms.get() means an already-correct
+ * alarm is left alone rather than having its schedule reset, so calling
+ * this on every service-worker cold start (initAthenaIntegration below)
+ * doesn't keep delaying an org's already-running flush cadence.
+ */
+export async function reconcileAthenaAlarm(policy: ManagedPolicy): Promise<void> {
+  const shouldRun = isAthenaConfigured(policy);
+  const existing = await browser.alarms.get(ALARM_NAME);
+  if (shouldRun && !existing) {
+    await browser.alarms.create(ALARM_NAME, { delayInMinutes: 1, periodInMinutes: PERIOD_MINUTES });
+  } else if (!shouldRun && existing) {
+    await browser.alarms.clear(ALARM_NAME);
+  }
+}
+
 export function initAthenaIntegration(getPolicy: () => Promise<ManagedPolicy>): void {
-  void browser.alarms.create(ALARM_NAME, { delayInMinutes: 1, periodInMinutes: PERIOD_MINUTES });
+  void getPolicy().then(reconcileAthenaAlarm);
   browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name !== ALARM_NAME) return;
     void (async () => {
