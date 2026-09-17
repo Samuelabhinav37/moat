@@ -378,3 +378,28 @@ export function getOrCreateSessionFingerprintSeed(): Promise<string> {
   sessionSeedQueue = result.catch(() => {});
   return result;
 }
+
+/**
+ * Folds the top-level site's hostname into the base seed (install-permanent
+ * or session, whichever the caller already resolved) before it's ever sent
+ * to a page, so two different sites never see the same noise pattern --
+ * without this, either seed is otherwise identical everywhere, which is
+ * itself a stable, trackable value (see fingerprintNoise.ts's header
+ * comment, and Tor Browser's own design doc on why a *consistent*
+ * randomizer can be worse than none: it becomes a fingerprint of its own).
+ *
+ * `topLevelHostname` must come from the tab's own URL (`sender.tab.url` in
+ * the message handler that calls this), never a frame's own
+ * `location.hostname` -- for a third-party iframe those are different
+ * hostnames, and using the iframe's own domain would let a tracker embedded
+ * on two different sites get the same seed on both, exactly the cross-site
+ * correlation this exists to close.
+ *
+ * No public-suffix/eTLD+1 reduction: a.example.com and b.example.com get
+ * different seeds. That's finer-grained than strictly necessary, not a
+ * functional regression -- nothing depends on canvas/audio noise staying
+ * consistent across subdomains of the same site.
+ */
+export function scopeFingerprintSeedToSite(baseSeed: string, topLevelHostname: string): string {
+  return `${baseSeed}:${topLevelHostname}`;
+}

@@ -17,6 +17,7 @@ import {
   getEffectiveSettings,
   getOrCreateFingerprintSeed,
   getOrCreateSessionFingerprintSeed,
+  scopeFingerprintSeedToSite,
   getSettings,
   isSiteDisabled,
   pickAllowedSettingsPatch,
@@ -403,8 +404,11 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
 
     case "get-fingerprint-seed": {
       return (async (): Promise<FingerprintSeedResponse> => {
-        const seed = message.session ? await getOrCreateSessionFingerprintSeed() : await getOrCreateFingerprintSeed();
-        return { seed };
+        const baseSeed = message.session ? await getOrCreateSessionFingerprintSeed() : await getOrCreateFingerprintSeed();
+        // sender.tab.url, not the requesting frame's own location -- see
+        // scopeFingerprintSeedToSite's own comment on why a third-party
+        // iframe must get the *embedding* site's scope, not its own domain.
+        return { seed: scopeFingerprintSeedToSite(baseSeed, hostnameOf(sender.tab?.url)) };
       })();
     }
 

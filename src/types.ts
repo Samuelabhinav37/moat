@@ -20,11 +20,19 @@ export interface Settings {
   /** Generated once per install (see background/settings.ts), empty until then. */
   fingerprintSeed: string;
   /**
-   * Off by default (fingerprintSeed above, reused forever, is the default).
-   * When on, bridge.ts uses a seed from browser.storage.session instead --
+   * On by default (as of the fingerprint-scoping fix below): bridge.ts uses
+   * a seed from browser.storage.session instead of fingerprintSeed above --
    * fresh each browser restart, closer to Brave's model -- since a
    * fingerprint that never changes can itself become a durable identifier.
-   * Only has an effect when fingerprintResistance is also on.
+   * Kept as a real, user-visible toggle rather than removed outright: an
+   * install-permanent seed is a deliberate choice for someone who's decided
+   * the stability is worth it, not something to take away silently. Only
+   * has an effect when fingerprintResistance is also on. Whichever seed is
+   * in play is also scoped per top-level site before it ever reaches a page
+   * -- see background/settings.ts's scopeFingerprintSeedToSite() -- so
+   * turning this off no longer means "one identical fingerprint everywhere
+   * forever," only "one seed per site instead of one seed per site per
+   * session."
    */
   fingerprintRotatePerSession: boolean;
   /**
@@ -147,7 +155,7 @@ export const DEFAULT_SETTINGS: Settings = {
   blockThirdPartyCookies: false,
   fingerprintResistance: false,
   fingerprintSeed: "",
-  fingerprintRotatePerSession: false,
+  fingerprintRotatePerSession: true,
   filterGroups: {},
   customBlockedDomains: [],
   customAllowedDomains: [],

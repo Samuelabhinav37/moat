@@ -3,6 +3,38 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.96
+
+### Changed
+- **Fingerprint-resistance noise is now scoped per top-level site, and
+  session rotation is on by default.** Phase 1c of the cross-team audit,
+  directly informed by researching Tor Browser's own design doc: a
+  *consistent* per-device randomizer is itself a stable, trackable
+  fingerprint -- Moat's canvas/audio noise seed was generated once and
+  reused identically on every single site forever, which is internally
+  self-consistent (good) but globally stable (the exact failure mode Tor's
+  design doc warns is sometimes worse than doing nothing). Two changes:
+  - The seed sent to a page is now folded together with the top-level
+    site's hostname (`background/settings.ts`'s new
+    `scopeFingerprintSeedToSite()`, applied in the `get-fingerprint-seed`
+    message handler using `sender.tab.url` -- deliberately never a frame's
+    own `location.hostname`, since a third-party iframe's own domain
+    doesn't change across the different sites embedding it, which would
+    have let exactly the cross-site correlation this closes slip through
+    the one place it matters most). Two different sites now get different
+    noise; the same site's own repeated reads stay stable, which was
+    always the point.
+  - `fingerprintRotatePerSession` (session-only seed instead of one
+    reused forever) is now the default for anyone who hasn't already made
+    an explicit choice, narrowing exposure from "until you reset settings"
+    to "until the next browser restart." Kept as a real toggle, not
+    removed -- an install-permanent seed is a legitimate choice for
+    someone who's decided the stability is worth it.
+
+  This applies to every install immediately (the site-scoping doesn't
+  depend on any setting), not just new ones. `fingerprintNoise.ts`'s
+  actual noise math is unchanged -- only what seed string feeds it.
+
 ## 0.11.95
 
 ### Fixed

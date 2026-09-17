@@ -3,12 +3,17 @@
 // patching so it's testable without a real browser -- jsdom doesn't
 // implement canvas rendering.
 //
-// The noise is deterministic per (install seed, seed string) so the same
-// canvas/audio content on the same installation always reads back the same
-// noised values -- a site re-reading it twice shouldn't see it change,
-// which would itself be a distinguishing signal. Different installations
-// get different noise, which is what actually defeats cross-site/cross-
-// visit correlation.
+// The noise is deterministic per (seed, seed string) so the same
+// canvas/audio content on the same page reads back the same noised values
+// within one visit -- a site re-reading it twice shouldn't see it change,
+// which would itself be a distinguishing signal. This module has no opinion
+// about where `seed` itself comes from or what it's scoped to -- that's
+// background/settings.ts's scopeFingerprintSeedToSite(), which folds in the
+// top-level site's hostname (and, by default, the current browser session)
+// before the seed ever reaches here via bridge.ts. That's what actually
+// defeats cross-site and cross-session correlation: two different sites,
+// or the same site after a restart, get different noise from this same
+// deterministic math.
 
 /** Small, fast, deterministic PRNG (mulberry32). Same seed -> same sequence. */
 export function mulberry32(seed: number): () => number {

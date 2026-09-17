@@ -77,6 +77,7 @@ const {
   setSiteDisabled,
   getOrCreateFingerprintSeed,
   getOrCreateSessionFingerprintSeed,
+  scopeFingerprintSeedToSite,
   addCustomBlockedDomain,
   removeCustomBlockedDomain,
   addCustomAllowedDomain,
@@ -106,7 +107,7 @@ describe("getSettings", () => {
       blockThirdPartyCookies: false,
       fingerprintResistance: false,
       fingerprintSeed: "",
-      fingerprintRotatePerSession: false,
+      fingerprintRotatePerSession: true,
       filterGroups: {},
       customBlockedDomains: [],
       customAllowedDomains: [],
@@ -271,6 +272,32 @@ describe("getOrCreateSessionFingerprintSeed", () => {
     const permanent = await getOrCreateFingerprintSeed();
     const session = await getOrCreateSessionFingerprintSeed();
     expect(session).not.toBe(permanent);
+  });
+});
+
+describe("scopeFingerprintSeedToSite", () => {
+  it("gives two different sites a different scoped seed from the same base seed", () => {
+    const a = scopeFingerprintSeedToSite("base-seed", "site-a.com");
+    const b = scopeFingerprintSeedToSite("base-seed", "site-b.com");
+    expect(a).not.toBe(b);
+  });
+
+  it("gives the same site the same scoped seed every time (stable within its scope)", () => {
+    const first = scopeFingerprintSeedToSite("base-seed", "site-a.com");
+    const second = scopeFingerprintSeedToSite("base-seed", "site-a.com");
+    expect(first).toBe(second);
+  });
+
+  it("gives two different subdomains of the same site different scoped seeds", () => {
+    const a = scopeFingerprintSeedToSite("base-seed", "a.example.com");
+    const b = scopeFingerprintSeedToSite("base-seed", "b.example.com");
+    expect(a).not.toBe(b);
+  });
+
+  it("changes the scoped seed if the base seed itself changes (e.g. a session rotation)", () => {
+    const before = scopeFingerprintSeedToSite("session-seed-1", "site-a.com");
+    const after = scopeFingerprintSeedToSite("session-seed-2", "site-a.com");
+    expect(before).not.toBe(after);
   });
 });
 
