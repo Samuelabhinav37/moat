@@ -71,4 +71,17 @@ describe("applyCustomRules", () => {
     const allowFilters = args.addRules.filter((r) => r.id >= CUSTOM_ALLOW_ID_START).map((r) => r.condition.urlFilter);
     expect(allowFilters).toEqual(["||safe.com^"]);
   });
+
+  it("never emits an allow rule for the PARENT of a managed-blocked domain either", async () => {
+    // ||example.com^ matches ads.example.com too, so allow-listing the
+    // parent would otherwise silently undo a block on a specific subdomain.
+    await applyCustomRules(
+      { ...baseSettings, customAllowedDomains: ["example.com", "safe.com"] },
+      ["ads.example.com"]
+    );
+
+    const args = updateDynamicRules.mock.calls[0]![0];
+    const allowFilters = args.addRules.filter((r) => r.id >= CUSTOM_ALLOW_ID_START).map((r) => r.condition.urlFilter);
+    expect(allowFilters).toEqual(["||safe.com^"]);
+  });
 });

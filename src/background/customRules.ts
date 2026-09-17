@@ -80,6 +80,21 @@ export function buildCustomBlockRules(domains: string[]): DeclarativeNetRequest.
 }
 
 /**
+ * True if candidate and any entry in blocked sit in the same domain tree --
+ * either direction. `matchesDomainOrSubdomain(candidate, blocked)` alone only
+ * catches candidate being the blocked domain or a subdomain of it; it misses
+ * candidate being the *parent* of a blocked domain (managed block
+ * "ads.example.com", user allow "example.com") -- since `||example.com^`
+ * matches every subdomain too, that allow rule would silently reopen the
+ * managed block it doesn't even mention. Checking both directions closes
+ * that gap. A real, confirmed bug in the first version of this fix, found by
+ * an independent audit pass -- see this commit's own message.
+ */
+function overlapsAnyDomain(candidate: string, others: readonly string[]): boolean {
+  return matchesDomainOrSubdomain(candidate, others) || others.some((other) => matchesDomainOrSubdomain(other, [candidate]));
+}
+
+/**
  * Exceptions -- unblocks a domain the bundled lists or a custom block rule
  * would otherwise catch. Needs higher priority to win.
  *
@@ -87,17 +102,17 @@ export function buildCustomBlockRules(domains: string[]): DeclarativeNetRequest.
  * managedCustomBlockedDomains) -- see that file's comment on why it's
  * "always additive, lock or not": nothing about it is a lock a user could
  * toggle, so nothing here may let a user's own allow entry quietly outrank
- * it just by also being a higher-priority DNR rule. Matched subdomain-
- * inclusive (the same semantics `||domain^` already gives the block rule
- * itself), so typing a subdomain of a managed-blocked domain into Allowed
- * Sites doesn't reopen it either. A user's own customBlockedDomains entries
- * are deliberately NOT filtered out this way -- allowing your own earlier
- * block entry is this list's documented, intended use.
+ * it just by also being a higher-priority DNR rule. Matched in both
+ * directions (overlapsAnyDomain) -- a subdomain of a managed-blocked domain,
+ * or a *parent* of one, in Allowed Sites doesn't reopen it either. A user's
+ * own customBlockedDomains entries are deliberately NOT filtered out this
+ * way -- allowing your own earlier block entry is this list's documented,
+ * intended use.
  */
 export function buildCustomAllowRules(domains: string[], neverAllow: readonly string[] = []): DeclarativeNetRequest.Rule[] {
   const blocked = filterValidDomains([...neverAllow]);
   return filterValidDomains(domains)
-    .filter((domain) => !matchesDomainOrSubdomain(domain, blocked))
+    .filter((domain) => !overlapsAnyDomain(domain, blocked))
     .slice(0, MAX_CUSTOM_RULES_PER_LIST)
     .map((domain, index) => ({
       id: CUSTOM_ALLOW_ID_START + index,

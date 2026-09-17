@@ -71,6 +71,19 @@ describe("buildCustomAllowRules", () => {
       expect(rules).toHaveLength(0);
     });
 
+    it("drops an allow entry for the PARENT of a managed-blocked domain too", () => {
+      // The reverse-direction gap: ||example.com^ matches every subdomain,
+      // so allow-listing the parent would otherwise silently reopen a
+      // managed block on a specific subdomain it doesn't even mention.
+      const rules = buildCustomAllowRules(["example.com"], ["ads.example.com"]);
+      expect(rules).toHaveLength(0);
+    });
+
+    it("drops a parent allow entry even when it's several labels above the managed-blocked domain", () => {
+      const rules = buildCustomAllowRules(["example.com"], ["deep.sub.ads.example.com"]);
+      expect(rules).toHaveLength(0);
+    });
+
     it("keeps an allow entry unrelated to any managed-blocked domain", () => {
       const rules = buildCustomAllowRules(["safe.com"], ["tracker.com"]);
       expect(rules.map((r) => r.condition.urlFilter)).toEqual(["||safe.com^"]);

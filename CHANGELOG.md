@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.103
+
+### Fixed
+- **The managed-policy bypass fix from v0.11.94 only closed the loophole in
+  one direction.** An independent audit pass confirmed the gap with a
+  concrete repro: `buildCustomAllowRules` blocked a user allow-entry that
+  was the managed-blocked domain or a *subdomain* of it, but never checked
+  the reverse -- an allow-entry that's the *parent* of a managed-blocked
+  domain. Admin blocks `ads.example.com`; user allow-lists `example.com`
+  instead of the exact host; `||example.com^` matches every subdomain
+  including `ads.example.com`, so the block is undone anyway. New
+  `overlapsAnyDomain()` checks both directions. Verified red-before-green:
+  reverted to the old one-directional check, confirmed the new tests fail
+  exactly as expected, then restored the fix and confirmed they pass.
+
 ## 0.11.102
 
 ### Added
