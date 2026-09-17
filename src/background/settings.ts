@@ -57,11 +57,12 @@ export async function getEffectiveSettings(): Promise<Settings> {
 }
 
 async function applyEffectiveSettings(options: { forceFilterGroups?: boolean } = {}): Promise<void> {
-  const effective = await getEffectiveSettings();
+  const [settings, policy] = await Promise.all([getSettings(), getManagedPolicy()]);
+  const effective = applyManagedOverrides(settings, policy);
   await Promise.all([
     applyPrivacySettings(effective),
     applyFilterGroupState(effective, { force: options.forceFilterGroups }),
-    applyCustomRules(effective),
+    applyCustomRules(effective, policy.managedCustomBlockedDomains ?? []),
     reconcileOptionalContentScripts(effective),
     applyPermissionGuard(effective),
   ]);

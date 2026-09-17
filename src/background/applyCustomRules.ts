@@ -7,7 +7,7 @@ import {
 } from "./customRules";
 import type { Settings } from "../types";
 
-export async function applyCustomRules(settings: Settings): Promise<void> {
+export async function applyCustomRules(settings: Settings, managedBlockedDomains: readonly string[] = []): Promise<void> {
   try {
     // One call, not two -- block and allow rule IDs are disjoint ranges
     // (customRules.ts), so there's nothing stopping this from being one
@@ -19,7 +19,10 @@ export async function applyCustomRules(settings: Settings): Promise<void> {
     // old one.
     await browser.declarativeNetRequest.updateDynamicRules({
       removeRuleIds: [...allCustomBlockRuleIds(), ...allCustomAllowRuleIds()],
-      addRules: [...buildCustomBlockRules(settings.customBlockedDomains), ...buildCustomAllowRules(settings.customAllowedDomains)],
+      addRules: [
+        ...buildCustomBlockRules(settings.customBlockedDomains),
+        ...buildCustomAllowRules(settings.customAllowedDomains, managedBlockedDomains),
+      ],
     });
   } catch (err) {
     // Malformed domains are already filtered out before this call

@@ -3,6 +3,24 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.94
+
+### Fixed
+- **A managed (enterprise) block could be silently undone by the user's own
+  Allowed Sites list.** `managedPolicyMerge.ts`'s own comment says an
+  admin-pushed block is "always additive... not a toggle the user could
+  sensibly override away," but nothing enforced that: the merged block
+  compiled to a priority-1 DNR rule while the user's own allow list compiled
+  to priority-2, so anyone who knew the Custom Rules tab existed could type
+  the same domain into Allowed Sites and quietly win. `buildCustomAllowRules`
+  now takes the managed block list and drops (subdomain-inclusive, matching
+  the block rule's own `||domain^` reach) any allow entry that collides with
+  it -- found during a cross-team security audit, closed before use, not
+  reported from the field. A user's own `customBlockedDomains` entries are
+  untouched by this -- allowing back your own earlier block entry is that
+  list's documented, intended use; only the managed list is now enforced
+  this way.
+
 ## 0.11.93
 
 ### Added

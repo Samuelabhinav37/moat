@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Settings } from "../types";
+import type { DeclarativeNetRequest } from "webextension-polyfill";
 
-const updateDynamicRules = vi.fn((_options: { removeRuleIds: number[]; addRules: Array<{ id: number }> }) => Promise.resolve());
+const updateDynamicRules = vi.fn(
+  (_options: { removeRuleIds: number[]; addRules: DeclarativeNetRequest.Rule[] }) => Promise.resolve()
+);
 
 vi.mock("webextension-polyfill", () => ({
   default: { declarativeNetRequest: { updateDynamicRules } },
@@ -54,5 +57,16 @@ describe("applyCustomRules", () => {
   it("does not throw when the browser API call fails", async () => {
     updateDynamicRules.mockRejectedValueOnce(new Error("quota"));
     await expect(applyCustomRules(baseSettings)).resolves.toBeUndefined();
+  });
+
+  it("never emits an allow rule for a domain in the managed-blocked list, even if the user added it to their own allow list", async () => {
+    await applyCustomRules(
+      { ...baseSettings, customBlockedDomains: ["tracker.com"], customAllowedDomains: ["tracker.com", "safe.com"] },
+      ["tracker.com"]
+    );
+
+    const args = updateDynamicRules.mock.calls[0]![0];
+    const allowFilters = args.addRules.filter((r) => r.id >= CUSTOM_ALLOW_ID_START).map((r) => r.condition.urlFilter);
+    expect(allowFilters).toEqual(["||safe.com^"]);
   });
 });

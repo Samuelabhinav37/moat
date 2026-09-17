@@ -59,6 +59,38 @@ describe("buildCustomAllowRules", () => {
     const allowIds = new Set(buildCustomAllowRules(["a.com"]).map((r) => r.id));
     for (const id of allowIds) expect(blockIds.has(id)).toBe(false);
   });
+
+  describe("neverAllow (the enterprise-managed block list)", () => {
+    it("drops an allow entry that exactly matches a managed-blocked domain", () => {
+      const rules = buildCustomAllowRules(["tracker.com"], ["tracker.com"]);
+      expect(rules).toHaveLength(0);
+    });
+
+    it("drops an allow entry for a subdomain of a managed-blocked domain", () => {
+      const rules = buildCustomAllowRules(["sub.tracker.com"], ["tracker.com"]);
+      expect(rules).toHaveLength(0);
+    });
+
+    it("keeps an allow entry unrelated to any managed-blocked domain", () => {
+      const rules = buildCustomAllowRules(["safe.com"], ["tracker.com"]);
+      expect(rules.map((r) => r.condition.urlFilter)).toEqual(["||safe.com^"]);
+    });
+
+    it("keeps every allow entry when neverAllow is empty or omitted, unchanged from before", () => {
+      expect(buildCustomAllowRules(["a.com"], [])).toHaveLength(1);
+      expect(buildCustomAllowRules(["a.com"])).toHaveLength(1);
+    });
+
+    it("does not filter out a user's own customBlockedDomains entry -- only the managed list is enforced here", () => {
+      // A user allowing back their own earlier block entry is this list's
+      // documented, intended use (see buildCustomAllowRules's own comment) --
+      // neverAllow only ever receives the managed list, never the user's own
+      // customBlockedDomains, so this is really asserting the function has no
+      // opinion about domains it was never told to exclude.
+      const rules = buildCustomAllowRules(["own-choice.com"], []);
+      expect(rules).toHaveLength(1);
+    });
+  });
 });
 
 describe("id range helpers", () => {

@@ -4,6 +4,7 @@
 // change). Reserved id ranges keep these from colliding with
 // liveRedirectRules.ts's 900_000+ range.
 import type { DeclarativeNetRequest } from "webextension-polyfill";
+import { matchesDomainOrSubdomain } from "../shared/domainChain";
 
 export const CUSTOM_BLOCK_ID_START = 800_000;
 export const CUSTOM_ALLOW_ID_START = 810_000;
@@ -78,9 +79,25 @@ export function buildCustomBlockRules(domains: string[]): DeclarativeNetRequest.
     }));
 }
 
-/** Exceptions -- unblocks a domain the bundled lists or a custom block rule would otherwise catch. Needs higher priority to win. */
-export function buildCustomAllowRules(domains: string[]): DeclarativeNetRequest.Rule[] {
+/**
+ * Exceptions -- unblocks a domain the bundled lists or a custom block rule
+ * would otherwise catch. Needs higher priority to win.
+ *
+ * `neverAllow` is the enterprise-managed block list (managedPolicyMerge.ts's
+ * managedCustomBlockedDomains) -- see that file's comment on why it's
+ * "always additive, lock or not": nothing about it is a lock a user could
+ * toggle, so nothing here may let a user's own allow entry quietly outrank
+ * it just by also being a higher-priority DNR rule. Matched subdomain-
+ * inclusive (the same semantics `||domain^` already gives the block rule
+ * itself), so typing a subdomain of a managed-blocked domain into Allowed
+ * Sites doesn't reopen it either. A user's own customBlockedDomains entries
+ * are deliberately NOT filtered out this way -- allowing your own earlier
+ * block entry is this list's documented, intended use.
+ */
+export function buildCustomAllowRules(domains: string[], neverAllow: readonly string[] = []): DeclarativeNetRequest.Rule[] {
+  const blocked = filterValidDomains([...neverAllow]);
   return filterValidDomains(domains)
+    .filter((domain) => !matchesDomainOrSubdomain(domain, blocked))
     .slice(0, MAX_CUSTOM_RULES_PER_LIST)
     .map((domain, index) => ({
       id: CUSTOM_ALLOW_ID_START + index,
