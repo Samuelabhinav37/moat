@@ -65,4 +65,36 @@ describe("effectiveValue", () => {
     });
     expect(effectiveValue(settings, "example.com", "fingerprintResistance")).toBe(true);
   });
+
+  describe("known login domains", () => {
+    it("defaults fingerprintResistance off on a known login domain even when the global setting is on", () => {
+      const settings = settingsWith({ fingerprintResistance: true });
+      expect(effectiveValue(settings, "accounts.google.com", "fingerprintResistance")).toBe(false);
+      expect(effectiveValue(settings, "www.facebook.com", "fingerprintResistance")).toBe(false);
+    });
+
+    it("defaults cookieBannerAutoReject off on a known login domain even when the global setting is on", () => {
+      const settings = settingsWith({ cookieBannerAutoReject: true });
+      expect(effectiveValue(settings, "facebook.com", "cookieBannerAutoReject")).toBe(false);
+    });
+
+    it("an explicit per-site override still wins over the built-in login-domain default", () => {
+      const settings = settingsWith({
+        fingerprintResistance: true,
+        perSiteOverrides: { "google.com": { fingerprintResistance: true } },
+      });
+      expect(effectiveValue(settings, "accounts.google.com", "fingerprintResistance")).toBe(true);
+    });
+
+    it("doesn't affect keys the built-in defaults don't cover", () => {
+      const settings = settingsWith({ aggressiveFeedAdRemoval: true, hideSeoSpamResults: true });
+      expect(effectiveValue(settings, "facebook.com", "aggressiveFeedAdRemoval")).toBe(true);
+      expect(effectiveValue(settings, "google.com", "hideSeoSpamResults")).toBe(true);
+    });
+
+    it("doesn't affect unrelated domains", () => {
+      const settings = settingsWith({ fingerprintResistance: true });
+      expect(effectiveValue(settings, "example.com", "fingerprintResistance")).toBe(true);
+    });
+  });
 });

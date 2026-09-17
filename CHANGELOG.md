@@ -3,6 +3,29 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.91
+
+### Added
+- **Fingerprint resistance and cookie-banner auto-reject now default off on
+  known login/SSO domains** (Google, Facebook, Microsoft, Apple, Yahoo), even
+  under the Strict preset, which turns both on globally. Feedback from real
+  testers: spoofing a device fingerprint on Google/Facebook tends to trigger
+  their own anti-fraud "verify it's you" checks rather than protect anything,
+  and auto-rejecting banners on an identity provider risks mis-clicking a
+  real security prompt. Implemented as a built-in default layer in
+  `shared/knownLoginDomains.ts`, consulted by `perSiteOverrides.ts`'s
+  `effectiveValue()` only after checking for an explicit user override --
+  a user who wants full protection on one of these sites anyway can still
+  turn it back on there, same as any other per-site override.
+
+### Fixed
+- **The Filter Lists budget warning used `--danger` (red)**, the same color
+  reserved for "blocked by organization policy," when the rule budget nears
+  Chrome's cap -- reading as something failed rather than "worth knowing."
+  Design handoff doc's own color rule says red means blocked/refused, amber
+  means "this might break something." Switched to `--caution`/new
+  `--caution-fg` token.
+
 ## 0.11.90
 
 ### Added

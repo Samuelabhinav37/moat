@@ -1,4 +1,5 @@
-import { domainChain } from "./domainChain";
+import { domainChain, matchesDomainOrSubdomain } from "./domainChain";
+import { KNOWN_LOGIN_DOMAIN_DEFAULTS, KNOWN_LOGIN_DOMAINS } from "./knownLoginDomains";
 import type { OverridableSettingKey, Settings } from "../types";
 
 export type { OverridableSettingKey };
@@ -18,14 +19,20 @@ export const OVERRIDABLE_KEYS: readonly OverridableSettingKey[] = [
 /**
  * The value a per-site-overridable setting should actually take for
  * hostname: the most specific ancestor domain (hostname itself, then its
- * parent domains) that has an explicit override for key, or the global
- * setting if none do. Same subdomain-inclusive, most-specific-first
- * semantics as customCosmeticRules/disabledSites elsewhere in the codebase.
+ * parent domains) that has an explicit override for key, else this
+ * extension's own built-in default for a known login domain (see
+ * knownLoginDomains.ts), else the global setting. Same subdomain-inclusive,
+ * most-specific-first semantics as customCosmeticRules/disabledSites
+ * elsewhere in the codebase.
  */
 export function effectiveValue(settings: Settings, hostname: string, key: OverridableSettingKey): boolean {
   for (const domain of domainChain(hostname)) {
     const override = settings.perSiteOverrides[domain]?.[key];
     if (override !== undefined) return override;
+  }
+  const builtInDefault = KNOWN_LOGIN_DOMAIN_DEFAULTS[key];
+  if (builtInDefault !== undefined && matchesDomainOrSubdomain(hostname, KNOWN_LOGIN_DOMAINS)) {
+    return builtInDefault;
   }
   return settings[key];
 }

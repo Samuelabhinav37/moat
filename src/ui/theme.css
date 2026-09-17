@@ -23,6 +23,7 @@
      Distinct from --danger, which means blocked -- red here would say
      "this might break something" when it should say "this is refused". */
   --caution: #e0b16f;
+  --caution-fg: #2c2c2f;
   /* Border of a selected list row / keycap outline. */
   --selected: #4a4550;
   /* Extension-icon background plate -- see icons/logo.svg. */
