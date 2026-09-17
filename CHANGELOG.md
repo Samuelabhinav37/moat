@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.97
+
+### Changed
+- **`fingerprintGuard.ts` no longer patches canvas/audio/WebGL/navigator
+  prototypes on every page load when fingerprint resistance is off (the
+  default).** Phase 2 item 1 of the cross-team audit's resource/performance
+  follow-up. Every visitor was paying the cost of the wrapped
+  `toDataURL`/`toBlob`/`getImageData`/`getParameter`/etc. calls -- an extra
+  function-call indirection plus a `Function.prototype.toString` side-table
+  registration per patched function -- whether or not the feature was ever
+  turned on. Patching is now deferred to the first config message that
+  actually reports the feature on (covers both "already on at load" and
+  "the user flips it on mid-session"), with no change to what protection
+  looks like once it's on. While restructuring the four patch calls into
+  one guarded entry point, also gave each one its own try/catch so one
+  throwing (e.g. a global this file assumes is missing) can't stop the
+  others from installing -- closed a related, previously-untested gap
+  found while adding this change's own test coverage.
+
 ## 0.11.96
 
 ### Changed

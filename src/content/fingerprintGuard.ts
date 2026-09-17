@@ -4,9 +4,13 @@
 // canvas CAPTCHA), so it's kept independently toggleable and easy to
 // reason about on its own.
 //
-// Inactive (does nothing) until a "config" message from bridge.ts reports
-// fingerprintResistance: true -- which only happens when the user has
-// opted in via Settings and the site isn't paused.
+// Inactive (does nothing, and patches nothing) until a "config" message from
+// bridge.ts reports fingerprintResistance: true -- which only happens when
+// the user has opted in via Settings and the site isn't paused. See
+// ensurePatched() below: the canvas/audio/WebGL/navigator prototypes are
+// only ever touched the first time that happens, not unconditionally at
+// load, since the feature is off by default and patching has a real
+// per-call cost every page would otherwise pay for nothing.
 import {
   bucketDeviceMemory,
   bucketHardwareConcurrency,
@@ -162,10 +166,33 @@ function patchNavigatorHints(): void {
   }
 }
 
-patchCanvas();
-patchAudio();
-patchWebGL();
-patchNavigatorHints();
+// Patching every one of these prototypes has a real per-call cost (an extra
+// function-call indirection, plus a Function.prototype.toString side-table
+// registration via maskAsNative) that every page pays whether or not
+// fingerprint resistance is actually on -- and it's off by default, so most
+// visitors were paying it for nothing. Deferred to the first config message
+// that actually reports the feature on, instead of running unconditionally
+// at parse time: `active` already gates *behavior* inside the patched
+// functions, this just also gates whether they get patched at all.
+let patched = false;
+
+function ensurePatched(): void {
+  if (patched) return;
+  patched = true;
+  // Each surface is independent -- one throwing (an unusual embedding
+  // context missing a global this file assumes) must not stop the others
+  // from installing. Previously these ran unconditionally at parse time
+  // with the same lack of isolation between them; grouping them here is
+  // what makes that pre-existing gap worth closing now.
+  for (const patch of [patchCanvas, patchAudio, patchWebGL, patchNavigatorHints]) {
+    try {
+      patch();
+    } catch {
+      // Best-effort: losing noise on one surface is better than losing it
+      // on every surface over one missing global.
+    }
+  }
+}
 
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;
@@ -175,4 +202,11 @@ window.addEventListener("message", (event) => {
   if (data.guardToken !== lockedGuardToken) return;
   active = data.fingerprintResistance;
   seed = data.fingerprintSeed;
+  // Patch as soon as the feature is ever turned on for this page load --
+  // covers both "already on at load" and "the user flips it on mid-session"
+  // (bridge.ts re-sends config on a storage change). Once patched, later
+  // messages just keep updating `active`/`seed` above; a later "off"
+  // message correctly leaves the (now-dormant) patches in place rather than
+  // trying to unpatch, same as before this change.
+  if (active) ensurePatched();
 });
