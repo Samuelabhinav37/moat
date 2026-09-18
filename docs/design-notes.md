@@ -69,13 +69,26 @@ their own sections further down.
   Analytics (`scripts/lib/serverSideAnalyticsRules.mjs`), and anti-adblock-circumvention service
   vendors (`scripts/lib/circumventionServiceRules.mjs`) — three independently-authored,
   independently-tested rule sources folded into one shipped file/manifest entry at build time
-  since none of them touch AdGuard-sourced content. Also a fourth party's list, kept as its own
-  ruleset rather than folded in: [jarelllama/Scam-Blocklist](https://github.com/jarelllama/Scam-Blocklist)
-  (`ruleset_scam-blocklist`), a daily-updated, newly-registered-domain-derived scam/phishing list —
-  deliberate redundant multi-vendor coverage under the existing "Scam" toggle, the same reasoning
-  uBlock Origin ships EasyList *and* Peter Lowe's list *and* its own Badware list together rather
-  than trusting one maintainer's list alone to catch everything. ~289,000 rules across 21 rulesets,
-  well under the ceiling for most installs (see the README's "Known limitations"), all running in
+  since none of them touch AdGuard-sourced content. Three more third-party sources, fetched live at
+  build time by `scripts/update-filters.mjs` and each held to its own parse-format sanity floor —
+  the same reasoning uBlock Origin ships EasyList *and* Peter Lowe's list *and* its own Badware
+  list together rather than trusting one maintainer's list alone to catch everything:
+  [jarelllama/Scam-Blocklist](https://github.com/jarelllama/Scam-Blocklist) (`ruleset_scam-blocklist`),
+  a daily-updated, newly-registered-domain-derived scam/phishing list, folded into the existing
+  "Scam" toggle; [Peter Lowe's Ad and tracking server list](https://pgl.yoyo.org/adservers/)
+  (`ruleset_peter-lowe`), a small, hand-curated ad-server list running since 2003, folded into the
+  existing "Tracking Protection" toggle; and [oisd small](https://github.com/sjhgvr/oisd)
+  (`ruleset_oisd`), a ~56,000-domain community aggregate of dozens of independent ad/tracker/
+  malware lists, broader than any single source Moat already ships — kept as its own toggle rather
+  than folded in, since a user who hits real breakage from an aggregate that large and that
+  aggressive by design should be able to turn just that one off (see `scripts/lib/oisdRules.mjs`).
+  oisd ships as Adblock Plus syntax, not bare domains; the parser deliberately only extracts exact
+  `||domain^` block lines and drops everything else (exceptions, regex, cosmetic rules) rather than
+  attempt a general ABP-to-DNR compiler, conservative in coverage but never wrong in what it keeps.
+  ~349,000 rules across 26 rulesets, well under the ceiling for most installs (see the README's
+  "Known limitations") — and if the shared budget genuinely can't hold everything, `filterGroups.ts`
+  already drops the least-essential groups first (annoyance, then ads — which is where the large new
+  third-party lists sort — before ever touching security), all running in
   the browser engine, not a JS handler (which MV3 no longer allows for blocking). A slice are `$redirect` rules
   that point ad scripts at a bundled no-op resource (`nooptext.js`, `1x1-transparent.gif`, etc.);
   `scripts/update-filters.mjs` vendors the ~30 resource files those rules reference out of

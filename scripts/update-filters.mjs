@@ -11,6 +11,8 @@ import { pruneRedundantRules } from "./lib/pruneRedundantRules.mjs";
 import { buildServerSideAnalyticsRules } from "./lib/serverSideAnalyticsRules.mjs";
 import { buildCircumventionServiceRules } from "./lib/circumventionServiceRules.mjs";
 import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
+import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
+import { buildOisdRules } from "./lib/oisdRules.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -523,6 +525,136 @@ scamBlocklistChunks.forEach((chunkRules, index) => {
     file,
     ruleCount: chunkRules.length,
   });
+});
+
+// Third-party, not sourced from AdGuard: Peter Lowe's Ad and tracking server
+// list (pgl.yoyo.org, CC-BY-SA -- see NOTICE.md), a small (~3,500-domain),
+// hand-curated ad-server list running continuously since 2003. Folded into
+// the existing "trackers" group/toggle, same reasoning as
+// ownTrackerExtraRules and the Scam-Blocklist fold-in above: another
+// independent source for a category the user already has a toggle for.
+// The `mimetype=plaintext` query param returns one bare hostname per line,
+// no comments/formatting -- reuses the same SCAM_DOMAIN_PATTERN bare-
+// hostname check as the Scam-Blocklist fetch above (the pattern itself
+// isn't scam-specific, it's just the general "is this a plausible hostname"
+// gate remote content is held to before it becomes a urlFilter).
+const PETER_LOWE_URL =
+  "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=nohtml&showintro=0&mimetype=plaintext";
+const peterLoweResponse = await fetchWithRetry(PETER_LOWE_URL);
+if (!peterLoweResponse.ok) {
+  throw new Error(
+    `Failed to fetch Peter Lowe's Ad and tracking server list: ${peterLoweResponse.status} ${peterLoweResponse.statusText}`
+  );
+}
+const peterLoweText = await peterLoweResponse.text();
+const peterLoweDomains = [
+  ...new Set(
+    peterLoweText
+      .split("\n")
+      .map((line) => line.trim().toLowerCase())
+      .filter((line) => line.length > 0 && !line.startsWith("#") && SCAM_DOMAIN_PATTERN.test(line))
+  ),
+].sort();
+// Written against ~3,550 domains -- a near-empty parse means the source
+// changed format under us, not that ad servers dried up.
+if (peterLoweDomains.length < 1000) {
+  throw new Error(
+    `Peter Lowe's Ad and tracking server list parsed to only ${peterLoweDomains.length} domains -- refusing to ` +
+      "ship a suspiciously small list; the source's format may have changed."
+  );
+}
+writeFileSync(join(outDir, "peter-lowe-domains.json"), JSON.stringify(peterLoweDomains));
+const ownPeterLoweRules = buildPeterLoweRules(peterLoweDomains);
+const peterLoweChunks = chunkBySize(ownPeterLoweRules, 4.5 * 1024 * 1024);
+peterLoweChunks.forEach((chunkRules, index) => {
+  const suffix = peterLoweChunks.length > 1 ? `-${index + 1}` : "";
+  const file = `ruleset_peter-lowe${suffix}.json`;
+  writeFileSync(join(outDir, file), JSON.stringify(chunkRules));
+  manifestEntries.push({
+    id: `ruleset_peter-lowe${suffix}`,
+    group: "trackers",
+    category: "ads",
+    name:
+      peterLoweChunks.length > 1
+        ? `Moat: Tracking Protection filter (Peter Lowe's list, ${index + 1}/${peterLoweChunks.length})`
+        : "Moat: Tracking Protection filter (Peter Lowe's list)",
+    enabled: true,
+    file,
+    ruleCount: chunkRules.length,
+  });
+});
+
+// Third-party, not sourced from AdGuard: oisd "small" (oisd.nl, MIT --
+// see NOTICE.md), a community-maintained aggregate of dozens of independent
+// ad/tracker/malware source lists -- broader redundant coverage than any
+// single source Moat already ships. Deliberately the "small" variant, not
+// "big" (~247,000 domains, checked directly against the live feed -- more
+// than Moat's entire current rule count on its own, same oversized-relative-
+// to-marginal-value reasoning as the Scam-Blocklist "light" choice above)
+// nor "nsfw"/"full" (small already excludes NSFW by design, matching the
+// rest of this project's filter choices). Registered as its own Filter
+// Lists toggle rather than folded into "trackers" like Peter Lowe's list
+// above: at ~56,000 domains, aggressive-by-design community aggregates
+// occasionally overblock a real site, and a user who hits that should be
+// able to turn this one source off without losing core tracker blocking --
+// see scripts/lib/oisdRules.mjs's header for the same reasoning restated
+// next to the rule builder itself.
+//
+// oisd ships as an Adblock Plus filter list, not a bare-domain list. Rather
+// than a general ABP-syntax-to-DNR compiler (real risk: exception rules,
+// regex rules, and cosmetic rules all need different handling, and getting
+// any of that wrong risks either silently under-blocking or, worse,
+// mis-compiling an exception into a block), this only extracts lines that
+// are *exactly* a plain domain-anchored block rule (`||domain^`, no
+// modifiers) and drops everything else untouched -- conservative in
+// coverage (some oisd rules are skipped) but never wrong in what it does
+// keep. Verified directly against a live fetch that oisd "small" is, in
+// fact, 100% plain `||domain^` lines end to end (no `@@` exceptions, no
+// regex/cosmetic rules) -- the parse floor below re-checks that assumption
+// on every run rather than trusting it stays true forever.
+const OISD_URL = "https://small.oisd.nl/";
+const oisdResponse = await fetchWithRetry(OISD_URL);
+if (!oisdResponse.ok) {
+  throw new Error(`Failed to fetch oisd small: ${oisdResponse.status} ${oisdResponse.statusText}`);
+}
+const oisdText = await oisdResponse.text();
+const OISD_LINE_PATTERN = /^\|\|([a-z0-9.-]+)\^$/i;
+const oisdDomains = [
+  ...new Set(
+    oisdText
+      .split("\n")
+      .map((line) => line.trim())
+      .map((line) => OISD_LINE_PATTERN.exec(line)?.[1]?.toLowerCase())
+      .filter((domain) => domain && SCAM_DOMAIN_PATTERN.test(domain))
+  ),
+].sort();
+// Written against ~56,000 domains (the "small" variant's own "Entries:"
+// header at fetch time) -- a near-empty parse means either the source
+// changed format (e.g. started using modifiers/exceptions this parser
+// deliberately doesn't handle) or genuinely shrank; either way this should
+// never ship silently.
+if (oisdDomains.length < 20000) {
+  throw new Error(
+    `oisd small parsed to only ${oisdDomains.length} domains -- refusing to ship a suspiciously small list; ` +
+      "the source's format may have changed (see scripts/update-filters.mjs's oisd section)."
+  );
+}
+writeFileSync(join(outDir, "oisd-domains.json"), JSON.stringify(oisdDomains));
+const ownOisdRules = buildOisdRules(oisdDomains);
+const oisdChunks = chunkBySize(ownOisdRules, 4.5 * 1024 * 1024);
+oisdChunks.forEach((chunkRules, index) => {
+  const suffix = oisdChunks.length > 1 ? `-${index + 1}` : "";
+  const file = `ruleset_oisd${suffix}.json`;
+  manifestEntries.push({
+    id: `ruleset_oisd${suffix}`,
+    group: "oisd",
+    category: "ads",
+    name: oisdChunks.length > 1 ? `Community blocklist -- oisd (${index + 1}/${oisdChunks.length})` : "Community blocklist -- oisd",
+    enabled: true,
+    file,
+    ruleCount: chunkRules.length,
+  });
+  writeFileSync(join(outDir, file), JSON.stringify(chunkRules));
 });
 
 writeFileSync(

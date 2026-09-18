@@ -36,6 +36,29 @@ compiled into `rules/dnr/ruleset_scam-blocklist.json` by
 alongside AdGuard's own Scam Blocklist. Same compatibility as the AdGuard
 entry above.
 
+## oisd small -- GPL-3.0
+
+Source: [sjhgvr/oisd](https://github.com/sjhgvr/oisd) (`small.oisd.nl`), GPL-3.0.
+A community-maintained aggregate of dozens of independent ad/tracker/malware
+source lists. Fetched and parsed for plain domain-block entries only
+(`||domain^`, no exceptions/regex/cosmetic rules) into
+`rules/dnr/ruleset_oisd*.json` by `scripts/update-filters.mjs`, under its own
+"Community blocklist" Filter Lists toggle. Same compatibility as the AdGuard
+entry above.
+
+## Peter Lowe's Ad and tracking server list -- no stated redistribution license
+
+Source: [pgl.yoyo.org](https://pgl.yoyo.org/adservers/), maintained by Peter
+Lowe since 2003. The site does not publish an explicit redistribution
+license for the list itself; it is, by long-standing convention, one of the
+internet's most widely redistributed ad-server lists, bundled as-is by
+numerous other ad/tracker blockers (pfBlockerNG, AdGuard Home, Pi-hole
+third-party list directories, among others), with attribution to the
+maintainer requested and given here. Fetched and compiled into
+`rules/dnr/ruleset_peter-lowe.json` by `scripts/update-filters.mjs`, under
+the existing "Tracking Protection" Filter Lists toggle alongside AdGuard's
+own Tracking protection filter.
+
 ## Ghostery TrackerDB -- CC-BY-NC-SA-4.0 (NON-COMMERCIAL)
 
 Source: [ghostery/trackerdb](https://github.com/ghostery/trackerdb), via the

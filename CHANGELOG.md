@@ -3,6 +3,47 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.107
+
+### Added
+- **Added two more independent, redundant filter-list sources** -- the
+  remaining Tier 1 items from the post-incident research pass (see
+  0.11.105/0.11.106): the goal throughout is that a real user doesn't
+  reason about *why* a specific ad/popup got through, they just want it
+  stopped, so closing gaps proactively across multiple independent sources
+  matters more than any single fix.
+  - **Peter Lowe's Ad and tracking server list** (`ruleset_peter-lowe`,
+    ~3,550 domains, [pgl.yoyo.org](https://pgl.yoyo.org/adservers/)) -- a
+    small, hand-curated ad-server list running continuously since 2003.
+    Folded into the existing "Tracking Protection" Filter Lists toggle,
+    same reasoning as the Scam-Blocklist fold-in below.
+  - **oisd small** (`ruleset_oisd`, ~56,000 domains,
+    [sjhgvr/oisd](https://github.com/sjhgvr/oisd), GPL-3.0) -- a
+    community-maintained aggregate of dozens of independent ad/tracker/
+    malware source lists, broader coverage than any single source Moat
+    already ships. Ships as Adblock Plus syntax, not bare domains; rather
+    than a general (and riskier) ABP-to-DNR compiler, the parser only
+    extracts lines that are exactly a plain domain-anchored block rule
+    (`||domain^`) and drops everything else (exceptions, regex, cosmetic
+    rules) -- conservative in coverage, never wrong in what it keeps.
+    Deliberately the "small" variant, not "big" (~247,000 domains -- more
+    than Moat's entire current rule count on its own, for comparatively
+    thin marginal value). Kept as its own Filter Lists toggle rather than
+    folded into an existing one: at this size and given aggregates this
+    broad occasionally overblock a real site, a user who hits that should
+    be able to turn just this source off without losing core tracker
+    blocking. `filterGroups.ts` already drops the least-essential ("ads"
+    category, which this sorts under) groups first if the shared
+    declarativeNetRequest budget can't hold everything, so this degrades
+    gracefully rather than risking the whole extension failing to load.
+  - Both fetched at build time (weekly, same `filter-refresh.yml` cadence
+    every other filter source here gets) and compiled into bundled static
+    rulesets -- no new runtime network dependency. Both attributed in
+    `NOTICE.md`; Peter Lowe's list has no stated redistribution license
+    (used per long-standing convention, same as pfBlockerNG/AdGuard Home/
+    Pi-hole bundle it), noted explicitly rather than assumed. ~349,000
+    total rules across 26 rulesets, up from ~289,000/21.
+
 ## 0.11.106
 
 ### Added

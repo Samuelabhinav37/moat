@@ -21,9 +21,11 @@ older extension.
 
 ## What it does
 
-- **Network blocking.** ~289,000 `declarativeNetRequest` rules from 11 bundled AdGuard filter lists
-  (ads, trackers, malicious/phishing/scam domains, cookie notices, annoyances), a daily-updated
-  independent scam-domain list, plus a few first-party ones (GPC header, URL-tracking gaps, tracker
+- **Network blocking.** ~349,000 `declarativeNetRequest` rules from 11 bundled AdGuard filter lists
+  (ads, trackers, malicious/phishing/scam domains, cookie notices, annoyances), plus three
+  independent third-party sources for redundant coverage against any one maintainer's gaps (a
+  daily-updated scam-domain list, a community ad/tracker/malware aggregate, and a longstanding
+  ad-server list), plus a few first-party ones (GPC header, URL-tracking gaps, tracker
   coverage-gaps). Runs entirely in the browser engine.
 - **Popup/redirect firewall.** Silently drops hijacked new-tab popups and redirects, with a
   background tab safety net for anything that slips past.
@@ -125,7 +127,7 @@ install) and every case its code touches a network.
   markup and can stop matching when it changes. Both are togglable, and the feed scanner is off by
   default and English-only.
 - **Chrome's static-rule budget is shared across every installed extension** (~30,000 guaranteed;
-  Moat ships ~289,000). With other rule-heavy extensions present, some lists may not enable:
+  Moat ships ~349,000). With other rule-heavy extensions present, some lists may not enable:
   `filterGroups.ts` drops the least-essential first and the Filter Lists tab shows which. Fresh
   installs start on the Standard preset (real tracker blocking, not just ads/security); drop to
   Lite or Essential from the Filter Lists tab for the smallest footprint. The ceiling itself can't
@@ -137,11 +139,11 @@ install) and every case its code touches a network.
 ## Licensing note
 
 Moat's own code is [GPL-3.0](LICENSE), matching the bundled AdGuard/EasyList/uBlock Origin/
-[Scam-Blocklist](https://github.com/jarelllama/Scam-Blocklist) filter data so the whole package
-sits under one copyleft license. Full third-party license texts (required
-by their own terms, not just courtesy) are in [`NOTICE.md`](NOTICE.md), which ships inside the
-built extension package itself, not just this repo, and is linked from the Options page's About
-tab.
+[Scam-Blocklist](https://github.com/jarelllama/Scam-Blocklist)/[oisd](https://github.com/sjhgvr/oisd)
+filter data so the whole package sits under one copyleft license. Full third-party license texts
+(required by their own terms, not just courtesy) are in [`NOTICE.md`](NOTICE.md), which ships
+inside the built extension package itself, not just this repo, and is linked from the Options
+page's About tab.
 
 - **Company names** in the "By company" breakdown come from
   [Ghostery's TrackerDB](https://github.com/ghostery/trackerdb), licensed
@@ -154,6 +156,9 @@ tab.
   scratch against their schema, not copied.
 - **CNAME-cloak destinations** come from [NextDNS's blocklist](https://github.com/nextdns/cname-cloaking-blocklist),
   MIT.
+- **Peter Lowe's Ad and tracking server list** ([pgl.yoyo.org](https://pgl.yoyo.org/adservers/))
+  publishes no explicit redistribution license; it's one of the longest-running, most widely
+  bundled ad-server lists on the internet, used here with attribution per NOTICE.md.
 
 ## More
 
