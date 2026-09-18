@@ -3,6 +3,30 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.104
+
+### Fixed
+- **`unlimitedadblocker.pro` -- a fake "Ad Blocker Unlimited" install-scam
+  popup -- wasn't recognized as a redirect/popup domain.** Reported live:
+  an aggressive ad network on a streaming site popped a tab pushing a
+  malicious-looking extension install disguised as an ad blocker, and it
+  stayed open. Confirmed via direct investigation this wasn't a regression
+  -- `popupGuard.ts`/`mainWorldGuard.ts` were untouched all session, and
+  Moat's core `declarativeNetRequest` blocking verified working correctly
+  against a known ad domain in a live test -- it was a genuine coverage
+  gap: this specific domain isn't in AdGuard's own popup-filter list yet.
+  Fixed on two tracks:
+  - New `rules/known-popup-scam-domains.json`, a hand-curated list in the
+    same convention as `ad-networks.json`/`circumvention-services.json`,
+    merged into `redirect-domains.json` at build time so it survives every
+    future `filters:update` regeneration instead of being a one-off manual
+    edit that gets silently wiped.
+  - An immediate `live/quick-fixes.json` entry blocking the domain
+    outright at the network layer (stronger than the reactive tab-close:
+    prevents the navigation from completing at all), reaching every
+    already-installed copy via the live-update channel within its normal
+    refresh window, no reinstall/rebuild needed on the user's end.
+
 ## 0.11.103
 
 ### Fixed

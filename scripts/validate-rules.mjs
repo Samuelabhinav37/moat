@@ -252,6 +252,39 @@ if (!Array.isArray(circumventionServices) || circumventionServices.length === 0)
   console.log(`circumvention-services.json: ${circumventionServices.length} circumvention-service domains`);
 }
 
+// known-popup-scam-domains.json: hand-curated (not generated), lives in
+// rules/ not rules/dnr. update-filters.mjs merges these into
+// redirectDomains (rules/dnr/redirect-domains.json + the live-update copy)
+// so popupGuard.ts closes tabs that land on them -- domains independently
+// confirmed to redirect to a popup/scam page that AdGuard's own popups/
+// url-tracking filters don't happen to catch yet. Must be a non-empty
+// array of lowercase, de-duplicated, path-free domain strings.
+const knownPopupScamDomains = JSON.parse(
+  readFileSync(join(rulesDir, "..", "known-popup-scam-domains.json"), "utf8")
+);
+if (!Array.isArray(knownPopupScamDomains) || knownPopupScamDomains.length === 0) {
+  console.error("known-popup-scam-domains.json: must be a non-empty array");
+  ok = false;
+} else {
+  const seen = new Set();
+  for (const d of knownPopupScamDomains) {
+    if (typeof d !== "string" || !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(d)) {
+      console.error(`known-popup-scam-domains.json: not a bare lowercase domain: ${JSON.stringify(d)}`);
+      ok = false;
+    } else if (seen.has(d)) {
+      console.error(`known-popup-scam-domains.json: duplicate entry "${d}"`);
+      ok = false;
+    }
+    seen.add(d);
+  }
+  const sorted = [...knownPopupScamDomains].sort();
+  if (knownPopupScamDomains.some((d, i) => d !== sorted[i])) {
+    console.error("known-popup-scam-domains.json: entries must be sorted");
+    ok = false;
+  }
+  console.log(`known-popup-scam-domains.json: ${knownPopupScamDomains.length} known popup-scam domains`);
+}
+
 const ruleCompanies = JSON.parse(readFileSync(join(rulesDir, "rule-companies.json"), "utf8"));
 let attributedCount = 0;
 for (const [rulesetId, byRuleId] of Object.entries(ruleCompanies)) {

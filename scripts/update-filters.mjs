@@ -447,6 +447,17 @@ writeFileSync(
   join(outDir, "manifest.json"),
   JSON.stringify(manifestEntries, null, 2)
 );
+// Hand-curated additions, same convention as ad-networks.json/seo-spam-domains.json/
+// circumvention-services.json -- domains confirmed (not guessed) to redirect
+// to something worth closing (a popup/scam page) that AdGuard's own popups/
+// url-tracking filters don't happen to catch yet. Merged in here so a manual
+// finding survives every future `filters:update` regeneration instead of
+// being silently overwritten the next time this script runs.
+const knownPopupScamDomains = JSON.parse(
+  readFileSync(join(root, "rules", "known-popup-scam-domains.json"), "utf8")
+);
+for (const domain of knownPopupScamDomains) redirectDomains.add(domain);
+
 const redirectDomainsJson = JSON.stringify([...redirectDomains].sort());
 writeFileSync(join(outDir, "redirect-domains.json"), redirectDomainsJson);
 
