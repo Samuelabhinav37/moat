@@ -3,6 +3,7 @@
 // only ever talks back to the extension via window.postMessage.
 import type { BridgeMessage, GuardBlockKind } from "../types";
 import { isPlausibleTrigger } from "./isPlausibleTrigger";
+import { createPopupRateLimiter } from "./popupRateLimit";
 import { maskAsNative } from "./nativeToString";
 
 declare global {
@@ -35,6 +36,7 @@ const nativeWindowOpen = window.open;
 
 let siteDisabled = false;
 let lastTrustedClick: { time: number; target: EventTarget | null; consumed: boolean } | null = null;
+const popupRateLimiter = createPopupRateLimiter();
 
 // Trust-on-first-use: the first "config" message this page load sees locks
 // in its guardToken, and later messages are only applied if they carry the
@@ -101,7 +103,15 @@ window.open = function guardedOpen(...args: Parameters<typeof window.open>): Ret
   const plausible = recentTrusted && isPlausibleTrigger(lastTrustedClick!.target);
   const freshClick = recentTrusted && !lastTrustedClick!.consumed;
 
-  if (active && plausible && freshClick) {
+  // Checked last, and only consumes the click if everything else already
+  // passed: a large-but-genuinely-visible element (a real modal's close
+  // button, say) is deliberately allowed through isPlausibleTrigger -- see
+  // its own tests -- so a site that wires its visible player area to open a
+  // new popup on every click passes that check every time, individually.
+  // No legitimate page needs more than a couple of genuinely-intentional
+  // new-tab opens in quick succession; capping it here catches the barrage
+  // pattern without touching the click-plausibility heuristic itself.
+  if (active && plausible && freshClick && popupRateLimiter.tryApprove(performance.now())) {
     lastTrustedClick!.consumed = true;
     return nativeOpen(...args);
   }

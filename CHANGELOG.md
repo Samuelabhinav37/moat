@@ -3,6 +3,35 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.105
+
+### Added
+- **Rate-limits how many popups a page can get approved in a short window,
+  even when each one individually looks like a real, trusted click.**
+  Researched proactive/behavioral detection specifically because the
+  previous fix (v0.11.104) only closed one specific domain -- the actual
+  gap it exposed is structural: `isPlausibleTrigger.ts` deliberately
+  allows a large, genuinely *visible* element to open a popup (its own
+  tests encode this on purpose -- a real full-screen modal's close button
+  is exactly that shape), so a site that wires its visible video-player
+  area (not full-viewport, not invisible -- neither red flag that check
+  looks for) to open a new popup on every click passes every single time,
+  individually indistinguishable from a real "open in new tab" moment. No
+  single click-shape heuristic can tell those apart; frequency can --
+  no legitimate page needs more than a couple of genuinely-intentional
+  new-tab opens in quick succession. New `popupRateLimit.ts`, same
+  "pull the pure logic out so it's testable without a real trusted click"
+  pattern `isPlausibleTrigger.ts` already established (script-dispatched
+  events can never have `isTrusted: true`, in any test environment or real
+  browser -- there was nothing to fix there, this is additive). Domain-
+  agnostic: catches the barrage pattern regardless of which site or which
+  never-before-seen domain is doing it.
+
+  Also researched three additional filter-list sources (a daily-updated
+  NRD-derived scam-domain list, an independently-maintained aggregator,
+  and a small independent ad/tracker list) to broaden coverage beyond
+  AdGuard's own lists -- follow-on work, not part of this commit.
+
 ## 0.11.104
 
 ### Fixed
