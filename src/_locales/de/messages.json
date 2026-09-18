@@ -700,7 +700,7 @@
     "message": "erweitert"
   },
   "optionsFilterListsDesc": {
-    "message": "Die Regelsätze, die Moat in den browsereigenen Blocker kompiliert. Alle sechs sind in der Erweiterung enthalten — für ihre Funktion wird nichts nachgeladen."
+    "message": "Die Regelsätze, die Moat in den browsereigenen Blocker kompiliert. Jeder einzelne ist in der Erweiterung selbst enthalten — Ihr Browser lädt nichts nach, damit sie funktionieren."
   },
   "optionsRulesActiveBaseline": {
     "message": "aktive Regeln · Chromes Obergrenze liegt bei $CAP$",

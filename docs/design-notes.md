@@ -69,9 +69,14 @@ their own sections further down.
   Analytics (`scripts/lib/serverSideAnalyticsRules.mjs`), and anti-adblock-circumvention service
   vendors (`scripts/lib/circumventionServiceRules.mjs`) — three independently-authored,
   independently-tested rule sources folded into one shipped file/manifest entry at build time
-  since none of them touch AdGuard-sourced content. ~271,000 rules across 20 rulesets, well under
-  the ceiling for most installs (see the README's "Known limitations"), all running in the browser
-  engine, not a JS handler (which MV3 no longer allows for blocking). A slice are `$redirect` rules
+  since none of them touch AdGuard-sourced content. Also a fourth party's list, kept as its own
+  ruleset rather than folded in: [jarelllama/Scam-Blocklist](https://github.com/jarelllama/Scam-Blocklist)
+  (`ruleset_scam-blocklist`), a daily-updated, newly-registered-domain-derived scam/phishing list —
+  deliberate redundant multi-vendor coverage under the existing "Scam" toggle, the same reasoning
+  uBlock Origin ships EasyList *and* Peter Lowe's list *and* its own Badware list together rather
+  than trusting one maintainer's list alone to catch everything. ~289,000 rules across 21 rulesets,
+  well under the ceiling for most installs (see the README's "Known limitations"), all running in
+  the browser engine, not a JS handler (which MV3 no longer allows for blocking). A slice are `$redirect` rules
   that point ad scripts at a bundled no-op resource (`nooptext.js`, `1x1-transparent.gif`, etc.);
   `scripts/update-filters.mjs` vendors the ~30 resource files those rules reference out of
   `@adguard/scriptlets` into `web-accessible-resources/redirects/` so they resolve instead of

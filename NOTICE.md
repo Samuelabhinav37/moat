@@ -26,6 +26,16 @@ Source: [uBlockOrigin/uAssets](https://github.com/uBlockOrigin/uAssets)
 (`annoyances-others.txt`), GPL-3.0. Parsed for cosmetic (element-hiding) rules
 only by `scripts/update-cosmetics.mjs`. Same compatibility as above.
 
+## jarelllama/Scam-Blocklist -- GPL-3.0
+
+Source: [jarelllama/Scam-Blocklist](https://github.com/jarelllama/Scam-Blocklist)
+(`lists/wildcard_domains/scams_light.txt`), GPL-3.0. A daily-updated,
+newly-registered-domain-derived list of scam/phishing domains. Fetched and
+compiled into `rules/dnr/ruleset_scam-blocklist.json` by
+`scripts/update-filters.mjs`, under the existing "Scam" Filter Lists toggle
+alongside AdGuard's own Scam Blocklist. Same compatibility as the AdGuard
+entry above.
+
 ## Ghostery TrackerDB -- CC-BY-NC-SA-4.0 (NON-COMMERCIAL)
 
 Source: [ghostery/trackerdb](https://github.com/ghostery/trackerdb), via the

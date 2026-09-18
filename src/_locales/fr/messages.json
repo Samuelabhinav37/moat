@@ -700,7 +700,7 @@
     "message": "avancé"
   },
   "optionsFilterListsDesc": {
-    "message": "Les jeux de règles que Moat compile dans le bloqueur natif du navigateur. Les six sont inclus dans l'extension : rien n'est téléchargé pour qu'ils fonctionnent."
+    "message": "Les jeux de règles que Moat compile dans le bloqueur natif du navigateur. Chacun est inclus dans l'extension elle-même : votre navigateur ne télécharge rien pour qu'ils fonctionnent."
   },
   "optionsRulesActiveBaseline": {
     "message": "règles actives · la limite de Chrome est de $CAP$",

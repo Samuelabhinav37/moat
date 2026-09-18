@@ -21,9 +21,10 @@ older extension.
 
 ## What it does
 
-- **Network blocking.** ~271,000 `declarativeNetRequest` rules from 11 bundled filter lists (ads,
-  trackers, malicious/phishing/scam domains, cookie notices, annoyances) plus a few first-party
-  ones (GPC header, URL-tracking gaps, tracker coverage-gaps). Runs entirely in the browser engine.
+- **Network blocking.** ~289,000 `declarativeNetRequest` rules from 11 bundled AdGuard filter lists
+  (ads, trackers, malicious/phishing/scam domains, cookie notices, annoyances), a daily-updated
+  independent scam-domain list, plus a few first-party ones (GPC header, URL-tracking gaps, tracker
+  coverage-gaps). Runs entirely in the browser engine.
 - **Popup/redirect firewall.** Silently drops hijacked new-tab popups and redirects, with a
   background tab safety net for anything that slips past.
 - **Cosmetic filtering.** Hides the leftover ad boxes and cookie banners network blocking can't
@@ -124,7 +125,7 @@ install) and every case its code touches a network.
   markup and can stop matching when it changes. Both are togglable, and the feed scanner is off by
   default and English-only.
 - **Chrome's static-rule budget is shared across every installed extension** (~30,000 guaranteed;
-  Moat ships ~271,000). With other rule-heavy extensions present, some lists may not enable:
+  Moat ships ~289,000). With other rule-heavy extensions present, some lists may not enable:
   `filterGroups.ts` drops the least-essential first and the Filter Lists tab shows which. Fresh
   installs start on the Standard preset (real tracker blocking, not just ads/security); drop to
   Lite or Essential from the Filter Lists tab for the smallest footprint. The ceiling itself can't
@@ -135,8 +136,9 @@ install) and every case its code touches a network.
 
 ## Licensing note
 
-Moat's own code is [GPL-3.0](LICENSE), matching the bundled AdGuard/EasyList/uBlock Origin filter
-data so the whole package sits under one copyleft license. Full third-party license texts (required
+Moat's own code is [GPL-3.0](LICENSE), matching the bundled AdGuard/EasyList/uBlock Origin/
+[Scam-Blocklist](https://github.com/jarelllama/Scam-Blocklist) filter data so the whole package
+sits under one copyleft license. Full third-party license texts (required
 by their own terms, not just courtesy) are in [`NOTICE.md`](NOTICE.md), which ships inside the
 built extension package itself, not just this repo, and is linked from the Options page's About
 tab.

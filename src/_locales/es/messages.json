@@ -700,7 +700,7 @@
     "message": "avanzado"
   },
   "optionsFilterListsDesc": {
-    "message": "Los conjuntos de reglas que Moat compila en el bloqueador propio del navegador. Los seis vienen incluidos en la extensión: no se descarga nada para que funcionen."
+    "message": "Los conjuntos de reglas que Moat compila en el bloqueador propio del navegador. Cada uno viene incluido en la propia extensión: tu navegador no descarga nada para que funcionen."
   },
   "optionsRulesActiveBaseline": {
     "message": "reglas activas · el límite de Chrome es $CAP$",

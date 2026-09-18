@@ -10,6 +10,8 @@ import { buildCompanyInfo } from "./lib/companyInfo.mjs";
 import { pruneRedundantRules } from "./lib/pruneRedundantRules.mjs";
 import { buildServerSideAnalyticsRules } from "./lib/serverSideAnalyticsRules.mjs";
 import { buildCircumventionServiceRules } from "./lib/circumventionServiceRules.mjs";
+import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
+import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -441,6 +443,86 @@ manifestEntries.push({
   enabled: true,
   file: "ruleset_trackers-extra.json",
   ruleCount: ownTrackerExtraRules.length,
+});
+
+// Third-party, not sourced from AdGuard: jarelllama/Scam-Blocklist (GPL-3.0
+// -- github.com/jarelllama/Scam-Blocklist), a daily-updated, newly-
+// registered-domain-derived list of scam/phishing domains -- redundant
+// multi-vendor coverage for exactly the category the unlimitedadblocker.pro
+// incident fell into (a domain too new to have reached AdGuard's own Scam
+// Blocklist yet). Registered under the existing "scam" group, not a new
+// toggle -- same reasoning as folding ownTrackerExtraRules into "trackers"
+// above: another source for a category the user already has a toggle for,
+// not a new decision to surface.
+//
+// Fetched here (not a separate scripts/vendor-*.mjs step like
+// cname-list/consent-rules) because, unlike those, this data is needed
+// *during* this script's own manifest-building, and update-filters.mjs
+// wipes rules/dnr/ wholesale at the top of this file -- a separate
+// pre-running vendor script's output would just get deleted before this
+// point ever ran.
+//
+// Deliberately the LIGHT variant, not the full list: the full list is
+// ~469,000 domains (checked directly against the live feed) -- more than
+// Moat's entire current rule count on its own, for comparatively thin
+// marginal coverage over the light version's ~18,000. "Expires: 12 hours"
+// per the source's own header; this project only refreshes weekly
+// (filter-refresh.yml), same cadence every other filter source here
+// already gets -- a reasonable scope reduction, not an attempt to match
+// the source's own freshness.
+const SCAM_BLOCKLIST_URL =
+  "https://raw.githubusercontent.com/jarelllama/Scam-Blocklist/main/lists/wildcard_domains/scams_light.txt";
+const scamBlocklistResponse = await fetchWithRetry(SCAM_BLOCKLIST_URL);
+if (!scamBlocklistResponse.ok) {
+  throw new Error(
+    `Failed to fetch jarelllama/Scam-Blocklist: ${scamBlocklistResponse.status} ${scamBlocklistResponse.statusText}`
+  );
+}
+const scamBlocklistText = await scamBlocklistResponse.text();
+// Same bare-hostname shape customRules.ts's HOSTNAME_PATTERN already
+// enforces for user-typed domains -- this is remote content, held to the
+// same bar before it ever becomes a urlFilter.
+const SCAM_DOMAIN_PATTERN = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
+const scamBlocklistDomains = [
+  ...new Set(
+    scamBlocklistText
+      .split("\n")
+      .map((line) => line.trim().toLowerCase())
+      .filter((line) => line.length > 0 && !line.startsWith("#") && SCAM_DOMAIN_PATTERN.test(line))
+  ),
+].sort();
+// A real refresh should land in the same order of magnitude as what this
+// was written against (~18,000) -- a near-empty parse means the source
+// changed format under us, not that scam domains dried up.
+if (scamBlocklistDomains.length < 5000) {
+  throw new Error(
+    `jarelllama/Scam-Blocklist (light) parsed to only ${scamBlocklistDomains.length} domains -- refusing to ` +
+      "ship a suspiciously small list; the source's format may have changed."
+  );
+}
+writeFileSync(join(outDir, "scam-blocklist-domains.json"), JSON.stringify(scamBlocklistDomains));
+const ownScamBlocklistRules = buildScamBlocklistRules(scamBlocklistDomains);
+// Same 4.5MB ceiling as the main RULESETS loop above (Firefox's linter
+// refuses to parse any non-binary file over 5MB) -- that constant is scoped
+// to the loop it's declared in, so restated here rather than hoisted just
+// for this one extra use.
+const scamBlocklistChunks = chunkBySize(ownScamBlocklistRules, 4.5 * 1024 * 1024);
+scamBlocklistChunks.forEach((chunkRules, index) => {
+  const suffix = scamBlocklistChunks.length > 1 ? `-${index + 1}` : "";
+  const file = `ruleset_scam-blocklist${suffix}.json`;
+  writeFileSync(join(outDir, file), JSON.stringify(chunkRules));
+  manifestEntries.push({
+    id: `ruleset_scam-blocklist${suffix}`,
+    group: "scam",
+    category: "security",
+    name:
+      scamBlocklistChunks.length > 1
+        ? `Moat: Scam-domain blocklist (${index + 1}/${scamBlocklistChunks.length})`
+        : "Moat: Scam-domain blocklist",
+    enabled: true,
+    file,
+    ruleCount: chunkRules.length,
+  });
 });
 
 writeFileSync(

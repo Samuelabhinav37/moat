@@ -3,6 +3,32 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.106
+
+### Added
+- **Added `jarelllama/Scam-Blocklist` as an independent, daily-updated
+  scam/phishing domain source** (~18,000 domains), redundant multi-vendor
+  coverage under the existing "Scam" Filter Lists toggle -- the same
+  reasoning uBlock Origin ships EasyList *and* Peter Lowe's list *and* its
+  own Badware list together rather than trusting one maintainer alone.
+  Directly targets the category of gap the `unlimitedadblocker.pro`
+  incident exposed: a domain too new to have reached AdGuard's own Scam
+  Blocklist yet. Fetched at build time (weekly, same cadence every other
+  filter source here already gets, via the existing `filter-refresh.yml`
+  automation) and compiled into a bundled static ruleset -- no new runtime
+  network dependency, nothing fetched by the installed extension itself.
+  Unlike circumvention-service vendors, these domains have no legitimate
+  direct-navigation use case, so blocking includes `main_frame` on
+  purpose. GPL-3.0, attributed in `NOTICE.md`. ~289,000 total rules across
+  21 rulesets, up from ~271,000/20.
+
+### Fixed
+- Corrected the Filter Lists tab's description, which said "All six ship
+  inside the extension" -- stale even before this change (Moat has 11
+  filter groups, not six) and now doubly worth fixing since one of them
+  involves an actual (build-time only) fetch. Reworded to not hardcode a
+  count that can go stale again, across all 4 locales.
+
 ## 0.11.105
 
 ### Added
