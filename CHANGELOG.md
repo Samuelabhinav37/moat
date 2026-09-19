@@ -3,6 +3,34 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.110
+
+### Added
+- **Icons on the options page's nav rail and Protection-tab category
+  headings.** Every competitor (uBlock Origin, AdGuard, Brave Shields,
+  Ghostery) puts an icon on every nav item; Moat's rail was text-only,
+  which was the single biggest reason the page read as a developer
+  settings screen rather than a finished product. Added a shield
+  (Protection), funnel (Filter Lists), cursor (Custom Rules), eye
+  (Trackers), download (Backup), and info (About) to the rail, plus a
+  lock/bell/shield-check trio on the Privacy/Annoyances/Safety category
+  headings.
+  - Thin-line style (1.4 stroke, no fill) -- reuses the exact convention
+    already established by the drawer-caution, stale-rule, and
+    destination-note glyphs elsewhere on the page, rather than
+    introducing a new visual language. Icons take their color from
+    `currentColor`, so a selected rail item's icon and label always match
+    with no separate state to keep in sync.
+  - New `buildLineIcon` in `options.ts`, a small data-driven SVG builder
+    (DOM construction, not innerHTML -- web-ext lint flags any innerHTML
+    assignment it can't statically prove is a literal) since the three
+    category headings are built dynamically in `renderProtectionGroups`,
+    unlike the six static rail icons.
+  - Reviewed as four style candidates (thin line, bold line, duotone, solid
+    silhouette) on the real theme colors before picking a direction, and
+    the final integration checked against the actual shipped markup --
+    not a mockup -- before landing.
+
 ## 0.11.109
 
 ### Fixed

@@ -313,6 +313,61 @@ const GROUP_LABELS: Record<ProtectionGroup, readonly [string, string]> = {
   safety: ["optionsSafetyCategory", "Safety"],
 };
 
+const SVG_NS_ICON = "http://www.w3.org/2000/svg";
+
+/** Thin-line icon (1.4 stroke, no fill) -- same hand-authored-SVG convention
+ * as buildStaleTriangleIcon further down (web-ext lint flags any innerHTML
+ * assignment it can't statically prove is a literal, even a safe hardcoded
+ * one), just data-driven since the category headings need three of these
+ * rather than one. `rect`, when given, is drawn before the paths (the lock
+ * icon's body). */
+function buildLineIcon(paths: string[], rect?: readonly [number, number, number, number, number]): SVGSVGElement {
+  const icon = document.createElementNS(SVG_NS_ICON, "svg");
+  icon.setAttribute("class", "group-icon");
+  icon.setAttribute("viewBox", "0 0 16 16");
+  icon.setAttribute("fill", "none");
+  icon.setAttribute("stroke", "currentColor");
+  icon.setAttribute("stroke-width", "1.4");
+  icon.setAttribute("stroke-linecap", "round");
+  icon.setAttribute("stroke-linejoin", "round");
+  icon.setAttribute("aria-hidden", "true");
+  if (rect) {
+    const [x, y, width, height, rx] = rect;
+    const r = document.createElementNS(SVG_NS_ICON, "rect");
+    r.setAttribute("x", String(x));
+    r.setAttribute("y", String(y));
+    r.setAttribute("width", String(width));
+    r.setAttribute("height", String(height));
+    r.setAttribute("rx", String(rx));
+    icon.append(r);
+  }
+  for (const d of paths) {
+    const path = document.createElementNS(SVG_NS_ICON, "path");
+    path.setAttribute("d", d);
+    icon.append(path);
+  }
+  return icon;
+}
+
+const CATEGORY_ICON_DEFS: Record<ProtectionGroup, { paths: string[]; rect?: readonly [number, number, number, number, number] }> = {
+  privacy: {
+    paths: ["M5.6 7.2V5.4a2.4 2.4 0 0 1 4.8 0v1.8"],
+    rect: [3.4, 7.2, 9.2, 6.4, 1.3],
+  },
+  annoyances: {
+    paths: [
+      "M4.6 10.8h6.8c-.9-.9-1.4-2.1-1.4-3.3V6a2.2 2.2 0 0 0-4.4 0v1.5c0 1.2-.5 2.4-1.4 3.3z",
+      "M6.6 12.3a1.4 1.4 0 0 0 2.8 0",
+    ],
+  },
+  safety: {
+    paths: [
+      "M8 1.6l4.6 1.8v3.4c0 3.3-1.9 5.7-4.6 6.6-2.7-.9-4.6-3.3-4.6-6.6V3.4L8 1.6z",
+      "M5.9 8.1l1.5 1.5 2.7-3",
+    ],
+  },
+};
+
 // permission-guard is one merged row (three chips) sitting in the "safety"
 // group alongside the plain PROTECTIONS entries above, but its shape is
 // different enough (three independent booleans, no single switch, no
@@ -747,12 +802,16 @@ function renderProtectionGroups(settings: Settings, usage: UsageSummaryResponse)
 
     const heading = document.createElement("div");
     heading.className = "group-heading";
+    const labelWrap = document.createElement("span");
+    labelWrap.className = "group-heading-main";
+    const icon = buildLineIcon(CATEGORY_ICON_DEFS[group].paths, CATEGORY_ICON_DEFS[group].rect);
     const label = document.createElement("span");
     label.textContent = tFallback(...GROUP_LABELS[group]);
+    labelWrap.append(icon, label);
     const count = document.createElement("span");
     count.className = "group-count";
     count.textContent = tFallback("optionsGroupOnCount", `${onCount} of ${total} on`, [String(onCount), String(total)]);
-    heading.append(label, count);
+    heading.append(labelWrap, count);
 
     const rowGroup = document.createElement("div");
     rowGroup.className = "row-group";

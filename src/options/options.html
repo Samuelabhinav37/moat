@@ -64,6 +64,23 @@
       .rail-item:hover:not([aria-selected="true"]) {
         color: var(--fg);
       }
+      /* Wraps the icon+label together so .rail-item's own space-between
+         still puts the trailing dot/count flush right, same reasoning as
+         .group-heading-main below. */
+      .rail-item-main {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-width: 0;
+      }
+      /* No color rule of its own -- stroke="currentColor" inherits
+         .rail-item's muted/fg color exactly, so the icon and label always
+         match, selected or not, with no separate state to keep in sync. */
+      .rail-icon {
+        flex: none;
+        width: 15px;
+        height: 15px;
+      }
       .rail-dot {
         width: 6px;
         height: 6px;
@@ -211,6 +228,20 @@
       }
       .group-heading:first-of-type {
         padding-top: 0;
+      }
+      /* Only the three Protection-tab category headings (Privacy/
+         Annoyances/Safety, built in options.ts's renderProtectionGroups)
+         get an icon -- wraps it with the label so .group-heading's own
+         space-between still puts .group-count on the far right. */
+      .group-heading-main {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .group-icon {
+        flex: none;
+        width: 13px;
+        height: 13px;
       }
       .group-heading .group-count,
       .group-heading .group-action {
@@ -973,21 +1004,45 @@
           <img src="icons/icon48.png" alt="" />
           <span class="brand-name">Moat</span>
         </div>
+        <!-- Nav icons: thin-line style (1.4 stroke, no fill), the same
+             convention already used for the drawer-caution/stale-rule/
+             destination-note glyphs elsewhere on this page. -->
         <div class="rail-list">
           <button class="rail-item" data-tab="protection" role="tab" aria-selected="true">
-            <span data-i18n="tabProtection">Protection</span>
+            <span class="rail-item-main">
+              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M8 1.6l4.6 1.8v3.4c0 3.3-1.9 5.7-4.6 6.6-2.7-.9-4.6-3.3-4.6-6.6V3.4L8 1.6z" />
+              </svg>
+              <span data-i18n="tabProtection">Protection</span>
+            </span>
             <span class="rail-dot" id="rail-dot-protection" hidden></span>
           </button>
           <button class="rail-item" data-tab="filters" role="tab" aria-selected="false">
-            <span data-i18n="tabFilters">Filter Lists</span>
+            <span class="rail-item-main">
+              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2.2 3h11.6l-4.3 5.2v3.9l-3 1.4V8.2L2.2 3z" />
+              </svg>
+              <span data-i18n="tabFilters">Filter Lists</span>
+            </span>
             <span class="rail-count" id="rail-count-filters"></span>
           </button>
           <button class="rail-item" data-tab="custom" role="tab" aria-selected="false">
-            <span data-i18n="tabCustom">Custom Rules</span>
+            <span class="rail-item-main">
+              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3.2 2.3l9 4-3.6 1.2-1.2 3.6-4.2-8.8z" />
+              </svg>
+              <span data-i18n="tabCustom">Custom Rules</span>
+            </span>
             <span class="rail-count" id="rail-count-custom"></span>
           </button>
           <button class="rail-item" data-tab="trackers" role="tab" aria-selected="false">
-            <span data-i18n="tabTrackers">Trackers</span>
+            <span class="rail-item-main">
+              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1.6 8S4.2 3.8 8 3.8 14.4 8 14.4 8 11.8 12.2 8 12.2 1.6 8 1.6 8z" />
+                <circle cx="8" cy="8" r="1.7" fill="currentColor" stroke="none" />
+              </svg>
+              <span data-i18n="tabTrackers">Trackers</span>
+            </span>
             <span class="rail-count" id="rail-count-trackers"></span>
           </button>
 
@@ -998,11 +1053,26 @@
                that is "no backup has ever been taken". options.ts unhides
                it when lastBackupAt is null. -->
           <button class="rail-item" data-tab="backup" role="tab" aria-selected="false">
-            <span data-i18n="tabBackup">Backup</span>
+            <span class="rail-item-main">
+              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M8 2v7" />
+                <path d="M5 6.4L8 9.4l3-3" />
+                <path d="M2.6 12h10.8" />
+              </svg>
+              <span data-i18n="tabBackup">Backup</span>
+            </span>
             <span class="rail-dot rail-dot-caution" id="rail-dot-backup" hidden></span>
           </button>
 
-          <button class="rail-item" data-tab="about" role="tab" aria-selected="false" data-i18n="tabAbout">About</button>
+          <button class="rail-item" data-tab="about" role="tab" aria-selected="false">
+            <span class="rail-item-main">
+              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="8" cy="8" r="6" />
+                <path d="M8 7.4v4M8 5.1v.1" />
+              </svg>
+              <span data-i18n="tabAbout">About</span>
+            </span>
+          </button>
         </div>
       </nav>
 
