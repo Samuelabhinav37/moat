@@ -3,6 +3,59 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.109
+
+### Fixed
+- **A real regression from 0.11.108's redesign**: several `data-i18n` attributes
+  in the new Backup/About/Diagnostics markup reused key names from the
+  *old* markup they replaced (`optionsSyncToggleHint`, `optionsPrivacyHeading`,
+  `optionsVersionHeading`, `optionsDebuggingHeading`). `applyStaticI18n` only
+  falls back to an element's own HTML text when a key is entirely missing --
+  when it already exists, the stored message wins silently. Since these keys
+  already existed with their *old* wording, production would have shown the
+  stale text instead of the new copy -- in `optionsDebuggingHeading`'s case,
+  literally showing "Debugging" instead of "Diagnostics" and undoing the
+  DR-17 rename outright. Fixed by updating the stored message (all 4
+  locales) to match the new copy.
+  - Added a permanent regression test for this whole bug class:
+    `shared/i18n.test.ts` now checks that every `[data-i18n]` element's HTML
+    fallback text agrees with its `en/messages.json` entry whenever that key
+    already exists. The existing render-test mocks can't catch this at all
+    (`mockExtensionBrowser.ts`'s `i18n.getMessage` always returns `""` on
+    purpose, which forces every test onto the fallback path) -- this reads
+    the real message catalog and the real page sources instead.
+  - Removed 7 keys left fully orphaned by the same redesign
+    (`optionsAboutHeading`, `optionsBackupHeading`, `optionsBackupIntro`,
+    `optionsExportButton`, `optionsImportButton`, `optionsVersionPrefix`,
+    `optionsPrivacyIntro`) across all 4 locales.
+- **`liveHeuristics.recordFired` undercounted `searchSlop`.** It always
+  incremented by 1 per message, but `searchSlop` reports a real batch size
+  (results hidden in one pass) the same way `usageStats.ts` does -- the
+  Diagnostics page would have shown "fired 1x" for a pass that actually hid
+  5 results. Now takes the same `count` the history write does.
+- **`--caution-wash` (added in 0.11.108) was dead.** Defined with a comment
+  saying it was for the sync warning box, but that box used `var(--card)`
+  instead. Wired it to the element its own comment named.
+
+### Changed
+- **Copy pass: removed the " -- " / em-dash crutch from every shipped
+  string this project's own recent work introduced or already had**, across
+  all 4 locales. Several sentences leaned on the same "X -- Y" shape back to
+  back (the Diagnostics "silent" states were the worst offender: all seven
+  used the identical "Hasn't X yet -- usually means Y" template), which
+  reads as templated rather than written. Rewritten as shorter, plainer
+  sentences with varied structure -- two clauses joined by a period or
+  "so"/"but" instead of a dash, not a mechanical find-and-replace to a
+  different punctuation mark. Left alone: dashes used as a literal range
+  ("Mon -- Sun") or a UI separator glyph between two spans, which aren't
+  prose and were never the complaint.
+- Added interaction-level test coverage for the Backup/About tabs (clicking
+  Export actually writes `lastBackupAt` and updates the rail dot live, the
+  sync recipient really flips to Mozilla on a Firefox-shaped build) and a
+  dedicated `shared/heuristicScope.test.ts` for the Diagnostics scoping
+  predicate, cross-checked against the real `content_scripts` match
+  patterns in the built manifest.
+
 ## 0.11.108
 
 ### Added

@@ -99,5 +99,75 @@ describe("options.html render", () => {
 
     expect(document.getElementById("protection-firefoxResistFingerprinting-label")).not.toBeNull();
     expect(document.getElementById("protection-firefoxFirstPartyIsolate-label")).not.toBeNull();
+    // DR-15: the sync recipient must flip to Mozilla on a Firefox-shaped
+    // build -- a wrong recipient here is a privacy-disclosure bug, not a
+    // cosmetic one.
+    document.querySelector<HTMLElement>(".rail-item[data-tab='about']")?.click();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+    expect(document.getElementById("disclosure-sync-recipient")?.textContent).toBe("Mozilla");
+    expect(document.getElementById("version-build")?.textContent).toBe("Firefox");
+  });
+});
+
+describe("Backup tab (DR-15)", () => {
+  it("shows the honest 'Never' state with the caution rail dot before any backup exists", async () => {
+    await renderOptions();
+    document.querySelector<HTMLElement>(".rail-item[data-tab='backup']")?.click();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+
+    expect(document.getElementById("backup-metric-last")?.textContent).toBe("Never");
+    expect(document.getElementById("backup-metric-last")?.classList.contains("caution")).toBe(true);
+    expect((document.getElementById("rail-dot-backup") as HTMLElement | null)?.hidden).toBe(false);
+    // Never hardcoded -- Google on this (default, Chrome-shaped) mock.
+    expect(document.getElementById("sync-recipient")?.textContent).toBe("Google");
+  });
+
+  it("clicking Export actually records a backup and updates the tab live", async () => {
+    const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
+    vi.doMock("webextension-polyfill", () => ({ default: browser }));
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+    // jsdom has no real Blob-URL machinery -- stub just the two static
+    // methods the export handler calls (not the whole URL global, which
+    // options.ts's own normalizeHostname/hostnameOf still need as a real
+    // constructor) so the click resolves instead of throwing.
+    const createObjectURL = vi.fn(() => "blob:mock");
+    const revokeObjectURL = vi.fn();
+    URL.createObjectURL = createObjectURL;
+    URL.revokeObjectURL = revokeObjectURL;
+    await import("./options");
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(storageLocalData.lastBackupAt).toBeUndefined();
+    (document.getElementById("export-settings-button") as HTMLButtonElement).click();
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(typeof storageLocalData.lastBackupAt).toBe("number");
+    document.querySelector<HTMLElement>(".rail-item[data-tab='backup']")?.click();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+    expect(document.getElementById("backup-metric-last")?.textContent).not.toBe("Never");
+    expect(document.getElementById("backup-metric-last")?.classList.contains("caution")).toBe(false);
+    expect((document.getElementById("rail-dot-backup") as HTMLElement | null)?.hidden).toBe(true);
+  });
+});
+
+describe("About tab (DR-13)", () => {
+  it("renders the 5-row privacy disclosure table and a populated version grid", async () => {
+    await renderOptions();
+    document.querySelector<HTMLElement>(".rail-item[data-tab='about']")?.click();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+
+    expect(document.querySelectorAll(".disclosure-table tbody tr").length).toBe(5);
+    expect(document.getElementById("version-number")?.textContent).toBe("0.0.0-test");
+    expect(document.getElementById("version-build")?.textContent).toBe("Chrome");
+    // Must mirror the Filter Lists tab's own hero number exactly, never
+    // recompute its own separate count -- see renderAboutTab's own comment
+    // on why the two must never disagree. (This jsdom harness has no real
+    // rules/manifest.json to fetch, so both sides read the same "—"
+    // placeholder rather than a real count -- that's still the behavior
+    // under test: agreement, not a specific value.)
+    expect(document.getElementById("version-rules")?.textContent).toBe(document.getElementById("filters-metric-active")?.textContent);
+    expect(document.getElementById("disclosure-sync-recipient")?.textContent).toBe("Google");
   });
 });

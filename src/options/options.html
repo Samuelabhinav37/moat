@@ -796,7 +796,10 @@
         align-items: flex-start;
         margin-top: 10px;
         padding: 11px 13px;
-        background: var(--card);
+        /* DR-15's own --caution-wash token: a caution without an alarm, see
+           theme.css. Was left as var(--card) in the original handoff, which
+           left the token defined but never actually consumed anywhere. */
+        background: var(--caution-wash);
         border-radius: 8px;
       }
       .destination-note svg {
@@ -1110,7 +1113,7 @@
           <h2 class="page-title" data-i18n="tabFilters">Filter Lists</h2>
           <p class="page-desc" data-i18n="optionsFilterListsDesc">
             The rule sets Moat compiles into the browser's own blocker. Every one ships inside the
-            extension itself — nothing is fetched by your browser to make them work.
+            extension itself, so nothing is fetched by your browser to make them work.
           </p>
 
           <div class="budget-warning" id="filter-budget-warning" hidden>
@@ -1253,8 +1256,8 @@
         <section data-tab-panel="trackers" hidden>
           <h2 class="page-title" data-i18n="tabTrackers">Trackers</h2>
           <p class="page-desc" data-i18n="optionsTrackersDesc">
-            Which companies tried to follow you, and how far they got. Counted on your device
-            from the browser's own match data — this list is never uploaded.
+            Which companies tried to follow you, and how far they got. Counted on your device from
+            the browser's own match data. This list is never uploaded.
           </p>
 
           <div class="metric-row">
@@ -1290,7 +1293,7 @@
           </div>
           <p class="hint muted" id="trackers-subhead" hidden></p>
           <p class="hint muted" id="trackers-unsupported" hidden data-i18n="optionsTrackersUnsupported">
-            This detailed tracker list only works in Chrome for now -- Firefox doesn't support it yet.
+            This detailed tracker list only works in Chrome for now. Firefox doesn't support it yet.
           </p>
           <div id="tracker-rows"></div>
           <p class="empty-state" id="trackers-empty" hidden data-i18n="optionsTrackersEmpty">
@@ -1311,8 +1314,8 @@
         <section data-tab-panel="backup" hidden>
           <h2 class="page-title" data-i18n="tabBackup">Backup</h2>
           <p class="page-desc" data-i18n="optionsBackupDesc">
-            Your settings, your custom rules and your exceptions — in a file you hold, or synced by
-            your browser.
+            Save your settings, custom rules and exceptions to a file you keep, or sync them
+            through your browser.
           </p>
 
           <div class="metric-row">
@@ -1350,7 +1353,7 @@
               <div class="row-body">
                 <div class="row-title" data-i18n="optionsExportTitle">Export settings</div>
                 <p class="row-evidence" id="export-settings-hint">
-                  Downloads <code id="export-filename">moat-settings.json</code> — plain text you can read
+                  Downloads <code id="export-filename">moat-settings.json</code>, a plain text file you can open and read
                 </p>
               </div>
               <button id="export-settings-button" type="button" data-i18n="commonExport">Export</button>
@@ -1359,7 +1362,7 @@
               <div class="row-body">
                 <div class="row-title" data-i18n="optionsImportTitle">Restore from a file</div>
                 <p class="row-evidence" data-i18n="optionsImportHint">
-                  Replaces everything below — you'll see what changes before it applies
+                  Replaces everything below. You'll see what changes before it applies.
                 </p>
               </div>
               <button id="import-settings-button" type="button" data-i18n="commonChooseFile">Choose file</button>
@@ -1379,8 +1382,9 @@
                   Sync settings across devices
                 </div>
                 <p class="row-evidence" data-i18n="optionsSyncToggleHint">
-                  Hands your Moat settings to your browser account to carry. No browsing data — but it
-                  is the one thing on this page that sends anything anywhere.
+                  Hands your Moat settings to your browser account to carry between devices. No
+                  browsing data leaves your device, but this is the only control on this page that
+                  sends anything anywhere.
                 </p>
 
                 <!-- Inline, never drawered. See DR-15. -->
@@ -1393,8 +1397,8 @@
                        hard-code "Google" -- a Firefox build has to say Mozilla. -->
                   <p>
                     Recipient is <strong id="sync-recipient">your browser vendor</strong> on this build.
-                    Your settings become subject to their retention, not Moat's — Moat has no server and
-                    cannot delete them for you.
+                    Your settings then follow their retention rules, not Moat's. Moat has no server,
+                    so it can't delete them for you.
                   </p>
                 </div>
               </div>
@@ -1466,7 +1470,7 @@
                 <tbody>
                   <tr>
                     <td data-i18n="optionsDisclosureBlockingName">Blocking &amp; filtering</td>
-                    <td data-i18n="optionsDisclosureBlockingSent">Nothing — runs entirely on your device</td>
+                    <td data-i18n="optionsDisclosureBlockingSent">Nothing. Runs entirely on your device.</td>
                     <td class="recipient-none" data-i18n="commonNobody">Nobody</td>
                     <td class="default-on" data-i18n="commonAlwaysOn">always on</td>
                   </tr>
@@ -1478,7 +1482,7 @@
                   </tr>
                   <tr>
                     <td data-i18n="optionsDisclosureBreachName">Breach checking</td>
-                    <td data-i18n="optionsDisclosureBreachSent">A short scrambled fragment of a password — never the password</td>
+                    <td data-i18n="optionsDisclosureBreachSent">A short scrambled fragment of a password, never the password itself</td>
                     <td class="recipient-external" data-i18n="optionsDisclosureBreachRecipient">Have I Been Pwned</td>
                     <td class="default-off" data-i18n="commonOff">off</td>
                   </tr>
@@ -1490,7 +1494,7 @@
                   </tr>
                   <tr>
                     <td data-i18n="optionsDisclosureStatsName">Statistics</td>
-                    <td data-i18n="optionsDisclosureStatsSent">Nothing — counted and stored on your device only</td>
+                    <td data-i18n="optionsDisclosureStatsSent">Nothing leaves your device. Counts stay stored locally.</td>
                     <td class="recipient-none" data-i18n="commonNobody">Nobody</td>
                     <td class="default-on" data-i18n="commonAlwaysOn">always on</td>
                   </tr>
@@ -1536,8 +1540,8 @@
                    reporting "YouTube ads came back". -->
               <p>
                 <a href="logger.html" target="_blank" rel="noopener" data-i18n="optionsDiagnosticsLink">Diagnostics</a>
-                shows what Moat did on the current tab — and which of its page-reading
-                features have gone quiet, which usually means a site changed.
+                shows what Moat did on the current tab, and flags any page-reading feature that's
+                gone quiet. That usually means the site changed.
               </p>
             </div>
           </div>

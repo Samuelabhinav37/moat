@@ -21,7 +21,7 @@
     "message": "ver novedades"
   },
   "popupBudgetNotice": {
-    "message": "Algunas listas de filtros están desactivadas: se alcanzó el límite de reglas compartido del navegador. "
+    "message": "Algunas listas de filtros están desactivadas. Se alcanzó el límite de reglas compartido del navegador. "
   },
   "popupBudgetNoticeLink": {
     "message": "Abrir Configuración"
@@ -192,7 +192,7 @@
     "message": "No disponible en este navegador."
   },
   "optionsCnameChromeDohHint": {
-    "message": "En Chrome, esto comprueba los rastreadores disfrazados usando el servicio de consultas públicas de Cloudflare, y puede pasar por alto el primero que encuentra -- detecta todos los siguientes. Firefox hace esto por su cuenta, de forma más privada, y detecta todos desde el principio."
+    "message": "En Chrome, esto comprueba los rastreadores disfrazados usando el servicio de consultas públicas de Cloudflare. Puede pasar por alto el primero que encuentra, pero detecta todos los siguientes. Firefox hace esto por su cuenta, de forma más privada, y detecta todos desde el principio."
   },
   "optionsFilterUpdatesCategory": {
     "message": "Actualizaciones de filtros"
@@ -225,7 +225,7 @@
     "message": "Algunas de las listas de filtros de Moat no se pudieron activar. Los navegadores limitan cuántas reglas de bloqueo pueden usar las extensiones en total, y ese límite es fácil de alcanzar si tienes otro bloqueador de anuncios o extensión de privacidad activo. Prueba a desactivar uno de ellos, o desactiva una lista abajo."
   },
   "optionsFilterBudgetDetail": {
-    "message": "Tu navegador indica que quedan $COUNT$ espacios de reglas para todas tus extensiones juntas. ¿Sigue siendo bajo después de desactivar otras extensiones y recargar Moat? Desactiva una lista abajo -- primero Molestias o Avisos de cookies.",
+    "message": "Tu navegador indica que quedan $COUNT$ espacios de reglas para todas tus extensiones juntas. ¿Sigue siendo bajo después de desactivar otras extensiones y recargar Moat? Desactiva una lista abajo, primero Molestias o Avisos de cookies.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -332,28 +332,16 @@
     "message": "No se encontraron rastreadores en la última pestaña que tuviste abierta."
   },
   "optionsTrackersUnsupported": {
-    "message": "Esta lista detallada de rastreadores solo funciona en Chrome por ahora -- Firefox todavía no la admite."
-  },
-  "optionsAboutHeading": {
-    "message": "Acerca de Moat"
+    "message": "Esta lista detallada de rastreadores solo funciona en Chrome por ahora. Firefox todavía no la admite."
   },
   "optionsPrivacyHeading": {
-    "message": "Privacidad"
-  },
-  "optionsPrivacyIntro": {
-    "message": "Todo aquí se queda en tu dispositivo -- nada se envía al desarrollador de Moat. Solo dos funciones opcionales (verificación de contraseñas filtradas y sincronización de configuración) se comunican con alguien más; consulta la política de privacidad para más detalles."
+    "message": "Qué sale de tu dispositivo"
   },
   "optionsVersionHeading": {
-    "message": "Detalles de la versión"
+    "message": "Versión"
   },
   "optionsDebuggingHeading": {
-    "message": "Depuración"
-  },
-  "optionsBackupHeading": {
-    "message": "Copia de seguridad y restauración"
-  },
-  "optionsBackupIntro": {
-    "message": "Guarda tu configuración en un archivo, o carga una guardada más tarde. Tu identificador de protección contra huellas digitales nunca se incluye, así que no se transfiere."
+    "message": "Diagnóstico"
   },
   "optionsPrivacyPolicyLink": {
     "message": "Política de privacidad completa"
@@ -367,30 +355,16 @@
   "optionsThirdPartyNoticesLink": {
     "message": "Licencias de terceros"
   },
-  "optionsExportButton": {
-    "message": "Descargar configuración"
-  },
-  "optionsImportButton": {
-    "message": "Subir configuración…"
-  },
   "optionsSyncToggleLabel": {
     "message": "Sincronizar configuración entre dispositivos"
   },
   "optionsSyncToggleHint": {
-    "message": "Copia tu configuración usando la cuenta de sincronización propia de tu navegador, como tu cuenta de Google o Firefox. Una instalación nueva la recibe una vez, pero editar la configuración en dos dispositivos a la vez no se combina -- uno sobrescribirá al otro."
+    "message": "Entrega tu configuración de Moat a tu cuenta de navegador para llevarla entre dispositivos. Ningún dato de navegación sale de tu dispositivo, pero este es el único control en esta página que envía algo a algún lugar."
   },
   "optionsSyncStatusFailed": {
-    "message": "No se pudo sincronizar tu configuración ($WHEN$) -- puede que tengas demasiadas reglas personalizadas o sitios para el almacenamiento de sincronización de tu navegador. Sigue guardada en este dispositivo.",
+    "message": "No se pudo sincronizar tu configuración ($WHEN$). Puede que tengas demasiadas reglas personalizadas o sitios para el almacenamiento de sincronización de tu navegador. Sigue guardada en este dispositivo.",
     "placeholders": {
       "when": {
-        "content": "$1"
-      }
-    }
-  },
-  "optionsVersionPrefix": {
-    "message": "v$VERSION$",
-    "placeholders": {
-      "version": {
         "content": "$1"
       }
     }
@@ -426,7 +400,7 @@
     "message": "Básico"
   },
   "optionsLiveStatusOk": {
-    "message": "Última actualización $WHEN$ — $COUNT$ dominios.",
+    "message": "Última actualización $WHEN$ ($COUNT$ dominios).",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -437,7 +411,7 @@
     }
   },
   "optionsLiveStatusFailed": {
-    "message": "El último intento falló ($WHEN$) -- se sigue usando la lista incluida hasta el próximo intento.",
+    "message": "El último intento falló ($WHEN$). Se sigue usando la lista incluida hasta el próximo intento.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -637,10 +611,10 @@
     "message": "Usar el propio modo de camuflaje de Firefox"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Activa la protección contra huellas digitales integrada de Firefox -- la misma que usa Tor Browser, que llega más lejos de lo que Moat puede por sí solo (tamaño de ventana, fuentes, zona horaria y más)."
+    "message": "Activa la protección contra huellas digitales integrada de Firefox, la misma que usa Tor Browser. Llega más lejos de lo que Moat puede por sí solo: tamaño de ventana, fuentes, zona horaria y más."
   },
   "optionsFirefoxRFPCaution": {
-    "message": "Puede ser más disruptivo que la propia protección de huella digital de Moat descrita arriba: cambia el comportamiento real del navegador, no solo lo que un sitio puede ver. Conviene probarlo unos días antes de confiar en él."
+    "message": "Puede ser más disruptivo que la propia protección de huella digital de Moat descrita arriba. Cambia el comportamiento real del navegador, no solo lo que un sitio puede ver, así que conviene probarlo unos días antes de confiar en él."
   },
   "optionsFirefoxFPIToggleLabel": {
     "message": "Evita que los rastreadores te vinculen entre sitios"
@@ -700,7 +674,7 @@
     "message": "avanzado"
   },
   "optionsFilterListsDesc": {
-    "message": "Los conjuntos de reglas que Moat compila en el bloqueador propio del navegador. Cada uno viene incluido en la propia extensión: tu navegador no descarga nada para que funcionen."
+    "message": "Los conjuntos de reglas que Moat compila en el bloqueador propio del navegador. Cada uno viene incluido en la propia extensión, así que tu navegador no descarga nada para que funcionen."
   },
   "optionsRulesActiveBaseline": {
     "message": "reglas activas · el límite de Chrome es $CAP$",
@@ -781,10 +755,10 @@
     }
   },
   "optionsRuleStaleMeta": {
-    "message": "No coincide desde hace 30 días — probablemente el sitio cambió"
+    "message": "No coincide desde hace 30 días. Probablemente el sitio cambió."
   },
   "optionsTrackersDesc": {
-    "message": "Qué empresas intentaron seguirte y hasta dónde llegaron. Se cuenta en tu dispositivo a partir de los datos de coincidencia del propio navegador; esta lista nunca se sube a ningún sitio."
+    "message": "Qué empresas intentaron seguirte y hasta dónde llegaron. Se cuenta en tu dispositivo a partir de los datos de coincidencia del propio navegador. Esta lista nunca se sube a ningún sitio."
   },
   "optionsCompaniesSeenBaseline": {
     "message": "empresas detectadas esta semana"

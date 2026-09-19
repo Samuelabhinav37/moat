@@ -21,7 +21,7 @@
     "message": "voir les nouveautés"
   },
   "popupBudgetNotice": {
-    "message": "Certaines listes de filtres sont désactivées : la limite de règles partagée du navigateur est atteinte. "
+    "message": "Certaines listes de filtres sont désactivées. La limite de règles partagée du navigateur est atteinte. "
   },
   "popupBudgetNoticeLink": {
     "message": "Ouvrir les Paramètres"
@@ -192,7 +192,7 @@
     "message": "Non disponible dans ce navigateur."
   },
   "optionsCnameChromeDohHint": {
-    "message": "Sur Chrome, cela vérifie les traqueurs déguisés via le service de résolution public de Cloudflare, et peut manquer le tout premier qu'il détecte -- il bloque tous les suivants. Firefox le fait lui-même, de façon plus privée, et les bloque tous dès le premier."
+    "message": "Sur Chrome, cela vérifie les traqueurs déguisés via le service de résolution public de Cloudflare. Il peut manquer le tout premier qu'il détecte, puis bloque tous les suivants. Firefox le fait lui-même, de façon plus privée, et les bloque tous dès le premier."
   },
   "optionsFilterUpdatesCategory": {
     "message": "Mises à jour des filtres"
@@ -225,7 +225,7 @@
     "message": "Certaines listes de filtres de Moat n'ont pas pu s'activer. Les navigateurs limitent le nombre total de règles de blocage que les extensions peuvent utiliser, et cette limite est facile à atteindre si vous avez un autre bloqueur de publicités ou une autre extension de confidentialité en cours d'exécution. Essayez d'en désactiver un, ou désactivez une liste ci-dessous."
   },
   "optionsFilterBudgetDetail": {
-    "message": "Votre navigateur indique qu'il reste $COUNT$ emplacements de règles pour l'ensemble de vos extensions. Toujours faible après avoir désactivé d'autres extensions et rechargé Moat ? Désactivez une liste ci-dessous -- Nuisances ou Avis de cookies en premier.",
+    "message": "Votre navigateur indique qu'il reste $COUNT$ emplacements de règles pour l'ensemble de vos extensions. Toujours faible après avoir désactivé d'autres extensions et rechargé Moat ? Désactivez une liste ci-dessous, Nuisances ou Avis de cookies en premier.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -332,28 +332,16 @@
     "message": "Aucun traqueur trouvé sur le dernier onglet que vous avez eu ouvert."
   },
   "optionsTrackersUnsupported": {
-    "message": "Cette liste détaillée des traqueurs ne fonctionne pour l'instant que sur Chrome -- Firefox ne la prend pas encore en charge."
-  },
-  "optionsAboutHeading": {
-    "message": "À propos de Moat"
+    "message": "Cette liste détaillée des traqueurs ne fonctionne pour l'instant que sur Chrome. Firefox ne la prend pas encore en charge."
   },
   "optionsPrivacyHeading": {
-    "message": "Confidentialité"
-  },
-  "optionsPrivacyIntro": {
-    "message": "Tout ici reste sur votre appareil -- rien n'est envoyé au développeur de Moat. Seules deux fonctionnalités facultatives (vérification des fuites de données et synchronisation des paramètres) communiquent avec un tiers ; consultez la politique de confidentialité pour plus de détails."
+    "message": "Ce qui quitte votre appareil"
   },
   "optionsVersionHeading": {
-    "message": "Détails de la version"
+    "message": "Version"
   },
   "optionsDebuggingHeading": {
-    "message": "Débogage"
-  },
-  "optionsBackupHeading": {
-    "message": "Sauvegarde et restauration"
-  },
-  "optionsBackupIntro": {
-    "message": "Enregistrez vos paramètres dans un fichier, ou chargez-en un plus tard. Votre identifiant de protection contre l'empreinte numérique n'est jamais inclus, il ne sera donc pas transféré."
+    "message": "Diagnostic"
   },
   "optionsPrivacyPolicyLink": {
     "message": "Politique de confidentialité complète"
@@ -367,30 +355,16 @@
   "optionsThirdPartyNoticesLink": {
     "message": "Licences tierces"
   },
-  "optionsExportButton": {
-    "message": "Télécharger les paramètres"
-  },
-  "optionsImportButton": {
-    "message": "Importer des paramètres…"
-  },
   "optionsSyncToggleLabel": {
     "message": "Synchroniser les paramètres entre les appareils"
   },
   "optionsSyncToggleHint": {
-    "message": "Copie vos paramètres via le compte de synchronisation propre à votre navigateur, comme votre compte Google ou Firefox. Une nouvelle installation les récupère une fois, mais modifier les paramètres sur deux appareils en même temps ne les fusionnera pas -- l'un écrasera l'autre."
+    "message": "Confie vos paramètres Moat à votre compte de navigateur afin de les transporter d'un appareil à l'autre. Aucune donnée de navigation ne quitte votre appareil, mais c'est le seul contrôle de cette page qui envoie quoi que ce soit."
   },
   "optionsSyncStatusFailed": {
-    "message": "Impossible de synchroniser vos paramètres ($WHEN$) -- vous avez peut-être trop de règles personnalisées ou de sites pour le stockage de synchronisation de votre navigateur. Ils restent enregistrés sur cet appareil.",
+    "message": "Impossible de synchroniser vos paramètres ($WHEN$). Vous avez peut-être trop de règles personnalisées ou de sites pour le stockage de synchronisation de votre navigateur. Ils restent enregistrés sur cet appareil.",
     "placeholders": {
       "when": {
-        "content": "$1"
-      }
-    }
-  },
-  "optionsVersionPrefix": {
-    "message": "v$VERSION$",
-    "placeholders": {
-      "version": {
         "content": "$1"
       }
     }
@@ -426,7 +400,7 @@
     "message": "Essentiel"
   },
   "optionsLiveStatusOk": {
-    "message": "Dernière mise à jour $WHEN$ — $COUNT$ domaines.",
+    "message": "Dernière mise à jour $WHEN$ ($COUNT$ domaines).",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -437,7 +411,7 @@
     }
   },
   "optionsLiveStatusFailed": {
-    "message": "La dernière tentative a échoué ($WHEN$) -- utilisation de la liste intégrée jusqu'à la prochaine tentative.",
+    "message": "La dernière tentative a échoué ($WHEN$). Utilisation de la liste intégrée jusqu'à la prochaine tentative.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -637,10 +611,10 @@
     "message": "Utiliser le mode de camouflage propre à Firefox"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Active la protection intégrée de Firefox contre l'empreinte numérique -- la même que celle utilisée par Tor Browser, allant plus loin que ce que Moat peut faire seul (taille de fenêtre, polices, fuseau horaire et plus)."
+    "message": "Active la protection intégrée de Firefox contre l'empreinte numérique, la même que celle utilisée par Tor Browser. Elle va plus loin que ce que Moat peut faire seul : taille de fenêtre, polices, fuseau horaire et plus."
   },
   "optionsFirefoxRFPCaution": {
-    "message": "Peut être plus perturbant que la propre protection d'empreinte de Moat ci-dessus -- elle modifie le comportement réel du navigateur, pas seulement ce qu'un site peut voir. Mieux vaut l'essayer quelques jours avant d'en dépendre."
+    "message": "Peut être plus perturbant que la propre protection d'empreinte de Moat ci-dessus. Elle modifie le comportement réel du navigateur, pas seulement ce qu'un site peut voir, donc mieux vaut l'essayer quelques jours avant d'en dépendre."
   },
   "optionsFirefoxFPIToggleLabel": {
     "message": "Empêcher les traceurs de vous relier entre les sites"
@@ -700,7 +674,7 @@
     "message": "avancé"
   },
   "optionsFilterListsDesc": {
-    "message": "Les jeux de règles que Moat compile dans le bloqueur natif du navigateur. Chacun est inclus dans l'extension elle-même : votre navigateur ne télécharge rien pour qu'ils fonctionnent."
+    "message": "Les jeux de règles que Moat compile dans le bloqueur natif du navigateur. Chacun est inclus dans l'extension elle-même, donc votre navigateur ne télécharge rien pour qu'ils fonctionnent."
   },
   "optionsRulesActiveBaseline": {
     "message": "règles actives · la limite de Chrome est de $CAP$",
@@ -781,10 +755,10 @@
     }
   },
   "optionsRuleStaleMeta": {
-    "message": "Aucune correspondance depuis 30 jours — le site a probablement changé"
+    "message": "Aucune correspondance depuis 30 jours. Le site a probablement changé."
   },
   "optionsTrackersDesc": {
-    "message": "Quelles entreprises ont tenté de vous suivre, et jusqu'où. Calculé sur votre appareil à partir des données de correspondance du navigateur lui-même — cette liste n'est jamais envoyée où que ce soit."
+    "message": "Quelles entreprises ont tenté de vous suivre, et jusqu'où. Calculé sur votre appareil à partir des données de correspondance du navigateur lui-même. Cette liste n'est jamais envoyée où que ce soit."
   },
   "optionsCompaniesSeenBaseline": {
     "message": "entreprises détectées cette semaine"

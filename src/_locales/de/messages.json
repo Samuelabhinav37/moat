@@ -21,7 +21,7 @@
     "message": "Neuerungen ansehen"
   },
   "popupBudgetNotice": {
-    "message": "Einige Filterlisten sind deaktiviert – das gemeinsame Regellimit des Browsers ist erreicht. "
+    "message": "Einige Filterlisten sind deaktiviert. Das gemeinsame Regellimit des Browsers ist erreicht. "
   },
   "popupBudgetNoticeLink": {
     "message": "Einstellungen öffnen"
@@ -192,7 +192,7 @@
     "message": "In diesem Browser nicht verfügbar."
   },
   "optionsCnameChromeDohHint": {
-    "message": "Unter Chrome prüft dies getarnte Tracker über Cloudflares öffentlichen Abfragedienst und übersieht möglicherweise den allerersten gefundenen -- alle danach werden erkannt. Firefox macht das selbst, privater, und erkennt sie alle von Anfang an."
+    "message": "Unter Chrome prüft dies getarnte Tracker über Cloudflares öffentlichen Abfragedienst. Dabei wird möglicherweise der allererste gefundene übersehen, alle danach werden erkannt. Firefox macht das selbst, privater, und erkennt sie alle von Anfang an."
   },
   "optionsFilterUpdatesCategory": {
     "message": "Filter-Updates"
@@ -225,7 +225,7 @@
     "message": "Einige Filterlisten von Moat konnten nicht aktiviert werden. Browser begrenzen, wie viele Blockierregeln Erweiterungen insgesamt nutzen dürfen, und dieses Limit wird leicht erreicht, wenn ein weiterer Werbeblocker oder eine Datenschutz-Erweiterung parallel läuft. Versuche, eine davon zu deaktivieren, oder schalte unten eine Liste aus."
   },
   "optionsFilterBudgetDetail": {
-    "message": "Dein Browser meldet $COUNT$ verbleibende Regelplätze für alle deine Erweiterungen zusammen. Immer noch niedrig, nachdem du andere Erweiterungen deaktiviert und Moat neu geladen hast? Schalte unten eine Liste aus -- zuerst Störungen oder Cookie-Hinweise.",
+    "message": "Dein Browser meldet $COUNT$ verbleibende Regelplätze für alle deine Erweiterungen zusammen. Immer noch niedrig, nachdem du andere Erweiterungen deaktiviert und Moat neu geladen hast? Schalte unten eine Liste aus, zuerst Störungen oder Cookie-Hinweise.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -332,28 +332,16 @@
     "message": "Im zuletzt geöffneten Tab wurden keine Tracker gefunden."
   },
   "optionsTrackersUnsupported": {
-    "message": "Diese detaillierte Tracker-Liste funktioniert vorerst nur in Chrome -- Firefox unterstützt sie noch nicht."
-  },
-  "optionsAboutHeading": {
-    "message": "Über Moat"
+    "message": "Diese detaillierte Tracker-Liste funktioniert vorerst nur in Chrome. Firefox unterstützt sie noch nicht."
   },
   "optionsPrivacyHeading": {
-    "message": "Datenschutz"
-  },
-  "optionsPrivacyIntro": {
-    "message": "Alles hier bleibt auf deinem Gerät -- nichts wird an den Entwickler von Moat gesendet. Nur zwei optionale Funktionen (Prüfung auf geleakte Passwörter und Einstellungssynchronisierung) kommunizieren überhaupt mit jemand anderem; Details in der Datenschutzerklärung."
+    "message": "Was dein Gerät verlässt"
   },
   "optionsVersionHeading": {
-    "message": "Versionsdetails"
+    "message": "Version"
   },
   "optionsDebuggingHeading": {
-    "message": "Fehlersuche"
-  },
-  "optionsBackupHeading": {
-    "message": "Sicherung & Wiederherstellung"
-  },
-  "optionsBackupIntro": {
-    "message": "Speichere deine Einstellungen in einer Datei oder lade sie später wieder. Deine Fingerprint-Schutz-Kennung wird nie einbezogen und daher nicht übertragen."
+    "message": "Diagnose"
   },
   "optionsPrivacyPolicyLink": {
     "message": "Vollständige Datenschutzerklärung"
@@ -367,30 +355,16 @@
   "optionsThirdPartyNoticesLink": {
     "message": "Lizenzen von Drittanbietern"
   },
-  "optionsExportButton": {
-    "message": "Einstellungen herunterladen"
-  },
-  "optionsImportButton": {
-    "message": "Einstellungen hochladen…"
-  },
   "optionsSyncToggleLabel": {
     "message": "Einstellungen geräteübergreifend synchronisieren"
   },
   "optionsSyncToggleHint": {
-    "message": "Kopiert deine Einstellungen über das eigene Sync-Konto deines Browsers, etwa dein Google- oder Firefox-Konto. Eine neue Installation übernimmt sie einmalig, aber gleichzeitiges Bearbeiten auf zwei Geräten wird nicht zusammengeführt -- eines überschreibt das andere."
+    "message": "Übergibt deine Moat-Einstellungen an dein Browserkonto, damit sie zwischen Geräten mitgenommen werden. Es verlassen keine Browserdaten dein Gerät, aber das ist die einzige Funktion auf dieser Seite, die überhaupt etwas irgendwohin sendet."
   },
   "optionsSyncStatusFailed": {
-    "message": "Deine Einstellungen konnten nicht synchronisiert werden ($WHEN$) -- möglicherweise hast du zu viele eigene Regeln oder Websites für den Sync-Speicher deines Browsers. Sie sind weiterhin auf diesem Gerät gespeichert.",
+    "message": "Deine Einstellungen konnten nicht synchronisiert werden ($WHEN$). Möglicherweise hast du zu viele eigene Regeln oder Websites für den Sync-Speicher deines Browsers. Sie sind weiterhin auf diesem Gerät gespeichert.",
     "placeholders": {
       "when": {
-        "content": "$1"
-      }
-    }
-  },
-  "optionsVersionPrefix": {
-    "message": "v$VERSION$",
-    "placeholders": {
-      "version": {
         "content": "$1"
       }
     }
@@ -426,7 +400,7 @@
     "message": "Grundlage"
   },
   "optionsLiveStatusOk": {
-    "message": "Zuletzt aktualisiert $WHEN$ — $COUNT$ Domains.",
+    "message": "Zuletzt aktualisiert $WHEN$ ($COUNT$ Domains).",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -437,7 +411,7 @@
     }
   },
   "optionsLiveStatusFailed": {
-    "message": "Letzter Versuch fehlgeschlagen ($WHEN$) -- bis zum nächsten Versuch wird weiterhin die integrierte Liste verwendet.",
+    "message": "Letzter Versuch fehlgeschlagen ($WHEN$). Bis zum nächsten Versuch wird weiterhin die integrierte Liste verwendet.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -637,10 +611,10 @@
     "message": "Firefox' eigenen Tarnmodus verwenden"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Aktiviert Firefox' eigenen Fingerprinting-Schutz -- denselben, den der Tor-Browser nutzt, und der tiefer eingreift, als Moat es selbst kann (Fenstergröße, Schriftarten, Zeitzone und mehr)."
+    "message": "Aktiviert Firefox' eigenen Fingerprinting-Schutz, denselben, den der Tor-Browser nutzt. Er greift tiefer ein, als Moat es selbst kann: Fenstergröße, Schriftarten, Zeitzone und mehr."
   },
   "optionsFirefoxRFPCaution": {
-    "message": "Kann stärker eingreifen als Moats eigener Fingerprinting-Schutz oben -- er ändert echtes Browser-Verhalten, nicht nur das, was eine Seite sehen kann. Am besten ein paar Tage ausprobieren, bevor Sie sich darauf verlassen."
+    "message": "Kann stärker eingreifen als Moats eigener Fingerprinting-Schutz oben. Er ändert echtes Browser-Verhalten, nicht nur das, was eine Seite sehen kann, also am besten ein paar Tage ausprobieren, bevor Sie sich darauf verlassen."
   },
   "optionsFirefoxFPIToggleLabel": {
     "message": "Verhindert, dass Tracker Sie seitenübergreifend verknüpfen"
@@ -700,7 +674,7 @@
     "message": "erweitert"
   },
   "optionsFilterListsDesc": {
-    "message": "Die Regelsätze, die Moat in den browsereigenen Blocker kompiliert. Jeder einzelne ist in der Erweiterung selbst enthalten — Ihr Browser lädt nichts nach, damit sie funktionieren."
+    "message": "Die Regelsätze, die Moat in den browsereigenen Blocker kompiliert. Jeder einzelne ist in der Erweiterung selbst enthalten, sodass Ihr Browser nichts nachlädt, damit sie funktionieren."
   },
   "optionsRulesActiveBaseline": {
     "message": "aktive Regeln · Chromes Obergrenze liegt bei $CAP$",
@@ -781,10 +755,10 @@
     }
   },
   "optionsRuleStaleMeta": {
-    "message": "Seit 30 Tagen kein Treffer mehr — die Website hat sich wahrscheinlich geändert"
+    "message": "Seit 30 Tagen kein Treffer mehr. Die Website hat sich wahrscheinlich geändert."
   },
   "optionsTrackersDesc": {
-    "message": "Welche Unternehmen versucht haben, dich zu verfolgen, und wie weit sie kamen. Wird auf deinem Gerät aus den eigenen Treffer­daten des Browsers gezählt — diese Liste wird nie hochgeladen."
+    "message": "Welche Unternehmen versucht haben, dich zu verfolgen, und wie weit sie kamen. Wird auf deinem Gerät aus den eigenen Treffer­daten des Browsers gezählt. Diese Liste wird nie hochgeladen."
   },
   "optionsCompaniesSeenBaseline": {
     "message": "diese Woche erkannte Unternehmen"

@@ -61,35 +61,26 @@ function silentDetailFor(id: DiagnosticsHeuristicRow["id"]): string {
     case "grayscaleAds":
       return tFallback(
         "diagnosticsSilentGrayscale",
-        "Hasn't dimmed an ad yet — YouTube may not have shown one, or its player markup probably changed"
+        "No ad to dim yet. If that seems wrong, YouTube's player markup may have changed."
       );
     case "feedAdRemoval":
       return tFallback(
         "diagnosticsSilentFeed",
-        "Hasn't hidden a sponsored post yet — usually means none showed up, or the site's markup changed"
+        "Nothing sponsored has shown up in the feed yet. Could also mean the site's markup changed."
       );
     case "cookieBannerReject":
-      return tFallback(
-        "diagnosticsSilentConsent",
-        "Hasn't rejected a banner yet — usually means this page didn't show one"
-      );
+      return tFallback("diagnosticsSilentConsent", "This page probably didn't show a consent banner.");
     case "searchSlop":
-      return tFallback(
-        "diagnosticsSilentSearchSlop",
-        "Hasn't hidden a result yet — usually means none matched on this search"
-      );
+      return tFallback("diagnosticsSilentSearchSlop", "None of this search's results matched the filter.");
     case "leakedPasswordCheck":
       return tFallback(
         "diagnosticsSilentLeakedPassword",
-        "Hasn't checked a password yet — only runs once you type one into a password field"
+        "Only runs once you actually type a password into a field on this page."
       );
     case "fingerprint":
-      return tFallback("diagnosticsSilentFingerprint", "Hasn't randomised anything yet on this page load");
+      return tFallback("diagnosticsSilentFingerprint", "Nothing needed randomising on this page load.");
     case "cnameUncloak":
-      return tFallback(
-        "diagnosticsSilentCname",
-        "Hasn't caught a disguised tracker yet — usually means this page has none"
-      );
+      return tFallback("diagnosticsSilentCname", "This page probably has no disguised trackers to catch.");
   }
 }
 

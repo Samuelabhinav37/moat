@@ -4,6 +4,19 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { applyStaticI18n, getMessageOrFallback } from "./i18n";
 
+interface MessageEntry {
+  message: string;
+}
+
+function loadEnglishMessages(): Record<string, MessageEntry> {
+  const path = join(__dirname, "..", "_locales", "en", "messages.json");
+  return JSON.parse(readFileSync(path, "utf8")) as Record<string, MessageEntry>;
+}
+
+function normalizeWhitespace(text: string): string {
+  return text.replace(/\s+/g, " ").trim();
+}
+
 describe("getMessageOrFallback", () => {
   it("returns the looked-up message when it resolves", () => {
     const getMessage = (key: string) => (key === "greeting" ? "Hello" : "");
@@ -98,5 +111,43 @@ describe("data-i18n contract: no [data-i18n] element may have child elements", (
     document.body.innerHTML = html;
     const offenders = [...document.querySelectorAll("[data-i18n]")].filter((el) => el.children.length > 0);
     expect(offenders.map((el) => el.outerHTML.split(">")[0] + ">")).toEqual([]);
+  });
+});
+
+// Regression test for a real bug: an English fallback baked into the markup
+// (applyStaticI18n's own doc comment calls this "the English copy left in
+// the HTML as a dev-readability aid") is only ever SHOWN when the key is
+// missing from messages.json entirely -- if the key already exists with
+// different, stale wording, that stored message silently wins over the
+// fallback at runtime with no error anywhere. This bit a real redesign pass:
+// several `data-i18n` attributes were reused from an older section of the
+// page with new fallback text, but the old English message was still
+// sitting in messages.json, so production would have shown the STALE text
+// -- in one case, directly undoing a page-title rename. The render-test
+// mocks can't catch this class of bug at all (mockExtensionBrowser.ts's
+// i18n.getMessage always returns "", which forces every test onto the
+// fallback path) -- this reads the real messages.json and the real page
+// sources instead, so a future `data-i18n` reuse that repeats the mistake
+// fails here.
+describe("data-i18n contract: HTML fallback text must match en/messages.json when the key already exists", () => {
+  const pages = ["options/options.html", "popup/popup.html", "warning/warning.html", "logger/logger.html"];
+  const englishMessages = loadEnglishMessages();
+
+  it.each(pages)("%s", (relativePath) => {
+    const html = readFileSync(join(__dirname, "..", relativePath), "utf8");
+    document.body.innerHTML = html;
+    const mismatches: string[] = [];
+    for (const el of document.querySelectorAll<HTMLElement>("[data-i18n]")) {
+      const key = el.dataset.i18n;
+      if (!key) continue;
+      const stored = englishMessages[key];
+      if (!stored) continue; // A genuinely new key with no messages.json entry yet -- fallback is all there is, nothing to drift from.
+      const fallback = normalizeWhitespace(el.textContent ?? "");
+      const message = normalizeWhitespace(stored.message);
+      if (fallback !== message) {
+        mismatches.push(`${key}\n    html:  ${fallback}\n    stored: ${message}`);
+      }
+    }
+    expect(mismatches).toEqual([]);
   });
 });

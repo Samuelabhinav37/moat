@@ -23,7 +23,7 @@
     "message": "see what's new"
   },
   "popupBudgetNotice": {
-    "message": "Some filter lists are off -- the browser's shared rule limit is full. "
+    "message": "Some filter lists are off. The browser's shared rule limit is full. "
   },
   "popupBudgetNoticeLink": {
     "message": "Open Settings"
@@ -194,7 +194,7 @@
     "message": "Not available in this browser."
   },
   "optionsCnameChromeDohHint": {
-    "message": "On Chrome, this checks disguised trackers using Cloudflare's public lookup service, and may miss the very first one it finds -- it catches every one after that. Firefox does this itself, more privately, and catches every one from the start."
+    "message": "On Chrome, this checks disguised trackers using Cloudflare's public lookup service. It may miss the very first one it finds, then catches every one after that. Firefox does this itself, more privately, and catches every one from the start."
   },
   "optionsFilterUpdatesCategory": {
     "message": "Filter updates"
@@ -227,7 +227,7 @@
     "message": "Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules extensions can use in total, and that limit is easy to hit if you have another ad blocker or privacy extension running too. Try turning one of them off, or switch off a list below."
   },
   "optionsFilterBudgetDetail": {
-    "message": "Your browser says $COUNT$ rule slots are left for all your extensions combined. Still low after turning off other extensions and reloading Moat? Turn off a list below -- Annoyances or Cookie Notices first.",
+    "message": "Your browser says $COUNT$ rule slots are left for all your extensions combined. Still low after turning off other extensions and reloading Moat? Try turning off a list below, Annoyances or Cookie Notices first.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -334,28 +334,16 @@
     "message": "No trackers found on the last tab you had open."
   },
   "optionsTrackersUnsupported": {
-    "message": "This detailed tracker list only works in Chrome for now -- Firefox doesn't support it yet."
-  },
-  "optionsAboutHeading": {
-    "message": "About Moat"
+    "message": "This detailed tracker list only works in Chrome for now. Firefox doesn't support it yet."
   },
   "optionsPrivacyHeading": {
-    "message": "Privacy"
-  },
-  "optionsPrivacyIntro": {
-    "message": "Everything here stays on your device -- none of it is sent to Moat's developer. Only two optional features (breach checking and settings sync) ever talk to anyone else; see the privacy policy for details."
+    "message": "What leaves your device"
   },
   "optionsVersionHeading": {
-    "message": "Version details"
+    "message": "Version"
   },
   "optionsDebuggingHeading": {
-    "message": "Debugging"
-  },
-  "optionsBackupHeading": {
-    "message": "Backup & restore"
-  },
-  "optionsBackupIntro": {
-    "message": "Save your settings to a file, or load one back in later. Your fingerprint-protection ID is never included, so it won't carry over."
+    "message": "Diagnostics"
   },
   "optionsPrivacyPolicyLink": {
     "message": "Full privacy policy"
@@ -369,30 +357,16 @@
   "optionsThirdPartyNoticesLink": {
     "message": "Third-party licenses"
   },
-  "optionsExportButton": {
-    "message": "Download settings"
-  },
-  "optionsImportButton": {
-    "message": "Upload settings…"
-  },
   "optionsSyncToggleLabel": {
     "message": "Sync settings across devices"
   },
   "optionsSyncToggleHint": {
-    "message": "Copies your settings using your browser's own sync account, like your Google or Firefox account. A new install picks them up once, but editing settings on two devices at the same time won't merge -- one will overwrite the other."
+    "message": "Hands your Moat settings to your browser account to carry between devices. No browsing data leaves your device, but this is the only control on this page that sends anything anywhere."
   },
   "optionsSyncStatusFailed": {
-    "message": "Couldn't sync your settings ($WHEN$) -- you may have too many custom rules or sites for your browser's sync storage. They're still saved on this device.",
+    "message": "Couldn't sync your settings ($WHEN$). You may have too many custom rules or sites for your browser's sync storage. They're still saved on this device.",
     "placeholders": {
       "when": {
-        "content": "$1"
-      }
-    }
-  },
-  "optionsVersionPrefix": {
-    "message": "v$VERSION$",
-    "placeholders": {
-      "version": {
         "content": "$1"
       }
     }
@@ -428,7 +402,7 @@
     "message": "Core"
   },
   "optionsLiveStatusOk": {
-    "message": "Last updated $WHEN$ — $COUNT$ domains.",
+    "message": "Last updated $WHEN$ ($COUNT$ domains).",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -439,7 +413,7 @@
     }
   },
   "optionsLiveStatusFailed": {
-    "message": "Last attempt failed ($WHEN$) -- still using the built-in list until the next try.",
+    "message": "Last attempt failed ($WHEN$). Still using the built-in list until the next try.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -639,10 +613,10 @@
     "message": "Use Firefox's own device-disguise mode"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Turns on Firefox's own built-in fingerprint protection -- the same one Tor Browser uses, reaching deeper than Moat can on its own (window size, fonts, timezone, and more)."
+    "message": "Turns on Firefox's own built-in fingerprint protection, the same one Tor Browser uses. It reaches deeper than Moat can on its own: window size, fonts, timezone, and more."
   },
   "optionsFirefoxRFPCaution": {
-    "message": "Can be more disruptive than Moat's own fingerprint protection above -- it changes real browser behavior, not just what a page can see. Worth trying for a few days before relying on it."
+    "message": "Can be more disruptive than Moat's own fingerprint protection above. It changes real browser behavior, not just what a page can see, so it's worth trying for a few days before relying on it."
   },
   "optionsFirefoxFPIToggleLabel": {
     "message": "Stop trackers linking you across sites"
@@ -702,7 +676,7 @@
     "message": "advanced"
   },
   "optionsFilterListsDesc": {
-    "message": "The rule sets Moat compiles into the browser's own blocker. Every one ships inside the extension itself — nothing is fetched by your browser to make them work."
+    "message": "The rule sets Moat compiles into the browser's own blocker. Every one ships inside the extension itself, so nothing is fetched by your browser to make them work."
   },
   "optionsRulesActiveBaseline": {
     "message": "rules active · Chrome's cap is $CAP$",
@@ -783,10 +757,10 @@
     }
   },
   "optionsRuleStaleMeta": {
-    "message": "Hasn't matched in 30 days — the site probably changed"
+    "message": "Hasn't matched in 30 days. The site probably changed."
   },
   "optionsTrackersDesc": {
-    "message": "Which companies tried to follow you, and how far they got. Counted on your device from the browser's own match data — this list is never uploaded."
+    "message": "Which companies tried to follow you, and how far they got. Counted on your device from the browser's own match data. This list is never uploaded."
   },
   "optionsCompaniesSeenBaseline": {
     "message": "companies seen this week"

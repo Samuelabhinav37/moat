@@ -13,12 +13,16 @@ export interface FiredInfo {
 
 const firedByTab = new Map<number, Partial<Record<UsageSignal, FiredInfo>>>();
 
-export function recordFired(tabId: number, signal: UsageSignal): void {
+/** `count` defaults to 1, same as usageStats.ts's recordSignalEvent -- only
+ * searchSlop ever reports a real batch size (the number of results hidden
+ * in one pass), and this must stay in step with it or the Diagnostics page's
+ * "fired Nx this page load" undercounts that one signal specifically. */
+export function recordFired(tabId: number, signal: UsageSignal, count = 1): void {
   const current = firedByTab.get(tabId) ?? {};
   const existing = current[signal];
   firedByTab.set(tabId, {
     ...current,
-    [signal]: { count: (existing?.count ?? 0) + 1, lastFiredAt: Date.now() },
+    [signal]: { count: (existing?.count ?? 0) + count, lastFiredAt: Date.now() },
   });
 }
 

@@ -525,8 +525,9 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
       const count = typeof message.count === "number" && message.count > 0 && message.count <= 1000 ? message.count : 1;
       // Live, per-page-load counter for the Diagnostics page (DR-16) --
       // separate from usageStats.ts's rolling daily history below, which
-      // this doesn't replace.
-      if (sender.tab?.id !== undefined) recordFired(sender.tab.id, message.signal);
+      // this doesn't replace. Same `count` (searchSlop's real batch size)
+      // as the history write just below, so the two never disagree.
+      if (sender.tab?.id !== undefined) recordFired(sender.tab.id, message.signal, count);
       return recordSignalEvent(message.signal, message.hostname, count).then(() => undefined);
     }
 

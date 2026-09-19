@@ -211,11 +211,11 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsFirefoxRFPToggleLabel", "Use Firefox's own device-disguise mode"],
     descKey: [
       "optionsFirefoxRFPToggleHint",
-      "Turns on Firefox's own built-in fingerprint protection -- the same one Tor Browser uses, reaching deeper than Moat can on its own (window size, fonts, timezone, and more).",
+      "Turns on Firefox's own built-in fingerprint protection, the same one Tor Browser uses. It reaches deeper than Moat can on its own: window size, fonts, timezone, and more.",
     ],
     cautionKey: [
       "optionsFirefoxRFPCaution",
-      "Can be more disruptive than Moat's own fingerprint protection above -- it changes real browser behavior, not just what a page can see. Worth trying for a few days before relying on it.",
+      "Can be more disruptive than Moat's own fingerprint protection above. It changes real browser behavior, not just what a page can see, so it's worth trying for a few days before relying on it.",
     ],
   },
   {
@@ -349,7 +349,7 @@ const drawerCloseEl = document.getElementById("drawer-close") as HTMLButtonEleme
 const cnameUnsupportedHint = tFallback("optionsCnameUnsupportedHint", "Not available in this browser.");
 const cnameChromeDohHint = tFallback(
   "optionsCnameChromeDohHint",
-  "On Chrome, this checks disguised trackers using Cloudflare's public lookup service, and may miss the very first one it finds -- it catches every one after that. Firefox does this itself, more privately, and catches every one from the start."
+  "On Chrome, this checks disguised trackers using Cloudflare's public lookup service. It may miss the very first one it finds, then catches every one after that. Firefox does this itself, more privately, and catches every one from the start."
 );
 
 const liveStatus = document.getElementById("live-status") as HTMLElement | null;
@@ -375,7 +375,7 @@ function renderSyncStatus(syncEnabled: boolean, status: Awaited<ReturnType<typeo
   syncStatus.hidden = false;
   syncStatus.textContent = tFallback(
     "optionsSyncStatusFailed",
-    `Couldn't sync your settings (${when}) -- you may have too many custom rules or sites for your ` +
+    `Couldn't sync your settings (${when}). You may have too many custom rules or sites for your ` +
       `browser's sync storage. They're still saved on this device.`,
     [when]
   );
@@ -806,12 +806,12 @@ function renderLiveStatus(
   if (!status.ok) {
     liveStatus.textContent = tFallback(
       "optionsLiveStatusFailed",
-      `Last attempt failed (${when}) -- still using the built-in list until the next try.`,
+      `Last attempt failed (${when}). Still using the built-in list until the next try.`,
       [when]
     );
     return;
   }
-  let text = tFallback("optionsLiveStatusOk", `Last updated ${when} — ${status.domainCount} domains.`, [
+  let text = tFallback("optionsLiveStatusOk", `Last updated ${when} (${status.domainCount} domains).`, [
     when,
     String(status.domainCount),
   ]);
@@ -1131,7 +1131,7 @@ function buildRuleRow(
     meta.append(
       buildStaleTriangleIcon(),
       document.createTextNode(
-        tFallback("optionsRuleStaleMeta", "Hasn't matched in 30 days — the site probably changed")
+        tFallback("optionsRuleStaleMeta", "Hasn't matched in 30 days. The site probably changed.")
       )
     );
   } else if (stat) {
@@ -1369,7 +1369,7 @@ async function render(): Promise<void> {
     filterBudgetDetail.hidden = false;
     filterBudgetDetail.textContent = tFallback(
       "optionsFilterBudgetDetail",
-      `Your browser says ${availableCount} rule slots are left for all your extensions combined. Still low after turning off other extensions and reloading Moat? Turn off a list below -- Annoyances or Cookie Notices first.`,
+      `Your browser says ${availableCount} rule slots are left for all your extensions combined. Still low after turning off other extensions and reloading Moat? Try turning off a list below, Annoyances or Cookie Notices first.`,
       [String(availableCount)]
     );
   } else {
