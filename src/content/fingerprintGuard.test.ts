@@ -88,3 +88,80 @@ describe("fingerprintGuard: lazy prototype patching", () => {
     expect(Object.getOwnPropertyDescriptor(Navigator.prototype, "hardwareConcurrency")?.get).toBe(wrapped);
   });
 });
+
+// window.innerWidth/innerHeight are own properties of the window instance in
+// jsdom (confirmed directly, not assumed -- unlike Navigator.prototype's
+// hardwareConcurrency/deviceMemory, which really are shared-prototype
+// getters), so these patch/restore against `window` itself, not a
+// prototype. Performance.prototype.now and Date.now ARE real, jsdom-backed
+// APIs (unlike canvas/audio/WebGL, which jsdom doesn't implement at all),
+// so this is the other pair of new patches this file can actually exercise.
+describe("fingerprintGuard: dimension and timing spoofing", () => {
+  const nativeInnerWidth = Object.getOwnPropertyDescriptor(window, "innerWidth")!;
+  const nativeDateNow = Date.now;
+  const nativeTimeStamp = Object.getOwnPropertyDescriptor(Event.prototype, "timeStamp")!;
+
+  beforeEach(() => {
+    vi.resetModules();
+    // jsdom's own innerWidth descriptor is a getter, not a value property --
+    // spreading it plus a `value` key throws ("cannot both specify accessors
+    // and a value"), so this replaces the getter itself instead.
+    Object.defineProperty(window, "innerWidth", { ...nativeInnerWidth, get: () => 1920, configurable: true });
+    // A fixed, non-multiple-of-100 system time makes the clamping tests
+    // exact instead of relying on the real wall clock happening not to land
+    // on a 100ms boundary (a ~1% chance of flaking otherwise).
+    vi.useFakeTimers();
+    vi.setSystemTime(1234567);
+  });
+
+  afterEach(() => {
+    Object.defineProperty(window, "innerWidth", nativeInnerWidth);
+    vi.useRealTimers();
+    Date.now = nativeDateNow;
+    Object.defineProperty(Event.prototype, "timeStamp", nativeTimeStamp);
+  });
+
+  it("reports the real window width until fingerprintResistance turns on", async () => {
+    await import("./fingerprintGuard");
+    expect(window.innerWidth).toBe(1920);
+    postConfig(true, "dims-token");
+    // 1920 floors to Tor's 200px bucket, then hits the 1000px cap (see
+    // fingerprintNoise.ts's own comment on why that's the common case for
+    // any real, non-Tor window, not an edge case).
+    expect(window.innerWidth).toBe(1000);
+  });
+
+  // patchTiming() also reassigns Performance.prototype.now (the same
+  // maskAsNative reassignment pattern as everything else here), but that
+  // specific one isn't verifiable in this harness: vitest's jsdom
+  // environment backs the global `performance` object with Node's own
+  // perf_hooks implementation, whose prototype chain is a *different*
+  // object than the in-scope `Performance` constructor (confirmed directly
+  // -- `Object.getPrototypeOf(performance) !== Performance.prototype` here,
+  // despite `performance === window.performance` being true). Real browsers
+  // don't have this split; it's a test-harness-only gap, the same class of
+  // limitation as this file's header comment already documents for canvas/
+  // audio/WebGL. Date.now and Event.prototype.timeStamp aren't shadowed
+  // this way, so they cover the same clamping logic instead.
+  it("clamps Date.now() and Event.prototype.timeStamp to the nearest 100ms once active", async () => {
+    await import("./fingerprintGuard");
+    expect(Date.now()).toBe(1234567);
+    expect(new Event("x").timeStamp).toBe(1234567);
+
+    postConfig(true, "timing-token");
+    expect(Date.now()).toBe(1234500);
+    expect(new Event("x").timeStamp).toBe(1234500);
+  });
+
+  it("stops clamping once patched functions see fingerprintResistance: false again", async () => {
+    await import("./fingerprintGuard");
+    postConfig(true, "toggle-token");
+    expect(Date.now()).toBe(1234500);
+
+    postConfig(false, "toggle-token");
+    // The patch itself is never removed (ensurePatched() patches exactly
+    // once, per the describe block above) -- `active` gates behavior inside
+    // it, so a real, unclamped value should read through again.
+    expect(Date.now()).toBe(1234567);
+  });
+});

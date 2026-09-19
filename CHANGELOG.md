@@ -3,6 +3,41 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.114
+
+### Added
+- **Three more Tor Browser-inspired spoofs under the existing, opt-in
+  `fingerprintResistance` setting** (no new permission, no new UI, no new
+  message fields -- same `bridge.ts` `config` message as before):
+  - **Window/screen dimension bucketing**: `window.innerWidth`/`outerWidth`/
+    `screen.width`/`screen.availWidth` floor to Tor's own 200px bucket size,
+    and the height equivalents floor to 100px, both capped at 1000px --
+    matching Tor Browser's letterboxing bucket size (though not its
+    behavior of actually resizing the window; this is a property-level
+    report only, real CSS layout and `getBoundingClientRect()` on actual
+    elements still reflect the true window size). Because most real,
+    non-Tor monitors exceed 1000px in both dimensions, the cap itself
+    becomes the main effect for most Moat users -- disclosed directly in
+    `fingerprintNoise.ts`'s own comments, not just here.
+  - **Timing clamp**: `performance.now()`, `Date.now()`, and
+    `Event.prototype.timeStamp` round down to the nearest 100ms, matching
+    Firefox's own documented `resistFingerprinting` time-precision
+    reduction. Known, disclosed gap: a `SharedArrayBuffer`/`Atomics`
+    busy-loop in a Worker can still reconstruct high-resolution timing
+    without calling any patched function -- this closes the common case,
+    not the complete one.
+  - **AudioContext property spoofing**: `AudioContext.prototype.sampleRate`/
+    `outputLatency` report fixed values (44100Hz, a small plausible
+    latency) instead of the real device's, the same fixed-constant shape
+    as the existing WebGL vendor/renderer spoofing.
+  - Sourced from `docs/research/tor-browser-anti-tracking-techniques-2026-09.md`
+    (candidates #1, #2, and #4; candidate #3, canvas/WebGL's blank-output-
+    or-permission-gate model, was explicitly declined in favor of Moat's
+    existing noise-injection approach). First phase of the roadmap plan
+    turning that research into sequenced work; a "fresh start" reset button
+    (needs a new `browsingData` permission decision) and a rule-consolidation
+    pass are tracked separately, not part of this change.
+
 ## 0.11.113
 
 ### Added

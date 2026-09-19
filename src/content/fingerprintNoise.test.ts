@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   bucketDeviceMemory,
   bucketHardwareConcurrency,
+  bucketHeight,
+  bucketWidth,
+  clampTimestamp,
   hashString,
   mulberry32,
   noisifyFloatSamples,
@@ -117,5 +120,47 @@ describe("bucketDeviceMemory", () => {
   it("rounds to the nearest common memory size", () => {
     expect(bucketDeviceMemory(3)).toBe(2); // tie between 2 and 4 -> first (2) wins
     expect(bucketDeviceMemory(7)).toBe(8);
+  });
+});
+
+describe("bucketWidth / bucketHeight", () => {
+  it("floors to Tor's own 200x100 bucket size, below the 1000px cap", () => {
+    expect(bucketWidth(950)).toBe(800);
+    expect(bucketHeight(480)).toBe(400);
+  });
+
+  it("is exact on a bucket boundary", () => {
+    expect(bucketWidth(800)).toBe(800);
+    expect(bucketHeight(400)).toBe(400);
+  });
+
+  it("floors just-under and just-over a boundary into the same bucket", () => {
+    expect(bucketWidth(799)).toBe(600);
+    expect(bucketWidth(800)).toBe(800);
+    expect(bucketWidth(801)).toBe(800);
+  });
+
+  it("caps at 1000px regardless of how large the real value is -- true for almost every real monitor, not just an edge case", () => {
+    expect(bucketWidth(1920)).toBe(1000);
+    expect(bucketHeight(1080)).toBe(1000);
+    expect(bucketWidth(3840)).toBe(1000);
+    expect(bucketHeight(2160)).toBe(1000);
+  });
+
+  it("floors small values down to 0 rather than a negative bucket", () => {
+    expect(bucketWidth(150)).toBe(0);
+    expect(bucketHeight(50)).toBe(0);
+  });
+});
+
+describe("clampTimestamp", () => {
+  it("floors to the nearest 100ms", () => {
+    expect(clampTimestamp(1234)).toBe(1200);
+    expect(clampTimestamp(1299)).toBe(1200);
+    expect(clampTimestamp(1300)).toBe(1300);
+  });
+
+  it("is idempotent -- clamping an already-clamped value changes nothing", () => {
+    expect(clampTimestamp(clampTimestamp(1234))).toBe(clampTimestamp(1234));
   });
 });

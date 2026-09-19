@@ -14,8 +14,13 @@
 import {
   bucketDeviceMemory,
   bucketHardwareConcurrency,
+  bucketHeight,
+  bucketWidth,
+  clampTimestamp,
   noisifyFloatSamples,
   noisifyRGBA,
+  SPOOFED_AUDIO_OUTPUT_LATENCY,
+  SPOOFED_AUDIO_SAMPLE_RATE,
   SPOOFED_WEBGL_RENDERER,
   SPOOFED_WEBGL_VENDOR,
   UNMASKED_RENDERER_WEBGL,
@@ -96,20 +101,130 @@ function patchCanvas(): void {
 }
 
 function patchAudio(): void {
-  if (typeof AudioBuffer === "undefined") return;
-  const proto = AudioBuffer.prototype;
-  const nativeGetChannelData = proto.getChannelData;
+  if (typeof AudioBuffer !== "undefined") {
+    const proto = AudioBuffer.prototype;
+    const nativeGetChannelData = proto.getChannelData;
 
-  proto.getChannelData = function guardedGetChannelData(
-    this: AudioBuffer,
-    ...args: Parameters<typeof nativeGetChannelData>
-  ): ReturnType<typeof nativeGetChannelData> {
-    const data = nativeGetChannelData.apply(this, args);
-    if (active) noisifyFloatSamples(data, `${seed}:audio:${args[0]}`);
-    return data;
+    proto.getChannelData = function guardedGetChannelData(
+      this: AudioBuffer,
+      ...args: Parameters<typeof nativeGetChannelData>
+    ): ReturnType<typeof nativeGetChannelData> {
+      const data = nativeGetChannelData.apply(this, args);
+      if (active) noisifyFloatSamples(data, `${seed}:audio:${args[0]}`);
+      return data;
+    };
+
+    maskAsNative(proto.getChannelData, nativeGetChannelData);
+  }
+
+  // Separate global, separate guard: AudioBuffer (buffer contents, noised
+  // above) and AudioContext (device-level properties, spoofed to a fixed
+  // value below) are different fingerprinting vectors -- see the research
+  // doc's own distinction between Moat's existing noisifyFloatSamples and
+  // Firefox's actual shipped outputLatency/sampleRate spoofing.
+  if (typeof AudioContext !== "undefined") {
+    patchFixedGetter(AudioContext.prototype, "sampleRate", () => SPOOFED_AUDIO_SAMPLE_RATE);
+    patchFixedGetter(AudioContext.prototype, "outputLatency", () => SPOOFED_AUDIO_OUTPUT_LATENCY);
+  }
+}
+
+/** Shared by patchAudio above: replaces a getter with one that returns a
+ * fixed value while `active` and the real value otherwise, masked the same
+ * way every other patched function/getter in this file already is. `object`
+ * is typed loosely since TypeScript's lib.dom.d.ts doesn't universally
+ * expose every property this file patches (e.g.
+ * AudioContext.prototype.outputLatency isn't in every TS lib target) as a
+ * statically-known key. */
+function patchFixedGetter(object: object, property: string, compute: () => number): void {
+  const native = Object.getOwnPropertyDescriptor(object, property);
+  if (!native?.get) return;
+  const nativeGetter = native.get;
+  const guardedGetter = function guardedGetter(this: unknown) {
+    if (active) return compute();
+    return nativeGetter.call(this);
   };
+  Object.defineProperty(object, property, { ...native, get: guardedGetter });
+  maskAsNative(guardedGetter, nativeGetter);
+}
 
-  maskAsNative(proto.getChannelData, nativeGetChannelData);
+/** Shared by patchDimensions/patchScreen/patchTiming below: replaces a
+ * getter with one that runs the REAL value through `transform` while
+ * `active`, and returns the real value untouched otherwise -- unlike
+ * patchFixedGetter above, the reported value still depends on the actual
+ * one (a bucketed/clamped derivative of it), it just never reveals the
+ * precise original. */
+function patchTransformedGetter(object: object, property: string, transform: (actual: number) => number): void {
+  const native = Object.getOwnPropertyDescriptor(object, property);
+  if (!native?.get) return;
+  const nativeGetter = native.get;
+  const guardedGetter = function guardedGetter(this: unknown) {
+    const actual = nativeGetter.call(this) as number;
+    return active ? transform(actual) : actual;
+  };
+  Object.defineProperty(object, property, { ...native, get: guardedGetter });
+  maskAsNative(guardedGetter, nativeGetter);
+}
+
+// window.innerWidth/innerHeight/outerWidth/outerHeight are the page's own
+// window instance's OWN properties in every engine checked (not inherited
+// via a shared Window.prototype getter the way Navigator.prototype's
+// hardwareConcurrency/deviceMemory are) -- patched directly on `window`
+// itself, still the same guarded-getter shape. screen.width/height/
+// availWidth/availHeight, by contrast, genuinely are Screen.prototype
+// getters, same pattern as patchNavigatorHints above.
+//
+// Property-level lie only, stated plainly: this makes the documented JS
+// getters real fingerprint scripts actually read report Tor's own 200x100
+// bucket instead of the true pixel size. It does NOT touch actual page
+// layout -- CSS media queries, viewport units, and getBoundingClientRect()
+// on real DOM elements all still reflect the true window size, so a script
+// that cross-checks the spoofed values against observed layout behavior can
+// catch the inconsistency. Same category of limitation Moat's existing
+// canvas/WebGL spoofs already accept, not a new risk class.
+function patchDimensions(): void {
+  for (const prop of ["innerWidth", "outerWidth"] as const) {
+    patchTransformedGetter(window, prop, bucketWidth);
+  }
+  for (const prop of ["innerHeight", "outerHeight"] as const) {
+    patchTransformedGetter(window, prop, bucketHeight);
+  }
+}
+
+function patchScreenDimensions(): void {
+  if (typeof Screen === "undefined") return;
+  patchTransformedGetter(Screen.prototype, "width", bucketWidth);
+  patchTransformedGetter(Screen.prototype, "availWidth", bucketWidth);
+  patchTransformedGetter(Screen.prototype, "height", bucketHeight);
+  patchTransformedGetter(Screen.prototype, "availHeight", bucketHeight);
+}
+
+// Real, disclosed tradeoff (see clampTimestamp's own comment in
+// fingerprintNoise.ts): code measuring frame-to-frame deltas via
+// performance.now() (animation loops, scroll physics) can see a run of
+// zero-length deltas within the same 100ms bucket. The same visible-jank
+// tradeoff Firefox's own resistFingerprinting already carries in
+// production -- not a new risk class this introduces, but real enough to
+// state here rather than only in a research doc.
+function patchTiming(): void {
+  if (typeof Performance !== "undefined") {
+    const nativeNow = Performance.prototype.now;
+    Performance.prototype.now = function guardedNow(this: Performance): number {
+      const actual = nativeNow.call(this);
+      return active ? clampTimestamp(actual) : actual;
+    };
+    maskAsNative(Performance.prototype.now, nativeNow);
+  }
+
+  const nativeDateNow = Date.now;
+  Date.now = function guardedDateNow(): number {
+    const actual = nativeDateNow();
+    return active ? clampTimestamp(actual) : actual;
+  };
+  maskAsNative(Date.now, nativeDateNow);
+
+  if (typeof Event !== "undefined") {
+    patchTransformedGetter(Event.prototype, "timeStamp", clampTimestamp);
+  }
 }
 
 function patchWebGL(): void {
@@ -184,7 +299,7 @@ function ensurePatched(): void {
   // from installing. Previously these ran unconditionally at parse time
   // with the same lack of isolation between them; grouping them here is
   // what makes that pre-existing gap worth closing now.
-  for (const patch of [patchCanvas, patchAudio, patchWebGL, patchNavigatorHints]) {
+  for (const patch of [patchCanvas, patchAudio, patchWebGL, patchNavigatorHints, patchDimensions, patchScreenDimensions, patchTiming]) {
     try {
       patch();
     } catch {
