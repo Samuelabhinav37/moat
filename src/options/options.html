@@ -996,19 +996,24 @@
         background: var(--caution);
       }
 
-      /* ---------- Welcome panel (first run only) ---------- */
+      /* ---------- Welcome panel (first run only) ----------
+         Proportions taken from the "Dashboard" direction reviewed on the
+         Claude Design canvas (closest to the shipped page, refined: bigger
+         headline, more generous spacing, taller rows) -- see
+         docs/research/competitor-onboarding-and-settings-ux-2026-09.md for
+         why this stayed a reachable panel instead of an auto-opened tab. */
       /* Standalone rather than reusing .rail .brand-row -- that rule is
          scoped to the rail specifically and wouldn't apply here at all. */
       .welcome-shell {
-        max-width: 620px;
+        max-width: 680px;
         margin: 0 auto;
-        padding: 60px 28px 60px;
+        padding: 72px 64px 60px;
       }
       .welcome-brand {
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 30px;
+        margin-bottom: 40px;
       }
       .welcome-brand img {
         width: 30px;
@@ -1019,17 +1024,37 @@
         font-weight: 600;
       }
       .welcome-shell h1 {
-        font-size: 23px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-        margin: 0 0 8px;
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        margin: 0 0 10px;
       }
       .welcome-tagline {
-        font-size: 14px;
+        font-size: 16px;
         color: var(--muted);
         line-height: 1.5;
         margin: 0;
-        max-width: 46ch;
+        max-width: 42ch;
+      }
+      /* Direction A's divider read as a quieter rule than the shared
+         .section-divider (hairline, not border, with more room around
+         it) -- scoped here rather than changing .section-divider itself,
+         which every other tab also uses. */
+      .welcome-shell .section-divider {
+        border-top-color: var(--hairline);
+        margin: 36px 0 30px;
+      }
+      /* Taller rows than the shared .protection-row default (9px) -- scoped
+         to the welcome panel only, so the actual Protection tab's row
+         density elsewhere is untouched. */
+      .welcome-shell .protection-row {
+        padding: 14px 0;
+      }
+      .welcome-shell .row-title {
+        font-size: 15px;
+      }
+      .welcome-shell .row-evidence {
+        font-size: 13px;
       }
       /* Wraps the status dot + row-body together so .protection-row's own
          space-between (meant for a switch on the right) doesn't shove
@@ -1041,19 +1066,21 @@
         gap: 10px;
       }
       .welcome-row-main .rail-dot {
-        margin-top: 6px;
+        margin-top: 7px;
       }
       .welcome-shortcut {
         margin-top: 26px;
-        font-size: 12.5px;
+        font-size: 13px;
         color: var(--muted);
       }
       .welcome-actions {
         margin-top: 32px;
       }
       .welcome-actions button {
-        font-size: 14px;
-        padding: 9px 22px;
+        font-size: 15px;
+        font-weight: 700;
+        padding: 14px 30px;
+        border-radius: 10px;
       }
     </style>
   </head>

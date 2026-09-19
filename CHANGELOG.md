@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.112
+
+### Changed
+- **Welcome panel proportions, refined.** Bigger headline (23px/600 ->
+  34px/700), more generous outer padding and row height, a quieter
+  divider, and a bolder CTA button -- taken from the "Dashboard"
+  direction picked out of three visual explorations reviewed on a Claude
+  Design canvas. Scoped to `.welcome-shell` descendants only, so the
+  shared `.protection-row`/`.section-divider` classes the rest of the
+  Protection tab also uses are untouched.
+
 ## 0.11.111
 
 ### Added
