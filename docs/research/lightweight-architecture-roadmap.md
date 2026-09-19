@@ -36,6 +36,13 @@ anywhere.
 
 ### 2.1 It already recomputes from scratch every time -- more often than it looks
 
+> **Corrected 2026-09-19: also shipped in v0.11.25** (`b638710`, same
+> commit as 2.2's fix). `applyFilterGroupState` now caches
+> `filterGroupAppliedFingerprint` in `browser.storage.session` and skips
+> `updateEnabledRulesets` when the fingerprint matches -- exactly the
+> streamlining recommendation below. Verified directly against current
+> source.
+
 `applyFilterGroupState` takes no memory of previous drops; every call rebuilds `wantOn`/`wantOff`
 fresh from current settings and retries from `drop = 0`. That's clearly intentional (the module
 comment says as much) and it means the retry loop **would** naturally pick up newly-freed budget
@@ -63,6 +70,16 @@ risk, self-contained to `filterGroups.ts`, directly reduces the same needless-re
 audit found.
 
 ### 2.2 Budget that frees up doesn't get reclaimed on its own
+
+> **Corrected 2026-09-19: this section's recommendation shipped in v0.11.25**
+> (`b638710`, "Skip redundant filter-group reapplies; reclaim freed budget
+> daily"). `filterGroups.ts`'s `applyFilterGroupState` now takes a `force`
+> option, and `liveUpdates.ts`'s existing daily alarm calls
+> `reapplySettings({ force: true })` on every fire -- exactly the "extend
+> the existing daily alarm... no new permission" fix recommended below.
+> Verified directly against current source, not assumed from this doc.
+> Left in place (struck nothing) since the reasoning below is still why the
+> fix looks the way it does.
 
 Following directly from 2.1's mechanism and the Chrome 128 fact in section 1: if a user follows
 Moat's own advice and disables a competing extension, that budget genuinely frees up -- but
