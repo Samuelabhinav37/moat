@@ -115,9 +115,9 @@ void initializeSettings();
 // Fires on "install", "update", and "browser_update". On a fresh install
 // this both records the baseline version (there's nothing to compare
 // against yet, so no notice -- which is exactly what lets the *next* real
-// update be detected) and seeds the smaller "lite" filter-group defaults;
-// on every other reason, initializeSettings behaves the same as the
-// unconditional call above.
+// update be detected) and seeds the "standard" filter-group defaults
+// (see filterPresets.ts); on every other reason, initializeSettings behaves
+// the same as the unconditional call above.
 browser.runtime.onInstalled.addListener((details) => {
   void recordUpdateSeen();
   void initializeSettings(details.reason);

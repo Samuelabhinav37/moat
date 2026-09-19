@@ -31,7 +31,12 @@ afterEach(() => {
 });
 
 async function renderOptions(): Promise<void> {
-  const { browser } = createMockBrowser({ hostname: "example.com" });
+  const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
+  // Every test in this file except the "Welcome panel" describe block below
+  // is about the normal settings UI, not the first-run flow -- pre-seed as
+  // already dismissed so #shell is the visible surface, same as any
+  // non-fresh install. The welcome panel itself gets its own untouched mock.
+  storageLocalData.uiState = { hasSeenWelcome: true };
   vi.doMock("webextension-polyfill", () => ({ default: browser }));
   loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
   await import("./options");
@@ -87,7 +92,8 @@ describe("options.html render", () => {
   });
 
   it("shows the Firefox-only privacy.websites rows when that API surface exists", async () => {
-    const { browser } = createMockBrowser({ hostname: "example.com" });
+    const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
+    storageLocalData.uiState = { hasSeenWelcome: true };
     const websites = browser.privacy.websites as Record<string, unknown>;
     websites.resistFingerprinting = { set: () => Promise.resolve(), get: () => Promise.resolve({ value: false }) };
     websites.firstPartyIsolate = { set: () => Promise.resolve(), get: () => Promise.resolve({ value: false }) };
@@ -124,6 +130,7 @@ describe("Backup tab (DR-15)", () => {
 
   it("clicking Export actually records a backup and updates the tab live", async () => {
     const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
+    storageLocalData.uiState = { hasSeenWelcome: true };
     vi.doMock("webextension-polyfill", () => ({ default: browser }));
     loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
     // jsdom has no real Blob-URL machinery -- stub just the two static
@@ -169,5 +176,56 @@ describe("About tab (DR-13)", () => {
     // under test: agreement, not a specific value.)
     expect(document.getElementById("version-rules")?.textContent).toBe(document.getElementById("filters-metric-active")?.textContent);
     expect(document.getElementById("disclosure-sync-recipient")?.textContent).toBe("Google");
+  });
+});
+
+describe("Welcome panel (first run)", () => {
+  it("shows over #shell on a fresh install (no uiState in storage yet)", async () => {
+    const { browser } = createMockBrowser({ hostname: "example.com" });
+    // Deliberately NOT seeding uiState -- this is the one test in the file
+    // that wants the real "never seen it before" state renderOptions()
+    // pre-dismisses for every other test.
+    vi.doMock("webextension-polyfill", () => ({ default: browser }));
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+    await import("./options");
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect((document.getElementById("welcome-panel") as HTMLElement | null)?.hidden).toBe(false);
+    expect((document.getElementById("shell") as HTMLElement | null)?.hidden).toBe(true);
+    expect(caughtErrors).toEqual([]);
+  });
+
+  it("clicking Continue actually dismisses it and reveals the real settings UI", async () => {
+    const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
+    vi.doMock("webextension-polyfill", () => ({ default: browser }));
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+    await import("./options");
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(storageLocalData.uiState).toBeUndefined();
+    (document.getElementById("welcome-continue") as HTMLButtonElement).click();
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+
+    expect((storageLocalData.uiState as { hasSeenWelcome?: boolean } | undefined)?.hasSeenWelcome).toBe(true);
+    expect((document.getElementById("welcome-panel") as HTMLElement | null)?.hidden).toBe(true);
+    expect((document.getElementById("shell") as HTMLElement | null)?.hidden).toBe(false);
+    // The real settings UI underneath was already populated while the
+    // panel was up, not left as an empty shell needing its own load.
+    expect(document.getElementById("protection-groups")?.children.length).toBeGreaterThan(0);
+  });
+
+  it("stays hidden once already dismissed", async () => {
+    const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
+    storageLocalData.uiState = { hasSeenWelcome: true };
+    vi.doMock("webextension-polyfill", () => ({ default: browser }));
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+    await import("./options");
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect((document.getElementById("welcome-panel") as HTMLElement | null)?.hidden).toBe(true);
+    expect((document.getElementById("shell") as HTMLElement | null)?.hidden).toBe(false);
   });
 });

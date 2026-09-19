@@ -995,10 +995,70 @@
       .rail-dot-caution {
         background: var(--caution);
       }
+
+      /* ---------- Welcome panel (first run only) ---------- */
+      /* Standalone rather than reusing .rail .brand-row -- that rule is
+         scoped to the rail specifically and wouldn't apply here at all. */
+      .welcome-shell {
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 60px 28px 60px;
+      }
+      .welcome-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 30px;
+      }
+      .welcome-brand img {
+        width: 30px;
+        height: 30px;
+      }
+      .welcome-brand .brand-name {
+        font-size: 19px;
+        font-weight: 600;
+      }
+      .welcome-shell h1 {
+        font-size: 23px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        margin: 0 0 8px;
+      }
+      .welcome-tagline {
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 0;
+        max-width: 46ch;
+      }
+      /* Wraps the status dot + row-body together so .protection-row's own
+         space-between (meant for a switch on the right) doesn't shove
+         row-body away from its marker -- same reasoning as
+         .rail-item-main/.group-heading-main above. */
+      .welcome-row-main {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .welcome-row-main .rail-dot {
+        margin-top: 6px;
+      }
+      .welcome-shortcut {
+        margin-top: 26px;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      .welcome-actions {
+        margin-top: 32px;
+      }
+      .welcome-actions button {
+        font-size: 14px;
+        padding: 9px 22px;
+      }
     </style>
   </head>
   <body>
-    <div class="shell">
+    <div class="shell" id="shell">
       <nav class="rail" role="tablist">
         <div class="brand-row">
           <img src="icons/icon48.png" alt="" />
@@ -1618,6 +1678,100 @@
         </section>
       </div>
     </div>
+
+    <!-- First-run only: options.ts shows this instead of #shell when
+         shouldShowWelcome() (background/updateNotice.ts) is true, and never
+         again after "Continue to Settings" is clicked. Reachable, not
+         forced: nothing auto-opens this tab -- the README's "no onboarding
+         tabs" stays literally true. Whoever opens Settings for the first
+         time (from the popup's "Settings" link, however they get there)
+         sees this once. See docs/research/competitor-onboarding-and-
+         settings-ux-2026-09.md for why an auto-opened tab was considered
+         and rejected. -->
+    <section id="welcome-panel" hidden>
+      <div class="welcome-shell">
+        <div class="welcome-brand">
+          <img src="icons/icon48.png" alt="" />
+          <span class="brand-name">Moat</span>
+        </div>
+        <h1 data-i18n="welcomeTitle">Welcome to Moat</h1>
+        <p class="welcome-tagline" data-i18n="optionsTagline">Blocks ads, trackers, and hijacked popups.</p>
+
+        <hr class="section-divider" />
+
+        <div class="group-heading" style="padding-top: 22px">
+          <span class="group-heading-main">
+            <svg class="group-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 1.6l4.6 1.8v3.4c0 3.3-1.9 5.7-4.6 6.6-2.7-.9-4.6-3.3-4.6-6.6V3.4L8 1.6z" />
+            </svg>
+            <span data-i18n="welcomeAlreadyOnHeading">Already protecting you</span>
+          </span>
+        </div>
+        <div class="row-group">
+          <div class="protection-row">
+            <div class="welcome-row-main">
+              <span class="rail-dot"></span>
+              <div class="row-body">
+                <span class="row-title" data-i18n="welcomeFilterListsTitle">Ads, trackers and known-malicious sites blocked</span>
+                <span class="row-evidence" data-i18n="welcomeFilterListsEvidence">Standard filter lists, on by default</span>
+              </div>
+            </div>
+          </div>
+          <div class="protection-row">
+            <div class="welcome-row-main">
+              <span class="rail-dot"></span>
+              <div class="row-body">
+                <span class="row-title" data-i18n="welcomeGrayscaleTitle">YouTube video ads dimmed automatically</span>
+                <span class="row-evidence" data-i18n="welcomeGrayscaleEvidence">In-stream ads are grayed out while they play</span>
+              </div>
+            </div>
+          </div>
+          <div class="protection-row">
+            <div class="welcome-row-main">
+              <span class="rail-dot"></span>
+              <div class="row-body">
+                <span class="row-title" data-i18n="welcomePopupFirewallTitle">Popup and redirect firewall</span>
+                <span class="row-evidence" data-i18n="welcomePopupFirewallEvidence">Always on. Hijacked tabs are closed automatically.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="group-heading" style="padding-top: 22px">
+          <span data-i18n="welcomeWorthTurningOnHeading">Worth turning on</span>
+        </div>
+        <div class="row-group">
+          <div class="protection-row">
+            <div class="welcome-row-main">
+              <span class="rail-dot rail-dot-caution"></span>
+              <div class="row-body">
+                <span class="row-title" data-i18n="welcomeFingerprintTitle">Stop sites recognizing your device</span>
+                <span class="row-evidence" data-i18n="welcomeFingerprintEvidence">Off by default since it can occasionally affect a CAPTCHA</span>
+              </div>
+            </div>
+          </div>
+          <div class="protection-row">
+            <div class="welcome-row-main">
+              <span class="rail-dot rail-dot-caution"></span>
+              <div class="row-body">
+                <span class="row-title" data-i18n="welcomeLeakedPasswordTitle">Check passwords against known breaches</span>
+                <span class="row-evidence" data-i18n="welcomeLeakedPasswordEvidence">Off by default. Only a scrambled fragment of a password ever leaves your device.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="hint muted" data-i18n="welcomeMoreInSettings">Both are one click away on the Protection tab.</p>
+
+        <p class="welcome-shortcut">
+          <span class="keycap">Ctrl+Shift+M</span>
+          <span data-i18n="welcomeShortcutHint">toggles protection on and off, anytime.</span>
+        </p>
+
+        <div class="welcome-actions">
+          <button type="button" id="welcome-continue" class="primary" data-i18n="welcomeContinueButton">Continue to Settings</button>
+        </div>
+      </div>
+    </section>
 
     <script src="options.js"></script>
   </body>

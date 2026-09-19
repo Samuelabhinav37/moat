@@ -3,6 +3,33 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.111
+
+### Added
+- **First-run Welcome panel, reachable but never forced.** An earlier
+  in-progress version of this auto-opened `options.html` as a tab on
+  install -- caught before release against the README's own explicit
+  "no nag screens, no 'rate us' prompts, no onboarding tabs" principle,
+  and against a prior audit
+  (`docs/research/simplicity-and-completeness-review.md` §1c) that had
+  already flagged this exact tension as a decision for the project owner,
+  not something to build unilaterally. Researched what uBlock Origin,
+  AdGuard, Ghostery and Privacy Badger actually do
+  (`docs/research/competitor-onboarding-and-settings-ux-2026-09.md`,
+  read from each project's own source, not hearsay) before deciding:
+  3 of 4 do auto-open a tab, but the README's literal text still rules
+  it out for Moat regardless of how light the content is. Landed
+  instead as a panel `options.ts` shows in place of the normal settings
+  UI the first time anyone opens Settings, gated by a new
+  `hasSeenWelcome` flag (`background/updateNotice.ts`) -- independent of
+  the popup's existing `hasSeenOnboarding` card, since the two are
+  different surfaces. Nothing auto-opens a tab; a user who never opens
+  Settings never sees it, same as before this change. Content: what's
+  protecting you by default (standard filter lists, YouTube ad dimming,
+  the always-on popup firewall), two off-by-default protections worth
+  turning on (fingerprint resistance, leaked-password checking), the
+  keyboard shortcut, and a "Continue to Settings" button.
+
 ## 0.11.110
 
 ### Added

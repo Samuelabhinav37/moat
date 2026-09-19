@@ -15,6 +15,7 @@ const UI_STATE_KEY = "uiState";
 interface UiState {
   lastSeenVersion?: string;
   hasSeenOnboarding?: boolean;
+  hasSeenWelcome?: boolean;
 }
 
 async function getUiState(): Promise<UiState> {
@@ -70,4 +71,23 @@ export async function dismissUpdateNotice(): Promise<void> {
 
 export async function dismissOnboarding(): Promise<void> {
   await setUiState({ hasSeenOnboarding: true });
+}
+
+/** Independent of hasSeenOnboarding above -- that flag belongs to the
+ * popup's one-line card, this one to the full-page Welcome panel in
+ * options.html. Nothing auto-opens options.html for this; it's reachable,
+ * not forced (see docs/research/competitor-onboarding-and-settings-ux-
+ * 2026-09.md) -- the README's "no onboarding tabs" stays literally true,
+ * and whoever opens Settings for the first time sees this once. Two
+ * different surfaces (this and the popup card), so each gets its own flag
+ * rather than one shared "has this install seen anything onboarding-shaped
+ * yet" boolean -- same one-flag-per-notice convention as
+ * dismissUpdateNotice/dismissOnboarding already establishes. */
+export async function shouldShowWelcome(): Promise<boolean> {
+  const state = await getUiState();
+  return state.hasSeenWelcome !== true;
+}
+
+export async function dismissWelcome(): Promise<void> {
+  await setUiState({ hasSeenWelcome: true });
 }
