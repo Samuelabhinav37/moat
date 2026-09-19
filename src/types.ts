@@ -369,14 +369,30 @@ export interface ReportContextResponse {
   enabledFilterGroups: string[];
 }
 
+/** One heuristic's per-page-load state for the Diagnostics page (DR-16):
+ * whether it's on at all, whether it has anything to do on this hostname
+ * (see shared/heuristicScope.ts's heuristicAppliesTo), and how many times it
+ * actually fired since the current page loaded. `fired` is null rather than
+ * a zeroed object when it hasn't fired at all this page load, so the UI can
+ * tell "hasn't fired yet" apart from "fired, 0 is a real count" (never a
+ * real state, but keeps the type honest about what "no data" looks like). */
+export interface DiagnosticsHeuristicRow {
+  id: UsageSignal;
+  on: boolean;
+  appliesHere: boolean;
+  fired: { count: number; lastFiredAt: number } | null;
+}
+
 export interface LogEntriesResponse {
   /** False when chrome.declarativeNetRequest.onRuleMatchedDebug doesn't
    * exist -- a Web Store/production build, Firefox, or Chrome without dev
    * mode -- so the logger page can show a clear reason instead of an empty
-   * list. */
+   * list. Scoped to the rule-matches table only (DR-17) -- the heuristics
+   * rows below work on every build regardless of this flag. */
   supported: boolean;
   hostname: string;
   entries: LoggedMatch[];
+  heuristics: DiagnosticsHeuristicRow[];
 }
 
 /** Sent by warning.ts on load -- only ever reachable at all when an org's

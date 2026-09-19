@@ -85,6 +85,25 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
     }),
     "get-ui-notices": () => ({ showOnboarding: false, updateAvailable: false, updateVersion: "" }),
     "get-report-context": () => ({ hostname }),
+    // A representative mix of all three heuristic-row states (DR-16) plus
+    // one out-of-scope heuristic, so a render test can exercise fired/
+    // silent/off/excluded in one pass -- see logger.render.test.ts.
+    "get-log-entries": () => ({
+      supported: true,
+      hostname,
+      entries: [
+        { timestamp: Date.now(), url: `https://${hostname}/track.js`, method: "GET", type: "script", ruleId: 100, rulesetId: "ads" },
+      ],
+      heuristics: [
+        { id: "fingerprint", on: true, appliesHere: true, fired: { count: 2, lastFiredAt: Date.now() } },
+        { id: "cookieBannerReject", on: true, appliesHere: true, fired: null },
+        { id: "grayscaleAds", on: true, appliesHere: false, fired: null },
+        { id: "feedAdRemoval", on: false, appliesHere: true, fired: null },
+        { id: "searchSlop", on: false, appliesHere: false, fired: null },
+        { id: "leakedPasswordCheck", on: true, appliesHere: true, fired: null },
+        { id: "cnameUncloak", on: true, appliesHere: true, fired: { count: 1, lastFiredAt: Date.now() } },
+      ],
+    }),
   };
 
   const browser = {

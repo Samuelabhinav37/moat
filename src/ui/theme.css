@@ -180,3 +180,49 @@ ul.site-list li {
   border-radius: 6px;
   font-size: 13px;
 }
+
+/* ---------------------------------------------------------------------------
+   DR-12 — switch hit target.
+
+   WCAG 2.2 SC 2.5.8 (Target Size, Minimum) sets an AA floor of 24x24 CSS px.
+   The switch is 36x20, so it fails on height. Growing it to 44x24 would make
+   every row visually heavier, and the list's density is doing real work (see
+   DR-03 — enabled rows are deliberately taller than disabled ones).
+
+   So: pad, don't resize. The .switch element keeps its 36x20 appearance and
+   gains a 4px transparent ring, giving a 44x28 activation area.
+   --------------------------------------------------------------------------- */
+
+.switch {
+  /* was: width 36 / height 20 with no padding */
+  padding: 4px;
+  width: 44px;
+  height: 28px;
+}
+
+/* The track and thumb were absolutely positioned against the old box, which
+   is now 8px larger in both axes. Inset them by the padding so the switch
+   looks identical to before. */
+.switch .track {
+  inset: 4px;
+}
+
+.switch .thumb {
+  top: 6px;
+  left: 6px;
+}
+
+/* DR-12, second half: the permission chips in the Protection list are also
+   under the 24px floor. Applied directly in options.html, where .chip's
+   real rule lives (that inline sheet loads after this one and would shadow
+   any rule added here). */
+
+/* ---------------------------------------------------------------------------
+   DR-15 — one new token. "Stays on your device" vs "leaves your device" is
+   now a real distinction in the UI (Backup tab), and the heading that marks
+   the leaving half needs to read as a caution without being an alarm.
+   --------------------------------------------------------------------------- */
+:root {
+  /* Caution at low alpha, for the inline notice block behind sync. */
+  --caution-wash: rgba(224, 177, 111, 0.1);
+}

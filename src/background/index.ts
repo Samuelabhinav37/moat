@@ -69,6 +69,13 @@ import {
 import { getGroupBreakdown, isMatchedRulesSupported } from "./matchStats";
 import { recordSignalEvent } from "./usageStats";
 import { SIGNAL_KEYS } from "../shared/usageStatsState";
+import {
+  forgetTab as forgetHeuristicTab,
+  getFired,
+  recordFired,
+  resetForNavigation as resetHeuristicFiring,
+} from "./liveHeuristics";
+import { HEURISTIC_DEFS, heuristicAppliesTo } from "../shared/heuristicScope";
 import { reconcileCustomRuleStats, recordRuleMatches } from "./customRuleStats";
 import { cosmeticGenericsFor, proceduralRulesFor } from "./cosmeticIndex";
 import { allowPermissionGuardOrigin } from "./permissionGuard";
@@ -142,6 +149,7 @@ browser.tabs.onRemoved.addListener((tabId) => {
   forgetLoggerTab(tabId);
   forgetBlockReasonTab(tabId);
   forgetLastNormalTab(tabId);
+  forgetHeuristicTab(tabId);
 });
 
 // Track which normal web page the user last had focused, so the Settings
@@ -185,6 +193,7 @@ async function resolveNormalTabId(): Promise<number | null> {
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0) return;
   resetForNavigation(details.tabId);
+  resetHeuristicFiring(details.tabId);
   // Inject the bundled + user cosmetic CSS as a user-origin stylesheet from
   // here, instead of the content script building a <style> on the page
   // thread. Fires early enough to be roughly document_start-class; no-ops
@@ -462,11 +471,27 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
 
     case "get-log-entries": {
       return (async (): Promise<LogEntriesResponse> => {
-        const tab = sender.tab ?? (await browser.tabs.query({ active: true, currentWindow: true }))[0];
+        // Diagnostics is an extension page with no page of its own -- same
+        // "which normal web page is this actually about" problem the
+        // Trackers/Filter-Lists tabs solve with resolveNormalTabId, not the
+        // diagnostics tab's own chrome-extension:// URL (sender.tab, used
+        // here previously, pointed at the diagnostics tab itself).
+        const tabId = await resolveNormalTabId();
+        const tab = tabId === null ? undefined : await browser.tabs.get(tabId).catch(() => undefined);
+        const hostname = hostnameOf(tab?.url);
+        const settings = await getEffectiveSettings();
+        const fired = tabId === null ? {} : getFired(tabId);
+        const heuristics: LogEntriesResponse["heuristics"] = HEURISTIC_DEFS.map((def) => ({
+          id: def.id,
+          on: Boolean(settings[def.settingKey]),
+          appliesHere: hostname ? heuristicAppliesTo(def.id, hostname) : false,
+          fired: fired[def.id] ?? null,
+        }));
         return {
           supported: isLoggerSupported(),
-          hostname: hostnameOf(tab?.url),
-          entries: tab?.id !== undefined ? getLoggedEntries(tab.id) : [],
+          hostname,
+          entries: tabId === null ? [] : getLoggedEntries(tabId),
+          heuristics,
         };
       })();
     }
@@ -498,6 +523,10 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
       if (!isValidMessageString(message.hostname)) return undefined;
       if (!(SIGNAL_KEYS as readonly string[]).includes(message.signal)) return undefined;
       const count = typeof message.count === "number" && message.count > 0 && message.count <= 1000 ? message.count : 1;
+      // Live, per-page-load counter for the Diagnostics page (DR-16) --
+      // separate from usageStats.ts's rolling daily history below, which
+      // this doesn't replace.
+      if (sender.tab?.id !== undefined) recordFired(sender.tab.id, message.signal);
       return recordSignalEvent(message.signal, message.hostname, count).then(() => undefined);
     }
 

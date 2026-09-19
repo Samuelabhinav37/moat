@@ -68,7 +68,7 @@ describe("options.html render", () => {
   // this is empty/unpopulated instead.
   it("actually finishes populating the page (catches a crash partway through render())", async () => {
     await renderOptions();
-    expect(document.getElementById("version-text")?.textContent).toBe("v0.0.0-test");
+    expect(document.getElementById("version-number")?.textContent).toBe("0.0.0-test");
     expect(document.getElementById("protection-groups")?.children.length).toBeGreaterThan(0);
     expect(caughtErrors).toEqual([]);
   });

@@ -10,6 +10,7 @@ import { detectPreset, presetPatch, type PresetName } from "../shared/filterPres
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { getUsageSummary } from "../background/usageStats";
 import { getCustomRuleStats } from "../background/customRuleStats";
+import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
 import { customRuleStatKey, isStale } from "../shared/customRuleStats";
 import type {
   AddCustomDomainMessage,
@@ -326,6 +327,7 @@ const TOTAL_PROTECTIONS = VISIBLE_PROTECTIONS.length + 1; // +1 for the merged p
 const masterToggle = document.getElementById("master-toggle") as HTMLInputElement;
 const protectionLockedBadge = document.getElementById("protection-locked-badge") as HTMLElement;
 const railDotProtection = document.getElementById("rail-dot-protection") as HTMLElement;
+const railDotBackup = document.getElementById("rail-dot-backup") as HTMLElement;
 const railCountFilters = document.getElementById("rail-count-filters") as HTMLElement;
 const railCountCustom = document.getElementById("rail-count-custom") as HTMLElement;
 const railCountTrackers = document.getElementById("rail-count-trackers") as HTMLElement;
@@ -1223,10 +1225,41 @@ pickElementButton.addEventListener("click", async () => {
   }
 });
 
-// ---------- About tab ----------
+// ---------- About tab (DR-13) ----------
 
-const versionText = document.getElementById("version-text") as HTMLElement;
 const managedNotice = document.getElementById("managed-notice") as HTMLElement;
+const versionNumberEl = document.getElementById("version-number") as HTMLElement;
+const versionBuildEl = document.getElementById("version-build") as HTMLElement;
+const versionRulesEl = document.getElementById("version-rules") as HTMLElement;
+const versionUpdatedEl = document.getElementById("version-updated") as HTMLElement;
+const disclosureSyncRecipientEl = document.getElementById("disclosure-sync-recipient") as HTMLElement;
+
+// Feature-detected at runtime, not build-injected -- this build has no
+// compile-time "which browser is this" constant (see
+// isFirefoxPrivacyWebsitesSupported above, computed the same way). Whoever
+// actually owns the browser's own sync account is who receives synced
+// settings -- must never read "Google" on a Firefox build or vice versa:
+// DR-15 treats a wrong recipient here as a privacy-disclosure bug, not a
+// cosmetic one.
+const SYNC_VENDOR_NAME = isFirefoxPrivacyWebsitesSupported ? tFallback("commonMozilla", "Mozilla") : tFallback("commonGoogle", "Google");
+
+async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy>>): Promise<void> {
+  const manifest = browser.runtime.getManifest();
+  versionNumberEl.textContent = manifest.version;
+  versionBuildEl.textContent = isFirefoxPrivacyWebsitesSupported ? tFallback("commonFirefox", "Firefox") : tFallback("commonChrome", "Chrome");
+  // Reads the Filter Lists tab's own already-rendered hero number rather
+  // than recomputing it -- render() always populates that element before
+  // this runs, and the two must never drift apart into two different
+  // "rules active" claims on the same page.
+  versionRulesEl.textContent = document.getElementById("filters-metric-active")?.textContent || "—";
+  const liveUpdateStatus = await getLiveUpdateStatus();
+  versionUpdatedEl.textContent = liveUpdateStatus
+    ? new Date(liveUpdateStatus.timestamp).toLocaleDateString()
+    : tFallback("commonNever", "Never");
+
+  disclosureSyncRecipientEl.textContent = SYNC_VENDOR_NAME;
+  managedNotice.hidden = Object.keys(policy).length === 0;
+}
 
 // ---------- Render ----------
 
@@ -1388,9 +1421,8 @@ async function render(): Promise<void> {
   await renderCustomRulesMetricRow(settings);
   railCountCustom.textContent = String(countCustomRules(settings));
 
-  const version = browser.runtime.getManifest().version;
-  versionText.textContent = tFallback("optionsVersionPrefix", `v${version}`, version);
-  managedNotice.hidden = Object.keys(policy).length === 0;
+  await renderBackupTab(settings);
+  await renderAboutTab(policy);
 }
 
 addButton.addEventListener("click", async () => {
@@ -1405,12 +1437,23 @@ addInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") addButton.click();
 });
 
-// ---------- Backup & restore ----------
+// ---------- Backup tab (DR-15) ----------
 
 const exportSettingsButton = document.getElementById("export-settings-button") as HTMLButtonElement;
 const importSettingsButton = document.getElementById("import-settings-button") as HTMLButtonElement;
 const importSettingsInput = document.getElementById("import-settings-input") as HTMLInputElement;
 const importSettingsStatus = document.getElementById("import-settings-status") as HTMLElement;
+const exportFilenameEl = document.getElementById("export-filename") as HTMLElement;
+const backupMetricLastEl = document.getElementById("backup-metric-last") as HTMLElement;
+const backupMetricSizeEl = document.getElementById("backup-metric-size") as HTMLElement;
+const backupMetricSyncEl = document.getElementById("backup-metric-sync") as HTMLElement;
+const syncRecipientEl = document.getElementById("sync-recipient") as HTMLElement;
+
+/** Same name the export button itself downloads -- so the hint above it and
+ * the file that actually lands in Downloads never say two different things. */
+function exportFilename(): string {
+  return `moat-settings-${new Date().toISOString().slice(0, 10)}.json`;
+}
 
 exportSettingsButton.addEventListener("click", async () => {
   const message: ExportSettingsMessage = { type: "export-settings" };
@@ -1419,9 +1462,11 @@ exportSettingsButton.addEventListener("click", async () => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `moat-settings-${new Date().toISOString().slice(0, 10)}.json`;
+  link.download = exportFilename();
   link.click();
   URL.revokeObjectURL(url);
+  await recordBackupTaken();
+  await render();
 });
 
 importSettingsButton.addEventListener("click", () => importSettingsInput.click());
@@ -1430,6 +1475,43 @@ const syncToggle = document.getElementById("sync-toggle") as HTMLInputElement;
 syncToggle.addEventListener("change", async () => {
   await setSettings({ syncEnabled: syncToggle.checked });
 });
+
+async function renderBackupTab(settings: Settings): Promise<void> {
+  exportFilenameEl.textContent = exportFilename();
+  syncToggle.checked = settings.syncEnabled;
+  syncRecipientEl.textContent = SYNC_VENDOR_NAME;
+  backupMetricSyncEl.textContent = settings.syncEnabled ? tFallback("commonOn", "On") : tFallback("commonOff", "Off");
+
+  const exportMessage: ExportSettingsMessage = { type: "export-settings" };
+  const exported = await browser.runtime.sendMessage(exportMessage);
+  const exportedBytes = new Blob([JSON.stringify(exported)]).size;
+  backupMetricSizeEl.textContent = tFallback("optionsBackupSizeBytes", `${exportedBytes.toLocaleString()} B`, String(exportedBytes));
+
+  const lastBackupAt = await getLastBackupAt();
+  railDotBackup.hidden = lastBackupAt !== null;
+  if (lastBackupAt === null) {
+    backupMetricLastEl.textContent = tFallback("commonNever", "Never");
+    backupMetricLastEl.classList.add("caution");
+  } else {
+    backupMetricLastEl.textContent = new Date(lastBackupAt).toLocaleDateString();
+    backupMetricLastEl.classList.remove("caution");
+  }
+
+  // "Protection settings" preserved by a backup: every toggle on the
+  // Protection tab, on or off -- VISIBLE_PROTECTIONS plus the three
+  // permission-guard booleans it merges into one row (see
+  // isAnyPermissionGuardOn above).
+  document.getElementById("bm-protections")!.textContent = String(VISIBLE_PROTECTIONS.length + 3);
+  // Element-picker rules plus the custom block-domain list -- both are
+  // user-authored blocking rules, just keyed differently (selector vs.
+  // hostname). customAllowedDomains is the opposite of a rule (see its own
+  // "Exceptions" doc comment in types.ts) and counted below instead.
+  document.getElementById("bm-rules")!.textContent = String(countCustomRules(settings) + settings.customBlockedDomains.length);
+  document.getElementById("bm-exceptions")!.textContent = String(
+    settings.disabledSites.length + settings.customAllowedDomains.length
+  );
+  document.getElementById("bm-lists")!.textContent = String(Object.keys(settings.filterGroups).length);
+}
 
 // ---------- Trackers tab ----------
 

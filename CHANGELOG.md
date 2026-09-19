@@ -3,6 +3,79 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.108
+
+### Added
+- **Backup tab, split out of About** -- "Sync settings across devices" was
+  the most privacy-relevant toggle in the product and it was living in the
+  least functional tab. The new rail item groups its five controls by
+  *where the data goes* (a file you keep vs. your browser's own sync
+  account), not by verb, since one of those two categories is a group of
+  one and that's the point: it's not like the others. The hero value is
+  "Never" (not an empty state -- an answer) until a real export happens,
+  which now also lights an amber rail dot the same way an unreviewed
+  managed-policy change would. Export size, export filename (with today's
+  date), and the sync recipient are all read from real state -- the
+  recipient specifically reads "Google" or "Mozilla" from the same
+  Chrome/Firefox feature-detection the rest of `options.ts` already uses,
+  never hardcoded, since a wrong recipient there is a privacy-disclosure
+  bug, not a cosmetic one. New `background/backupStats.ts` (storage.local-
+  only `lastBackupAt`, same never-synced/never-exported posture as
+  `usageStats.ts`) backs the hero value and the dot.
+- **About rewritten as a pure record.** Was thirteen paragraphs in one card
+  doing four unrelated jobs; now it's the privacy disclosure, version
+  details, the keyboard shortcut, and a link to Diagnostics -- nothing
+  else. The five bold-led privacy paragraphs are replaced by a 4-column
+  disclosure table (feature / what's sent / who receives it / default) --
+  a short, scannable first layer is the established answer to "important
+  privacy information nobody reads"; five paragraphs of prose never was.
+  Version details go from a single line to a `<dl>` (version / build /
+  rules active / lists last updated).
+- **Diagnostics, rebuilt around what it actually needed to show.**
+  `ruleLogger.ts`'s own header comment says the point of this page is
+  diagnosing Moat's fragile heuristics "when they break silently after a
+  site markup change," naming the YouTube ad dimmer and the feed scanner
+  specifically -- but the page was built entirely on
+  `onRuleMatchedDebug`, which never fires for either of them (they're
+  content scripts, not declarativeNetRequest rules). The page showed the
+  one subsystem that essentially never breaks and was blind to the two
+  the comment named. Inverted: heuristics first, each with a real
+  fired/silent/off state; the rule-match table is demoted below with its
+  own "unpacked builds only" caveat, scoped to that section instead of
+  the page title (the heuristics half now works on every build, so the
+  title no longer needs to declare the whole page dead on a store
+  install). New pieces behind it:
+  - `shared/heuristicScope.ts` -- a pure `heuristicAppliesTo(kind,
+    hostname)` predicate grounded in the real `content_scripts` match
+    patterns in `scripts/manifest.ts` (e.g. the grayscale ad dimmer only
+    applies on YouTube, the feed scanner also on Instagram/LinkedIn).
+    Required, not optional: without it every heuristic reads "silent" on
+    every page and the whole surface is noise. Heuristics that don't
+    apply to the current page are named in a scope note instead of shown
+    as rows.
+  - `background/liveHeuristics.ts` -- a per-tab "did this fire on the
+    CURRENT page load" counter, reset on navigation, distinct from
+    `usageStats.ts`'s rolling multi-day history.
+  - "Silent" is worded as an inference throughout ("probably", "usually
+    means"), never a confirmed-error claim -- a feed scanner that hasn't
+    fired may mean the site's markup changed, or may just mean nothing to
+    hide showed up yet.
+  - Fixed along the way: `get-log-entries` was resolving the *Diagnostics
+    tab's own* `chrome-extension://` URL as "the page it's diagnosing"
+    (via `sender.tab`) instead of the last normal web page, same
+    extension-page-has-no-page-of-its-own problem the Trackers/Filter
+    Lists tabs already solve with `resolveNormalTabId()` -- now uses the
+    same fix.
+- **Switch and permission-chip hit targets grown to the WCAG 2.2 SC 2.5.8
+  24x24px floor** (36x20 -> 44x28 via padding, not a visual resize, so
+  density elsewhere on the Protection tab doesn't change) -- `.protection-row`
+  padding dropped 13px -> 9px to compensate, keeping rows at the same 46px
+  height.
+- New strings are English-only for now, same "ship the layout, translate
+  once it's stable" call as any other in-flight copy on this page --
+  `de`/`es`/`fr` fall back to the English text baked into the markup
+  (`shared/i18n.ts`'s existing fallback behavior) until they're filled in.
+
 ## 0.11.107
 
 ### Added

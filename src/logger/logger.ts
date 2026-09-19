@@ -1,8 +1,18 @@
 import browser from "webextension-polyfill";
-import type { GetLogEntriesMessage, LogEntriesResponse } from "../types";
+import type { DiagnosticsHeuristicRow, GetLogEntriesMessage, LogEntriesResponse } from "../types";
 import { LIVE_DYNAMIC_RULE_ID_START, MAX_LIVE_DYNAMIC_RULES } from "../background/liveRedirectRules";
+import { HEURISTIC_DEFS } from "../shared/heuristicScope";
+import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 
-async function getLogEntries(): Promise<LogEntriesResponse> {
+function tFallback(key: string, fallback: string, substitutions?: string | string[]): string {
+  return getMessageOrFallback((k, s) => browser.i18n.getMessage(k, s), key, fallback, substitutions);
+}
+
+applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+async function getDiagnostics(): Promise<LogEntriesResponse> {
   const message: GetLogEntriesMessage = { type: "get-log-entries" };
   return browser.runtime.sendMessage(message) as Promise<LogEntriesResponse>;
 }
@@ -18,88 +28,202 @@ function isLiveRule(ruleId: number): boolean {
   return ruleId >= LIVE_DYNAMIC_RULE_ID_START && ruleId < LIVE_DYNAMIC_RULE_ID_START + MAX_LIVE_DYNAMIC_RULES;
 }
 
-/** Real, not fabricated: the span the current ring buffer actually covers, oldest entry to
- * now -- not a hardcoded "last 60s" the way the design mock's sample data shows it. */
-function formatSince(oldestTimestamp: number): string {
-  const seconds = Math.max(0, Math.round((Date.now() - oldestTimestamp) / 1000));
-  if (seconds < 60) return `last ${seconds}s`;
-  const minutes = Math.round(seconds / 60);
-  if (minutes < 60) return `last ${minutes}m`;
-  return `last ${Math.round(minutes / 60)}h`;
+/** Silent uses a triangle glyph, not a dot -- state must not depend on hue
+ * alone, same rule as the stale-rule marker in Custom Rules (see
+ * options.ts's buildStaleTriangleIcon, a visually distinct icon for a
+ * different meaning). Built via the DOM rather than an innerHTML template --
+ * web-ext lint flags any innerHTML assignment it can't statically prove is a
+ * literal, even a safe hardcoded one, as UNSAFE_VAR_ASSIGNMENT. */
+function buildSilentIcon(): SVGSVGElement {
+  const icon = document.createElementNS(SVG_NS, "svg");
+  icon.setAttribute("class", "state-icon");
+  icon.setAttribute("viewBox", "0 0 16 16");
+  icon.setAttribute("fill", "none");
+  icon.setAttribute("stroke", "currentColor");
+  icon.setAttribute("stroke-width", "1.7");
+  icon.setAttribute("stroke-linecap", "round");
+  icon.setAttribute("aria-hidden", "true");
+
+  const outline = document.createElementNS(SVG_NS, "path");
+  outline.setAttribute("d", "M8 2.5l6 11H2l6-11z");
+  const stem = document.createElementNS(SVG_NS, "path");
+  stem.setAttribute("d", "M8 6.6v3M8 11.6v.2");
+
+  icon.append(outline, stem);
+  return icon;
+}
+
+/** Hedged, never a confirmed-error claim -- "silent" is an inference. A feed
+ * scanner that hasn't fired may mean the site's markup changed, or may just
+ * mean the user hasn't scrolled past a sponsored post yet. */
+function silentDetailFor(id: DiagnosticsHeuristicRow["id"]): string {
+  switch (id) {
+    case "grayscaleAds":
+      return tFallback(
+        "diagnosticsSilentGrayscale",
+        "Hasn't dimmed an ad yet — YouTube may not have shown one, or its player markup probably changed"
+      );
+    case "feedAdRemoval":
+      return tFallback(
+        "diagnosticsSilentFeed",
+        "Hasn't hidden a sponsored post yet — usually means none showed up, or the site's markup changed"
+      );
+    case "cookieBannerReject":
+      return tFallback(
+        "diagnosticsSilentConsent",
+        "Hasn't rejected a banner yet — usually means this page didn't show one"
+      );
+    case "searchSlop":
+      return tFallback(
+        "diagnosticsSilentSearchSlop",
+        "Hasn't hidden a result yet — usually means none matched on this search"
+      );
+    case "leakedPasswordCheck":
+      return tFallback(
+        "diagnosticsSilentLeakedPassword",
+        "Hasn't checked a password yet — only runs once you type one into a password field"
+      );
+    case "fingerprint":
+      return tFallback("diagnosticsSilentFingerprint", "Hasn't randomised anything yet on this page load");
+    case "cnameUncloak":
+      return tFallback(
+        "diagnosticsSilentCname",
+        "Hasn't caught a disguised tracker yet — usually means this page has none"
+      );
+  }
+}
+
+function buildHeuristicRow(def: (typeof HEURISTIC_DEFS)[number], row: DiagnosticsHeuristicRow): HTMLElement {
+  const wrap = document.createElement("div");
+  wrap.className = "heuristic-row";
+
+  const body = document.createElement("div");
+  body.className = "h-body";
+  const name = document.createElement("div");
+  name.textContent = tFallback(...def.titleKey);
+
+  if (!row.on) {
+    wrap.append((() => {
+      const dot = document.createElement("span");
+      dot.className = "state off";
+      return dot;
+    })());
+    name.className = "h-name off";
+    const offTag = document.createElement("span");
+    offTag.className = "off-tag";
+    offTag.textContent = " " + tFallback("diagnosticsOffTag", "— off");
+    name.append(offTag);
+    body.append(name);
+  } else if (row.fired) {
+    const dot = document.createElement("span");
+    dot.className = "state fired";
+    wrap.append(dot);
+    name.className = "h-name";
+    body.append(name);
+    const detail = document.createElement("div");
+    detail.className = "h-detail";
+    const times = tFallback("diagnosticsFiredTimes", `Fired ${row.fired.count}x this page load`, String(row.fired.count));
+    detail.textContent = `${times} · ${tFallback("diagnosticsLastAt", `last at ${formatTime(row.fired.lastFiredAt).split(".")[0]}`, formatTime(row.fired.lastFiredAt))}`;
+    body.append(detail);
+  } else {
+    wrap.append(buildSilentIcon());
+    name.className = "h-name";
+    body.append(name);
+    const detail = document.createElement("div");
+    detail.className = "h-detail caution";
+    detail.textContent = silentDetailFor(def.id);
+    body.append(detail);
+  }
+
+  const idEl = document.createElement("span");
+  idEl.className = "h-id";
+  idEl.textContent = def.id;
+
+  wrap.append(body, idEl);
+  return wrap;
 }
 
 async function render(): Promise<void> {
-  const response = await getLogEntries();
+  const response = await getDiagnostics();
 
-  document.getElementById("host")!.textContent = response.hostname;
+  document.getElementById("diag-host")!.textContent = response.hostname || "—";
 
-  const unsupported = document.getElementById("unsupported")!;
-  const empty = document.getElementById("empty")!;
-  const table = document.getElementById("table")!;
-  const matchSummary = document.getElementById("match-summary")!;
-  const footerNote = document.getElementById("footer-note")!;
+  const rowsContainer = document.getElementById("diag-heuristic-rows")!;
+  const scopeNote = document.getElementById("diag-scope-note") as HTMLElement;
 
-  unsupported.hidden = response.supported;
+  const byId = new Map(response.heuristics.map((row) => [row.id, row]));
+  const inScope = HEURISTIC_DEFS.filter((def) => byId.get(def.id)?.appliesHere);
+  const outOfScope = HEURISTIC_DEFS.filter((def) => !byId.get(def.id)?.appliesHere);
+
+  rowsContainer.replaceChildren(
+    ...inScope.map((def) => buildHeuristicRow(def, byId.get(def.id)!))
+  );
+
+  if (outOfScope.length > 0) {
+    scopeNote.hidden = false;
+    const names = outOfScope.map((def) => tFallback(...def.titleKey)).join(" and ");
+    scopeNote.textContent = tFallback(
+      "diagnosticsScopeNote",
+      `${names} ${outOfScope.length === 1 ? "doesn't" : "don't"} apply to this page and ${outOfScope.length === 1 ? "isn't" : "aren't"} listed.`,
+      names
+    );
+  } else {
+    scopeNote.hidden = true;
+  }
+
+  const watchable = inScope.map((def) => byId.get(def.id)!).filter((row) => row.on);
+  const firedCount = watchable.filter((row) => row.fired !== null).length;
+  document.getElementById("diag-fired")!.textContent = String(firedCount);
+  document.getElementById("diag-applicable")!.textContent = String(watchable.length);
+  document.getElementById("diag-silent")!.textContent = String(watchable.length - firedCount);
+  document.getElementById("diag-matches")!.textContent = String(response.entries.length);
+
+  const unavailable = document.getElementById("diag-matches-unavailable") as HTMLElement;
+  const table = document.getElementById("diag-matches-table") as HTMLElement;
+  const empty = document.getElementById("diag-matches-empty") as HTMLElement;
+
+  unavailable.hidden = response.supported;
   if (!response.supported) {
-    empty.hidden = true;
     table.hidden = true;
-    matchSummary.hidden = true;
-    footerNote.hidden = true;
+    empty.hidden = true;
     return;
   }
 
   const hasEntries = response.entries.length > 0;
-  empty.hidden = hasEntries;
   table.hidden = !hasEntries;
-  footerNote.hidden = !hasEntries;
+  empty.hidden = hasEntries;
 
-  if (hasEntries) {
-    const oldest = Math.min(...response.entries.map((entry) => entry.timestamp));
-    matchSummary.hidden = false;
-    matchSummary.textContent = `${response.entries.length} matches · ${formatSince(oldest)}`;
-  } else {
-    matchSummary.hidden = true;
-  }
-
-  const rows = document.getElementById("rows")!;
-  rows.replaceChildren(
+  const body = document.getElementById("diag-matches-body")!;
+  body.replaceChildren(
     ...response.entries
       .slice()
       .reverse()
       .map((entry) => {
-        const row = document.createElement("div");
-        row.className = "grid-row";
+        const row = document.createElement("tr");
 
-        const timeCell = document.createElement("span");
-        timeCell.className = "grid-cell";
+        const timeCell = document.createElement("td");
         timeCell.textContent = formatTime(entry.timestamp);
 
-        const rulesetCell = document.createElement("span");
-        rulesetCell.className = "grid-cell";
+        const ruleCell = document.createElement("td");
         const chip = document.createElement("span");
         chip.className = isLiveRule(entry.ruleId) ? "ruleset-chip live" : "ruleset-chip";
-        chip.textContent = isLiveRule(entry.ruleId) ? "live" : entry.rulesetId;
-        rulesetCell.append(chip);
+        chip.textContent = isLiveRule(entry.ruleId) ? "live" : `${entry.rulesetId}:${entry.ruleId}`;
+        ruleCell.append(chip);
 
-        const ruleIdCell = document.createElement("span");
-        ruleIdCell.className = "grid-cell rule-id";
-        ruleIdCell.textContent = String(entry.ruleId);
-
-        const typeCell = document.createElement("span");
-        typeCell.className = "grid-cell";
+        const typeCell = document.createElement("td");
         typeCell.textContent = entry.type;
 
-        const urlCell = document.createElement("span");
-        urlCell.className = "grid-cell";
+        const urlCell = document.createElement("td");
+        urlCell.className = "url";
         urlCell.textContent = entry.url;
         urlCell.title = entry.url;
 
-        row.append(timeCell, rulesetCell, ruleIdCell, typeCell, urlCell);
+        row.append(timeCell, ruleCell, typeCell, urlCell);
         return row;
       })
   );
 }
 
-document.getElementById("refresh")!.addEventListener("click", () => void render());
+document.getElementById("diag-refresh")!.addEventListener("click", () => void render());
 
 void render();

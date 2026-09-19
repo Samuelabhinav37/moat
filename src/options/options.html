@@ -232,7 +232,10 @@
         align-items: center;
         justify-content: space-between;
         gap: 14px;
-        padding: 13px 0;
+        /* DR-12: was 13px. The switch grew by 8px (36x20 -> 44x28) to clear
+           the WCAG 24x24 target-size floor; dropping row padding to 9px
+           keeps rows at the same 46px height so nothing else shifts. */
+        padding: 9px 0;
         border-bottom: 1px solid var(--hairline);
         border-radius: 6px;
       }
@@ -426,7 +429,9 @@
         font-size: 11px;
         font-weight: 600;
         border-radius: 999px;
-        padding: 3px 9px;
+        /* DR-12: WCAG 2.2 SC 2.5.8 target-size floor is 24x24 CSS px; at
+           3px 9px this chip lands around 20px tall. */
+        padding: 4px 10px;
         border: 1px solid var(--border);
         color: var(--muted);
         background: transparent;
@@ -740,6 +745,222 @@
         gap: 14px;
         font-size: 13px;
       }
+
+      /* -----------------------------------------------------------------
+         Styles for the Backup tab (DR-15) and the restructured About tab
+         (DR-13). Reuses .metric-row, .group-heading, .row-group,
+         .section-divider and .protection-row above wherever possible --
+         these are only the genuinely new pieces.
+         ----------------------------------------------------------------- */
+
+      /* ---------- Backup: action rows ---------- */
+      /* Like .protection-row but the affordance is a button, not a switch. */
+      .action-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--hairline);
+      }
+      .row-group .action-row:last-child {
+        border-bottom: none;
+      }
+      .action-row .row-body {
+        min-width: 0;
+      }
+      .action-row .row-title {
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+      .action-row .row-evidence {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .action-row .row-evidence code {
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+      }
+      .action-row button {
+        flex: none;
+      }
+
+      /* ---------- Backup: the sync row's inline caution ---------- */
+      /* DR-15: this caveat does NOT go in a drawer. DR-04's disclosure rule
+         defers "this might break a site"; naming who receives your data is
+         a different class of fact and has to be readable without a click. */
+      .destination-note {
+        display: flex;
+        gap: 9px;
+        align-items: flex-start;
+        margin-top: 10px;
+        padding: 11px 13px;
+        background: var(--card);
+        border-radius: 8px;
+      }
+      .destination-note svg {
+        flex: none;
+        width: 14px;
+        height: 14px;
+        color: var(--caution);
+        margin-top: 2px;
+      }
+      .destination-note p {
+        margin: 0;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+      .destination-note strong {
+        color: var(--fg);
+        font-weight: 600;
+      }
+
+      /* A hero value that is a word, not a number -- "Never". */
+      .hero-value.is-word {
+        font-size: 32px;
+        letter-spacing: -0.02em;
+      }
+      .hero-value.caution {
+        color: var(--caution);
+      }
+
+      /* ---------- Backup: manifest ---------- */
+      .backup-manifest {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px 30px;
+        margin-top: 12px;
+      }
+      .backup-manifest .bm-item {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .backup-manifest .bm-count {
+        flex: none;
+        width: 26px;
+        text-align: right;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      .backup-manifest .bm-item.absent .bm-count {
+        color: var(--muted);
+      }
+      .backup-manifest .bm-label {
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+
+      /* ---------- About: the disclosure table (DR-13 / 12b) ---------- */
+      /* Replaces five bold-led prose paragraphs. A layered notice's first
+         layer has to be scannable; prose is not. Full text stays one link
+         away in PRIVACY.md. */
+      .disclosure-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        font-size: 12.5px;
+      }
+      .disclosure-table th {
+        text-align: left;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        padding: 0 14px 9px 0;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+      }
+      .disclosure-table td {
+        padding: 11px 14px 11px 0;
+        border-bottom: 1px solid var(--hairline);
+        color: var(--muted);
+        line-height: 1.5;
+        vertical-align: top;
+      }
+      .disclosure-table tr:last-child td {
+        border-bottom: none;
+      }
+      .disclosure-table td:first-child {
+        color: var(--fg);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .disclosure-table .recipient-none {
+        color: var(--muted);
+      }
+      .disclosure-table .recipient-external {
+        color: var(--fg);
+      }
+      .disclosure-table .default-off,
+      .disclosure-table .default-on {
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 11.5px;
+        white-space: nowrap;
+      }
+      .disclosure-table .default-on {
+        color: var(--fg);
+      }
+
+      /* About is a record now, not a control panel -- plain sections, no
+         .card. */
+      .about-record h3 {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 8px;
+      }
+      .about-record .about-block + .about-block {
+        margin-top: 22px;
+        padding-top: 22px;
+        border-top: 1px solid var(--hairline);
+      }
+      .about-record p {
+        margin: 0 0 8px;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .about-record p:last-child {
+        margin-bottom: 0;
+      }
+      .version-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 7px 16px;
+        font-size: 12.5px;
+      }
+      .version-grid dt {
+        color: var(--muted);
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 11.5px;
+      }
+      .version-grid dd {
+        margin: 0;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+      }
+      .keycap {
+        display: inline-block;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 11.5px;
+        border: 1px solid var(--selected);
+        border-radius: 5px;
+        padding: 2px 6px;
+        color: var(--fg);
+      }
+
+      /* DR-13: rail dot for Backup is amber, not green -- see options-rail
+         markup below. The existing .rail-dot is hard-coded to var(--on). */
+      .rail-dot-caution {
+        background: var(--caution);
+      }
     </style>
   </head>
   <body>
@@ -766,6 +987,18 @@
             <span data-i18n="tabTrackers">Trackers</span>
             <span class="rail-count" id="rail-count-trackers"></span>
           </button>
+
+          <!-- DR-13: nobody looks for a switch in a tab called About, and
+               "Sync settings across devices" is the most privacy-relevant
+               toggle in the product. The dot is amber, not green: under
+               DR-02 a rail indicator means "worth your attention" -- here
+               that is "no backup has ever been taken". options.ts unhides
+               it when lastBackupAt is null. -->
+          <button class="rail-item" data-tab="backup" role="tab" aria-selected="false">
+            <span data-i18n="tabBackup">Backup</span>
+            <span class="rail-dot rail-dot-caution" id="rail-dot-backup" hidden></span>
+          </button>
+
           <button class="rail-item" data-tab="about" role="tab" aria-selected="false" data-i18n="tabAbout">About</button>
         </div>
       </nav>
@@ -1065,95 +1298,247 @@
           </p>
         </section>
 
-        <!-- The prose paragraphs below that mix plain text with an inline <a>/<strong>/<code>
-             aren't migrated to data-i18n -- applyStaticI18n replaces an element's whole
-             textContent, which would silently delete the embedded link/emphasis. Left as
-             English-only static markup rather than risk that; everything else on this page is
-             migrated. -->
-        <section data-tab-panel="about" hidden>
-          <div class="card">
-            <div class="about-section">
-              <h3 data-i18n="optionsAboutHeading">About Moat</h3>
-              <p>
-                Moat blocks ads, trackers, and hijacked popups on Chrome and Firefox. The
-                <a href="https://github.com/Samuelabhinav37/moat#readme" target="_blank" rel="noopener">full README</a>
-                explains how the blocking, popup firewall, and cosmetic filtering work.
-              </p>
-              <p>
-                <strong>Keyboard shortcut:</strong> Ctrl+Shift+M (Cmd+Shift+M on Mac) toggles
-                protection on and off. Rebind it at <code>chrome://extensions/shortcuts</code>.
+        <!-- DR-15 -- Backup tab.
+
+             Grouped by WHERE THE DATA GOES, not by what the button does. The
+             obvious grouping is by verb (things that write / things that
+             read), but one of these five controls hands your settings to
+             Google and four never leave the machine -- and a verb grouping
+             puts that distinction nowhere.
+
+             "Across devices" is a group of one. That is deliberate: a group
+             of one is a statement that this control is not like the others. -->
+        <section data-tab-panel="backup" hidden>
+          <h2 class="page-title" data-i18n="tabBackup">Backup</h2>
+          <p class="page-desc" data-i18n="optionsBackupDesc">
+            Your settings, your custom rules and your exceptions — in a file you hold, or synced by
+            your browser.
+          </p>
+
+          <div class="metric-row">
+            <div class="metric-hero">
+              <div class="value-row">
+                <!-- "Never" is the honest state for almost everyone and it is what earns
+                     the rail dot. Not an empty state -- an answer. options.ts swaps this
+                     for a date and drops .caution once a backup exists. -->
+                <span class="hero-value is-word caution" id="backup-metric-last">Never</span>
+              </div>
+              <p class="metric-baseline" id="backup-metric-baseline">
+                backed up · your custom rules and exceptions exist only in this browser profile
               </p>
             </div>
-            <div class="about-section">
-              <h3 data-i18n="optionsPrivacyHeading">Privacy</h3>
-              <p data-i18n="optionsPrivacyIntro">
-                Everything here stays on your device -- none of it is sent to Moat's developer. Only
-                two optional features (breach checking and settings sync) ever talk to anyone else;
-                see the privacy policy for details.
-              </p>
-              <p>
-                <strong>Filter updates:</strong> once a day, Moat checks for a fresher block list and
-                any urgent fixes. That check doesn't send any of your browsing history.
-              </p>
-              <p>
-                <strong>Breach checking:</strong> with this on, only a short, scrambled piece of your
-                password goes to a breach-checking service -- never the real password, and nothing
-                goes to Moat at all. See the full privacy policy below for exactly which service.
-              </p>
-              <p>
-                <strong>Settings sync:</strong> with this on, your settings travel through your
-                browser's own sync account (Google's or Mozilla's), not a server Moat runs.
+            <div class="metric-right-group">
+              <div>
+                <div class="secondary-value" id="backup-metric-size">—</div>
+                <p class="metric-label" data-i18n="optionsBackupSizeLabel">export size</p>
+              </div>
+              <div>
+                <div class="secondary-value" id="backup-metric-sync">Off</div>
+                <p class="metric-label" data-i18n="optionsBackupSyncLabel">sync</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="section-divider" />
+
+          <div class="group-heading">
+            <span data-i18n="optionsBackupToFileHeading">To a file</span>
+            <span class="group-count" data-i18n="optionsBackupStaysHere">stays on your device</span>
+          </div>
+          <div class="row-group">
+            <div class="action-row">
+              <div class="row-body">
+                <div class="row-title" data-i18n="optionsExportTitle">Export settings</div>
+                <p class="row-evidence" id="export-settings-hint">
+                  Downloads <code id="export-filename">moat-settings.json</code> — plain text you can read
+                </p>
+              </div>
+              <button id="export-settings-button" type="button" data-i18n="commonExport">Export</button>
+            </div>
+            <div class="action-row">
+              <div class="row-body">
+                <div class="row-title" data-i18n="optionsImportTitle">Restore from a file</div>
+                <p class="row-evidence" data-i18n="optionsImportHint">
+                  Replaces everything below — you'll see what changes before it applies
+                </p>
+              </div>
+              <button id="import-settings-button" type="button" data-i18n="commonChooseFile">Choose file</button>
+            </div>
+          </div>
+          <input type="file" id="import-settings-input" accept="application/json" hidden />
+          <p class="hint muted" id="import-settings-status" hidden></p>
+
+          <div class="group-heading" style="padding-top: 22px">
+            <span data-i18n="optionsBackupAcrossDevicesHeading">Across devices</span>
+            <span class="group-count" data-i18n="optionsBackupLeavesDevice">leaves your device</span>
+          </div>
+          <div class="row-group">
+            <div class="action-row" style="align-items: flex-start">
+              <div class="row-body">
+                <div class="row-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">
+                  Sync settings across devices
+                </div>
+                <p class="row-evidence" data-i18n="optionsSyncToggleHint">
+                  Hands your Moat settings to your browser account to carry. No browsing data — but it
+                  is the one thing on this page that sends anything anywhere.
+                </p>
+
+                <!-- Inline, never drawered. See DR-15. -->
+                <div class="destination-note">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                    <path d="M8 2.5l6 11H2l6-11z" />
+                    <path d="M8 6.6v3M8 11.6v.2" />
+                  </svg>
+                  <!-- options.ts writes the vendor name from the build target. Do not
+                       hard-code "Google" -- a Firefox build has to say Mozilla. -->
+                  <p>
+                    Recipient is <strong id="sync-recipient">your browser vendor</strong> on this build.
+                    Your settings become subject to their retention, not Moat's — Moat has no server and
+                    cannot delete them for you.
+                  </p>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="sync-toggle" aria-labelledby="sync-toggle-label" />
+                <span class="track"><span class="thumb"></span></span>
+              </label>
+            </div>
+          </div>
+          <p class="hint" id="sync-status" hidden></p>
+
+          <hr class="section-divider" />
+
+          <div class="group-heading" data-i18n="optionsBackupContainsHeading">What a backup contains</div>
+          <!-- Ends on two rows that count nothing. What the file does NOT hold is the
+               reassurance a user came to this tab for. -->
+          <div class="backup-manifest" id="backup-manifest">
+            <div class="bm-item"><span class="bm-count" id="bm-protections">—</span><span class="bm-label" data-i18n="optionsBackupProtections">protection settings</span></div>
+            <div class="bm-item"><span class="bm-count" id="bm-rules">—</span><span class="bm-label" data-i18n="optionsBackupCustomRules">custom rules</span></div>
+            <div class="bm-item"><span class="bm-count" id="bm-exceptions">—</span><span class="bm-label" data-i18n="optionsBackupExceptions">site exceptions</span></div>
+            <div class="bm-item"><span class="bm-count" id="bm-lists">—</span><span class="bm-label" data-i18n="optionsBackupFilterChoices">filter list choices</span></div>
+            <div class="bm-item absent"><span class="bm-count">—</span><span class="bm-label" data-i18n="optionsBackupNoHistory">no browsing history, ever</span></div>
+            <div class="bm-item absent"><span class="bm-count">—</span><span class="bm-label" data-i18n="optionsBackupNoStats">no block counts or statistics</span></div>
+          </div>
+        </section>
+
+        <!-- DR-13 (option 12b) -- About becomes a pure record.
+
+             Was thirteen paragraphs in one card doing four unrelated jobs.
+             Backup, restore and sync moved out to their own tab above. What
+             remains is the disclosure, the version details and the shortcut.
+
+             The five bold-led privacy paragraphs are replaced by a
+             four-column table: the established answer to "important privacy
+             information nobody reads" is a layered notice -- a short
+             scannable first layer carrying the facts that matter most, full
+             text one link away. A table IS that first layer; five paragraphs
+             of prose is not.
+
+             WARNING: a wrong row in this table is worse than a vague
+             paragraph. Keep it in sync with PRIVACY.md, in the same commit
+             as any change to what the product sends.
+
+             The prose that remains below (the shortcut/diagnostics blocks)
+             mixes plain text with an inline <a>/<strong>/<code> and isn't
+             migrated to data-i18n -- applyStaticI18n replaces an element's
+             whole textContent, which would silently delete the embedded
+             link/emphasis. -->
+        <section data-tab-panel="about" hidden>
+          <h2 class="page-title" data-i18n="tabAbout">About</h2>
+          <p class="page-desc" data-i18n="optionsAboutDesc">
+            What this build is, and exactly what leaves your device.
+          </p>
+
+          <hr class="section-divider" />
+
+          <div class="about-record">
+            <div class="about-block">
+              <h3 data-i18n="optionsPrivacyHeading">What leaves your device</h3>
+              <table class="disclosure-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="optionsDisclosureFeature">Feature</th>
+                    <th data-i18n="optionsDisclosureSent">What's sent</th>
+                    <th data-i18n="optionsDisclosureRecipient">Who receives it</th>
+                    <th data-i18n="optionsDisclosureDefault">Default</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td data-i18n="optionsDisclosureBlockingName">Blocking &amp; filtering</td>
+                    <td data-i18n="optionsDisclosureBlockingSent">Nothing — runs entirely on your device</td>
+                    <td class="recipient-none" data-i18n="commonNobody">Nobody</td>
+                    <td class="default-on" data-i18n="commonAlwaysOn">always on</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="optionsDisclosureUpdatesName">Filter updates</td>
+                    <td data-i18n="optionsDisclosureUpdatesSent">A version check once a day. No browsing history.</td>
+                    <td class="recipient-external" data-i18n="optionsDisclosureUpdatesRecipient">Moat's update server</td>
+                    <td class="default-on" data-i18n="commonOn">on</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="optionsDisclosureBreachName">Breach checking</td>
+                    <td data-i18n="optionsDisclosureBreachSent">A short scrambled fragment of a password — never the password</td>
+                    <td class="recipient-external" data-i18n="optionsDisclosureBreachRecipient">Have I Been Pwned</td>
+                    <td class="default-off" data-i18n="commonOff">off</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="optionsDisclosureSyncName">Settings sync</td>
+                    <td data-i18n="optionsDisclosureSyncSent">Your Moat settings. No browsing data.</td>
+                    <td class="recipient-external" id="disclosure-sync-recipient">Your browser vendor</td>
+                    <td class="default-off" data-i18n="commonOff">off</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="optionsDisclosureStatsName">Statistics</td>
+                    <td data-i18n="optionsDisclosureStatsSent">Nothing — counted and stored on your device only</td>
+                    <td class="recipient-none" data-i18n="commonNobody">Nobody</td>
+                    <td class="default-on" data-i18n="commonAlwaysOn">always on</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p style="margin-top: 14px">
+                <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener" data-i18n="optionsPrivacyPolicyLink">Full privacy policy</a>
               </p>
               <p id="managed-notice" hidden>
                 <strong>Managed install:</strong> your organization set the policies shown here. Your
                 administrator can see and change those policies, but not your browsing history.
               </p>
             </div>
-            <div class="about-section">
-              <h3 data-i18n="optionsVersionHeading">Version details</h3>
-              <p id="version-text">—</p>
-              <div class="about-links">
-                <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener" data-i18n="optionsPrivacyPolicyLink">Full privacy policy</a>
+
+            <div class="about-block">
+              <h3 data-i18n="optionsVersionHeading">Version</h3>
+              <dl class="version-grid" id="version-grid">
+                <dt data-i18n="optionsVersionLabel">version</dt><dd id="version-number">—</dd>
+                <dt data-i18n="optionsVersionBuild">build</dt><dd id="version-build">—</dd>
+                <dt data-i18n="optionsVersionRules">rules</dt><dd id="version-rules">—</dd>
+                <dt data-i18n="optionsVersionUpdated">lists updated</dt><dd id="version-updated">—</dd>
+              </dl>
+              <div class="about-links" style="margin-top: 14px">
                 <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="optionsChangelogLink">Changelog</a>
                 <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="optionsSourceCodeLink">Source code</a>
                 <a href="NOTICE.md" target="_blank" rel="noopener" data-i18n="optionsThirdPartyNoticesLink">Third-party licenses</a>
               </div>
             </div>
-            <div class="about-section">
-              <h3 data-i18n="optionsDebuggingHeading">Debugging</h3>
+
+            <div class="about-block">
+              <h3 data-i18n="optionsShortcutHeading">Keyboard shortcut</h3>
               <p>
-                The <a href="logger.html" target="_blank" rel="noopener">rule-match logger</a> is a
-                development tool that shows which compiled rules matched which network requests. It
-                only appears when Moat is loaded unpacked.
+                <span class="keycap" id="shortcut-keys">Ctrl+Shift+M</span>
+                toggles protection on and off. Rebind at <code>chrome://extensions/shortcuts</code>.
               </p>
             </div>
-            <div class="about-section">
-              <h3 data-i18n="optionsBackupHeading">Backup &amp; restore</h3>
-              <p data-i18n="optionsBackupIntro">
-                Save your settings to a file, or load one back in later. Your fingerprint-protection
-                ID is never included, so it won't carry over.
+
+            <div class="about-block">
+              <h3 data-i18n="optionsDebuggingHeading">Diagnostics</h3>
+              <!-- DR-17: renamed from "rule-match logger", and the "only appears when
+                   loaded unpacked" qualifier is GONE. The heuristics half of that page
+                   works on every build, so this link is now useful to ordinary users
+                   reporting "YouTube ads came back". -->
+              <p>
+                <a href="logger.html" target="_blank" rel="noopener" data-i18n="optionsDiagnosticsLink">Diagnostics</a>
+                shows what Moat did on the current tab — and which of its page-reading
+                features have gone quiet, which usually means a site changed.
               </p>
-              <div class="about-links">
-                <button id="export-settings-button" type="button" data-i18n="optionsExportButton">Download settings</button>
-                <button id="import-settings-button" type="button" data-i18n="optionsImportButton">Upload settings…</button>
-              </div>
-              <input type="file" id="import-settings-input" accept="application/json" hidden />
-              <p class="hint muted" id="import-settings-status" hidden></p>
-              <div class="toggle-row" style="margin-top: 10px">
-                <div>
-                  <div class="card-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">Sync settings across devices</div>
-                  <p class="hint muted" data-i18n="optionsSyncToggleHint">
-                    Copies your settings using your browser's own sync account, like your Google or
-                    Firefox account. A new install picks them up once, but editing settings on two
-                    devices at the same time won't merge -- one will overwrite the other.
-                  </p>
-                </div>
-                <label class="switch">
-                  <input type="checkbox" id="sync-toggle" aria-labelledby="sync-toggle-label" />
-                  <span class="track"><span class="thumb"></span></span>
-                </label>
-              </div>
-              <p class="hint" id="sync-status" hidden></p>
             </div>
           </div>
         </section>

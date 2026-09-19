@@ -1,95 +1,277 @@
 <!doctype html>
+<!-- DR-16 / DR-17 -- Diagnostics.
+
+     ruleLogger.ts's own header comment says it exists to diagnose Moat's
+     fragile heuristics "when they break silently after a site markup
+     change", naming the YouTube ad dimmer and the feed scanner. The old
+     page couldn't do that: it was built entirely on onRuleMatchedDebug,
+     which only fires for declarativeNetRequest rules -- those two
+     heuristics are content scripts and never emit it.
+
+     So the page is inverted. Heuristics first, with an explicit per-page
+     fired/silent/off state (background/liveHeuristics.ts + shared/
+     heuristicScope.ts). The rule-match table is demoted to a section below
+     and keeps its own "unpacked builds only" caveat -- scoped to itself
+     rather than the page title, since the heuristics half works on every
+     build.
+
+     Left as logger.html (not renamed to diagnostics.html) so the About
+     tab's link and options.html's <script src="logger.js"> keep resolving
+     without a build.mjs/manifest.ts change. -->
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Moat Rule-Match Logger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moat Diagnostics</title>
     <link rel="stylesheet" href="theme.css" />
     <style>
       body {
-        max-width: 860px;
-        margin: 32px auto;
-        padding: 0 20px 48px;
-      }
-      .title-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .title-row h1 {
         margin: 0;
       }
-      .pill {
-        display: inline-flex;
-        align-items: center;
+      .shell {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 30px 28px 48px;
+      }
+      .page-head {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .page-title {
+        font-size: 17px;
+        font-weight: 600;
+        margin: 0;
+      }
+      .page-host {
+        font-size: 12.5px;
+        color: var(--muted);
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      }
+      .page-head button {
+        margin-left: auto;
+      }
+      .page-desc {
+        margin: 9px 0 0;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: var(--muted);
+        max-width: 64ch;
+      }
+
+      .metric-row {
+        display: flex;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 22px 36px;
+        margin: 26px 0 4px;
+      }
+      .hero-value {
+        font-size: 34px;
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      .hero-value .of-muted {
+        color: var(--muted);
+      }
+      .metric-baseline {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin: 9px 0 0;
+      }
+      .metric-right-group {
+        margin-left: auto;
+        display: flex;
+        gap: 30px;
+      }
+      .secondary-value {
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      .secondary-value.caution {
+        color: var(--caution);
+      }
+      .metric-label {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin: 6px 0 0;
+      }
+      .section-divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 22px 0 0;
+      }
+      .group-heading {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 20px 0 10px;
+      }
+      .group-heading .group-note {
+        text-transform: none;
+        letter-spacing: normal;
+        font-size: 12px;
+        font-weight: 400;
+      }
+
+      /* ---------- Heuristic rows ---------- */
+      .heuristic-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 11px 0;
+        border-bottom: 1px solid var(--hairline);
+      }
+      .heuristic-row:last-child {
+        border-bottom: none;
+      }
+      .heuristic-row .state {
+        flex: none;
+        margin-top: 6px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+      }
+      .heuristic-row .state.fired {
+        background: var(--on);
+      }
+      .heuristic-row .state.off {
+        border: 1px solid var(--selected);
+        margin-top: 6px;
+      }
+      /* Silent uses a triangle glyph, not a dot -- state must not depend on
+         hue alone, same rule as the stale-rule marker in Custom Rules. */
+      .heuristic-row svg.state-icon {
+        flex: none;
+        width: 13px;
+        height: 13px;
+        margin-top: 3px;
+        color: var(--caution);
+      }
+      .heuristic-row .h-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .heuristic-row .h-name {
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+      .heuristic-row .h-name.off {
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .heuristic-row .h-name .off-tag {
+        font-weight: 400;
+      }
+      .heuristic-row .h-detail {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .heuristic-row .h-detail.caution {
+        color: var(--caution);
+      }
+      .heuristic-row .h-detail code {
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      }
+      .heuristic-row .h-id {
+        flex: none;
+        margin-top: 2px;
+        font-size: 11.5px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        color: var(--muted);
+      }
+      .scope-note {
+        margin: 10px 0 0;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      /* ---------- Rule matches ---------- */
+      .caveat-pill {
         font-size: 11px;
         font-weight: 600;
         color: var(--muted);
         border: 1px solid var(--border);
         border-radius: 999px;
         padding: 2px 9px;
-        white-space: nowrap;
+        text-transform: none;
+        letter-spacing: normal;
       }
-      p.lede {
-        color: var(--muted);
-        font-size: 12.5px;
-        max-width: 62ch;
-      }
-      .toolbar {
+      .unavailable-note {
         display: flex;
-        align-items: center;
-        gap: 10px;
-        margin: 14px 0;
-      }
-      .toolbar .host {
-        font-size: 12.5px;
-        color: var(--muted);
-      }
-      .toolbar .match-summary {
-        margin-left: auto;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 12px;
-        color: var(--muted);
-      }
-      #unsupported,
-      #empty {
-        color: var(--muted);
-        font-size: 13px;
-      }
-      .grid {
+        gap: 13px;
+        align-items: flex-start;
         border: 1px solid var(--border);
         border-radius: 10px;
-        overflow: hidden;
-        font-size: 12px;
+        padding: 20px 22px;
+      }
+      .unavailable-note[hidden] {
+        display: none;
+      }
+      .unavailable-note svg {
+        flex: none;
+        width: 15px;
+        height: 15px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .unavailable-note .un-title {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .unavailable-note p {
+        margin: 5px 0 0;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: var(--muted);
+        max-width: 62ch;
+      }
+      .unavailable-note code {
         font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
       }
-      .grid-row {
-        display: grid;
-        grid-template-columns: 72px 128px 62px 74px minmax(0, 1fr);
+      table.matches {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
       }
-      .grid-header {
-        background: var(--card);
-        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-        font-size: 10.5px;
+      table.matches[hidden] {
+        display: none;
+      }
+      table.matches th {
+        text-align: left;
+        font-size: 10px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.07em;
         color: var(--muted);
+        padding: 0 12px 9px 0;
+        border-bottom: 1px solid var(--border);
       }
-      .grid-cell {
-        padding: 7px 10px;
-        border-top: 1px solid var(--hairline);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        min-width: 0;
-      }
-      .grid-header .grid-cell {
-        border-top: none;
-      }
-      .grid-cell.rule-id {
-        text-align: right;
+      table.matches td {
+        padding: 9px 12px 9px 0;
+        border-bottom: 1px solid var(--hairline);
         color: var(--muted);
-        font-variant-numeric: tabular-nums;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+      }
+      table.matches td.url {
+        color: var(--fg);
+        word-break: break-all;
       }
       .ruleset-chip {
         display: inline-block;
@@ -104,51 +286,100 @@
         background: var(--on);
         color: var(--on-fg);
       }
-      .footer-note {
-        margin-top: 10px;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 12px;
-        color: var(--muted);
-      }
     </style>
   </head>
   <body>
-    <div class="title-row">
-      <h1>Rule-match logger</h1>
-      <span class="pill">Unpacked builds only</span>
-    </div>
-    <p class="lede">
-      Shows which of Moat's compiled rules matched each request on the active tab. Chrome
-      only fires this event for extensions loaded in developer mode — it will never populate
-      on a store install, and Firefox doesn't implement it.
-    </p>
-
-    <div class="toolbar">
-      <button id="refresh" class="primary">Refresh</button>
-      <span class="host" id="host"></span>
-      <span class="match-summary" id="match-summary" hidden></span>
-    </div>
-
-    <p id="unsupported" hidden>
-      Not available. Either this build isn't loaded unpacked, or your browser doesn't support
-      <code>onRuleMatchedDebug</code>.
-    </p>
-    <p id="empty" hidden>No matches recorded yet for this tab. Reload the page and refresh.</p>
-
-    <div class="grid" id="table" hidden>
-      <div class="grid-row grid-header">
-        <span class="grid-cell">Time</span>
-        <span class="grid-cell">Ruleset</span>
-        <span class="grid-cell rule-id">Rule</span>
-        <span class="grid-cell">Type</span>
-        <span class="grid-cell">URL</span>
+    <div class="shell">
+      <div class="page-head">
+        <h1 class="page-title" data-i18n="diagnosticsTitle">Diagnostics</h1>
+        <span class="page-host" id="diag-host">—</span>
+        <button type="button" id="diag-refresh" class="primary" data-i18n="commonRefresh">Refresh</button>
       </div>
-      <div id="rows"></div>
+      <p class="page-desc" data-i18n="diagnosticsDesc">
+        What Moat actually did on the active tab — and, more usefully, what it was supposed to
+        do and didn't.
+      </p>
+
+      <div class="metric-row">
+        <div>
+          <div class="hero-value">
+            <span id="diag-fired">—</span><span class="of-muted">/<span id="diag-applicable">—</span></span>
+          </div>
+          <p class="metric-baseline" data-i18n="diagnosticsHeroLabel">
+            heuristics that apply here fired on this page load
+          </p>
+        </div>
+        <div class="metric-right-group">
+          <div>
+            <div class="secondary-value caution" id="diag-silent">—</div>
+            <p class="metric-label" data-i18n="diagnosticsSilentLabel">silent — likely broken</p>
+          </div>
+          <div>
+            <div class="secondary-value" id="diag-matches">—</div>
+            <p class="metric-label" data-i18n="diagnosticsMatchesLabel">rule matches</p>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <div class="group-heading">
+        <span data-i18n="diagnosticsHeuristicsHeading">Heuristics</span>
+        <span class="group-note" data-i18n="diagnosticsHeuristicsNote">
+          content scripts that read the page — these break when a site changes its markup
+        </span>
+      </div>
+
+      <!-- Rows are rendered by logger.ts from the "get-log-entries" response's
+           heuristics array (background/index.ts, backed by
+           background/liveHeuristics.ts + shared/heuristicScope.ts). -->
+      <div id="diag-heuristic-rows"></div>
+
+      <p class="scope-note" id="diag-scope-note" hidden></p>
+
+      <hr class="section-divider" />
+
+      <div class="group-heading">
+        <span data-i18n="diagnosticsMatchesHeading">Rule matches</span>
+        <!-- DR-17: the caveat lives HERE, on the section it limits -- not on
+             the page title, where it would declare the whole surface dead on
+             a store install. -->
+        <span class="caveat-pill" data-i18n="diagnosticsUnpackedOnly">Unpacked builds only</span>
+      </div>
+
+      <div class="unavailable-note" id="diag-matches-unavailable">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <circle cx="8" cy="8" r="6.2" />
+          <path d="M8 5.2v3.4M8 10.9v.2" />
+        </svg>
+        <div>
+          <div class="un-title" data-i18n="diagnosticsUnavailableTitle">Not available on this build</div>
+          <!-- Not data-i18n: applyStaticI18n replaces an element's whole
+               textContent, which would delete the embedded <code>, same
+               convention as options.html's own prose blocks. -->
+          <p>
+            Per-request rule matches come from <code>onRuleMatchedDebug</code>, which Chrome only
+            fires for extensions loaded unpacked, and Firefox doesn't implement. Everything above
+            works on every build.
+          </p>
+        </div>
+      </div>
+
+      <table class="matches" id="diag-matches-table" hidden>
+        <thead>
+          <tr>
+            <th data-i18n="diagnosticsColTime">Time</th>
+            <th data-i18n="diagnosticsColRule">Rule</th>
+            <th data-i18n="diagnosticsColType">Type</th>
+            <th data-i18n="diagnosticsColUrl">URL</th>
+          </tr>
+        </thead>
+        <tbody id="diag-matches-body"></tbody>
+      </table>
+      <p class="metric-label" id="diag-matches-empty" hidden data-i18n="diagnosticsMatchesEmpty">
+        No matches recorded yet for this tab. Reload the page and refresh.
+      </p>
     </div>
-    <p class="footer-note" id="footer-note" hidden>
-      Rule ids are grouped by ruleset, not global. A live tag means the rule came from the
-      daily update, not the bundle.
-    </p>
 
     <script src="logger.js"></script>
   </body>
