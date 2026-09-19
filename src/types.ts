@@ -578,6 +578,25 @@ export interface RemoveCustomDomainMessage {
   hostname: string;
 }
 
+/** From the Custom Rules tab's migration-import feature (shared/
+ * filterListImport.ts parses a pasted/uploaded uBlock Origin or AdGuard
+ * filter-list export into this shape client-side; the background handler
+ * re-validates it independently before merging -- see background/index.ts's
+ * "import-custom-rules" case and background/settings.ts's
+ * importCustomRules). */
+export interface ImportCustomRulesMessage {
+  type: "import-custom-rules";
+  blockedDomains: string[];
+  allowedDomains: string[];
+  cosmeticRules: Record<string, string[]>;
+}
+
+export interface ImportCustomRulesResponse {
+  addedBlockedDomains: number;
+  addedAllowedDomains: number;
+  addedCosmeticRules: number;
+}
+
 /**
  * Protections with a real, verified per-hostname signal at their actual
  * enforcement point -- see background/usageStats.ts and the surface-redesign
@@ -730,6 +749,7 @@ export type RuntimeMessage =
   | RemoveGrayscaleRuleMessage
   | AddCustomDomainMessage
   | RemoveCustomDomainMessage
+  | ImportCustomRulesMessage
   | RecordUsageSignalMessage
   | GetFilterListMatchesMessage
   | RecordCustomRuleMatchMessage

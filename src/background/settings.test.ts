@@ -89,6 +89,7 @@ const {
   removeGrayscaleRule,
   seedFromSyncIfEmpty,
   applyFreshInstallDefaults,
+  importCustomRules,
 } = await import("./settings");
 const { PRESETS } = await import("../shared/filterPresets");
 
@@ -340,6 +341,70 @@ describe("addGrayscaleRule / removeGrayscaleRule", () => {
     await addGrayscaleRule("youtube.com", ".ad-banner");
     await removeGrayscaleRule("youtube.com", "#movie_player");
     expect((await getSettings()).customGrayscaleRules).toEqual({ "youtube.com": [".ad-banner"] });
+  });
+});
+
+describe("importCustomRules", () => {
+  it("adds new blocked/allowed domains and cosmetic rules in one call, reporting real counts", async () => {
+    const result = await importCustomRules({
+      blockedDomains: ["ads.example.com"],
+      allowedDomains: ["shop.example.com"],
+      cosmeticRules: { "example.com": [".ad-banner", ".promo"] },
+    });
+    expect(result).toEqual({ addedBlockedDomains: 1, addedAllowedDomains: 1, addedCosmeticRules: 2 });
+    const settings = await getSettings();
+    expect(settings.customBlockedDomains).toEqual(["ads.example.com"]);
+    expect(settings.customAllowedDomains).toEqual(["shop.example.com"]);
+    expect(settings.customCosmeticRules).toEqual({ "example.com": [".ad-banner", ".promo"] });
+  });
+
+  it("dedupes against domains/selectors that already exist", async () => {
+    await addCustomBlockedDomain("ads.example.com");
+    await addCustomCosmeticRule("example.com", ".ad-banner");
+
+    const result = await importCustomRules({
+      blockedDomains: ["ads.example.com", "tracker.example.net"],
+      allowedDomains: [],
+      cosmeticRules: { "example.com": [".ad-banner", ".promo"] },
+    });
+
+    expect(result).toEqual({ addedBlockedDomains: 1, addedAllowedDomains: 0, addedCosmeticRules: 1 });
+    const settings = await getSettings();
+    expect(settings.customBlockedDomains.sort()).toEqual(["ads.example.com", "tracker.example.net"]);
+    expect(settings.customCosmeticRules).toEqual({ "example.com": [".ad-banner", ".promo"] });
+  });
+
+  it("is a no-op (no storage write, all-zero result) when nothing is new", async () => {
+    await addCustomBlockedDomain("ads.example.com");
+    const before = await getSettings();
+
+    const result = await importCustomRules({
+      blockedDomains: ["ads.example.com"],
+      allowedDomains: [],
+      cosmeticRules: {},
+    });
+
+    expect(result).toEqual({ addedBlockedDomains: 0, addedAllowedDomains: 0, addedCosmeticRules: 0 });
+    expect(await getSettings()).toEqual(before);
+  });
+
+  it("rejects an unsafe selector even though the caller already should have filtered it (defense in depth)", async () => {
+    const result = await importCustomRules({
+      blockedDomains: [],
+      allowedDomains: [],
+      cosmeticRules: { "example.com": ["div{background:url(x)}"] },
+    });
+    expect(result.addedCosmeticRules).toBe(0);
+    expect((await getSettings()).customCosmeticRules).toEqual({});
+  });
+
+  it("never touches customGrayscaleRules", async () => {
+    await importCustomRules({
+      blockedDomains: [],
+      allowedDomains: [],
+      cosmeticRules: { "example.com": [".ad-banner"] },
+    });
+    expect((await getSettings()).customGrayscaleRules).toEqual({});
   });
 });
 

@@ -6,6 +6,7 @@
 import { DEFAULT_SETTINGS, type Settings } from "../types";
 import { isSafeCosmeticSelector } from "../shared/selectorSafety";
 import { OVERRIDABLE_KEYS } from "../shared/perSiteOverrides";
+import { MAX_ARRAY_LENGTH, MAX_RECORD_KEYS, MAX_STRING_LENGTH } from "../shared/importBounds";
 
 export type ExportableSettings = Omit<Settings, "fingerprintSeed">;
 
@@ -19,15 +20,13 @@ export function exportSettings(settings: Settings): ExportableSettings {
 }
 
 // Bounds on every imported list/record field -- an import is untrusted file
-// content (see validateImportedSettings below), and without a cap a single
-// crafted export could balloon storage.local/storage.sync with an
-// unbounded array. Generous enough that no real export (even a heavily
-// customized one) would ever hit them.
-const MAX_ARRAY_LENGTH = 5000;
-const MAX_STRING_LENGTH = 500;
-const MAX_RECORD_KEYS = 2000;
+// content (see validateImportedSettings below). Shared with
+// filterListImport.ts's own untrusted-import boundary via shared/importBounds.ts
+// so the two can't drift apart -- re-exported here since every existing
+// caller in this file already refers to them unqualified.
+export { MAX_ARRAY_LENGTH, MAX_RECORD_KEYS, MAX_STRING_LENGTH };
 
-function isBoundedStringArray(value: unknown): value is string[] {
+export function isBoundedStringArray(value: unknown): value is string[] {
   return (
     Array.isArray(value) &&
     value.length <= MAX_ARRAY_LENGTH &&
@@ -45,8 +44,10 @@ function isBooleanRecord(value: unknown): value is Record<string, boolean> {
 /** Hostname -> selector[] shape (customCosmeticRules/customGrayscaleRules).
  * Bounds every layer -- number of hostnames, selectors per hostname, and
  * each selector's own content -- since this is the one place an untrusted
- * import file's string content ends up live in an injected stylesheet. */
-function isSelectorMap(value: unknown): value is Record<string, string[]> {
+ * import file's string content ends up live in an injected stylesheet.
+ * Exported for reuse by the "import-custom-rules" message handler
+ * (background/index.ts) -- same shape, same untrusted-boundary reasoning. */
+export function isSelectorMap(value: unknown): value is Record<string, string[]> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
   const entries = Object.entries(value);
   if (entries.length > MAX_RECORD_KEYS) return false;

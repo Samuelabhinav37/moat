@@ -229,3 +229,57 @@ describe("Welcome panel (first run)", () => {
     expect((document.getElementById("shell") as HTMLElement | null)?.hidden).toBe(false);
   });
 });
+
+describe("Custom Rules tab: migration import", () => {
+  it("parses pasted text, actually writes the result to storage, and reports real counts", async () => {
+    const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
+    storageLocalData.uiState = { hasSeenWelcome: true };
+    vi.doMock("webextension-polyfill", () => ({ default: browser }));
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+    await import("./options");
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    document.querySelector<HTMLElement>(".rail-item[data-tab='custom']")?.click();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+    (document.getElementById("migration-import") as HTMLDetailsElement).open = true;
+
+    const textarea = document.getElementById("migration-import-textarea") as HTMLTextAreaElement;
+    textarea.value = ["||ads.example.com^", "@@||shop.example.com^", "example.com##.ad-banner", "##.generic-no-domain"].join("\n");
+    (document.getElementById("migration-import-button") as HTMLButtonElement).click();
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+
+    const settings = storageLocalData.settings as {
+      customBlockedDomains: string[];
+      customAllowedDomains: string[];
+      customCosmeticRules: Record<string, string[]>;
+    };
+    expect(settings.customBlockedDomains).toContain("ads.example.com");
+    expect(settings.customAllowedDomains).toContain("shop.example.com");
+    expect(settings.customCosmeticRules["example.com"]).toContain(".ad-banner");
+
+    const status = document.getElementById("migration-import-status");
+    expect(status?.hidden).toBe(false);
+    expect(status?.textContent).toContain("1");
+    expect(textarea.value).toBe("");
+
+    // The Custom Rules tab's own lists re-render from the new state without
+    // a full page reload -- not just a background write nobody sees.
+    expect(document.getElementById("custom-block-list")?.textContent).toContain("ads.example.com");
+    expect(document.getElementById("custom-allow-list")?.textContent).toContain("shop.example.com");
+  });
+
+  it("reports that nothing was recognized, for text with no supported syntax", async () => {
+    await renderOptions();
+    document.querySelector<HTMLElement>(".rail-item[data-tab='custom']")?.click();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+
+    const textarea = document.getElementById("migration-import-textarea") as HTMLTextAreaElement;
+    textarea.value = "/some-regex-filter/";
+    (document.getElementById("migration-import-button") as HTMLButtonElement).click();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+
+    expect(document.getElementById("migration-import-status")?.hidden).toBe(false);
+    expect(document.getElementById("migration-import-status")?.textContent).not.toBe("");
+  });
+});

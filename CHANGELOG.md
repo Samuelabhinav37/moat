@@ -3,6 +3,38 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.113
+
+### Added
+- **Migration import on the Custom Rules tab**: paste (or upload a `.txt`
+  file of) a filter-list export from uBlock Origin's "My filters" or
+  AdGuard's "User rules" and bring in blocked domains (`||domain^`),
+  allowed domains (`@@||domain^`), and per-site element-hiding rules
+  (`domain##selector`, including comma-separated multi-domain rules).
+  Deliberately conservative, same "never wrong in what it keeps" posture
+  as the existing oisd ingestion parser -- generic no-domain `##selector`
+  rules (Moat's custom rules are always per-site), regex filters,
+  `$`-modifier filters, scriptlet rules (`##+js(...)`), HTML-filter rules
+  (`##^...`), and cosmetic exceptions are all recognized and silently
+  skipped rather than guessed at, with an honest count shown ("4 line(s)
+  skipped, unsupported syntax"). New `shared/filterListImport.ts` (pure,
+  unit-tested parser) and `background/settings.ts`'s `importCustomRules`
+  (one bulk `mutateSettings` call, not N sequential single-item writes;
+  re-validates every selector at the message boundary regardless of what
+  the parser already checked, same defense-in-depth posture
+  `settingsPortability.ts` already has for the Backup tab's own import).
+  The bound-checking helpers backing both import paths
+  (`MAX_ARRAY_LENGTH`/`MAX_STRING_LENGTH`/`MAX_RECORD_KEYS`,
+  `isBoundedStringArray`, `isSelectorMap`) now live in a shared
+  `shared/importBounds.ts` so the two can't drift apart.
+  - Second of the three "extension interoperability" items from this
+    session's earlier scoping. The first (coexistence robustness) turned
+    out to already be shipped since v0.11.25 -- corrected two stale claims
+    about it in `docs/research/lightweight-architecture-roadmap.md`. The
+    third (an API for other tools) is deliberately deferred to its own
+    future conversation; it needs `externally_connectable` and a real
+    security review, not something to bolt on here.
+
 ## 0.11.112
 
 ### Changed

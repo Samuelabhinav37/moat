@@ -23,6 +23,8 @@ import type {
   FilterListMatchesResponse,
   GetCompanyBreakdownMessage,
   GetFilterListMatchesMessage,
+  ImportCustomRulesMessage,
+  ImportCustomRulesResponse,
   ImportSettingsMessage,
   ImportSettingsResponse,
   RemoveCosmeticRuleMessage,
@@ -38,6 +40,7 @@ import type {
 } from "../types";
 import { joinCompanyBreakdown, type CompanyInfo } from "./trackerView";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
+import { parseFilterListImport } from "../shared/filterListImport";
 
 // options.html is its own extension page -- a separate realm from the
 // background worker, same as bridge.ts was before it started routing
@@ -1283,6 +1286,72 @@ pickElementButton.addEventListener("click", async () => {
     pickElementStatus.hidden = false;
     pickElementStatus.textContent = tFallback("optionsPickElementFailed", "Couldn't start the picker there.");
   }
+});
+
+// ---------- Custom Rules tab: migration import ----------
+
+const migrationImportTextarea = document.getElementById("migration-import-textarea") as HTMLTextAreaElement;
+const migrationImportFileButton = document.getElementById("migration-import-file-button") as HTMLButtonElement;
+const migrationImportFileInput = document.getElementById("migration-import-file-input") as HTMLInputElement;
+const migrationImportButton = document.getElementById("migration-import-button") as HTMLButtonElement;
+const migrationImportStatus = document.getElementById("migration-import-status") as HTMLElement;
+
+migrationImportFileButton.addEventListener("click", () => migrationImportFileInput.click());
+
+migrationImportFileInput.addEventListener("change", async () => {
+  const file = migrationImportFileInput.files?.[0];
+  if (!file) return;
+  migrationImportTextarea.value = await file.text();
+  migrationImportFileInput.value = "";
+});
+
+/** Only the clauses with a non-zero count appear -- "0 blocked domains"
+ * would read as noise, not information. */
+function summarizeImportResult(response: ImportCustomRulesResponse, skippedLines: number): string {
+  const parts: string[] = [];
+  if (response.addedBlockedDomains > 0) {
+    parts.push(
+      tFallback("optionsMigrationImportBlocked", `${response.addedBlockedDomains} blocked domain(s)`, String(response.addedBlockedDomains))
+    );
+  }
+  if (response.addedAllowedDomains > 0) {
+    parts.push(
+      tFallback("optionsMigrationImportAllowed", `${response.addedAllowedDomains} allowed domain(s)`, String(response.addedAllowedDomains))
+    );
+  }
+  if (response.addedCosmeticRules > 0) {
+    parts.push(
+      tFallback("optionsMigrationImportCosmetic", `${response.addedCosmeticRules} element-hiding rule(s)`, String(response.addedCosmeticRules))
+    );
+  }
+  const added =
+    parts.length > 0
+      ? tFallback("optionsMigrationImportAdded", `Added ${parts.join(", ")}.`, parts.join(", "))
+      : tFallback("optionsMigrationImportNothingNew", "Nothing new to add -- every recognized rule was already saved.");
+  const skipped =
+    skippedLines > 0
+      ? " " + tFallback("optionsMigrationImportSkipped", `${skippedLines} line(s) skipped (unsupported syntax).`, String(skippedLines))
+      : "";
+  return added + skipped;
+}
+
+migrationImportButton.addEventListener("click", async () => {
+  const parsed = parseFilterListImport(migrationImportTextarea.value);
+  migrationImportStatus.hidden = false;
+  if (parsed.blockedDomains.length === 0 && parsed.allowedDomains.length === 0 && Object.keys(parsed.cosmeticRules).length === 0) {
+    migrationImportStatus.textContent = tFallback("optionsMigrationImportNothingFound", "Nothing recognized in that text.");
+    return;
+  }
+  const message: ImportCustomRulesMessage = {
+    type: "import-custom-rules",
+    blockedDomains: parsed.blockedDomains,
+    allowedDomains: parsed.allowedDomains,
+    cosmeticRules: parsed.cosmeticRules,
+  };
+  const response = (await browser.runtime.sendMessage(message)) as ImportCustomRulesResponse;
+  migrationImportStatus.textContent = summarizeImportResult(response, parsed.skippedLines);
+  migrationImportTextarea.value = "";
+  await Promise.all([rerenderCustomBlockList(), rerenderCustomAllowList(), rerenderHiddenElementList()]);
 });
 
 // ---------- About tab (DR-13) ----------

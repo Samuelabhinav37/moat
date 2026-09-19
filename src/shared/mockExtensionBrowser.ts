@@ -104,6 +104,47 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
         { id: "cnameUncloak", on: true, appliesHere: true, fired: { count: 1, lastFiredAt: Date.now() } },
       ],
     }),
+    // Mutates the same `settings` object storageLocalData.settings already
+    // points at, mirroring background/settings.ts's importCustomRules
+    // closely enough for a render test to see the real effect on a later
+    // getEffectiveSettings()/export-settings call -- see
+    // options.render.test.ts's "Migration import" tests.
+    "import-custom-rules": (msg) => {
+      const blockedDomains = (msg.blockedDomains as string[]) ?? [];
+      const allowedDomains = (msg.allowedDomains as string[]) ?? [];
+      const cosmeticRules = (msg.cosmeticRules as Record<string, string[]>) ?? {};
+
+      const blockedSet = new Set(settings.customBlockedDomains);
+      let addedBlockedDomains = 0;
+      for (const domain of blockedDomains) {
+        if (blockedSet.has(domain)) continue;
+        blockedSet.add(domain);
+        addedBlockedDomains++;
+      }
+      settings.customBlockedDomains = [...blockedSet];
+
+      const allowedSet = new Set(settings.customAllowedDomains);
+      let addedAllowedDomains = 0;
+      for (const domain of allowedDomains) {
+        if (allowedSet.has(domain)) continue;
+        allowedSet.add(domain);
+        addedAllowedDomains++;
+      }
+      settings.customAllowedDomains = [...allowedSet];
+
+      let addedCosmeticRules = 0;
+      for (const [host, selectors] of Object.entries(cosmeticRules)) {
+        const existing = new Set(settings.customCosmeticRules[host] ?? []);
+        for (const selector of selectors) {
+          if (existing.has(selector)) continue;
+          existing.add(selector);
+          addedCosmeticRules++;
+        }
+        settings.customCosmeticRules = { ...settings.customCosmeticRules, [host]: [...existing] };
+      }
+
+      return { addedBlockedDomains, addedAllowedDomains, addedCosmeticRules };
+    },
   };
 
   const browser = {

@@ -19,6 +19,7 @@ import {
   getOrCreateSessionFingerprintSeed,
   scopeFingerprintSeedToSite,
   getSettings,
+  importCustomRules,
   isSiteDisabled,
   pickAllowedSettingsPatch,
   reapplySettings,
@@ -32,7 +33,7 @@ import {
   setSiteDisabled,
 } from "./settings";
 import { OVERRIDABLE_KEYS } from "../shared/perSiteOverrides";
-import { exportSettings, validateImportedSettings } from "./settingsPortability";
+import { exportSettings, isBoundedStringArray, isSelectorMap, validateImportedSettings } from "./settingsPortability";
 import { dismissOnboarding, dismissUpdateNotice, getPopupUiNotices, recordUpdateSeen } from "./updateNotice";
 import { initPopupGuard } from "./popupGuard";
 import { fetchAndApply, initLiveUpdates } from "./liveUpdates";
@@ -383,6 +384,18 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
       if (message.field !== "customBlockedDomains" && message.field !== "customAllowedDomains") return undefined;
       const remove = message.field === "customBlockedDomains" ? removeCustomBlockedDomain : removeCustomAllowedDomain;
       return remove(message.hostname).then(() => undefined);
+    }
+
+    case "import-custom-rules": {
+      // Reject the whole message on any shape mismatch, no partial-trust --
+      // same posture as "record-custom-rule-match"'s isHostnameSelectorHits
+      // check. shared/filterListImport.ts already only ever produces
+      // bounded, safe output, but the message boundary is untrusted
+      // regardless of which code produced the payload on the other side.
+      if (!isBoundedStringArray(message.blockedDomains)) return undefined;
+      if (!isBoundedStringArray(message.allowedDomains)) return undefined;
+      if (!isSelectorMap(message.cosmeticRules)) return undefined;
+      return importCustomRules(message);
     }
 
     // options.ts's own toggles/presets patch settings through this rather

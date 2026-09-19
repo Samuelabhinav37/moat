@@ -336,6 +336,79 @@ export const removeGrayscaleRule = async (hostname: string, selector: string): P
   return result;
 };
 
+export interface ImportedCustomRules {
+  blockedDomains: string[];
+  allowedDomains: string[];
+  cosmeticRules: Record<string, string[]>;
+}
+
+export interface ImportCustomRulesResult {
+  addedBlockedDomains: number;
+  addedAllowedDomains: number;
+  addedCosmeticRules: number;
+}
+
+/** Bulk version of addCustomBlockedDomain/addCustomAllowedDomain/
+ * addCustomCosmeticRule above, for the migration-import feature (bringing
+ * in a uBlock Origin/AdGuard filter-list export -- see
+ * shared/filterListImport.ts, which produces this shape). One
+ * mutateSettings call merging everything, not N sequential single-item
+ * calls -- a real import can add dozens of rules, and each single-item add
+ * is its own storage.local read+write. Re-validates every selector via
+ * isSafeCosmeticSelector regardless of what filterListImport.ts already
+ * checked -- a message payload is untrusted at this boundary no matter
+ * which code on the other side produced it, same posture
+ * settingsPortability.ts's validateImportedSettings already has. */
+export async function importCustomRules(imported: ImportedCustomRules): Promise<ImportCustomRulesResult> {
+  let addedBlockedDomains = 0;
+  let addedAllowedDomains = 0;
+  let addedCosmeticRules = 0;
+  const newCosmeticRules: Array<{ hostname: string; selector: string }> = [];
+
+  await mutateSettings((current) => {
+    const blockedSet = new Set(current.customBlockedDomains);
+    for (const domain of imported.blockedDomains) {
+      if (!blockedSet.has(domain)) {
+        blockedSet.add(domain);
+        addedBlockedDomains++;
+      }
+    }
+
+    const allowedSet = new Set(current.customAllowedDomains);
+    for (const domain of imported.allowedDomains) {
+      if (!allowedSet.has(domain)) {
+        allowedSet.add(domain);
+        addedAllowedDomains++;
+      }
+    }
+
+    const cosmeticRules = { ...current.customCosmeticRules };
+    for (const [hostname, selectors] of Object.entries(imported.cosmeticRules)) {
+      const existing = new Set(cosmeticRules[hostname] ?? []);
+      let changedThisHost = false;
+      for (const selector of selectors) {
+        if (!isSafeCosmeticSelector(selector) || existing.has(selector)) continue;
+        existing.add(selector);
+        newCosmeticRules.push({ hostname, selector });
+        addedCosmeticRules++;
+        changedThisHost = true;
+      }
+      if (changedThisHost) cosmeticRules[hostname] = [...existing];
+    }
+
+    if (addedBlockedDomains === 0 && addedAllowedDomains === 0 && addedCosmeticRules === 0) return null;
+    return {
+      customBlockedDomains: [...blockedSet],
+      customAllowedDomains: [...allowedSet],
+      customCosmeticRules: cosmeticRules,
+    };
+  });
+
+  for (const { hostname, selector } of newCosmeticRules) void recordRuleCreated("hide", hostname, selector);
+
+  return { addedBlockedDomains, addedAllowedDomains, addedCosmeticRules };
+}
+
 /** Generates a random per-install seed the first time fingerprint resistance is turned on, then reuses it. */
 export async function getOrCreateFingerprintSeed(): Promise<string> {
   const settings = await mutateSettings((current) =>

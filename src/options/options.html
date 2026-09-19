@@ -642,6 +642,35 @@
         color: var(--fg);
         padding: 6px 8px;
       }
+      /* ---------- Custom Rules: migration import ---------- */
+      #migration-import {
+        margin: 14px 0 22px;
+      }
+      #migration-import summary {
+        font-size: 13px;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      #migration-import summary:hover {
+        color: var(--fg);
+      }
+      #migration-import[open] summary {
+        color: var(--fg);
+        margin-bottom: 10px;
+      }
+      .migration-import-textarea {
+        display: block;
+        width: 100%;
+        min-height: 90px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 12.5px;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--fg);
+        padding: 8px;
+        resize: vertical;
+      }
       .empty-state {
         color: var(--muted);
         font-size: 13px;
@@ -1347,6 +1376,27 @@
             </button>
           </div>
           <p class="hint muted" id="pick-element-status" hidden></p>
+
+          <details id="migration-import">
+            <summary data-i18n="optionsMigrationImportSummary">Import from another blocker…</summary>
+            <p class="hint muted" data-i18n="optionsMigrationImportHint">
+              Paste rules exported from uBlock Origin, AdGuard, or similar — blocked/allowed
+              domains and per-site element-hiding rules. Other filter syntax isn't supported and
+              will be skipped.
+            </p>
+            <textarea
+              id="migration-import-textarea"
+              class="migration-import-textarea"
+              rows="5"
+              placeholder="||ads.example.com^&#10;example.com##.ad-banner"
+            ></textarea>
+            <div class="about-links" style="margin-top: 10px">
+              <button type="button" id="migration-import-file-button" data-i18n="commonChooseFile">Choose file</button>
+              <button type="button" id="migration-import-button" class="primary" data-i18n="optionsMigrationImportButton">Import</button>
+            </div>
+            <input type="file" id="migration-import-file-input" accept=".txt,text/plain" hidden />
+            <p class="hint muted" id="migration-import-status" hidden></p>
+          </details>
 
           <div class="metric-row">
             <div class="metric-hero">
