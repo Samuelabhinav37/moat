@@ -69,6 +69,10 @@ function baseManifest() {
       "privacy",
       "alarms",
       "scripting",
+      // Backs the popup's manual "Clear site data" action (src/popup/
+      // freshStart.ts) -- a one-shot browsingData.remove() scoped to the
+      // active tab's own site, never called automatically.
+      "browsingData",
     ],
     host_permissions: ["<all_urls>"],
     storage: {

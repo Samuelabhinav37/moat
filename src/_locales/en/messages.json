@@ -103,6 +103,15 @@
   "popupBlockElement": {
     "message": "Block an element…"
   },
+  "popupFreshStartButton": {
+    "message": "Clear site data…"
+  },
+  "popupFreshStartConfirm": {
+    "message": "Click again to clear"
+  },
+  "popupFreshStartError": {
+    "message": "Couldn't clear site data."
+  },
   "popupReportProblem": {
     "message": "Report a problem…"
   },

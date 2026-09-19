@@ -101,6 +101,15 @@
   "popupBlockElement": {
     "message": "Bloquear un elemento…"
   },
+  "popupFreshStartButton": {
+    "message": "Borrar datos del sitio…"
+  },
+  "popupFreshStartConfirm": {
+    "message": "Haz clic de nuevo para borrar"
+  },
+  "popupFreshStartError": {
+    "message": "No se pudieron borrar los datos del sitio."
+  },
   "popupReportProblem": {
     "message": "Reportar un problema…"
   },

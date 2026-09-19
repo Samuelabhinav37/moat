@@ -101,6 +101,15 @@
   "popupBlockElement": {
     "message": "Bloquer un élément…"
   },
+  "popupFreshStartButton": {
+    "message": "Effacer les données du site…"
+  },
+  "popupFreshStartConfirm": {
+    "message": "Cliquez à nouveau pour effacer"
+  },
+  "popupFreshStartError": {
+    "message": "Impossible d'effacer les données du site."
+  },
   "popupReportProblem": {
     "message": "Signaler un problème…"
   },

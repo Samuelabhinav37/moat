@@ -10,6 +10,7 @@ import type {
   ToggleSiteMessage,
 } from "../types";
 import { buildIssueUrl } from "./reportIssue";
+import { buildFreshStartRemoval } from "./freshStart";
 import type { PopupUiNotices } from "../background/updateNotice";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { PROTECTION_LEVEL_MESSAGE_KEY, protectionLevelForCount } from "../shared/protectionLevel";
@@ -275,6 +276,7 @@ async function render(): Promise<void> {
   const siteStateText = document.getElementById("site-state-text")!;
   const reloadButton = document.getElementById("reload-page") as HTMLButtonElement;
   const reportButton = document.getElementById("report-problem") as HTMLButtonElement;
+  const freshStartButton = document.getElementById("fresh-start-button") as HTMLButtonElement;
 
   if (!status.hostname) {
     siteCard.style.display = "none";
@@ -283,6 +285,11 @@ async function render(): Promise<void> {
   }
 
   reportButton.hidden = false;
+  // The actual http(s)-only guard lives in freshStart.ts and runs again at
+  // click time against the tab's real URL -- status.hostname here is only
+  // used to decide whether to show the button at all, same condition that
+  // already gates the whole site-card above.
+  freshStartButton.hidden = false;
   hostnameEl.textContent = status.hostname;
   pausedHostname.textContent = status.hostname;
   renderPermissionGuardNotice(status.hostname, status.permissionGuard);
@@ -350,6 +357,75 @@ document.getElementById("start-picker")?.addEventListener("click", async () => {
     }
   }
   window.close();
+});
+
+// Two-click confirm, no native confirm() dialog: first click arms it (text
+// + .confirming swap) for CONFIRM_WINDOW_MS, second click within that
+// window actually clears the site's cookies/storage/service workers. A
+// genuinely destructive, hard-to-reverse action (it logs the user out of
+// the site) earns this over the single-click pattern every other button
+// here uses.
+const CONFIRM_WINDOW_MS = 4000;
+const freshStartButton = document.getElementById("fresh-start-button") as HTMLButtonElement;
+let freshStartArmed = false;
+let freshStartResetTimer: ReturnType<typeof setTimeout> | undefined;
+
+function resetFreshStartButton(): void {
+  freshStartArmed = false;
+  freshStartButton.classList.remove("confirming");
+  freshStartButton.textContent = getMessageOrFallback(
+    (key) => browser.i18n.getMessage(key),
+    "popupFreshStartButton",
+    "Clear site data…"
+  );
+}
+
+freshStartButton.addEventListener("click", async () => {
+  if (!freshStartArmed) {
+    freshStartArmed = true;
+    freshStartButton.classList.add("confirming");
+    freshStartButton.textContent = getMessageOrFallback(
+      (key) => browser.i18n.getMessage(key),
+      "popupFreshStartConfirm",
+      "Click again to clear"
+    );
+    clearTimeout(freshStartResetTimer);
+    freshStartResetTimer = setTimeout(resetFreshStartButton, CONFIRM_WINDOW_MS);
+    return;
+  }
+
+  clearTimeout(freshStartResetTimer);
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+  // runtime.getBrowserInfo() only exists on Firefox (see freshStart.ts's own
+  // header comment) -- reused here as feature detection, the same posture
+  // background/privacySettings.ts already takes for a different Chrome/
+  // Firefox API-shape split.
+  const isFirefox = typeof browser.runtime.getBrowserInfo === "function";
+  const removal = buildFreshStartRemoval(tab?.url, isFirefox);
+  if (!removal) {
+    resetFreshStartButton();
+    return;
+  }
+
+  try {
+    // @types/webextension-polyfill's RemovalOptions only models Firefox's
+    // `hostnames` field, not Chrome's `origins` -- same "runtime-branch,
+    // cast the one the types don't model" posture as
+    // background/privacySettings.ts's ChromeThirdPartyCookies.
+    await browser.browsingData.remove(
+      removal.filter as browser.BrowsingData.RemovalOptions,
+      removal.dataToRemove
+    );
+    if (tab?.id !== undefined) await browser.tabs.reload(tab.id);
+    window.close();
+  } catch {
+    resetFreshStartButton();
+    freshStartButton.textContent = getMessageOrFallback(
+      (key) => browser.i18n.getMessage(key),
+      "popupFreshStartError",
+      "Couldn't clear site data."
+    );
+  }
 });
 
 document.getElementById("report-problem")?.addEventListener("click", async (event) => {

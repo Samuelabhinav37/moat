@@ -3,6 +3,36 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.115
+
+### Added
+- **"Clear site data…" button in the popup** (Phase 2 of the roadmap plan
+  from `docs/research/tor-browser-anti-tracking-techniques-2026-09.md`): a
+  manual, two-click-confirm action that clears the active tab's site's
+  cookies, IndexedDB, local storage, and service workers, then reloads the
+  tab -- a plain, on-demand privacy reset, never named or framed as
+  Tor-style "New Identity"/anonymity. Scoped to the current site only by
+  default (not the whole browser), matching Moat's existing posture of
+  deciding nothing sweeping without being asked. Hidden entirely on
+  internal pages (`chrome://`, `about:`, extension pages, `file://`) where
+  there's no real site to clear.
+  - Adds the `browsingData` permission (new manifest permission --
+    triggers a one-time re-consent prompt on update). New, independently
+    unit-tested `src/popup/freshStart.ts` handles the one real
+    cross-browser wrinkle here: Chrome's `browsingData.remove()` scopes by
+    full origin URLs (`origins`), Firefox's by bare hostnames
+    (`hostnames`) -- two non-interchangeable shapes that
+    `webextension-polyfill` doesn't paper over, unlike most of this
+    codebase's browser API calls. Getting the branch wrong wouldn't throw;
+    it would silently ignore the scope and clear more than intended, so
+    this is feature-detected (`runtime.getBrowserInfo` existing, the same
+    Firefox-only-API-detection posture `background/privacySettings.ts`
+    already uses for a different Chrome/Firefox split) rather than guessed.
+  - Fresh start's `browsingData.remove()` call deliberately excludes
+    `cache` even though Chrome's `origins` filter does support it, so the
+    action behaves identically on both browsers rather than Chrome quietly
+    clearing more.
+
 ## 0.11.114
 
 ### Added

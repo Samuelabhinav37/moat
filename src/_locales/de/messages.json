@@ -101,6 +101,15 @@
   "popupBlockElement": {
     "message": "Element blockieren…"
   },
+  "popupFreshStartButton": {
+    "message": "Website-Daten löschen…"
+  },
+  "popupFreshStartConfirm": {
+    "message": "Erneut klicken zum Löschen"
+  },
+  "popupFreshStartError": {
+    "message": "Website-Daten konnten nicht gelöscht werden."
+  },
   "popupReportProblem": {
     "message": "Problem melden…"
   },

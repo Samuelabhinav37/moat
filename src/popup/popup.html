@@ -336,6 +336,13 @@
         background: rgba(255, 255, 255, 0.16);
         color: var(--t1);
       }
+      /* Confirm state for #fresh-start-button, set by popup.ts after the
+         first click -- an amber caution wash, not red: this is a real
+         warning (it logs the user out of the site), not an alarm. */
+      .actions button.confirming {
+        background: rgba(224, 177, 111, 0.22);
+        color: var(--caution);
+      }
     </style>
   </head>
   <body>
@@ -438,6 +445,14 @@
     <div class="actions">
       <button id="reload-page" class="secondary" hidden data-i18n="popupReloadPage">Reload page</button>
       <button id="start-picker" class="secondary" data-i18n="popupBlockElement">Block an element…</button>
+      <!-- Hidden by default; popup.ts only shows it for a real http(s) tab
+           (see freshStart.ts's own guard against internal/extension pages).
+           Clicking it once arms a confirm state (data-i18n text swaps,
+           .confirming class added); a second click within the window
+           actually clears the site's cookies/storage. -->
+      <button id="fresh-start-button" class="secondary" hidden data-i18n="popupFreshStartButton">
+        Clear site data…
+      </button>
       <button id="report-problem" class="secondary" hidden data-i18n="popupReportProblem">Report a problem…</button>
     </div>
 
