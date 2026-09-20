@@ -26,7 +26,11 @@
            the width override. */
         width: 260px;
         padding: 20px;
-        background: #1b191d;
+        /* Exactly theme.css's --bg -- was a duplicated literal instead of
+           referencing the shared token, the one genuine (not just
+           stylistic) overlap between the popup's own local translucent-
+           surface palette and the shared page design system. */
+        background: var(--bg);
         color: var(--t1);
         font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       }

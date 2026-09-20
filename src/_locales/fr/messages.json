@@ -146,9 +146,6 @@
   "optionsManagedBadge": {
     "message": "Géré par votre organisation"
   },
-  "optionsAdvancedProtectionCategory": {
-    "message": "Protection supplémentaire"
-  },
   "optionsCookiesToggleLabel": {
     "message": "Empêcher les sites de vous suivre sur le web"
   },
@@ -164,14 +161,8 @@
   "optionsFingerprintToggleLabel": {
     "message": "Empêcher les sites de reconnaître votre appareil"
   },
-  "optionsFingerprintToggleHint": {
-    "message": "Modifie aléatoirement les détails de votre appareil que les sites utilisent pour vous reconnaître d'une visite à l'autre. Peut occasionnellement casser un CAPTCHA. (Désactivé par défaut)"
-  },
   "optionsFingerprintRotateToggleLabel": {
     "message": "Utiliser un nouveau déguisement à chaque redémarrage"
-  },
-  "optionsFingerprintRotateToggleHint": {
-    "message": "Crée un nouveau déguisement de navigateur à chaque redémarrage, au lieu de garder toujours le même. Ainsi, les sites ne peuvent pas s'en servir pour vous reconnaître dans la durée."
   },
   "optionsGrayscaleToggleLabel": {
     "message": "Estomper les publicités vidéo non bloquables"
@@ -194,23 +185,11 @@
   "optionsCnameToggleLabel": {
     "message": "Détecter les traqueurs déguisés"
   },
-  "optionsCnameToggleHint": {
-    "message": "Certains traqueurs se déguisent en partie du site que vous visitez. Ceci les détecte et les bloque quand même. (Désactivé par défaut)"
-  },
   "optionsCnameUnsupportedHint": {
     "message": "Non disponible dans ce navigateur."
   },
   "optionsCnameChromeDohHint": {
     "message": "Sur Chrome, cela vérifie les traqueurs déguisés via le service de résolution public de Cloudflare. Il peut manquer le tout premier qu'il détecte, puis bloque tous les suivants. Firefox le fait lui-même, de façon plus privée, et les bloque tous dès le premier."
-  },
-  "optionsFilterUpdatesCategory": {
-    "message": "Mises à jour des filtres"
-  },
-  "optionsLiveListTitle": {
-    "message": "Mise à jour quotidienne de la liste de blocage des pop-ups"
-  },
-  "optionsLiveListHint": {
-    "message": "Maintient à jour la liste des sites de pop-up et de redirection connus, une fois par jour."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Pas encore vérifié."
@@ -302,9 +281,6 @@
   },
   "commonAllow": {
     "message": "Autoriser"
-  },
-  "optionsCosmeticCategory": {
-    "message": "Sélecteur d'éléments"
   },
   "optionsHiddenElementsTitle": {
     "message": "Éléments masqués"
@@ -465,9 +441,6 @@
       }
     }
   },
-  "optionsHostnameSelectorSeparator": {
-    "message": " — "
-  },
   "commonResume": {
     "message": "Reprendre"
   },
@@ -489,9 +462,6 @@
   "optionsLeakedPasswordToggleLabel": {
     "message": "Vérifier les mots de passe par rapport aux fuites connues"
   },
-  "optionsLeakedPasswordToggleHint": {
-    "message": "Avertit si un mot de passe que vous saisissez est apparu dans une fuite de données connue. Seul un hachage partiel quitte jamais votre appareil. (Désactivé par défaut)"
-  },
   "popupPermissionGuardIntro": {
     "message": "Le garde-permissions de Moat bloque des invites sur ce site :"
   },
@@ -504,29 +474,8 @@
   "popupAllowLocationHere": {
     "message": "Autoriser la localisation ici"
   },
-  "optionsPermissionGuardCameraToggleLabel": {
-    "message": "Bloquer les invites surprise de caméra"
-  },
-  "optionsPermissionGuardCameraToggleHint": {
-    "message": "Définit l'invite de caméra de chaque site comme bloquée par défaut, afin qu'une page ne puisse pas vous surprendre avec elle au chargement. Autorisez un site précis depuis le popup lorsque vous lui faites confiance."
-  },
-  "optionsPermissionGuardMicrophoneToggleLabel": {
-    "message": "Bloquer les invites surprise de microphone"
-  },
-  "optionsPermissionGuardMicrophoneToggleHint": {
-    "message": "Définit l'invite de microphone de chaque site comme bloquée par défaut. Autorisez un site précis depuis le popup lorsque vous lui faites confiance."
-  },
-  "optionsPermissionGuardLocationToggleLabel": {
-    "message": "Bloquer les invites surprise de localisation"
-  },
-  "optionsPermissionGuardLocationToggleHint": {
-    "message": "Définit l'invite de localisation de chaque site comme bloquée par défaut. Autorisez un site précis depuis le popup lorsque vous lui faites confiance."
-  },
   "optionsSearchSlopToggleLabel": {
     "message": "Masquer les résultats de recherche de faible qualité"
-  },
-  "optionsSearchSlopToggleHint": {
-    "message": "Masque les résultats de recherche correspondant à une petite liste organisée manuellement de domaines de fermes de contenu. Chaque lot masqué reste accessible en un clic via un lien \"Afficher\". Désactivé par défaut, car cette liste peut se tromper d'une façon qu'une liste fixe de réseaux publicitaires ne fait pas."
   },
   "optionsProtectionTitle": {
     "message": "Protection"
@@ -828,7 +777,6 @@
   "warningReportedError": {
     "message": "Impossible d'envoyer le signalement -- réessayez dans un instant."
   },
-
   "commonAlwaysOn": {
     "message": "toujours activé"
   },
@@ -853,7 +801,6 @@
   "tabBackup": {
     "message": "Sauvegarde"
   },
-
   "welcomeTitle": {
     "message": "Bienvenue sur Moat"
   },
@@ -902,7 +849,6 @@
   "welcomeContinueButton": {
     "message": "Continuer vers les paramètres"
   },
-
   "optionsMigrationImportSummary": {
     "message": "Importer depuis un autre bloqueur…"
   },
@@ -912,7 +858,6 @@
   "optionsMigrationImportButton": {
     "message": "Importer"
   },
-
   "optionsBackupDesc": {
     "message": "Enregistrez vos paramètres, règles personnalisées et exceptions dans un fichier que vous conservez, ou synchronisez-les via votre navigateur."
   },
@@ -964,7 +909,6 @@
   "optionsBackupNoStats": {
     "message": "aucun nombre de blocages ni statistiques"
   },
-
   "optionsAboutDesc": {
     "message": "Ce qu'est cette version, et exactement ce qui quitte votre appareil."
   },
@@ -1034,7 +978,6 @@
   "optionsDiagnosticsLink": {
     "message": "Diagnostic"
   },
-
   "diagnosticsTitle": {
     "message": "Diagnostic"
   },
@@ -1080,7 +1023,6 @@
   "diagnosticsMatchesEmpty": {
     "message": "Aucune correspondance enregistrée pour cet onglet. Rechargez la page et actualisez."
   },
-
   "commonCancel": {
     "message": "Annuler"
   },

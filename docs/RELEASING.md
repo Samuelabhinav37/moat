@@ -76,6 +76,17 @@ emergency quick-fix/cosmetic-fix channels) -- genuinely reviewable, but a small 
 fully reproducible: running `npm run build` today vs. next week from the identical tag can
 legitimately produce different `chrome.zip`/`firefox.zip` bytes, since those three live-fetched
 sources aren't pinned by `package-lock.json` the way `@adguard/dnr-rulesets`/`@ghostery/trackerdb`
-are. Known gap, not yet closed -- fixing it means either pinning those three sources by content
-hash (the way the `live/*` channel already does for its own payloads) or moving their fetch+diff
-into this same reviewable PR flow instead of a gitignored directory.
+are.
+
+**Partially closed**: `rules/live-filter-source-provenance.json` (tracked, unlike `rules/dnr/`
+itself) now records a SHA-256 + item count for each of the three live-fetched sources on every
+`filters:update` run, and the script logs `unchanged`/`CHANGED`/`first run` per source. This makes
+the *fact* that one of them changed visible in the weekly PR's diff (a flipped hash), even though
+the actual expanded rule content still isn't line-by-line reviewable. It does not, and cannot,
+make a rebuild byte-for-byte reproducible across time -- these three sources are daily-updated
+upstream lists by design (that's the reason to fetch them live at all, same as
+`filter-refresh.yml`'s own weekly cadence), so "the same tag can build different bytes next week"
+is an inherent property of using live-updated third-party sources, not a bug this can close. What
+remains open: moving these three fetches' actual diff into the reviewable PR flow (not just a
+hash) would need committing their expanded output somewhere other than the gitignored `rules/dnr/`
+-- not attempted here given the size (tens of thousands of domains per source).

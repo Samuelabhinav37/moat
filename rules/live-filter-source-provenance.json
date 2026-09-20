@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-09-20T04:19:55.963Z",
+  "sources": {
+    "jarelllamaScamBlocklist": {
+      "url": "https://raw.githubusercontent.com/jarelllama/Scam-Blocklist/main/lists/wildcard_domains/scams_light.txt",
+      "sha256": "22649a0033eb5ec2508a34666c1f1f0ca504cf13e04810e9dd3a562260bf6ba5",
+      "byteLength": 382539,
+      "itemCount": 18252
+    },
+    "peterLowe": {
+      "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=nohtml&showintro=0&mimetype=plaintext",
+      "sha256": "4eee140a0283fa6ed5b185dcf7838de015044f80b083955e39b1943f283d7827",
+      "byteLength": 58692,
+      "itemCount": 3545
+    },
+    "oisd": {
+      "url": "https://small.oisd.nl/",
+      "sha256": "c8b4af2efb5167702fafdf69bc1c89225ca8bf25c74518f5d9d42d689c10c20a",
+      "byteLength": 1274886,
+      "itemCount": 56723
+    }
+  }
+}

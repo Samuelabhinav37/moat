@@ -148,9 +148,6 @@
   "optionsManagedBadge": {
     "message": "Managed by your organization"
   },
-  "optionsAdvancedProtectionCategory": {
-    "message": "Extra protection"
-  },
   "optionsCookiesToggleLabel": {
     "message": "Stop sites tracking you across the web"
   },
@@ -166,14 +163,8 @@
   "optionsFingerprintToggleLabel": {
     "message": "Stop sites recognizing your device"
   },
-  "optionsFingerprintToggleHint": {
-    "message": "Randomly tweaks details about your device that sites use to recognize you across visits. Can occasionally break a CAPTCHA."
-  },
   "optionsFingerprintRotateToggleLabel": {
     "message": "Use a new disguise each time you restart"
-  },
-  "optionsFingerprintRotateToggleHint": {
-    "message": "Creates a new browser disguise every time you restart, instead of keeping the same one. This way sites can't use it to recognize you over time."
   },
   "optionsGrayscaleToggleLabel": {
     "message": "Gray out unblockable video ads"
@@ -196,23 +187,11 @@
   "optionsCnameToggleLabel": {
     "message": "Catch trackers hiding in disguise"
   },
-  "optionsCnameToggleHint": {
-    "message": "Some trackers disguise themselves as part of the site you're visiting. This finds and blocks them anyway."
-  },
   "optionsCnameUnsupportedHint": {
     "message": "Not available in this browser."
   },
   "optionsCnameChromeDohHint": {
     "message": "On Chrome, this checks disguised trackers using Cloudflare's public lookup service. It may miss the very first one it finds, then catches every one after that. Firefox does this itself, more privately, and catches every one from the start."
-  },
-  "optionsFilterUpdatesCategory": {
-    "message": "Filter updates"
-  },
-  "optionsLiveListTitle": {
-    "message": "Daily popup-blocklist update"
-  },
-  "optionsLiveListHint": {
-    "message": "Keeps the list of known popup and redirect sites up to date, once a day."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Not checked yet."
@@ -304,9 +283,6 @@
   },
   "commonAllow": {
     "message": "Allow"
-  },
-  "optionsCosmeticCategory": {
-    "message": "Element picker"
   },
   "optionsHiddenElementsTitle": {
     "message": "Hidden elements"
@@ -467,9 +443,6 @@
       }
     }
   },
-  "optionsHostnameSelectorSeparator": {
-    "message": " — "
-  },
   "commonResume": {
     "message": "Resume"
   },
@@ -491,9 +464,6 @@
   "optionsLeakedPasswordToggleLabel": {
     "message": "Check passwords against known breaches"
   },
-  "optionsLeakedPasswordToggleHint": {
-    "message": "Warns if a password you type has appeared in a known breach. Only a short piece of its hash ever leaves your device."
-  },
   "popupPermissionGuardIntro": {
     "message": "Moat's permission guard is blocking prompts on this site:"
   },
@@ -506,29 +476,8 @@
   "popupAllowLocationHere": {
     "message": "Allow location here"
   },
-  "optionsPermissionGuardCameraToggleLabel": {
-    "message": "Block camera-ambush prompts"
-  },
-  "optionsPermissionGuardCameraToggleHint": {
-    "message": "Sets every site's camera prompt to blocked by default, so a page can't surprise you with it on load. Allow a specific site from the popup when you trust it."
-  },
-  "optionsPermissionGuardMicrophoneToggleLabel": {
-    "message": "Block microphone-ambush prompts"
-  },
-  "optionsPermissionGuardMicrophoneToggleHint": {
-    "message": "Sets every site's microphone prompt to blocked by default. Allow a specific site from the popup when you trust it."
-  },
-  "optionsPermissionGuardLocationToggleLabel": {
-    "message": "Block location-ambush prompts"
-  },
-  "optionsPermissionGuardLocationToggleHint": {
-    "message": "Sets every site's location prompt to blocked by default. Allow a specific site from the popup when you trust it."
-  },
   "optionsSearchSlopToggleLabel": {
     "message": "Hide low-quality search results"
-  },
-  "optionsSearchSlopToggleHint": {
-    "message": "Hides search results that match a small, curated list of content-farm domains. Each hidden batch stays one click away behind a \"Show\" link. Off by default, since this list can misfire in ways a fixed ad-network list won't."
   },
   "optionsProtectionTitle": {
     "message": "Protection"
@@ -830,7 +779,6 @@
   "warningReportedError": {
     "message": "Couldn't send the report -- try again in a moment."
   },
-
   "commonAlwaysOn": {
     "message": "always on"
   },
@@ -855,7 +803,6 @@
   "tabBackup": {
     "message": "Backup"
   },
-
   "welcomeTitle": {
     "message": "Welcome to Moat"
   },
@@ -904,7 +851,6 @@
   "welcomeContinueButton": {
     "message": "Continue to Settings"
   },
-
   "optionsMigrationImportSummary": {
     "message": "Import from another blocker…"
   },
@@ -914,7 +860,6 @@
   "optionsMigrationImportButton": {
     "message": "Import"
   },
-
   "optionsBackupDesc": {
     "message": "Save your settings, custom rules and exceptions to a file you keep, or sync them through your browser."
   },
@@ -966,7 +911,6 @@
   "optionsBackupNoStats": {
     "message": "no block counts or statistics"
   },
-
   "optionsAboutDesc": {
     "message": "What this build is, and exactly what leaves your device."
   },
@@ -1036,7 +980,6 @@
   "optionsDiagnosticsLink": {
     "message": "Diagnostics"
   },
-
   "diagnosticsTitle": {
     "message": "Diagnostics"
   },
@@ -1082,7 +1025,6 @@
   "diagnosticsMatchesEmpty": {
     "message": "No matches recorded yet for this tab. Reload the page and refresh."
   },
-
   "commonCancel": {
     "message": "Cancel"
   },

@@ -1410,6 +1410,12 @@
             <span data-i18n="optionsIndividualListsTitle">Individual filter lists</span>
             <a href="#" id="filter-check-updates" class="group-action" data-i18n="optionsCheckForUpdatesLink">Check for updates</a>
           </div>
+          <!-- optionsIndividualListsHint existed, translated, before this
+               audit -- never actually added below the heading it was
+               clearly written for. -->
+          <p class="hint muted" data-i18n="optionsIndividualListsHint">
+            Turn each list on or off yourself. Changing any one switches your filtering level to Custom.
+          </p>
           <div class="row-group" id="filter-list-rows"></div>
         </section>
 
@@ -1473,10 +1479,20 @@
 
           <hr class="section-divider" />
 
+          <!-- optionsHiddenElementsTitle/Hint existed, translated, before
+               this audit -- this heading (present on every sibling section
+               below) and hint were simply never added to the markup. -->
+          <div class="group-heading" data-i18n="optionsHiddenElementsTitle">Hidden elements</div>
+          <p class="hint muted" data-i18n="optionsHiddenElementsHint">
+            Elements you hid with the “Block an element” tool. Remove one to bring it back.
+          </p>
           <div class="row-group" id="hidden-element-rows"></div>
           <p class="empty-state" id="hidden-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
 
           <div class="group-heading" style="padding-top: 22px" data-i18n="optionsDimmedElementsTitle">Dimmed elements</div>
+          <p class="hint muted" data-i18n="optionsDimmedElementsHint">
+            Elements you grayed out with the picker. Remove one to restore it.
+          </p>
           <div class="row-group" id="grayscale-element-rows"></div>
           <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
 
@@ -1672,8 +1688,9 @@
                        hard-code "Google" -- a Firefox build has to say Mozilla. -->
                   <p>
                     Recipient is <strong id="sync-recipient">your browser vendor</strong> on this build.
-                    Your settings then follow their retention rules, not Moat's. Moat has no server,
-                    so it can't delete them for you.
+                    From there, your settings are stored and managed like the rest of your browser
+                    account data — under their retention rules, not Moat's, since Moat has no server
+                    of its own to hold or delete them.
                   </p>
                 </div>
               </div>

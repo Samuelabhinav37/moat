@@ -115,6 +115,38 @@ describe("options.html render", () => {
   });
 });
 
+describe("Previously-orphaned i18n keys that turned out to be real content gaps", () => {
+  // Regression: optionsHiddenElementsTitle/Hint, optionsIndividualListsHint,
+  // and optionsPermissionGuardMergedDesc all existed as translated message
+  // keys with zero references anywhere in the markup -- discovered by an
+  // audit's orphaned-key scan, then confirmed (not assumed) to be genuine
+  // missing content rather than rename cruft by checking each one's
+  // plausible location against its sibling sections.
+  it("Custom Rules tab: 'Hidden elements' has its own heading and hint, matching its 'Dimmed elements' sibling", async () => {
+    await renderOptions();
+    document.querySelector<HTMLElement>(".rail-item[data-tab='custom']")?.click();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+
+    const headings = [...document.querySelectorAll(".group-heading")].map((el) => el.textContent);
+    expect(headings.some((t) => t?.includes("Hidden elements"))).toBe(true);
+    expect(document.body.textContent).toContain("Block an element");
+    expect(document.body.textContent).toContain("grayed out with the picker");
+  });
+
+  it("Filter Lists tab: 'Individual filter lists' has its own hint below the heading", async () => {
+    await renderOptions();
+    document.querySelector<HTMLElement>(".rail-item[data-tab='filters']")?.click();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+
+    expect(document.body.textContent).toContain("switches your filtering level to Custom");
+  });
+
+  it("Protection tab: the merged permission-guard row has an explanatory line, not just a title and chips", async () => {
+    await renderOptions();
+    expect(document.body.textContent).toContain("Allow a specific site from the popup when you trust it");
+  });
+});
+
 describe("Backup tab (DR-15)", () => {
   it("shows the honest 'Never' state with the caution rail dot before any backup exists", async () => {
     await renderOptions();

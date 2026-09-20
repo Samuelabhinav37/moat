@@ -728,6 +728,18 @@ function buildPermissionGuardRow(settings: Settings): HTMLElement {
   title.textContent = tFallback("optionsPermissionGuardMergedLabel", "Block ambush permission prompts");
   body.append(title);
 
+  // This is the one protection row with no explanatory line at all -- every
+  // other row either shows this via its drawer or an always-visible
+  // subtitle. optionsPermissionGuardMergedDesc already existed, translated,
+  // written specifically for this row, just never actually rendered.
+  const description = document.createElement("span");
+  description.className = "row-evidence";
+  description.textContent = tFallback(
+    "optionsPermissionGuardMergedDesc",
+    "Sets every site's camera, microphone, and location prompts to blocked by default, so a page can't surprise you with one on load. Allow a specific site from the popup when you trust it."
+  );
+  body.append(description);
+
   const chips = document.createElement("div");
   chips.className = "permission-chips";
   const kinds = [

@@ -146,9 +146,6 @@
   "optionsManagedBadge": {
     "message": "Administrado por tu organización"
   },
-  "optionsAdvancedProtectionCategory": {
-    "message": "Protección adicional"
-  },
   "optionsCookiesToggleLabel": {
     "message": "Evita que los sitios te rastreen por la web"
   },
@@ -164,14 +161,8 @@
   "optionsFingerprintToggleLabel": {
     "message": "Evita que los sitios reconozcan tu dispositivo"
   },
-  "optionsFingerprintToggleHint": {
-    "message": "Modifica al azar los datos de tu dispositivo que los sitios usan para reconocerte entre visitas. Puede romper ocasionalmente un CAPTCHA. (Desactivado por defecto)"
-  },
   "optionsFingerprintRotateToggleLabel": {
     "message": "Usar un disfraz nuevo cada vez que reinicias el navegador"
-  },
-  "optionsFingerprintRotateToggleHint": {
-    "message": "Crea un disfraz de navegador nuevo cada vez que lo reinicias, en lugar de mantener siempre el mismo. Así los sitios no pueden usarlo para reconocerte con el tiempo."
   },
   "optionsGrayscaleToggleLabel": {
     "message": "Atenuar anuncios de video que no se pueden bloquear"
@@ -194,23 +185,11 @@
   "optionsCnameToggleLabel": {
     "message": "Detectar rastreadores disfrazados"
   },
-  "optionsCnameToggleHint": {
-    "message": "Algunos rastreadores se disfrazan como parte del sitio que estás visitando. Esto los detecta y bloquea de todos modos. (Desactivado por defecto)"
-  },
   "optionsCnameUnsupportedHint": {
     "message": "No disponible en este navegador."
   },
   "optionsCnameChromeDohHint": {
     "message": "En Chrome, esto comprueba los rastreadores disfrazados usando el servicio de consultas públicas de Cloudflare. Puede pasar por alto el primero que encuentra, pero detecta todos los siguientes. Firefox hace esto por su cuenta, de forma más privada, y detecta todos desde el principio."
-  },
-  "optionsFilterUpdatesCategory": {
-    "message": "Actualizaciones de filtros"
-  },
-  "optionsLiveListTitle": {
-    "message": "Actualización diaria de la lista de bloqueo de ventanas emergentes"
-  },
-  "optionsLiveListHint": {
-    "message": "Mantiene actualizada la lista de sitios conocidos de ventanas emergentes y redirecciones, una vez al día."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Aún no verificado."
@@ -302,9 +281,6 @@
   },
   "commonAllow": {
     "message": "Permitir"
-  },
-  "optionsCosmeticCategory": {
-    "message": "Selector de elementos"
   },
   "optionsHiddenElementsTitle": {
     "message": "Elementos ocultos"
@@ -465,9 +441,6 @@
       }
     }
   },
-  "optionsHostnameSelectorSeparator": {
-    "message": " — "
-  },
   "commonResume": {
     "message": "Reanudar"
   },
@@ -489,9 +462,6 @@
   "optionsLeakedPasswordToggleLabel": {
     "message": "Verificar contraseñas contra filtraciones conocidas"
   },
-  "optionsLeakedPasswordToggleHint": {
-    "message": "Avisa si una contraseña que escribes ha aparecido en una filtración de datos conocida. Solo un hash parcial sale de tu dispositivo. (Desactivado por defecto)"
-  },
   "popupPermissionGuardIntro": {
     "message": "El guardián de permisos de Moat está bloqueando solicitudes en este sitio:"
   },
@@ -504,29 +474,8 @@
   "popupAllowLocationHere": {
     "message": "Permitir ubicación aquí"
   },
-  "optionsPermissionGuardCameraToggleLabel": {
-    "message": "Bloquear solicitudes sorpresa de cámara"
-  },
-  "optionsPermissionGuardCameraToggleHint": {
-    "message": "Establece la solicitud de cámara de cada sitio como bloqueada por defecto, para que una página no pueda sorprenderte con ella al cargar. Permite un sitio concreto desde el popup cuando confíes en él."
-  },
-  "optionsPermissionGuardMicrophoneToggleLabel": {
-    "message": "Bloquear solicitudes sorpresa de micrófono"
-  },
-  "optionsPermissionGuardMicrophoneToggleHint": {
-    "message": "Establece la solicitud de micrófono de cada sitio como bloqueada por defecto. Permite un sitio concreto desde el popup cuando confíes en él."
-  },
-  "optionsPermissionGuardLocationToggleLabel": {
-    "message": "Bloquear solicitudes sorpresa de ubicación"
-  },
-  "optionsPermissionGuardLocationToggleHint": {
-    "message": "Establece la solicitud de ubicación de cada sitio como bloqueada por defecto. Permite un sitio concreto desde el popup cuando confíes en él."
-  },
   "optionsSearchSlopToggleLabel": {
     "message": "Ocultar resultados de búsqueda de baja calidad"
-  },
-  "optionsSearchSlopToggleHint": {
-    "message": "Oculta resultados de búsqueda que coinciden con una pequeña lista curada a mano de dominios de granjas de contenido. Cada tanda oculta queda a un clic de distancia tras un enlace de \"Mostrar\". Desactivado por defecto, ya que esta lista puede fallar de formas que una lista fija de redes publicitarias no."
   },
   "optionsProtectionTitle": {
     "message": "Protección"
@@ -828,7 +777,6 @@
   "warningReportedError": {
     "message": "No se pudo enviar el reporte -- intenta de nuevo en un momento."
   },
-
   "commonAlwaysOn": {
     "message": "siempre activo"
   },
@@ -853,7 +801,6 @@
   "tabBackup": {
     "message": "Copia de seguridad"
   },
-
   "welcomeTitle": {
     "message": "Bienvenido a Moat"
   },
@@ -902,7 +849,6 @@
   "welcomeContinueButton": {
     "message": "Continuar a Configuración"
   },
-
   "optionsMigrationImportSummary": {
     "message": "Importar desde otro bloqueador…"
   },
@@ -912,7 +858,6 @@
   "optionsMigrationImportButton": {
     "message": "Importar"
   },
-
   "optionsBackupDesc": {
     "message": "Guarda tus configuraciones, reglas personalizadas y excepciones en un archivo que conserves, o sincronízalas a través de tu navegador."
   },
@@ -964,7 +909,6 @@
   "optionsBackupNoStats": {
     "message": "sin conteos de bloqueo ni estadísticas"
   },
-
   "optionsAboutDesc": {
     "message": "Qué es esta versión, y exactamente qué sale de tu dispositivo."
   },
@@ -1034,7 +978,6 @@
   "optionsDiagnosticsLink": {
     "message": "Diagnóstico"
   },
-
   "diagnosticsTitle": {
     "message": "Diagnóstico"
   },
@@ -1080,7 +1023,6 @@
   "diagnosticsMatchesEmpty": {
     "message": "Aún no se registraron coincidencias para esta pestaña. Recarga la página y actualiza."
   },
-
   "commonCancel": {
     "message": "Cancelar"
   },

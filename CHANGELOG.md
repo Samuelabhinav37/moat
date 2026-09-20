@@ -3,6 +3,53 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.125
+
+### Fixed
+- **The remaining deferred audit items, actioned.**
+  - **3 genuine content gaps found and fixed among 26 orphaned i18n keys** (defined, translated,
+    referenced nowhere) discovered while fixing the master-toggle subtitle earlier: "Hidden
+    elements" had no section heading at all, unlike its "Dimmed elements" sibling right below it
+    (both now have matching headings + hints); "Individual filter lists" had no explanatory hint
+    below its heading (now does -- clarifies that changing any one list switches you to Custom
+    filtering level); the merged camera/mic/location permission-guard row had a title and chips
+    but no description at all (now has one). All three keys already existed, translated into all
+    4 locales, clearly written for these exact spots -- just never wired into the markup. The
+    other 22 confirmed as genuine rename/redesign cruft (a `*ToggleHint` superseded by a
+    `*DrawerDesc` key elsewhere, three now-merged per-permission rows from before the chip-based
+    redesign, etc.) and removed from all 4 locales. 4 filter-list category keys
+    (`categoryAds`/`categorySecurity`/`categoryAnnoyance`/`categoryCore`) left in place,
+    unreferenced -- they look like an intended-but-unbuilt "group filter lists by category"
+    feature, not simple cruft, and building that UI blind (no live browser this session) isn't
+    something to guess at.
+  - **Popup design-token consolidation**: found the popup's separate token set is a deliberate,
+    documented local design (translucent glass-surface overlays for a popup, vs. the shared
+    page design system's opaque cards) rather than an oversight -- confirmed by checking whether
+    each "duplicate" token actually resolves to the same value: only one truly did
+    (`background: #1b191d` was a literal duplicate of `--bg`, now references it directly). The
+    rest -- different alpha-blended surface colors, a deliberately borderless full-width button
+    style for the action list -- would require an unverifiable visual redesign to merge, so left
+    alone rather than guessed at.
+  - **Sync-toggle destination note reworded** without changing any fact it discloses: "Moat has no
+    server, so it can't delete them for you" (frames the lack of a server as an inability) becomes
+    "...since Moat has no server of its own to hold or delete them" (frames it as the same
+    structural fact, just not phrased as a shortcoming) -- matches PRIVACY.md's already-neutral
+    register for the same disclosure.
+  - **Live-filter-source provenance tracking, implemented.** New tracked `rules/live-filter-
+    source-provenance.json` records a SHA-256 + item count for each of the 3 live-fetched sources
+    (jarelllama/Scam-Blocklist, Peter Lowe's list, oisd) on every `filters:update` run, and the
+    script now logs `first run`/`unchanged`/`CHANGED` per source. This makes the *fact* that one
+    of them changed visible in the weekly filter-refresh PR's diff, even though the actual
+    expanded rule content still can't be (it's tens of thousands of domains, not something to
+    commit). Does not and cannot make builds byte-for-byte reproducible across time -- these
+    sources update daily upstream by design, so that's an inherent tradeoff of using live-updated
+    lists at all, not a bug; `docs/RELEASING.md` now says so plainly instead of just "known gap."
+  - **Store screenshot staleness -- not attempted.** Confirmed `store-assets/*.html` are
+    deliberately stylized promotional composites (a fake browser chrome, a simplified single-button
+    popup), not literal screenshots -- editing their copy without being able to render and see the
+    result risks making them worse, not better. No live browser/rendering capability was available
+    this session to verify a change here, so this is left for a session where that's possible.
+
 ## 0.11.124
 
 ### Fixed

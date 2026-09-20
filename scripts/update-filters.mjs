@@ -15,6 +15,7 @@ import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
 import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
 import { buildOisdRules } from "./lib/oisdRules.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
+import { writeLiveFilterSourceProvenance, readPreviousLiveFilterSourceProvenance } from "./lib/liveFilterSourceProvenance.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -30,6 +31,13 @@ const redirectResourcesSourceDir = join(
 const redirectResourcesOutDir = join(root, "rules/redirect-resources");
 const trackerDbPath = join(root, "node_modules/@ghostery/trackerdb/dist/trackerdb.json");
 const trackerDb = existsSync(trackerDbPath) ? JSON.parse(readFileSync(trackerDbPath, "utf8")) : null;
+
+// See scripts/lib/liveFilterSourceProvenance.mjs's own header: a SHA-256 +
+// basic stats record for each third-party source fetched live below,
+// written to a TRACKED file (unlike rules/dnr/ itself) so a reviewer of the
+// weekly filter-refresh PR can at least see THAT one of these changed, even
+// though the actual expanded rule content stays out of git.
+const liveFilterSources = [];
 
 // AdGuard filter IDs. See https://filters.adtidy.org/extension/chromium-mv3/filters.json
 // `category` groups these for the Filter Lists settings tab: "ads" (ads/trackers/redirects),
@@ -517,6 +525,12 @@ if (scamBlocklistDomains.length < 5000) {
   );
 }
 writeFileSync(join(outDir, "scam-blocklist-domains.json"), JSON.stringify(scamBlocklistDomains));
+liveFilterSources.push({
+  name: "jarelllamaScamBlocklist",
+  url: SCAM_BLOCKLIST_URL,
+  text: scamBlocklistText,
+  itemCount: scamBlocklistDomains.length,
+});
 const ownScamBlocklistRules = buildScamBlocklistRules(scamBlocklistDomains);
 // Same 4.5MB ceiling as the main RULESETS loop above (Firefox's linter
 // refuses to parse any non-binary file over 5MB) -- that constant is scoped
@@ -578,6 +592,7 @@ if (peterLoweDomains.length < 1000) {
   );
 }
 writeFileSync(join(outDir, "peter-lowe-domains.json"), JSON.stringify(peterLoweDomains));
+liveFilterSources.push({ name: "peterLowe", url: PETER_LOWE_URL, text: peterLoweText, itemCount: peterLoweDomains.length });
 const { kept: peterLoweRules, consolidatedCount: peterLoweConsolidated } = consolidateSiblingRules(
   buildPeterLoweRules(peterLoweDomains)
 );
@@ -659,6 +674,7 @@ if (oisdDomains.length < 20000) {
   );
 }
 writeFileSync(join(outDir, "oisd-domains.json"), JSON.stringify(oisdDomains));
+liveFilterSources.push({ name: "oisd", url: OISD_URL, text: oisdText, itemCount: oisdDomains.length });
 const { kept: oisdRules, consolidatedCount: oisdConsolidated } = consolidateSiblingRules(buildOisdRules(oisdDomains));
 if (oisdConsolidated > 0) {
   console.log(`oisd: ${oisdConsolidated} sibling rule(s) consolidated to an apex rule`);
@@ -747,4 +763,18 @@ if (trackerDb) {
   console.log(
     `Described ${Object.keys(companyInfo).length}/${attributedCompanyNames.size} attributed companies -> rules/dnr/company-info.json`
   );
+}
+
+// Read the previously-committed record BEFORE overwriting it, so a hash
+// that differs from last time can actually be reported as "CHANGED" --
+// writeLiveFilterSourceProvenance computes each source's hash internally,
+// so the new one is read back afterward rather than recomputed here.
+const previousProvenance = readPreviousLiveFilterSourceProvenance(root);
+const provenancePath = writeLiveFilterSourceProvenance(root, liveFilterSources);
+const newProvenance = readPreviousLiveFilterSourceProvenance(root);
+for (const source of liveFilterSources) {
+  const previousHash = previousProvenance?.sources?.[source.name]?.sha256;
+  const newHash = newProvenance.sources[source.name].sha256;
+  const status = previousHash === undefined ? "first run" : previousHash === newHash ? "unchanged" : "CHANGED";
+  console.log(`Live filter source '${source.name}': ${source.itemCount} entries, ${status} -> ${provenancePath}`);
 }
