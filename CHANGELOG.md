@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.119
+
+### Fixed
+- **5-team audit fixes, batch 2: i18n completeness.** The UI/UX audit found that a third of
+  `options.html` (the entire Welcome/onboarding panel, Backup tab, and About tab) and all 16
+  `data-i18n` keys in `logger.html` referenced message keys that didn't exist in
+  `en/messages.json` at all -- they only ever rendered via `applyStaticI18n`'s missing-key
+  fallback (meant for typo recovery during a migration, not as a substitute for real keys), and
+  `localeParity.test.ts` couldn't catch it since that test only ever diffs locale files against
+  each other, never against actual markup usage. All 82 missing keys (66 in options.html, 16 in
+  logger.html) added to all 4 locales (en/de/es/fr) with real translations, preserving the
+  existing English copy exactly. `localeParity.test.ts` now also scans every shipped HTML page's
+  `data-i18n`/`data-i18n-placeholder`/`data-i18n-aria-label` usage against `en/messages.json`
+  directly, so this exact class of gap fails CI instead of silently falling back forever.
+
 ## 0.11.118
 
 ### Fixed

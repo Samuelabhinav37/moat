@@ -827,5 +827,257 @@
   },
   "warningReportedError": {
     "message": "Meldung konnte nicht gesendet werden -- versuche es gleich noch einmal."
+  },
+
+  "commonAlwaysOn": {
+    "message": "immer an"
+  },
+  "commonChooseFile": {
+    "message": "Datei auswählen"
+  },
+  "commonExport": {
+    "message": "Exportieren"
+  },
+  "commonNobody": {
+    "message": "Niemand"
+  },
+  "commonOff": {
+    "message": "aus"
+  },
+  "commonOn": {
+    "message": "an"
+  },
+  "commonRefresh": {
+    "message": "Aktualisieren"
+  },
+  "tabBackup": {
+    "message": "Sicherung"
+  },
+
+  "welcomeTitle": {
+    "message": "Willkommen bei Moat"
+  },
+  "welcomeAlreadyOnHeading": {
+    "message": "Schützt dich bereits"
+  },
+  "welcomeFilterListsTitle": {
+    "message": "Werbung, Tracker und bekannte bösartige Websites werden blockiert"
+  },
+  "welcomeFilterListsEvidence": {
+    "message": "Standard-Filterlisten, standardmäßig aktiviert"
+  },
+  "welcomeGrayscaleTitle": {
+    "message": "YouTube-Videowerbung wird automatisch abgedunkelt"
+  },
+  "welcomeGrayscaleEvidence": {
+    "message": "Werbung im Video wird während der Wiedergabe ausgegraut"
+  },
+  "welcomePopupFirewallTitle": {
+    "message": "Popup- und Weiterleitungs-Firewall"
+  },
+  "welcomePopupFirewallEvidence": {
+    "message": "Immer aktiv. Gekaperte Tabs werden automatisch geschlossen."
+  },
+  "welcomeWorthTurningOnHeading": {
+    "message": "Lohnt sich zu aktivieren"
+  },
+  "welcomeFingerprintTitle": {
+    "message": "Website-Erkennung deines Geräts stoppen"
+  },
+  "welcomeFingerprintEvidence": {
+    "message": "Standardmäßig aus, da es gelegentlich ein CAPTCHA beeinträchtigen kann"
+  },
+  "welcomeLeakedPasswordTitle": {
+    "message": "Passwörter mit bekannten Datenlecks abgleichen"
+  },
+  "welcomeLeakedPasswordEvidence": {
+    "message": "Standardmäßig aus. Nur ein verschlüsseltes Fragment eines Passworts verlässt jemals dein Gerät."
+  },
+  "welcomeMoreInSettings": {
+    "message": "Beide sind im Tab „Schutz\" nur einen Klick entfernt."
+  },
+  "welcomeShortcutHint": {
+    "message": "schaltet den Schutz jederzeit ein und aus."
+  },
+  "welcomeContinueButton": {
+    "message": "Weiter zu den Einstellungen"
+  },
+
+  "optionsMigrationImportSummary": {
+    "message": "Aus einem anderen Blocker importieren…"
+  },
+  "optionsMigrationImportHint": {
+    "message": "Füge Regeln ein, die aus uBlock Origin, AdGuard oder Ähnlichem exportiert wurden — blockierte/erlaubte Domains und seitenspezifische Element-Ausblendregeln. Andere Filtersyntax wird nicht unterstützt und übersprungen."
+  },
+  "optionsMigrationImportButton": {
+    "message": "Importieren"
+  },
+
+  "optionsBackupDesc": {
+    "message": "Speichere deine Einstellungen, eigenen Regeln und Ausnahmen in einer Datei, die du behältst, oder synchronisiere sie über deinen Browser."
+  },
+  "optionsBackupSizeLabel": {
+    "message": "Exportgröße"
+  },
+  "optionsBackupSyncLabel": {
+    "message": "Synchronisierung"
+  },
+  "optionsBackupToFileHeading": {
+    "message": "In eine Datei"
+  },
+  "optionsBackupStaysHere": {
+    "message": "bleibt auf deinem Gerät"
+  },
+  "optionsExportTitle": {
+    "message": "Einstellungen exportieren"
+  },
+  "optionsImportTitle": {
+    "message": "Aus einer Datei wiederherstellen"
+  },
+  "optionsImportHint": {
+    "message": "Ersetzt alles unten. Du siehst, was sich ändert, bevor es angewendet wird."
+  },
+  "optionsBackupAcrossDevicesHeading": {
+    "message": "Geräteübergreifend"
+  },
+  "optionsBackupLeavesDevice": {
+    "message": "verlässt dein Gerät"
+  },
+  "optionsBackupContainsHeading": {
+    "message": "Was eine Sicherung enthält"
+  },
+  "optionsBackupProtections": {
+    "message": "Schutzeinstellungen"
+  },
+  "optionsBackupCustomRules": {
+    "message": "eigene Regeln"
+  },
+  "optionsBackupExceptions": {
+    "message": "Website-Ausnahmen"
+  },
+  "optionsBackupFilterChoices": {
+    "message": "Filterlisten-Auswahl"
+  },
+  "optionsBackupNoHistory": {
+    "message": "kein Browserverlauf, niemals"
+  },
+  "optionsBackupNoStats": {
+    "message": "keine Blockierzahlen oder Statistiken"
+  },
+
+  "optionsAboutDesc": {
+    "message": "Was dieser Build ist, und genau was dein Gerät verlässt."
+  },
+  "optionsDisclosureFeature": {
+    "message": "Funktion"
+  },
+  "optionsDisclosureSent": {
+    "message": "Was gesendet wird"
+  },
+  "optionsDisclosureRecipient": {
+    "message": "Wer es erhält"
+  },
+  "optionsDisclosureDefault": {
+    "message": "Standard"
+  },
+  "optionsDisclosureBlockingName": {
+    "message": "Blockieren & Filtern"
+  },
+  "optionsDisclosureBlockingSent": {
+    "message": "Nichts. Läuft vollständig auf deinem Gerät."
+  },
+  "optionsDisclosureUpdatesName": {
+    "message": "Filter-Updates"
+  },
+  "optionsDisclosureUpdatesSent": {
+    "message": "Eine Versionsprüfung einmal täglich. Kein Browserverlauf."
+  },
+  "optionsDisclosureUpdatesRecipient": {
+    "message": "Moats Update-Server"
+  },
+  "optionsDisclosureBreachName": {
+    "message": "Datenleck-Prüfung"
+  },
+  "optionsDisclosureBreachSent": {
+    "message": "Ein kurzes, verschlüsseltes Fragment eines Passworts, niemals das Passwort selbst"
+  },
+  "optionsDisclosureBreachRecipient": {
+    "message": "Have I Been Pwned"
+  },
+  "optionsDisclosureSyncName": {
+    "message": "Einstellungssynchronisierung"
+  },
+  "optionsDisclosureSyncSent": {
+    "message": "Deine Moat-Einstellungen. Keine Browserdaten."
+  },
+  "optionsDisclosureStatsName": {
+    "message": "Statistiken"
+  },
+  "optionsDisclosureStatsSent": {
+    "message": "Nichts verlässt dein Gerät. Zählungen bleiben lokal gespeichert."
+  },
+  "optionsVersionLabel": {
+    "message": "Version"
+  },
+  "optionsVersionBuild": {
+    "message": "Build"
+  },
+  "optionsVersionRules": {
+    "message": "Regeln"
+  },
+  "optionsVersionUpdated": {
+    "message": "Listen aktualisiert"
+  },
+  "optionsShortcutHeading": {
+    "message": "Tastenkombination"
+  },
+  "optionsDiagnosticsLink": {
+    "message": "Diagnose"
+  },
+
+  "diagnosticsTitle": {
+    "message": "Diagnose"
+  },
+  "diagnosticsDesc": {
+    "message": "Was Moat tatsächlich auf dem aktiven Tab getan hat, und was es hätte tun sollen, aber nicht getan hat."
+  },
+  "diagnosticsHeroLabel": {
+    "message": "Heuristiken, die hier zutreffen, wurden bei diesem Seitenaufruf ausgelöst"
+  },
+  "diagnosticsSilentLabel": {
+    "message": "still, wahrscheinlich defekt"
+  },
+  "diagnosticsMatchesLabel": {
+    "message": "Regeltreffer"
+  },
+  "diagnosticsHeuristicsHeading": {
+    "message": "Heuristiken"
+  },
+  "diagnosticsHeuristicsNote": {
+    "message": "Content-Skripte, die die Seite lesen. Sie brechen, wenn eine Website ihr Markup ändert."
+  },
+  "diagnosticsMatchesHeading": {
+    "message": "Regeltreffer"
+  },
+  "diagnosticsUnpackedOnly": {
+    "message": "Nur bei entpackten Builds"
+  },
+  "diagnosticsUnavailableTitle": {
+    "message": "In diesem Build nicht verfügbar"
+  },
+  "diagnosticsColTime": {
+    "message": "Zeit"
+  },
+  "diagnosticsColRule": {
+    "message": "Regel"
+  },
+  "diagnosticsColType": {
+    "message": "Typ"
+  },
+  "diagnosticsColUrl": {
+    "message": "URL"
+  },
+  "diagnosticsMatchesEmpty": {
+    "message": "Für diesen Tab wurden noch keine Treffer aufgezeichnet. Lade die Seite neu und aktualisiere."
   }
 }

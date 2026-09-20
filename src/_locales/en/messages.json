@@ -829,5 +829,257 @@
   },
   "warningReportedError": {
     "message": "Couldn't send the report -- try again in a moment."
+  },
+
+  "commonAlwaysOn": {
+    "message": "always on"
+  },
+  "commonChooseFile": {
+    "message": "Choose file"
+  },
+  "commonExport": {
+    "message": "Export"
+  },
+  "commonNobody": {
+    "message": "Nobody"
+  },
+  "commonOff": {
+    "message": "off"
+  },
+  "commonOn": {
+    "message": "on"
+  },
+  "commonRefresh": {
+    "message": "Refresh"
+  },
+  "tabBackup": {
+    "message": "Backup"
+  },
+
+  "welcomeTitle": {
+    "message": "Welcome to Moat"
+  },
+  "welcomeAlreadyOnHeading": {
+    "message": "Already protecting you"
+  },
+  "welcomeFilterListsTitle": {
+    "message": "Ads, trackers and known-malicious sites blocked"
+  },
+  "welcomeFilterListsEvidence": {
+    "message": "Standard filter lists, on by default"
+  },
+  "welcomeGrayscaleTitle": {
+    "message": "YouTube video ads dimmed automatically"
+  },
+  "welcomeGrayscaleEvidence": {
+    "message": "In-stream ads are grayed out while they play"
+  },
+  "welcomePopupFirewallTitle": {
+    "message": "Popup and redirect firewall"
+  },
+  "welcomePopupFirewallEvidence": {
+    "message": "Always on. Hijacked tabs are closed automatically."
+  },
+  "welcomeWorthTurningOnHeading": {
+    "message": "Worth turning on"
+  },
+  "welcomeFingerprintTitle": {
+    "message": "Stop sites recognizing your device"
+  },
+  "welcomeFingerprintEvidence": {
+    "message": "Off by default since it can occasionally affect a CAPTCHA"
+  },
+  "welcomeLeakedPasswordTitle": {
+    "message": "Check passwords against known breaches"
+  },
+  "welcomeLeakedPasswordEvidence": {
+    "message": "Off by default. Only a scrambled fragment of a password ever leaves your device."
+  },
+  "welcomeMoreInSettings": {
+    "message": "Both are one click away on the Protection tab."
+  },
+  "welcomeShortcutHint": {
+    "message": "toggles protection on and off, anytime."
+  },
+  "welcomeContinueButton": {
+    "message": "Continue to Settings"
+  },
+
+  "optionsMigrationImportSummary": {
+    "message": "Import from another blocker…"
+  },
+  "optionsMigrationImportHint": {
+    "message": "Paste rules exported from uBlock Origin, AdGuard, or similar — blocked/allowed domains and per-site element-hiding rules. Other filter syntax isn't supported and will be skipped."
+  },
+  "optionsMigrationImportButton": {
+    "message": "Import"
+  },
+
+  "optionsBackupDesc": {
+    "message": "Save your settings, custom rules and exceptions to a file you keep, or sync them through your browser."
+  },
+  "optionsBackupSizeLabel": {
+    "message": "export size"
+  },
+  "optionsBackupSyncLabel": {
+    "message": "sync"
+  },
+  "optionsBackupToFileHeading": {
+    "message": "To a file"
+  },
+  "optionsBackupStaysHere": {
+    "message": "stays on your device"
+  },
+  "optionsExportTitle": {
+    "message": "Export settings"
+  },
+  "optionsImportTitle": {
+    "message": "Restore from a file"
+  },
+  "optionsImportHint": {
+    "message": "Replaces everything below. You'll see what changes before it applies."
+  },
+  "optionsBackupAcrossDevicesHeading": {
+    "message": "Across devices"
+  },
+  "optionsBackupLeavesDevice": {
+    "message": "leaves your device"
+  },
+  "optionsBackupContainsHeading": {
+    "message": "What a backup contains"
+  },
+  "optionsBackupProtections": {
+    "message": "protection settings"
+  },
+  "optionsBackupCustomRules": {
+    "message": "custom rules"
+  },
+  "optionsBackupExceptions": {
+    "message": "site exceptions"
+  },
+  "optionsBackupFilterChoices": {
+    "message": "filter list choices"
+  },
+  "optionsBackupNoHistory": {
+    "message": "no browsing history, ever"
+  },
+  "optionsBackupNoStats": {
+    "message": "no block counts or statistics"
+  },
+
+  "optionsAboutDesc": {
+    "message": "What this build is, and exactly what leaves your device."
+  },
+  "optionsDisclosureFeature": {
+    "message": "Feature"
+  },
+  "optionsDisclosureSent": {
+    "message": "What's sent"
+  },
+  "optionsDisclosureRecipient": {
+    "message": "Who receives it"
+  },
+  "optionsDisclosureDefault": {
+    "message": "Default"
+  },
+  "optionsDisclosureBlockingName": {
+    "message": "Blocking & filtering"
+  },
+  "optionsDisclosureBlockingSent": {
+    "message": "Nothing. Runs entirely on your device."
+  },
+  "optionsDisclosureUpdatesName": {
+    "message": "Filter updates"
+  },
+  "optionsDisclosureUpdatesSent": {
+    "message": "A version check once a day. No browsing history."
+  },
+  "optionsDisclosureUpdatesRecipient": {
+    "message": "Moat's update server"
+  },
+  "optionsDisclosureBreachName": {
+    "message": "Breach checking"
+  },
+  "optionsDisclosureBreachSent": {
+    "message": "A short scrambled fragment of a password, never the password itself"
+  },
+  "optionsDisclosureBreachRecipient": {
+    "message": "Have I Been Pwned"
+  },
+  "optionsDisclosureSyncName": {
+    "message": "Settings sync"
+  },
+  "optionsDisclosureSyncSent": {
+    "message": "Your Moat settings. No browsing data."
+  },
+  "optionsDisclosureStatsName": {
+    "message": "Statistics"
+  },
+  "optionsDisclosureStatsSent": {
+    "message": "Nothing leaves your device. Counts stay stored locally."
+  },
+  "optionsVersionLabel": {
+    "message": "version"
+  },
+  "optionsVersionBuild": {
+    "message": "build"
+  },
+  "optionsVersionRules": {
+    "message": "rules"
+  },
+  "optionsVersionUpdated": {
+    "message": "lists updated"
+  },
+  "optionsShortcutHeading": {
+    "message": "Keyboard shortcut"
+  },
+  "optionsDiagnosticsLink": {
+    "message": "Diagnostics"
+  },
+
+  "diagnosticsTitle": {
+    "message": "Diagnostics"
+  },
+  "diagnosticsDesc": {
+    "message": "What Moat actually did on the active tab, and what it was supposed to do but didn't."
+  },
+  "diagnosticsHeroLabel": {
+    "message": "heuristics that apply here fired on this page load"
+  },
+  "diagnosticsSilentLabel": {
+    "message": "silent, likely broken"
+  },
+  "diagnosticsMatchesLabel": {
+    "message": "rule matches"
+  },
+  "diagnosticsHeuristicsHeading": {
+    "message": "Heuristics"
+  },
+  "diagnosticsHeuristicsNote": {
+    "message": "content scripts that read the page. They break when a site changes its markup."
+  },
+  "diagnosticsMatchesHeading": {
+    "message": "Rule matches"
+  },
+  "diagnosticsUnpackedOnly": {
+    "message": "Unpacked builds only"
+  },
+  "diagnosticsUnavailableTitle": {
+    "message": "Not available on this build"
+  },
+  "diagnosticsColTime": {
+    "message": "Time"
+  },
+  "diagnosticsColRule": {
+    "message": "Rule"
+  },
+  "diagnosticsColType": {
+    "message": "Type"
+  },
+  "diagnosticsColUrl": {
+    "message": "URL"
+  },
+  "diagnosticsMatchesEmpty": {
+    "message": "No matches recorded yet for this tab. Reload the page and refresh."
   }
 }

@@ -73,3 +73,37 @@ describe("locale parity against en", () => {
     }
   });
 });
+
+// Regression: this test file only ever compares locale files against each
+// other, so it could never catch a key that's referenced in real markup but
+// was never added to en/messages.json at all -- applyStaticI18n's own
+// missing-key fallback (falls back to whatever English text is already
+// sitting in the HTML) silently papered over exactly this for a third of
+// options.html (the Welcome panel, Backup tab, About tab) and all of
+// logger.html, discovered only by a manual audit, not by any test. This
+// scans every shipped HTML page's actual data-i18n usage against en's key
+// set directly, so a new page or a new data-i18n attribute that isn't
+// backed by a real message key fails CI instead of silently falling back
+// forever.
+describe("every data-i18n key used in a shipped HTML page exists in en/messages.json", () => {
+  const srcDir = join(localesDir, "..");
+  const htmlFiles = readdirSync(srcDir, { recursive: true, encoding: "utf8" })
+    .filter((entry) => entry.endsWith(".html"))
+    .map((entry) => join(srcDir, entry));
+
+  it("found at least one shipped HTML page to check", () => {
+    // A guard against this test silently checking nothing if every page
+    // moved, got renamed, or the html extension convention ever changed.
+    expect(htmlFiles.length).toBeGreaterThan(0);
+  });
+
+  it.each(htmlFiles.map((path) => [path.slice(srcDir.length + 1), path] as const))(
+    "%s",
+    (_relativePath, path) => {
+      const html = readFileSync(path, "utf8");
+      const keys = [...html.matchAll(/data-i18n(?:-placeholder|-aria-label)?="([a-zA-Z0-9]+)"/g)].map((m) => m[1]!);
+      const missing = keys.filter((key) => !(key in englishMessages));
+      expect(missing, `keys referenced in ${path} but missing from en/messages.json`).toEqual([]);
+    }
+  );
+});

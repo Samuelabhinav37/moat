@@ -827,5 +827,257 @@
   },
   "warningReportedError": {
     "message": "No se pudo enviar el reporte -- intenta de nuevo en un momento."
+  },
+
+  "commonAlwaysOn": {
+    "message": "siempre activo"
+  },
+  "commonChooseFile": {
+    "message": "Elegir archivo"
+  },
+  "commonExport": {
+    "message": "Exportar"
+  },
+  "commonNobody": {
+    "message": "Nadie"
+  },
+  "commonOff": {
+    "message": "desactivado"
+  },
+  "commonOn": {
+    "message": "activado"
+  },
+  "commonRefresh": {
+    "message": "Actualizar"
+  },
+  "tabBackup": {
+    "message": "Copia de seguridad"
+  },
+
+  "welcomeTitle": {
+    "message": "Bienvenido a Moat"
+  },
+  "welcomeAlreadyOnHeading": {
+    "message": "Ya te está protegiendo"
+  },
+  "welcomeFilterListsTitle": {
+    "message": "Anuncios, rastreadores y sitios maliciosos conocidos bloqueados"
+  },
+  "welcomeFilterListsEvidence": {
+    "message": "Listas de filtros estándar, activadas de forma predeterminada"
+  },
+  "welcomeGrayscaleTitle": {
+    "message": "Los anuncios de video de YouTube se atenúan automáticamente"
+  },
+  "welcomeGrayscaleEvidence": {
+    "message": "Los anuncios en el video se muestran en gris mientras se reproducen"
+  },
+  "welcomePopupFirewallTitle": {
+    "message": "Firewall de ventanas emergentes y redirecciones"
+  },
+  "welcomePopupFirewallEvidence": {
+    "message": "Siempre activo. Las pestañas secuestradas se cierran automáticamente."
+  },
+  "welcomeWorthTurningOnHeading": {
+    "message": "Vale la pena activar"
+  },
+  "welcomeFingerprintTitle": {
+    "message": "Evitar que los sitios reconozcan tu dispositivo"
+  },
+  "welcomeFingerprintEvidence": {
+    "message": "Desactivado de forma predeterminada porque ocasionalmente puede afectar un CAPTCHA"
+  },
+  "welcomeLeakedPasswordTitle": {
+    "message": "Verificar contraseñas contra filtraciones conocidas"
+  },
+  "welcomeLeakedPasswordEvidence": {
+    "message": "Desactivado de forma predeterminada. Solo un fragmento cifrado de una contraseña sale de tu dispositivo."
+  },
+  "welcomeMoreInSettings": {
+    "message": "Ambas están a un clic de distancia en la pestaña Protección."
+  },
+  "welcomeShortcutHint": {
+    "message": "activa y desactiva la protección en cualquier momento."
+  },
+  "welcomeContinueButton": {
+    "message": "Continuar a Configuración"
+  },
+
+  "optionsMigrationImportSummary": {
+    "message": "Importar desde otro bloqueador…"
+  },
+  "optionsMigrationImportHint": {
+    "message": "Pega reglas exportadas de uBlock Origin, AdGuard o similares — dominios bloqueados/permitidos y reglas de ocultación de elementos por sitio. Otra sintaxis de filtro no es compatible y se omitirá."
+  },
+  "optionsMigrationImportButton": {
+    "message": "Importar"
+  },
+
+  "optionsBackupDesc": {
+    "message": "Guarda tus configuraciones, reglas personalizadas y excepciones en un archivo que conserves, o sincronízalas a través de tu navegador."
+  },
+  "optionsBackupSizeLabel": {
+    "message": "tamaño de exportación"
+  },
+  "optionsBackupSyncLabel": {
+    "message": "sincronización"
+  },
+  "optionsBackupToFileHeading": {
+    "message": "A un archivo"
+  },
+  "optionsBackupStaysHere": {
+    "message": "permanece en tu dispositivo"
+  },
+  "optionsExportTitle": {
+    "message": "Exportar configuración"
+  },
+  "optionsImportTitle": {
+    "message": "Restaurar desde un archivo"
+  },
+  "optionsImportHint": {
+    "message": "Reemplaza todo lo de abajo. Verás qué cambia antes de que se aplique."
+  },
+  "optionsBackupAcrossDevicesHeading": {
+    "message": "Entre dispositivos"
+  },
+  "optionsBackupLeavesDevice": {
+    "message": "sale de tu dispositivo"
+  },
+  "optionsBackupContainsHeading": {
+    "message": "Qué contiene una copia de seguridad"
+  },
+  "optionsBackupProtections": {
+    "message": "configuraciones de protección"
+  },
+  "optionsBackupCustomRules": {
+    "message": "reglas personalizadas"
+  },
+  "optionsBackupExceptions": {
+    "message": "excepciones de sitios"
+  },
+  "optionsBackupFilterChoices": {
+    "message": "elecciones de listas de filtros"
+  },
+  "optionsBackupNoHistory": {
+    "message": "ningún historial de navegación, nunca"
+  },
+  "optionsBackupNoStats": {
+    "message": "sin conteos de bloqueo ni estadísticas"
+  },
+
+  "optionsAboutDesc": {
+    "message": "Qué es esta versión, y exactamente qué sale de tu dispositivo."
+  },
+  "optionsDisclosureFeature": {
+    "message": "Función"
+  },
+  "optionsDisclosureSent": {
+    "message": "Qué se envía"
+  },
+  "optionsDisclosureRecipient": {
+    "message": "Quién lo recibe"
+  },
+  "optionsDisclosureDefault": {
+    "message": "Predeterminado"
+  },
+  "optionsDisclosureBlockingName": {
+    "message": "Bloqueo y filtrado"
+  },
+  "optionsDisclosureBlockingSent": {
+    "message": "Nada. Se ejecuta completamente en tu dispositivo."
+  },
+  "optionsDisclosureUpdatesName": {
+    "message": "Actualizaciones de filtros"
+  },
+  "optionsDisclosureUpdatesSent": {
+    "message": "Una verificación de versión una vez al día. Sin historial de navegación."
+  },
+  "optionsDisclosureUpdatesRecipient": {
+    "message": "El servidor de actualizaciones de Moat"
+  },
+  "optionsDisclosureBreachName": {
+    "message": "Verificación de filtraciones"
+  },
+  "optionsDisclosureBreachSent": {
+    "message": "Un breve fragmento cifrado de una contraseña, nunca la contraseña en sí"
+  },
+  "optionsDisclosureBreachRecipient": {
+    "message": "Have I Been Pwned"
+  },
+  "optionsDisclosureSyncName": {
+    "message": "Sincronización de configuración"
+  },
+  "optionsDisclosureSyncSent": {
+    "message": "Tu configuración de Moat. Sin datos de navegación."
+  },
+  "optionsDisclosureStatsName": {
+    "message": "Estadísticas"
+  },
+  "optionsDisclosureStatsSent": {
+    "message": "Nada sale de tu dispositivo. Los conteos permanecen almacenados localmente."
+  },
+  "optionsVersionLabel": {
+    "message": "versión"
+  },
+  "optionsVersionBuild": {
+    "message": "compilación"
+  },
+  "optionsVersionRules": {
+    "message": "reglas"
+  },
+  "optionsVersionUpdated": {
+    "message": "listas actualizadas"
+  },
+  "optionsShortcutHeading": {
+    "message": "Atajo de teclado"
+  },
+  "optionsDiagnosticsLink": {
+    "message": "Diagnóstico"
+  },
+
+  "diagnosticsTitle": {
+    "message": "Diagnóstico"
+  },
+  "diagnosticsDesc": {
+    "message": "Lo que Moat realmente hizo en la pestaña activa, y lo que debía hacer pero no hizo."
+  },
+  "diagnosticsHeroLabel": {
+    "message": "heurísticas aplicables aquí que se activaron en esta carga de página"
+  },
+  "diagnosticsSilentLabel": {
+    "message": "silenciosa, probablemente rota"
+  },
+  "diagnosticsMatchesLabel": {
+    "message": "coincidencias de reglas"
+  },
+  "diagnosticsHeuristicsHeading": {
+    "message": "Heurísticas"
+  },
+  "diagnosticsHeuristicsNote": {
+    "message": "scripts de contenido que leen la página. Se rompen cuando un sitio cambia su marcado."
+  },
+  "diagnosticsMatchesHeading": {
+    "message": "Coincidencias de reglas"
+  },
+  "diagnosticsUnpackedOnly": {
+    "message": "Solo compilaciones sin empaquetar"
+  },
+  "diagnosticsUnavailableTitle": {
+    "message": "No disponible en esta versión"
+  },
+  "diagnosticsColTime": {
+    "message": "Hora"
+  },
+  "diagnosticsColRule": {
+    "message": "Regla"
+  },
+  "diagnosticsColType": {
+    "message": "Tipo"
+  },
+  "diagnosticsColUrl": {
+    "message": "URL"
+  },
+  "diagnosticsMatchesEmpty": {
+    "message": "Aún no se registraron coincidencias para esta pestaña. Recarga la página y actualiza."
   }
 }
