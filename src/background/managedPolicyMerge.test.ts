@@ -71,6 +71,56 @@ describe("applyManagedOverrides", () => {
     applyManagedOverrides(settings, { lockFilterGroups: true, managedFilterGroups: { ads: true } });
     expect(settings.filterGroups).toEqual({ ads: false });
   });
+
+  // getManagedPolicy() casts whatever browser.storage.managed.get() returns
+  // straight to ManagedPolicy with no runtime check -- these simulate a
+  // malformed/wrong-shaped managed value slipping past that cast (a schema
+  // gap, or a registry/plist edited directly outside the schema on some
+  // platforms) reaching this function's real, unchecked inputs.
+  describe("malformed managed policy values (schema bypass / wrong shape)", () => {
+    it("ignores managedCustomBlockedDomains entirely if it's a string, not an array (would otherwise spread individual characters)", () => {
+      const settings = { ...baseSettings, customBlockedDomains: ["a.com"] };
+      const policy = { managedCustomBlockedDomains: "not-an-array" } as unknown as ManagedPolicy;
+      const effective = applyManagedOverrides(settings, policy);
+      expect(effective.customBlockedDomains).toEqual(["a.com"]);
+    });
+
+    it("ignores managedCustomBlockedDomains if it contains a non-string entry", () => {
+      const settings = { ...baseSettings, customBlockedDomains: [] };
+      const policy = { managedCustomBlockedDomains: ["a.com", 123] } as unknown as ManagedPolicy;
+      const effective = applyManagedOverrides(settings, policy);
+      expect(effective.customBlockedDomains).toEqual([]);
+    });
+
+    it("ignores managedFilterGroups entirely if it's an array, not a record", () => {
+      const settings = { ...baseSettings, filterGroups: { ads: false } };
+      const policy = { managedFilterGroups: ["ads", "trackers"] } as unknown as ManagedPolicy;
+      const effective = applyManagedOverrides(settings, policy);
+      expect(effective.filterGroups).toEqual({ ads: false });
+    });
+
+    it("ignores managedFilterGroups if any value isn't a boolean", () => {
+      const settings = { ...baseSettings, filterGroups: { ads: false } };
+      const policy = { managedFilterGroups: { ads: "yes" } } as unknown as ManagedPolicy;
+      const effective = applyManagedOverrides(settings, policy);
+      expect(effective.filterGroups).toEqual({ ads: false });
+    });
+
+    it("ignores managedFilterGroups if it's null", () => {
+      const settings = { ...baseSettings, filterGroups: { ads: false } };
+      const policy = { managedFilterGroups: null } as unknown as ManagedPolicy;
+      const effective = applyManagedOverrides(settings, policy);
+      expect(effective.filterGroups).toEqual({ ads: false });
+    });
+
+    it("still applies forceEnabled correctly even when other fields in the same policy are malformed", () => {
+      const settings = { ...baseSettings, enabled: false };
+      const policy = { forceEnabled: true, managedCustomBlockedDomains: "garbage" } as unknown as ManagedPolicy;
+      const effective = applyManagedOverrides(settings, policy);
+      expect(effective.enabled).toBe(true);
+      expect(effective.customBlockedDomains).toEqual([]);
+    });
+  });
 });
 
 describe("isLocked", () => {

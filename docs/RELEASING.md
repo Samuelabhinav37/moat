@@ -4,7 +4,9 @@
 
 1. Start from a clean default branch and install dependencies with `npm ci`.
 2. Update the version in `package.json` and add the release's `CHANGELOG.md` section.
-3. Review permission changes and generated filter provenance for the reviewed commit.
+3. Review permission changes and, for the tracked `live/*.json` slice specifically, its provenance
+   for the reviewed commit -- see "Filter lists" below for what this does and doesn't cover; the
+   bulk of the ruleset regenerates into a gitignored directory this step has no visibility into.
 4. Audit dependencies and document unresolved advisories that affect release tooling or runtime behavior.
 
 ## Build and package (automated)
@@ -60,5 +62,20 @@ identifies exactly the source used for submitted packages.
 ## Filter lists
 
 `.github/workflows/filter-refresh.yml` runs `npm run filters:update` every Monday and opens a
-`chore/filter-refresh` PR with the rule delta. Review the diff and merge — CI runs the full gate
-on the PR. Nothing auto-merges.
+`chore/filter-refresh` PR. Review the diff and merge — CI runs the full gate on the PR. Nothing
+auto-merges.
+
+**What that diff actually covers, and what it doesn't:** `rules/dnr/` and `rules/redirect-resources/`
+are gitignored (see `.gitignore`) -- the bulk of the ruleset (currently ~349,000 rules from
+`@adguard/dnr-rulesets`, plus Peter Lowe's list and oisd, all three of the latter fetched live at
+build time over plain HTTPS, unpinned) is regenerated into a directory `git diff` can never see a
+change in, no matter how much its content shifts week to week. The PR's diff is only ever the
+small, explicitly tracked `live/*.json` slice (the ~500-domain popup/redirect list and the
+emergency quick-fix/cosmetic-fix channels) -- genuinely reviewable, but a small fraction of what
+`filters:update` actually regenerates. This also means a release built from a given tag isn't
+fully reproducible: running `npm run build` today vs. next week from the identical tag can
+legitimately produce different `chrome.zip`/`firefox.zip` bytes, since those three live-fetched
+sources aren't pinned by `package-lock.json` the way `@adguard/dnr-rulesets`/`@ghostery/trackerdb`
+are. Known gap, not yet closed -- fixing it means either pinning those three sources by content
+hash (the way the `live/*` channel already does for its own payloads) or moving their fetch+diff
+into this same reviewable PR flow instead of a gitignored directory.

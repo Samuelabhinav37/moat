@@ -3,6 +3,33 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.122
+
+### Fixed
+- **5-team audit fixes, batch 5: process/docs + managed-policy hardening.**
+  - **`docs/RELEASING.md` and `filter-refresh.yml`'s PR body no longer overclaim what's
+    reviewable.** Both previously implied the weekly automated PR's diff covers "the rule delta"
+    -- it only ever covers the small, tracked `live/*.json` slice, since `rules/dnr/` and
+    `rules/redirect-resources/` (the ~349,000-rule bulk of the ruleset, regenerated from
+    `@adguard/dnr-rulesets` plus three live-fetched third-party sources) are gitignored and
+    invisible to `git diff` no matter how much their content shifts. Also documents the resulting
+    reproducibility gap: those three sources aren't pinned by `package-lock.json`, so a rebuild
+    from an identical tag isn't guaranteed to produce identical output. Not fixed in this batch --
+    genuinely needs either content-hash pinning or moving those fetches into the reviewable PR
+    flow -- just no longer misdescribed as already covered.
+  - **`applyManagedOverrides` now validates the shape of `managedFilterGroups`/
+    `managedCustomBlockedDomains` at runtime instead of trusting an unchecked cast.**
+    `getManagedPolicy()` casts whatever `browser.storage.managed.get()` returns straight to
+    `ManagedPolicy` with no runtime check; Chrome/Firefox validate against `managed_schema.json`
+    before the extension ever sees a value, but that's a platform guarantee, not a guarantee about
+    this function's own inputs. The dangerous case: a wrong-typed `managedCustomBlockedDomains`
+    (a string instead of an array) previously would have been spread character-by-character into
+    the block-list (`[...someString]` spreads individual characters), silently corrupting it with
+    garbage single-character entries rather than throwing or no-oping. Now ignored outright if it
+    isn't genuinely a string array (or `managedFilterGroups` isn't genuinely a boolean record),
+    covered by new tests for both malformed shapes plus a "one field malformed doesn't stop
+    `forceEnabled` from still applying correctly" case.
+
 ## 0.11.121
 
 ### Fixed

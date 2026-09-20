@@ -49,5 +49,5 @@ jobs:
           else
             gh pr create --base master --head "$BR" \
               --title "chore: weekly filter refresh" \
-              --body "Automated \`npm run filters:update\`. Review the rule delta, then merge — CI runs the full gate on the PR."
+              --body "Automated \`npm run filters:update\`. This diff only ever covers the small, tracked \`live/*.json\` slice — rules/dnr/ and rules/redirect-resources/ are gitignored, so the bulk of the ruleset (AdGuard, Peter Lowe, oisd) regenerates invisibly to this PR even when its content changes. Review what's here, then merge — CI runs the full gate on the PR."
           fi

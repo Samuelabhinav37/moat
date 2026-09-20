@@ -3,6 +3,30 @@
 // context) so it's testable without a browser environment.
 import type { ManagedPolicy, Settings } from "../types";
 
+// managedPolicy.ts casts whatever browser.storage.managed.get() returns
+// straight to ManagedPolicy with no runtime check at all -- Chrome/Firefox
+// validate against managed_schema.json before the extension ever sees a
+// managed value, but that's a guarantee about the platform's policy
+// delivery, not about this function's own inputs, and a schema gap or an
+// admin editing the underlying registry/plist directly (possible on some
+// platforms) could still hand this a wrong-shaped value. A wrong-typed
+// managedCustomBlockedDomains is the dangerous case specifically:
+// `[...someString]` spreads individual CHARACTERS, not domains, silently
+// corrupting the block-list with garbage single-character entries rather
+// than throwing or no-oping.
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((v) => typeof v === "string");
+}
+
+function isBooleanRecord(value: unknown): value is Record<string, boolean> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.values(value).every((v) => typeof v === "boolean")
+  );
+}
+
 /**
  * Computes the *effective* settings: managed values win over the user's own
  * when the corresponding lock flag is set; when not locked, a managed value
@@ -20,13 +44,13 @@ export function applyManagedOverrides(settings: Settings, policy: ManagedPolicy)
     effective.disabledSites = [];
   }
 
-  if (policy.managedFilterGroups) {
+  if (policy.managedFilterGroups && isBooleanRecord(policy.managedFilterGroups)) {
     effective.filterGroups = policy.lockFilterGroups
       ? { ...settings.filterGroups, ...policy.managedFilterGroups }
       : { ...policy.managedFilterGroups, ...settings.filterGroups };
   }
 
-  if (policy.managedCustomBlockedDomains?.length) {
+  if (policy.managedCustomBlockedDomains?.length && isStringArray(policy.managedCustomBlockedDomains)) {
     effective.customBlockedDomains = [
       ...new Set([...settings.customBlockedDomains, ...policy.managedCustomBlockedDomains]),
     ];
