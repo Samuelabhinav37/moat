@@ -110,6 +110,14 @@ only to an organization's own infrastructure, never to Moat's developer.
    install of Moat, this section does not apply to you -- nothing about it
    can activate without your organization's own IT policy.
 
+   This same integration also periodically **receives** a domain-block
+   policy from that organization's own Athena instance (a signed list of
+   domains to block, applied the same way Moat's own bundled filter lists
+   are) -- a separate, inbound request to the same organization-controlled
+   server as the outbound events above, never to any server Moat's
+   developer operates. The response is signature-verified before anything
+   in it is applied; a policy that doesn't verify is discarded.
+
 Nothing else in Moat makes a network request. In particular: the full
 filter lists and cosmetic-hiding rules that block ads and trackers are
 bundled into the extension at build time (see the project's README for

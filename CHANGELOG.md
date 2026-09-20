@@ -3,6 +3,36 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.121
+
+### Fixed
+- **5-team audit fixes, batch 4: networking/privacy.**
+  - **PRIVACY.md now discloses the enterprise Athena integration's inbound policy fetch.** Item 5
+    previously only described the outbound event-reporting side; it never mentioned that the same
+    integration also periodically *receives* a signed domain-block policy from the organization's
+    own Athena instance. Purely a documentation gap (the fetch itself was already
+    signature-verified before use) but a real one -- PRIVACY.md's own stated goal is to "disclose
+    every case where Moat's own code talks to a network at all."
+  - **Every real third-party/network `fetch()` call in the codebase now sets `referrerPolicy:
+    "no-referrer"` explicitly** (the live-update channel, HIBP breach check, Cloudflare DoH
+    lookup, and all three Athena enterprise endpoints) -- previously relying on default browser
+    referrer behavior, which is low-risk but not zero-cost to state explicitly for requests
+    already designed to minimize what a third party learns. Calls that only ever fetch a bundled
+    local `browser.runtime.getURL(...)` resource (verified: none of them reach the network at
+    all) were left alone.
+  - **The live-update signature-verification gap is now diagnosable, not fixed outright.** A
+    public signing key is already baked into this build, but `live/manifest.json.sig` isn't
+    actually published in production yet (confirmed via a direct fetch: 404) -- so treating a
+    missing signature as a hard rejection today would break the live-update channel for every
+    installed copy, and a real attacker capable of tampering with the manifest could just as
+    easily fake the same 404 for the signature endpoint, so that specific "reject on missing
+    signature" fix wouldn't have closed the gap anyway without the signing pipeline actually
+    running in production first (a `LIVE_SIGNING_PRIVATE_KEY` CI-secret / operational step, not a
+    code change). `LiveUpdateStatus`/`YoutubeQuickFixesStatus` now record
+    `signatureExpectedButMissing` so this is visible via `getLiveUpdateStatus()` instead of
+    completely silent, without changing accept/reject behavior. Revisit once the signing pipeline
+    is actually live (see `docs/RELEASING.md`'s "Live-update channel" section).
+
 ## 0.11.120
 
 ### Fixed

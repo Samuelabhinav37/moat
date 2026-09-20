@@ -38,6 +38,7 @@ export async function fetchAndApplyPolicy(config: AthenaConfig, token?: string):
   try {
     const response = await fetch(config.policyUrl!, {
       cache: "no-store",
+      referrerPolicy: "no-referrer",
       headers: { authorization: `Bearer ${token}` },
     });
     if (!response.ok) return;

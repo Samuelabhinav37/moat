@@ -58,6 +58,9 @@ async function resolveCnameViaDoh(hostname: string): Promise<string | null> {
   try {
     const response = await fetch(`${DOH_ENDPOINT}?name=${encodeURIComponent(hostname)}&type=CNAME`, {
       headers: { Accept: "application/dns-json" },
+      // no-referrer: a third-party request already narrowed to a filtered,
+      // same-apex candidate hostname -- no reason to add anything else.
+      referrerPolicy: "no-referrer",
     });
     if (!response.ok) return null;
     return parseDohCnameAnswer((await response.json()) as DohResponse);

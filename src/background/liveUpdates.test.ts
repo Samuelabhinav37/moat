@@ -14,6 +14,7 @@ vi.mock("webextension-polyfill", () => ({
 import {
   MIN_REFETCH_INTERVAL_MS,
   YT_MIN_REFETCH_INTERVAL_MS,
+  computeSignatureExpectedButMissing,
   getYoutubeQuickFixesStatus,
   sha256Hex,
   shouldSkipRefetch,
@@ -76,5 +77,23 @@ describe("the YouTube quick-fixes channel", () => {
 
   it("getYoutubeQuickFixesStatus returns null before anything has run", async () => {
     expect(await getYoutubeQuickFixesStatus()).toBeNull();
+  });
+});
+
+describe("computeSignatureExpectedButMissing", () => {
+  it("is false when no public key is configured at all -- signing genuinely isn't set up, nothing to flag", () => {
+    expect(computeSignatureExpectedButMissing("", null)).toBe(false);
+    expect(computeSignatureExpectedButMissing("", "some-signature")).toBe(false);
+  });
+
+  it("is true when a key is configured but no signature was fetched -- the real, currently-live gap", () => {
+    expect(computeSignatureExpectedButMissing("a-real-public-key", null)).toBe(true);
+  });
+
+  it("is false when a key is configured and a signature WAS fetched, regardless of whether it verified", () => {
+    // Verification result (ok/bad) is handled separately by verifyLiveManifest
+    // -- this flag is only about whether a signature was available to check
+    // at all, not whether it passed.
+    expect(computeSignatureExpectedButMissing("a-real-public-key", "some-signature")).toBe(false);
   });
 });

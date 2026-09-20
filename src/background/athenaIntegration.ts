@@ -75,6 +75,7 @@ export async function getAthenaSession(config: AthenaConfig): Promise<AthenaSess
     const response = await fetch(config.bootstrapUrl, {
       method: "POST",
       headers: { "content-type": "application/json" },
+      referrerPolicy: "no-referrer",
       body: JSON.stringify({
         tenant_id: config.tenantId,
         agent_id: config.agentId,
@@ -164,6 +165,7 @@ export function flushSecurityEvents(policy: ManagedPolicy): Promise<void> {
         const response = await fetch(policy.athena.eventsUrl, {
           method: "POST",
           headers: { "content-type": "application/json", authorization: `Bearer ${session.token}` },
+          referrerPolicy: "no-referrer",
           body: JSON.stringify({
             source_event_id: event.eventId,
             occurred_at: new Date(event.timestamp).toISOString(),
