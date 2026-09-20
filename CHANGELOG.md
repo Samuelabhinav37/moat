@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.123
+
+### Fixed
+- **5-team audit fixes, batch 6: test coverage for the two highest-traffic untested files.**
+  - **`background/index.ts`** (603 lines, ~35-case message router, the single highest-traffic
+    file in the extension) had zero test coverage, and unlike most other untested files in this
+    codebase, it kept real validation logic inline instead of delegating to an already-tested pure
+    module -- `isValidMessageString`, `isHostnameSelectorHits`, and the `record-usage-signal`
+    count-clamping logic. Extracted to new `background/messageValidation.ts`, now with 20 direct
+    unit tests covering boundary values (exactly-at-cap, one-over-cap, `NaN`, wrong types).
+  - **`popupGuard.ts`** (the popup/redirect-firewall safety net) had no test coverage at all, and
+    a real evasion: a redirect deliberately delayed to land at/after the 4-second watch window's
+    expiry sailed through unchecked -- the `onUpdated` handler checked whether the watch had
+    expired *before* ever looking at the URL that arrived in that same event, so an expiring
+    update discarded its own URL unread. Malvertisers already use exactly this delayed-redirect
+    technique against short heuristic windows. Fixed to check the arriving URL even on the
+    update that finds the watch expired (still stops watching afterward either way -- this closes
+    the one-event gap at the boundary, not extends the window), and added 7 new tests with a
+    real event-capturing mock (not the existing no-op stub) that actually fire
+    `webNavigation.onCreatedNavigationTarget`/`tabs.onUpdated`/`tabs.onRemoved` and verify
+    behavior, including a fake-timers regression test for the exact delayed-redirect scenario.
+
 ## 0.11.122
 
 ### Fixed

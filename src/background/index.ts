@@ -81,6 +81,12 @@ import { reconcileCustomRuleStats, recordRuleMatches } from "./customRuleStats";
 import { cosmeticGenericsFor, proceduralRulesFor } from "./cosmeticIndex";
 import { allowPermissionGuardOrigin } from "./permissionGuard";
 import { injectCosmeticsForCommit, injectGenericSelectors } from "./cosmeticInject";
+import {
+  MAX_OVERRIDE_REASON_LENGTH,
+  clampUsageSignalCount,
+  isHostnameSelectorHits,
+  isValidMessageString,
+} from "./messageValidation";
 
 initPopupGuard();
 initLiveUpdates();
@@ -236,41 +242,6 @@ function hostnameOf(url: string | undefined): string {
 
 function isRuntimeMessage(value: unknown): value is RuntimeMessage {
   return typeof value === "object" && value !== null && "type" in value;
-}
-
-// hostname/selector arrive from a sender the TS types trust unconditionally
-// (only Moat's own elementPicker.ts sends these today), but the listener
-// itself shouldn't -- a compact, independent check at this boundary so it
-// stays safe against any future sender, not just the current one.
-const MAX_MESSAGE_STRING_LENGTH = 2000;
-// Deliberately smaller than the general cap above: this is the one message
-// carrying free text a user typed, headed to an org's Athena instance (see
-// the "override" case below) -- capped independently rather than just
-// reusing the general limit.
-const MAX_OVERRIDE_REASON_LENGTH = 500;
-
-function isValidMessageString(value: unknown): value is string {
-  return typeof value === "string" && value.length > 0 && value.length <= MAX_MESSAGE_STRING_LENGTH;
-}
-
-// Same shape check on both of record-custom-rule-match's arrays -- capped
-// independently of MAX_MESSAGE_STRING_LENGTH's per-string bound since this
-// bounds the array itself (a hostname's own picker rules are never anywhere
-// near this many).
-const MAX_RULE_MATCH_HITS = 200;
-
-function isHostnameSelectorHits(value: unknown): value is Array<{ hostname: string; selector: string }> {
-  return (
-    Array.isArray(value) &&
-    value.length <= MAX_RULE_MATCH_HITS &&
-    value.every(
-      (item): item is { hostname: string; selector: string } =>
-        typeof item === "object" &&
-        item !== null &&
-        isValidMessageString((item as Record<string, unknown>).hostname) &&
-        isValidMessageString((item as Record<string, unknown>).selector)
-    )
-  );
 }
 
 browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSender) => {
@@ -541,7 +512,7 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     case "record-usage-signal": {
       if (!isValidMessageString(message.hostname)) return undefined;
       if (!(SIGNAL_KEYS as readonly string[]).includes(message.signal)) return undefined;
-      const count = typeof message.count === "number" && message.count > 0 && message.count <= 1000 ? message.count : 1;
+      const count = clampUsageSignalCount(message.count);
       // Live, per-page-load counter for the Diagnostics page (DR-16) --
       // separate from usageStats.ts's rolling daily history below, which
       // this doesn't replace. Same `count` (searchSlop's real batch size)

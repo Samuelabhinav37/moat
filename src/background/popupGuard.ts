@@ -106,13 +106,26 @@ export function initPopupGuard(): void {
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
     const watch = pendingWatch.get(tabId);
     if (!watch || !changeInfo.url) return;
-    if (Date.now() > watch.expires) {
-      pendingWatch.delete(tabId);
-      return;
-    }
+
+    // Check the URL that actually arrived even on the update that finds the
+    // watch already expired, rather than discarding it unchecked -- a
+    // redirect deliberately delayed to land right at/after WATCH_WINDOW_MS
+    // (a real, unsophisticated evasion malvertisers already use against
+    // short heuristic windows) previously sailed through untouched here,
+    // since expiry was checked before the URL ever was. Still stops
+    // watching either way once expired; this only closes the one-update
+    // gap at the boundary, it doesn't extend the window.
     const domains = await loadRedirectDomains();
     const hostname = safeHostname(changeInfo.url);
-    if (hostname && matchesKnownRedirectDomain(hostname, domains)) {
+    const matchedKnownRedirect = Boolean(hostname && matchesKnownRedirectDomain(hostname, domains));
+
+    if (Date.now() > watch.expires) {
+      pendingWatch.delete(tabId);
+      if (matchedKnownRedirect) await closeSilently(tabId, watch.openerTabId);
+      return;
+    }
+
+    if (matchedKnownRedirect) {
       pendingWatch.delete(tabId);
       await closeSilently(tabId, watch.openerTabId);
     }
