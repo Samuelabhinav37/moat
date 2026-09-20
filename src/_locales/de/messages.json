@@ -785,5 +785,41 @@
         "content": "$1"
       }
     }
+  },
+  "warningBadge": {
+    "message": "Durch Organisationsrichtlinie blockiert"
+  },
+  "warningTitle": {
+    "message": "Diese Website wurde blockiert"
+  },
+  "warningLede": {
+    "message": "Die Sicherheitsrichtlinie deiner Organisation blockiert diese Website. Das ist nicht Moats eigene Filterliste — es ist eine Domain, die deine Organisation ausdrücklich genannt hat."
+  },
+  "warningGoBack": {
+    "message": "Zurück"
+  },
+  "warningReportMistake": {
+    "message": "Fehler melden"
+  },
+  "warningOverrideNote": {
+    "message": "Dies sendet eine Nachricht zur Überprüfung an das Sicherheitsteam deiner Organisation — die Website wird dadurch nicht freigegeben."
+  },
+  "warningReasonPlaceholder": {
+    "message": "Warum denkst du, dass dies irrtümlich blockiert wurde?"
+  },
+  "warningSubmit": {
+    "message": "Absenden"
+  },
+  "warningGoesToIT": {
+    "message": "Geht an dein IT-Team, nicht an Moat."
+  },
+  "warningHostnameFallback": {
+    "message": "diese Seite"
+  },
+  "warningReportedSuccess": {
+    "message": "An dein Sicherheitsteam gemeldet. Diese Seite bleibt blockiert, bis sie geprüft wurde."
+  },
+  "warningReportedError": {
+    "message": "Meldung konnte nicht gesendet werden -- versuche es gleich noch einmal."
   }
 }

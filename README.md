@@ -110,6 +110,7 @@ copies without a store release.
 | `webRequest` (Chrome only, non-blocking) | Observes candidate requests for "Uncloak disguised trackers" on Chrome, which gets a weaker DoH-based path instead of Firefox's synchronous one (see "Known limitations"). Inert unless that toggle is on. |
 | `scripting` | Registers the optional content scripts (feed ad removal, YouTube dimmer) only for the sites each is scoped to, instead of every page; injects the service-worker-owned cosmetic CSS; runs the element picker only when you click "Block an element…". |
 | `contentSettings` | Sets the browser-level camera/mic/location permission default to "block" for the ambush-prompt guard (a site calling `getUserMedia()`/`getCurrentPosition()` with no user gesture). Chrome only; Firefox's `contentSettings` doesn't cover this surface, so the guard silently no-ops there. Inert unless that toggle is on. |
+| `browsingData` | Backs the popup's manual "Clear site data…" button, which clears the active tab's own cookies/IndexedDB/local storage/service workers on click. Never called automatically; scoped to the current site only. |
 
 See [`PRIVACY.md`](PRIVACY.md) for the full policy: what Moat collects (nothing, for any normal
 install) and every case its code touches a network.

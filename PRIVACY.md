@@ -43,6 +43,10 @@ only to an organization's own infrastructure, never to Moat's developer.
 - The per-tab block-count breakdown (Ads/Trackers/Popups, and the optional
   by-company detail) is computed and displayed locally from the browser's
   own `declarativeNetRequest` match data. It is never transmitted.
+- The popup's manual "Clear site data…" button deletes the active tab's own
+  cookies, IndexedDB, local storage, and service workers, on your device,
+  only when you click it twice to confirm. Nothing about this is sent
+  anywhere -- it's a local deletion, not a network request.
 
 ## What reaches the network, and when
 

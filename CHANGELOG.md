@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.117
+
+### Fixed
+- **Release-readiness audit findings** (Chrome Web Store / Firefox AMO submission prep):
+  - README's permission table was missing the `browsingData` permission added for the popup's
+    "Clear site data…" button (shipped in 0.11.115); PRIVACY.md now also discloses that action
+    under "What stays on your device". Docs were out of sync with the shipped manifest.
+  - `scripts/manifest.ts` -- the file that defines the actual shipped manifest permissions and
+    content-script config for both browsers -- was outside `tsconfig.json`'s scope and got zero
+    type-checking anywhere (it only ran through Node's untyped TS stripping at build time). New
+    `tsconfig.scripts.json` closes that gap; `npm run typecheck` now checks both.
+  - `src/warning/warning.html`/`warning.ts` (the enterprise Athena policy "site blocked" page)
+    had no i18n at all -- every other page (popup/options/logger) is fully localized into
+    de/es/fr, this one wasn't. Now wired through the same `applyStaticI18n`/
+    `getMessageOrFallback` pattern as everywhere else, with translated strings added to all 4
+    locales.
+  - Removed a leftover git worktree and its already-fully-merged branch
+    (`worktree-agent-a815e9f7888d0a952`) left over from a prior session.
+
 ## 0.11.116
 
 ### Changed

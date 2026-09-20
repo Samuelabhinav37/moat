@@ -785,5 +785,41 @@
         "content": "$1"
       }
     }
+  },
+  "warningBadge": {
+    "message": "Bloqué par la politique de l'organisation"
+  },
+  "warningTitle": {
+    "message": "Ce site a été bloqué"
+  },
+  "warningLede": {
+    "message": "La politique de sécurité de votre organisation bloque ce site. Il ne s'agit pas de la propre liste de filtres de Moat — c'est un domaine que votre organisation a spécifiquement désigné."
+  },
+  "warningGoBack": {
+    "message": "Retour"
+  },
+  "warningReportMistake": {
+    "message": "Signaler une erreur"
+  },
+  "warningOverrideNote": {
+    "message": "Ceci envoie une note à l'équipe de sécurité de votre organisation pour examen — cela ne débloque pas le site."
+  },
+  "warningReasonPlaceholder": {
+    "message": "Pourquoi pensez-vous que ce blocage est une erreur ?"
+  },
+  "warningSubmit": {
+    "message": "Envoyer"
+  },
+  "warningGoesToIT": {
+    "message": "Va à votre équipe informatique, pas à Moat."
+  },
+  "warningHostnameFallback": {
+    "message": "cette page"
+  },
+  "warningReportedSuccess": {
+    "message": "Signalé à votre équipe de sécurité. Cette page reste bloquée jusqu'à son examen."
+  },
+  "warningReportedError": {
+    "message": "Impossible d'envoyer le signalement -- réessayez dans un instant."
   }
 }

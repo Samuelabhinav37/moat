@@ -787,5 +787,41 @@
         "content": "$1"
       }
     }
+  },
+  "warningBadge": {
+    "message": "Blocked by organization policy"
+  },
+  "warningTitle": {
+    "message": "This site was blocked"
+  },
+  "warningLede": {
+    "message": "Your organization's security policy blocks this site. This isn't Moat's own filter list — it's a domain your organization specifically named."
+  },
+  "warningGoBack": {
+    "message": "Go back"
+  },
+  "warningReportMistake": {
+    "message": "Report a mistake"
+  },
+  "warningOverrideNote": {
+    "message": "This sends a note to your organization's security team for review — it does not unblock the site."
+  },
+  "warningReasonPlaceholder": {
+    "message": "Why do you think this was blocked in error?"
+  },
+  "warningSubmit": {
+    "message": "Submit"
+  },
+  "warningGoesToIT": {
+    "message": "Goes to your IT team, not to Moat."
+  },
+  "warningHostnameFallback": {
+    "message": "this page"
+  },
+  "warningReportedSuccess": {
+    "message": "Reported to your security team. This page stays blocked until they review it."
+  },
+  "warningReportedError": {
+    "message": "Couldn't send the report -- try again in a moment."
   }
 }

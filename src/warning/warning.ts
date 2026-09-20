@@ -4,6 +4,9 @@
 // this page does nothing at all for a normal, non-enterprise install.
 import browser from "webextension-polyfill";
 import type { AthenaBlockReasonResponse, GetAthenaBlockReasonMessage, ReportAthenaOverrideMessage } from "../types";
+import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
+
+applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 
 async function getBlockReason(): Promise<AthenaBlockReasonResponse> {
   const message: GetAthenaBlockReasonMessage = { type: "get-athena-block-reason" };
@@ -17,7 +20,8 @@ async function reportOverride(reason: string): Promise<void> {
 
 async function render(): Promise<void> {
   const { hostname } = await getBlockReason();
-  document.getElementById("hostname")!.textContent = hostname ?? "this page";
+  document.getElementById("hostname")!.textContent =
+    hostname ?? getMessageOrFallback((key) => browser.i18n.getMessage(key), "warningHostnameFallback", "this page");
 }
 
 document.getElementById("go-back")!.addEventListener("click", () => {
@@ -43,9 +47,17 @@ document.getElementById("submit-override")!.addEventListener("click", () => {
     submitButton.disabled = true;
     try {
       await reportOverride(reason);
-      status.textContent = "Reported to your security team. This page stays blocked until they review it.";
+      status.textContent = getMessageOrFallback(
+        (key) => browser.i18n.getMessage(key),
+        "warningReportedSuccess",
+        "Reported to your security team. This page stays blocked until they review it."
+      );
     } catch {
-      status.textContent = "Couldn't send the report -- try again in a moment.";
+      status.textContent = getMessageOrFallback(
+        (key) => browser.i18n.getMessage(key),
+        "warningReportedError",
+        "Couldn't send the report -- try again in a moment."
+      );
       submitButton.disabled = false;
     }
     status.hidden = false;
