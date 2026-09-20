@@ -626,7 +626,7 @@
     "message": "Usar el propio modo de camuflaje de Firefox"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Activa la protección contra huellas digitales integrada de Firefox, la misma que usa Tor Browser. Llega más lejos de lo que Moat puede por sí solo: tamaño de ventana, fuentes, zona horaria y más."
+    "message": "Activa un modo de camuflaje más profundo, integrado directamente en Firefox. Llega más lejos de lo que Moat puede por sí solo: tamaño de ventana, fuentes, zona horaria y más."
   },
   "optionsFirefoxRFPCaution": {
     "message": "Puede ser más disruptivo que la propia protección de huella digital de Moat descrita arriba. Cambia el comportamiento real del navegador, no solo lo que un sitio puede ver, así que conviene probarlo unos días antes de confiar en él."
@@ -1079,5 +1079,33 @@
   },
   "diagnosticsMatchesEmpty": {
     "message": "Aún no se registraron coincidencias para esta pestaña. Recarga la página y actualiza."
+  },
+
+  "commonCancel": {
+    "message": "Cancelar"
+  },
+  "optionsImportWillChange": {
+    "message": "Este archivo cambiará lo siguiente:"
+  },
+  "optionsImportApplyButton": {
+    "message": "Aplicar esta importación"
+  },
+  "optionsImportNoChanges": {
+    "message": "Este archivo coincide con tu configuración actual. No cambiaría nada."
+  },
+  "optionsImportChangeProtections": {
+    "message": "Configuraciones de protección"
+  },
+  "optionsImportChangeRules": {
+    "message": "Reglas personalizadas"
+  },
+  "optionsImportChangeExceptions": {
+    "message": "Excepciones de sitios"
+  },
+  "optionsImportChangeFilterLists": {
+    "message": "Elecciones de listas de filtros"
+  },
+  "optionsImportChangeSync": {
+    "message": "Configuración de sincronización"
   }
 }

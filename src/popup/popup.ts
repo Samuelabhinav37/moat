@@ -367,13 +367,18 @@ document.getElementById("start-picker")?.addEventListener("click", async () => {
 // here uses.
 const CONFIRM_WINDOW_MS = 4000;
 const freshStartButton = document.getElementById("fresh-start-button") as HTMLButtonElement;
+// The button's own textContent isn't used for state text anymore -- it now
+// carries a persistent caution-triangle icon (see popup.html) that a raw
+// `.textContent =` on the button itself would silently wipe out. Every
+// state-text update below targets this inner <span> instead.
+const freshStartButtonLabel = freshStartButton.querySelector("span")!;
 let freshStartArmed = false;
 let freshStartResetTimer: ReturnType<typeof setTimeout> | undefined;
 
 function resetFreshStartButton(): void {
   freshStartArmed = false;
   freshStartButton.classList.remove("confirming");
-  freshStartButton.textContent = getMessageOrFallback(
+  freshStartButtonLabel.textContent = getMessageOrFallback(
     (key) => browser.i18n.getMessage(key),
     "popupFreshStartButton",
     "Clear site data…"
@@ -384,7 +389,7 @@ freshStartButton.addEventListener("click", async () => {
   if (!freshStartArmed) {
     freshStartArmed = true;
     freshStartButton.classList.add("confirming");
-    freshStartButton.textContent = getMessageOrFallback(
+    freshStartButtonLabel.textContent = getMessageOrFallback(
       (key) => browser.i18n.getMessage(key),
       "popupFreshStartConfirm",
       "Click again to clear"
@@ -420,7 +425,7 @@ freshStartButton.addEventListener("click", async () => {
     window.close();
   } catch {
     resetFreshStartButton();
-    freshStartButton.textContent = getMessageOrFallback(
+    freshStartButtonLabel.textContent = getMessageOrFallback(
       (key) => browser.i18n.getMessage(key),
       "popupFreshStartError",
       "Couldn't clear site data."

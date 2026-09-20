@@ -283,3 +283,74 @@ describe("Custom Rules tab: migration import", () => {
     expect(document.getElementById("migration-import-status")?.textContent).not.toBe("");
   });
 });
+
+describe("Tab rail: ARIA wiring and arrow-key navigation", () => {
+  it("gives each tab button a matching aria-controls/tabpanel id pair", async () => {
+    await renderOptions();
+    for (const button of document.querySelectorAll<HTMLButtonElement>("[role='tab']")) {
+      const panelId = button.getAttribute("aria-controls")!;
+      const panel = document.getElementById(panelId);
+      expect(panel, `panel for ${button.id}`).not.toBeNull();
+      expect(panel?.getAttribute("role")).toBe("tabpanel");
+      expect(panel?.getAttribute("aria-labelledby")).toBe(button.id);
+    }
+  });
+
+  it("only the selected tab is in the normal tab order (tabindex 0 vs -1)", async () => {
+    await renderOptions();
+    const protectionTab = document.getElementById("tab-protection") as HTMLButtonElement;
+    const filtersTab = document.getElementById("tab-filters") as HTMLButtonElement;
+    expect(protectionTab.tabIndex).toBe(0);
+    expect(filtersTab.tabIndex).toBe(-1);
+
+    filtersTab.click();
+    expect(protectionTab.tabIndex).toBe(-1);
+    expect(filtersTab.tabIndex).toBe(0);
+  });
+
+  it("ArrowDown moves focus and selection to the next tab, wrapping past the last one", async () => {
+    await renderOptions();
+    const tabs = [...document.querySelectorAll<HTMLButtonElement>("[role='tab']")];
+    tabs[0]!.focus();
+
+    tabs[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    expect(document.activeElement).toBe(tabs[1]);
+    expect(tabs[1]!.getAttribute("aria-selected")).toBe("true");
+
+    // Wraps from the last tab back to the first.
+    tabs[tabs.length - 1]!.focus();
+    tabs[tabs.length - 1]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    expect(document.activeElement).toBe(tabs[0]);
+  });
+
+  it("ArrowUp moves focus and selection to the previous tab, wrapping past the first one", async () => {
+    await renderOptions();
+    const tabs = [...document.querySelectorAll<HTMLButtonElement>("[role='tab']")];
+    tabs[0]!.focus();
+    tabs[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+    expect(document.activeElement).toBe(tabs[tabs.length - 1]);
+  });
+
+  it("Home/End jump to the first/last tab", async () => {
+    await renderOptions();
+    const tabs = [...document.querySelectorAll<HTMLButtonElement>("[role='tab']")];
+    tabs[2]!.focus();
+
+    tabs[2]!.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
+    expect(document.activeElement).toBe(tabs[tabs.length - 1]);
+
+    tabs[tabs.length - 1]!.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
+    expect(document.activeElement).toBe(tabs[0]);
+  });
+
+  it("moving focus with an arrow key actually shows the corresponding panel, not just changes aria-selected", async () => {
+    await renderOptions();
+    const tabs = [...document.querySelectorAll<HTMLButtonElement>("[role='tab']")];
+    tabs[0]!.focus();
+    tabs[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+
+    const nextPanelId = tabs[1]!.getAttribute("aria-controls")!;
+    expect(document.getElementById(nextPanelId)?.hidden).toBe(false);
+    expect(document.getElementById("panel-protection")?.hidden).toBe(true);
+  });
+});

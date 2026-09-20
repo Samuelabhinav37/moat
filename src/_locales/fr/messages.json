@@ -626,7 +626,7 @@
     "message": "Utiliser le mode de camouflage propre à Firefox"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Active la protection intégrée de Firefox contre l'empreinte numérique, la même que celle utilisée par Tor Browser. Elle va plus loin que ce que Moat peut faire seul : taille de fenêtre, polices, fuseau horaire et plus."
+    "message": "Active un mode de camouflage plus poussé, intégré directement à Firefox. Il va plus loin que ce que Moat peut faire seul : taille de fenêtre, polices, fuseau horaire et plus."
   },
   "optionsFirefoxRFPCaution": {
     "message": "Peut être plus perturbant que la propre protection d'empreinte de Moat ci-dessus. Elle modifie le comportement réel du navigateur, pas seulement ce qu'un site peut voir, donc mieux vaut l'essayer quelques jours avant d'en dépendre."
@@ -1079,5 +1079,33 @@
   },
   "diagnosticsMatchesEmpty": {
     "message": "Aucune correspondance enregistrée pour cet onglet. Rechargez la page et actualisez."
+  },
+
+  "commonCancel": {
+    "message": "Annuler"
+  },
+  "optionsImportWillChange": {
+    "message": "Ce fichier va modifier :"
+  },
+  "optionsImportApplyButton": {
+    "message": "Appliquer cet import"
+  },
+  "optionsImportNoChanges": {
+    "message": "Ce fichier correspond à vos paramètres actuels. Rien ne changerait."
+  },
+  "optionsImportChangeProtections": {
+    "message": "Paramètres de protection"
+  },
+  "optionsImportChangeRules": {
+    "message": "Règles personnalisées"
+  },
+  "optionsImportChangeExceptions": {
+    "message": "Exceptions de sites"
+  },
+  "optionsImportChangeFilterLists": {
+    "message": "Choix de listes de filtres"
+  },
+  "optionsImportChangeSync": {
+    "message": "Paramètre de synchronisation"
   }
 }

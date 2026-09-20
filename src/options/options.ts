@@ -13,6 +13,8 @@ import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
 import { dismissWelcome, shouldShowWelcome } from "../background/updateNotice";
 import { customRuleStatKey, isStale } from "../shared/customRuleStats";
+import { validateImportedSettings } from "../background/settingsPortability";
+import { summarizeSettingsImport } from "../shared/settingsDiff";
 import type {
   AddCustomDomainMessage,
   AddCustomDomainResponse,
@@ -113,7 +115,14 @@ function closeDrawer(): void {
 }
 
 function selectTab(name: string): void {
-  for (const button of tabButtons) button.setAttribute("aria-selected", String(button.dataset.tab === name));
+  for (const button of tabButtons) {
+    const selected = button.dataset.tab === name;
+    button.setAttribute("aria-selected", String(selected));
+    // WAI-ARIA tabs pattern: only the selected tab is in the page's normal
+    // Tab order; the others are reached via the arrow-key handler below,
+    // not by tabbing through each one individually.
+    button.tabIndex = selected ? 0 : -1;
+  }
   for (const panel of tabPanels) panel.hidden = panel.dataset.tabPanel !== name;
   if (name !== "protection") closeDrawer();
 }
@@ -125,6 +134,32 @@ for (const button of tabButtons) {
     if (name === "trackers") void renderTrackers();
   });
 }
+
+// Arrow-key navigation between tabs, per the WAI-ARIA tabs pattern this
+// markup otherwise only imitates the static shape of (role="tab"/
+// aria-selected without the keyboard model a screen reader user would
+// expect from that role). The rail is a vertical list (see its own
+// aria-orientation="vertical"), so Up/Down move focus, not Left/Right.
+const tabList = document.querySelector('[role="tablist"]') as HTMLElement;
+tabList.addEventListener("keydown", (event) => {
+  const tabs = [...tabButtons];
+  const currentIndex = tabs.indexOf(document.activeElement as HTMLButtonElement);
+  if (currentIndex === -1) return;
+
+  let nextIndex: number | null = null;
+  if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % tabs.length;
+  else if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+  else if (event.key === "Home") nextIndex = 0;
+  else if (event.key === "End") nextIndex = tabs.length - 1;
+  if (nextIndex === null) return;
+
+  event.preventDefault();
+  const nextTab = tabs[nextIndex]!;
+  nextTab.focus();
+  const name = nextTab.dataset.tab!;
+  selectTab(name);
+  if (name === "trackers") void renderTrackers();
+});
 
 // ---------- Protection tab ----------
 
@@ -227,7 +262,7 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsFirefoxRFPToggleLabel", "Use Firefox's own device-disguise mode"],
     descKey: [
       "optionsFirefoxRFPToggleHint",
-      "Turns on Firefox's own built-in fingerprint protection, the same one Tor Browser uses. It reaches deeper than Moat can on its own: window size, fonts, timezone, and more.",
+      "Turns on a deeper device-disguise mode built into Firefox itself. It reaches further than Moat can on its own: window size, fonts, timezone, and more.",
     ],
     cautionKey: [
       "optionsFirefoxRFPCaution",
@@ -1609,6 +1644,10 @@ const exportSettingsButton = document.getElementById("export-settings-button") a
 const importSettingsButton = document.getElementById("import-settings-button") as HTMLButtonElement;
 const importSettingsInput = document.getElementById("import-settings-input") as HTMLInputElement;
 const importSettingsStatus = document.getElementById("import-settings-status") as HTMLElement;
+const importSettingsConfirm = document.getElementById("import-settings-confirm") as HTMLElement;
+const importSettingsSummary = document.getElementById("import-settings-summary") as HTMLUListElement;
+const importSettingsApplyButton = document.getElementById("import-settings-apply-button") as HTMLButtonElement;
+const importSettingsCancelButton = document.getElementById("import-settings-cancel-button") as HTMLButtonElement;
 const exportFilenameEl = document.getElementById("export-filename") as HTMLElement;
 const backupMetricLastEl = document.getElementById("backup-metric-last") as HTMLElement;
 const backupMetricSizeEl = document.getElementById("backup-metric-size") as HTMLElement;
@@ -1811,24 +1850,81 @@ trackersRefresh.addEventListener("click", (event) => {
   void renderTrackers();
 });
 
+// Holds the parsed, already-validated payload between "file chosen" and
+// "Apply this import" clicked -- nothing is sent to the background, and
+// nothing is applied, until the user explicitly confirms the summary below.
+// Previously this ran the actual import the instant a file was chosen,
+// directly contradicting the row's own copy ("You'll see what changes
+// before it applies").
+let pendingImportPayload: unknown = null;
+
+function resetImportConfirm(): void {
+  pendingImportPayload = null;
+  importSettingsConfirm.hidden = true;
+  importSettingsSummary.replaceChildren();
+}
+
+function addImportSummaryItem(key: string, fallback: string): void {
+  const item = document.createElement("li");
+  item.textContent = tFallback(key, fallback);
+  importSettingsSummary.append(item);
+}
+
 importSettingsInput.addEventListener("change", async () => {
   const file = importSettingsInput.files?.[0];
   if (!file) return;
+  importSettingsStatus.hidden = true;
+  resetImportConfirm();
   try {
     const payload = JSON.parse(await file.text());
-    const message: ImportSettingsMessage = { type: "import-settings", payload };
-    const result = (await browser.runtime.sendMessage(message)) as ImportSettingsResponse;
-    importSettingsStatus.hidden = false;
-    importSettingsStatus.textContent = result.ok
-      ? tFallback("optionsImportedSuccess", "Settings imported.")
-      : tFallback("optionsImportedInvalid", "That file doesn't look like a valid Moat settings export.");
-    if (result.ok) await render();
+    // Client-side validation only, against the CURRENT settings this page
+    // already has in memory -- purely to build the preview. The background
+    // handler re-validates this same payload independently before ever
+    // applying it (defense in depth, same posture as every other untrusted-
+    // import boundary in this codebase), so a stale/tampered pendingImportPayload
+    // by the time Apply is clicked still can't bypass real validation.
+    const patch = validateImportedSettings(payload);
+    if (!patch) {
+      importSettingsStatus.hidden = false;
+      importSettingsStatus.textContent = tFallback("optionsImportedInvalid", "That file doesn't look like a valid Moat settings export.");
+      return;
+    }
+
+    const current = lastSettings ?? (await getEffectiveSettings());
+    const summary = summarizeSettingsImport(current, patch);
+    if (summary.isNoOp) {
+      addImportSummaryItem("optionsImportNoChanges", "This file matches your current settings. Nothing would change.");
+    } else {
+      if (summary.protectionSettingsChanged > 0) addImportSummaryItem("optionsImportChangeProtections", "Protection settings");
+      if (summary.customRulesChanged) addImportSummaryItem("optionsImportChangeRules", "Custom rules");
+      if (summary.siteExceptionsChanged) addImportSummaryItem("optionsImportChangeExceptions", "Site exceptions");
+      if (summary.filterListChoicesChanged) addImportSummaryItem("optionsImportChangeFilterLists", "Filter list choices");
+      if (summary.syncSettingChanged) addImportSummaryItem("optionsImportChangeSync", "Sync setting");
+    }
+    pendingImportPayload = payload;
+    importSettingsConfirm.hidden = false;
   } catch {
     importSettingsStatus.hidden = false;
     importSettingsStatus.textContent = tFallback("optionsImportReadError", "Couldn't read that file.");
   } finally {
     importSettingsInput.value = "";
   }
+});
+
+importSettingsApplyButton.addEventListener("click", async () => {
+  if (pendingImportPayload === null) return;
+  const message: ImportSettingsMessage = { type: "import-settings", payload: pendingImportPayload };
+  const result = (await browser.runtime.sendMessage(message)) as ImportSettingsResponse;
+  resetImportConfirm();
+  importSettingsStatus.hidden = false;
+  importSettingsStatus.textContent = result.ok
+    ? tFallback("optionsImportedSuccess", "Settings imported.")
+    : tFallback("optionsImportedInvalid", "That file doesn't look like a valid Moat settings export.");
+  if (result.ok) await render();
+});
+
+importSettingsCancelButton.addEventListener("click", () => {
+  resetImportConfirm();
 });
 
 // ---------- Welcome panel (first run only) ----------

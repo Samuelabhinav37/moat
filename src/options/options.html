@@ -1115,7 +1115,7 @@
   </head>
   <body>
     <div class="shell" id="shell">
-      <nav class="rail" role="tablist">
+      <nav class="rail" role="tablist" aria-orientation="vertical">
         <div class="brand-row">
           <img src="icons/icon48.png" alt="" />
           <span class="brand-name">Moat</span>
@@ -1124,7 +1124,15 @@
              convention already used for the drawer-caution/stale-rule/
              destination-note glyphs elsewhere on this page. -->
         <div class="rail-list">
-          <button class="rail-item" data-tab="protection" role="tab" aria-selected="true">
+          <button
+            class="rail-item"
+            data-tab="protection"
+            role="tab"
+            id="tab-protection"
+            aria-controls="panel-protection"
+            aria-selected="true"
+            tabindex="0"
+          >
             <span class="rail-item-main">
               <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M8 1.6l4.6 1.8v3.4c0 3.3-1.9 5.7-4.6 6.6-2.7-.9-4.6-3.3-4.6-6.6V3.4L8 1.6z" />
@@ -1133,7 +1141,15 @@
             </span>
             <span class="rail-dot" id="rail-dot-protection" hidden></span>
           </button>
-          <button class="rail-item" data-tab="filters" role="tab" aria-selected="false">
+          <button
+            class="rail-item"
+            data-tab="filters"
+            role="tab"
+            id="tab-filters"
+            aria-controls="panel-filters"
+            aria-selected="false"
+            tabindex="-1"
+          >
             <span class="rail-item-main">
               <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M2.2 3h11.6l-4.3 5.2v3.9l-3 1.4V8.2L2.2 3z" />
@@ -1142,7 +1158,15 @@
             </span>
             <span class="rail-count" id="rail-count-filters"></span>
           </button>
-          <button class="rail-item" data-tab="custom" role="tab" aria-selected="false">
+          <button
+            class="rail-item"
+            data-tab="custom"
+            role="tab"
+            id="tab-custom"
+            aria-controls="panel-custom"
+            aria-selected="false"
+            tabindex="-1"
+          >
             <span class="rail-item-main">
               <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M3.2 2.3l9 4-3.6 1.2-1.2 3.6-4.2-8.8z" />
@@ -1151,7 +1175,15 @@
             </span>
             <span class="rail-count" id="rail-count-custom"></span>
           </button>
-          <button class="rail-item" data-tab="trackers" role="tab" aria-selected="false">
+          <button
+            class="rail-item"
+            data-tab="trackers"
+            role="tab"
+            id="tab-trackers"
+            aria-controls="panel-trackers"
+            aria-selected="false"
+            tabindex="-1"
+          >
             <span class="rail-item-main">
               <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M1.6 8S4.2 3.8 8 3.8 14.4 8 14.4 8 11.8 12.2 8 12.2 1.6 8 1.6 8z" />
@@ -1168,7 +1200,15 @@
                DR-02 a rail indicator means "worth your attention" -- here
                that is "no backup has ever been taken". options.ts unhides
                it when lastBackupAt is null. -->
-          <button class="rail-item" data-tab="backup" role="tab" aria-selected="false">
+          <button
+            class="rail-item"
+            data-tab="backup"
+            role="tab"
+            id="tab-backup"
+            aria-controls="panel-backup"
+            aria-selected="false"
+            tabindex="-1"
+          >
             <span class="rail-item-main">
               <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M8 2v7" />
@@ -1180,7 +1220,15 @@
             <span class="rail-dot rail-dot-caution" id="rail-dot-backup" hidden></span>
           </button>
 
-          <button class="rail-item" data-tab="about" role="tab" aria-selected="false">
+          <button
+            class="rail-item"
+            data-tab="about"
+            role="tab"
+            id="tab-about"
+            aria-controls="panel-about"
+            aria-selected="false"
+            tabindex="-1"
+          >
             <span class="rail-item-main">
               <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="8" cy="8" r="6" />
@@ -1193,7 +1241,7 @@
       </nav>
 
       <div class="content" id="content-column">
-        <section data-tab-panel="protection">
+        <section data-tab-panel="protection" role="tabpanel" id="panel-protection" aria-labelledby="tab-protection" tabindex="0">
           <h2 class="page-title" data-i18n="optionsProtectionTitle">Protection</h2>
           <p class="page-desc" data-i18n="optionsProtectionDesc">
             What Moat blocks, and what it leaves alone. Everything here runs on your device.
@@ -1205,6 +1253,12 @@
                 <span class="row-title" id="master-toggle-label" data-i18n="optionsMasterToggleLabel">Protection</span>
                 <span class="locked-badge" id="protection-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
               </div>
+              <!-- The popup has its own, separate per-site pause toggle with
+                   no persistent label of its own (just "protected"/"paused"
+                   next to the current site's name) -- this one-line subtitle
+                   is the only thing on either surface that actually says
+                   this switch is the global one, not a specific site's. -->
+              <span class="row-evidence" data-i18n="optionsMasterToggleHint">Turn all blocking on or off, everywhere.</span>
             </div>
             <label class="switch">
               <input type="checkbox" id="master-toggle" aria-labelledby="master-toggle-label" />
@@ -1295,7 +1349,7 @@
           </div>
         </aside>
 
-        <section data-tab-panel="filters" hidden>
+        <section data-tab-panel="filters" role="tabpanel" id="panel-filters" aria-labelledby="tab-filters" tabindex="0" hidden>
           <h2 class="page-title" data-i18n="tabFilters">Filter Lists</h2>
           <p class="page-desc" data-i18n="optionsFilterListsDesc">
             The rule sets Moat compiles into the browser's own blocker. Every one ships inside the
@@ -1359,7 +1413,7 @@
           <div class="row-group" id="filter-list-rows"></div>
         </section>
 
-        <section data-tab-panel="custom" hidden>
+        <section data-tab-panel="custom" role="tabpanel" id="panel-custom" aria-labelledby="tab-custom" tabindex="0" hidden>
           <div class="row" style="align-items: flex-start">
             <div>
               <h2 class="page-title" data-i18n="tabCustom">Custom Rules</h2>
@@ -1462,7 +1516,7 @@
           </div>
         </section>
 
-        <section data-tab-panel="trackers" hidden>
+        <section data-tab-panel="trackers" role="tabpanel" id="panel-trackers" aria-labelledby="tab-trackers" tabindex="0" hidden>
           <h2 class="page-title" data-i18n="tabTrackers">Trackers</h2>
           <p class="page-desc" data-i18n="optionsTrackersDesc">
             Which companies tried to follow you, and how far they got. Counted on your device from
@@ -1520,7 +1574,7 @@
 
              "Across devices" is a group of one. That is deliberate: a group
              of one is a statement that this control is not like the others. -->
-        <section data-tab-panel="backup" hidden>
+        <section data-tab-panel="backup" role="tabpanel" id="panel-backup" aria-labelledby="tab-backup" tabindex="0" hidden>
           <h2 class="page-title" data-i18n="tabBackup">Backup</h2>
           <p class="page-desc" data-i18n="optionsBackupDesc">
             Save your settings, custom rules and exceptions to a file you keep, or sync them
@@ -1579,6 +1633,18 @@
           </div>
           <input type="file" id="import-settings-input" accept="application/json" hidden />
           <p class="hint muted" id="import-settings-status" hidden></p>
+          <!-- Shown only once a chosen file has been read and validated
+               client-side (see options.ts's importSettingsInput handler) --
+               nothing is actually applied until "Apply this import" is
+               clicked. The row above's own copy promises exactly this. -->
+          <div id="import-settings-confirm" hidden>
+            <p class="hint" data-i18n="optionsImportWillChange">This file will change:</p>
+            <ul class="hint" id="import-settings-summary" style="margin: 4px 0 0; padding-left: 18px"></ul>
+            <div class="about-links" style="margin-top: 8px">
+              <button type="button" id="import-settings-apply-button" class="primary" data-i18n="optionsImportApplyButton">Apply this import</button>
+              <button type="button" id="import-settings-cancel-button" data-i18n="commonCancel">Cancel</button>
+            </div>
+          </div>
 
           <div class="group-heading" style="padding-top: 22px">
             <span data-i18n="optionsBackupAcrossDevicesHeading">Across devices</span>
@@ -1656,7 +1722,7 @@
              migrated to data-i18n -- applyStaticI18n replaces an element's
              whole textContent, which would silently delete the embedded
              link/emphasis. -->
-        <section data-tab-panel="about" hidden>
+        <section data-tab-panel="about" role="tabpanel" id="panel-about" aria-labelledby="tab-about" tabindex="0" hidden>
           <h2 class="page-title" data-i18n="tabAbout">About</h2>
           <p class="page-desc" data-i18n="optionsAboutDesc">
             What this build is, and exactly what leaves your device.

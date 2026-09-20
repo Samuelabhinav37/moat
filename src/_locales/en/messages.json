@@ -628,7 +628,7 @@
     "message": "Use Firefox's own device-disguise mode"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Turns on Firefox's own built-in fingerprint protection, the same one Tor Browser uses. It reaches deeper than Moat can on its own: window size, fonts, timezone, and more."
+    "message": "Turns on a deeper device-disguise mode built into Firefox itself. It reaches further than Moat can on its own: window size, fonts, timezone, and more."
   },
   "optionsFirefoxRFPCaution": {
     "message": "Can be more disruptive than Moat's own fingerprint protection above. It changes real browser behavior, not just what a page can see, so it's worth trying for a few days before relying on it."
@@ -1081,5 +1081,33 @@
   },
   "diagnosticsMatchesEmpty": {
     "message": "No matches recorded yet for this tab. Reload the page and refresh."
+  },
+
+  "commonCancel": {
+    "message": "Cancel"
+  },
+  "optionsImportWillChange": {
+    "message": "This file will change:"
+  },
+  "optionsImportApplyButton": {
+    "message": "Apply this import"
+  },
+  "optionsImportNoChanges": {
+    "message": "This file matches your current settings. Nothing would change."
+  },
+  "optionsImportChangeProtections": {
+    "message": "Protection settings"
+  },
+  "optionsImportChangeRules": {
+    "message": "Custom rules"
+  },
+  "optionsImportChangeExceptions": {
+    "message": "Site exceptions"
+  },
+  "optionsImportChangeFilterLists": {
+    "message": "Filter list choices"
+  },
+  "optionsImportChangeSync": {
+    "message": "Sync setting"
   }
 }

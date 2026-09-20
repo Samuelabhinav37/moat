@@ -3,6 +3,39 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.120
+
+### Fixed
+- **5-team audit fixes, batch 3: UI/UX.**
+  - **Backup tab's "Restore from a file" now actually does what its own copy claims.** The row
+    has always said "You'll see what changes before it applies" -- the code applied the imported
+    file immediately, with no preview, contradicting its own promise on the single most
+    destructive action in the product. Choosing a file now validates it client-side, shows a real
+    summary of which categories would change (protection settings, custom rules, site exceptions,
+    filter list choices, sync setting -- or "nothing would change" if the file matches current
+    settings), and only applies it once "Apply this import" is clicked. New, unit-tested
+    `shared/settingsDiff.ts` computes the summary.
+  - **Popup's "Clear site data…" button** now carries a caution-colored triangle icon at rest
+    (color plus an icon, not color alone, matching this codebase's own "state must not depend on
+    hue alone" bar), so it's visually distinguishable from the two harmless buttons next to it
+    before a user has already armed its two-click confirm.
+  - **Options page's tab rail** now has full ARIA tabpanel wiring (`role="tabpanel"`,
+    `aria-labelledby`, matching `aria-controls` on each tab button) and real Up/Down/Home/End
+    keyboard navigation between tabs, matching the WAI-ARIA vertical-tablist pattern the markup
+    already imitated the static shape of. Covered by new jsdom-based tests that actually simulate
+    keydown events and assert the right panel becomes visible, not just that attributes changed.
+  - Removed an unexplained "the same one Tor Browser uses" reference from the Firefox
+    fingerprint-protection toggle's description -- accurate but liable to make a non-technical
+    user think the feature is "for hackers" rather than a reassuring, mature privacy feature.
+  - The Protection tab's master on/off switch now has a one-line subtitle clarifying it's global
+    ("Turn all blocking on or off, everywhere"), distinguishing it from the popup's separate
+    per-site pause toggle, which has no persistent label of its own. This reused an
+    already-translated `optionsMasterToggleHint` message key that existed in all 4 locales but
+    was never actually wired into the page -- a mirror-image of batch 2's gap (markup referencing
+    a key that doesn't exist), worth noting for a future pass: a scan for message keys defined but
+    never referenced anywhere in `src/` found roughly two dozen more, left untouched pending
+    review since deleting real UI copy is a different risk than adding a missing key.
+
 ## 0.11.119
 
 ### Fixed

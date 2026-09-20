@@ -447,11 +447,21 @@
       <button id="start-picker" class="secondary" data-i18n="popupBlockElement">Block an element…</button>
       <!-- Hidden by default; popup.ts only shows it for a real http(s) tab
            (see freshStart.ts's own guard against internal/extension pages).
-           Clicking it once arms a confirm state (data-i18n text swaps,
-           .confirming class added); a second click within the window
-           actually clears the site's cookies/storage. -->
-      <button id="fresh-start-button" class="secondary" hidden data-i18n="popupFreshStartButton">
-        Clear site data…
+           The caution-colored triangle (same glyph as the Backup tab's own
+           sync-destination note in options.html) distinguishes this one at
+           rest from the two harmless buttons around it -- color plus an
+           icon, not color alone, matching this codebase's own "state must
+           not depend on hue alone" bar (see logger.html's silent-heuristic
+           marker). Clicking it once arms a confirm state (the text span's
+           own data-i18n swaps, .confirming class added on the button); a
+           second click within the window actually clears the site's
+           cookies/storage. -->
+      <button id="fresh-start-button" class="secondary" hidden>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--caution)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -1px; margin-right: 5px">
+          <path d="M8 2.5l6 11H2l6-11z" />
+          <path d="M8 6.6v3M8 11.6v.2" />
+        </svg>
+        <span data-i18n="popupFreshStartButton">Clear site data…</span>
       </button>
       <button id="report-problem" class="secondary" hidden data-i18n="popupReportProblem">Report a problem…</button>
     </div>

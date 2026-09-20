@@ -626,7 +626,7 @@
     "message": "Firefox' eigenen Tarnmodus verwenden"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Aktiviert Firefox' eigenen Fingerprinting-Schutz, denselben, den der Tor-Browser nutzt. Er greift tiefer ein, als Moat es selbst kann: Fenstergröße, Schriftarten, Zeitzone und mehr."
+    "message": "Aktiviert einen tiefergehenden Tarnmodus, der direkt in Firefox eingebaut ist. Er greift weiter als Moat es allein kann: Fenstergröße, Schriftarten, Zeitzone und mehr."
   },
   "optionsFirefoxRFPCaution": {
     "message": "Kann stärker eingreifen als Moats eigener Fingerprinting-Schutz oben. Er ändert echtes Browser-Verhalten, nicht nur das, was eine Seite sehen kann, also am besten ein paar Tage ausprobieren, bevor Sie sich darauf verlassen."
@@ -1079,5 +1079,33 @@
   },
   "diagnosticsMatchesEmpty": {
     "message": "Für diesen Tab wurden noch keine Treffer aufgezeichnet. Lade die Seite neu und aktualisiere."
+  },
+
+  "commonCancel": {
+    "message": "Abbrechen"
+  },
+  "optionsImportWillChange": {
+    "message": "Diese Datei wird Folgendes ändern:"
+  },
+  "optionsImportApplyButton": {
+    "message": "Import anwenden"
+  },
+  "optionsImportNoChanges": {
+    "message": "Diese Datei stimmt mit deinen aktuellen Einstellungen überein. Es würde sich nichts ändern."
+  },
+  "optionsImportChangeProtections": {
+    "message": "Schutzeinstellungen"
+  },
+  "optionsImportChangeRules": {
+    "message": "Eigene Regeln"
+  },
+  "optionsImportChangeExceptions": {
+    "message": "Website-Ausnahmen"
+  },
+  "optionsImportChangeFilterLists": {
+    "message": "Filterlisten-Auswahl"
+  },
+  "optionsImportChangeSync": {
+    "message": "Synchronisierungseinstellung"
   }
 }
