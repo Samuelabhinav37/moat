@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.124
+
+### Fixed
+- **Dev-dependency CVEs, all 5 resolved (0 vulnerabilities now, was 5: 1 moderate, 4 high).**
+  `npm audit`'s suggested fix for the `web-ext`/`addons-linter` chain was actually a downgrade to
+  `web-ext@5.5.0` from the already-latest `10.6.0` -- a real regression, not a fix, so that path
+  was rejected. Instead:
+  - `vite` bumped from `5.4.x` to `8.3.0` (also fixes `esbuild`'s moderate CVE, pulled in
+    transitively). This is genuinely load-bearing, not just a vitest peer -- `scripts/build.mjs`
+    calls Vite's `build()` API directly to produce the shipped extension. Vite 8 requires
+    `esbuild` as an explicit separate dependency now (previously bundled transitively); added it
+    directly. Verified end to end after the bump: `npm run typecheck`, `npm test` (1032 tests),
+    `npm run build` (both targets -- confirmed the output is genuinely minified and correctly
+    sized), `npm run zip` (produces valid, correctly-sized packages), `npm run lint:firefox` (same
+    4 pre-existing warnings, no new ones), and `--watch` dev mode all still work correctly. As a
+    side effect, `vitest`'s own previously-separate nested `vite` copy now dedupes to this same
+    version, resolving an `ELSPROBLEMS`/invalid-tree warning `npm ls` was already flagging before
+    this change.
+  - `image-size` (a transitive dependency of `web-ext` via `addons-linter`, vulnerable to two
+    infinite-loop DoS advisories in `<=2.0.2`) pinned to `^2.0.4` via a new `overrides` entry,
+    since `web-ext`'s own dependency pin hasn't caught up yet.
+
 ## 0.11.123
 
 ### Fixed
