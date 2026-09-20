@@ -287,6 +287,12 @@
   "optionsBlockedSitesHint": {
     "message": "Always block these sites, whatever the filter lists say."
   },
+  "optionsAddDomainInvalid": {
+    "message": "That doesn't look like a valid domain."
+  },
+  "optionsAddDomainFailed": {
+    "message": "Couldn't add that domain. Try again."
+  },
   "commonBlock": {
     "message": "Block"
   },

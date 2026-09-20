@@ -59,18 +59,26 @@ export function pruneRedundantRules(rules) {
     domainsByKey.get(entry.key).add(entry.domain);
   }
 
-  const redundantIds = new Set();
+  // A Set of rule OBJECTS, not ids: `rules` is assumed to carry unique ids,
+  // but that assumption living here too (via `redundantIds.has(r.id)`) meant
+  // an upstream id-collision bug elsewhere in the ruleset-generation
+  // pipeline would silently drop every rule sharing that id, including
+  // ones that were never actually redundant -- the worst failure mode for
+  // a blocker (a real ad/tracker rule vanishing with zero warning). Object
+  // identity has no such assumption: only the exact rule objects this
+  // function itself determined redundant are ever removed.
+  const redundantRules = new Set();
   for (const entry of simple) {
     const domains = domainsByKey.get(entry.key);
     const labels = entry.domain.split(".");
     for (let i = 1; i < labels.length; i++) {
       const ancestor = labels.slice(i).join(".");
       if (domains.has(ancestor)) {
-        redundantIds.add(entry.rule.id);
+        redundantRules.add(entry.rule);
         break;
       }
     }
   }
 
-  return { kept: rules.filter((r) => !redundantIds.has(r.id)), droppedCount: redundantIds.size };
+  return { kept: rules.filter((r) => !redundantRules.has(r)), droppedCount: redundantRules.size };
 }

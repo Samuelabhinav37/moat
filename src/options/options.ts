@@ -15,6 +15,7 @@ import { dismissWelcome, shouldShowWelcome } from "../background/updateNotice";
 import { customRuleStatKey, isStale } from "../shared/customRuleStats";
 import type {
   AddCustomDomainMessage,
+  AddCustomDomainResponse,
   CheckForLiveUpdatesMessage,
   CompanyBreakdownResponse,
   CustomDomainListField,
@@ -31,6 +32,7 @@ import type {
   RemoveCustomDomainMessage,
   RemoveGrayscaleRuleMessage,
   Settings,
+  SettingsPatchField,
   SetSettingsPatchMessage,
   StartElementPickerMessage,
   StartElementPickerResponse,
@@ -41,6 +43,7 @@ import type {
 import { joinCompanyBreakdown, type CompanyInfo } from "./trackerView";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { parseFilterListImport } from "../shared/filterListImport";
+import { MAX_STRING_LENGTH } from "../shared/importBounds";
 
 // options.html is its own extension page -- a separate realm from the
 // background worker, same as bridge.ts was before it started routing
@@ -79,9 +82,10 @@ async function removeGrayscaleRule(hostname: string, selector: string): Promise<
 // even once the write itself is routed through the right realm: a
 // replacement array computed from a stale read can still discard an
 // unrelated concurrent change to the same list.
-async function sendAddCustomDomain(field: CustomDomainListField, hostname: string): Promise<void> {
+async function sendAddCustomDomain(field: CustomDomainListField, hostname: string): Promise<boolean> {
   const message: AddCustomDomainMessage = { type: "add-custom-domain", field, hostname };
-  await browser.runtime.sendMessage(message);
+  const response = (await browser.runtime.sendMessage(message)) as AddCustomDomainResponse;
+  return response.ok;
 }
 
 async function sendRemoveCustomDomain(field: CustomDomainListField, hostname: string): Promise<void> {
@@ -134,7 +138,15 @@ type EvidenceUnit = "week" | "today";
 
 interface ProtectionDef {
   id: string;
-  settingKey: keyof Settings;
+  // SettingsPatchField, not the wider `keyof Settings`: this is the field a
+  // click on this row's toggle actually writes, via setSettings ->
+  // "set-settings-patch" -> pickAllowedSettingsPatch, which silently drops
+  // any key not in SETTINGS_PATCH_ALLOWED_FIELDS with no error anywhere --
+  // a toggle wired to a field that allow-list doesn't cover used to
+  // typecheck fine and then just never persist (the checkbox visibly
+  // reverts right after every click). Narrowing this to SettingsPatchField
+  // makes that a compile error at the PROTECTIONS entry itself instead.
+  settingKey: SettingsPatchField;
   group: ProtectionGroup;
   titleKey: readonly [string, string];
   descKey: readonly [string, string];
@@ -442,9 +454,15 @@ function renderSyncStatus(syncEnabled: boolean, status: Awaited<ReturnType<typeo
 
 function normalizeHostname(input: string): string | null {
   const trimmed = input.trim();
-  if (!trimmed) return null;
+  if (!trimmed || trimmed.length > MAX_STRING_LENGTH) return null;
   try {
-    return new URL(trimmed.includes("://") ? trimmed : `https://${trimmed}`).hostname;
+    // The URL parser itself enforces no length limit at all -- verified
+    // directly: new URL("https://" + "a".repeat(50000)).hostname succeeds
+    // and returns a 50,000-character "hostname". The trimmed.length check
+    // above is the real bound; this one is redundant defense in depth on
+    // whatever the parser hands back.
+    const hostname = new URL(trimmed.includes("://") ? trimmed : `https://${trimmed}`).hostname;
+    return hostname.length > 0 && hostname.length <= MAX_STRING_LENGTH ? hostname : null;
   } catch {
     return null;
   }
@@ -632,7 +650,7 @@ function buildProtectionRow(def: ProtectionDef, settings: Settings, usage: Usage
   }
 
   const toggle = buildSwitch(checked, title.id, (next) => {
-    void setSettings({ [def.settingKey]: next } as Partial<Settings>).then(() => render());
+    void setSettings({ [def.settingKey]: next } as Partial<Pick<Settings, SettingsPatchField>>).then(() => render());
   });
 
   row.append(body, toggle);
@@ -691,7 +709,7 @@ function buildPermissionGuardRow(settings: Settings): HTMLElement {
     chip.textContent = tFallback(kind.labelKey[0], kind.labelKey[1]);
     chip.addEventListener("click", (event) => {
       event.stopPropagation();
-      void setSettings({ [kind.key]: !on } as Partial<Settings>).then(() => render());
+      void setSettings({ [kind.key]: !on } as Partial<Pick<Settings, SettingsPatchField>>).then(() => render());
     });
     chips.append(chip);
   }
@@ -725,7 +743,7 @@ function populateDrawer(id: string): void {
   drawerStateEl.textContent = state;
   drawerToggleEl.checked = checked;
   drawerToggleEl.onchange = () => {
-    void setSettings({ [def.settingKey]: drawerToggleEl.checked } as Partial<Settings>).then(() => render());
+    void setSettings({ [def.settingKey]: drawerToggleEl.checked } as Partial<Pick<Settings, SettingsPatchField>>).then(() => render());
   };
 
   const signalSummary = def.signal && usage ? usage.bySignal[def.signal] : undefined;
@@ -1097,16 +1115,35 @@ const customBlockList = document.getElementById("custom-block-list") as HTMLULis
 const customBlockEmpty = document.getElementById("custom-block-empty") as HTMLElement;
 const customBlockInput = document.getElementById("custom-block-input") as HTMLInputElement;
 const customBlockAdd = document.getElementById("custom-block-add") as HTMLButtonElement;
+const customBlockAddStatus = document.getElementById("custom-block-add-status") as HTMLElement;
 
 const customAllowList = document.getElementById("custom-allow-list") as HTMLUListElement;
 const customAllowEmpty = document.getElementById("custom-allow-empty") as HTMLElement;
 const customAllowInput = document.getElementById("custom-allow-input") as HTMLInputElement;
 const customAllowAdd = document.getElementById("custom-allow-add") as HTMLButtonElement;
+const customAllowAddStatus = document.getElementById("custom-allow-add-status") as HTMLElement;
 
+// Both a locally-invalid hostname (empty, unparseable, or over
+// MAX_STRING_LENGTH -- see normalizeHostname) and a background rejection
+// (sendAddCustomDomain's { ok: false }) used to look identical to success:
+// the input cleared and the list re-rendered either way, with the domain
+// silently never added. Now both paths leave the input untouched and show
+// a real reason instead.
 async function addCustomDomain(field: CustomDomainListField, input: HTMLInputElement): Promise<void> {
+  const status = field === "customBlockedDomains" ? customBlockAddStatus : customAllowAddStatus;
   const hostname = normalizeHostname(input.value);
-  if (!hostname) return;
-  await sendAddCustomDomain(field, hostname);
+  if (!hostname) {
+    status.hidden = false;
+    status.textContent = tFallback("optionsAddDomainInvalid", "That doesn't look like a valid domain.");
+    return;
+  }
+  const ok = await sendAddCustomDomain(field, hostname);
+  if (!ok) {
+    status.hidden = false;
+    status.textContent = tFallback("optionsAddDomainFailed", "Couldn't add that domain. Try again.");
+    return;
+  }
+  status.hidden = true;
   input.value = "";
   await (field === "customBlockedDomains" ? rerenderCustomBlockList() : rerenderCustomAllowList());
 }

@@ -572,6 +572,15 @@ export interface AddCustomDomainMessage {
   hostname: string;
 }
 
+/** ok: false whenever background/index.ts's own boundary validation
+ * (isValidMessageString's length cap, chiefly) rejects the hostname --
+ * previously the handler returned `undefined` either way, so a rejected
+ * add looked identical to a successful one: the input cleared and the list
+ * re-rendered as if it had worked, with the domain silently never added. */
+export interface AddCustomDomainResponse {
+  ok: boolean;
+}
+
 export interface RemoveCustomDomainMessage {
   type: "remove-custom-domain";
   field: CustomDomainListField;

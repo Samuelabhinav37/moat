@@ -3,6 +3,41 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.118
+
+### Fixed
+- **5-team audit fixes, batch 1: correctness/crash/race bugs.**
+  - Two prototype-collision crash bugs found by adversarial QA testing: a hostname of `constructor`
+    (a plausible bare LAN/intranet hostname) crashed the migration-import parser
+    (`shared/filterListImport.ts`), the element-picker's save path (`background/settings.ts`'s
+    `addSelectorRule`/`removeSelectorRule`), and the migration-import merge
+    (`importCustomRules`) -- all three read a hostname-keyed plain object with `obj[hostname] ??
+    fallback`, which resolved through to the inherited `Object.prototype` member instead of
+    falling back, and calling an array/Set method on that threw with zero user feedback (the
+    element hid locally but the rule silently never persisted). `filterListImport.ts` now uses a
+    `Map` internally; `settings.ts` uses `Object.hasOwn` guards.
+  - `filterListImport.ts` also now enforces real per-line and total bounds on cosmetic-rule
+    domain counts and individual domain/selector string lengths -- previously only line count was
+    capped, so one crafted comma-separated line could produce 200,000+ hostnames.
+  - A settings toggle wired to a field outside `SETTINGS_PATCH_ALLOWED_FIELDS` used to typecheck
+    and build fine, then silently fail to persist forever (the checkbox visibly reverts right
+    after every click, with no error anywhere) -- `ProtectionDef.settingKey` is now typed as the
+    narrower `SettingsPatchField` instead of `keyof Settings`, so a future mistake here is a
+    compile error at the toggle's own definition, not a runtime mystery.
+  - `seedFromSyncIfEmpty()`/`applyFreshInstallDefaults()` used to read-then-write
+    `storage.local` directly, outside the single-file write queue every other settings mutation
+    goes through -- a real user toggle in the first few seconds after install could silently lose
+    to one of these two overwriting the whole stored blob moments later, with no conflict signal.
+    Both now funnel through the same queue.
+  - `scripts/lib/pruneRedundantRules.mjs` tracked redundant rules by `rule.id`, so an upstream
+    id-collision (two distinct rule objects sharing an id) would silently drop an unrelated,
+    non-redundant rule too -- now tracks by object identity instead.
+  - An oversized "Add blocked/allowed domain" input used to clear the field and re-render the
+    list as if the add had succeeded, while the background silently rejected it -- the field now
+    shows a real reason and isn't cleared on failure, and `normalizeHostname` now rejects
+    obviously-oversized input locally (`new URL()` itself enforces no hostname length limit at
+    all) instead of round-tripping to the background just to fail there.
+
 ## 0.11.117
 
 ### Fixed

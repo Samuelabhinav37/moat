@@ -373,10 +373,16 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
     }
 
     case "add-custom-domain": {
-      if (!isValidMessageString(message.hostname)) return undefined;
-      if (message.field !== "customBlockedDomains" && message.field !== "customAllowedDomains") return undefined;
+      // Returns { ok: false } rather than `undefined` on rejection -- a
+      // silent `undefined` here used to look identical to a successful add
+      // from the caller's side, clearing the input as if the domain had
+      // been saved when it never was.
+      if (!isValidMessageString(message.hostname)) return Promise.resolve({ ok: false });
+      if (message.field !== "customBlockedDomains" && message.field !== "customAllowedDomains") {
+        return Promise.resolve({ ok: false });
+      }
       const add = message.field === "customBlockedDomains" ? addCustomBlockedDomain : addCustomAllowedDomain;
-      return add(message.hostname).then(() => undefined);
+      return add(message.hostname).then(() => ({ ok: true }));
     }
 
     case "remove-custom-domain": {

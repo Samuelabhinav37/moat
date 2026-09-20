@@ -81,11 +81,26 @@ async function applyEffectiveSettings(options: { forceFilterGroups?: boolean } =
 // queue so each one sees the previous one's already-applied result.
 let pending: Promise<unknown> = Promise.resolve();
 
+/** Chains an arbitrary async operation onto the same single-file queue as
+ * every mutateSettings call, so a read-then-write sequence outside
+ * mutateSettings itself can't race a concurrent mutateSettings call (or
+ * another queued() operation). seedFromSyncIfEmpty/applyFreshInstallDefaults
+ * below each do their own "is storage.local genuinely still empty?"
+ * check-then-write -- unserialized, that let a settings change the user
+ * made in the first few seconds after install lose to one of these two
+ * silently overwriting the whole stored blob moments later (both read
+ * "empty" before either had written), with no conflict signal at all. */
+function queued<T>(operation: () => Promise<T>): Promise<T> {
+  const result = pending.then(operation);
+  pending = result.catch(() => {});
+  return result;
+}
+
 /** mutator returns null to signal "no change needed" (skips the write and
  * the settings re-apply); otherwise a patch to merge onto the just-read
  * current settings. */
 function mutateSettings(mutator: (current: Settings) => Partial<Settings> | null): Promise<Settings> {
-  const result = pending.then(async () => {
+  return queued(async () => {
     const current = await getSettings();
     const patch = mutator(current);
     if (patch === null) return current;
@@ -106,8 +121,6 @@ function mutateSettings(mutator: (current: Settings) => Partial<Settings> | null
     await applyEffectiveSettings();
     return next;
   });
-  pending = result.catch(() => {});
-  return result;
 }
 
 /** Seeds a fresh install's local settings from an existing synced copy, if
@@ -117,17 +130,19 @@ function mutateSettings(mutator: (current: Settings) => Partial<Settings> | null
  * sync; on a brand new install with sync never enabled anywhere, this is a
  * no-op. Not a live bidirectional sync -- seeds once, then normal writes
  * take over. */
-export async function seedFromSyncIfEmpty(): Promise<void> {
-  const local = await browser.storage.local.get(STORAGE_KEY);
-  if (STORAGE_KEY in local) return;
-  try {
-    const synced = await browser.storage.sync.get(STORAGE_KEY);
-    const value = synced[STORAGE_KEY] as Partial<Settings> | undefined;
-    if (value) await browser.storage.local.set({ [STORAGE_KEY]: { ...DEFAULT_SETTINGS, ...value } });
-  } catch {
-    // storage.sync unavailable (sync disabled, no signed-in account, etc.) --
-    // fine, stay on local defaults.
-  }
+export function seedFromSyncIfEmpty(): Promise<void> {
+  return queued(async () => {
+    const local = await browser.storage.local.get(STORAGE_KEY);
+    if (STORAGE_KEY in local) return;
+    try {
+      const synced = await browser.storage.sync.get(STORAGE_KEY);
+      const value = synced[STORAGE_KEY] as Partial<Settings> | undefined;
+      if (value) await browser.storage.local.set({ [STORAGE_KEY]: { ...DEFAULT_SETTINGS, ...value } });
+    } catch {
+      // storage.sync unavailable (sync disabled, no signed-in account, etc.) --
+      // fine, stay on local defaults.
+    }
+  });
 }
 
 /**
@@ -162,11 +177,13 @@ export async function seedFromSyncIfEmpty(): Promise<void> {
  * A user who does hit it, or who just wants the smallest footprint, can
  * still drop to Lite or Essential from the Filter Lists tab.
  */
-export async function applyFreshInstallDefaults(): Promise<void> {
-  const local = await browser.storage.local.get(STORAGE_KEY);
-  if (STORAGE_KEY in local) return;
-  await browser.storage.local.set({
-    [STORAGE_KEY]: { ...DEFAULT_SETTINGS, filterGroups: PRESETS.standard.filterGroups },
+export function applyFreshInstallDefaults(): Promise<void> {
+  return queued(async () => {
+    const local = await browser.storage.local.get(STORAGE_KEY);
+    if (STORAGE_KEY in local) return;
+    await browser.storage.local.set({
+      [STORAGE_KEY]: { ...DEFAULT_SETTINGS, filterGroups: PRESETS.standard.filterGroups },
+    });
   });
 }
 
@@ -229,7 +246,14 @@ function addSelectorRule(field: SelectorMapField, hostname: string, selector: st
       console.warn("moat: refusing to save an unsafe cosmetic selector");
       return null;
     }
-    const existing = current[field][hostname] ?? [];
+    // Object.hasOwn, not `current[field][hostname] ?? []`: current[field] is
+    // a plain object read back from storage, so a hostname of "constructor"
+    // (a plausible bare LAN/intranet name) resolves through the prototype
+    // chain to the Object constructor function instead of undefined --
+    // truthy, so `??` never falls back to [], and .includes() on a function
+    // throws. Every real hostname this rule was ever saved under is an own
+    // property; only a prototype-chain collision is not.
+    const existing = Object.hasOwn(current[field], hostname) ? (current[field][hostname] ?? []) : [];
     if (existing.includes(selector)) return null;
     return { [field]: { ...current[field], [hostname]: [...existing, selector] } } as Partial<Settings>;
   });
@@ -237,7 +261,9 @@ function addSelectorRule(field: SelectorMapField, hostname: string, selector: st
 
 function removeSelectorRule(field: SelectorMapField, hostname: string, selector: string): Promise<Settings> {
   return mutateSettings((current) => {
-    const remaining = (current[field][hostname] ?? []).filter((s) => s !== selector);
+    // Object.hasOwn -- same prototype-collision reasoning as addSelectorRule above.
+    const existing = Object.hasOwn(current[field], hostname) ? (current[field][hostname] ?? []) : [];
+    const remaining = existing.filter((s) => s !== selector);
     const next = { ...current[field] };
     if (remaining.length > 0) {
       next[hostname] = remaining;
@@ -384,7 +410,12 @@ export async function importCustomRules(imported: ImportedCustomRules): Promise<
 
     const cosmeticRules = { ...current.customCosmeticRules };
     for (const [hostname, selectors] of Object.entries(imported.cosmeticRules)) {
-      const existing = new Set(cosmeticRules[hostname] ?? []);
+      // Object.hasOwn -- same prototype-collision reasoning as
+      // addSelectorRule above: a hostname of "constructor" would otherwise
+      // resolve `cosmeticRules[hostname]` to the inherited Object
+      // constructor function (truthy, so `??` never falls back to []), and
+      // `new Set(...)` on a non-iterable function throws.
+      const existing = new Set(Object.hasOwn(cosmeticRules, hostname) ? cosmeticRules[hostname] : []);
       let changedThisHost = false;
       for (const selector of selectors) {
         if (!isSafeCosmeticSelector(selector) || existing.has(selector)) continue;

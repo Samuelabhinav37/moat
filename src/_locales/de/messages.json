@@ -285,6 +285,12 @@
   "optionsBlockedSitesHint": {
     "message": "Blockiert diese Domains immer, unabhängig von den Filterlisten."
   },
+  "optionsAddDomainInvalid": {
+    "message": "Das sieht nicht wie eine gültige Domain aus."
+  },
+  "optionsAddDomainFailed": {
+    "message": "Domain konnte nicht hinzugefügt werden. Versuche es erneut."
+  },
   "commonBlock": {
     "message": "Blockieren"
   },

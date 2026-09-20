@@ -70,6 +70,24 @@ describe("pruneRedundantRules", () => {
     expect(droppedCount).toBe(0);
   });
 
+  // Regression: this used to track redundant rules by `rule.id` in a Set,
+  // then filter with `!redundantIds.has(r.id)` -- if the input ever carried
+  // two DISTINCT rule objects sharing the same id (an upstream bug
+  // elsewhere in the ruleset-generation pipeline, not something this
+  // function should ever have to assume can't happen), dropping one as
+  // redundant silently dropped the other too, even if it was completely
+  // unrelated. Tracking by object identity instead means only the exact
+  // rule objects actually determined redundant are ever removed.
+  it("does not drop an unrelated rule that happens to share an id with a genuinely redundant one", () => {
+    const redundant = blockRule(2, "||track.example.com^"); // covered by rule 1 below
+    const unrelated = { ...blockRule(2, "||unrelated-tracker.net^") }; // same id, distinct object, nothing to do with example.com
+    const rules = [blockRule(1, "||example.com^"), redundant, unrelated];
+    const { kept, droppedCount } = pruneRedundantRules(rules);
+    expect(kept).toContain(unrelated);
+    expect(kept).not.toContain(redundant);
+    expect(droppedCount).toBe(1);
+  });
+
   describe("semantic equivalence: the pruned set blocks exactly the same requests as the original", () => {
     // Mirrors declarativeNetRequest's own "||domain^" anchor semantics:
     // matches the domain itself and any subdomain of it, scoped to the

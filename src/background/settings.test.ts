@@ -326,6 +326,25 @@ describe("addCustomCosmeticRule / removeCustomCosmeticRule", () => {
     await addCustomCosmeticRule("example.com", ".ad-slot");
     expect((await getSettings()).customGrayscaleRules).toEqual({});
   });
+
+  // Regression: customCosmeticRules/customGrayscaleRules are plain objects
+  // read back from storage, so `current[field][hostname] ?? []` used to
+  // resolve a hostname of "constructor" (a plausible bare LAN/intranet
+  // hostname -- reachable via the element picker's `location.hostname`)
+  // through the prototype chain to the Object constructor function itself
+  // (truthy, so `??` never fell back to []) -- .includes()/.filter() on that
+  // threw, silently losing the rule (the element picker's own sendMessage
+  // is wrapped in .catch(() => {})) with no error anywhere.
+  it("does not throw for a bare 'constructor' hostname and saves the rule normally", async () => {
+    await expect(addCustomCosmeticRule("constructor", ".ad-slot")).resolves.not.toThrow();
+    expect((await getSettings()).customCosmeticRules).toEqual({ constructor: [".ad-slot"] });
+  });
+
+  it("does not throw removing a selector under a 'constructor' hostname", async () => {
+    await addCustomCosmeticRule("constructor", ".ad-slot");
+    await expect(removeCustomCosmeticRule("constructor", ".ad-slot")).resolves.not.toThrow();
+    expect((await getSettings()).customCosmeticRules).toEqual({});
+  });
 });
 
 describe("addGrayscaleRule / removeGrayscaleRule", () => {
@@ -405,6 +424,21 @@ describe("importCustomRules", () => {
       cosmeticRules: { "example.com": [".ad-banner"] },
     });
     expect((await getSettings()).customGrayscaleRules).toEqual({});
+  });
+
+  // Regression: `new Set(cosmeticRules[hostname] ?? [])` had the same
+  // prototype-collision hole as addSelectorRule above -- a "constructor"
+  // hostname resolved to the Object constructor function (truthy), and
+  // `new Set(aFunction)` throws (a function has no [Symbol.iterator]),
+  // crashing the whole migration-import merge with no partial result.
+  it("does not throw importing a cosmetic rule for a bare 'constructor' hostname", async () => {
+    const result = await importCustomRules({
+      blockedDomains: [],
+      allowedDomains: [],
+      cosmeticRules: { constructor: [".ad-banner"] },
+    });
+    expect(result.addedCosmeticRules).toBe(1);
+    expect((await getSettings()).customCosmeticRules).toEqual({ constructor: [".ad-banner"] });
   });
 });
 
@@ -503,5 +537,27 @@ describe("applyFreshInstallDefaults", () => {
     const settings = await getSettings();
     expect(settings.disabledSites).toEqual(["synced.example.com"]);
     expect(settings.filterGroups).toEqual({}); // sync's value wins, not the standard defaults
+  });
+
+  // Regression: seedFromSyncIfEmpty/applyFreshInstallDefaults each used to
+  // read-then-write storage.local directly, outside mutateSettings' single-
+  // file queue -- a real user toggle fired in the first few seconds after
+  // install (mutateSettings, reading local as empty) could lose to
+  // applyFreshInstallDefaults (also reading local as empty, since both ran
+  // concurrently before either had written) overwriting the whole stored
+  // blob moments later, silently discarding the user's change with no
+  // conflict signal. Both now funnel through the same queue as
+  // mutateSettings, so they serialize instead of racing.
+  it("does not let a concurrent user setting get clobbered by applyFreshInstallDefaults's own empty-check race", async () => {
+    const [setResult] = await Promise.all([
+      setSettings({ disabledSites: ["user-toggled-this.example.com"] }),
+      applyFreshInstallDefaults(),
+    ]);
+    expect(setResult.disabledSites).toEqual(["user-toggled-this.example.com"]);
+    const settings = await getSettings();
+    // Whichever of the two actually ran last (queue order isn't the test's
+    // concern here), the user's disabledSites change must never be silently
+    // wiped back to [] by the other one's raw overwrite.
+    expect(settings.disabledSites).toEqual(["user-toggled-this.example.com"]);
   });
 });
