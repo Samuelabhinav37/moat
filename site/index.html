@@ -374,6 +374,33 @@
   .panel li b { color: var(--ink); font-weight: 500; }
   .panel li code { font-size: 11.5px; }
 
+  /* ---- proof screenshots ---------------------------------------------- */
+  .proof {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .proof figure {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: var(--shadow);
+  }
+  .proof img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+  }
+  .proof figcaption {
+    margin: 10px 4px 2px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
   /* ---- footer ------------------------------------------------------- */
   footer {
     margin-top: 56px;
@@ -390,6 +417,7 @@
   footer a { color: var(--ink-soft); text-decoration: none; }
   footer a:hover { color: var(--accent); }
   footer b { color: var(--ink-soft); font-weight: 500; }
+  footer img { height: 20px; display: block; }
 
   @media (max-width: 640px) {
     .wrap { padding: 40px 18px 56px; }
@@ -443,10 +471,48 @@
     <div class="stats">
       <div class="stat"><div class="n">0</div><div class="l">servers the developer operates</div></div>
       <div class="stat"><div class="n">0</div><div class="l">telemetry / analytics events</div></div>
-      <div class="stat"><div class="n">271,274</div><div class="l">bundled <code>declarativeNetRequest</code> rules</div></div>
+      <div class="stat"><div class="n">270,000+</div><div class="l">bundled <code>declarativeNetRequest</code> rules</div></div>
       <div class="stat"><div class="n">GPL-3.0</div><div class="l">source, auditable end to end</div></div>
     </div>
   </header>
+
+  <!-- ============ WHAT IT ACTUALLY DOES ============ -->
+  <section class="loop">
+    <div class="loop-head">
+      <span class="tag">Day to day</span>
+      <h2>What Moat actually does</h2>
+    </div>
+    <div class="panels" style="margin-top:0">
+      <div class="panel sec">
+        <h3><span class="dot"></span> Runs without asking</h3>
+        <ul>
+          <li><b>Blocks ads and trackers</b> on every site, using the same rule engine as uBlock Origin and AdGuard.</li>
+          <li><b>Closes hijacked popup and redirect tabs</b> the moment they open, before you see them.</li>
+          <li><b>Hides cookie banners</b> automatically instead of making you click through them.</li>
+          <li><b>Collapses the empty boxes</b> a blocked ad leaves behind, so pages don't look broken.</li>
+        </ul>
+      </div>
+      <div class="panel scale">
+        <h3><span class="dot"></span> Turn on if you want it</h3>
+        <ul>
+          <li><b>Fingerprint resistance</b> for canvas, audio, and WebGL tracking, off by default.</li>
+          <li><b>Breached-password warnings</b> as you type into a login form.</li>
+          <li><b>Pause Moat on one site</b> without turning anything off everywhere else.</li>
+          <li><b>Block your own elements</b> with a point-and-click picker for anything a filter list misses.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="proof">
+      <figure>
+        <img src="img/7a-popup.png" width="1280" height="800" loading="lazy" alt="Moat's toolbar popup over a page, showing 128 things blocked on this page, split into ads, trackers, and popups.">
+        <figcaption>The toolbar popup: what got blocked on this page, right now.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/7c-options.png" width="1280" height="800" loading="lazy" alt="Moat's options page, showing overall protection stats and a per-setting drawer for browser fingerprinting.">
+        <figcaption>The options page: every protection, on or off, with real numbers behind it.</figcaption>
+      </figure>
+    </div>
+  </section>
 
   <!-- ============ WHAT LEAVES YOUR DEVICE ============ -->
   <section class="loop">
@@ -454,6 +520,11 @@
       <span class="tag">In four lines</span>
       <h2>What Moat reads, and where it goes</h2>
     </div>
+    <p class="note">
+      The claim above is "no server, no telemetry." Here's exactly what happens
+      on-device and what, if anything, leaves it, for anyone who wants to check it
+      rather than take it on faith.
+    </p>
     <div class="panels" style="margin-top:0">
       <div class="panel sec">
         <h3><span class="dot"></span> Stays on your device</h3>
@@ -601,8 +672,8 @@
   </div>
 
   <footer>
-    <span><b>v0.11.81</b></span>
-    <span><b>811</b> tests green</span>
+    <a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml"><img src="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml/badge.svg" alt="CI status" height="20"></a>
+    <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md">Changelog</a>
     <span>Manifest V3</span>
     <span>Chrome &bull; Firefox</span>
     <span>GPL-3.0</span>
