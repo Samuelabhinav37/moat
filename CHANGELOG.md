@@ -3,6 +3,33 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.116
+
+### Changed
+- **Rule-count consolidation, Phase 3 of the roadmap plan -- but for 4 domains, not the
+  35-domain shortlist `docs/research/consolidation-candidates-reviewed.md` originally listed.**
+  Actually checking the real sibling-subdomain rules behind that shortlist (not just the
+  sibling counts) found that TrackerDB confirming "one company owns this domain" is close to
+  the *wrong* safety signal: most of those 35 (`paypal.com`, `spotify.com`, `reddit.com`,
+  `mail.ru`, `adobe.com`, and more) are a company's own primary consumer-facing site, where
+  every currently-blocked sibling is a tracking subdomain precisely *because* nothing blocks
+  the apex domain today for good reason -- consolidating to `||domain^` would have newly
+  blocked the real site itself (PayPal checkout, the Spotify web player, Reddit, Adobe
+  account/Creative Cloud login, Mail.ru webmail, ...) for every Moat user, not just saved
+  rules. Two more (`b-cdn.net`, `fr.cdn.cloudflare.net`) are shared CDN platforms, not
+  single-owner domains at all.
+  - Only 4 of the 35 survived per-domain review as genuine standalone tracking infrastructure
+    with no legitimate first-party destination: `en25.com` (Oracle Eloqua), `ensighten.com`
+    (tag management), `popin.cc` (ad widgets), `appsflyersdk.com` (AppsFlyer's SDK API
+    backend). New `scripts/lib/consolidateSiblingRules.mjs`, wired into
+    `scripts/update-filters.mjs` right after the existing redundant-rule pruning step, collapses
+    each one's sibling subdomain rules into a single apex rule the next time filters update --
+    45 rules consolidated in this run. No change to what Moat blocks for any site other than
+    these 4 vendors' own tracking infrastructure.
+  - `docs/research/dnr-rule-consolidation-audit.md` and `consolidation-candidates-reviewed.mjs`
+    both updated in place to record this finding, so the remaining 31 domains from that
+    shortlist aren't mistaken for a to-do list.
+
 ## 0.11.115
 
 ### Added

@@ -8,6 +8,7 @@ import { resolveRedirectResource } from "./lib/redirectResources.mjs";
 import { extractRuleDomain, lookupCompany } from "./lib/ruleCompany.mjs";
 import { buildCompanyInfo } from "./lib/companyInfo.mjs";
 import { pruneRedundantRules } from "./lib/pruneRedundantRules.mjs";
+import { consolidateSiblingRules } from "./lib/consolidateSiblingRules.mjs";
 import { buildServerSideAnalyticsRules } from "./lib/serverSideAnalyticsRules.mjs";
 import { buildCircumventionServiceRules } from "./lib/circumventionServiceRules.mjs";
 import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
@@ -155,11 +156,23 @@ for (const ruleset of RULESETS) {
   // exclusion is about staying consistent with that reasoning, not a
   // required safety boundary the way it is for Finding 2).
   let redundantDropped = 0;
+  let siblingsConsolidated = 0;
   if (ruleset.category !== "security") {
     const pruned = pruneRedundantRules(cleaned);
     redundantDropped = pruned.droppedCount;
     cleaned.length = 0;
     cleaned.push(...pruned.kept);
+
+    // Finding 2 from docs/research/dnr-rule-consolidation-audit.md, applied
+    // only to the small, hand-reviewed allowlist in
+    // consolidateSiblingRules.mjs -- see that file's own header for why
+    // the other 31 domains scripts/analysis/consolidation-candidates-
+    // reviewed.mjs found were deliberately excluded (most are companies'
+    // own consumer-facing sites, not pure tracking infrastructure).
+    const consolidated = consolidateSiblingRules(cleaned);
+    siblingsConsolidated = consolidated.consolidatedCount;
+    cleaned.length = 0;
+    cleaned.push(...consolidated.kept);
   }
 
   // Firefox's linter (the same one AMO's automated review runs) refuses to
@@ -206,7 +219,8 @@ for (const ruleset of RULESETS) {
 
   console.log(
     `${ruleset.name}: ${cleaned.length}/${rawRules.length} rules kept across ${chunks.length} file(s)` +
-      (redundantDropped > 0 ? ` (${redundantDropped} already-redundant rule(s) pruned)` : "")
+      (redundantDropped > 0 ? ` (${redundantDropped} already-redundant rule(s) pruned)` : "") +
+      (siblingsConsolidated > 0 ? ` (${siblingsConsolidated} sibling rule(s) consolidated to an apex rule)` : "")
   );
 }
 
@@ -564,8 +578,13 @@ if (peterLoweDomains.length < 1000) {
   );
 }
 writeFileSync(join(outDir, "peter-lowe-domains.json"), JSON.stringify(peterLoweDomains));
-const ownPeterLoweRules = buildPeterLoweRules(peterLoweDomains);
-const peterLoweChunks = chunkBySize(ownPeterLoweRules, 4.5 * 1024 * 1024);
+const { kept: peterLoweRules, consolidatedCount: peterLoweConsolidated } = consolidateSiblingRules(
+  buildPeterLoweRules(peterLoweDomains)
+);
+if (peterLoweConsolidated > 0) {
+  console.log(`Peter Lowe's list: ${peterLoweConsolidated} sibling rule(s) consolidated to an apex rule`);
+}
+const peterLoweChunks = chunkBySize(peterLoweRules, 4.5 * 1024 * 1024);
 peterLoweChunks.forEach((chunkRules, index) => {
   const suffix = peterLoweChunks.length > 1 ? `-${index + 1}` : "";
   const file = `ruleset_peter-lowe${suffix}.json`;
@@ -640,8 +659,11 @@ if (oisdDomains.length < 20000) {
   );
 }
 writeFileSync(join(outDir, "oisd-domains.json"), JSON.stringify(oisdDomains));
-const ownOisdRules = buildOisdRules(oisdDomains);
-const oisdChunks = chunkBySize(ownOisdRules, 4.5 * 1024 * 1024);
+const { kept: oisdRules, consolidatedCount: oisdConsolidated } = consolidateSiblingRules(buildOisdRules(oisdDomains));
+if (oisdConsolidated > 0) {
+  console.log(`oisd: ${oisdConsolidated} sibling rule(s) consolidated to an apex rule`);
+}
+const oisdChunks = chunkBySize(oisdRules, 4.5 * 1024 * 1024);
 oisdChunks.forEach((chunkRules, index) => {
   const suffix = oisdChunks.length > 1 ? `-${index + 1}` : "";
   const file = `ruleset_oisd${suffix}.json`;

@@ -66,6 +66,32 @@ upstream (AdGuard/EasyList) already vetted it before writing 467 separate rules 
 Turning this into a shipped feature is future scope, not something this spike concluded should
 happen automatically.
 
+**Update, 2026-09-19 -- shipped, but for 4 domains, not the shortlist below.**
+`scripts/analysis/consolidation-candidates-reviewed.mjs` (see next section) turned this into a
+35-domain, TrackerDB-confirmed shortlist. Actually reviewing those 35 individually (not just their
+sibling counts) found that TrackerDB confirming "one company owns this domain" is close to the
+*wrong* signal for safety: checked directly against the real sibling rules, domains like
+`paypal.com`, `spotify.com`, `reddit.com`, `mail.ru`, `adobe.com`, and most of the rest of the
+35 have siblings that are *exclusively* tracking/pixel/beacon subdomains
+(`t.paypal.com`, `pixel.spotify.com`, `an.mail.ru`, ...) precisely *because* the registrable
+domain itself is the company's own primary consumer-facing site (`checkout.paypal.com`,
+`open.spotify.com`, `www.reddit.com`, webmail at `mail.ru`) -- which nothing blocks today for
+good reason. Consolidating to `||domain^` would have newly blocked the primary site itself for
+every Moat user, not just saved rules. Two more of the 35, `b-cdn.net` and `fr.cdn.cloudflare.net`,
+are shared CDN platforms (BunnyCDN, Cloudflare edge), not single-owner domains at all -- the same
+shared-hosting trap this doc's own PSL section already warned about for `blogspot.com`/`github.io`,
+just not one the PSL itself catches for these two.
+
+Only 4 of the 35 survived that per-domain review as genuine standalone tracking infrastructure
+with no legitimate first-party destination: `en25.com` (Oracle Eloqua), `ensighten.com` (tag
+management), `popin.cc` (ad widgets), `appsflyersdk.com` (AppsFlyer's SDK API backend --
+deliberately not `appsflyer.com` itself, which is the company's own site and could plausibly
+carry a customer login). Shipped in `scripts/lib/consolidateSiblingRules.mjs`, wired into
+`scripts/update-filters.mjs` right after the existing `pruneRedundantRules` step; see that file's
+own header comment for the full per-domain reasoning. The other 31 domains on the shortlist below
+remain unconsolidated, and should stay that way absent a much stronger safety signal than TrackerDB
+ownership alone.
+
 ## Why the real Public Suffix List matters here, not a naive domain split
 
 A naive "last two labels" grouping (`sub.example.co.uk` → `co.uk`) fails in two concrete ways
