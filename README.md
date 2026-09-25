@@ -203,7 +203,8 @@ are in [`NOTICE.md`](NOTICE.md), which ships inside the extension package itself
 - **Cookie-banner rules** are vendored from [Consent-O-Matic](https://github.com/cavi-au/Consent-O-Matic)
   (Aarhus University CAVI), MIT. Moat's interpreter is written from scratch against their schema.
 - **CNAME-cloak destinations** come from
-  [NextDNS's blocklist](https://github.com/nextdns/cname-cloaking-blocklist), MIT.
+  [AdGuard's cname-trackers list](https://github.com/AdguardTeam/cname-trackers), MIT, plus two
+  domains from NextDNS's former list, MIT.
 - **Peter Lowe's ad and tracking server list** ([pgl.yoyo.org](https://pgl.yoyo.org/adservers/))
   publishes no explicit redistribution license; it's used with attribution per NOTICE.md.
 

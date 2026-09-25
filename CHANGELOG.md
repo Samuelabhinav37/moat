@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.129
+
+### Changed
+- **CNAME uncloaking now uses AdGuard's maintained list instead of NextDNS's removed one.**
+  The source is [AdguardTeam/cname-trackers](https://github.com/AdguardTeam/cname-trackers)
+  (MIT), `combined_original_trackers_justdomains.txt`. It was last updated 2026-09-14.
+  The list grows from 35 to 95 tracker domains. Every one of the old 35 is still matched:
+  33 are in AdGuard's list, and the other two (`hs.eloqua.com`, `k.madmetrics.com`) are kept
+  from NextDNS's final copy. It applies to both the Firefox uncloaking and the Chrome DoH path.
+  The build refuses a list under 50 domains or with entries that aren't plain hostnames.
+  If the file can't be reached, the committed copy from 0.11.128 is still used.
+
 ## 0.11.128
 
 ### Fixed

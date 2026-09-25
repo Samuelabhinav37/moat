@@ -5,8 +5,8 @@ import { domainChain } from "../shared/domainChain";
 import { matchesKnownRedirectDomain } from "./redirectDomainMatch";
 
 /** True if a resolved canonical name is, or is a subdomain of, a known
- * CNAME-cloak destination (see live/cname-cloak-destinations.json, sourced
- * from NextDNS's public list). Identical semantics to
+ * CNAME-cloak destination (see rules/cname-cloak-destinations.json, sourced
+ * from AdGuard's cname-trackers list). Identical semantics to
  * matchesKnownRedirectDomain -- re-exported under this name so call sites
  * read as what they mean, not as a coincidental reuse. */
 export const isCnameCloakDestination = matchesKnownRedirectDomain;

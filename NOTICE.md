@@ -120,12 +120,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## AdGuard CNAME-cloaked trackers list -- MIT
+
+Source: [AdguardTeam/cname-trackers](https://github.com/AdguardTeam/cname-trackers)
+(`data/combined_original_trackers_justdomains.txt`), vendored by `scripts/vendor-cname-list.mjs`
+into `rules/dnr/cname-cloak-destinations.json`, with the last good copy committed at
+`rules/cname-cloak-destinations.json`.
+
+```
+Copyright 2021 Adguard Software Ltd
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
 ## NextDNS CNAME-cloaking destination list -- MIT
 
-Source: [nextdns/cname-cloaking-blocklist](https://github.com/nextdns/cname-cloaking-blocklist),
-vendored as-is by `scripts/vendor-cname-list.mjs` into
-`rules/dnr/cname-cloak-destinations.json`. The upstream repo stopped resolving on 2026-09-25,
-so the last good copy is committed at `rules/cname-cloak-destinations.json` and used by the build.
+Source: [nextdns/cname-cloaking-blocklist](https://github.com/nextdns/cname-cloaking-blocklist).
+Moat used this list until 0.11.129. The upstream repo stopped resolving on 2026-09-25. Two of its
+domains that AdGuard's list doesn't carry (`hs.eloqua.com`, `k.madmetrics.com`) are still
+merged in by `scripts/vendor-cname-list.mjs`, so its license stays below.
 
 ```
 MIT License
