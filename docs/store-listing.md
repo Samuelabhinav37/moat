@@ -74,7 +74,9 @@ Source (GPL-3.0): https://github.com/Samuelabhinav37/moat
 
 **Privacy policy URL**
 
-> https://samuelabhinav37.github.io/moat/
+> https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md
+
+(Link the policy itself, not the landing page, so a reviewer lands on it directly.)
 
 **Single purpose description**
 
@@ -108,3 +110,4 @@ Source (GPL-3.0): https://github.com/Samuelabhinav37/moat
 | `scripting` | Register the optional content scripts (feed ad removal, YouTube dimmer) scoped only to the sites each applies to; inject cosmetic CSS from the background service worker; run the element picker only when the user clicks "Block an element…". |
 | `webRequest` (non-blocking) | Observe candidate requests for the opt-in "Uncloak disguised trackers" feature; inert unless that toggle is on. Chrome's MV3 `webRequest` can no longer block, so this is observation-only feeding `declarativeNetRequest` dynamic rules. |
 | `contentSettings` | Set the browser-level camera/microphone/location permission default to "block" for the opt-in ambush-prompt guard (a site requesting one with no user gesture). Inert unless that toggle is on. |
+| `browsingData` | Backs the popup's manual "Clear site data…" button: on click, clears the active tab's own cookies, IndexedDB, local storage and service workers for that one site. Never called automatically and never touches other sites. |
