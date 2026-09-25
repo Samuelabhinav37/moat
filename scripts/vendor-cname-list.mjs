@@ -5,12 +5,19 @@
 // only refreshes when this script is re-run and a new build ships -- a
 // reasonable scope reduction for a niche, opt-in, Firefox-only feature
 // whose source list itself changes rarely.
+//
+// The upstream repo went away on 2026-09-25 (GitHub returns 404 for both the
+// repo and the raw file; NextDNS's own nextdns/metadata README still links
+// to it). rules/cname-cloak-destinations.json is the committed last good copy:
+// identical to the Internet Archive's 2026-07-20 capture of the upstream file.
+// While the source stays down, the build uses that copy and CI shows a warning.
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { fetchAndVendor } from "./lib/vendorFetch.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outFile = join(__dirname, "..", "rules", "dnr", "cname-cloak-destinations.json");
+const snapshotFile = join(__dirname, "..", "rules", "cname-cloak-destinations.json");
 
 const SOURCE_URL = "https://raw.githubusercontent.com/nextdns/cname-cloaking-blocklist/master/domains";
 
@@ -18,6 +25,7 @@ const domains = await fetchAndVendor({
   url: SOURCE_URL,
   describe: "NextDNS cname-cloaking-blocklist",
   outFile,
+  snapshotFile,
   parse: (text) =>
     text
       .split("\n")

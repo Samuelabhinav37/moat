@@ -124,7 +124,8 @@ SOFTWARE.
 
 Source: [nextdns/cname-cloaking-blocklist](https://github.com/nextdns/cname-cloaking-blocklist),
 vendored as-is by `scripts/vendor-cname-list.mjs` into
-`rules/dnr/cname-cloak-destinations.json`.
+`rules/dnr/cname-cloak-destinations.json`. The upstream repo stopped resolving on 2026-09-25,
+so the last good copy is committed at `rules/cname-cloak-destinations.json` and used by the build.
 
 ```
 MIT License

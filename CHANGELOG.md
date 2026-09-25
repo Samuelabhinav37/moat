@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.128
+
+### Fixed
+- **Every build failed after NextDNS's CNAME-cloaking list disappeared.** On 2026-09-25 the
+  `nextdns/cname-cloaking-blocklist` repo started returning 404 on GitHub, for the repo page and
+  the raw file. The rest of the NextDNS organisation is still up, and its own `nextdns/metadata`
+  README still links to the repo. `npm run filters:update` runs on every CI push and in the
+  weekly refresh, and it stopped at that download.
+  The last good copy (35 domains) is now committed at `rules/cname-cloak-destinations.json`.
+  It is identical to the Internet Archive's 2026-07-20 capture of the upstream file.
+  `fetchAndVendor` takes an optional `snapshotFile`. When the source can't be reached, it builds
+  from that copy and posts a warning on the CI run. It still fails when the source answers with
+  content that doesn't parse or validate, since that needs a person to look at it.
+  The Firefox "Catch hidden trackers" feature keeps the same list it has shipped since July.
+
 ## 0.11.127
 
 ### Changed
