@@ -65,7 +65,7 @@
 
   /* ---- nav ----------------------------------------------------------- */
   .nav-wrap { position: sticky; top: 0; z-index: 20; background: rgba(0, 0, 0, .75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
-  .nav-wrap .container { max-width: none; padding: 0 48px; }
+  .nav-wrap .container, footer .container { max-width: none; padding: 0 48px; }
   nav { display: flex; align-items: center; gap: 40px; height: 76px; }
   .logo { display: inline-flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); text-decoration: none; }
   .logo svg { width: 30px; height: 30px; }
@@ -308,7 +308,7 @@
     .cta-box .btn { margin-left: 0; }
   }
   @media (max-width: 640px) {
-    .container { padding: 0 18px; }
+    .container, .nav-wrap .container, footer .container { padding: 0 18px; }
     .demo { padding: 48px 18px 88px; }
     .hero { padding-top: 56px; }
     section.block { padding: 88px 0; }
