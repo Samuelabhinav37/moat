@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.127
+
+### Changed
+- **Settings is now one calm page instead of six tabs and side drawers.** The main page shows
+  only what most people change: the master switch with today's count, "How much to block"
+  (Light, Balanced, Strict), four features (cookie banners, dim YouTube ads, sponsored posts,
+  leaked passwords), sites you've paused and things you've hidden. Each level card plays a
+  short loop of what it removes. The motion stops when reduced motion is on.
+  Everything else sits behind one "Advanced settings" button that opens in place: filter lists,
+  privacy extras, block and allow, trackers, backup and sync, and About Moat. Nothing was removed.
+- **Plainer wording across Settings** in all four languages. For example, "Say no to cookie
+  banners", "Keep your IP address private", "Sites you've paused". Standard is now called
+  **Balanced** and Lite is called **Light**.
+- The oisd list is now named "Community blocklist (oisd)" instead of "Community blocklist -- oisd".
+
+### Fixed
+- **The first-run welcome and the Settings page showed at the same time.** A `display: flex`
+  rule overrode the `hidden` attribute on the page shell. `[hidden]` now always wins.
+- **About Moat said filter fixes came from "Moat's update server".** There is no such server.
+  They are one small signed file on GitHub Pages, and the table now says that.
+- The About page's rule count and the Filter lists budget line now share a single number.
+
 ## 0.11.126
 
 ### Security

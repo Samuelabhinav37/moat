@@ -125,7 +125,7 @@
     "message": "Protection"
   },
   "tabFilters": {
-    "message": "Filter Lists"
+    "message": "Filter lists"
   },
   "tabCustom": {
     "message": "Custom Rules"
@@ -134,7 +134,7 @@
     "message": "Trackers"
   },
   "tabAbout": {
-    "message": "About"
+    "message": "About Moat"
   },
   "optionsTagline": {
     "message": "Blocks ads, trackers, and hijacked popups."
@@ -149,43 +149,43 @@
     "message": "Managed by your organization"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Stop sites tracking you across the web"
+    "message": "Block cross-site cookies"
   },
   "optionsCookiesToggleHint": {
-    "message": "Stops sites from tracking you as you move from one to the next (blocks third-party cookies)."
+    "message": "Stops sites following you from one website to the next."
   },
   "optionsWebrtcToggleLabel": {
-    "message": "Stop IP address leaks"
+    "message": "Keep your IP address private"
   },
   "optionsWebrtcToggleHint": {
-    "message": "Keeps a website from seeing your real IP address if you're using a VPN."
+    "message": "Stops pages finding your real IP address through video-call features, even behind a VPN."
   },
   "optionsFingerprintToggleLabel": {
-    "message": "Stop sites recognizing your device"
+    "message": "Block device fingerprinting"
   },
   "optionsFingerprintRotateToggleLabel": {
     "message": "Use a new disguise each time you restart"
   },
   "optionsGrayscaleToggleLabel": {
-    "message": "Gray out unblockable video ads"
+    "message": "Dim YouTube ads"
   },
   "optionsGrayscaleToggleHint": {
-    "message": "Fades in-stream video ads, like YouTube's, to grayscale while they play."
+    "message": "Video ads that can't be blocked are grayed out while they play."
   },
   "optionsFeedScanToggleLabel": {
-    "message": "Hide sponsored posts in feeds"
+    "message": "Hide sponsored posts"
   },
   "optionsFeedScanToggleHint": {
-    "message": "Removes sponsored and promoted posts from Instagram, LinkedIn, and YouTube as you scroll."
+    "message": "Removes sponsored posts from Instagram, LinkedIn and YouTube feeds."
   },
   "optionsConsentRejectToggleLabel": {
-    "message": "Auto-reject cookie banners"
+    "message": "Say no to cookie banners"
   },
   "optionsConsentRejectToggleHint": {
-    "message": "Clicks “reject” or “decline” on common consent banners for you."
+    "message": "Answers consent pop-ups for you, sharing as little as possible."
   },
   "optionsCnameToggleLabel": {
-    "message": "Catch trackers hiding in disguise"
+    "message": "Catch hidden trackers"
   },
   "optionsCnameUnsupportedHint": {
     "message": "Not available in this browser."
@@ -197,10 +197,10 @@
     "message": "Not checked yet."
   },
   "optionsExceptionsTitle": {
-    "message": "Paused sites"
+    "message": "Sites you've paused"
   },
   "optionsExceptionsHint": {
-    "message": "Moat is completely turned off on these sites, and any pages under them."
+    "message": "Moat is off on these sites. To pause one, click Moat's icon while you're on it and flip the switch."
   },
   "optionsNoSitesAdded": {
     "message": "No sites added."
@@ -240,13 +240,13 @@
     "message": "Off"
   },
   "presetLite": {
-    "message": "Lite"
+    "message": "Light"
   },
   "presetEssential": {
     "message": "Essential"
   },
   "presetStandard": {
-    "message": "Standard"
+    "message": "Balanced"
   },
   "presetStrict": {
     "message": "Strict"
@@ -255,13 +255,13 @@
     "message": "Individual filter lists"
   },
   "optionsIndividualListsHint": {
-    "message": "Turn each list on or off yourself. Changing any one switches your filtering level to Custom."
+    "message": "The lists behind \"How much to block\". Changing one here switches your level to Custom."
   },
   "optionsLoadListsError": {
     "message": "Couldn't load filter lists."
   },
   "optionsBlockedSitesTitle": {
-    "message": "Blocked sites"
+    "message": "Always block"
   },
   "optionsBlockedSitesHint": {
     "message": "Always block these sites, whatever the filter lists say."
@@ -276,7 +276,7 @@
     "message": "Block"
   },
   "optionsAllowedSitesTitle": {
-    "message": "Allowed sites"
+    "message": "Never block"
   },
   "optionsAllowedSitesHint": {
     "message": "Never block these sites, even when a filter list matches."
@@ -285,16 +285,16 @@
     "message": "Allow"
   },
   "optionsHiddenElementsTitle": {
-    "message": "Hidden elements"
+    "message": "Things you've hidden"
   },
   "optionsHiddenElementsHint": {
-    "message": "Elements you hid with the “Block an element” tool. Remove one to bring it back."
+    "message": "Parts of pages you removed with Block an element. Remove one to bring it back."
   },
   "optionsNothingSelected": {
     "message": "Nothing selected yet."
   },
   "optionsDimmedElementsTitle": {
-    "message": "Dimmed elements"
+    "message": "Grayed out"
   },
   "optionsDimmedElementsHint": {
     "message": "Elements you grayed out with the picker. Remove one to restore it."
@@ -349,10 +349,10 @@
     "message": "Third-party licenses"
   },
   "optionsSyncToggleLabel": {
-    "message": "Sync settings across devices"
+    "message": "Sync across devices"
   },
   "optionsSyncToggleHint": {
-    "message": "Hands your Moat settings to your browser account to carry between devices. No browsing data leaves your device, but this is the only control on this page that sends anything anywhere."
+    "message": "Stored by your browser account. No browsing data is included."
   },
   "optionsSyncStatusFailed": {
     "message": "Couldn't sync your settings ($WHEN$). You may have too many custom rules or sites for your browser's sync storage. They're still saved on this device.",
@@ -375,7 +375,7 @@
     "message": "Ads, trackers, and known-malicious sites."
   },
   "presetHintStrict": {
-    "message": "Every list, plus the privacy toggles above."
+    "message": "Every list, plus all the Privacy extras."
   },
   "presetHintCustom": {
     "message": "A mix you've set up yourself."
@@ -462,7 +462,7 @@
     "message": "This password has appeared in a known data breach."
   },
   "optionsLeakedPasswordToggleLabel": {
-    "message": "Check passwords against known breaches"
+    "message": "Warn about leaked passwords"
   },
   "popupPermissionGuardIntro": {
     "message": "Moat's permission guard is blocking prompts on this site:"
@@ -532,31 +532,31 @@
     "message": "Safety"
   },
   "optionsFingerprintDrawerDesc": {
-    "message": "Randomly tweaks details about your device that sites use to recognize you across visits."
+    "message": "Makes it harder for sites to recognise your computer from its settings."
   },
   "optionsFingerprintCaution": {
-    "message": "Can occasionally break a CAPTCHA or a bank's device check. If a site misbehaves, pause this first."
+    "message": "Can occasionally break a CAPTCHA or a bank's device check. If a site misbehaves, turn this off first."
   },
   "optionsCnameDrawerDesc": {
-    "message": "Some trackers disguise themselves as part of the site you're visiting."
+    "message": "Finds trackers that hide behind a website's own address."
   },
   "optionsSearchSlopDrawerDesc": {
-    "message": "Hides search results that match a small, curated list of content-farm domains."
+    "message": "Filters known content-farm sites out of your search results."
   },
   "optionsSearchSlopCaution": {
-    "message": "Each hidden batch stays one click away behind a \"Show\" link. Off by default, since this list can misfire in ways a fixed ad-network list won't."
+    "message": "Each hidden batch stays one click away behind a \"Show\" link."
   },
   "optionsLeakedPasswordDrawerDesc": {
-    "message": "Warns if a password you type has appeared in a known breach."
+    "message": "Tells you if a password you type has appeared in a data breach."
   },
   "optionsLeakedPasswordCaution": {
-    "message": "Only a short piece of its hash ever leaves your device."
+    "message": "Only a short scrambled piece of it is ever checked."
   },
   "optionsPermissionGuardMergedLabel": {
-    "message": "Block ambush permission prompts"
+    "message": "Block surprise permission requests"
   },
   "optionsPermissionGuardMergedDesc": {
-    "message": "Sets every site's camera, microphone, and location prompts to blocked by default, so a page can't surprise you with one on load. Allow a specific site from the popup when you trust it."
+    "message": "Stops pages asking for your camera, microphone or location the moment they load. Allow a site from the popup when you trust it."
   },
   "optionsChipCameraLabel": {
     "message": "Camera"
@@ -724,7 +724,7 @@
     "message": "Hasn't matched in 30 days. The site probably changed."
   },
   "optionsTrackersDesc": {
-    "message": "Which companies tried to follow you, and how far they got. Counted on your device from the browser's own match data. This list is never uploaded."
+    "message": "Companies Moat stopped this week. Counted on your device and never uploaded."
   },
   "optionsCompaniesSeenBaseline": {
     "message": "companies seen this week"
@@ -801,7 +801,7 @@
     "message": "Refresh"
   },
   "tabBackup": {
-    "message": "Backup"
+    "message": "Backup and sync"
   },
   "welcomeTitle": {
     "message": "Welcome to Moat"
@@ -813,7 +813,7 @@
     "message": "Ads, trackers and known-malicious sites blocked"
   },
   "welcomeFilterListsEvidence": {
-    "message": "Standard filter lists, on by default"
+    "message": "Balanced filter lists, on by default"
   },
   "welcomeGrayscaleTitle": {
     "message": "YouTube video ads dimmed automatically"
@@ -831,19 +831,19 @@
     "message": "Worth turning on"
   },
   "welcomeFingerprintTitle": {
-    "message": "Stop sites recognizing your device"
+    "message": "Block device fingerprinting"
   },
   "welcomeFingerprintEvidence": {
     "message": "Off by default since it can occasionally affect a CAPTCHA"
   },
   "welcomeLeakedPasswordTitle": {
-    "message": "Check passwords against known breaches"
+    "message": "Warn about leaked passwords"
   },
   "welcomeLeakedPasswordEvidence": {
     "message": "Off by default. Only a scrambled fragment of a password ever leaves your device."
   },
   "welcomeMoreInSettings": {
-    "message": "Both are one click away on the Protection tab."
+    "message": "Both are one click away in Settings."
   },
   "welcomeShortcutHint": {
     "message": "toggles protection on and off, anytime."
@@ -861,7 +861,7 @@
     "message": "Import"
   },
   "optionsBackupDesc": {
-    "message": "Save your settings, custom rules and exceptions to a file you keep, or sync them through your browser."
+    "message": "Keep your settings, rules and paused sites safe, or carry them to another computer."
   },
   "optionsBackupSizeLabel": {
     "message": "export size"
@@ -876,7 +876,7 @@
     "message": "stays on your device"
   },
   "optionsExportTitle": {
-    "message": "Export settings"
+    "message": "Save a backup"
   },
   "optionsImportTitle": {
     "message": "Restore from a file"
@@ -912,7 +912,7 @@
     "message": "no block counts or statistics"
   },
   "optionsAboutDesc": {
-    "message": "What this build is, and exactly what leaves your device."
+    "message": "What this version is, and everything that ever leaves your device."
   },
   "optionsDisclosureFeature": {
     "message": "Feature"
@@ -933,13 +933,13 @@
     "message": "Nothing. Runs entirely on your device."
   },
   "optionsDisclosureUpdatesName": {
-    "message": "Filter updates"
+    "message": "Filter fixes"
   },
   "optionsDisclosureUpdatesSent": {
-    "message": "A version check once a day. No browsing history."
+    "message": "One small signed file, downloaded once a day. It carries nothing about you."
   },
   "optionsDisclosureUpdatesRecipient": {
-    "message": "Moat's update server"
+    "message": "GitHub Pages (file hosting)"
   },
   "optionsDisclosureBreachName": {
     "message": "Breach checking"
@@ -1051,5 +1051,168 @@
   },
   "optionsImportChangeSync": {
     "message": "Sync setting"
+  },
+  "settingsTitle": {
+    "message": "Settings"
+  },
+  "settingsHelp": {
+    "message": "Help"
+  },
+  "settingsStatusOn": {
+    "message": "Moat is on"
+  },
+  "settingsStatusOff": {
+    "message": "Moat is off"
+  },
+  "levelTitle": {
+    "message": "How much to block"
+  },
+  "levelLead": {
+    "message": "Balanced suits almost everyone. Pick Strict for the most privacy, or Light if a site you use keeps breaking."
+  },
+  "levelLightDesc": {
+    "message": "Removes ads, scams and pop-ups. Trackers still load."
+  },
+  "levelBalancedDesc": {
+    "message": "Also stops trackers and phishing. Recommended."
+  },
+  "levelStrictDesc": {
+    "message": "Also cookie banners and fingerprinting. A few sites may break."
+  },
+  "levelLegendAds": {
+    "message": "Ads"
+  },
+  "levelLegendTrackers": {
+    "message": "Trackers"
+  },
+  "levelLegendCookies": {
+    "message": "Cookie banners"
+  },
+  "levelLegendFingerprint": {
+    "message": "Fingerprinting"
+  },
+  "levelCustomNote": {
+    "message": "You're using your own mix of filter lists. Change it under Advanced settings."
+  },
+  "featuresTitle": {
+    "message": "Features"
+  },
+  "featuresLead": {
+    "message": "Ads, trackers and scam pop-ups are always blocked. These are the extras people change most."
+  },
+  "pausedEmptyTitle": {
+    "message": "No sites are paused"
+  },
+  "pausedEmptyHint": {
+    "message": "Pause a site you trust to let everything load on it."
+  },
+  "hiddenEmptyTitle": {
+    "message": "Nothing hidden yet"
+  },
+  "hiddenEmptyHint": {
+    "message": "Click Moat's icon, choose Block an element, then click what you want gone."
+  },
+  "advancedButton": {
+    "message": "Advanced settings"
+  },
+  "advancedButtonHide": {
+    "message": "Hide advanced settings"
+  },
+  "advancedButtonHint": {
+    "message": "Filter lists, privacy extras, your own rules, trackers, backup and version"
+  },
+  "advShowAllLists": {
+    "message": "Show all lists"
+  },
+  "advBudgetLine": {
+    "message": "Chrome lets all your extensions use $LIMIT$ blocking rules in total. Moat is using $USED$.",
+    "placeholders": {
+      "limit": {
+        "content": "$1"
+      },
+      "used": {
+        "content": "$2"
+      }
+    }
+  },
+  "advPrivacyTitle": {
+    "message": "Privacy extras"
+  },
+  "advPrivacyLead": {
+    "message": "Extra protection against being followed and identified. Off by default because a few sites can break."
+  },
+  "advRulesTitle": {
+    "message": "Block and allow"
+  },
+  "advRulesLead": {
+    "message": "Your own rules. They always win over the filter lists."
+  },
+  "advPauseSite": {
+    "message": "Pause Moat on a site"
+  },
+  "commonPause": {
+    "message": "Pause"
+  },
+  "advTrackersSummary": {
+    "message": "$COMPANIES$ companies · $ATTEMPTS$ attempts blocked this week",
+    "placeholders": {
+      "companies": {
+        "content": "$1"
+      },
+      "attempts": {
+        "content": "$2"
+      }
+    }
+  },
+  "advTrackersOnTab": {
+    "message": "On the tab you last used"
+  },
+  "advLastBackup": {
+    "message": "Last backup:"
+  },
+  "footerProduct": {
+    "message": "Product"
+  },
+  "footerResources": {
+    "message": "Resources"
+  },
+  "footerProject": {
+    "message": "Project"
+  },
+  "footerFeatures": {
+    "message": "Features"
+  },
+  "footerPrivacy": {
+    "message": "Privacy"
+  },
+  "footerFaq": {
+    "message": "FAQ"
+  },
+  "footerChangelog": {
+    "message": "Changelog"
+  },
+  "footerPrivacyPolicy": {
+    "message": "Privacy policy"
+  },
+  "footerBuildStatus": {
+    "message": "Build status"
+  },
+  "footerInstallFromSource": {
+    "message": "Install from source"
+  },
+  "footerGithub": {
+    "message": "GitHub"
+  },
+  "footerLicense": {
+    "message": "GPL-3.0 license"
+  },
+  "footerReportIssue": {
+    "message": "Report an issue"
+  },
+  "footerCopyright": {
+    "message": "© 2026 Moat"
+  },
+  "footerFreeOpenSource": {
+    "message": "Free and open source."
   }
 }

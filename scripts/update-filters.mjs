@@ -687,7 +687,7 @@ oisdChunks.forEach((chunkRules, index) => {
     id: `ruleset_oisd${suffix}`,
     group: "oisd",
     category: "ads",
-    name: oisdChunks.length > 1 ? `Community blocklist -- oisd (${index + 1}/${oisdChunks.length})` : "Community blocklist -- oisd",
+    name: oisdChunks.length > 1 ? `Community blocklist (oisd) (${index + 1}/${oisdChunks.length})` : "Community blocklist (oisd)",
     enabled: true,
     file,
     ruleCount: chunkRules.length,

@@ -13,6 +13,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createMockBrowser } from "../shared/mockExtensionBrowser";
 import { loadPageFixture } from "../shared/loadPageFixture";
 import { findInvisibleText } from "../shared/findInvisibleText";
+import type { Settings } from "../types";
+import { presetPatch } from "../shared/filterPresets";
 
 const OPTIONS_HTML = join(__dirname, "options.html");
 const THEME_CSS = join(__dirname, "..", "ui", "theme.css");
@@ -35,8 +37,8 @@ afterEach(() => {
   vi.doUnmock("webextension-polyfill");
 });
 
-async function renderOptions(): Promise<void> {
-  const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
+async function renderOptions(settings?: Partial<Settings>): Promise<void> {
+  const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com", settings });
   // Every test in this file except the "Welcome panel" describe block below
   // is about the normal settings UI, not the first-run flow -- pre-seed as
   // already dismissed so #shell is the visible surface, same as any
@@ -49,20 +51,18 @@ async function renderOptions(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 20));
 }
 
-/** Clicks every rail tab so each panel's content actually renders/populates
- * -- render() only fully computes the tab that's initially active plus
- * whatever's pre-rendered; the others need their own click to load (e.g.
- * Trackers' company breakdown is fetched on click, not on initial render). */
-async function visitEveryTab(): Promise<void> {
-  for (const button of document.querySelectorAll<HTMLButtonElement>(".rail-item")) {
-    button.click();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
-  }
+/** Opens Advanced settings and every disclosure inside it, so each
+ * section is actually on screen -- the Trackers breakdown, for one, is only
+ * fetched once its own <details> opens. */
+async function openEverything(): Promise<void> {
+  (document.getElementById("advanced-toggle") as HTMLButtonElement).click();
   for (const details of document.querySelectorAll("details")) (details as HTMLDetailsElement).open = true;
-  // Open the Protection tab's drawer too -- click the first toggleable row.
-  document.querySelector<HTMLElement>(".rail-item[data-tab='protection']")?.click();
-  const firstRow = document.querySelector<HTMLElement>("#protection-groups .protection-row");
-  firstRow?.click();
+  for (let i = 0; i < 10; i++) await Promise.resolve();
+}
+
+async function settle(): Promise<void> {
+  for (let i = 0; i < 20; i++) await Promise.resolve();
+  await new Promise((resolve) => setTimeout(resolve, 20));
 }
 
 describe("options.html render", () => {
@@ -80,12 +80,13 @@ describe("options.html render", () => {
     await renderOptions();
     expect(document.getElementById("version-number")?.textContent).toBe("0.0.0-test");
     expect(document.getElementById("protection-groups")?.children.length).toBeGreaterThan(0);
+    expect(document.getElementById("feature-rows")?.children.length).toBe(4);
     expect(caughtErrors).toEqual([]);
   });
 
-  it("has no practically-invisible text across every tab (the v0.11.89 bug class)", async () => {
+  it("has no practically-invisible text with Advanced settings open (the v0.11.89 bug class)", async () => {
     await renderOptions();
-    await visitEveryTab();
+    await openEverything();
     const findings = findInvisibleText(document.body);
     expect(findings).toEqual([]);
   });
@@ -113,8 +114,6 @@ describe("options.html render", () => {
     // DR-15: the sync recipient must flip to Mozilla on a Firefox-shaped
     // build -- a wrong recipient here is a privacy-disclosure bug, not a
     // cosmetic one.
-    document.querySelector<HTMLElement>(".rail-item[data-tab='about']")?.click();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
     expect(document.getElementById("disclosure-sync-recipient")?.textContent).toBe("Mozilla");
     expect(document.getElementById("version-build")?.textContent).toBe("Firefox");
   });
@@ -127,45 +126,36 @@ describe("Previously-orphaned i18n keys that turned out to be real content gaps"
   // audit's orphaned-key scan, then confirmed (not assumed) to be genuine
   // missing content rather than rename cruft by checking each one's
   // plausible location against its sibling sections.
-  it("Custom Rules tab: 'Hidden elements' has its own heading and hint, matching its 'Dimmed elements' sibling", async () => {
+  it("'Things you've hidden' has its own heading and hint", async () => {
     await renderOptions();
-    document.querySelector<HTMLElement>(".rail-item[data-tab='custom']")?.click();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
 
-    const headings = [...document.querySelectorAll(".group-heading")].map((el) => el.textContent);
-    expect(headings.some((t) => t?.includes("Hidden elements"))).toBe(true);
+    expect(document.body.textContent).toContain("Things you've hidden");
     expect(document.body.textContent).toContain("Block an element");
-    expect(document.body.textContent).toContain("grayed out with the picker");
   });
 
-  it("Filter Lists tab: 'Individual filter lists' has its own hint below the heading", async () => {
+  it("Filter lists: the individual lists have a hint saying what changing one does", async () => {
     await renderOptions();
-    document.querySelector<HTMLElement>(".rail-item[data-tab='filters']")?.click();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
 
-    expect(document.body.textContent).toContain("switches your filtering level to Custom");
+    expect(document.body.textContent).toContain("switches your level to Custom");
   });
 
-  it("Protection tab: the merged permission-guard row has an explanatory line, not just a title and chips", async () => {
+  it("Privacy extras: the merged permission-guard row has an explanatory line, not just a title and chips", async () => {
     await renderOptions();
-    expect(document.body.textContent).toContain("Allow a specific site from the popup when you trust it");
+    expect(document.body.textContent).toContain("Allow a site from the popup when you trust it");
   });
 });
 
-describe("Backup tab (DR-15)", () => {
-  it("shows the honest 'Never' state with the caution rail dot before any backup exists", async () => {
+describe("Backup and sync (DR-15)", () => {
+  it("shows the honest 'Never' state in amber before any backup exists", async () => {
     await renderOptions();
-    document.querySelector<HTMLElement>(".rail-item[data-tab='backup']")?.click();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
 
     expect(document.getElementById("backup-metric-last")?.textContent).toBe("Never");
     expect(document.getElementById("backup-metric-last")?.classList.contains("caution")).toBe(true);
-    expect((document.getElementById("rail-dot-backup") as HTMLElement | null)?.hidden).toBe(false);
     // Never hardcoded -- Google on this (default, Chrome-shaped) mock.
     expect(document.getElementById("sync-recipient")?.textContent).toBe("Google");
   });
 
-  it("clicking Export actually records a backup and updates the tab live", async () => {
+  it("clicking Export actually records a backup and updates the line live", async () => {
     const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
     storageLocalData.uiState = { hasSeenWelcome: true };
     vi.doMock("webextension-polyfill", () => ({ default: browser }));
@@ -188,30 +178,21 @@ describe("Backup tab (DR-15)", () => {
     await new Promise((resolve) => setTimeout(resolve, 20));
 
     expect(typeof storageLocalData.lastBackupAt).toBe("number");
-    document.querySelector<HTMLElement>(".rail-item[data-tab='backup']")?.click();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
     expect(document.getElementById("backup-metric-last")?.textContent).not.toBe("Never");
     expect(document.getElementById("backup-metric-last")?.classList.contains("caution")).toBe(false);
-    expect((document.getElementById("rail-dot-backup") as HTMLElement | null)?.hidden).toBe(true);
   });
 });
 
-describe("About tab (DR-13)", () => {
+describe("About Moat (DR-13)", () => {
   it("renders the 5-row privacy disclosure table and a populated version grid", async () => {
     await renderOptions();
-    document.querySelector<HTMLElement>(".rail-item[data-tab='about']")?.click();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
 
     expect(document.querySelectorAll(".disclosure-table tbody tr").length).toBe(5);
     expect(document.getElementById("version-number")?.textContent).toBe("0.0.0-test");
     expect(document.getElementById("version-build")?.textContent).toBe("Chrome");
-    // Must mirror the Filter Lists tab's own hero number exactly, never
-    // recompute its own separate count -- see renderAboutTab's own comment
-    // on why the two must never disagree. (This jsdom harness has no real
-    // rules/manifest.json to fetch, so both sides read the same "—"
-    // placeholder rather than a real count -- that's still the behavior
-    // under test: agreement, not a specific value.)
-    expect(document.getElementById("version-rules")?.textContent).toBe(document.getElementById("filters-metric-active")?.textContent);
+    // This jsdom harness has no real rules/manifest.json to fetch, so the
+    // count stays the "—" placeholder rather than a made-up number.
+    expect(document.getElementById("version-rules")?.textContent).toBe("—");
     expect(document.getElementById("disclosure-sync-recipient")?.textContent).toBe("Google");
   });
 });
@@ -267,7 +248,7 @@ describe("Welcome panel (first run)", () => {
   });
 });
 
-describe("Custom Rules tab: migration import", () => {
+describe("Block and allow: migration import", () => {
   it("parses pasted text, actually writes the result to storage, and reports real counts", async () => {
     const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
     storageLocalData.uiState = { hasSeenWelcome: true };
@@ -277,8 +258,6 @@ describe("Custom Rules tab: migration import", () => {
     for (let i = 0; i < 20; i++) await Promise.resolve();
     await new Promise((resolve) => setTimeout(resolve, 20));
 
-    document.querySelector<HTMLElement>(".rail-item[data-tab='custom']")?.click();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
     (document.getElementById("migration-import") as HTMLDetailsElement).open = true;
 
     const textarea = document.getElementById("migration-import-textarea") as HTMLTextAreaElement;
@@ -300,7 +279,7 @@ describe("Custom Rules tab: migration import", () => {
     expect(status?.textContent).toContain("1");
     expect(textarea.value).toBe("");
 
-    // The Custom Rules tab's own lists re-render from the new state without
+    // The Block and allow lists re-render from the new state without
     // a full page reload -- not just a background write nobody sees.
     expect(document.getElementById("custom-block-list")?.textContent).toContain("ads.example.com");
     expect(document.getElementById("custom-allow-list")?.textContent).toContain("shop.example.com");
@@ -308,8 +287,6 @@ describe("Custom Rules tab: migration import", () => {
 
   it("reports that nothing was recognized, for text with no supported syntax", async () => {
     await renderOptions();
-    document.querySelector<HTMLElement>(".rail-item[data-tab='custom']")?.click();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
 
     const textarea = document.getElementById("migration-import-textarea") as HTMLTextAreaElement;
     textarea.value = "/some-regex-filter/";
@@ -321,73 +298,51 @@ describe("Custom Rules tab: migration import", () => {
   });
 });
 
-describe("Tab rail: ARIA wiring and arrow-key navigation", () => {
-  it("gives each tab button a matching aria-controls/tabpanel id pair", async () => {
+describe("One-page layout", () => {
+  it("keeps Advanced settings collapsed until its button is pressed", async () => {
     await renderOptions();
-    for (const button of document.querySelectorAll<HTMLButtonElement>("[role='tab']")) {
-      const panelId = button.getAttribute("aria-controls")!;
-      const panel = document.getElementById(panelId);
-      expect(panel, `panel for ${button.id}`).not.toBeNull();
-      expect(panel?.getAttribute("role")).toBe("tabpanel");
-      expect(panel?.getAttribute("aria-labelledby")).toBe(button.id);
-    }
+    const toggle = document.getElementById("advanced-toggle") as HTMLButtonElement;
+    const advanced = document.getElementById("advanced") as HTMLElement;
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(advanced.hidden).toBe(true);
+
+    toggle.click();
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(advanced.hidden).toBe(false);
+    expect(document.getElementById("advanced-toggle-title")?.textContent).toBe("Hide advanced settings");
+
+    toggle.click();
+    expect(advanced.hidden).toBe(true);
+    expect(document.getElementById("advanced-toggle-title")?.textContent).toBe("Advanced settings");
   });
 
-  it("only the selected tab is in the normal tab order (tabindex 0 vs -1)", async () => {
+  it("selects no level card for a hand-picked mix, and points to Advanced settings", async () => {
+    // The shared mock is deliberately a custom mix (fingerprinting on, etc.).
     await renderOptions();
-    const protectionTab = document.getElementById("tab-protection") as HTMLButtonElement;
-    const filtersTab = document.getElementById("tab-filters") as HTMLButtonElement;
-    expect(protectionTab.tabIndex).toBe(0);
-    expect(filtersTab.tabIndex).toBe(-1);
-
-    filtersTab.click();
-    expect(protectionTab.tabIndex).toBe(-1);
-    expect(filtersTab.tabIndex).toBe(0);
+    const checkedCards = document.querySelectorAll("#level-cards .level[aria-checked='true']");
+    expect(checkedCards.length).toBe(0);
+    expect((document.getElementById("level-note") as HTMLElement).hidden).toBe(false);
   });
 
-  it("ArrowDown moves focus and selection to the next tab, wrapping past the last one", async () => {
-    await renderOptions();
-    const tabs = [...document.querySelectorAll<HTMLButtonElement>("[role='tab']")];
-    tabs[0]!.focus();
+  it("marks exactly one level card as chosen, and picking another one saves it", async () => {
+    await renderOptions({ ...presetPatch("standard") });
+    const checked = () =>
+      [...document.querySelectorAll<HTMLButtonElement>("#level-cards .level")]
+        .filter((card) => card.getAttribute("aria-checked") === "true")
+        .map((card) => card.dataset.level);
+    expect(checked()).toEqual(["standard"]);
+    expect((document.getElementById("level-note") as HTMLElement).hidden).toBe(true);
 
-    tabs[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
-    expect(document.activeElement).toBe(tabs[1]);
-    expect(tabs[1]!.getAttribute("aria-selected")).toBe("true");
-
-    // Wraps from the last tab back to the first.
-    tabs[tabs.length - 1]!.focus();
-    tabs[tabs.length - 1]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
-    expect(document.activeElement).toBe(tabs[0]);
+    document.querySelector<HTMLButtonElement>("#level-cards .level[data-level='strict']")!.click();
+    await settle();
+    expect(checked()).toEqual(["strict"]);
   });
 
-  it("ArrowUp moves focus and selection to the previous tab, wrapping past the first one", async () => {
-    await renderOptions();
-    const tabs = [...document.querySelectorAll<HTMLButtonElement>("[role='tab']")];
-    tabs[0]!.focus();
-    tabs[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
-    expect(document.activeElement).toBe(tabs[tabs.length - 1]);
-  });
-
-  it("Home/End jump to the first/last tab", async () => {
-    await renderOptions();
-    const tabs = [...document.querySelectorAll<HTMLButtonElement>("[role='tab']")];
-    tabs[2]!.focus();
-
-    tabs[2]!.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
-    expect(document.activeElement).toBe(tabs[tabs.length - 1]);
-
-    tabs[tabs.length - 1]!.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
-    expect(document.activeElement).toBe(tabs[0]);
-  });
-
-  it("moving focus with an arrow key actually shows the corresponding panel, not just changes aria-selected", async () => {
-    await renderOptions();
-    const tabs = [...document.querySelectorAll<HTMLButtonElement>("[role='tab']")];
-    tabs[0]!.focus();
-    tabs[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
-
-    const nextPanelId = tabs[1]!.getAttribute("aria-controls")!;
-    expect(document.getElementById(nextPanelId)?.hidden).toBe(false);
-    expect(document.getElementById("panel-protection")?.hidden).toBe(true);
+  it("shows the friendly empty states when nothing is paused or hidden", async () => {
+    await renderOptions({ disabledSites: [], customCosmeticRules: {}, customGrayscaleRules: {} });
+    expect(document.getElementById("site-list")?.children.length).toBe(0);
+    expect(document.getElementById("site-empty-state")?.style.display).not.toBe("none");
+    expect(document.getElementById("hidden-element-empty")?.style.display).not.toBe("none");
+    expect((document.getElementById("grayscale-element-block") as HTMLElement).hidden).toBe(true);
   });
 });

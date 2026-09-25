@@ -132,7 +132,7 @@
     "message": "Tracker"
   },
   "tabAbout": {
-    "message": "Über"
+    "message": "Über Moat"
   },
   "optionsTagline": {
     "message": "Blockiert Werbung, Tracker und gekaperte Pop-ups."
@@ -147,43 +147,43 @@
     "message": "Verwaltet durch deine Organisation"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Verhindert, dass Websites Sie verfolgen"
+    "message": "Websiteübergreifende Cookies blockieren"
   },
   "optionsCookiesToggleHint": {
-    "message": "Verhindert, dass Websites Sie von einer Seite zur nächsten verfolgen (blockiert Cookies von Drittanbietern)."
+    "message": "Verhindert, dass Websites dir von einer Seite zur nächsten folgen."
   },
   "optionsWebrtcToggleLabel": {
-    "message": "IP-Adressen-Lecks verhindern"
+    "message": "Deine IP-Adresse privat halten"
   },
   "optionsWebrtcToggleHint": {
-    "message": "Verhindert, dass eine Website deine echte IP-Adresse sieht, wenn du ein VPN nutzt."
+    "message": "Verhindert, dass Seiten deine echte IP-Adresse über Videoanruf-Funktionen herausfinden, auch hinter einem VPN."
   },
   "optionsFingerprintToggleLabel": {
-    "message": "Verhindert, dass Websites Ihr Gerät wiedererkennen"
+    "message": "Geräte-Fingerprinting blockieren"
   },
   "optionsFingerprintRotateToggleLabel": {
     "message": "Bei jedem Neustart eine neue Verkleidung verwenden"
   },
   "optionsGrayscaleToggleLabel": {
-    "message": "Nicht blockierbare Videowerbung abdunkeln"
+    "message": "YouTube-Werbung abdunkeln"
   },
   "optionsGrayscaleToggleHint": {
-    "message": "Stellt eingebettete Videowerbung, etwa bei YouTube, die nicht vollständig entfernt werden kann, automatisch in Graustufen dar."
+    "message": "Videowerbung, die sich nicht blockieren lässt, wird während der Wiedergabe grau dargestellt."
   },
   "optionsFeedScanToggleLabel": {
-    "message": "Gesponserte Beiträge aggressiv ausblenden"
+    "message": "Gesponserte Beiträge ausblenden"
   },
   "optionsFeedScanToggleHint": {
-    "message": "Durchsucht soziale Feeds beim Scrollen und entfernt gesponserte oder beworbene Beiträge. (Standardmäßig aus)"
+    "message": "Entfernt gesponserte Beiträge aus den Feeds von Instagram, LinkedIn und YouTube."
   },
   "optionsConsentRejectToggleLabel": {
-    "message": "Cookie-Banner automatisch ablehnen"
+    "message": "Cookie-Banner ablehnen"
   },
   "optionsConsentRejectToggleHint": {
-    "message": "Klickt bei den wichtigsten Einwilligungsbannern automatisch auf Ablehnen. (Standardmäßig aus)"
+    "message": "Beantwortet Einwilligungs-Pop-ups für dich und teilt dabei so wenig wie möglich."
   },
   "optionsCnameToggleLabel": {
-    "message": "Getarnte Tracker aufspüren"
+    "message": "Versteckte Tracker aufspüren"
   },
   "optionsCnameUnsupportedHint": {
     "message": "In diesem Browser nicht verfügbar."
@@ -198,7 +198,7 @@
     "message": "Pausierte Websites"
   },
   "optionsExceptionsHint": {
-    "message": "Der Schutz ist auf diesen Websites und allen Seiten darunter vollständig deaktiviert."
+    "message": "Moat ist auf diesen Websites aus. Um eine zu pausieren, klicke dort auf das Moat-Symbol und lege den Schalter um."
   },
   "optionsNoSitesAdded": {
     "message": "Keine Websites hinzugefügt."
@@ -244,7 +244,7 @@
     "message": "Grundlegend"
   },
   "presetStandard": {
-    "message": "Standard"
+    "message": "Ausgewogen"
   },
   "presetStrict": {
     "message": "Streng"
@@ -253,13 +253,13 @@
     "message": "Einzelne Filterlisten"
   },
   "optionsIndividualListsHint": {
-    "message": "Schalte jede Liste selbst ein oder aus. Jede Änderung setzt deine Filterstufe auf Benutzerdefiniert."
+    "message": "Die Listen hinter „Wie viel blockiert wird“. Wenn du hier eine änderst, wechselt deine Stufe zu Benutzerdefiniert."
   },
   "optionsLoadListsError": {
     "message": "Filterlisten konnten nicht geladen werden."
   },
   "optionsBlockedSitesTitle": {
-    "message": "Blockierte Websites"
+    "message": "Immer blockieren"
   },
   "optionsBlockedSitesHint": {
     "message": "Blockiert diese Domains immer, unabhängig von den Filterlisten."
@@ -274,7 +274,7 @@
     "message": "Blockieren"
   },
   "optionsAllowedSitesTitle": {
-    "message": "Erlaubte Websites"
+    "message": "Nie blockieren"
   },
   "optionsAllowedSitesHint": {
     "message": "Blockiert diese Domains nie, auch wenn eine aktive Filterliste dies vorsieht."
@@ -283,16 +283,16 @@
     "message": "Erlauben"
   },
   "optionsHiddenElementsTitle": {
-    "message": "Ausgeblendete Elemente"
+    "message": "Was du ausgeblendet hast"
   },
   "optionsHiddenElementsHint": {
-    "message": "Elemente, die du mit dem Werkzeug \"Element blockieren\" in der Symbolleiste entfernt hast. Entferne sie hier, um sie wiederherzustellen."
+    "message": "Seitenteile, die du mit „Element blockieren“ entfernt hast. Entferne eines, um es zurückzuholen."
   },
   "optionsNothingSelected": {
     "message": "Noch nichts ausgewählt."
   },
   "optionsDimmedElementsTitle": {
-    "message": "Abgedunkelte Elemente"
+    "message": "Ausgegraut"
   },
   "optionsDimmedElementsHint": {
     "message": "Elemente, die du zum \"Abdunkeln\" ausgewählt hast. Entferne sie hier, um die normale Sichtbarkeit wiederherzustellen."
@@ -347,10 +347,10 @@
     "message": "Lizenzen von Drittanbietern"
   },
   "optionsSyncToggleLabel": {
-    "message": "Einstellungen geräteübergreifend synchronisieren"
+    "message": "Geräteübergreifend synchronisieren"
   },
   "optionsSyncToggleHint": {
-    "message": "Übergibt deine Moat-Einstellungen an dein Browserkonto, damit sie zwischen Geräten mitgenommen werden. Es verlassen keine Browserdaten dein Gerät, aber das ist die einzige Funktion auf dieser Seite, die überhaupt etwas irgendwohin sendet."
+    "message": "Wird in deinem Browserkonto gespeichert. Browserdaten sind nicht enthalten."
   },
   "optionsSyncStatusFailed": {
     "message": "Deine Einstellungen konnten nicht synchronisiert werden ($WHEN$). Möglicherweise hast du zu viele eigene Regeln oder Websites für den Sync-Speicher deines Browsers. Sie sind weiterhin auf diesem Gerät gespeichert.",
@@ -373,7 +373,7 @@
     "message": "Die Stufe Standard blockiert Werbung, Tracker und bekannte bösartige Websites."
   },
   "presetHintStrict": {
-    "message": "Alles oben Genannte, plus die browserweiten Datenschutzschalter."
+    "message": "Alle Listen, plus alle Datenschutz-Extras."
   },
   "presetHintCustom": {
     "message": "Eine Kombination, die du selbst zusammengestellt hast."
@@ -460,7 +460,7 @@
     "message": "Dieses Passwort ist in bekannten Datenlecks aufgetaucht."
   },
   "optionsLeakedPasswordToggleLabel": {
-    "message": "Passwörter mit bekannten Datenlecks abgleichen"
+    "message": "Vor geleakten Passwörtern warnen"
   },
   "popupPermissionGuardIntro": {
     "message": "Moats Berechtigungswächter blockiert Anfragen auf dieser Seite:"
@@ -530,31 +530,31 @@
     "message": "Sicherheit"
   },
   "optionsFingerprintDrawerDesc": {
-    "message": "Verändert zufällig Geräte-Details, an denen dich Websites über mehrere Besuche hinweg wiedererkennen."
+    "message": "Erschwert es Websites, deinen Computer an seinen Einstellungen wiederzuerkennen."
   },
   "optionsFingerprintCaution": {
     "message": "Kann gelegentlich ein CAPTCHA oder die Geräteprüfung einer Bank stören. Wenn eine Website Probleme macht, schalte das zuerst aus."
   },
   "optionsCnameDrawerDesc": {
-    "message": "Manche Tracker tarnen sich als Teil der Website, die du besuchst."
+    "message": "Findet Tracker, die sich hinter der eigenen Adresse einer Website verstecken."
   },
   "optionsSearchSlopDrawerDesc": {
-    "message": "Blendet Suchergebnisse aus, die auf einer kleinen, kuratierten Liste von Content-Farm-Domains stehen."
+    "message": "Filtert bekannte Content-Farmen aus deinen Suchergebnissen."
   },
   "optionsSearchSlopCaution": {
-    "message": "Jeder ausgeblendete Stapel bleibt einen Klick entfernt hinter einem „Anzeigen“-Link. Standardmäßig aus, da diese Liste auf eine Weise danebenliegen kann, wie es eine feste Werbenetzwerk-Liste nicht tut."
+    "message": "Jede ausgeblendete Gruppe bleibt einen Klick entfernt hinter einem „Anzeigen“-Link."
   },
   "optionsLeakedPasswordDrawerDesc": {
-    "message": "Warnt dich, wenn ein eingegebenes Passwort in einem bekannten Datenleck aufgetaucht ist."
+    "message": "Sagt dir, ob ein eingegebenes Passwort in einem Datenleck aufgetaucht ist."
   },
   "optionsLeakedPasswordCaution": {
-    "message": "Nur ein kurzer Teil des Hashwerts verlässt dein Gerät."
+    "message": "Nur ein kurzes, verschlüsseltes Stück davon wird geprüft."
   },
   "optionsPermissionGuardMergedLabel": {
     "message": "Überraschende Berechtigungsanfragen blockieren"
   },
   "optionsPermissionGuardMergedDesc": {
-    "message": "Blockiert standardmäßig Kamera-, Mikrofon- und Standortanfragen jeder Website, damit dich eine Seite beim Laden nicht überrascht. Erlaube eine bestimmte Website über das Popup, wenn du ihr vertraust."
+    "message": "Verhindert, dass Seiten gleich beim Laden nach Kamera, Mikrofon oder Standort fragen. Erlaube eine Website im Pop-up, wenn du ihr vertraust."
   },
   "optionsChipCameraLabel": {
     "message": "Kamera"
@@ -722,7 +722,7 @@
     "message": "Seit 30 Tagen kein Treffer mehr. Die Website hat sich wahrscheinlich geändert."
   },
   "optionsTrackersDesc": {
-    "message": "Welche Unternehmen versucht haben, dich zu verfolgen, und wie weit sie kamen. Wird auf deinem Gerät aus den eigenen Treffer­daten des Browsers gezählt. Diese Liste wird nie hochgeladen."
+    "message": "Unternehmen, die Moat diese Woche gestoppt hat. Auf deinem Gerät gezählt und nie hochgeladen."
   },
   "optionsCompaniesSeenBaseline": {
     "message": "diese Woche erkannte Unternehmen"
@@ -799,7 +799,7 @@
     "message": "Aktualisieren"
   },
   "tabBackup": {
-    "message": "Sicherung"
+    "message": "Sicherung und Synchronisierung"
   },
   "welcomeTitle": {
     "message": "Willkommen bei Moat"
@@ -811,7 +811,7 @@
     "message": "Werbung, Tracker und bekannte bösartige Websites werden blockiert"
   },
   "welcomeFilterListsEvidence": {
-    "message": "Standard-Filterlisten, standardmäßig aktiviert"
+    "message": "Filterlisten der Stufe Ausgewogen, standardmäßig an"
   },
   "welcomeGrayscaleTitle": {
     "message": "YouTube-Videowerbung wird automatisch abgedunkelt"
@@ -829,19 +829,19 @@
     "message": "Lohnt sich zu aktivieren"
   },
   "welcomeFingerprintTitle": {
-    "message": "Website-Erkennung deines Geräts stoppen"
+    "message": "Geräte-Fingerprinting blockieren"
   },
   "welcomeFingerprintEvidence": {
     "message": "Standardmäßig aus, da es gelegentlich ein CAPTCHA beeinträchtigen kann"
   },
   "welcomeLeakedPasswordTitle": {
-    "message": "Passwörter mit bekannten Datenlecks abgleichen"
+    "message": "Vor geleakten Passwörtern warnen"
   },
   "welcomeLeakedPasswordEvidence": {
     "message": "Standardmäßig aus. Nur ein verschlüsseltes Fragment eines Passworts verlässt jemals dein Gerät."
   },
   "welcomeMoreInSettings": {
-    "message": "Beide sind im Tab „Schutz\" nur einen Klick entfernt."
+    "message": "Beides ist in den Einstellungen nur einen Klick entfernt."
   },
   "welcomeShortcutHint": {
     "message": "schaltet den Schutz jederzeit ein und aus."
@@ -859,7 +859,7 @@
     "message": "Importieren"
   },
   "optionsBackupDesc": {
-    "message": "Speichere deine Einstellungen, eigenen Regeln und Ausnahmen in einer Datei, die du behältst, oder synchronisiere sie über deinen Browser."
+    "message": "Sichere deine Einstellungen, Regeln und pausierten Websites oder nimm sie auf einen anderen Computer mit."
   },
   "optionsBackupSizeLabel": {
     "message": "Exportgröße"
@@ -874,7 +874,7 @@
     "message": "bleibt auf deinem Gerät"
   },
   "optionsExportTitle": {
-    "message": "Einstellungen exportieren"
+    "message": "Sicherung speichern"
   },
   "optionsImportTitle": {
     "message": "Aus einer Datei wiederherstellen"
@@ -910,7 +910,7 @@
     "message": "keine Blockierzahlen oder Statistiken"
   },
   "optionsAboutDesc": {
-    "message": "Was dieser Build ist, und genau was dein Gerät verlässt."
+    "message": "Welche Version das ist, und alles, was dein Gerät je verlässt."
   },
   "optionsDisclosureFeature": {
     "message": "Funktion"
@@ -931,13 +931,13 @@
     "message": "Nichts. Läuft vollständig auf deinem Gerät."
   },
   "optionsDisclosureUpdatesName": {
-    "message": "Filter-Updates"
+    "message": "Filterkorrekturen"
   },
   "optionsDisclosureUpdatesSent": {
-    "message": "Eine Versionsprüfung einmal täglich. Kein Browserverlauf."
+    "message": "Eine kleine signierte Datei, einmal täglich heruntergeladen. Sie enthält nichts über dich."
   },
   "optionsDisclosureUpdatesRecipient": {
-    "message": "Moats Update-Server"
+    "message": "GitHub Pages (Datei-Hosting)"
   },
   "optionsDisclosureBreachName": {
     "message": "Datenleck-Prüfung"
@@ -1049,5 +1049,168 @@
   },
   "optionsImportChangeSync": {
     "message": "Synchronisierungseinstellung"
+  },
+  "settingsTitle": {
+    "message": "Einstellungen"
+  },
+  "settingsHelp": {
+    "message": "Hilfe"
+  },
+  "settingsStatusOn": {
+    "message": "Moat ist an"
+  },
+  "settingsStatusOff": {
+    "message": "Moat ist aus"
+  },
+  "levelTitle": {
+    "message": "Wie viel blockiert wird"
+  },
+  "levelLead": {
+    "message": "Ausgewogen passt für fast alle. Wähle Streng für die meiste Privatsphäre oder Leicht, wenn eine Website, die du nutzt, nicht mehr funktioniert."
+  },
+  "levelLightDesc": {
+    "message": "Entfernt Werbung, Betrug und Pop-ups. Tracker laden weiterhin."
+  },
+  "levelBalancedDesc": {
+    "message": "Stoppt auch Tracker und Phishing. Empfohlen."
+  },
+  "levelStrictDesc": {
+    "message": "Auch Cookie-Banner und Fingerprinting. Einige Websites funktionieren eventuell nicht."
+  },
+  "levelLegendAds": {
+    "message": "Werbung"
+  },
+  "levelLegendTrackers": {
+    "message": "Tracker"
+  },
+  "levelLegendCookies": {
+    "message": "Cookie-Banner"
+  },
+  "levelLegendFingerprint": {
+    "message": "Fingerprinting"
+  },
+  "levelCustomNote": {
+    "message": "Du nutzt deine eigene Auswahl an Filterlisten. Ändere sie unter Erweiterte Einstellungen."
+  },
+  "featuresTitle": {
+    "message": "Funktionen"
+  },
+  "featuresLead": {
+    "message": "Werbung, Tracker und betrügerische Pop-ups werden immer blockiert. Das sind die Extras, die am häufigsten geändert werden."
+  },
+  "pausedEmptyTitle": {
+    "message": "Keine Websites pausiert"
+  },
+  "pausedEmptyHint": {
+    "message": "Pausiere eine vertrauenswürdige Website, damit dort alles geladen wird."
+  },
+  "hiddenEmptyTitle": {
+    "message": "Noch nichts ausgeblendet"
+  },
+  "hiddenEmptyHint": {
+    "message": "Klicke auf das Moat-Symbol, wähle „Element blockieren“ und klicke dann auf das, was weg soll."
+  },
+  "advancedButton": {
+    "message": "Erweiterte Einstellungen"
+  },
+  "advancedButtonHide": {
+    "message": "Erweiterte Einstellungen ausblenden"
+  },
+  "advancedButtonHint": {
+    "message": "Filterlisten, Datenschutz-Extras, eigene Regeln, Tracker, Sicherung und Version"
+  },
+  "advShowAllLists": {
+    "message": "Alle Listen anzeigen"
+  },
+  "advBudgetLine": {
+    "message": "Chrome erlaubt all deinen Erweiterungen zusammen $LIMIT$ Blockierregeln. Moat nutzt $USED$.",
+    "placeholders": {
+      "limit": {
+        "content": "$1"
+      },
+      "used": {
+        "content": "$2"
+      }
+    }
+  },
+  "advPrivacyTitle": {
+    "message": "Datenschutz-Extras"
+  },
+  "advPrivacyLead": {
+    "message": "Zusätzlicher Schutz gegen Verfolgung und Wiedererkennung. Standardmäßig aus, weil einige Websites sonst nicht funktionieren."
+  },
+  "advRulesTitle": {
+    "message": "Blockieren und erlauben"
+  },
+  "advRulesLead": {
+    "message": "Deine eigenen Regeln. Sie haben immer Vorrang vor den Filterlisten."
+  },
+  "advPauseSite": {
+    "message": "Moat auf einer Website pausieren"
+  },
+  "commonPause": {
+    "message": "Pausieren"
+  },
+  "advTrackersSummary": {
+    "message": "$COMPANIES$ Unternehmen · $ATTEMPTS$ blockierte Versuche diese Woche",
+    "placeholders": {
+      "companies": {
+        "content": "$1"
+      },
+      "attempts": {
+        "content": "$2"
+      }
+    }
+  },
+  "advTrackersOnTab": {
+    "message": "Auf dem zuletzt genutzten Tab"
+  },
+  "advLastBackup": {
+    "message": "Letzte Sicherung:"
+  },
+  "footerProduct": {
+    "message": "Produkt"
+  },
+  "footerResources": {
+    "message": "Ressourcen"
+  },
+  "footerProject": {
+    "message": "Projekt"
+  },
+  "footerFeatures": {
+    "message": "Funktionen"
+  },
+  "footerPrivacy": {
+    "message": "Datenschutz"
+  },
+  "footerFaq": {
+    "message": "FAQ"
+  },
+  "footerChangelog": {
+    "message": "Änderungsprotokoll"
+  },
+  "footerPrivacyPolicy": {
+    "message": "Datenschutzerklärung"
+  },
+  "footerBuildStatus": {
+    "message": "Build-Status"
+  },
+  "footerInstallFromSource": {
+    "message": "Aus dem Quellcode installieren"
+  },
+  "footerGithub": {
+    "message": "GitHub"
+  },
+  "footerLicense": {
+    "message": "GPL-3.0-Lizenz"
+  },
+  "footerReportIssue": {
+    "message": "Problem melden"
+  },
+  "footerCopyright": {
+    "message": "© 2026 Moat"
+  },
+  "footerFreeOpenSource": {
+    "message": "Kostenlos und quelloffen."
   }
 }

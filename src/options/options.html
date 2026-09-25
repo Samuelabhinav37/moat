@@ -6,213 +6,1162 @@
     <title>Moat Settings</title>
     <link rel="stylesheet" href="theme.css" />
     <style>
+      /* One page, laid out like a settings page people actually read: a
+         title and one plain sentence on the left of each section, the
+         controls on the right. Everything most people change is on the
+         main panel; the rest opens in place under "Advanced settings".
+         Switches and primary buttons use Moat blue here (theme.css's green
+         --on still drives the popup). */
+      :root {
+        --blue: #3f6fd1;
+        --blue-deep: #2f57ad;
+        --blue-lt: #6f9be0;
+        --tint: rgba(111, 155, 224, 0.15);
+        --page: #141317;
+        --panel: #1b191d;
+        --panel-2: #222027;
+        --line: #2e2b33;
+        --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+        --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      /* An element's own `display` beats the [hidden] attribute's UA default
+         (author styles always win), which is exactly how the first-run
+         welcome panel and the full Settings page ended up showing at the
+         same time. One rule for the whole page instead of one per class. */
+      [hidden] {
+        display: none !important;
+      }
       body {
         margin: 0;
+        background: var(--page);
+        font-size: 15px;
+        line-height: 1.55;
       }
-      .shell {
-        display: flex;
-        gap: 30px;
-        align-items: flex-start;
-        max-width: 860px;
-        margin: 0 auto;
-        padding: 30px 28px 48px;
+      a {
+        color: var(--blue-lt);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      summary:focus-visible {
+        outline: 2px solid var(--blue-lt);
+        outline-offset: 3px;
       }
 
-      /* ---------- Rail ---------- */
-      .rail {
-        flex: none;
-        width: 150px;
+      /* ---------- Top bar ---------- */
+      .topbar {
+        display: flex;
+        align-items: center;
+        height: 64px;
+        padding: 0 32px;
+        border-bottom: 1px solid var(--line);
       }
-      .rail .brand-row {
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--fg);
+      }
+      .brand img {
+        width: 28px;
+        height: 28px;
+      }
+      .topbar .help {
+        margin-left: auto;
+        color: var(--muted);
+      }
+      .topbar .help:hover {
+        color: var(--fg);
+        text-decoration: none;
+      }
+
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 40px 32px 20px;
+      }
+      .head {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .head h1 {
+        margin: 0;
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+      }
+      .status {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px 14px 12px 18px;
+      }
+      .status-title {
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 22px;
-      }
-      .rail .brand-row img {
-        width: 22px;
-        height: 22px;
-        flex: none;
-      }
-      .rail .brand-row .brand-name {
-        font-size: 16px;
         font-weight: 600;
       }
-      .rail-list {
+      .status-line {
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .status-line b {
+        color: var(--fg);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* ---------- Panels and sections ---------- */
+      .panel {
+        margin-top: 24px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 0 36px;
+      }
+      .sec {
+        display: grid;
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+        gap: 48px;
+        padding: 32px 0;
+      }
+      .sec + .sec {
+        border-top: 1px solid var(--line);
+      }
+      .sec h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .sec .lead {
+        margin: 6px 0 0;
+        color: var(--muted);
+        max-width: 38ch;
+      }
+      .sec .lead + .lead {
+        margin-top: 10px;
+      }
+
+      /* ---------- Switch (Moat blue) ---------- */
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 28px;
+        padding: 0;
+        flex: none;
+        cursor: pointer;
+      }
+      .switch input {
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+      .switch .track {
+        position: absolute;
+        inset: 0;
+        border-radius: 14px;
+        background: #4a4650;
+        transition: background 0.25s;
+      }
+      .switch .thumb {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        transition: left 0.35s var(--spring);
+      }
+      .switch input:checked + .track {
+        background: var(--blue);
+      }
+      /* theme.css (shared with the popup) moves the thumb with a transform
+         and pads the label; this page positions it with left instead. */
+      .switch input:checked + .track .thumb {
+        left: 23px;
+        transform: none;
+      }
+      .switch input:focus-visible + .track {
+        outline: 2px solid var(--blue-lt);
+        outline-offset: 3px;
+      }
+      .switch input:disabled + .track {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      /* ---------- Setting rows: icon, text, switch ---------- */
+      .setting-rows {
         display: flex;
         flex-direction: column;
-        gap: 1px;
       }
-      .rail-item {
+      .setting-row {
+        display: grid;
+        grid-template-columns: 44px 1fr auto;
+        gap: 16px;
+        align-items: center;
+        padding: 16px 0;
+      }
+      .setting-row + .setting-row,
+      .setting-row + .setting-subrow,
+      .setting-subrow + .setting-row {
+        border-top: 1px solid var(--line);
+      }
+      .setting-rows > :first-child {
+        padding-top: 0;
+      }
+      .setting-rows > :last-child {
+        padding-bottom: 0;
+      }
+      .setting-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--panel-2);
+        color: #7d7784;
+        display: grid;
+        place-items: center;
+        transition: background 0.3s, color 0.3s;
+      }
+      .setting-icon svg {
+        width: 21px;
+        height: 21px;
+      }
+      .setting-row.is-on .setting-icon {
+        background: var(--tint);
+        color: var(--blue-lt);
+      }
+      .setting-row.pop .setting-icon {
+        animation: pop 0.45s var(--spring);
+      }
+      @keyframes pop {
+        40% {
+          transform: scale(1.14);
+        }
+      }
+      .setting-title {
+        display: block;
+        font-weight: 600;
+      }
+      .setting-desc {
+        display: block;
+        margin-top: 2px;
+        font-size: 14.5px;
+        color: var(--muted);
+      }
+      .setting-caution {
+        display: block;
+        margin-top: 6px;
+        font-size: 13px;
+        color: var(--caution);
+      }
+      .setting-evidence {
+        display: block;
+        margin-top: 6px;
+        font-size: 13px;
+        color: var(--blue-lt);
+      }
+      .setting-subrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0 12px 60px;
+        font-size: 14.5px;
+      }
+      .setting-subrow .switch {
+        margin-left: auto;
+      }
+      .permission-chips {
+        display: flex;
+        gap: 6px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .chip {
+        font-size: 13px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 4px 12px;
+        color: var(--muted);
+        background: var(--panel-2);
+      }
+      .chip.on {
+        border-color: var(--blue);
+        background: var(--tint);
+        color: var(--fg);
+      }
+
+      /* ---------- How much to block: three level cards ---------- */
+      .levels {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        align-items: start;
+      }
+      .level {
+        min-width: 0;
+        white-space: normal;
+        background: none;
+        border: 0;
+        padding: 0;
+        text-align: left;
+        cursor: pointer;
+        color: inherit;
+      }
+      .level:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+      .level-thumb {
+        display: block;
+        border-radius: 14px;
+        padding: 12px;
+        background: var(--panel-2);
+        border: 2px solid transparent;
+        transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease);
+      }
+      .level:hover:not(:disabled) .level-thumb {
+        border-color: var(--line);
+        transform: translateY(-2px);
+      }
+      .level[aria-checked="true"] .level-thumb {
+        border-color: var(--blue);
+        background: rgba(63, 111, 209, 0.16);
+      }
+      .level:focus-visible {
+        outline: none;
+      }
+      .level:focus-visible .level-thumb {
+        outline: 2px solid var(--blue-lt);
+        outline-offset: 3px;
+      }
+      .mini {
+        display: block;
+        border-radius: 7px;
+        background: #2d2a33;
+        overflow: hidden;
+      }
+      .mini-bar {
+        position: relative;
+        height: 12px;
+        background: #38343f;
+        display: flex;
+        gap: 3px;
+        padding: 4px 6px;
+      }
+      .mini-bar i {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: #5c5764;
+      }
+      .mini-eye {
+        position: absolute;
+        right: 6px;
+        top: 2px;
+        width: 14px;
+        height: 8px;
+        border-radius: 50%;
+        background: #b58cf0;
+      }
+      .mini-page {
+        padding: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        height: 146px;
+        align-content: flex-start;
+      }
+      .mini-page i {
+        display: block;
+        position: relative;
+        border-radius: 4px;
+        background: #45404d;
+        height: 22px;
+        flex: 1 1 40%;
+      }
+      .mini-page i.w {
+        flex-basis: 100%;
+      }
+      .mini-page i.ad {
+        height: 18px;
+        background: repeating-linear-gradient(135deg, #8a4f47 0 5px, #744039 5px 10px);
+      }
+      .mini-page i.ck {
+        height: 14px;
+        background: #cfd3da;
+      }
+      .mini-page i.t::after {
+        content: "";
+        position: absolute;
+        right: 5px;
+        top: 7px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #d9a441;
+      }
+      /* Each card loops its own kind of blocking: the page as it loads, then
+         what that level removes. */
+      .level .mini-page i.ad,
+      .level .mini-page i.ck,
+      .level .mini-eye,
+      .level .mini-page i.t::after {
+        animation: 4.5s var(--ease) infinite both;
+      }
+      .level .mini-page i.ad {
+        animation-name: gone-bar;
+      }
+      .level[data-level="standard"] .mini-page i.t::after,
+      .level[data-level="strict"] .mini-page i.t::after {
+        animation-name: gone-dot;
+        animation-delay: 0.25s;
+      }
+      .level[data-level="strict"] .mini-page i.ck {
+        animation-name: gone-bar;
+        animation-delay: 0.5s;
+      }
+      .level[data-level="strict"] .mini-eye {
+        animation-name: gone-dot;
+        animation-delay: 0.6s;
+      }
+      @keyframes gone-bar {
+        0%, 30% { opacity: 1; transform: scaleY(1); }
+        42%, 88% { opacity: 0; transform: scaleY(0.2); }
+        100% { opacity: 1; transform: scaleY(1); }
+      }
+      @keyframes gone-dot {
+        0%, 30% { opacity: 1; transform: scale(1); }
+        40%, 88% { opacity: 0; transform: scale(0); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      .level-name {
+        display: block;
+        margin-top: 12px;
+        font-weight: 600;
+        transition: color 0.2s;
+      }
+      .level[aria-checked="true"] .level-name {
+        color: var(--blue-lt);
+      }
+      .level-desc {
+        display: block;
+        margin-top: 2px;
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+      .legend {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .legend .key {
+        display: inline-block;
+        width: 12px;
+        height: 8px;
+        border-radius: 2px;
+      }
+      .level-note {
+        margin: 14px 0 0;
+        font-size: 14px;
+        color: var(--caution);
+      }
+
+      /* ---------- Lists and empty states ---------- */
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+        background: var(--panel-2);
+      }
+      /* An empty list leaves no stray bordered strip behind. */
+      .box:has(> .site-list:empty),
+      .box:has(> .rule-rows:empty) {
+        display: none;
+      }
+      .site-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .site-list li {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        border: none;
-        background: transparent;
-        color: var(--muted);
-        font-size: 13px;
-        text-align: left;
-        border-radius: 7px;
-        padding: 7px 10px;
-      }
-      .rail-item[aria-selected="true"] {
-        background: var(--card);
-        color: var(--fg);
+        gap: 14px;
+        padding: 13px 18px;
         font-weight: 600;
+        overflow-wrap: anywhere;
       }
-      .rail-item:hover:not([aria-selected="true"]) {
+      .site-list li + li {
+        border-top: 1px solid var(--line);
+      }
+      .site-list li button,
+      .rule-row .rule-remove {
+        flex: none;
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--muted);
+        background: none;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 5px 12px;
+        text-decoration: none;
+      }
+      .site-list li button:hover,
+      .rule-row .rule-remove:hover {
         color: var(--fg);
+        border-color: var(--muted);
       }
-      /* Wraps the icon+label together so .rail-item's own space-between
-         still puts the trailing dot/count flush right, same reasoning as
-         .group-heading-main below. */
-      .rail-item-main {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        min-width: 0;
-      }
-      /* No color rule of its own -- stroke="currentColor" inherits
-         .rail-item's muted/fg color exactly, so the icon and label always
-         match, selected or not, with no separate state to keep in sync. */
-      .rail-icon {
-        flex: none;
-        width: 15px;
-        height: 15px;
-      }
-      .rail-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--on);
-        flex: none;
-      }
-      .rail-dot[hidden] {
+      .site-list:empty {
         display: none;
       }
-      .rail-count {
-        font-size: 11px;
-        font-weight: 600;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        color: var(--muted);
-        flex: none;
+      .empty-card {
+        border: 1px dashed #3a3740;
+        border-radius: 14px;
+        background: var(--panel-2);
+        padding: 34px 22px;
+        text-align: center;
       }
-
-      /* ---------- Content column ---------- */
-      .content {
-        flex: 1;
-        min-width: 0;
-        position: relative;
+      .empty-card b {
+        display: block;
+        font-size: 16px;
       }
-      /* Added/removed by options.ts only while the Protection tab's
-         slide-out drawer is actually open -- not just while that tab is
-         active -- so Protection is full-width like every other tab until a
-         row is clicked. */
-      .content.has-drawer {
-        padding-right: 352px;
-      }
-      @media (max-width: 900px) {
-        .content.has-drawer {
-          padding-right: 0;
-        }
-        .drawer {
-          left: 0;
-          width: auto !important;
-        }
-      }
-
-      .page-title {
-        font-size: 19px;
-        font-weight: 600;
-        line-height: 1.4;
-        letter-spacing: -0.01em;
-        margin: 0 0 4px;
-      }
-      .page-desc {
-        font-size: 13px;
-        color: var(--muted);
-        line-height: 1.5;
-        margin: 0;
-      }
-
-      /* ---------- Metric row ---------- */
-      .metric-row {
-        display: flex;
-        align-items: flex-end;
-        flex-wrap: wrap;
-        gap: 22px 36px;
-        margin: 26px 0 4px;
-      }
-      .metric-hero .value-row {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-      }
-      .hero-value {
-        font-size: 44px;
-        font-weight: 600;
-        line-height: 1;
-        letter-spacing: -0.03em;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-variant-numeric: tabular-nums;
-      }
-      .delta-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-        font-size: 11.5px;
-        font-weight: 600;
-        color: var(--accent);
-      }
-      .delta-chip svg {
-        width: 11px;
-        height: 11px;
-      }
-      .metric-baseline {
-        font-size: 12.5px;
-        color: var(--muted);
+      .empty-card span {
+        display: block;
         margin-top: 4px;
+        color: var(--muted);
       }
-      .sparkline-wrap {
+      .empty-state {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 10px 0 0;
+      }
+      .rule-rows {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        gap: 4px;
       }
-      .sparkline-caption {
-        font-size: 11.5px;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        color: var(--muted);
+      .rule-rows:empty {
+        display: none;
       }
-      .metric-right-group {
-        margin-left: auto;
+      .rule-row {
         display: flex;
-        gap: 30px;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 18px;
       }
-      .secondary-value {
-        font-size: 22px;
-        font-weight: 600;
-        line-height: 1;
+      .rule-row + .rule-row {
+        border-top: 1px solid var(--line);
+      }
+      .rule-row .rule-main {
+        min-width: 0;
+      }
+      .rule-row .rule-selector {
         font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-variant-numeric: tabular-nums;
+        font-size: 13.5px;
+        overflow-wrap: anywhere;
       }
-      .secondary-value .of-muted {
+      .rule-row .rule-selector.stale {
         color: var(--muted);
       }
-      .metric-label {
-        font-size: 12.5px;
+      .rule-row .rule-site {
+        font-size: 13px;
         color: var(--muted);
-        margin-top: 4px;
+        margin-left: 8px;
+      }
+      .rule-row .rule-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .rule-row .rule-meta svg {
+        flex: none;
+        width: 12px;
+        height: 12px;
+        color: var(--caution);
+      }
+      .rule-row .rule-remove.stale-remove {
+        color: var(--blue-lt);
+      }
+      .sub-h {
+        margin: 22px 0 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .sub-h:first-child {
+        margin-top: 0;
       }
 
+      /* ---------- Forms and buttons ---------- */
+      .field + .field {
+        margin-top: 22px;
+      }
+      .field-label {
+        display: block;
+        font-weight: 600;
+      }
+      .field-hint {
+        display: block;
+        font-size: 14px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .add-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .add-row input,
+      .migration-import-textarea {
+        flex: 1;
+        min-width: 0;
+        font: inherit;
+        background: var(--page);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: var(--fg);
+        padding: 9px 12px;
+      }
+      button {
+        border-radius: 10px;
+        border-color: var(--line);
+        padding: 9px 16px;
+        white-space: nowrap;
+      }
+      button:hover {
+        border-color: var(--muted);
+      }
+      button.primary {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: #fff;
+      }
+      button.primary:hover {
+        background: var(--blue-deep);
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      p.hint {
+        margin: 8px 0 0;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .locked-badge {
+        display: inline-flex;
+        align-items: center;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 2px 8px;
+        white-space: nowrap;
+      }
+      .locked-badge.budget-badge {
+        margin-top: 6px;
+        align-self: flex-start;
+        color: var(--caution-fg);
+        background: var(--caution);
+        border-color: var(--caution);
+      }
+      code {
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 13px;
+      }
+      .keycap {
+        display: inline-block;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 12.5px;
+        border: 1px solid var(--selected);
+        border-radius: 6px;
+        padding: 1px 7px;
+        color: var(--fg);
+      }
+
+      /* ---------- Disclosure ("show all") ---------- */
+      details.more summary {
+        list-style: none;
+        cursor: pointer;
+        color: var(--blue-lt);
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      details.more summary::-webkit-details-marker {
+        display: none;
+      }
+      details.more summary::after {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-right: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        transform: rotate(45deg) translateY(-2px);
+        transition: transform 0.25s var(--ease);
+      }
+      details.more[open] summary::after {
+        transform: rotate(-135deg) translateY(-2px);
+      }
+      details.more[open] > :not(summary) {
+        animation: rise 0.35s var(--ease);
+      }
+
+      /* ---------- Advanced ---------- */
+      .advbtn {
+        margin-top: 24px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        text-align: left;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 20px 28px;
+        white-space: normal;
+        transition: border-color 0.2s, background 0.2s;
+      }
+      .advbtn:hover {
+        border-color: var(--blue-lt);
+        background: #1e1c22;
+      }
+      .advbtn-title {
+        display: block;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      .advbtn-hint {
+        display: block;
+        margin-top: 2px;
+        font-size: 14.5px;
+        color: var(--muted);
+      }
+      .advbtn-chev {
+        margin-left: auto;
+        width: 12px;
+        height: 12px;
+        flex: none;
+        border-right: 2px solid var(--muted);
+        border-bottom: 2px solid var(--muted);
+        transform: rotate(45deg) translate(-3px, -3px);
+        transition: transform 0.3s var(--ease);
+      }
+      .advbtn[aria-expanded="true"] .advbtn-chev {
+        transform: rotate(-135deg) translate(-3px, -3px);
+      }
+      .adv-title {
+        margin: 44px 0 0;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        scroll-margin-top: 20px;
+      }
+      #advanced .panel {
+        margin-top: 20px;
+        animation: rise 0.45s var(--ease) both;
+      }
+      #advanced .panel:nth-of-type(2) { animation-delay: 0.06s; }
+      #advanced .panel:nth-of-type(3) { animation-delay: 0.12s; }
+      #advanced .panel:nth-of-type(4) { animation-delay: 0.18s; }
+      #advanced .panel:nth-of-type(5) { animation-delay: 0.24s; }
+      #advanced .panel:nth-of-type(6) { animation-delay: 0.3s; }
+      #advanced .panel:nth-of-type(7) { animation-delay: 0.36s; }
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: none; }
+      }
+
+      .preset-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .preset-row button {
+        border-radius: 999px;
+        padding: 8px 16px;
+        background: var(--panel-2);
+      }
+      .preset-row button[aria-pressed="true"] {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: #fff;
+        font-weight: 600;
+      }
+      .budget {
+        margin-top: 18px;
+        font-size: 14.5px;
+        color: var(--muted);
+      }
+      .budget-bar {
+        height: 8px;
+        border-radius: 4px;
+        background: #3a3740;
+        margin-top: 8px;
+        overflow: hidden;
+      }
+      .budget-bar-fill {
+        height: 100%;
+        background: var(--blue-lt);
+        border-radius: 4px;
+        transition: width 0.9s var(--ease);
+      }
+      .budget-bar-fill.caution {
+        background: var(--caution);
+      }
+      .budget-caption {
+        display: block;
+        margin-top: 6px;
+        font-size: 13px;
+      }
+      .budget-warning {
+        margin-bottom: 18px;
+        font-size: 14px;
+        color: var(--caution-fg);
+        background: var(--caution);
+        border-radius: 12px;
+        padding: 12px 14px;
+      }
+      .budget-warning p {
+        margin: 0;
+      }
+      .budget-warning #filter-budget-detail {
+        margin-top: 6px;
+        font-size: 13px;
+        opacity: 0.85;
+      }
+      .list-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-top: 14px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      #filter-list-rows {
+        margin-top: 12px;
+      }
+      #migration-import {
+        margin-top: 22px;
+      }
+      #migration-import summary {
+        cursor: pointer;
+        color: var(--blue-lt);
+        font-weight: 600;
+      }
+      #migration-import[open] summary {
+        margin-bottom: 10px;
+      }
+      .migration-import-textarea {
+        display: block;
+        width: 100%;
+        min-height: 90px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 13px;
+        resize: vertical;
+        margin-top: 8px;
+      }
+
+      .tracker-summary {
+        margin: 0 0 12px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .weekly-tracker-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 18px;
+      }
+      .weekly-tracker-row + .weekly-tracker-row {
+        border-top: 1px solid var(--line);
+      }
+      .weekly-tracker-row .wt-name-cell {
+        width: 150px;
+        flex: none;
+      }
+      .weekly-tracker-row .wt-name {
+        font-weight: 600;
+      }
+      .weekly-tracker-row .wt-reach {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .weekly-tracker-row .wt-bar-track {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: #3a3740;
+        overflow: hidden;
+      }
+      .weekly-tracker-row .wt-bar-fill {
+        height: 100%;
+        background: var(--blue-lt);
+        border-radius: 3px;
+      }
+      .weekly-tracker-row .wt-count {
+        width: 40px;
+        flex: none;
+        text-align: right;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      #weekly-tracker-rows:empty {
+        display: none;
+      }
+      #tracker-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-top: 12px;
+      }
+      .tracker-row .tr-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .tracker-row .tr-name {
+        font-weight: 600;
+      }
+      .tracker-row .tr-count {
+        font-size: 13px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .tracker-row .tr-desc {
+        margin: 3px 0 0;
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--muted);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .backup-line {
+        margin: 14px 0 0;
+        font-size: 14.5px;
+        color: var(--muted);
+      }
+      .backup-line b {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .backup-line b.caution {
+        color: var(--caution);
+      }
+      #import-settings-confirm {
+        margin-top: 14px;
+      }
+      .sync-row {
+        margin-top: 24px;
+        padding-top: 22px;
+        border-top: 1px solid var(--line);
+      }
+
+      /* On a phone the five-column table scrolls sideways inside its box
+         instead of widening the whole page. */
+      .box.table-scroll {
+        overflow-x: auto;
+      }
+      .disclosure-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      .disclosure-table th {
+        text-align: left;
+        font-weight: 500;
+        color: var(--muted);
+        padding: 12px 16px;
+      }
+      .disclosure-table td {
+        padding: 12px 16px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        vertical-align: top;
+      }
+      .disclosure-table td:first-child {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .disclosure-table .recipient-external,
+      .disclosure-table .default-on {
+        color: var(--fg);
+      }
+      .version-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 8px 24px;
+        margin: 20px 0 0;
+        font-size: 14.5px;
+      }
+      .version-grid dt {
+        color: var(--muted);
+      }
+      .version-grid dd {
+        margin: 0;
+      }
+      .about-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .about-links a {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px 14px;
+        color: var(--fg);
+      }
+      .about-links a:hover {
+        border-color: var(--muted);
+        text-decoration: none;
+      }
+      .about-note {
+        margin: 16px 0 0;
+        font-size: 14.5px;
+        color: var(--muted);
+      }
+
+      /* ---------- Footer (same as the website) ---------- */
+      .site-foot {
+        border-top: 1px solid var(--line);
+        margin-top: 64px;
+        padding: 56px 48px 32px;
+      }
+      .foot-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 48px;
+        flex-wrap: wrap;
+        padding-bottom: 44px;
+        border-bottom: 1px solid var(--line);
+      }
+      .foot-cols {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(150px, auto));
+        gap: 28px 80px;
+      }
+      .foot-cols h4 {
+        margin: 0 0 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .foot-cols a {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--fg);
+      }
+      .foot-cols a:hover {
+        color: var(--blue-lt);
+        text-decoration: none;
+      }
+      .foot-bottom {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 22px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+        /* Loops off: show each level's finished result. */
+        .level .mini-page i.ad,
+        .level[data-level="strict"] .mini-page i.ck,
+        .level[data-level="strict"] .mini-eye,
+        .level[data-level="standard"] .mini-page i.t::after,
+        .level[data-level="strict"] .mini-page i.t::after {
+          opacity: 0;
+        }
+      }
+      @media (max-width: 860px) {
+        .sec {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 18px;
+        }
+        .panel {
+          padding: 0 20px;
+        }
+        .levels {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .status {
+          margin-left: 0;
+        }
+        .topbar,
+        .site-foot {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+        .wrap {
+          padding: 28px 18px 20px;
+        }
+        .foot-cols {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      /* ---------- Shared bits the welcome panel still uses ---------- */
       .section-divider {
         border: none;
         border-top: 1px solid var(--border);
         margin: 22px 0 0;
       }
-
-      /* ---------- Group headings + rows ---------- */
       .group-heading {
         display: flex;
         justify-content: space-between;
@@ -224,15 +1173,7 @@
         letter-spacing: 0.06em;
         color: var(--muted);
         margin: 22px 0 0;
-        padding-top: 22px;
       }
-      .group-heading:first-of-type {
-        padding-top: 0;
-      }
-      /* Only the three Protection-tab category headings (Privacy/
-         Annoyances/Safety, built in options.ts's renderProtectionGroups)
-         get an icon -- wraps it with the label so .group-heading's own
-         space-between still puts .group-count on the far right. */
       .group-heading-main {
         display: flex;
         align-items: center;
@@ -243,43 +1184,20 @@
         width: 13px;
         height: 13px;
       }
-      .group-heading .group-count,
-      .group-heading .group-action {
-        text-transform: none;
-        letter-spacing: normal;
-        font-weight: 600;
-        font-size: 12px;
-      }
-      .group-heading .group-action {
-        color: var(--accent);
-      }
       .row-group {
         display: flex;
         flex-direction: column;
       }
-
       .protection-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 14px;
-        /* DR-12: was 13px. The switch grew by 8px (36x20 -> 44x28) to clear
-           the WCAG 24x24 target-size floor; dropping row padding to 9px
-           keeps rows at the same 46px height so nothing else shifts. */
         padding: 9px 0;
         border-bottom: 1px solid var(--hairline);
-        border-radius: 6px;
       }
       .row-group .protection-row:last-child {
         border-bottom: none;
-      }
-      .protection-row:hover {
-        background: rgba(255, 255, 255, 0.03);
-      }
-      .protection-row.selected {
-        background: var(--card);
-        outline: 1px solid var(--selected);
-        outline-offset: -1px;
       }
       .protection-row .row-body {
         display: flex;
@@ -292,735 +1210,17 @@
         font-weight: 600;
         color: var(--fg);
       }
-      .protection-row .row-title.off {
-        color: var(--muted);
-      }
       .protection-row .row-evidence {
         font-size: 12.5px;
         color: var(--muted);
       }
-      .protection-row .switch {
-        flex: none;
-      }
-      .protection-row .permission-chips {
-        display: flex;
-        gap: 6px;
-        margin-top: 6px;
-      }
-      .protection-subrow {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 0 10px 20px;
-        border-bottom: 1px solid var(--hairline);
-      }
-      .row-group .protection-subrow:last-child {
-        border-bottom: none;
-      }
-      .protection-subrow .row-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--fg);
-      }
-      .protection-subrow .switch {
-        margin-left: auto;
-        flex: none;
-      }
-      .budget-bar-wrap {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-      .budget-bar {
-        width: 190px;
+      .rail-dot {
+        width: 6px;
         height: 6px;
-        border-radius: 999px;
-        background: var(--hairline);
-        overflow: hidden;
-      }
-      .budget-bar-fill {
-        height: 100%;
-        background: var(--accent);
-      }
-      .budget-bar-fill.caution {
-        background: var(--caution);
-      }
-      .budget-bar-caption {
-        font-size: 11.5px;
-        color: var(--muted);
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-      }
-      .rule-row {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 14px;
-        padding: 13px 0;
-        border-bottom: 1px solid var(--hairline);
-      }
-      .row-group .rule-row:last-child {
-        border-bottom: none;
-      }
-      .rule-row .rule-main {
-        min-width: 0;
-      }
-      .rule-row .rule-selector {
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 13px;
-        color: var(--fg);
-      }
-      .rule-row .rule-selector.stale {
-        color: var(--muted);
-      }
-      .rule-row .rule-site {
-        font-size: 12.5px;
-        color: var(--muted);
-        margin-left: 8px;
-      }
-      .rule-row .rule-meta {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12.5px;
-        color: var(--muted);
-        margin-top: 2px;
-      }
-      .rule-row .rule-meta svg {
-        flex: none;
-        width: 12px;
-        height: 12px;
-        color: var(--caution);
-      }
-      .rule-row .rule-remove {
-        flex: none;
-        font-size: 12.5px;
-        background: none;
-        border: none;
-        color: var(--muted);
-        cursor: pointer;
-        padding: 0;
-        text-decoration: underline;
-      }
-      .rule-row .rule-remove.stale-remove {
-        color: var(--accent);
-      }
-      .weekly-tracker-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--hairline);
-      }
-      .row-group .weekly-tracker-row:last-child {
-        border-bottom: none;
-      }
-      .weekly-tracker-row .wt-name-cell {
-        width: 132px;
-        flex: none;
-      }
-      .weekly-tracker-row .wt-name {
-        font-size: 13.5px;
-        font-weight: 600;
-      }
-      .weekly-tracker-row .wt-reach {
-        font-size: 12px;
-        color: var(--muted);
-      }
-      .weekly-tracker-row .wt-bar-track {
-        flex: 1;
-        height: 8px;
-        border-radius: 999px;
-        background: var(--hairline);
-        overflow: hidden;
-      }
-      .weekly-tracker-row .wt-bar-fill {
-        height: 100%;
-        background: var(--accent);
-      }
-      .weekly-tracker-row .wt-count {
-        width: 46px;
-        flex: none;
-        text-align: right;
-        font-size: 13px;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-      }
-      .sparkline-svg polyline {
-        fill: none;
-        stroke: var(--accent);
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-      }
-      .sparkline-svg circle {
-        fill: var(--accent);
-      }
-      .chip {
-        display: inline-flex;
-        align-items: center;
-        font-size: 11px;
-        font-weight: 600;
-        border-radius: 999px;
-        /* DR-12: WCAG 2.2 SC 2.5.8 target-size floor is 24x24 CSS px; at
-           3px 9px this chip lands around 20px tall. */
-        padding: 4px 10px;
-        border: 1px solid var(--border);
-        color: var(--muted);
-        background: transparent;
-      }
-      .chip.on {
-        border-color: var(--on);
-        background: rgba(67, 193, 58, 0.14);
-        color: var(--fg);
-      }
-
-      /* ---------- Drawer ---------- */
-      .drawer {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 330px;
-        background: var(--card);
-        border-left: 1px solid var(--selected);
-        box-shadow: -28px 0 60px -16px rgba(0, 0, 0, 0.55);
-        border-radius: 0 10px 10px 0;
-        padding: 26px 24px;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-      }
-      .drawer[hidden] {
-        display: none;
-      }
-      .drawer-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 10px;
-      }
-      .drawer-header-actions {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        flex: none;
-      }
-      /* Esc / outside-click / clicking the row again all close the drawer
-         too, but none of those are visible -- a user who doesn't already
-         know those conventions needs something on-screen to click. */
-      .drawer-close {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 26px;
-        height: 26px;
-        padding: 0;
-        border: none;
-        border-radius: 7px;
-        background: none;
-        color: var(--muted);
-        cursor: pointer;
-      }
-      .drawer-close:hover {
-        background: rgba(255, 255, 255, 0.06);
-        color: var(--fg);
-      }
-      .drawer-title {
-        font-size: 15px;
-        font-weight: 600;
-        margin: 0 0 2px;
-      }
-      .drawer-state {
-        font-size: 11.5px;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        color: var(--muted);
-      }
-      .drawer-metric {
-        margin-top: 18px;
-      }
-      .drawer-metric .value {
-        font-size: 32px;
-        font-weight: 600;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        line-height: 1;
-        font-variant-numeric: tabular-nums;
-      }
-      .drawer-metric .label {
-        font-size: 12.5px;
-        color: var(--muted);
-        margin-top: 4px;
-      }
-      .drawer-bars {
-        display: flex;
-        gap: 3px;
-        height: 28px;
-        align-items: flex-end;
-        margin-top: 14px;
-      }
-      .drawer-bars .bar {
-        flex: 1;
-        border-radius: 2px;
-        background: var(--border);
-        min-height: 2px;
-      }
-      .drawer-bars .bar.recent {
-        background: var(--accent);
-      }
-      .drawer-bars-caption {
-        font-size: 11.5px;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        color: var(--muted);
-        margin-top: 6px;
-      }
-      .drawer-desc {
-        font-size: 13px;
-        color: var(--fg);
-        line-height: 1.5;
-        margin-top: 18px;
-      }
-      .drawer-caution {
-        display: flex;
-        gap: 8px;
-        margin-top: 14px;
-        font-size: 12.5px;
-        color: var(--muted);
-        line-height: 1.5;
-      }
-      .drawer-caution svg {
-        flex: none;
-        width: 14px;
-        height: 14px;
-        color: var(--caution);
-        margin-top: 2px;
-      }
-      .drawer-footer {
-        margin-top: auto;
-        padding-top: 14px;
-        border-top: 1px solid var(--border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 12.5px;
-        color: var(--muted);
-      }
-      .drawer-footer[hidden] {
-        display: none;
-      }
-
-      /* ---------- Everything below: existing conventions, unchanged ---------- */
-      .card + .card {
-        margin-top: 14px;
-      }
-      .card-title {
-        font-size: 13px;
-        font-weight: 600;
-        margin-bottom: 2px;
-      }
-      .toggle-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .toggle-row .switch {
-        margin-left: auto;
-      }
-      p.hint {
-        margin: 4px 0 0;
-        font-size: 12.5px;
-        line-height: 1.5;
-      }
-      .add-row {
-        display: flex;
-        gap: 8px;
-        margin-top: 10px;
-      }
-      .add-row input {
-        flex: 1;
-        font: inherit;
-        background: transparent;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--fg);
-        padding: 6px 8px;
-      }
-      /* ---------- Custom Rules: migration import ---------- */
-      #migration-import {
-        margin: 14px 0 22px;
-      }
-      #migration-import summary {
-        font-size: 13px;
-        color: var(--muted);
-        cursor: pointer;
-      }
-      #migration-import summary:hover {
-        color: var(--fg);
-      }
-      #migration-import[open] summary {
-        color: var(--fg);
-        margin-bottom: 10px;
-      }
-      .migration-import-textarea {
-        display: block;
-        width: 100%;
-        min-height: 90px;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 12.5px;
-        background: transparent;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--fg);
-        padding: 8px;
-        resize: vertical;
-      }
-      .empty-state {
-        color: var(--muted);
-        font-size: 13px;
-      }
-
-      [data-tab-panel] {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-      }
-      [data-tab-panel][hidden] {
-        display: none;
-      }
-
-      .locked-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 11px;
-        color: var(--muted);
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        padding: 2px 8px;
-        white-space: nowrap;
-      }
-      /* An element's own `display` declaration overrides the [hidden]
-         attribute's native browser default (author styles always win over
-         the user-agent stylesheet, regardless of selector specificity) --
-         so every class here that sets its own `display` needs this explicit
-         re-assertion, same as [data-tab-panel][hidden] above already does.
-         Without it, options.ts setting .hidden = true on these
-         (protection-locked-badge, filters-locked-badge, filter-budget-warning)
-         has no visible effect at all -- they render unconditionally, which
-         on a normal, non-managed, non-budget-capped install means an
-         "Managed by your organization" badge and a filter-budget warning
-         banner showing up for absolutely no reason. */
-      .locked-badge[hidden] {
-        display: none;
-      }
-      .locked-badge.budget-badge {
-        color: var(--caution-fg);
-        background: var(--caution);
-        border-color: var(--caution);
-      }
-
-      .budget-warning {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        font-size: 13px;
-        color: var(--caution-fg);
-        background: var(--caution);
-        border-radius: 10px;
-        padding: 10px 12px;
-        margin-bottom: 12px;
-      }
-      .budget-warning[hidden] {
-        display: none;
-      }
-      .budget-warning p {
-        margin: 0;
-      }
-      .budget-warning #filter-budget-detail {
-        font-size: 12px;
-        opacity: 0.85;
-      }
-
-      .preset-row {
-        display: flex;
-        gap: 8px;
-        margin-top: 10px;
-        flex-wrap: wrap;
-      }
-      .preset-row button {
-        flex: 1;
-        min-width: 80px;
-      }
-      .preset-row button[aria-pressed="true"] {
+        border-radius: 50%;
         background: var(--on);
-        border-color: var(--on);
-        color: #123010;
-        font-weight: 600;
-      }
-
-      #tracker-rows {
-        margin-top: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-      }
-      .tracker-row .tr-head {
-        display: flex;
-        justify-content: space-between;
-        gap: 8px;
-      }
-      .tracker-row .tr-name {
-        font-size: 13px;
-        font-weight: 600;
-      }
-      .tracker-row .tr-count {
-        font-size: 12px;
-        color: var(--muted);
-        white-space: nowrap;
-      }
-      .tracker-row .tr-desc {
-        margin: 3px 0 0;
-        font-size: 12.5px;
-        line-height: 1.5;
-        color: var(--muted);
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      .about-section + .about-section {
-        margin-top: 14px;
-        padding-top: 14px;
-        border-top: 1px solid var(--border);
-      }
-      .about-section h3 {
-        font-size: 13px;
-        margin: 0 0 6px;
-      }
-      .about-section p {
-        margin: 0 0 8px;
-        font-size: 13px;
-        line-height: 1.6;
-      }
-      .about-links {
-        display: flex;
-        gap: 14px;
-        font-size: 13px;
-      }
-
-      /* -----------------------------------------------------------------
-         Styles for the Backup tab (DR-15) and the restructured About tab
-         (DR-13). Reuses .metric-row, .group-heading, .row-group,
-         .section-divider and .protection-row above wherever possible --
-         these are only the genuinely new pieces.
-         ----------------------------------------------------------------- */
-
-      /* ---------- Backup: action rows ---------- */
-      /* Like .protection-row but the affordance is a button, not a switch. */
-      .action-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        padding: 13px 0;
-        border-bottom: 1px solid var(--hairline);
-      }
-      .row-group .action-row:last-child {
-        border-bottom: none;
-      }
-      .action-row .row-body {
-        min-width: 0;
-      }
-      .action-row .row-title {
-        font-size: 13.5px;
-        font-weight: 600;
-      }
-      .action-row .row-evidence {
-        font-size: 12.5px;
-        color: var(--muted);
-        margin-top: 3px;
-      }
-      .action-row .row-evidence code {
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 12px;
-      }
-      .action-row button {
         flex: none;
       }
-
-      /* ---------- Backup: the sync row's inline caution ---------- */
-      /* DR-15: this caveat does NOT go in a drawer. DR-04's disclosure rule
-         defers "this might break a site"; naming who receives your data is
-         a different class of fact and has to be readable without a click. */
-      .destination-note {
-        display: flex;
-        gap: 9px;
-        align-items: flex-start;
-        margin-top: 10px;
-        padding: 11px 13px;
-        /* DR-15's own --caution-wash token: a caution without an alarm, see
-           theme.css. Was left as var(--card) in the original handoff, which
-           left the token defined but never actually consumed anywhere. */
-        background: var(--caution-wash);
-        border-radius: 8px;
-      }
-      .destination-note svg {
-        flex: none;
-        width: 14px;
-        height: 14px;
-        color: var(--caution);
-        margin-top: 2px;
-      }
-      .destination-note p {
-        margin: 0;
-        font-size: 12.5px;
-        line-height: 1.6;
-        color: var(--muted);
-      }
-      .destination-note strong {
-        color: var(--fg);
-        font-weight: 600;
-      }
-
-      /* A hero value that is a word, not a number -- "Never". */
-      .hero-value.is-word {
-        font-size: 32px;
-        letter-spacing: -0.02em;
-      }
-      .hero-value.caution {
-        color: var(--caution);
-      }
-
-      /* ---------- Backup: manifest ---------- */
-      .backup-manifest {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px 30px;
-        margin-top: 12px;
-      }
-      .backup-manifest .bm-item {
-        display: flex;
-        align-items: baseline;
-        gap: 10px;
-      }
-      .backup-manifest .bm-count {
-        flex: none;
-        width: 26px;
-        text-align: right;
-        font-size: 13px;
-        font-weight: 600;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-variant-numeric: tabular-nums;
-      }
-      .backup-manifest .bm-item.absent .bm-count {
-        color: var(--muted);
-      }
-      .backup-manifest .bm-label {
-        font-size: 12.5px;
-        color: var(--muted);
-      }
-
-      /* ---------- About: the disclosure table (DR-13 / 12b) ---------- */
-      /* Replaces five bold-led prose paragraphs. A layered notice's first
-         layer has to be scannable; prose is not. Full text stays one link
-         away in PRIVACY.md. */
-      .disclosure-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 12px;
-        font-size: 12.5px;
-      }
-      .disclosure-table th {
-        text-align: left;
-        font-size: 10px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        color: var(--muted);
-        padding: 0 14px 9px 0;
-        border-bottom: 1px solid var(--border);
-        white-space: nowrap;
-      }
-      .disclosure-table td {
-        padding: 11px 14px 11px 0;
-        border-bottom: 1px solid var(--hairline);
-        color: var(--muted);
-        line-height: 1.5;
-        vertical-align: top;
-      }
-      .disclosure-table tr:last-child td {
-        border-bottom: none;
-      }
-      .disclosure-table td:first-child {
-        color: var(--fg);
-        font-weight: 600;
-        white-space: nowrap;
-      }
-      .disclosure-table .recipient-none {
-        color: var(--muted);
-      }
-      .disclosure-table .recipient-external {
-        color: var(--fg);
-      }
-      .disclosure-table .default-off,
-      .disclosure-table .default-on {
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 11.5px;
-        white-space: nowrap;
-      }
-      .disclosure-table .default-on {
-        color: var(--fg);
-      }
-
-      /* About is a record now, not a control panel -- plain sections, no
-         .card. */
-      .about-record h3 {
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--muted);
-        margin: 0 0 8px;
-      }
-      .about-record .about-block + .about-block {
-        margin-top: 22px;
-        padding-top: 22px;
-        border-top: 1px solid var(--hairline);
-      }
-      .about-record p {
-        margin: 0 0 8px;
-        font-size: 13px;
-        line-height: 1.6;
-      }
-      .about-record p:last-child {
-        margin-bottom: 0;
-      }
-      .version-grid {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 7px 16px;
-        font-size: 12.5px;
-      }
-      .version-grid dt {
-        color: var(--muted);
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 11.5px;
-      }
-      .version-grid dd {
-        margin: 0;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 12px;
-      }
-      .keycap {
-        display: inline-block;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 11.5px;
-        border: 1px solid var(--selected);
-        border-radius: 5px;
-        padding: 2px 6px;
-        color: var(--fg);
-      }
-
-      /* DR-13: rail dot for Backup is amber, not green -- see options-rail
-         markup below. The existing .rail-dot is hard-coded to var(--on). */
       .rail-dot-caution {
         background: var(--caution);
       }
@@ -1114,731 +1314,402 @@
     </style>
   </head>
   <body>
-    <div class="shell" id="shell">
-      <nav class="rail" role="tablist" aria-orientation="vertical">
-        <div class="brand-row">
-          <img src="icons/icon48.png" alt="" />
-          <span class="brand-name">Moat</span>
-        </div>
-        <!-- Nav icons: thin-line style (1.4 stroke, no fill), the same
-             convention already used for the drawer-caution/stale-rule/
-             destination-note glyphs elsewhere on this page. -->
-        <div class="rail-list">
-          <button
-            class="rail-item"
-            data-tab="protection"
-            role="tab"
-            id="tab-protection"
-            aria-controls="panel-protection"
-            aria-selected="true"
-            tabindex="0"
-          >
-            <span class="rail-item-main">
-              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M8 1.6l4.6 1.8v3.4c0 3.3-1.9 5.7-4.6 6.6-2.7-.9-4.6-3.3-4.6-6.6V3.4L8 1.6z" />
-              </svg>
-              <span data-i18n="tabProtection">Protection</span>
-            </span>
-            <span class="rail-dot" id="rail-dot-protection" hidden></span>
-          </button>
-          <button
-            class="rail-item"
-            data-tab="filters"
-            role="tab"
-            id="tab-filters"
-            aria-controls="panel-filters"
-            aria-selected="false"
-            tabindex="-1"
-          >
-            <span class="rail-item-main">
-              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M2.2 3h11.6l-4.3 5.2v3.9l-3 1.4V8.2L2.2 3z" />
-              </svg>
-              <span data-i18n="tabFilters">Filter Lists</span>
-            </span>
-            <span class="rail-count" id="rail-count-filters"></span>
-          </button>
-          <button
-            class="rail-item"
-            data-tab="custom"
-            role="tab"
-            id="tab-custom"
-            aria-controls="panel-custom"
-            aria-selected="false"
-            tabindex="-1"
-          >
-            <span class="rail-item-main">
-              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3.2 2.3l9 4-3.6 1.2-1.2 3.6-4.2-8.8z" />
-              </svg>
-              <span data-i18n="tabCustom">Custom Rules</span>
-            </span>
-            <span class="rail-count" id="rail-count-custom"></span>
-          </button>
-          <button
-            class="rail-item"
-            data-tab="trackers"
-            role="tab"
-            id="tab-trackers"
-            aria-controls="panel-trackers"
-            aria-selected="false"
-            tabindex="-1"
-          >
-            <span class="rail-item-main">
-              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M1.6 8S4.2 3.8 8 3.8 14.4 8 14.4 8 11.8 12.2 8 12.2 1.6 8 1.6 8z" />
-                <circle cx="8" cy="8" r="1.7" fill="currentColor" stroke="none" />
-              </svg>
-              <span data-i18n="tabTrackers">Trackers</span>
-            </span>
-            <span class="rail-count" id="rail-count-trackers"></span>
-          </button>
+    <div id="shell">
+      <header class="topbar">
+        <span class="brand"><img src="icons/icon48.png" alt="" /><span>Moat</span></span>
+        <a class="help" href="https://samuelabhinav37.github.io/moat/#faq" target="_blank" rel="noopener" data-i18n="settingsHelp">Help</a>
+      </header>
 
-          <!-- DR-13: nobody looks for a switch in a tab called About, and
-               "Sync settings across devices" is the most privacy-relevant
-               toggle in the product. The dot is amber, not green: under
-               DR-02 a rail indicator means "worth your attention" -- here
-               that is "no backup has ever been taken". options.ts unhides
-               it when lastBackupAt is null. -->
-          <button
-            class="rail-item"
-            data-tab="backup"
-            role="tab"
-            id="tab-backup"
-            aria-controls="panel-backup"
-            aria-selected="false"
-            tabindex="-1"
-          >
-            <span class="rail-item-main">
-              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M8 2v7" />
-                <path d="M5 6.4L8 9.4l3-3" />
-                <path d="M2.6 12h10.8" />
-              </svg>
-              <span data-i18n="tabBackup">Backup</span>
-            </span>
-            <span class="rail-dot rail-dot-caution" id="rail-dot-backup" hidden></span>
-          </button>
-
-          <button
-            class="rail-item"
-            data-tab="about"
-            role="tab"
-            id="tab-about"
-            aria-controls="panel-about"
-            aria-selected="false"
-            tabindex="-1"
-          >
-            <span class="rail-item-main">
-              <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="8" cy="8" r="6" />
-                <path d="M8 7.4v4M8 5.1v.1" />
-              </svg>
-              <span data-i18n="tabAbout">About</span>
-            </span>
-          </button>
-        </div>
-      </nav>
-
-      <div class="content" id="content-column">
-        <section data-tab-panel="protection" role="tabpanel" id="panel-protection" aria-labelledby="tab-protection" tabindex="0">
-          <h2 class="page-title" data-i18n="optionsProtectionTitle">Protection</h2>
-          <p class="page-desc" data-i18n="optionsProtectionDesc">
-            What Moat blocks, and what it leaves alone. Everything here runs on your device.
-          </p>
-
-          <div class="protection-row" id="master-toggle-row" style="margin-top: 14px">
-            <div class="row-body">
-              <div class="row" style="justify-content: flex-start; gap: 8px">
-                <span class="row-title" id="master-toggle-label" data-i18n="optionsMasterToggleLabel">Protection</span>
+      <main class="wrap">
+        <div class="head">
+          <h1 data-i18n="settingsTitle">Settings</h1>
+          <div class="status">
+            <div>
+              <div class="status-title">
+                <span id="master-status-title" data-i18n="settingsStatusOn">Moat is on</span>
                 <span class="locked-badge" id="protection-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
               </div>
-              <!-- The popup has its own, separate per-site pause toggle with
-                   no persistent label of its own (just "protected"/"paused"
-                   next to the current site's name) -- this one-line subtitle
-                   is the only thing on either surface that actually says
-                   this switch is the global one, not a specific site's. -->
-              <span class="row-evidence" data-i18n="optionsMasterToggleHint">Turn all blocking on or off, everywhere.</span>
+              <div class="status-line"><b id="metric-blocked-today">—</b> <span data-i18n="optionsBlockedTodayBaseline">ads and trackers stopped today</span></div>
             </div>
             <label class="switch">
-              <input type="checkbox" id="master-toggle" aria-labelledby="master-toggle-label" />
+              <input type="checkbox" id="master-toggle" aria-labelledby="master-status-title" />
               <span class="track"><span class="thumb"></span></span>
             </label>
           </div>
+        </div>
 
-          <div class="metric-row">
-            <div class="metric-hero">
-              <div class="value-row">
-                <span class="hero-value" id="metric-blocked-today">—</span>
-                <span class="delta-chip" id="metric-blocked-delta" hidden>
-                  <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M2 8l3.5-5L9 8" />
-                  </svg>
-                  <span id="metric-blocked-delta-value"></span>
-                </span>
-              </div>
-              <p class="metric-baseline" id="metric-blocked-baseline" data-i18n="optionsBlockedTodayBaseline">
-                ads and trackers stopped today
-              </p>
-            </div>
-            <div class="sparkline-wrap">
-              <svg width="132" height="40" viewBox="0 0 132 40" id="metric-sparkline" class="sparkline-svg" aria-hidden="true"></svg>
-              <span class="sparkline-caption" data-i18n="optionsSparklineCaption">last 7 days</span>
-            </div>
-            <div class="metric-right-group">
-              <div>
-                <div class="secondary-value" id="metric-sites-today">—</div>
-                <p class="metric-label" data-i18n="optionsSitesTodayLabel">sites today</p>
-              </div>
-              <div>
-                <div class="secondary-value" id="metric-protections-on">—</div>
-                <p class="metric-label" data-i18n="optionsProtectionsOnLabel">protections on</p>
-              </div>
-            </div>
-          </div>
-
-          <hr class="section-divider" />
-
-          <div id="protection-groups"></div>
-        </section>
-
-        <aside class="drawer" id="drawer" hidden>
-          <div class="drawer-header">
+        <div class="panel">
+          <!-- How much to block: three presets, each card looping its own
+               kind of blocking on a tiny page (ads, tracker dots, a cookie
+               banner, a fingerprinting "eye"). Essential/Custom live under
+               Advanced; a note appears here when one of those is active. -->
+          <section class="sec">
             <div>
-              <p class="drawer-title" id="drawer-title"></p>
-              <span class="drawer-state" id="drawer-state"></span>
+              <h2 data-i18n="levelTitle">How much to block</h2>
+              <p class="lead" data-i18n="levelLead">Balanced suits almost everyone. Pick Strict for the most privacy, or Light if a site you use keeps breaking.</p>
             </div>
-            <div class="drawer-header-actions">
-              <label class="switch">
-                <input type="checkbox" id="drawer-toggle" />
-                <span class="track"><span class="thumb"></span></span>
-              </label>
-              <button
-                type="button"
-                class="drawer-close"
-                id="drawer-close"
-                data-i18n-aria-label="optionsDrawerCloseLabel"
-                aria-label="Close"
-              >
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-                  <path d="M3 3l10 10M13 3L3 13" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div class="drawer-metric" id="drawer-metric" hidden>
-            <div class="value" id="drawer-metric-value"></div>
-            <p class="label" id="drawer-metric-label"></p>
-          </div>
-
-          <div id="drawer-bars-wrap" hidden>
-            <div class="drawer-bars" id="drawer-bars"></div>
-            <p class="drawer-bars-caption" data-i18n="optionsDrawerBarsCaption">Mon — Sun</p>
-          </div>
-
-          <p class="drawer-desc" id="drawer-desc"></p>
-
-          <div class="drawer-caution" id="drawer-caution" hidden>
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true">
-              <path d="M8 1.5l7 12.5H1z" />
-              <path d="M8 6.2v3.4" stroke-linecap="round" />
-              <circle cx="8" cy="11.6" r="0.7" fill="currentColor" stroke="none" />
-            </svg>
-            <span id="drawer-caution-text"></span>
-          </div>
-        </aside>
-
-        <section data-tab-panel="filters" role="tabpanel" id="panel-filters" aria-labelledby="tab-filters" tabindex="0" hidden>
-          <h2 class="page-title" data-i18n="tabFilters">Filter Lists</h2>
-          <p class="page-desc" data-i18n="optionsFilterListsDesc">
-            The rule sets Moat compiles into the browser's own blocker. Every one ships inside the
-            extension itself, so nothing is fetched by your browser to make them work.
-          </p>
-
-          <div class="budget-warning" id="filter-budget-warning" hidden>
-            <p data-i18n="optionsFilterBudgetWarning">
-              Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules
-              extensions can use in total, and that limit is easy to hit if you have another ad
-              blocker or privacy extension running too. Try turning one of them off, or switch off a
-              list below.
-            </p>
-            <p id="filter-budget-detail" hidden></p>
-          </div>
-
-          <div class="metric-row">
-            <div class="metric-hero">
-              <div class="value-row">
-                <span class="hero-value" id="filters-metric-active">—</span>
-              </div>
-              <p class="metric-baseline" id="filters-metric-baseline"></p>
-            </div>
-            <div class="budget-bar-wrap">
-              <div class="budget-bar"><div class="budget-bar-fill" id="filters-budget-fill"></div></div>
-              <span class="budget-bar-caption" id="filters-budget-caption"></span>
-            </div>
-            <div class="metric-right-group">
-              <div>
-                <div class="secondary-value" id="filters-metric-live">—</div>
-                <p class="metric-label" data-i18n="optionsFromDailyUpdatesLabel">from daily updates</p>
-              </div>
-              <div>
-                <div class="secondary-value" id="filters-metric-since-check">—</div>
-                <p class="metric-label" data-i18n="optionsSinceLastCheckLabel">since last check</p>
-              </div>
-            </div>
-          </div>
-
-          <hr class="section-divider" />
-
-          <div class="card">
-            <div class="row">
-              <div class="card-title" data-i18n="optionsFilteringLevelTitle">Filtering level</div>
-              <span class="locked-badge" id="filters-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
-            </div>
-            <div class="preset-row" id="preset-row">
-              <button type="button" data-preset="off" data-i18n="presetOff">Off</button>
-              <button type="button" data-preset="lite" data-i18n="presetLite">Lite</button>
-              <button type="button" data-preset="essential" data-i18n="presetEssential">Essential</button>
-              <button type="button" data-preset="standard" data-i18n="presetStandard">Standard</button>
-              <button type="button" data-preset="strict" data-i18n="presetStrict">Strict</button>
-            </div>
-            <p class="hint muted" id="preset-hint" data-i18n="presetHintStandard">Ads, trackers, and known-malicious sites.</p>
-          </div>
-
-          <div class="group-heading" style="padding-top: 22px">
-            <span data-i18n="optionsIndividualListsTitle">Individual filter lists</span>
-            <a href="#" id="filter-check-updates" class="group-action" data-i18n="optionsCheckForUpdatesLink">Check for updates</a>
-          </div>
-          <!-- optionsIndividualListsHint existed, translated, before this
-               audit -- never actually added below the heading it was
-               clearly written for. -->
-          <p class="hint muted" data-i18n="optionsIndividualListsHint">
-            Turn each list on or off yourself. Changing any one switches your filtering level to Custom.
-          </p>
-          <div class="row-group" id="filter-list-rows"></div>
-        </section>
-
-        <section data-tab-panel="custom" role="tabpanel" id="panel-custom" aria-labelledby="tab-custom" tabindex="0" hidden>
-          <div class="row" style="align-items: flex-start">
             <div>
-              <h2 class="page-title" data-i18n="tabCustom">Custom Rules</h2>
-              <p class="page-desc" data-i18n="optionsCustomRulesDesc">
-                Everything you've hidden yourself with the element picker. These override the
-                filter lists and never leave your browser.
-              </p>
-            </div>
-            <button type="button" id="pick-element-button" style="flex: none">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="var(--caution)" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px">
-                <path d="M3 2l10 4.2-4 1.6-1.6 4z" />
-              </svg>
-              <span data-i18n="optionsPickElementButton">Pick an element</span>
-            </button>
-          </div>
-          <p class="hint muted" id="pick-element-status" hidden></p>
-
-          <details id="migration-import">
-            <summary data-i18n="optionsMigrationImportSummary">Import from another blocker…</summary>
-            <p class="hint muted" data-i18n="optionsMigrationImportHint">
-              Paste rules exported from uBlock Origin, AdGuard, or similar — blocked/allowed
-              domains and per-site element-hiding rules. Other filter syntax isn't supported and
-              will be skipped.
-            </p>
-            <textarea
-              id="migration-import-textarea"
-              class="migration-import-textarea"
-              rows="5"
-              placeholder="||ads.example.com^&#10;example.com##.ad-banner"
-            ></textarea>
-            <div class="about-links" style="margin-top: 10px">
-              <button type="button" id="migration-import-file-button" data-i18n="commonChooseFile">Choose file</button>
-              <button type="button" id="migration-import-button" class="primary" data-i18n="optionsMigrationImportButton">Import</button>
-            </div>
-            <input type="file" id="migration-import-file-input" accept=".txt,text/plain" hidden />
-            <p class="hint muted" id="migration-import-status" hidden></p>
-          </details>
-
-          <div class="metric-row">
-            <div class="metric-hero">
-              <div class="value-row">
-                <span class="hero-value" id="custom-metric-count">—</span>
+              <div class="levels" id="level-cards" role="radiogroup" aria-labelledby="level-title-sr">
+                <span id="level-title-sr" hidden data-i18n="levelTitle">How much to block</span>
+                <button type="button" class="level" role="radio" aria-checked="false" data-level="lite">
+                  <span class="level-thumb" aria-hidden="true"><span class="mini"><span class="mini-bar"><i></i><i></i><i></i><span class="mini-eye"></span></span><span class="mini-page"><i class="ad w"></i><i class="t"></i><i class="t"></i><i class="w"></i><i class="t"></i><i></i><i class="ck w"></i></span></span></span>
+                  <span class="level-name" data-i18n="presetLite">Light</span>
+                  <span class="level-desc" data-i18n="levelLightDesc">Removes ads, scams and pop-ups. Trackers still load.</span>
+                </button>
+                <button type="button" class="level" role="radio" aria-checked="false" data-level="standard">
+                  <span class="level-thumb" aria-hidden="true"><span class="mini"><span class="mini-bar"><i></i><i></i><i></i><span class="mini-eye"></span></span><span class="mini-page"><i class="ad w"></i><i class="t"></i><i class="t"></i><i class="w"></i><i class="t"></i><i></i><i class="ck w"></i></span></span></span>
+                  <span class="level-name" data-i18n="presetStandard">Balanced</span>
+                  <span class="level-desc" data-i18n="levelBalancedDesc">Also stops trackers and phishing. Recommended.</span>
+                </button>
+                <button type="button" class="level" role="radio" aria-checked="false" data-level="strict">
+                  <span class="level-thumb" aria-hidden="true"><span class="mini"><span class="mini-bar"><i></i><i></i><i></i><span class="mini-eye"></span></span><span class="mini-page"><i class="ad w"></i><i class="t"></i><i class="t"></i><i class="w"></i><i class="t"></i><i></i><i class="ck w"></i></span></span></span>
+                  <span class="level-name" data-i18n="presetStrict">Strict</span>
+                  <span class="level-desc" data-i18n="levelStrictDesc">Also cookie banners and fingerprinting. A few sites may break.</span>
+                </button>
               </div>
-              <p class="metric-baseline" id="custom-metric-baseline"></p>
+              <div class="legend" aria-hidden="true">
+                <span><span class="key" style="background: repeating-linear-gradient(135deg, #8a4f47 0 3px, #744039 3px 6px)"></span><span data-i18n="levelLegendAds">Ads</span></span>
+                <span><span class="key" style="background: #d9a441; width: 8px; border-radius: 50%"></span><span data-i18n="levelLegendTrackers">Trackers</span></span>
+                <span><span class="key" style="background: #cfd3da"></span><span data-i18n="levelLegendCookies">Cookie banners</span></span>
+                <span><span class="key" style="background: #b58cf0; border-radius: 50%"></span><span data-i18n="levelLegendFingerprint">Fingerprinting</span></span>
+              </div>
+              <p class="level-note" id="level-note" hidden data-i18n="levelCustomNote">You're using your own mix of filter lists. Change it under Advanced settings.</p>
             </div>
-            <div class="metric-right-group">
+          </section>
+
+          <section class="sec">
+            <div>
+              <h2 data-i18n="featuresTitle">Features</h2>
+              <p class="lead" data-i18n="featuresLead">Ads, trackers and scam pop-ups are always blocked. These are the extras people change most.</p>
+            </div>
+            <div class="setting-rows" id="feature-rows"></div>
+          </section>
+
+          <section class="sec">
+            <div>
+              <h2 data-i18n="optionsExceptionsTitle">Sites you've paused</h2>
+              <p class="lead" data-i18n="optionsExceptionsHint">Moat is off on these sites. To pause one, click Moat's icon while you're on it and flip the switch.</p>
+            </div>
+            <div>
+              <div class="box" id="site-list-box"><ul class="site-list" id="site-list"></ul></div>
+              <div class="empty-card" id="site-empty-state">
+                <b data-i18n="pausedEmptyTitle">No sites are paused</b>
+                <span data-i18n="pausedEmptyHint">Pause a site you trust to let everything load on it.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="sec">
+            <div>
+              <h2 data-i18n="optionsHiddenElementsTitle">Things you've hidden</h2>
+              <p class="lead" data-i18n="optionsHiddenElementsHint">Parts of pages you removed with Block an element. Remove one to bring it back.</p>
+            </div>
+            <div>
+              <div class="box" id="hidden-element-box"><div class="rule-rows" id="hidden-element-rows"></div></div>
+              <div class="empty-card" id="hidden-element-empty">
+                <b data-i18n="hiddenEmptyTitle">Nothing hidden yet</b>
+                <span data-i18n="hiddenEmptyHint">Click Moat's icon, choose Block an element, then click what you want gone.</span>
+              </div>
+              <div id="grayscale-element-block" hidden>
+                <p class="sub-h" style="margin-top: 22px" data-i18n="optionsDimmedElementsTitle">Grayed out</p>
+                <div class="box"><div class="rule-rows" id="grayscale-element-rows"></div></div>
+                <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <button type="button" class="advbtn" id="advanced-toggle" aria-expanded="false" aria-controls="advanced">
+          <span>
+            <span class="advbtn-title" id="advanced-toggle-title" data-i18n="advancedButton">Advanced settings</span>
+            <span class="advbtn-hint" data-i18n="advancedButtonHint">Filter lists, privacy extras, your own rules, trackers, backup and version</span>
+          </span>
+          <span class="advbtn-chev" aria-hidden="true"></span>
+        </button>
+
+        <div id="advanced" hidden>
+          <h2 class="adv-title" id="advanced-title" data-i18n="advancedButton">Advanced settings</h2>
+
+          <!-- Filter lists -->
+          <div class="panel">
+            <section class="sec">
               <div>
-                <div class="secondary-value" id="custom-metric-matching">—</div>
-                <p class="metric-label" data-i18n="optionsRulesStillMatchingLabel">still matching</p>
-              </div>
-              <div>
-                <div class="secondary-value" id="custom-metric-stale">—</div>
-                <p class="metric-label" data-i18n="optionsRulesStaleLabel">gone stale</p>
-              </div>
-            </div>
-          </div>
-
-          <hr class="section-divider" />
-
-          <!-- optionsHiddenElementsTitle/Hint existed, translated, before
-               this audit -- this heading (present on every sibling section
-               below) and hint were simply never added to the markup. -->
-          <div class="group-heading" data-i18n="optionsHiddenElementsTitle">Hidden elements</div>
-          <p class="hint muted" data-i18n="optionsHiddenElementsHint">
-            Elements you hid with the “Block an element” tool. Remove one to bring it back.
-          </p>
-          <div class="row-group" id="hidden-element-rows"></div>
-          <p class="empty-state" id="hidden-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
-
-          <div class="group-heading" style="padding-top: 22px" data-i18n="optionsDimmedElementsTitle">Dimmed elements</div>
-          <p class="hint muted" data-i18n="optionsDimmedElementsHint">
-            Elements you grayed out with the picker. Remove one to restore it.
-          </p>
-          <div class="row-group" id="grayscale-element-rows"></div>
-          <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
-
-          <div class="group-heading" style="padding-top: 22px" data-i18n="optionsExceptionsTitle">Paused sites</div>
-          <div class="card">
-            <p class="hint muted" data-i18n="optionsExceptionsHint">Moat is completely turned off on these sites, and any pages under them.</p>
-            <ul class="site-list" id="site-list"></ul>
-            <p class="empty-state" id="site-empty-state" data-i18n="optionsNoSitesAdded">No sites added.</p>
-            <div class="add-row">
-              <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
-              <button id="add-button" data-i18n="commonAdd">Add</button>
-            </div>
-          </div>
-
-          <div class="group-heading" style="padding-top: 22px" data-i18n="optionsBlockedSitesTitle">Blocked sites</div>
-          <div class="card">
-            <p class="hint muted" data-i18n="optionsBlockedSitesHint">Always block these sites, whatever the filter lists say.</p>
-            <ul class="site-list" id="custom-block-list"></ul>
-            <p class="empty-state" id="custom-block-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
-            <div class="add-row">
-              <input type="text" id="custom-block-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
-              <button id="custom-block-add" data-i18n="commonBlock">Block</button>
-            </div>
-            <p class="hint muted" id="custom-block-add-status" hidden></p>
-          </div>
-
-          <div class="group-heading" style="padding-top: 22px" data-i18n="optionsAllowedSitesTitle">Allowed sites</div>
-          <div class="card">
-            <p class="hint muted" data-i18n="optionsAllowedSitesHint">Never block these sites, even when a filter list matches.</p>
-            <ul class="site-list" id="custom-allow-list"></ul>
-            <p class="empty-state" id="custom-allow-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
-            <div class="add-row">
-              <input type="text" id="custom-allow-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
-              <button id="custom-allow-add" data-i18n="commonAllow">Allow</button>
-            </div>
-            <p class="hint muted" id="custom-allow-add-status" hidden></p>
-          </div>
-        </section>
-
-        <section data-tab-panel="trackers" role="tabpanel" id="panel-trackers" aria-labelledby="tab-trackers" tabindex="0" hidden>
-          <h2 class="page-title" data-i18n="tabTrackers">Trackers</h2>
-          <p class="page-desc" data-i18n="optionsTrackersDesc">
-            Which companies tried to follow you, and how far they got. Counted on your device from
-            the browser's own match data. This list is never uploaded.
-          </p>
-
-          <div class="metric-row">
-            <div class="metric-hero">
-              <div class="value-row">
-                <span class="hero-value" id="weekly-metric-companies">—</span>
-              </div>
-              <p class="metric-baseline" data-i18n="optionsCompaniesSeenBaseline">companies seen this week</p>
-            </div>
-            <div class="sparkline-wrap">
-              <svg width="132" height="40" viewBox="0 0 132 40" id="weekly-sparkline" class="sparkline-svg" aria-hidden="true"></svg>
-              <span class="sparkline-caption" data-i18n="optionsSparklineCaption">last 7 days</span>
-            </div>
-            <div class="metric-right-group">
-              <div>
-                <div class="secondary-value" id="weekly-metric-attempts">—</div>
-                <p class="metric-label" data-i18n="optionsAttemptsBlockedLabel">attempts blocked</p>
+                <h2 data-i18n="tabFilters">Filter lists</h2>
+                <p class="lead" data-i18n="optionsIndividualListsHint">The lists behind "How much to block". Changing one here switches your level to Custom.</p>
               </div>
               <div>
-                <div class="secondary-value" id="weekly-metric-got-through">0</div>
-                <p class="metric-label" data-i18n="optionsGotThroughLabel">got through</p>
-              </div>
-            </div>
-          </div>
-
-          <hr class="section-divider" />
-
-          <div class="row-group" id="weekly-tracker-rows"></div>
-
-          <div class="group-heading" style="padding-top: 22px">
-            <span data-i18n="optionsTrackersHeading">Trackers on the current tab</span>
-            <a href="#" id="trackers-refresh" class="group-action" data-i18n="optionsTrackersRefresh">Refresh</a>
-          </div>
-          <p class="hint muted" id="trackers-subhead" hidden></p>
-          <p class="hint muted" id="trackers-unsupported" hidden data-i18n="optionsTrackersUnsupported">
-            This detailed tracker list only works in Chrome for now. Firefox doesn't support it yet.
-          </p>
-          <div id="tracker-rows"></div>
-          <p class="empty-state" id="trackers-empty" hidden data-i18n="optionsTrackersEmpty">
-            No trackers found on the last tab you had open.
-          </p>
-        </section>
-
-        <!-- DR-15 -- Backup tab.
-
-             Grouped by WHERE THE DATA GOES, not by what the button does. The
-             obvious grouping is by verb (things that write / things that
-             read), but one of these five controls hands your settings to
-             Google and four never leave the machine -- and a verb grouping
-             puts that distinction nowhere.
-
-             "Across devices" is a group of one. That is deliberate: a group
-             of one is a statement that this control is not like the others. -->
-        <section data-tab-panel="backup" role="tabpanel" id="panel-backup" aria-labelledby="tab-backup" tabindex="0" hidden>
-          <h2 class="page-title" data-i18n="tabBackup">Backup</h2>
-          <p class="page-desc" data-i18n="optionsBackupDesc">
-            Save your settings, custom rules and exceptions to a file you keep, or sync them
-            through your browser.
-          </p>
-
-          <div class="metric-row">
-            <div class="metric-hero">
-              <div class="value-row">
-                <!-- "Never" is the honest state for almost everyone and it is what earns
-                     the rail dot. Not an empty state -- an answer. options.ts swaps this
-                     for a date and drops .caution once a backup exists. -->
-                <span class="hero-value is-word caution" id="backup-metric-last">Never</span>
-              </div>
-              <p class="metric-baseline" id="backup-metric-baseline">
-                backed up · your custom rules and exceptions exist only in this browser profile
-              </p>
-            </div>
-            <div class="metric-right-group">
-              <div>
-                <div class="secondary-value" id="backup-metric-size">—</div>
-                <p class="metric-label" data-i18n="optionsBackupSizeLabel">export size</p>
-              </div>
-              <div>
-                <div class="secondary-value" id="backup-metric-sync">Off</div>
-                <p class="metric-label" data-i18n="optionsBackupSyncLabel">sync</p>
-              </div>
-            </div>
-          </div>
-
-          <hr class="section-divider" />
-
-          <div class="group-heading">
-            <span data-i18n="optionsBackupToFileHeading">To a file</span>
-            <span class="group-count" data-i18n="optionsBackupStaysHere">stays on your device</span>
-          </div>
-          <div class="row-group">
-            <div class="action-row">
-              <div class="row-body">
-                <div class="row-title" data-i18n="optionsExportTitle">Export settings</div>
-                <p class="row-evidence" id="export-settings-hint">
-                  Downloads <code id="export-filename">moat-settings.json</code>, a plain text file you can open and read
-                </p>
-              </div>
-              <button id="export-settings-button" type="button" data-i18n="commonExport">Export</button>
-            </div>
-            <div class="action-row">
-              <div class="row-body">
-                <div class="row-title" data-i18n="optionsImportTitle">Restore from a file</div>
-                <p class="row-evidence" data-i18n="optionsImportHint">
-                  Replaces everything below. You'll see what changes before it applies.
-                </p>
-              </div>
-              <button id="import-settings-button" type="button" data-i18n="commonChooseFile">Choose file</button>
-            </div>
-          </div>
-          <input type="file" id="import-settings-input" accept="application/json" hidden />
-          <p class="hint muted" id="import-settings-status" hidden></p>
-          <!-- Shown only once a chosen file has been read and validated
-               client-side (see options.ts's importSettingsInput handler) --
-               nothing is actually applied until "Apply this import" is
-               clicked. The row above's own copy promises exactly this. -->
-          <div id="import-settings-confirm" hidden>
-            <p class="hint" data-i18n="optionsImportWillChange">This file will change:</p>
-            <ul class="hint" id="import-settings-summary" style="margin: 4px 0 0; padding-left: 18px"></ul>
-            <div class="about-links" style="margin-top: 8px">
-              <button type="button" id="import-settings-apply-button" class="primary" data-i18n="optionsImportApplyButton">Apply this import</button>
-              <button type="button" id="import-settings-cancel-button" data-i18n="commonCancel">Cancel</button>
-            </div>
-          </div>
-
-          <div class="group-heading" style="padding-top: 22px">
-            <span data-i18n="optionsBackupAcrossDevicesHeading">Across devices</span>
-            <span class="group-count" data-i18n="optionsBackupLeavesDevice">leaves your device</span>
-          </div>
-          <div class="row-group">
-            <div class="action-row" style="align-items: flex-start">
-              <div class="row-body">
-                <div class="row-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">
-                  Sync settings across devices
+                <div class="budget-warning" id="filter-budget-warning" hidden>
+                  <p data-i18n="optionsFilterBudgetWarning">Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules extensions can use in total, and that limit is easy to hit if you have another ad blocker or privacy extension running too. Try turning one of them off, or switch off a list below.</p>
+                  <p id="filter-budget-detail" hidden></p>
                 </div>
-                <p class="row-evidence" data-i18n="optionsSyncToggleHint">
-                  Hands your Moat settings to your browser account to carry between devices. No
-                  browsing data leaves your device, but this is the only control on this page that
-                  sends anything anywhere.
-                </p>
+                <div class="preset-row" id="preset-row">
+                  <button type="button" data-preset="lite" data-i18n="presetLite">Light</button>
+                  <button type="button" data-preset="essential" data-i18n="presetEssential">Essential</button>
+                  <button type="button" data-preset="standard" data-i18n="presetStandard">Balanced</button>
+                  <button type="button" data-preset="strict" data-i18n="presetStrict">Strict</button>
+                  <span class="locked-badge" id="filters-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
+                </div>
+                <p class="hint muted" id="preset-hint"></p>
+                <div class="budget">
+                  <span id="filters-budget-line"></span>
+                  <div class="budget-bar"><div class="budget-bar-fill" id="filters-budget-fill"></div></div>
+                  <span class="budget-caption" id="filters-budget-caption"></span>
+                </div>
+                <details class="more">
+                  <summary data-i18n="advShowAllLists">Show all lists</summary>
+                  <div class="list-head">
+                    <span></span>
+                    <a href="#" id="filter-check-updates" data-i18n="optionsCheckForUpdatesLink">Check for updates</a>
+                  </div>
+                  <div class="setting-rows" id="filter-list-rows"></div>
+                </details>
+              </div>
+            </section>
+          </div>
 
-                <!-- Inline, never drawered. See DR-15. -->
-                <div class="destination-note">
-                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-                    <path d="M8 2.5l6 11H2l6-11z" />
-                    <path d="M8 6.6v3M8 11.6v.2" />
-                  </svg>
-                  <!-- options.ts writes the vendor name from the build target. Do not
-                       hard-code "Google" -- a Firefox build has to say Mozilla. -->
-                  <p>
-                    Recipient is <strong id="sync-recipient">your browser vendor</strong> on this build.
-                    From there, your settings are stored and managed like the rest of your browser
-                    account data — under their retention rules, not Moat's, since Moat has no server
-                    of its own to hold or delete them.
-                  </p>
+          <!-- Privacy extras -->
+          <div class="panel">
+            <section class="sec">
+              <div>
+                <h2 data-i18n="advPrivacyTitle">Privacy extras</h2>
+                <p class="lead" data-i18n="advPrivacyLead">Extra protection against being followed and identified. Off by default because a few sites can break.</p>
+              </div>
+              <div class="setting-rows" id="protection-groups"></div>
+            </section>
+          </div>
+
+          <!-- Block and allow -->
+          <div class="panel">
+            <section class="sec">
+              <div>
+                <h2 data-i18n="advRulesTitle">Block and allow</h2>
+                <p class="lead" data-i18n="advRulesLead">Your own rules. They always win over the filter lists.</p>
+              </div>
+              <div>
+                <div class="field">
+                  <span class="field-label" data-i18n="advPauseSite">Pause Moat on a site</span>
+                  <div class="add-row">
+                    <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="add-button" />
+                    <button type="button" id="add-button" data-i18n="commonPause">Pause</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <span class="field-label" data-i18n="optionsBlockedSitesTitle">Always block</span>
+                  <span class="field-hint" data-i18n="optionsBlockedSitesHint">Always block these sites, whatever the filter lists say.</span>
+                  <ul class="site-list box" id="custom-block-list" style="margin-top: 10px"></ul>
+                  <p class="empty-state" id="custom-block-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
+                  <div class="add-row">
+                    <input type="text" id="custom-block-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="custom-block-add" />
+                    <button type="button" id="custom-block-add" data-i18n="commonBlock">Block</button>
+                  </div>
+                  <p class="hint muted" id="custom-block-add-status" hidden></p>
+                </div>
+                <div class="field">
+                  <span class="field-label" data-i18n="optionsAllowedSitesTitle">Never block</span>
+                  <span class="field-hint" data-i18n="optionsAllowedSitesHint">Never block these sites, even when a filter list matches.</span>
+                  <ul class="site-list box" id="custom-allow-list" style="margin-top: 10px"></ul>
+                  <p class="empty-state" id="custom-allow-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
+                  <div class="add-row">
+                    <input type="text" id="custom-allow-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="custom-allow-add" />
+                    <button type="button" id="custom-allow-add" data-i18n="commonAllow">Allow</button>
+                  </div>
+                  <p class="hint muted" id="custom-allow-add-status" hidden></p>
+                </div>
+                <div class="field">
+                  <button type="button" id="pick-element-button" data-i18n="optionsPickElementButton">Pick an element</button>
+                  <p class="hint muted" id="pick-element-status" hidden></p>
+                </div>
+                <details id="migration-import">
+                  <summary data-i18n="optionsMigrationImportSummary">Import from another blocker…</summary>
+                  <p class="hint muted" data-i18n="optionsMigrationImportHint">Paste rules exported from uBlock Origin, AdGuard, or similar — blocked/allowed domains and per-site element-hiding rules. Other filter syntax isn't supported and will be skipped.</p>
+                  <textarea id="migration-import-textarea" class="migration-import-textarea" rows="5" placeholder="||ads.example.com^&#10;example.com##.ad-banner"></textarea>
+                  <div class="actions" style="margin-top: 10px">
+                    <button type="button" id="migration-import-file-button" data-i18n="commonChooseFile">Choose file</button>
+                    <button type="button" id="migration-import-button" class="primary" data-i18n="optionsMigrationImportButton">Import</button>
+                  </div>
+                  <input type="file" id="migration-import-file-input" accept=".txt,text/plain" hidden />
+                  <p class="hint muted" id="migration-import-status" hidden></p>
+                </details>
+              </div>
+            </section>
+          </div>
+
+          <!-- Trackers -->
+          <div class="panel">
+            <section class="sec">
+              <div>
+                <h2 data-i18n="tabTrackers">Trackers</h2>
+                <p class="lead" data-i18n="optionsTrackersDesc">Companies Moat stopped this week. Counted on your device and never uploaded.</p>
+              </div>
+              <div>
+                <p class="tracker-summary" id="weekly-tracker-summary"></p>
+                <div class="box"><div id="weekly-tracker-rows"></div></div>
+                <details class="more" id="trackers-current">
+                  <summary data-i18n="advTrackersOnTab">On the tab you last used</summary>
+                  <div class="list-head">
+                    <span id="trackers-subhead" hidden></span>
+                    <a href="#" id="trackers-refresh" data-i18n="optionsTrackersRefresh">Refresh</a>
+                  </div>
+                  <p class="hint muted" id="trackers-unsupported" hidden data-i18n="optionsTrackersUnsupported">This detailed tracker list only works in Chrome for now. Firefox doesn't support it yet.</p>
+                  <div id="tracker-rows"></div>
+                  <p class="empty-state" id="trackers-empty" hidden data-i18n="optionsTrackersEmpty">No trackers found on the last tab you had open.</p>
+                </details>
+              </div>
+            </section>
+          </div>
+
+          <!-- Backup and sync. Grouped by where the data goes: the file stays
+               on this device; sync is the one control that sends anything. -->
+          <div class="panel">
+            <section class="sec">
+              <div>
+                <h2 data-i18n="tabBackup">Backup and sync</h2>
+                <p class="lead" data-i18n="optionsBackupDesc">Keep your settings, rules and paused sites safe, or carry them to another computer.</p>
+              </div>
+              <div>
+                <div class="actions">
+                  <button type="button" class="primary" id="export-settings-button" data-i18n="optionsExportTitle">Save a backup</button>
+                  <button type="button" id="import-settings-button" data-i18n="optionsImportTitle">Restore from a file</button>
+                </div>
+                <p class="hint muted">Saves <code id="export-filename">moat-settings.json</code>, a plain text file you can open and read.</p>
+                <p class="backup-line"><span data-i18n="advLastBackup">Last backup:</span> <b class="caution" id="backup-metric-last">Never</b></p>
+                <input type="file" id="import-settings-input" accept="application/json" hidden />
+                <p class="hint muted" id="import-settings-status" hidden></p>
+                <div id="import-settings-confirm" hidden>
+                  <p class="hint" data-i18n="optionsImportWillChange">This file will change:</p>
+                  <ul class="hint" id="import-settings-summary" style="margin: 4px 0 0; padding-left: 18px"></ul>
+                  <div class="actions" style="margin-top: 10px">
+                    <button type="button" id="import-settings-apply-button" class="primary" data-i18n="optionsImportApplyButton">Apply this import</button>
+                    <button type="button" id="import-settings-cancel-button" data-i18n="commonCancel">Cancel</button>
+                  </div>
+                </div>
+                <div class="setting-rows sync-row">
+                  <div class="setting-row" id="sync-row">
+                    <span class="setting-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4" /></svg></span>
+                    <div>
+                      <span class="setting-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">Sync across devices</span>
+                      <span class="setting-desc" data-i18n="optionsSyncToggleHint">Stored by your browser account. No browsing data is included.</span>
+                      <span class="setting-desc"><span data-i18n="optionsDisclosureRecipient">Who receives it</span>: <strong id="sync-recipient">your browser vendor</strong></span>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" id="sync-toggle" aria-labelledby="sync-toggle-label" />
+                      <span class="track"><span class="thumb"></span></span>
+                    </label>
+                  </div>
+                </div>
+                <p class="hint" id="sync-status" hidden></p>
+              </div>
+            </section>
+          </div>
+
+          <!-- About. WARNING: a wrong row in this table is worse than a vague
+               paragraph. Keep it in sync with PRIVACY.md, in the same commit
+               as any change to what the product sends. -->
+          <div class="panel">
+            <section class="sec">
+              <div>
+                <h2 data-i18n="tabAbout">About Moat</h2>
+                <p class="lead" data-i18n="optionsAboutDesc">What this version is, and everything that ever leaves your device.</p>
+              </div>
+              <div>
+                <div class="box table-scroll">
+                  <table class="disclosure-table">
+                    <thead>
+                      <tr>
+                        <th data-i18n="optionsDisclosureFeature">Feature</th>
+                        <th data-i18n="optionsDisclosureSent">What's sent</th>
+                        <th data-i18n="optionsDisclosureRecipient">Who receives it</th>
+                        <th data-i18n="optionsDisclosureDefault">Default</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td data-i18n="optionsDisclosureBlockingName">Blocking &amp; filtering</td>
+                        <td data-i18n="optionsDisclosureBlockingSent">Nothing. Runs entirely on your device.</td>
+                        <td class="recipient-none" data-i18n="commonNobody">Nobody</td>
+                        <td class="default-on" data-i18n="commonAlwaysOn">always on</td>
+                      </tr>
+                      <tr>
+                        <td data-i18n="optionsDisclosureUpdatesName">Filter fixes</td>
+                        <td data-i18n="optionsDisclosureUpdatesSent">One small signed file, downloaded once a day. It carries nothing about you.</td>
+                        <td class="recipient-external" data-i18n="optionsDisclosureUpdatesRecipient">GitHub Pages (file hosting)</td>
+                        <td class="default-on" data-i18n="commonOn">on</td>
+                      </tr>
+                      <tr>
+                        <td data-i18n="optionsDisclosureBreachName">Breach checking</td>
+                        <td data-i18n="optionsDisclosureBreachSent">A short scrambled fragment of a password, never the password itself</td>
+                        <td class="recipient-external" data-i18n="optionsDisclosureBreachRecipient">Have I Been Pwned</td>
+                        <td class="default-off" data-i18n="commonOff">off</td>
+                      </tr>
+                      <tr>
+                        <td data-i18n="optionsDisclosureSyncName">Settings sync</td>
+                        <td data-i18n="optionsDisclosureSyncSent">Your Moat settings. No browsing data.</td>
+                        <td class="recipient-external" id="disclosure-sync-recipient">Your browser vendor</td>
+                        <td class="default-off" data-i18n="commonOff">off</td>
+                      </tr>
+                      <tr>
+                        <td data-i18n="optionsDisclosureStatsName">Statistics</td>
+                        <td data-i18n="optionsDisclosureStatsSent">Nothing leaves your device. Counts stay stored locally.</td>
+                        <td class="recipient-none" data-i18n="commonNobody">Nobody</td>
+                        <td class="default-on" data-i18n="commonAlwaysOn">always on</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="about-note" id="managed-notice" hidden>
+                  <strong>Managed install:</strong> your organization set the policies shown here. Your
+                  administrator can see and change those policies, but not your browsing history.
+                </p>
+                <dl class="version-grid" id="version-grid">
+                  <dt data-i18n="optionsVersionLabel">version</dt><dd id="version-number">—</dd>
+                  <dt data-i18n="optionsVersionBuild">build</dt><dd id="version-build">—</dd>
+                  <dt data-i18n="optionsVersionRules">rules</dt><dd id="version-rules">—</dd>
+                  <dt data-i18n="optionsVersionUpdated">lists updated</dt><dd id="version-updated">—</dd>
+                </dl>
+                <p class="about-note">
+                  <span class="keycap" id="shortcut-keys">Ctrl+Shift+M</span>
+                  turns Moat on or off. Change it at <code>chrome://extensions/shortcuts</code>.
+                </p>
+                <div class="about-links">
+                  <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener" data-i18n="optionsPrivacyPolicyLink">Full privacy policy</a>
+                  <a href="logger.html" target="_blank" rel="noopener" data-i18n="optionsDiagnosticsLink">Diagnostics</a>
+                  <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="optionsChangelogLink">Changelog</a>
+                  <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="optionsSourceCodeLink">Source code</a>
+                  <a href="NOTICE.md" target="_blank" rel="noopener" data-i18n="optionsThirdPartyNoticesLink">Third-party licenses</a>
                 </div>
               </div>
-              <label class="switch">
-                <input type="checkbox" id="sync-toggle" aria-labelledby="sync-toggle-label" />
-                <span class="track"><span class="thumb"></span></span>
-              </label>
-            </div>
+            </section>
           </div>
-          <p class="hint" id="sync-status" hidden></p>
+        </div>
+      </main>
 
-          <hr class="section-divider" />
-
-          <div class="group-heading" data-i18n="optionsBackupContainsHeading">What a backup contains</div>
-          <!-- Ends on two rows that count nothing. What the file does NOT hold is the
-               reassurance a user came to this tab for. -->
-          <div class="backup-manifest" id="backup-manifest">
-            <div class="bm-item"><span class="bm-count" id="bm-protections">—</span><span class="bm-label" data-i18n="optionsBackupProtections">protection settings</span></div>
-            <div class="bm-item"><span class="bm-count" id="bm-rules">—</span><span class="bm-label" data-i18n="optionsBackupCustomRules">custom rules</span></div>
-            <div class="bm-item"><span class="bm-count" id="bm-exceptions">—</span><span class="bm-label" data-i18n="optionsBackupExceptions">site exceptions</span></div>
-            <div class="bm-item"><span class="bm-count" id="bm-lists">—</span><span class="bm-label" data-i18n="optionsBackupFilterChoices">filter list choices</span></div>
-            <div class="bm-item absent"><span class="bm-count">—</span><span class="bm-label" data-i18n="optionsBackupNoHistory">no browsing history, ever</span></div>
-            <div class="bm-item absent"><span class="bm-count">—</span><span class="bm-label" data-i18n="optionsBackupNoStats">no block counts or statistics</span></div>
-          </div>
-        </section>
-
-        <!-- DR-13 (option 12b) -- About becomes a pure record.
-
-             Was thirteen paragraphs in one card doing four unrelated jobs.
-             Backup, restore and sync moved out to their own tab above. What
-             remains is the disclosure, the version details and the shortcut.
-
-             The five bold-led privacy paragraphs are replaced by a
-             four-column table: the established answer to "important privacy
-             information nobody reads" is a layered notice -- a short
-             scannable first layer carrying the facts that matter most, full
-             text one link away. A table IS that first layer; five paragraphs
-             of prose is not.
-
-             WARNING: a wrong row in this table is worse than a vague
-             paragraph. Keep it in sync with PRIVACY.md, in the same commit
-             as any change to what the product sends.
-
-             The prose that remains below (the shortcut/diagnostics blocks)
-             mixes plain text with an inline <a>/<strong>/<code> and isn't
-             migrated to data-i18n -- applyStaticI18n replaces an element's
-             whole textContent, which would silently delete the embedded
-             link/emphasis. -->
-        <section data-tab-panel="about" role="tabpanel" id="panel-about" aria-labelledby="tab-about" tabindex="0" hidden>
-          <h2 class="page-title" data-i18n="tabAbout">About</h2>
-          <p class="page-desc" data-i18n="optionsAboutDesc">
-            What this build is, and exactly what leaves your device.
-          </p>
-
-          <hr class="section-divider" />
-
-          <div class="about-record">
-            <div class="about-block">
-              <h3 data-i18n="optionsPrivacyHeading">What leaves your device</h3>
-              <table class="disclosure-table">
-                <thead>
-                  <tr>
-                    <th data-i18n="optionsDisclosureFeature">Feature</th>
-                    <th data-i18n="optionsDisclosureSent">What's sent</th>
-                    <th data-i18n="optionsDisclosureRecipient">Who receives it</th>
-                    <th data-i18n="optionsDisclosureDefault">Default</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td data-i18n="optionsDisclosureBlockingName">Blocking &amp; filtering</td>
-                    <td data-i18n="optionsDisclosureBlockingSent">Nothing. Runs entirely on your device.</td>
-                    <td class="recipient-none" data-i18n="commonNobody">Nobody</td>
-                    <td class="default-on" data-i18n="commonAlwaysOn">always on</td>
-                  </tr>
-                  <tr>
-                    <td data-i18n="optionsDisclosureUpdatesName">Filter updates</td>
-                    <td data-i18n="optionsDisclosureUpdatesSent">A version check once a day. No browsing history.</td>
-                    <td class="recipient-external" data-i18n="optionsDisclosureUpdatesRecipient">Moat's update server</td>
-                    <td class="default-on" data-i18n="commonOn">on</td>
-                  </tr>
-                  <tr>
-                    <td data-i18n="optionsDisclosureBreachName">Breach checking</td>
-                    <td data-i18n="optionsDisclosureBreachSent">A short scrambled fragment of a password, never the password itself</td>
-                    <td class="recipient-external" data-i18n="optionsDisclosureBreachRecipient">Have I Been Pwned</td>
-                    <td class="default-off" data-i18n="commonOff">off</td>
-                  </tr>
-                  <tr>
-                    <td data-i18n="optionsDisclosureSyncName">Settings sync</td>
-                    <td data-i18n="optionsDisclosureSyncSent">Your Moat settings. No browsing data.</td>
-                    <td class="recipient-external" id="disclosure-sync-recipient">Your browser vendor</td>
-                    <td class="default-off" data-i18n="commonOff">off</td>
-                  </tr>
-                  <tr>
-                    <td data-i18n="optionsDisclosureStatsName">Statistics</td>
-                    <td data-i18n="optionsDisclosureStatsSent">Nothing leaves your device. Counts stay stored locally.</td>
-                    <td class="recipient-none" data-i18n="commonNobody">Nobody</td>
-                    <td class="default-on" data-i18n="commonAlwaysOn">always on</td>
-                  </tr>
-                </tbody>
-              </table>
-              <p style="margin-top: 14px">
-                <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener" data-i18n="optionsPrivacyPolicyLink">Full privacy policy</a>
-              </p>
-              <p id="managed-notice" hidden>
-                <strong>Managed install:</strong> your organization set the policies shown here. Your
-                administrator can see and change those policies, but not your browsing history.
-              </p>
+      <footer class="site-foot">
+        <div class="foot-top">
+          <span class="brand"><img src="icons/icon48.png" alt="" /><span>Moat</span></span>
+          <nav class="foot-cols" aria-label="Moat">
+            <div>
+              <h4 data-i18n="footerProduct">Product</h4>
+              <a href="https://samuelabhinav37.github.io/moat/#features" target="_blank" rel="noopener" data-i18n="footerFeatures">Features</a>
+              <a href="https://samuelabhinav37.github.io/moat/#privacy" target="_blank" rel="noopener" data-i18n="footerPrivacy">Privacy</a>
+              <a href="https://samuelabhinav37.github.io/moat/#faq" target="_blank" rel="noopener" data-i18n="footerFaq">FAQ</a>
             </div>
-
-            <div class="about-block">
-              <h3 data-i18n="optionsVersionHeading">Version</h3>
-              <dl class="version-grid" id="version-grid">
-                <dt data-i18n="optionsVersionLabel">version</dt><dd id="version-number">—</dd>
-                <dt data-i18n="optionsVersionBuild">build</dt><dd id="version-build">—</dd>
-                <dt data-i18n="optionsVersionRules">rules</dt><dd id="version-rules">—</dd>
-                <dt data-i18n="optionsVersionUpdated">lists updated</dt><dd id="version-updated">—</dd>
-              </dl>
-              <div class="about-links" style="margin-top: 14px">
-                <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="optionsChangelogLink">Changelog</a>
-                <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="optionsSourceCodeLink">Source code</a>
-                <a href="NOTICE.md" target="_blank" rel="noopener" data-i18n="optionsThirdPartyNoticesLink">Third-party licenses</a>
-              </div>
+            <div>
+              <h4 data-i18n="footerResources">Resources</h4>
+              <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="footerChangelog">Changelog</a>
+              <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener" data-i18n="footerPrivacyPolicy">Privacy policy</a>
+              <a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml" target="_blank" rel="noopener" data-i18n="footerBuildStatus">Build status</a>
+              <a href="https://github.com/Samuelabhinav37/moat#install-it-today" target="_blank" rel="noopener" data-i18n="footerInstallFromSource">Install from source</a>
             </div>
-
-            <div class="about-block">
-              <h3 data-i18n="optionsShortcutHeading">Keyboard shortcut</h3>
-              <p>
-                <span class="keycap" id="shortcut-keys">Ctrl+Shift+M</span>
-                toggles protection on and off. Rebind at <code>chrome://extensions/shortcuts</code>.
-              </p>
+            <div>
+              <h4 data-i18n="footerProject">Project</h4>
+              <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="footerGithub">GitHub</a>
+              <a href="https://github.com/Samuelabhinav37/moat/blob/master/LICENSE" target="_blank" rel="noopener" data-i18n="footerLicense">GPL-3.0 license</a>
+              <a href="https://github.com/Samuelabhinav37/moat/issues/new/choose" target="_blank" rel="noopener" data-i18n="footerReportIssue">Report an issue</a>
             </div>
-
-            <div class="about-block">
-              <h3 data-i18n="optionsDebuggingHeading">Diagnostics</h3>
-              <!-- DR-17: renamed from "rule-match logger", and the "only appears when
-                   loaded unpacked" qualifier is GONE. The heuristics half of that page
-                   works on every build, so this link is now useful to ordinary users
-                   reporting "YouTube ads came back". -->
-              <p>
-                <a href="logger.html" target="_blank" rel="noopener" data-i18n="optionsDiagnosticsLink">Diagnostics</a>
-                shows what Moat did on the current tab, and flags any page-reading feature that's
-                gone quiet. That usually means the site changed.
-              </p>
-            </div>
-          </div>
-        </section>
-      </div>
+          </nav>
+        </div>
+        <div class="foot-bottom"><span data-i18n="footerCopyright">© 2026 Moat</span><span data-i18n="footerFreeOpenSource">Free and open source.</span></div>
+      </footer>
     </div>
 
     <!-- First-run only: options.ts shows this instead of #shell when
@@ -1875,7 +1746,7 @@
               <span class="rail-dot"></span>
               <div class="row-body">
                 <span class="row-title" data-i18n="welcomeFilterListsTitle">Ads, trackers and known-malicious sites blocked</span>
-                <span class="row-evidence" data-i18n="welcomeFilterListsEvidence">Standard filter lists, on by default</span>
+                <span class="row-evidence" data-i18n="welcomeFilterListsEvidence">Balanced filter lists, on by default</span>
               </div>
             </div>
           </div>
@@ -1907,7 +1778,7 @@
             <div class="welcome-row-main">
               <span class="rail-dot rail-dot-caution"></span>
               <div class="row-body">
-                <span class="row-title" data-i18n="welcomeFingerprintTitle">Stop sites recognizing your device</span>
+                <span class="row-title" data-i18n="welcomeFingerprintTitle">Block device fingerprinting</span>
                 <span class="row-evidence" data-i18n="welcomeFingerprintEvidence">Off by default since it can occasionally affect a CAPTCHA</span>
               </div>
             </div>
@@ -1916,13 +1787,13 @@
             <div class="welcome-row-main">
               <span class="rail-dot rail-dot-caution"></span>
               <div class="row-body">
-                <span class="row-title" data-i18n="welcomeLeakedPasswordTitle">Check passwords against known breaches</span>
+                <span class="row-title" data-i18n="welcomeLeakedPasswordTitle">Warn about leaked passwords</span>
                 <span class="row-evidence" data-i18n="welcomeLeakedPasswordEvidence">Off by default. Only a scrambled fragment of a password ever leaves your device.</span>
               </div>
             </div>
           </div>
         </div>
-        <p class="hint muted" data-i18n="welcomeMoreInSettings">Both are one click away on the Protection tab.</p>
+        <p class="hint muted" data-i18n="welcomeMoreInSettings">Both are one click away in Settings.</p>
 
         <p class="welcome-shortcut">
           <span class="keycap">Ctrl+Shift+M</span>

@@ -101,64 +101,35 @@ function tFallback(key: string, fallback: string, substitutions?: string | strin
 
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 
-// ---------- Tabs ----------
+// ---------- Advanced settings (expands in place) ----------
 
-const tabButtons = document.querySelectorAll<HTMLButtonElement>(".rail-item");
-const tabPanels = document.querySelectorAll<HTMLElement>("[data-tab-panel]");
-const contentColumn = document.getElementById("content-column") as HTMLElement;
-const drawer = document.getElementById("drawer") as HTMLElement;
+// One page: what most people change sits on the main panel, everything
+// else opens in place under this button. A disclosure (aria-expanded +
+// aria-controls), not tabs -- there is only ever one thing to reveal.
+const advancedToggle = document.getElementById("advanced-toggle") as HTMLButtonElement;
+const advancedToggleTitle = document.getElementById("advanced-toggle-title") as HTMLElement;
+const advancedSection = document.getElementById("advanced") as HTMLElement;
+const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
-function closeDrawer(): void {
-  openDrawerId = null;
-  drawer.hidden = true;
-  contentColumn.classList.remove("has-drawer");
-}
-
-function selectTab(name: string): void {
-  for (const button of tabButtons) {
-    const selected = button.dataset.tab === name;
-    button.setAttribute("aria-selected", String(selected));
-    // WAI-ARIA tabs pattern: only the selected tab is in the page's normal
-    // Tab order; the others are reached via the arrow-key handler below,
-    // not by tabbing through each one individually.
-    button.tabIndex = selected ? 0 : -1;
+function setAdvancedOpen(open: boolean): void {
+  advancedToggle.setAttribute("aria-expanded", String(open));
+  advancedToggleTitle.textContent = open
+    ? tFallback("advancedButtonHide", "Hide advanced settings")
+    : tFallback("advancedButton", "Advanced settings");
+  advancedSection.hidden = !open;
+  if (open) {
+    document.getElementById("advanced-title")?.scrollIntoView?.({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
   }
-  for (const panel of tabPanels) panel.hidden = panel.dataset.tabPanel !== name;
-  if (name !== "protection") closeDrawer();
 }
 
-for (const button of tabButtons) {
-  button.addEventListener("click", () => {
-    const name = button.dataset.tab!;
-    selectTab(name);
-    if (name === "trackers") void renderTrackers();
-  });
-}
+advancedToggle.addEventListener("click", () => {
+  setAdvancedOpen(advancedToggle.getAttribute("aria-expanded") !== "true");
+});
 
-// Arrow-key navigation between tabs, per the WAI-ARIA tabs pattern this
-// markup otherwise only imitates the static shape of (role="tab"/
-// aria-selected without the keyboard model a screen reader user would
-// expect from that role). The rail is a vertical list (see its own
-// aria-orientation="vertical"), so Up/Down move focus, not Left/Right.
-const tabList = document.querySelector('[role="tablist"]') as HTMLElement;
-tabList.addEventListener("keydown", (event) => {
-  const tabs = [...tabButtons];
-  const currentIndex = tabs.indexOf(document.activeElement as HTMLButtonElement);
-  if (currentIndex === -1) return;
-
-  let nextIndex: number | null = null;
-  if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % tabs.length;
-  else if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-  else if (event.key === "Home") nextIndex = 0;
-  else if (event.key === "End") nextIndex = tabs.length - 1;
-  if (nextIndex === null) return;
-
-  event.preventDefault();
-  const nextTab = tabs[nextIndex]!;
-  nextTab.focus();
-  const name = nextTab.dataset.tab!;
-  selectTab(name);
-  if (name === "trackers") void renderTrackers();
+// The per-tab tracker breakdown is fetched lazily, only once its own
+// disclosure is opened (it reads the last active tab's match data).
+document.getElementById("trackers-current")!.addEventListener("toggle", (event) => {
+  if ((event.currentTarget as HTMLDetailsElement).open) void renderTrackers();
 });
 
 // ---------- Protection tab ----------
@@ -357,100 +328,106 @@ const PROTECTIONS: ProtectionDef[] = [
 const isFirefoxPrivacyWebsitesSupported = typeof browser.privacy?.websites?.resistFingerprinting !== "undefined";
 const VISIBLE_PROTECTIONS = PROTECTIONS.filter((def) => !def.firefoxOnly || isFirefoxPrivacyWebsitesSupported);
 
-const GROUP_ORDER: ProtectionGroup[] = ["privacy", "annoyances", "safety"];
-const GROUP_LABELS: Record<ProtectionGroup, readonly [string, string]> = {
-  privacy: ["optionsPrivacyCategory", "Privacy"],
-  annoyances: ["optionsAnnoyancesCategory", "Annoyances"],
-  safety: ["optionsSafetyCategory", "Safety"],
-};
-
 const SVG_NS_ICON = "http://www.w3.org/2000/svg";
 
-/** Thin-line icon (1.4 stroke, no fill) -- same hand-authored-SVG convention
- * as buildStaleTriangleIcon further down (web-ext lint flags any innerHTML
- * assignment it can't statically prove is a literal, even a safe hardcoded
- * one), just data-driven since the category headings need three of these
- * rather than one. `rect`, when given, is drawn before the paths (the lock
- * icon's body). */
-function buildLineIcon(paths: string[], rect?: readonly [number, number, number, number, number]): SVGSVGElement {
-  const icon = document.createElementNS(SVG_NS_ICON, "svg");
-  icon.setAttribute("class", "group-icon");
-  icon.setAttribute("viewBox", "0 0 16 16");
-  icon.setAttribute("fill", "none");
-  icon.setAttribute("stroke", "currentColor");
-  icon.setAttribute("stroke-width", "1.4");
-  icon.setAttribute("stroke-linecap", "round");
-  icon.setAttribute("stroke-linejoin", "round");
-  icon.setAttribute("aria-hidden", "true");
-  if (rect) {
-    const [x, y, width, height, rx] = rect;
-    const r = document.createElementNS(SVG_NS_ICON, "rect");
-    r.setAttribute("x", String(x));
-    r.setAttribute("y", String(y));
-    r.setAttribute("width", String(width));
-    r.setAttribute("height", String(height));
-    r.setAttribute("rx", String(rx));
-    icon.append(r);
-  }
-  for (const d of paths) {
-    const path = document.createElementNS(SVG_NS_ICON, "path");
-    path.setAttribute("d", d);
-    icon.append(path);
-  }
-  return icon;
-}
+// The four extras people change most sit on the main panel; every other
+// protection row lives under Advanced settings -> Privacy extras.
+const FEATURE_IDS = ["consentReject", "grayscale", "feedScan", "leakedPassword"] as const;
 
-const CATEGORY_ICON_DEFS: Record<ProtectionGroup, { paths: string[]; rect?: readonly [number, number, number, number, number] }> = {
-  privacy: {
-    paths: ["M5.6 7.2V5.4a2.4 2.4 0 0 1 4.8 0v1.8"],
-    rect: [3.4, 7.2, 9.2, 6.4, 1.3],
-  },
-  annoyances: {
-    paths: [
-      "M4.6 10.8h6.8c-.9-.9-1.4-2.1-1.4-3.3V6a2.2 2.2 0 0 0-4.4 0v1.5c0 1.2-.5 2.4-1.4 3.3z",
-      "M6.6 12.3a1.4 1.4 0 0 0 2.8 0",
-    ],
-  },
-  safety: {
-    paths: [
-      "M8 1.6l4.6 1.8v3.4c0 3.3-1.9 5.7-4.6 6.6-2.7-.9-4.6-3.3-4.6-6.6V3.4L8 1.6z",
-      "M5.9 8.1l1.5 1.5 2.7-3",
-    ],
-  },
+// 24x24 line icons, one per setting row. Built with createElementNS, never
+// innerHTML: web-ext lint flags any innerHTML assignment it can't prove is
+// a literal, even a safe hardcoded one.
+const ICON_PATHS: Record<string, string[]> = {
+  consentReject: [
+    "M20.5 12.5A8.5 8.5 0 1 1 11.5 3.5a3 3 0 0 0 4 3.8 3 3 0 0 0 5 5.2Z",
+    "M9 10h.01M13.5 15h.01M8.5 15h.01",
+  ],
+  grayscale: ["M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z", "m10 9 5 3-5 3V9Z"],
+  feedScan: ["M5.5 4h13A1.5 1.5 0 0 1 20 5.5v3A1.5 1.5 0 0 1 18.5 10h-13A1.5 1.5 0 0 1 4 8.5v-3A1.5 1.5 0 0 1 5.5 4ZM5.5 14h13a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-3A1.5 1.5 0 0 1 5.5 14Z"],
+  leakedPassword: ["M7 10h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z", "M8 10V7.5a4 4 0 0 1 8 0V10"],
+  cookies: ["M8 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM16 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z", "M4 20 20 4"],
+  webrtc: ["M12 20.5a8.5 8.5 0 1 0 0-17 8.5 8.5 0 0 0 0 17Z", "M3.5 12h17M12 3.5c2.5 2.3 3.5 5.2 3.5 8.5s-1 6.2-3.5 8.5c-2.5-2.3-3.5-5.2-3.5-8.5s1-6.2 3.5-8.5Z"],
+  fingerprint: ["M12 11c0 3-1 6-3 8M8 6.5A6 6 0 0 1 18 11c0 2-.3 4-1 6M6 10a6 6 0 0 1 .5-2.5M12 11c0-1 .5-2 2-2M5.5 14c.3 1 .3 2-.5 3"],
+  cname: ["M11 17.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Z", "m16 16 4.5 4.5"],
+  firefoxResistFingerprinting: ["M12 11c0 3-1 6-3 8M8 6.5A6 6 0 0 1 18 11c0 2-.3 4-1 6M6 10a6 6 0 0 1 .5-2.5"],
+  firefoxFirstPartyIsolate: ["M4 5h7v14H4zM13 5h7v14h-7z"],
+  searchSlop: ["M5 7h14M5 12h9M5 17h6"],
+  permissionGuard: ["M5 7h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z", "m15 11 6-3v8l-6-3"],
+  list: ["M5 7h14M5 12h14M5 17h14"],
 };
 
-// permission-guard is one merged row (three chips) sitting in the "safety"
-// group alongside the plain PROTECTIONS entries above, but its shape is
-// different enough (three independent booleans, no single switch, no
-// drawer) that it isn't modeled as a ProtectionDef at all -- see
-// buildPermissionGuardRow.
+function buildIcon(name: string): HTMLElement {
+  const wrap = document.createElement("span");
+  wrap.className = "setting-icon";
+  wrap.setAttribute("aria-hidden", "true");
+  const svg = document.createElementNS(SVG_NS_ICON, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "1.8");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  for (const d of ICON_PATHS[name] ?? ICON_PATHS.list!) {
+    const path = document.createElementNS(SVG_NS_ICON, "path");
+    path.setAttribute("d", d);
+    svg.append(path);
+  }
+  wrap.append(svg);
+  return wrap;
+}
+
+/** Icon, title, one line of description, then a switch -- the one row shape
+ * every setting on this page uses. `extra` goes under the description
+ * (cautions, evidence, chips). */
+function buildSettingRow(options: {
+  icon: string;
+  titleId: string;
+  title: string;
+  desc?: string;
+  on: boolean;
+  extra?: HTMLElement[];
+  control?: HTMLElement;
+}): HTMLElement {
+  const row = document.createElement("div");
+  row.className = options.on ? "setting-row is-on" : "setting-row";
+  const text = document.createElement("div");
+  const title = document.createElement("span");
+  title.className = "setting-title";
+  title.id = options.titleId;
+  title.textContent = options.title;
+  text.append(title);
+  if (options.desc) {
+    const desc = document.createElement("span");
+    desc.className = "setting-desc";
+    desc.textContent = options.desc;
+    text.append(desc);
+  }
+  if (options.extra) text.append(...options.extra);
+  row.append(buildIcon(options.icon), text);
+  if (options.control) row.append(options.control);
+  return row;
+}
+
+function buildLine(className: string, textContent: string): HTMLElement {
+  const el = document.createElement("span");
+  el.className = className;
+  el.textContent = textContent;
+  return el;
+}
+
+// permission-guard is one merged row (three chips) sitting with the plain
+// PROTECTIONS entries above, but its shape is different enough (three
+// independent booleans, no single switch) that it isn't modeled as a
+// ProtectionDef at all -- see buildPermissionGuardRow.
 function isAnyPermissionGuardOn(settings: Settings): boolean {
   return settings.permissionGuardCamera || settings.permissionGuardMicrophone || settings.permissionGuardLocation;
 }
 
-const TOTAL_PROTECTIONS = VISIBLE_PROTECTIONS.length + 1; // +1 for the merged permission-guard row
-
 const masterToggle = document.getElementById("master-toggle") as HTMLInputElement;
 const protectionLockedBadge = document.getElementById("protection-locked-badge") as HTMLElement;
-const railDotProtection = document.getElementById("rail-dot-protection") as HTMLElement;
-const railDotBackup = document.getElementById("rail-dot-backup") as HTMLElement;
-const railCountFilters = document.getElementById("rail-count-filters") as HTMLElement;
-const railCountCustom = document.getElementById("rail-count-custom") as HTMLElement;
-const railCountTrackers = document.getElementById("rail-count-trackers") as HTMLElement;
+const masterStatusTitle = document.getElementById("master-status-title") as HTMLElement;
+const featureRowsEl = document.getElementById("feature-rows") as HTMLElement;
 const protectionGroupsEl = document.getElementById("protection-groups") as HTMLElement;
-
-const drawerTitleEl = document.getElementById("drawer-title") as HTMLElement;
-const drawerStateEl = document.getElementById("drawer-state") as HTMLElement;
-const drawerToggleEl = document.getElementById("drawer-toggle") as HTMLInputElement;
-const drawerMetricWrapEl = document.getElementById("drawer-metric") as HTMLElement;
-const drawerMetricValueEl = document.getElementById("drawer-metric-value") as HTMLElement;
-const drawerMetricLabelEl = document.getElementById("drawer-metric-label") as HTMLElement;
-const drawerBarsWrapEl = document.getElementById("drawer-bars-wrap") as HTMLElement;
-const drawerBarsEl = document.getElementById("drawer-bars") as HTMLElement;
-const drawerDescEl = document.getElementById("drawer-desc") as HTMLElement;
-const drawerCautionEl = document.getElementById("drawer-caution") as HTMLElement;
-const drawerCautionTextEl = document.getElementById("drawer-caution-text") as HTMLElement;
-const drawerCloseEl = document.getElementById("drawer-close") as HTMLButtonElement;
 
 const cnameUnsupportedHint = tFallback("optionsCnameUnsupportedHint", "Not available in this browser.");
 const cnameChromeDohHint = tFallback(
@@ -464,12 +441,10 @@ const siteEmptyState = document.getElementById("site-empty-state") as HTMLElemen
 const addInput = document.getElementById("add-input") as HTMLInputElement;
 const addButton = document.getElementById("add-button") as HTMLButtonElement;
 
-// Set once by the top-level render() below and read by drawer open/refresh
-// so re-opening or re-populating an already-open drawer doesn't need its
-// own separate fetch of settings/usage data.
+// Set by the top-level render() below; read by the import preview and the
+// weekly tracker list so neither needs its own fetch.
 let lastSettings: Settings | null = null;
 let lastUsage: UsageSummaryResponse | null = null;
-let openDrawerId: string | null = null;
 
 function renderSyncStatus(syncEnabled: boolean, status: Awaited<ReturnType<typeof getSyncStatus>>): void {
   const syncStatus = document.getElementById("sync-status") as HTMLElement;
@@ -549,80 +524,7 @@ function renderDomainList(
   renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove, rerenderSelf);
 }
 
-// ---------- Metric row + sparkline ----------
-
-function renderSparkline(values: number[], elementId = "metric-sparkline"): void {
-  const svg = document.getElementById(elementId) as unknown as SVGSVGElement;
-  const width = 132;
-  const height = 40;
-  const pad = 3;
-  const max = Math.max(...values, 1);
-  const points = values.map((value, i) => {
-    const x = pad + (i * (width - pad * 2)) / Math.max(values.length - 1, 1);
-    const y = height - pad - (value / max) * (height - pad * 2);
-    return [x, y] as const;
-  });
-
-  const ns = "http://www.w3.org/2000/svg";
-  const polyline = document.createElementNS(ns, "polyline");
-  polyline.setAttribute("points", points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" "));
-
-  const last = points[points.length - 1];
-  const children: SVGElement[] = [polyline];
-  if (last) {
-    const circle = document.createElementNS(ns, "circle");
-    circle.setAttribute("cx", last[0].toFixed(1));
-    circle.setAttribute("cy", last[1].toFixed(1));
-    circle.setAttribute("r", "3");
-    children.push(circle);
-  }
-  svg.replaceChildren(...children);
-}
-
-function renderMetricRow(usage: UsageSummaryResponse): void {
-  document.getElementById("metric-blocked-today")!.textContent = usage.today.total.toLocaleString();
-
-  const deltaEl = document.getElementById("metric-blocked-delta") as HTMLElement;
-  const deltaValueEl = document.getElementById("metric-blocked-delta-value") as HTMLElement;
-  const baselineEl = document.getElementById("metric-blocked-baseline") as HTMLElement;
-  const baseline = tFallback("optionsBlockedTodayBaseline", "ads and trackers stopped today");
-
-  if (usage.lastWeekSameWeekday) {
-    const lastWeekTotal = usage.lastWeekSameWeekday.total;
-    baselineEl.textContent =
-      baseline +
-      tFallback(
-        "optionsBlockedTodayComparison",
-        ` · vs ${lastWeekTotal.toLocaleString()} same day last week`,
-        String(lastWeekTotal)
-      );
-    if (lastWeekTotal > 0 && usage.today.total !== lastWeekTotal) {
-      const pct = Math.round(((usage.today.total - lastWeekTotal) / lastWeekTotal) * 100);
-      deltaEl.hidden = false;
-      deltaValueEl.textContent = `${pct > 0 ? "+" : ""}${pct}%`;
-    } else {
-      deltaEl.hidden = true;
-    }
-  } else {
-    baselineEl.textContent = baseline;
-    deltaEl.hidden = true;
-  }
-
-  renderSparkline(usage.sparkline);
-
-  document.getElementById("metric-sites-today")!.textContent = usage.today.hostnameCount.toLocaleString();
-
-  const onCount =
-    VISIBLE_PROTECTIONS.filter((def) => Boolean(lastSettings?.[def.settingKey])).length +
-    (lastSettings && isAnyPermissionGuardOn(lastSettings) ? 1 : 0);
-  const protectionsOnEl = document.getElementById("metric-protections-on") as HTMLElement;
-  const suffix = document.createElement("span");
-  suffix.className = "of-muted";
-  suffix.textContent = `/${TOTAL_PROTECTIONS}`;
-  protectionsOnEl.replaceChildren(String(onCount), suffix);
-}
-
-// ---------- Protection rows + drawer ----------
+// ---------- Setting rows ----------
 
 function evidenceTextFor(def: ProtectionDef, usage: UsageSummaryResponse): string | null {
   if (!def.signal) return null;
@@ -660,56 +562,45 @@ function buildSwitch(checked: boolean, labelledBy: string, onChange: (checked: b
 
 function buildProtectionRow(def: ProtectionDef, settings: Settings, usage: UsageSummaryResponse): HTMLElement {
   const checked = Boolean(settings[def.settingKey]);
-  const row = document.createElement("div");
-  row.className = openDrawerId === def.id ? "protection-row selected" : "protection-row";
-  row.tabIndex = 0;
-  row.setAttribute("role", "button");
-  row.setAttribute("aria-expanded", String(openDrawerId === def.id));
+  const titleId = `protection-${def.id}-label`;
+  const extra: HTMLElement[] = [];
 
-  const body = document.createElement("div");
-  body.className = "row-body";
-  const title = document.createElement("span");
-  title.className = checked ? "row-title" : "row-title off";
-  title.id = `protection-${def.id}-label`;
-  title.textContent = tFallback(...def.titleKey);
-  body.append(title);
-
+  // What used to hide in a side drawer is shown inline: the caution (amber)
+  // and, for the CNAME row, how well it works in this browser.
+  if (def.id === "cname") {
+    const firefoxSupported = isCnameUncloakFirefoxSupported();
+    const chromeSupported = isCnameUncloakChromeSupported();
+    if (!firefoxSupported && !chromeSupported) extra.push(buildLine("setting-caution", cnameUnsupportedHint));
+    else if (chromeSupported) extra.push(buildLine("setting-desc", cnameChromeDohHint));
+  }
+  if (def.cautionKey) extra.push(buildLine("setting-caution", tFallback(...def.cautionKey)));
   if (checked) {
     const evidence = evidenceTextFor(def, usage);
-    if (evidence) {
-      const evidenceEl = document.createElement("span");
-      evidenceEl.className = "row-evidence";
-      evidenceEl.textContent = evidence;
-      body.append(evidenceEl);
-    }
+    if (evidence) extra.push(buildLine("setting-evidence", evidence));
   }
 
-  const toggle = buildSwitch(checked, title.id, (next) => {
+  const control = buildSwitch(checked, titleId, (next) => {
+    if (next) row.classList.add("pop");
     void setSettings({ [def.settingKey]: next } as Partial<Pick<Settings, SettingsPatchField>>).then(() => render());
   });
-
-  row.append(body, toggle);
-  row.addEventListener("click", () => toggleDrawer(def.id));
-  row.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      toggleDrawer(def.id);
-    }
+  const row = buildSettingRow({
+    icon: def.id,
+    titleId,
+    title: tFallback(...def.titleKey),
+    desc: tFallback(...def.descKey),
+    on: checked,
+    extra,
+    control,
   });
-
   return row;
 }
 
 function buildFingerprintRotateRow(settings: Settings): HTMLElement {
   const row = document.createElement("div");
-  row.className = "protection-subrow";
+  row.className = "setting-subrow";
   const title = document.createElement("span");
-  title.className = "row-title";
   title.id = "fingerprint-rotate-toggle-label";
-  title.textContent = tFallback(
-    "optionsFingerprintRotateToggleLabel",
-    "Use a new disguise each time you restart"
-  );
+  title.textContent = tFallback("optionsFingerprintRotateToggleLabel", "Use a new disguise each time you restart");
   const toggle = buildSwitch(settings.fingerprintRotatePerSession, title.id, (next) => {
     void setSettings({ fingerprintRotatePerSession: next }).then(() => render());
   });
@@ -718,28 +609,6 @@ function buildFingerprintRotateRow(settings: Settings): HTMLElement {
 }
 
 function buildPermissionGuardRow(settings: Settings): HTMLElement {
-  const row = document.createElement("div");
-  row.className = "protection-row";
-
-  const body = document.createElement("div");
-  body.className = "row-body";
-  const title = document.createElement("span");
-  title.className = isAnyPermissionGuardOn(settings) ? "row-title" : "row-title off";
-  title.textContent = tFallback("optionsPermissionGuardMergedLabel", "Block ambush permission prompts");
-  body.append(title);
-
-  // This is the one protection row with no explanatory line at all -- every
-  // other row either shows this via its drawer or an always-visible
-  // subtitle. optionsPermissionGuardMergedDesc already existed, translated,
-  // written specifically for this row, just never actually rendered.
-  const description = document.createElement("span");
-  description.className = "row-evidence";
-  description.textContent = tFallback(
-    "optionsPermissionGuardMergedDesc",
-    "Sets every site's camera, microphone, and location prompts to blocked by default, so a page can't surprise you with one on load. Allow a specific site from the popup when you trust it."
-  );
-  body.append(description);
-
   const chips = document.createElement("div");
   chips.className = "permission-chips";
   const kinds = [
@@ -754,148 +623,40 @@ function buildPermissionGuardRow(settings: Settings): HTMLElement {
     chip.className = on ? "chip on" : "chip";
     chip.setAttribute("aria-pressed", String(on));
     chip.textContent = tFallback(kind.labelKey[0], kind.labelKey[1]);
-    chip.addEventListener("click", (event) => {
-      event.stopPropagation();
+    chip.addEventListener("click", () => {
       void setSettings({ [kind.key]: !on } as Partial<Pick<Settings, SettingsPatchField>>).then(() => render());
     });
     chips.append(chip);
   }
-  body.append(chips);
-  row.append(body);
-  return row;
-}
-
-function renderBars(values: number[]): HTMLElement[] {
-  const max = Math.max(...values, 1);
-  return values.map((value, i) => {
-    const bar = document.createElement("div");
-    bar.className = i >= values.length - 2 ? "bar recent" : "bar";
-    bar.style.height = `${Math.max((value / max) * 100, value > 0 ? 8 : 0)}%`;
-    return bar;
+  return buildSettingRow({
+    icon: "permissionGuard",
+    titleId: "protection-permissionGuard-label",
+    title: tFallback("optionsPermissionGuardMergedLabel", "Block surprise permission requests"),
+    desc: tFallback(
+      "optionsPermissionGuardMergedDesc",
+      "Stops pages asking for your camera, microphone or location the moment they load. Allow a site from the popup when you trust it."
+    ),
+    on: isAnyPermissionGuardOn(settings),
+    extra: [chips],
   });
 }
-
-function populateDrawer(id: string): void {
-  const def = VISIBLE_PROTECTIONS.find((p) => p.id === id);
-  if (!def || !lastSettings) return;
-  const settings = lastSettings;
-  const usage = lastUsage;
-  const checked = Boolean(settings[def.settingKey]);
-
-  drawerTitleEl.textContent = tFallback(...def.titleKey);
-  let state = checked ? tFallback("optionsDrawerStateOn", "On") : tFallback("optionsDrawerStateOff", "Off");
-  if (def.id === "fingerprint" && checked && settings.fingerprintRotatePerSession) {
-    state += ` · ${tFallback("optionsDrawerStateAdvanced", "advanced")}`;
-  }
-  drawerStateEl.textContent = state;
-  drawerToggleEl.checked = checked;
-  drawerToggleEl.onchange = () => {
-    void setSettings({ [def.settingKey]: drawerToggleEl.checked } as Partial<Pick<Settings, SettingsPatchField>>).then(() => render());
-  };
-
-  const signalSummary = def.signal && usage ? usage.bySignal[def.signal] : undefined;
-  if (def.signal && signalSummary) {
-    const value =
-      def.evidenceUnit === "today"
-        ? def.id === "grayscale"
-          ? signalSummary.todayCount
-          : signalSummary.todayHostnameCount
-        : signalSummary.weekHostnameCount;
-    drawerMetricWrapEl.hidden = false;
-    drawerMetricValueEl.textContent = value.toLocaleString();
-    drawerMetricLabelEl.textContent = def.metricLabelKey ? tFallback(...def.metricLabelKey) : "";
-    drawerBarsWrapEl.hidden = false;
-    drawerBarsEl.replaceChildren(...renderBars(signalSummary.sevenDayBars));
-  } else {
-    drawerMetricWrapEl.hidden = true;
-    drawerBarsWrapEl.hidden = true;
-  }
-
-  drawerDescEl.replaceChildren(tFallback(...def.descKey));
-  if (def.id === "cname") {
-    const firefoxSupported = isCnameUncloakFirefoxSupported();
-    const chromeSupported = isCnameUncloakChromeSupported();
-    if (!firefoxSupported && !chromeSupported) {
-      drawerDescEl.append(document.createElement("br"), document.createElement("br"), cnameUnsupportedHint);
-    } else if (chromeSupported) {
-      drawerDescEl.append(document.createElement("br"), document.createElement("br"), cnameChromeDohHint);
-    }
-  }
-
-  if (def.cautionKey) {
-    drawerCautionEl.hidden = false;
-    drawerCautionTextEl.textContent = tFallback(...def.cautionKey);
-  } else {
-    drawerCautionEl.hidden = true;
-  }
-}
-
-function toggleDrawer(id: string): void {
-  if (openDrawerId === id) {
-    closeDrawer();
-  } else {
-    openDrawerId = id;
-    drawer.hidden = false;
-    // Only reserve the drawer's 352px gutter once a row is actually open --
-    // see options.html's .has-drawer comment. Reserving it just for being on
-    // the Protection tab would waste a third of the page width even when
-    // nothing's selected, and make Protection visibly narrower than every
-    // other tab at rest.
-    contentColumn.classList.add("has-drawer");
-    populateDrawer(id);
-  }
-  if (lastSettings && lastUsage) renderProtectionGroups(lastSettings, lastUsage);
-}
-
-document.addEventListener("click", (event) => {
-  if (!openDrawerId || drawer.hidden) return;
-  const target = event.target as HTMLElement;
-  if (drawer.contains(target) || target.closest(".protection-row")) return;
-  closeDrawer();
-});
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && openDrawerId) closeDrawer();
-});
-
-drawerCloseEl.addEventListener("click", () => closeDrawer());
 
 function renderProtectionGroups(settings: Settings, usage: UsageSummaryResponse): void {
-  const groups = GROUP_ORDER.map((group) => {
-    const defs = VISIBLE_PROTECTIONS.filter((def) => def.group === group);
-    const extra = group === "safety" ? 1 : 0; // the merged permission-guard row
-    const onCount =
-      defs.filter((def) => Boolean(settings[def.settingKey])).length +
-      (group === "safety" && isAnyPermissionGuardOn(settings) ? 1 : 0);
-    const total = defs.length + extra;
+  const isFeature = (def: ProtectionDef): boolean => (FEATURE_IDS as readonly string[]).includes(def.id);
 
-    const heading = document.createElement("div");
-    heading.className = "group-heading";
-    const labelWrap = document.createElement("span");
-    labelWrap.className = "group-heading-main";
-    const icon = buildLineIcon(CATEGORY_ICON_DEFS[group].paths, CATEGORY_ICON_DEFS[group].rect);
-    const label = document.createElement("span");
-    label.textContent = tFallback(...GROUP_LABELS[group]);
-    labelWrap.append(icon, label);
-    const count = document.createElement("span");
-    count.className = "group-count";
-    count.textContent = tFallback("optionsGroupOnCount", `${onCount} of ${total} on`, [String(onCount), String(total)]);
-    heading.append(labelWrap, count);
+  featureRowsEl.replaceChildren(
+    ...FEATURE_IDS.map((id) => VISIBLE_PROTECTIONS.find((def) => def.id === id))
+      .filter((def): def is ProtectionDef => def !== undefined)
+      .map((def) => buildProtectionRow(def, settings, usage))
+  );
 
-    const rowGroup = document.createElement("div");
-    rowGroup.className = "row-group";
-    for (const def of defs) {
-      rowGroup.append(buildProtectionRow(def, settings, usage));
-      if (def.id === "fingerprint" && settings.fingerprintResistance) {
-        rowGroup.append(buildFingerprintRotateRow(settings));
-      }
-    }
-    if (group === "safety") rowGroup.append(buildPermissionGuardRow(settings));
-
-    return [heading, rowGroup];
-  });
-
-  protectionGroupsEl.replaceChildren(...groups.flat());
+  const advancedRows: HTMLElement[] = [];
+  for (const def of VISIBLE_PROTECTIONS.filter((d) => !isFeature(d))) {
+    advancedRows.push(buildProtectionRow(def, settings, usage));
+    if (def.id === "fingerprint" && settings.fingerprintResistance) advancedRows.push(buildFingerprintRotateRow(settings));
+  }
+  advancedRows.push(buildPermissionGuardRow(settings));
+  protectionGroupsEl.replaceChildren(...advancedRows);
 }
 
 async function renderProtectionTab(settings: Settings, policy: Awaited<ReturnType<typeof getManagedPolicy>>): Promise<void> {
@@ -903,17 +664,16 @@ async function renderProtectionTab(settings: Settings, policy: Awaited<ReturnTyp
   masterToggle.checked = settings.enabled;
   masterToggle.disabled = protectionLocked;
   protectionLockedBadge.hidden = !protectionLocked;
-  railDotProtection.hidden = !settings.enabled;
+  masterStatusTitle.textContent = settings.enabled
+    ? tFallback("settingsStatusOn", "Moat is on")
+    : tFallback("settingsStatusOff", "Moat is off");
 
   const usage = await getUsageSummary();
   lastSettings = settings;
   lastUsage = usage;
 
-  renderMetricRow(usage);
+  document.getElementById("metric-blocked-today")!.textContent = usage.today.total.toLocaleString();
   renderProtectionGroups(settings, usage);
-  if (openDrawerId) populateDrawer(openDrawerId);
-
-  railCountTrackers.textContent = String(usage.companiesThisWeek.length);
 }
 
 masterToggle.addEventListener("change", async () => {
@@ -980,7 +740,7 @@ const PRESET_HINTS: Record<PresetName | "custom", { key: string; fallback: strin
   lite: { key: "presetHintLite", fallback: "Like Essential, without the largest security list." },
   essential: { key: "presetHintEssential", fallback: "Ads, popups, and known-malicious sites." },
   standard: { key: "presetHintStandard", fallback: "Ads, trackers, and known-malicious sites." },
-  strict: { key: "presetHintStrict", fallback: "Every list, plus the privacy toggles above." },
+  strict: { key: "presetHintStrict", fallback: "Every list, plus all the Privacy extras." },
   custom: { key: "presetHintCustom", fallback: "A mix you've set up yourself." },
 };
 
@@ -1009,48 +769,24 @@ async function loadRulesetManifest(): Promise<RulesetManifestEntry[] | null> {
   }
 }
 
-async function countEnabledFilterLists(settings: Settings): Promise<number> {
-  const manifest = await loadRulesetManifest();
-  if (!manifest) return 0;
-  const lists = summarizeFilterLists(manifest);
-  const state = effectiveFilterGroupState(
-    settings.enabled,
-    settings.filterGroups,
-    lists.map((list) => list.group)
-  );
-  return Object.values(state).filter(Boolean).length;
-}
+// Read by the About section's "rules" line so both places always show the
+// same number.
+let activeRuleCountText = "—";
 
-/** Real, not a fabricated span -- "1h"/"45m"/"3d" since the live-update
- * channel's own last-recorded check, same rounding idiom as logger.ts's
- * formatSince for the rule-match log. */
-function formatSinceShort(when: number): string {
-  const minutes = Math.max(0, Math.round((Date.now() - when) / 60_000));
-  if (minutes < 60) return `${minutes}m`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h`;
-  return `${Math.round(hours / 24)}d`;
-}
-
-async function renderFilterListsMetricRow(
-  settings: Settings,
-  lists: ReturnType<typeof summarizeFilterLists>,
-  liveStatus: Awaited<ReturnType<typeof getLiveUpdateStatus>>
-): Promise<void> {
+function renderFilterBudget(settings: Settings, lists: ReturnType<typeof summarizeFilterLists>): void {
   const state = effectiveFilterGroupState(
     settings.enabled,
     settings.filterGroups,
     lists.map((list) => list.group)
   );
   const activeRuleCount = lists.filter((list) => state[list.group]).reduce((sum, list) => sum + list.ruleCount, 0);
+  activeRuleCountText = activeRuleCount.toLocaleString();
 
-  document.getElementById("filters-metric-active")!.textContent = activeRuleCount.toLocaleString();
-  document.getElementById("filters-metric-baseline")!.textContent = tFallback(
-    "optionsRulesActiveBaseline",
-    `rules active · Chrome's cap is ${CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString()}`,
-    CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString()
+  document.getElementById("filters-budget-line")!.textContent = tFallback(
+    "advBudgetLine",
+    `Chrome lets all your extensions use ${CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString()} blocking rules in total. Moat is using ${activeRuleCountText}.`,
+    [CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString(), activeRuleCountText]
   );
-
   const percent = Math.min(100, Math.round((activeRuleCount / CHROME_GLOBAL_STATIC_RULE_LIMIT) * 100));
   const fill = document.getElementById("filters-budget-fill") as HTMLElement;
   fill.style.width = `${percent}%`;
@@ -1060,11 +796,6 @@ async function renderFilterListsMetricRow(
     `${percent}% of budget used`,
     String(percent)
   );
-
-  document.getElementById("filters-metric-live")!.textContent = (liveStatus?.domainCount ?? 0).toLocaleString();
-  document.getElementById("filters-metric-since-check")!.textContent = liveStatus
-    ? formatSinceShort(liveStatus.timestamp)
-    : "—";
 }
 
 /** Updated synchronously (before any await) on every checkbox change below,
@@ -1072,6 +803,28 @@ async function renderFilterListsMetricRow(
  * other's already-applied change instead of racing two independent
  * getSettings() reads and clobbering one write with the other. */
 let currentFilterGroups: Settings["filterGroups"] | null = null;
+
+// The three presets offered on the main panel. Essential and a hand-picked
+// mix ("custom") stay reachable from Advanced settings -> Filter lists; when
+// one of those is active, no card is selected and a note says where to go.
+const MAIN_LEVELS = ["lite", "standard", "strict"] as const;
+const levelCards = document.querySelectorAll<HTMLButtonElement>("#level-cards .level");
+const levelNote = document.getElementById("level-note") as HTMLElement;
+
+function renderLevels(preset: PresetName | "custom", locked: boolean): void {
+  for (const card of levelCards) {
+    card.setAttribute("aria-checked", String(card.dataset.level === preset));
+    card.disabled = locked;
+  }
+  levelNote.hidden = (MAIN_LEVELS as readonly string[]).includes(preset) || preset === "off";
+}
+
+for (const card of levelCards) {
+  card.addEventListener("click", async () => {
+    await setSettings(presetPatch(card.dataset.level as PresetName));
+    await render();
+  });
+}
 
 async function renderFilterLists(settings: Settings, droppedGroups: Set<string>): Promise<void> {
   const manifest = await loadRulesetManifest();
@@ -1093,54 +846,38 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
     button.setAttribute("aria-pressed", String(button.dataset.preset === preset));
   }
 
-  await renderFilterListsMetricRow(settings, lists, await getLiveUpdateStatus());
+  renderFilterBudget(settings, lists);
 
   const matchesMessage: GetFilterListMatchesMessage = { type: "get-filter-list-matches" };
   const matches = (await browser.runtime.sendMessage(matchesMessage)) as FilterListMatchesResponse;
 
-  filterListRows.replaceChildren();
-  for (const list of lists.sort((a, b) => b.ruleCount - a.ruleCount)) {
-    const row = document.createElement("div");
-    row.className = "protection-row";
-
-    const body = document.createElement("div");
-    body.className = "row-body";
-    const name = document.createElement("span");
-    name.className = "row-title";
-    name.id = `filter-list-${list.group}-label`;
-    name.textContent = list.name;
-    body.append(name);
-
-    const matchCount = matches.matchesByGroup[list.group] ?? 0;
-    const countText = tFallback("optionsRuleCount", `${list.ruleCount.toLocaleString()} rules`, list.ruleCount.toLocaleString());
-    const matchedSuffix =
-      matchCount > 0 ? tFallback("optionsFilterMatchedOnPage", ` · matched ${matchCount} times on this page`, String(matchCount)) : "";
-    const evidence = document.createElement("span");
-    evidence.className = "row-evidence";
-    evidence.textContent = countText + matchedSuffix;
-    body.append(evidence);
-
-    // The toggle below reflects what the user *asked for* (settings.filterGroups), which isn't
-    // necessarily what's actually enabled in Chrome right now -- a toggle showing "on" while the
-    // browser's shared rule budget silently kept it off would be actively misleading, so this
-    // list's own row gets a visible badge instead of just relying on the summary text above the
-    // list (see applyFilterGroupState's drop-priority retry in background/filterGroups.ts).
-    if (droppedGroups.has(list.group)) {
-      const badge = document.createElement("span");
-      badge.className = "locked-badge budget-badge";
-      badge.textContent = tFallback("optionsFilterBudgetDroppedBadge", "Not active (browser limit reached)");
-      body.append(badge);
-    }
-
-    const toggle = buildSwitch(settings.filterGroups[list.group] ?? true, name.id, (checked) => {
-      const updated = { ...(currentFilterGroups ?? settings.filterGroups), [list.group]: checked };
-      currentFilterGroups = updated;
-      void setSettings({ filterGroups: updated }).then(() => render());
-    });
-
-    row.append(body, toggle);
-    filterListRows.append(row);
-  }
+  filterListRows.replaceChildren(
+    ...lists
+      .sort((a, b) => b.ruleCount - a.ruleCount)
+      .map((list) => {
+        const titleId = `filter-list-${list.group}-label`;
+        const matchCount = matches.matchesByGroup[list.group] ?? 0;
+        const countText = tFallback("optionsRuleCount", `${list.ruleCount.toLocaleString()} rules`, list.ruleCount.toLocaleString());
+        const matchedSuffix =
+          matchCount > 0 ? tFallback("optionsFilterMatchedOnPage", ` · matched ${matchCount} times on this page`, String(matchCount)) : "";
+        const extra: HTMLElement[] = [];
+        // The toggle reflects what the user *asked for* (settings.filterGroups),
+        // which isn't necessarily what's enabled in Chrome right now -- a list
+        // the shared rule budget kept off gets a visible badge on its own row
+        // (see applyFilterGroupState's drop-priority retry in
+        // background/filterGroups.ts).
+        if (droppedGroups.has(list.group)) {
+          extra.push(buildLine("locked-badge budget-badge", tFallback("optionsFilterBudgetDroppedBadge", "Not active (browser limit reached)")));
+        }
+        const on = settings.filterGroups[list.group] ?? true;
+        const control = buildSwitch(on, titleId, (checked) => {
+          const updated = { ...(currentFilterGroups ?? settings.filterGroups), [list.group]: checked };
+          currentFilterGroups = updated;
+          void setSettings({ filterGroups: updated }).then(() => render());
+        });
+        return buildSettingRow({ icon: "list", titleId, title: list.name, desc: countText + matchedSuffix, on, extra, control });
+      })
+  );
 }
 
 for (const button of presetRow.querySelectorAll<HTMLButtonElement>("[data-preset]")) {
@@ -1209,6 +946,7 @@ const hiddenElementRows = document.getElementById("hidden-element-rows") as HTML
 const hiddenElementEmpty = document.getElementById("hidden-element-empty") as HTMLElement;
 const grayscaleElementRows = document.getElementById("grayscale-element-rows") as HTMLElement;
 const grayscaleElementEmpty = document.getElementById("grayscale-element-empty") as HTMLElement;
+const grayscaleElementBlock = document.getElementById("grayscale-element-block") as HTMLElement;
 const pickElementButton = document.getElementById("pick-element-button") as HTMLButtonElement;
 const pickElementStatus = document.getElementById("pick-element-status") as HTMLElement;
 
@@ -1323,45 +1061,6 @@ function renderRuleGroup(
   container.replaceChildren(...rows.map((r) => buildRuleRow(kind, r.hostname, r.selector, stats, onRemove, rerenderSelf)));
 }
 
-function countCustomRules(settings: Settings): number {
-  const hide = Object.values(settings.customCosmeticRules).reduce((sum, selectors) => sum + selectors.length, 0);
-  const gray = Object.values(settings.customGrayscaleRules).reduce((sum, selectors) => sum + selectors.length, 0);
-  return hide + gray;
-}
-
-async function renderCustomRulesMetricRow(settings: Settings): Promise<void> {
-  const stats = await getCustomRuleStats();
-  const hideEntries = Object.entries(settings.customCosmeticRules).flatMap(([hostname, selectors]) =>
-    selectors.map((selector) => ({ kind: "hide" as const, hostname, selector }))
-  );
-  const grayEntries = Object.entries(settings.customGrayscaleRules).flatMap(([hostname, selectors]) =>
-    selectors.map((selector) => ({ kind: "gray" as const, hostname, selector }))
-  );
-  const all = [...hideEntries, ...grayEntries];
-  const now = Date.now();
-
-  let staleCount = 0;
-  let totalHits = 0;
-  for (const entry of all) {
-    const stat = stats[customRuleStatKey(entry.kind, entry.hostname, entry.selector)];
-    if (!stat) continue;
-    totalHits += stat.hitCount;
-    if (isStale(stat, now)) staleCount += 1;
-  }
-
-  const siteCount = new Set(all.map((entry) => entry.hostname)).size;
-  document.getElementById("custom-metric-count")!.textContent = String(all.length);
-  document.getElementById("custom-metric-baseline")!.textContent =
-    tFallback("optionsCustomRulesBaseline", `${all.length} rules, across ${siteCount} sites`, [
-      String(all.length),
-      String(siteCount),
-    ]) +
-    " · " +
-    tFallback("optionsHiddenTimesBaseline", `Hidden ${totalHits} times so far`, String(totalHits));
-  document.getElementById("custom-metric-matching")!.textContent = String(all.length - staleCount);
-  document.getElementById("custom-metric-stale")!.textContent = String(staleCount);
-}
-
 pickElementButton.addEventListener("click", async () => {
   pickElementStatus.hidden = true;
   const message: StartElementPickerMessage = { type: "start-element-picker" };
@@ -1460,11 +1159,9 @@ async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy
   const manifest = browser.runtime.getManifest();
   versionNumberEl.textContent = manifest.version;
   versionBuildEl.textContent = isFirefoxPrivacyWebsitesSupported ? tFallback("commonFirefox", "Firefox") : tFallback("commonChrome", "Chrome");
-  // Reads the Filter Lists tab's own already-rendered hero number rather
-  // than recomputing it -- render() always populates that element before
-  // this runs, and the two must never drift apart into two different
-  // "rules active" claims on the same page.
-  versionRulesEl.textContent = document.getElementById("filters-metric-active")?.textContent || "—";
+  // Same number the Filter lists budget line shows -- render() computes it
+  // before this runs, so the two can never disagree.
+  versionRulesEl.textContent = activeRuleCountText;
   const liveUpdateStatus = await getLiveUpdateStatus();
   versionUpdatedEl.textContent = liveUpdateStatus
     ? new Date(liveUpdateStatus.timestamp).toLocaleDateString()
@@ -1530,7 +1227,7 @@ async function rerenderHiddenElementList(): Promise<void> {
     removeCustomCosmeticRule,
     rerenderHiddenElementList
   );
-  await renderCustomRulesMetricRow(settings);
+  grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
 }
 
 async function rerenderGrayscaleElementList(): Promise<void> {
@@ -1544,7 +1241,7 @@ async function rerenderGrayscaleElementList(): Promise<void> {
     removeGrayscaleRule,
     rerenderGrayscaleElementList
   );
-  await renderCustomRulesMetricRow(settings);
+  grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
 }
 
 async function render(): Promise<void> {
@@ -1594,7 +1291,7 @@ async function render(): Promise<void> {
   for (const button of presetRow.querySelectorAll<HTMLButtonElement>("[data-preset]")) button.disabled = filtersLocked;
   await renderFilterLists(settings, new Set(filterGroupStatus?.droppedGroups ?? []));
   for (const input of filterListRows.querySelectorAll("input")) input.disabled = filtersLocked;
-  railCountFilters.textContent = String(await countEnabledFilterLists(settings));
+  renderLevels(detectPreset(settings), filtersLocked);
 
   renderDomainList(
     customBlockList,
@@ -1631,8 +1328,9 @@ async function render(): Promise<void> {
     removeGrayscaleRule,
     rerenderGrayscaleElementList
   );
-  await renderCustomRulesMetricRow(settings);
-  railCountCustom.textContent = String(countCustomRules(settings));
+  // The "Grayed out" block only appears once someone has actually grayed
+  // something out -- most people never will, so it stays out of the way.
+  grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
 
   await renderBackupTab(settings);
   await renderAboutTab(policy);
@@ -1662,8 +1360,6 @@ const importSettingsApplyButton = document.getElementById("import-settings-apply
 const importSettingsCancelButton = document.getElementById("import-settings-cancel-button") as HTMLButtonElement;
 const exportFilenameEl = document.getElementById("export-filename") as HTMLElement;
 const backupMetricLastEl = document.getElementById("backup-metric-last") as HTMLElement;
-const backupMetricSizeEl = document.getElementById("backup-metric-size") as HTMLElement;
-const backupMetricSyncEl = document.getElementById("backup-metric-sync") as HTMLElement;
 const syncRecipientEl = document.getElementById("sync-recipient") as HTMLElement;
 
 /** Same name the export button itself downloads -- so the hint above it and
@@ -1697,15 +1393,8 @@ async function renderBackupTab(settings: Settings): Promise<void> {
   exportFilenameEl.textContent = exportFilename();
   syncToggle.checked = settings.syncEnabled;
   syncRecipientEl.textContent = SYNC_VENDOR_NAME;
-  backupMetricSyncEl.textContent = settings.syncEnabled ? tFallback("commonOn", "On") : tFallback("commonOff", "Off");
-
-  const exportMessage: ExportSettingsMessage = { type: "export-settings" };
-  const exported = await browser.runtime.sendMessage(exportMessage);
-  const exportedBytes = new Blob([JSON.stringify(exported)]).size;
-  backupMetricSizeEl.textContent = tFallback("optionsBackupSizeBytes", `${exportedBytes.toLocaleString()} B`, String(exportedBytes));
 
   const lastBackupAt = await getLastBackupAt();
-  railDotBackup.hidden = lastBackupAt !== null;
   if (lastBackupAt === null) {
     backupMetricLastEl.textContent = tFallback("commonNever", "Never");
     backupMetricLastEl.classList.add("caution");
@@ -1714,20 +1403,6 @@ async function renderBackupTab(settings: Settings): Promise<void> {
     backupMetricLastEl.classList.remove("caution");
   }
 
-  // "Protection settings" preserved by a backup: every toggle on the
-  // Protection tab, on or off -- VISIBLE_PROTECTIONS plus the three
-  // permission-guard booleans it merges into one row (see
-  // isAnyPermissionGuardOn above).
-  document.getElementById("bm-protections")!.textContent = String(VISIBLE_PROTECTIONS.length + 3);
-  // Element-picker rules plus the custom block-domain list -- both are
-  // user-authored blocking rules, just keyed differently (selector vs.
-  // hostname). customAllowedDomains is the opposite of a rule (see its own
-  // "Exceptions" doc comment in types.ts) and counted below instead.
-  document.getElementById("bm-rules")!.textContent = String(countCustomRules(settings) + settings.customBlockedDomains.length);
-  document.getElementById("bm-exceptions")!.textContent = String(
-    settings.disabledSites.length + settings.customAllowedDomains.length
-  );
-  document.getElementById("bm-lists")!.textContent = String(Object.keys(settings.filterGroups).length);
 }
 
 // ---------- Trackers tab ----------
@@ -1742,14 +1417,13 @@ const trackersRefresh = document.getElementById("trackers-refresh") as HTMLAncho
  * above the existing live per-tab breakdown below -- unrelated data
  * sources, both real, shown together. */
 function renderWeeklyTrackers(usage: UsageSummaryResponse): void {
-  document.getElementById("weekly-metric-companies")!.textContent = usage.companiesThisWeek.length.toLocaleString();
-  renderSparkline(usage.companiesTrend, "weekly-sparkline");
-
-  const totalAttempts = usage.companiesThisWeek.reduce((sum, company) => sum + company.count, 0);
-  document.getElementById("weekly-metric-attempts")!.textContent = totalAttempts.toLocaleString();
-  // "got through" stays a hardcoded 0 in the markup -- Moat has no signal
-  // for a tracker that got through undetected (there would be nothing to
-  // count), so showing anything else here would be a fabricated number.
+  const companies = usage.companiesThisWeek.length.toLocaleString();
+  const attempts = usage.companiesThisWeek.reduce((sum, company) => sum + company.count, 0).toLocaleString();
+  document.getElementById("weekly-tracker-summary")!.textContent = tFallback(
+    "advTrackersSummary",
+    `${companies} companies · ${attempts} attempts blocked this week`,
+    [companies, attempts]
+  );
 
   const container = document.getElementById("weekly-tracker-rows") as HTMLElement;
   const top = usage.companiesThisWeek.slice(0, 20);

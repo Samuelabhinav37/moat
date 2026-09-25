@@ -132,7 +132,7 @@
     "message": "Traqueurs"
   },
   "tabAbout": {
-    "message": "À propos"
+    "message": "À propos de Moat"
   },
   "optionsTagline": {
     "message": "Bloque les publicités, les traqueurs et les pop-ups détournés."
@@ -147,43 +147,43 @@
     "message": "Géré par votre organisation"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Empêcher les sites de vous suivre sur le web"
+    "message": "Bloquer les cookies intersites"
   },
   "optionsCookiesToggleHint": {
-    "message": "Empêche les sites de vous suivre d'un site à l'autre (bloque les cookies tiers)."
+    "message": "Empêche les sites de vous suivre d'un site web à l'autre."
   },
   "optionsWebrtcToggleLabel": {
-    "message": "Empêcher les fuites d'adresse IP"
+    "message": "Garder votre adresse IP privée"
   },
   "optionsWebrtcToggleHint": {
-    "message": "Empêche un site de voir votre adresse IP réelle lorsque vous utilisez un VPN."
+    "message": "Empêche les pages de trouver votre vraie adresse IP via les fonctions d'appel vidéo, même derrière un VPN."
   },
   "optionsFingerprintToggleLabel": {
-    "message": "Empêcher les sites de reconnaître votre appareil"
+    "message": "Bloquer l'empreinte de l'appareil"
   },
   "optionsFingerprintRotateToggleLabel": {
     "message": "Utiliser un nouveau déguisement à chaque redémarrage"
   },
   "optionsGrayscaleToggleLabel": {
-    "message": "Estomper les publicités vidéo non bloquables"
+    "message": "Atténuer les publicités YouTube"
   },
   "optionsGrayscaleToggleHint": {
-    "message": "Met automatiquement en niveaux de gris les publicités vidéo intégrées, comme celles de YouTube, qui ne peuvent pas être entièrement supprimées."
+    "message": "Les publicités vidéo impossibles à bloquer passent en gris pendant leur lecture."
   },
   "optionsFeedScanToggleLabel": {
-    "message": "Masquer agressivement les publications sponsorisées"
+    "message": "Masquer les publications sponsorisées"
   },
   "optionsFeedScanToggleHint": {
-    "message": "Analyse et supprime les publications sponsorisées ou promues des réseaux sociaux au fil du défilement. (Désactivé par défaut)"
+    "message": "Retire les publications sponsorisées des fils Instagram, LinkedIn et YouTube."
   },
   "optionsConsentRejectToggleLabel": {
-    "message": "Refuser automatiquement les bandeaux de cookies"
+    "message": "Refuser les bannières de cookies"
   },
   "optionsConsentRejectToggleHint": {
-    "message": "Clique automatiquement sur refuser ou décliner sur les principaux bandeaux de consentement. (Désactivé par défaut)"
+    "message": "Répond à votre place aux fenêtres de consentement, en partageant le moins possible."
   },
   "optionsCnameToggleLabel": {
-    "message": "Détecter les traqueurs déguisés"
+    "message": "Repérer les traqueurs cachés"
   },
   "optionsCnameUnsupportedHint": {
     "message": "Non disponible dans ce navigateur."
@@ -195,10 +195,10 @@
     "message": "Pas encore vérifié."
   },
   "optionsExceptionsTitle": {
-    "message": "Sites en pause"
+    "message": "Sites mis en pause"
   },
   "optionsExceptionsHint": {
-    "message": "Moat est entièrement désactivé sur ces sites, et sur toute page qui s'y trouve."
+    "message": "Moat est désactivé sur ces sites. Pour en mettre un en pause, cliquez sur l'icône de Moat sur ce site et basculez l'interrupteur."
   },
   "optionsNoSitesAdded": {
     "message": "Aucun site ajouté."
@@ -244,7 +244,7 @@
     "message": "Essentiel"
   },
   "presetStandard": {
-    "message": "Standard"
+    "message": "Équilibré"
   },
   "presetStrict": {
     "message": "Strict"
@@ -253,13 +253,13 @@
     "message": "Listes de filtres individuelles"
   },
   "optionsIndividualListsHint": {
-    "message": "Activez ou désactivez chaque liste vous-même. Modifier l'une d'elles fait passer votre niveau de filtrage à Personnalisé."
+    "message": "Les listes derrière « Quel niveau de blocage ». En modifier une ici passe votre niveau en Personnalisé."
   },
   "optionsLoadListsError": {
     "message": "Impossible de charger les listes de filtres."
   },
   "optionsBlockedSitesTitle": {
-    "message": "Sites bloqués"
+    "message": "Toujours bloquer"
   },
   "optionsBlockedSitesHint": {
     "message": "Bloque toujours ces domaines, quelles que soient les listes de filtres."
@@ -274,7 +274,7 @@
     "message": "Bloquer"
   },
   "optionsAllowedSitesTitle": {
-    "message": "Sites autorisés"
+    "message": "Ne jamais bloquer"
   },
   "optionsAllowedSitesHint": {
     "message": "Ne bloque jamais ces domaines, même si une liste de filtres ou une règle personnalisée l'indique."
@@ -283,16 +283,16 @@
     "message": "Autoriser"
   },
   "optionsHiddenElementsTitle": {
-    "message": "Éléments masqués"
+    "message": "Éléments que vous avez masqués"
   },
   "optionsHiddenElementsHint": {
-    "message": "Éléments que vous avez supprimés avec l'outil \"Bloquer un élément\" de la barre d'outils. Supprimez-les ici pour les restaurer."
+    "message": "Parties de pages retirées avec Bloquer un élément. Supprimez-en une pour la faire revenir."
   },
   "optionsNothingSelected": {
     "message": "Rien de sélectionné pour l'instant."
   },
   "optionsDimmedElementsTitle": {
-    "message": "Éléments estompés"
+    "message": "Grisés"
   },
   "optionsDimmedElementsHint": {
     "message": "Éléments que vous avez choisi d'\"Estomper\". Supprimez-les ici pour restaurer leur visibilité normale."
@@ -347,10 +347,10 @@
     "message": "Licences tierces"
   },
   "optionsSyncToggleLabel": {
-    "message": "Synchroniser les paramètres entre les appareils"
+    "message": "Synchroniser entre appareils"
   },
   "optionsSyncToggleHint": {
-    "message": "Confie vos paramètres Moat à votre compte de navigateur afin de les transporter d'un appareil à l'autre. Aucune donnée de navigation ne quitte votre appareil, mais c'est le seul contrôle de cette page qui envoie quoi que ce soit."
+    "message": "Stocké par le compte de votre navigateur. Aucune donnée de navigation n'est incluse."
   },
   "optionsSyncStatusFailed": {
     "message": "Impossible de synchroniser vos paramètres ($WHEN$). Vous avez peut-être trop de règles personnalisées ou de sites pour le stockage de synchronisation de votre navigateur. Ils restent enregistrés sur cet appareil.",
@@ -373,7 +373,7 @@
     "message": "Le niveau Standard bloque les publicités, les traqueurs et les sites malveillants connus."
   },
   "presetHintStrict": {
-    "message": "Tout ce qui précède, plus les interrupteurs de confidentialité globaux ci-dessus."
+    "message": "Toutes les listes, plus toutes les options de confidentialité."
   },
   "presetHintCustom": {
     "message": "Une combinaison que vous avez composée vous-même."
@@ -460,7 +460,7 @@
     "message": "Ce mot de passe est apparu dans des fuites de données connues."
   },
   "optionsLeakedPasswordToggleLabel": {
-    "message": "Vérifier les mots de passe par rapport aux fuites connues"
+    "message": "Signaler les mots de passe divulgués"
   },
   "popupPermissionGuardIntro": {
     "message": "Le garde-permissions de Moat bloque des invites sur ce site :"
@@ -530,31 +530,31 @@
     "message": "Sécurité"
   },
   "optionsFingerprintDrawerDesc": {
-    "message": "Modifie aléatoirement des détails de votre appareil que les sites utilisent pour vous reconnaître d'une visite à l'autre."
+    "message": "Rend plus difficile pour les sites de reconnaître votre ordinateur à ses réglages."
   },
   "optionsFingerprintCaution": {
-    "message": "Peut occasionnellement casser un CAPTCHA ou la vérification d'appareil d'une banque. Si un site se comporte mal, désactivez ceci en premier."
+    "message": "Peut parfois bloquer un CAPTCHA ou la vérification d'une banque. Si un site dysfonctionne, désactivez ceci d'abord."
   },
   "optionsCnameDrawerDesc": {
-    "message": "Certains traqueurs se déguisent en partie du site que vous visitez."
+    "message": "Trouve les traqueurs qui se cachent derrière l'adresse même d'un site."
   },
   "optionsSearchSlopDrawerDesc": {
-    "message": "Masque les résultats de recherche correspondant à une petite liste sélectionnée de domaines de fermes à contenu."
+    "message": "Retire de vos résultats de recherche les fermes de contenu connues."
   },
   "optionsSearchSlopCaution": {
-    "message": "Chaque lot masqué reste accessible en un clic via un lien « Afficher ». Désactivé par défaut, car cette liste peut se tromper de façons qu'une liste fixe de régies publicitaires ne connaît pas."
+    "message": "Chaque lot masqué reste à un clic, derrière un lien « Afficher »."
   },
   "optionsLeakedPasswordDrawerDesc": {
-    "message": "Vous avertit si un mot de passe que vous saisissez est apparu dans une fuite connue."
+    "message": "Vous prévient si un mot de passe que vous saisissez est apparu dans une fuite de données."
   },
   "optionsLeakedPasswordCaution": {
-    "message": "Seule une courte partie de son hash quitte votre appareil."
+    "message": "Seul un court fragment chiffré est vérifié."
   },
   "optionsPermissionGuardMergedLabel": {
-    "message": "Bloquer les demandes de permission surprises"
+    "message": "Bloquer les demandes d'autorisation surprises"
   },
   "optionsPermissionGuardMergedDesc": {
-    "message": "Bloque par défaut les demandes de caméra, microphone et localisation de chaque site, pour qu'une page ne vous surprenne pas au chargement. Autorisez un site précis depuis le popup lorsque vous lui faites confiance."
+    "message": "Empêche les pages de demander votre caméra, micro ou position dès leur chargement. Autorisez un site depuis la fenêtre quand vous lui faites confiance."
   },
   "optionsChipCameraLabel": {
     "message": "Caméra"
@@ -722,7 +722,7 @@
     "message": "Aucune correspondance depuis 30 jours. Le site a probablement changé."
   },
   "optionsTrackersDesc": {
-    "message": "Quelles entreprises ont tenté de vous suivre, et jusqu'où. Calculé sur votre appareil à partir des données de correspondance du navigateur lui-même. Cette liste n'est jamais envoyée où que ce soit."
+    "message": "Entreprises bloquées par Moat cette semaine. Comptées sur votre appareil, jamais envoyées."
   },
   "optionsCompaniesSeenBaseline": {
     "message": "entreprises détectées cette semaine"
@@ -799,7 +799,7 @@
     "message": "Actualiser"
   },
   "tabBackup": {
-    "message": "Sauvegarde"
+    "message": "Sauvegarde et synchronisation"
   },
   "welcomeTitle": {
     "message": "Bienvenue sur Moat"
@@ -811,7 +811,7 @@
     "message": "Publicités, trackers et sites malveillants connus bloqués"
   },
   "welcomeFilterListsEvidence": {
-    "message": "Listes de filtres standard, activées par défaut"
+    "message": "Listes de filtres Équilibré, activées par défaut"
   },
   "welcomeGrayscaleTitle": {
     "message": "Les publicités vidéo YouTube sont automatiquement assombries"
@@ -829,19 +829,19 @@
     "message": "À activer"
   },
   "welcomeFingerprintTitle": {
-    "message": "Empêcher les sites de reconnaître votre appareil"
+    "message": "Bloquer l'empreinte de l'appareil"
   },
   "welcomeFingerprintEvidence": {
     "message": "Désactivé par défaut car cela peut parfois affecter un CAPTCHA"
   },
   "welcomeLeakedPasswordTitle": {
-    "message": "Vérifier les mots de passe contre des fuites connues"
+    "message": "Signaler les mots de passe divulgués"
   },
   "welcomeLeakedPasswordEvidence": {
     "message": "Désactivé par défaut. Seul un fragment chiffré d'un mot de passe quitte jamais votre appareil."
   },
   "welcomeMoreInSettings": {
-    "message": "Les deux sont à un clic dans l'onglet Protection."
+    "message": "Les deux sont à un clic dans les paramètres."
   },
   "welcomeShortcutHint": {
     "message": "active et désactive la protection à tout moment."
@@ -859,7 +859,7 @@
     "message": "Importer"
   },
   "optionsBackupDesc": {
-    "message": "Enregistrez vos paramètres, règles personnalisées et exceptions dans un fichier que vous conservez, ou synchronisez-les via votre navigateur."
+    "message": "Mettez vos paramètres, règles et sites en pause à l'abri, ou emportez-les sur un autre ordinateur."
   },
   "optionsBackupSizeLabel": {
     "message": "taille de l'export"
@@ -874,7 +874,7 @@
     "message": "reste sur votre appareil"
   },
   "optionsExportTitle": {
-    "message": "Exporter les paramètres"
+    "message": "Enregistrer une sauvegarde"
   },
   "optionsImportTitle": {
     "message": "Restaurer depuis un fichier"
@@ -910,7 +910,7 @@
     "message": "aucun nombre de blocages ni statistiques"
   },
   "optionsAboutDesc": {
-    "message": "Ce qu'est cette version, et exactement ce qui quitte votre appareil."
+    "message": "Quelle version vous utilisez, et tout ce qui quitte votre appareil."
   },
   "optionsDisclosureFeature": {
     "message": "Fonctionnalité"
@@ -931,13 +931,13 @@
     "message": "Rien. Fonctionne entièrement sur votre appareil."
   },
   "optionsDisclosureUpdatesName": {
-    "message": "Mises à jour des filtres"
+    "message": "Correctifs de filtres"
   },
   "optionsDisclosureUpdatesSent": {
-    "message": "Une vérification de version une fois par jour. Aucun historique de navigation."
+    "message": "Un petit fichier signé, téléchargé une fois par jour. Il ne contient rien sur vous."
   },
   "optionsDisclosureUpdatesRecipient": {
-    "message": "Le serveur de mise à jour de Moat"
+    "message": "GitHub Pages (hébergement de fichiers)"
   },
   "optionsDisclosureBreachName": {
     "message": "Vérification des fuites"
@@ -1049,5 +1049,168 @@
   },
   "optionsImportChangeSync": {
     "message": "Paramètre de synchronisation"
+  },
+  "settingsTitle": {
+    "message": "Paramètres"
+  },
+  "settingsHelp": {
+    "message": "Aide"
+  },
+  "settingsStatusOn": {
+    "message": "Moat est activé"
+  },
+  "settingsStatusOff": {
+    "message": "Moat est désactivé"
+  },
+  "levelTitle": {
+    "message": "Quel niveau de blocage"
+  },
+  "levelLead": {
+    "message": "Équilibré convient à presque tout le monde. Choisissez Strict pour un maximum de confidentialité, ou Léger si un site que vous utilisez ne fonctionne plus."
+  },
+  "levelLightDesc": {
+    "message": "Supprime les publicités, arnaques et pop-ups. Les traqueurs se chargent encore."
+  },
+  "levelBalancedDesc": {
+    "message": "Bloque aussi les traqueurs et l'hameçonnage. Recommandé."
+  },
+  "levelStrictDesc": {
+    "message": "Aussi les bannières de cookies et l'empreinte numérique. Quelques sites peuvent mal fonctionner."
+  },
+  "levelLegendAds": {
+    "message": "Publicités"
+  },
+  "levelLegendTrackers": {
+    "message": "Traqueurs"
+  },
+  "levelLegendCookies": {
+    "message": "Bannières de cookies"
+  },
+  "levelLegendFingerprint": {
+    "message": "Empreinte numérique"
+  },
+  "levelCustomNote": {
+    "message": "Vous utilisez votre propre combinaison de listes de filtres. Modifiez-la dans les paramètres avancés."
+  },
+  "featuresTitle": {
+    "message": "Fonctionnalités"
+  },
+  "featuresLead": {
+    "message": "Les publicités, traqueurs et pop-ups frauduleux sont toujours bloqués. Voici les options les plus souvent modifiées."
+  },
+  "pausedEmptyTitle": {
+    "message": "Aucun site en pause"
+  },
+  "pausedEmptyHint": {
+    "message": "Mettez en pause un site de confiance pour tout y laisser se charger."
+  },
+  "hiddenEmptyTitle": {
+    "message": "Rien de masqué pour l'instant"
+  },
+  "hiddenEmptyHint": {
+    "message": "Cliquez sur l'icône de Moat, choisissez Bloquer un élément, puis cliquez sur ce que vous voulez retirer."
+  },
+  "advancedButton": {
+    "message": "Paramètres avancés"
+  },
+  "advancedButtonHide": {
+    "message": "Masquer les paramètres avancés"
+  },
+  "advancedButtonHint": {
+    "message": "Listes de filtres, options de confidentialité, vos règles, traqueurs, sauvegarde et version"
+  },
+  "advShowAllLists": {
+    "message": "Afficher toutes les listes"
+  },
+  "advBudgetLine": {
+    "message": "Chrome autorise $LIMIT$ règles de blocage au total pour toutes vos extensions. Moat en utilise $USED$.",
+    "placeholders": {
+      "limit": {
+        "content": "$1"
+      },
+      "used": {
+        "content": "$2"
+      }
+    }
+  },
+  "advPrivacyTitle": {
+    "message": "Options de confidentialité"
+  },
+  "advPrivacyLead": {
+    "message": "Protection supplémentaire contre le suivi et l'identification. Désactivée par défaut car quelques sites peuvent mal fonctionner."
+  },
+  "advRulesTitle": {
+    "message": "Bloquer et autoriser"
+  },
+  "advRulesLead": {
+    "message": "Vos propres règles. Elles l'emportent toujours sur les listes de filtres."
+  },
+  "advPauseSite": {
+    "message": "Mettre Moat en pause sur un site"
+  },
+  "commonPause": {
+    "message": "Mettre en pause"
+  },
+  "advTrackersSummary": {
+    "message": "$COMPANIES$ entreprises · $ATTEMPTS$ tentatives bloquées cette semaine",
+    "placeholders": {
+      "companies": {
+        "content": "$1"
+      },
+      "attempts": {
+        "content": "$2"
+      }
+    }
+  },
+  "advTrackersOnTab": {
+    "message": "Sur le dernier onglet utilisé"
+  },
+  "advLastBackup": {
+    "message": "Dernière sauvegarde :"
+  },
+  "footerProduct": {
+    "message": "Produit"
+  },
+  "footerResources": {
+    "message": "Ressources"
+  },
+  "footerProject": {
+    "message": "Projet"
+  },
+  "footerFeatures": {
+    "message": "Fonctionnalités"
+  },
+  "footerPrivacy": {
+    "message": "Confidentialité"
+  },
+  "footerFaq": {
+    "message": "FAQ"
+  },
+  "footerChangelog": {
+    "message": "Journal des modifications"
+  },
+  "footerPrivacyPolicy": {
+    "message": "Politique de confidentialité"
+  },
+  "footerBuildStatus": {
+    "message": "État de la compilation"
+  },
+  "footerInstallFromSource": {
+    "message": "Installer depuis les sources"
+  },
+  "footerGithub": {
+    "message": "GitHub"
+  },
+  "footerLicense": {
+    "message": "Licence GPL-3.0"
+  },
+  "footerReportIssue": {
+    "message": "Signaler un problème"
+  },
+  "footerCopyright": {
+    "message": "© 2026 Moat"
+  },
+  "footerFreeOpenSource": {
+    "message": "Gratuit et open source."
   }
 }

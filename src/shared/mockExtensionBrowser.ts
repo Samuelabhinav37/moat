@@ -104,6 +104,12 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
         { id: "cnameUncloak", on: true, appliesHere: true, fired: { count: 1, lastFiredAt: Date.now() } },
       ],
     }),
+    // Same idea as import-custom-rules below: the options page's own writes
+    // land on the shared settings object, so a later render sees them.
+    "set-settings-patch": (msg) => {
+      Object.assign(settings, msg.patch as Partial<Settings>);
+      return undefined;
+    },
     // Mutates the same `settings` object storageLocalData.settings already
     // points at, mirroring background/settings.ts's importCustomRules
     // closely enough for a render test to see the real effect on a later
