@@ -8,6 +8,9 @@
 
 set -euo pipefail
 
+# Always run from the repo root (its instructions and .env path assume it).
+cd "$(dirname "$0")/.."
+
 # ──────────────────────────────────────────────────────────────────────────
 # Wizard library: delightful, consistent UX, identical across every wizard.
 # ──────────────────────────────────────────────────────────────────────────

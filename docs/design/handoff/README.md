@@ -15,7 +15,7 @@ usage baselines.
 
 ## About the design files
 
-`Moat Surfaces - Polish.dc.html` in this bundle is a **design reference created in
+`moat-surfaces-polish.dc.html` in this bundle is a **design reference created in
 HTML** — a prototype showing intended look, copy and layout. It is *not* production
 code to copy. It is one large pannable canvas holding every option explored this
 session, grouped into numbered "turns", newest at the top. Each option has a visible
@@ -529,7 +529,7 @@ licensing matters for the store submission.
 | File | What it is |
 | --- | --- |
 | `README.md` | This document — self-sufficient; implement from it |
-| `Moat Surfaces - Polish.dc.html` | The full design canvas, all turns and options |
+| `moat-surfaces-polish.dc.html` | The full design canvas, all turns and options |
 | `support.js` | Runtime the canvas needs; keep it beside the HTML |
 | `icons/moat-icon.svg` | Approved extension icon |
 

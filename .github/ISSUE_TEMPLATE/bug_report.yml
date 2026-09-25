@@ -1,0 +1,43 @@
+name: Bug report
+description: Something is blocked that shouldn't be, isn't blocked, or Moat misbehaves.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Found a security problem? Please don't file it here; use
+        [private reporting](https://github.com/Samuelabhinav37/moat/security/advisories/new) instead.
+        Tip: the **Report a problem…** button in Moat's popup fills most of this in for you.
+  - type: input
+    id: site
+    attributes:
+      label: Website
+      description: The page where it happens. Leave out anything private (session links, account pages).
+      placeholder: https://example.com/article
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      placeholder: "The video player is blank. Expected: it plays."
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options: [Chrome, Firefox, Firefox for Android, Edge, Brave, Other]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Moat version
+      description: Shown in Settings → About.
+      placeholder: "0.11.126"
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Does pausing Moat on the site fix it? Screenshots help.

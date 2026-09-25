@@ -9,6 +9,18 @@
   <a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml"><img src="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
   <img src="https://img.shields.io/badge/manifest-v3-5fb896" alt="Manifest V3">
   <img src="https://img.shields.io/badge/browsers-chrome%20%7C%20firefox-5fb896" alt="Chrome and Firefox">
+  <img src="https://img.shields.io/badge/license-GPL--3.0-5fb896" alt="GPL-3.0">
+</p>
+
+<p align="center">
+  <a href="https://samuelabhinav37.github.io/moat/"><strong>Website</strong></a> ·
+  <a href="https://samuelabhinav37.github.io/moat/#faq">FAQ</a> ·
+  <a href="PRIVACY.md">Privacy</a> ·
+  <a href="CHANGELOG.md">Changelog</a>
+</p>
+
+<p align="center">
+  <img src="site/shots/hero-after-1200.webp" width="800" alt="A WIRED article with Moat on: the page starts at the headline, with no ad above it.">
 </p>
 
 No nag screens, no "rate us" prompts, no onboarding tabs. Moat blocks ads, trackers, and hijacked
@@ -16,8 +28,8 @@ popups quietly and shows a badge count. Everything stays on your device: no acco
 no server, nothing to sell. Built for Manifest V3 from day one, not a stripped-down Lite port of an
 older extension.
 
-> **Project status:** active development. Builds and tests cover Chrome and Firefox; browser-store
-> review, real-world compatibility, and dependency review remain part of every release.
+> **Project status:** coming soon to the Chrome Web Store and Firefox Add-ons. Until then,
+> [install it from source](#install--build); it works in both browsers today.
 
 ## What it does
 
@@ -171,3 +183,5 @@ page's About tab.
 - [`PRIVACY.md`](PRIVACY.md): full privacy policy.
 - [`NOTICE.md`](NOTICE.md): every bundled third-party license, in full.
 - [`CHANGELOG.md`](CHANGELOG.md): per-version history.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md), [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) and [`SECURITY.md`](SECURITY.md): how to contribute and report problems.
+- [`docs/design/handoff/`](docs/design/handoff/): the design handoff behind the current popup and Settings UI.

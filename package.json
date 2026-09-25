@@ -4,6 +4,14 @@
   "private": true,
   "license": "GPL-3.0",
   "description": "A quiet ad blocker and popup/redirect firewall for Chrome and Firefox.",
+  "homepage": "https://samuelabhinav37.github.io/moat/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Samuelabhinav37/moat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Samuelabhinav37/moat/issues"
+  },
   "type": "module",
   "scripts": {
     "dev:chrome": "node scripts/build.mjs chrome --watch",

@@ -9,3 +9,7 @@ coverage/
 scripts/analysis/*-results.json
 .DS_Store
 .claude/
+
+# Local secrets written by scripts/launch-setup-wizard.sh -- never commit
+.env
+.env.*

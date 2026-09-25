@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/Samuelabhinav37/moat/security/advisories/new
+    about: Please report security problems privately, not as a public issue.
+  - name: Frequently asked questions
+    url: https://samuelabhinav37.github.io/moat/#faq
+    about: Is it free, what does it collect, does it work in Firefox, and more.

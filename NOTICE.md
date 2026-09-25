@@ -1,5 +1,9 @@
 # Third-party notices
 
+Moat -- a quiet ad blocker and popup/redirect firewall for Chrome and Firefox.
+Copyright (C) 2026 Samuelabhinav37. Licensed under the GNU General Public
+License v3.0; the full text is in [LICENSE](LICENSE).
+
 Moat's own code is [GPL-3.0](LICENSE). This file lists every third-party
 license and data source bundled into the distributed extension, per each
 license's own terms. See `README.md`'s "Licensing note" for the plain-English

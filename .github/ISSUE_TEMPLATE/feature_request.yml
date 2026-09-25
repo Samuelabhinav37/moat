@@ -1,0 +1,20 @@
+name: Feature idea
+description: Suggest something Moat should do.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem?
+      description: Describe what annoys you or what's missing, before the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like Moat to do?
+  - type: markdown
+    attributes:
+      value: |
+        Moat stays quiet, local and least-privilege: no accounts, no telemetry, no server.
+        Ideas that need any of those are unlikely to fit.
