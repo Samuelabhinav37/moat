@@ -5,9 +5,12 @@
 // liveRedirectRules.ts's 900_000+ range.
 import type { DeclarativeNetRequest } from "webextension-polyfill";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
+import { ENTERPRISE_PRIORITY, PAUSE_PRIORITY } from "../shared/rulePriorities";
 
 export const CUSTOM_BLOCK_ID_START = 800_000;
 export const CUSTOM_ALLOW_ID_START = 810_000;
+export const PAUSE_RULE_ID = 815_000;
+export const MANAGED_BLOCK_ID_START = 820_000;
 export const MAX_CUSTOM_RULES_PER_LIST = 1000;
 
 // Bare hostname only (labels of alphanumerics/hyphens, dot-separated, no
@@ -41,7 +44,7 @@ function toAsciiHostname(input: string): string | null {
   }
 }
 
-function filterValidDomains(domains: string[]): string[] {
+export function filterValidDomains(domains: string[]): string[] {
   const valid: string[] = [];
   for (const domain of domains) {
     const ascii = toAsciiHostname(domain);
@@ -128,4 +131,45 @@ export function allCustomBlockRuleIds(): number[] {
 
 export function allCustomAllowRuleIds(): number[] {
   return Array.from({ length: MAX_CUSTOM_RULES_PER_LIST }, (_, i) => CUSTOM_ALLOW_ID_START + i);
+}
+
+/**
+ * The one rule that makes pausing a site real: every request a paused site's
+ * page (or an iframe of it) makes is allowed, at a priority above every
+ * bundled ad/tracker/annoyance rule and below the security lists (see
+ * shared/rulePriorities.ts). Until 0.11.132 pausing only switched off the
+ * content scripts, and network blocking carried on regardless.
+ *
+ * One rule for every paused site, via requestDomains (which also covers
+ * subdomains, like matchesDomainOrSubdomain in the content scripts), so
+ * there's no per-site cap. Null when nothing is paused.
+ */
+export function buildPauseRule(disabledSites: string[]): DeclarativeNetRequest.Rule | null {
+  const sites = [...new Set(filterValidDomains(disabledSites))];
+  if (sites.length === 0) return null;
+  return {
+    id: PAUSE_RULE_ID,
+    priority: PAUSE_PRIORITY,
+    action: { type: "allowAllRequests" },
+    condition: { requestDomains: sites, resourceTypes: ["main_frame", "sub_frame"] },
+  };
+}
+
+/** An organisation's managed block list (managedPolicyMerge.ts), at the
+ * enterprise priority so neither a paused site nor a user's "Never block"
+ * entry can reopen it. They're still merged into customBlockedDomains too,
+ * so the Settings page lists them as before. */
+export function buildManagedBlockRules(domains: readonly string[]): DeclarativeNetRequest.Rule[] {
+  return filterValidDomains([...domains])
+    .slice(0, MAX_CUSTOM_RULES_PER_LIST)
+    .map((domain, index) => ({
+      id: MANAGED_BLOCK_ID_START + index,
+      priority: ENTERPRISE_PRIORITY,
+      action: { type: "block" },
+      condition: { urlFilter: `||${domain}^`, resourceTypes: ALL_RESOURCE_TYPES },
+    }));
+}
+
+export function allManagedBlockRuleIds(): number[] {
+  return Array.from({ length: MAX_CUSTOM_RULES_PER_LIST }, (_, i) => MANAGED_BLOCK_ID_START + i);
 }

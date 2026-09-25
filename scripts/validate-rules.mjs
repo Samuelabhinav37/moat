@@ -9,6 +9,7 @@ import { dirname, join } from "node:path";
 import { LIVE_MANIFEST_PUBLIC_KEY } from "../src/shared/liveSigningKey.ts";
 import { PRESETS } from "../src/shared/filterPresets.ts";
 import { enabledRuleCount } from "../src/background/filterGroupState.ts";
+import { BUNDLED_NON_SECURITY_MAX_PRIORITY, ENTERPRISE_PRIORITY, NEVER_BLOCK_PRIORITY, PAUSE_PRIORITY } from "../src/shared/rulePriorities.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rulesDir = join(__dirname, "..", "rules", "dnr");
@@ -73,6 +74,36 @@ console.log(`\n${manifest.length} rulesets, ${totalRules} total rules`);
 // is what a fresh install turns on, so it has to fit on its own with some
 // headroom -- otherwise Chrome drops lists on every new install, which is
 // exactly what happened until 0.11.130. Fail here instead of shipping that.
+// Priority bands (src/shared/rulePriorities.ts): a paused site and "Never
+// block" must beat every bundled ad/tracker/annoyance rule, and lose to every
+// bundled security rule. An upstream list that ships a rule outside its band
+// would quietly break one of those promises, so fail instead.
+for (const entry of manifest) {
+  const rules = JSON.parse(readFileSync(join(rulesDir, entry.file), "utf8"));
+  const priorities = rules.map((rule) => rule.priority ?? 1);
+  if (entry.category === "security") {
+    const lowest = Math.min(...priorities);
+    if (lowest <= PAUSE_PRIORITY) {
+      console.error(`${entry.id}: security rule at priority ${lowest}, not above the pause band (${PAUSE_PRIORITY})`);
+      ok = false;
+    }
+    const highest = Math.max(...priorities);
+    if (highest >= ENTERPRISE_PRIORITY) {
+      console.error(`${entry.id}: security rule at priority ${highest} reaches the enterprise band (${ENTERPRISE_PRIORITY})`);
+      ok = false;
+    }
+  } else {
+    const highest = Math.max(...priorities);
+    if (highest > BUNDLED_NON_SECURITY_MAX_PRIORITY) {
+      console.error(
+        `${entry.id}: rule at priority ${highest} reaches the "Never block" band (${NEVER_BLOCK_PRIORITY}); ` +
+          "pausing a site or allowing it would no longer beat it"
+      );
+      ok = false;
+    }
+  }
+}
+
 const FRESH_INSTALL_RULE_CEILING = 320_000;
 for (const [name, preset] of Object.entries(PRESETS)) {
   console.log(`preset ${name}: ${enabledRuleCount(manifest, preset.filterGroups)} rules`);

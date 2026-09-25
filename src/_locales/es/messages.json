@@ -198,7 +198,7 @@
     "message": "Sitios que has pausado"
   },
   "optionsExceptionsHint": {
-    "message": "Moat está desactivado en estos sitios. Para pausar uno, haz clic en el icono de Moat mientras estás en él y usa el interruptor."
+    "message": "En estos sitios, los anuncios y rastreadores cargan con normalidad. Los sitios peligrosos conocidos siguen bloqueados. Para pausar uno, haz clic en el icono de Moat mientras estás en él y cambia el interruptor."
   },
   "optionsNoSitesAdded": {
     "message": "No se han añadido sitios."
@@ -1102,7 +1102,7 @@
     "message": "No hay sitios pausados"
   },
   "pausedEmptyHint": {
-    "message": "Pausa un sitio de confianza para dejar que todo cargue en él."
+    "message": "Pausa un sitio de confianza para dejar que carguen sus anuncios y rastreadores. Los sitios peligrosos conocidos siguen bloqueados."
   },
   "hiddenEmptyTitle": {
     "message": "Aún no has ocultado nada"

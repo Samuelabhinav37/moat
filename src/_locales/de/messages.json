@@ -198,7 +198,7 @@
     "message": "Pausierte Websites"
   },
   "optionsExceptionsHint": {
-    "message": "Moat ist auf diesen Websites aus. Um eine zu pausieren, klicke dort auf das Moat-Symbol und lege den Schalter um."
+    "message": "Auf diesen Seiten laden Werbung und Tracker normal. Bekannte gefährliche Seiten bleiben blockiert. Zum Pausieren klicke auf der Seite auf das Moat-Symbol und lege den Schalter um."
   },
   "optionsNoSitesAdded": {
     "message": "Keine Websites hinzugefügt."
@@ -1102,7 +1102,7 @@
     "message": "Keine Websites pausiert"
   },
   "pausedEmptyHint": {
-    "message": "Pausiere eine vertrauenswürdige Website, damit dort alles geladen wird."
+    "message": "Pausiere eine Seite, der du vertraust, damit ihre Werbung und Tracker laden. Bekannte gefährliche Seiten bleiben blockiert."
   },
   "hiddenEmptyTitle": {
     "message": "Noch nichts ausgeblendet"

@@ -68,7 +68,7 @@ describe("applyCustomRules", () => {
     );
 
     const args = updateDynamicRules.mock.calls[0]![0];
-    const allowFilters = args.addRules.filter((r) => r.id >= CUSTOM_ALLOW_ID_START).map((r) => r.condition.urlFilter);
+    const allowFilters = args.addRules.filter((r) => r.action.type === "allow").map((r) => r.condition.urlFilter);
     expect(allowFilters).toEqual(["||safe.com^"]);
   });
 
@@ -81,7 +81,29 @@ describe("applyCustomRules", () => {
     );
 
     const args = updateDynamicRules.mock.calls[0]![0];
-    const allowFilters = args.addRules.filter((r) => r.id >= CUSTOM_ALLOW_ID_START).map((r) => r.condition.urlFilter);
+    const allowFilters = args.addRules.filter((r) => r.action.type === "allow").map((r) => r.condition.urlFilter);
     expect(allowFilters).toEqual(["||safe.com^"]);
+  });
+});
+
+describe("applyCustomRules: pausing and enterprise blocks", () => {
+  it("sends the pause rule and the managed block rules in the same single call", async () => {
+    const { PAUSE_RULE_ID, MANAGED_BLOCK_ID_START } = await import("./customRules");
+    await applyCustomRules({ ...baseSettings, disabledSites: ["paused.example"] }, ["banned.example"]);
+
+    expect(updateDynamicRules).toHaveBeenCalledTimes(1);
+    const args = updateDynamicRules.mock.calls[0]![0];
+    const pause = args.addRules.find((r) => r.id === PAUSE_RULE_ID);
+    expect(pause?.action.type).toBe("allowAllRequests");
+    expect(pause?.condition.requestDomains).toEqual(["paused.example"]);
+    expect(args.addRules.some((r) => r.id === MANAGED_BLOCK_ID_START)).toBe(true);
+  });
+
+  it("removes the pause rule once the last paused site is resumed", async () => {
+    const { PAUSE_RULE_ID } = await import("./customRules");
+    await applyCustomRules({ ...baseSettings, disabledSites: [] });
+    const args = updateDynamicRules.mock.calls[0]![0];
+    expect(args.removeRuleIds).toContain(PAUSE_RULE_ID);
+    expect(args.addRules.some((r) => r.id === PAUSE_RULE_ID)).toBe(false);
   });
 });

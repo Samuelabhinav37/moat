@@ -198,7 +198,7 @@
     "message": "Sites mis en pause"
   },
   "optionsExceptionsHint": {
-    "message": "Moat est désactivé sur ces sites. Pour en mettre un en pause, cliquez sur l'icône de Moat sur ce site et basculez l'interrupteur."
+    "message": "Les publicités et les traceurs se chargent normalement sur ces sites. Les sites dangereux connus restent bloqués. Pour en mettre un en pause, cliquez sur l'icône de Moat quand vous y êtes et basculez l'interrupteur."
   },
   "optionsNoSitesAdded": {
     "message": "Aucun site ajouté."
@@ -1102,7 +1102,7 @@
     "message": "Aucun site en pause"
   },
   "pausedEmptyHint": {
-    "message": "Mettez en pause un site de confiance pour tout y laisser se charger."
+    "message": "Mettez en pause un site de confiance pour laisser ses publicités et traceurs se charger. Les sites dangereux connus restent bloqués."
   },
   "hiddenEmptyTitle": {
     "message": "Rien de masqué pour l'instant"

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ENTERPRISE_PRIORITY } from "../shared/rulePriorities";
 import {
   allAthenaPolicyRuleIds,
   ATHENA_POLICY_ID_START,
@@ -51,13 +52,13 @@ describe("buildAthenaPolicyRules", () => {
     expect(rules).toEqual([
       {
         id: ATHENA_POLICY_ID_START,
-        priority: 1,
+        priority: ENTERPRISE_PRIORITY,
         action: { type: "redirect", redirect: { extensionPath: "/warning.html" } },
         condition: { urlFilter: "||evil.example^", resourceTypes: ["main_frame"] },
       },
       {
         id: ATHENA_POLICY_ID_START + 1,
-        priority: 1,
+        priority: ENTERPRISE_PRIORITY,
         action: { type: "redirect", redirect: { extensionPath: "/warning.html" } },
         condition: { urlFilter: "||also-evil.example^", resourceTypes: ["main_frame"] },
       },

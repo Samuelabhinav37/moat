@@ -200,7 +200,7 @@
     "message": "Sites you've paused"
   },
   "optionsExceptionsHint": {
-    "message": "Moat is off on these sites. To pause one, click Moat's icon while you're on it and flip the switch."
+    "message": "Ads and trackers load normally on these sites. Known dangerous sites stay blocked. To pause one, click Moat's icon while you're on it and flip the switch."
   },
   "optionsNoSitesAdded": {
     "message": "No sites added."
@@ -1104,7 +1104,7 @@
     "message": "No sites are paused"
   },
   "pausedEmptyHint": {
-    "message": "Pause a site you trust to let everything load on it."
+    "message": "Pause a site you trust to let its ads and trackers load. Known dangerous sites stay blocked."
   },
   "hiddenEmptyTitle": {
     "message": "Nothing hidden yet"

@@ -16,6 +16,7 @@ import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
 import { buildOisdRules } from "./lib/oisdRules.mjs";
 import { plainBlockedDomains, isBlockedByDomainChain } from "./lib/blockedDomains.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
+import { SECURITY_PRIORITY_OFFSET } from "../src/shared/rulePriorities.ts";
 import { writeLiveFilterSourceProvenance, readPreviousLiveFilterSourceProvenance } from "./lib/liveFilterSourceProvenance.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -715,6 +716,23 @@ oisdChunks.forEach((chunkRules, index) => {
   });
   writeFileSync(join(outDir, file), JSON.stringify(chunkRules));
 });
+
+// Move every security ruleset into its own priority band, above a paused
+// site's allowAllRequests rule and the user's "Never block" rules (see
+// src/shared/rulePriorities.ts). Pausing a site or allowing it then beats
+// every ad/tracker rule, while known phishing/malware/scam domains stay
+// blocked. Adding one offset to every rule keeps each list's own internal
+// ordering (its exceptions still beat its blocks). validate-rules.mjs checks
+// the bands.
+let shiftedSecurityRules = 0;
+for (const entry of manifestEntries.filter((e) => e.category === "security")) {
+  const path = join(outDir, entry.file);
+  const rules = JSON.parse(readFileSync(path, "utf8"));
+  for (const rule of rules) rule.priority = (rule.priority ?? 1) + SECURITY_PRIORITY_OFFSET;
+  shiftedSecurityRules += rules.length;
+  writeFileSync(path, JSON.stringify(rules));
+}
+console.log(`Security rulesets: ${shiftedSecurityRules} rules moved into the security priority band`);
 
 writeFileSync(
   join(outDir, "manifest.json"),

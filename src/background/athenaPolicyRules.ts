@@ -8,6 +8,7 @@
 // liveRedirectRules.ts: 900_000, quickFixRules.ts: 950_000) so applying one
 // never touches another's rules.
 import type { DeclarativeNetRequest } from "webextension-polyfill";
+import { ENTERPRISE_PRIORITY } from "../shared/rulePriorities";
 import type { AthenaPolicyArtifact } from "../types";
 
 export const ATHENA_POLICY_ID_START = 960_000;
@@ -64,7 +65,9 @@ export function filterValidDomains(domains: string[]): { valid: string[]; reject
 export function buildAthenaPolicyRules(domains: string[]): DeclarativeNetRequest.Rule[] {
   return domains.slice(0, MAX_ATHENA_POLICY_RULES).map((domain, index) => ({
     id: ATHENA_POLICY_ID_START + index,
-    priority: 1,
+    // An org's own policy outranks a user pausing that site (see
+    // shared/rulePriorities.ts).
+    priority: ENTERPRISE_PRIORITY,
     action: { type: "redirect", redirect: { extensionPath: "/warning.html" } },
     condition: { urlFilter: `||${domain}^`, resourceTypes: ["main_frame"] },
   }));

@@ -3,6 +3,30 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.132
+
+### Fixed
+- **Pausing a site never stopped network blocking.** Since the first version, pausing only
+  switched off the content scripts (element hiding, the popup guard in the page). No
+  declarativeNetRequest rule ever mentioned paused sites, so ads and trackers stayed blocked on
+  them. Settings promised that pausing lets everything load. Verified in Chrome for Testing
+  before the fix: doubleclick and google-analytics were blocked on a paused site.
+  - A paused site now gets one `allowAllRequests` rule for its pages and iframes, covering all
+    paused sites and their subdomains in a single rule.
+  - **Known phishing, malware and scam domains stay blocked on paused sites.** Rule priorities are
+    now arranged in bands (`src/shared/rulePriorities.ts`): bundled ad/tracker/annoyance rules,
+    then "Never block", then pause, then the security lists, then enterprise policy.
+    `update-filters.mjs` moves every security ruleset up by 2,000,000, keeping each list's own
+    order. `validate-rules.mjs` fails the build if any bundled rule falls outside its band.
+  - Side effect: an allow exception in an ad list can no longer override a phishing or malware
+    block.
+  - An organisation's managed block list and Athena policy rules now sit at the top band, so
+    neither a paused site nor a user's allow entry can reopen them.
+  - Verified in Chrome for Testing: on a paused site the tracker loads, the ad request goes out,
+    and a phishing-list domain is still blocked. After resuming, all three are blocked again.
+- Settings now says what pausing does: ads and trackers load normally, known dangerous sites stay
+  blocked (en/es/fr/de).
+
 ## 0.11.131
 
 ### Fixed

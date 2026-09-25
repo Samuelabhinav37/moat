@@ -2,8 +2,12 @@ import browser from "webextension-polyfill";
 import {
   allCustomAllowRuleIds,
   allCustomBlockRuleIds,
+  allManagedBlockRuleIds,
   buildCustomAllowRules,
   buildCustomBlockRules,
+  buildManagedBlockRules,
+  buildPauseRule,
+  PAUSE_RULE_ID,
 } from "./customRules";
 import type { Settings } from "../types";
 
@@ -17,11 +21,17 @@ export async function applyCustomRules(settings: Settings, managedBlockedDomains
     // quick fixes) after the first already landed, leaving block rules
     // updated to the user's new list while allow rules stay stuck on the
     // old one.
+    // The pause rule and the managed block rules ride along in the same
+    // call for the same reason: a paused site must never end up allowed
+    // while an organisation's block list is half-applied.
+    const pauseRule = buildPauseRule(settings.disabledSites);
     await browser.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: [...allCustomBlockRuleIds(), ...allCustomAllowRuleIds()],
+      removeRuleIds: [...allCustomBlockRuleIds(), ...allCustomAllowRuleIds(), PAUSE_RULE_ID, ...allManagedBlockRuleIds()],
       addRules: [
         ...buildCustomBlockRules(settings.customBlockedDomains),
         ...buildCustomAllowRules(settings.customAllowedDomains, managedBlockedDomains),
+        ...(pauseRule ? [pauseRule] : []),
+        ...buildManagedBlockRules(managedBlockedDomains),
       ],
     });
   } catch (err) {

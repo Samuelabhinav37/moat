@@ -7,7 +7,17 @@ import {
   CUSTOM_ALLOW_ID_START,
   CUSTOM_BLOCK_ID_START,
   MAX_CUSTOM_RULES_PER_LIST,
+  buildPauseRule,
+  buildManagedBlockRules,
+  PAUSE_RULE_ID,
 } from "./customRules";
+import {
+  BUNDLED_NON_SECURITY_MAX_PRIORITY,
+  ENTERPRISE_PRIORITY,
+  NEVER_BLOCK_PRIORITY,
+  PAUSE_PRIORITY,
+  SECURITY_PRIORITY_OFFSET,
+} from "../shared/rulePriorities";
 
 describe("buildCustomBlockRules", () => {
   it("builds one block rule per domain covering every resource type", () => {
@@ -118,5 +128,44 @@ describe("id range helpers", () => {
     const allowIds = new Set(allCustomAllowRuleIds());
     expect(CUSTOM_ALLOW_ID_START).toBeGreaterThanOrEqual(CUSTOM_BLOCK_ID_START + MAX_CUSTOM_RULES_PER_LIST);
     for (const id of allowIds) expect(blockIds.has(id)).toBe(false);
+  });
+});
+
+describe("priority bands", () => {
+  it("rank bundled ads < Never block < pause < bundled security < enterprise", () => {
+    expect(BUNDLED_NON_SECURITY_MAX_PRIORITY).toBeLessThan(NEVER_BLOCK_PRIORITY);
+    expect(NEVER_BLOCK_PRIORITY).toBeLessThan(PAUSE_PRIORITY);
+    // A security rule at the lowest possible priority (1) still beats a pause.
+    expect(1 + SECURITY_PRIORITY_OFFSET).toBeGreaterThan(PAUSE_PRIORITY);
+    expect(ENTERPRISE_PRIORITY).toBeGreaterThan(SECURITY_PRIORITY_OFFSET + BUNDLED_NON_SECURITY_MAX_PRIORITY);
+  });
+});
+
+describe("buildPauseRule", () => {
+  it("allows everything on every paused site with one rule, at the pause priority", () => {
+    expect(buildPauseRule(["paused.example", "other.example"])).toEqual({
+      id: PAUSE_RULE_ID,
+      priority: PAUSE_PRIORITY,
+      action: { type: "allowAllRequests" },
+      condition: { requestDomains: ["paused.example", "other.example"], resourceTypes: ["main_frame", "sub_frame"] },
+    });
+  });
+
+  it("returns null when nothing is paused", () => {
+    expect(buildPauseRule([])).toBeNull();
+  });
+
+  it("drops malformed entries and duplicates rather than failing the whole update", () => {
+    expect(buildPauseRule(["https://bad.example/path", "ok.example", "OK.example"])?.condition.requestDomains).toEqual(["ok.example"]);
+    expect(buildPauseRule(["not a domain"])).toBeNull();
+  });
+});
+
+describe("buildManagedBlockRules", () => {
+  it("blocks at the enterprise priority, above any pause or Never block entry", () => {
+    const [rule] = buildManagedBlockRules(["banned.example"]);
+    expect(rule?.priority).toBe(ENTERPRISE_PRIORITY);
+    expect(rule?.action.type).toBe("block");
+    expect(rule?.condition.urlFilter).toBe("||banned.example^");
   });
 });
