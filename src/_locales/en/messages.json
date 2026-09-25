@@ -279,7 +279,7 @@
     "message": "Never block"
   },
   "optionsAllowedSitesHint": {
-    "message": "Never block these sites, even when a filter list matches."
+    "message": "Never block these sites, even when a filter list matches. Known dangerous sites stay blocked."
   },
   "commonAllow": {
     "message": "Allow"

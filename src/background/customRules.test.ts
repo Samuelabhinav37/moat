@@ -169,3 +169,12 @@ describe("buildManagedBlockRules", () => {
     expect(rule?.condition.urlFilter).toBe("||banned.example^");
   });
 });
+
+describe("buildCustomAllowRules priority", () => {
+  it("beats every bundled ad/tracker rule but stays below the security lists", () => {
+    const [rule] = buildCustomAllowRules(["site.example"]);
+    expect(rule?.priority).toBe(NEVER_BLOCK_PRIORITY);
+    expect(rule!.priority).toBeGreaterThan(BUNDLED_NON_SECURITY_MAX_PRIORITY);
+    expect(rule!.priority).toBeLessThan(1 + SECURITY_PRIORITY_OFFSET);
+  });
+});

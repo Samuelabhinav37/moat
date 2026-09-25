@@ -277,7 +277,7 @@
     "message": "Nie blockieren"
   },
   "optionsAllowedSitesHint": {
-    "message": "Blockiert diese Domains nie, auch wenn eine aktive Filterliste dies vorsieht."
+    "message": "Diese Seiten nie blockieren, auch wenn eine Filterliste zutrifft. Bekannte gefährliche Seiten bleiben blockiert."
   },
   "commonAllow": {
     "message": "Erlauben"

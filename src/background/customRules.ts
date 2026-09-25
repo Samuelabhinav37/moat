@@ -5,7 +5,7 @@
 // liveRedirectRules.ts's 900_000+ range.
 import type { DeclarativeNetRequest } from "webextension-polyfill";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
-import { ENTERPRISE_PRIORITY, PAUSE_PRIORITY } from "../shared/rulePriorities";
+import { ENTERPRISE_PRIORITY, NEVER_BLOCK_PRIORITY, PAUSE_PRIORITY } from "../shared/rulePriorities";
 
 export const CUSTOM_BLOCK_ID_START = 800_000;
 export const CUSTOM_ALLOW_ID_START = 810_000;
@@ -98,8 +98,12 @@ function overlapsAnyDomain(candidate: string, others: readonly string[]): boolea
 }
 
 /**
- * Exceptions -- unblocks a domain the bundled lists or a custom block rule
- * would otherwise catch. Needs higher priority to win.
+ * Exceptions -- unblocks a domain the bundled ad/tracker/annoyance lists or
+ * a custom block rule would otherwise catch. Runs at NEVER_BLOCK_PRIORITY
+ * (shared/rulePriorities.ts): above every bundled non-security rule, below
+ * the security lists, so it can't reopen a known phishing/malware domain.
+ * Until 0.11.133 it used priority 2, and 84,208 bundled rules (AdGuard
+ * `$important` rules and most of the security lists) quietly outranked it.
  *
  * `neverAllow` is the enterprise-managed block list (managedPolicyMerge.ts's
  * managedCustomBlockedDomains) -- see that file's comment on why it's
@@ -119,7 +123,7 @@ export function buildCustomAllowRules(domains: string[], neverAllow: readonly st
     .slice(0, MAX_CUSTOM_RULES_PER_LIST)
     .map((domain, index) => ({
       id: CUSTOM_ALLOW_ID_START + index,
-      priority: 2,
+      priority: NEVER_BLOCK_PRIORITY,
       action: { type: "allow" },
       condition: { urlFilter: `||${domain}^`, resourceTypes: ALL_RESOURCE_TYPES },
     }));

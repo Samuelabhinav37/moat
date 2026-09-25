@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.133
+
+### Fixed
+- **"Never block" couldn't unblock sites that 84,208 bundled rules covered.** Its allow rules ran
+  at priority 2. AdGuard's `$important` ad/tracker rules (up to 1,100,201) and most of the
+  security lists outranked that, so adding one of those sites did nothing.
+  "Never block" now runs at 1,200,000: above every bundled ad, tracker and annoyance rule, below
+  the security lists. Known phishing, malware and scam domains still can't be unblocked this way.
+  The Settings hint says so in all four languages.
+  Verified in Chrome for Testing: `arx8x.net` (blocked by an `$important` ads rule) goes from
+  blocked to allowed once it's on "Never block". A phishing-list domain on "Never block" stays
+  blocked.
+
 ## 0.11.132
 
 ### Fixed
