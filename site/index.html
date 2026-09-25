@@ -18,10 +18,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap">
 <style>
-  /* Black page, white type, one blue. Bold Inter headlines. The product
-     mockups are drawn at true pixel size (Chrome's 40px tab strip, 44px
-     toolbar, Moat's real 260px popup) and cropped by their frame rather
-     than shrunk; on phones they stop at half size and crop. */
+  /* Black page, white type, one blue. Bold Inter headlines. Every product
+     image is a real screenshot of Moat (captured with Chrome for Testing).
+     The hero is a real 1600x900 desktop window, Chrome frame and popup
+     included, scaled down as one unit so proportions stay true. */
   :root {
     --bg: #000;
     --panel: #0f0f12;
@@ -43,7 +43,7 @@
   a { color: var(--ink); text-underline-offset: 4px; }
   :focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 4px; border-radius: 6px; }
   code { font-family: ui-monospace, "Cascadia Mono", Menlo, monospace; font-size: .84em; background: rgba(255, 255, 255, .08); border-radius: 4px; padding: .05em .35em; }
-  .container { max-width: 1240px; margin: 0 auto; padding: 0 40px; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
 
   /* ---- buttons ------------------------------------------------------- */
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border-radius: 10px; font-weight: 600; text-decoration: none; transition: background .15s, border-color .15s, transform .15s; }
@@ -56,14 +56,20 @@
   .btn-line:hover { border-color: #fff; }
   .btn-white { background: #fff; color: var(--blue-deep); padding: 15px 28px; font-size: 16.5px; }
   .btn-white:hover { background: #e6ecf8; }
+  .btn-ghost-w { border: 1.5px solid rgba(255, 255, 255, .6); color: #fff; padding: 13.5px 24px; font-size: 16.5px; }
+  .btn-ghost-w:hover { border-color: #fff; background: rgba(255, 255, 255, .08); }
+  .cta-btns { margin-left: auto; display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero .alt { margin-top: 16px; font-size: 15.5px; color: var(--soft); }
+  .hero .alt a { color: var(--ink); font-weight: 600; }
 
   /* ---- nav ----------------------------------------------------------- */
   .nav-wrap { position: sticky; top: 0; z-index: 20; background: rgba(0, 0, 0, .75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
-  nav { display: flex; align-items: center; gap: 32px; height: 68px; }
-  .logo { display: inline-flex; align-items: center; gap: 10px; font-size: 23px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); text-decoration: none; }
+  .nav-wrap .container { max-width: none; padding: 0 48px; }
+  nav { display: flex; align-items: center; gap: 40px; height: 76px; }
+  .logo { display: inline-flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); text-decoration: none; }
   .logo svg { width: 30px; height: 30px; }
   .nav-links { display: flex; gap: 6px; }
-  .nav-links a { color: var(--soft); text-decoration: none; font-size: 15px; font-weight: 500; padding: 8px 12px; border-radius: 8px; }
+  .nav-links a { color: var(--soft); text-decoration: none; font-size: 16px; font-weight: 500; padding: 8px 12px; border-radius: 8px; }
   .nav-links a:hover { color: var(--ink); background: rgba(255, 255, 255, .06); }
   nav > .btn { margin-left: auto; }
 
@@ -81,14 +87,13 @@
   [data-fit] { position: relative; overflow: hidden; border-radius: 12px; }
   [data-fit] > * { transform-origin: 0 0; }
   .demo { position: relative; padding: 64px 40px 120px; }
-  .bw { width: 1160px; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; text-align: left; }
+  .bw { width: 1600px; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; text-align: left; }
   .bw-tabs { height: 40px; background: #202124; display: flex; align-items: flex-end; gap: 2px; padding: 0 10px 0 78px; position: relative; }
   .bw-tabs .dots { position: absolute; left: 16px; top: 14px; display: flex; gap: 8px; }
   .bw-tabs .dots i { width: 12px; height: 12px; border-radius: 50%; background: #5f6368; display: block; }
   .bw-tab { height: 32px; width: 240px; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 9px; padding: 0 12px; font-size: 12.5px; color: #bdc1c6; white-space: nowrap; overflow: hidden; }
   .bw-tab.on { background: #35363a; color: #e8eaed; }
   .bw-tab .fv { width: 16px; height: 16px; border-radius: 4px; background: #5f6368; flex: none; }
-  .bw-tab.dead { color: #7c7f84; text-decoration: line-through; }
   .bw-bar { height: 44px; background: #35363a; display: flex; align-items: center; gap: 12px; padding: 0 12px; }
   .bw-bar .nv { color: #9aa0a6; font-size: 15px; letter-spacing: .3em; }
   .bw-omni { flex: 1; height: 34px; border-radius: 17px; background: #202124; color: #e8eaed; font-size: 14px; display: flex; align-items: center; padding: 0 16px; gap: 10px; }
@@ -98,54 +103,15 @@
   .bw-ext b { position: absolute; right: -6px; bottom: -4px; background: var(--blue); color: #fff; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 0 3px; line-height: 14px; }
   .bw-me { width: 28px; height: 28px; border-radius: 50%; background: #5f6368; }
 
-  .stage { position: relative; height: 620px; overflow: hidden; --x: 62%; }
+  .stage { position: relative; height: 900px; overflow: hidden; --x: 55%; }
   .layer { position: absolute; inset: 0; background: #fff; color: #1d1d1f; }
+  .layer .shot { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .popup-shot { position: absolute; top: 4px; right: 8px; width: 260px; height: auto; border-radius: 12px; box-shadow: 0 0 0 1px #37343b, 0 24px 48px -12px rgba(0, 0, 0, .55); z-index: 5; }
   .before { clip-path: inset(0 calc(100% - var(--x)) 0 0); }
-  .site-h { height: 60px; border-bottom: 1px solid #e6e6e6; display: flex; align-items: center; gap: 28px; padding: 0 40px; font-size: 15px; color: #555; }
-  .site-h b { font-family: Georgia, serif; font-size: 26px; color: #111; letter-spacing: -0.02em; margin-right: 12px; }
-  .site-b { display: grid; grid-template-columns: 1fr 300px; gap: 48px; padding: 28px 40px; }
-  .site-b h1 { font-family: Georgia, serif; font-size: 40px; line-height: 1.12; margin: 0 0 10px; font-weight: 700; letter-spacing: -0.01em; color: #111; }
-  .site-b .by { font-size: 14px; color: #777; margin-bottom: 18px; }
-  .site-b .ph { height: 250px; border-radius: 4px; background: linear-gradient(160deg, #9fb3c8, #58708a 55%, #2f3f52); margin-bottom: 18px; }
-  .site-b p { font-size: 18px; line-height: 1.6; margin: 0 0 14px; color: #2a2a2a; }
-  .site-b .rail { padding-top: 250px; }
-  .site-b .rail h4 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #777; margin: 0 0 10px; }
-  .site-b .rail .st { font-family: Georgia, serif; font-size: 17px; line-height: 1.35; padding: 14px 0; border-top: 1px solid #eee; color: #111; }
-  .lb { width: 728px; height: 90px; margin: 18px auto 0; }
-  .mr { width: 300px; height: 250px; }
-  .adu { background: #ffe9a8; border: 1px solid #e8c55c; display: grid; place-items: center; color: #7a5a00; font-size: 13px; font-weight: 700; letter-spacing: .06em; position: relative; }
-  .adu::before { content: "Ad"; position: absolute; top: 4px; right: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0; }
-  .lb.gap { background: transparent; border: 0; }
-  .cookie { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid #ddd; box-shadow: 0 -12px 30px rgba(0, 0, 0, .18); padding: 20px 40px; display: flex; align-items: center; gap: 20px; font-size: 15px; color: #333; z-index: 3; }
-  .cookie span { flex: 1; }
-  .cookie i { font-style: normal; background: #1a73e8; color: #fff; padding: 10px 18px; border-radius: 6px; font-weight: 600; white-space: nowrap; }
-  .cookie i.g { background: #fff; color: #1a73e8; border: 1px solid #1a73e8; }
-  .scam { position: absolute; left: 220px; top: 150px; width: 360px; background: #fff; border-radius: 10px; box-shadow: 0 30px 60px rgba(0, 0, 0, .4); overflow: hidden; z-index: 4; font-size: 15px; }
-  .scam .t { background: #d93025; color: #fff; font-weight: 700; padding: 12px 16px; }
-  .scam .b { padding: 16px; line-height: 1.5; color: #222; }
-  .scam .b u { color: #d93025; font-weight: 700; }
-  .scam .k { margin-top: 12px; background: #d93025; color: #fff; text-align: center; padding: 10px; border-radius: 6px; font-weight: 700; }
   .tag-in { position: absolute; z-index: 5; font: 700 12px/1 system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; padding: 7px 10px; border-radius: 6px; }
-  .tag-in.b { left: 14px; top: 74px; background: #d93025; color: #fff; }
+  .tag-in.b { left: 14px; bottom: 14px; background: #d93025; color: #fff; }
   .tag-in.a { right: 14px; bottom: 14px; background: var(--blue); color: #fff; }
 
-  /* Moat popup at its real 260px */
-  .mp { position: absolute; top: 4px; right: 8px; width: 260px; background: #1b191d; color: #eceef0; border: 1px solid #37343b; border-radius: 12px; padding: 14px; box-shadow: 0 24px 48px -12px rgba(0, 0, 0, .55); font-size: 13px; z-index: 5; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .mp-h { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; margin-bottom: 12px; }
-  .mp-h svg { width: 16px; height: 16px; }
-  .mp-h span { margin-left: auto; font-weight: 500; font-size: 12px; color: #a7a1ac; }
-  .mp-n { background: #242229; border-radius: 10px; text-align: center; padding: 12px 8px 10px; }
-  .mp-n b { display: block; font-size: 30px; line-height: 1.1; }
-  .mp-n span { color: #a7a1ac; font-size: 11.5px; }
-  .mp-s { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 7px; }
-  .mp-s div { background: #242229; border-radius: 8px; text-align: center; padding: 7px 2px; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: #a7a1ac; }
-  .mp-s b { display: block; font-size: 16px; color: #eceef0; letter-spacing: 0; }
-  .mp-site { display: flex; align-items: center; background: #fff; color: #16141a; border-radius: 10px; padding: 9px 11px; margin-top: 9px; }
-  .mp-site div { font-weight: 600; font-size: 13px; line-height: 1.3; }
-  .mp-site small { display: block; font-weight: 500; font-size: 11px; color: var(--blue); }
-  .mp-t { margin-left: auto; width: 36px; height: 20px; border-radius: 10px; background: #43c13a; position: relative; flex: none; }
-  .mp-t::after { content: ""; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
-  .mp-b { margin-top: 9px; background: #2b282f; border: 1px solid #37343b; border-radius: 9px; text-align: center; padding: 8px; font-weight: 500; }
 
   .divider { position: absolute; top: 0; bottom: 0; left: var(--x); width: 0; z-index: 6; pointer-events: none; }
   .divider::before { content: ""; position: absolute; top: 0; bottom: 0; left: -1.5px; width: 3px; background: var(--blue); }
@@ -157,53 +123,121 @@
 
   /* ---- section heads ------------------------------------------------- */
   section.block { padding: 120px 0; border-top: 1px solid var(--line); }
-  .sec-head { text-align: center; max-width: 780px; margin: 0 auto; }
+  .sec-head { text-align: center; max-width: 960px; margin: 0 auto; }
   .sec-head h2 { font-size: clamp(36px, 5vw, 60px); }
   .sec-head p { margin-top: 18px; font-size: 19px; color: var(--soft); }
 
-  /* ---- feature rows -------------------------------------------------- */
-  .rows { margin-top: 80px; display: flex; flex-direction: column; gap: 120px; }
-  .row { display: grid; grid-template-columns: 5fr 7fr; gap: 64px; align-items: center; }
-  .row.flip .copy { order: 2; }
-  .row h3 { font-size: clamp(32px, 3.4vw, 46px); max-width: 480px; }
-  .feats { margin-top: 30px; display: flex; flex-direction: column; gap: 6px; max-width: 480px; }
-  .feat { padding: 12px 0 12px 22px; border-left: 3px solid rgba(255, 255, 255, .12); }
-  .feat:first-child { border-left-color: var(--blue); }
-  .feat h4 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
-  .feat p { margin-top: 6px; color: var(--soft); font-size: 16.5px; }
-  .crop { position: relative; height: 440px; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .crop .bw-tabs, .crop .bw-bar { width: 1000px; }
-  .crop .pg { position: relative; padding: 28px 36px; color: #1d1d1f; }
-  .crop .pg h5 { margin: 0 0 8px; font-family: Georgia, serif; font-size: 30px; line-height: 1.15; color: #111; }
-  .crop .pg .meta { font-size: 14px; color: #777; margin-bottom: 16px; }
-  .crop .pg p { font-size: 17px; line-height: 1.6; color: #2a2a2a; margin: 0 0 12px; max-width: 560px; }
-  .crop .pg .ph { height: 180px; border-radius: 6px; background: linear-gradient(160deg, #d4b89b, #a77c5c 60%, #6d4c35); margin-bottom: 16px; max-width: 560px; }
-  .toast { position: absolute; display: inline-flex; align-items: center; gap: 10px; background: #1b191d; color: #eceef0; font-size: 13.5px; font-weight: 600; padding: 10px 14px; border-radius: 10px; border: 1px solid #37343b; box-shadow: 0 16px 32px -10px rgba(0, 0, 0, .5); z-index: 5; white-space: nowrap; }
-  .toast svg { width: 16px; height: 16px; flex: none; }
-  .toast em { font-style: normal; color: #a7a1ac; font-weight: 500; }
-  .shop { display: grid; grid-template-columns: repeat(3, 240px); gap: 20px; padding: 28px 36px; }
-  .prod { border: 1px solid #ebebeb; border-radius: 8px; padding: 12px; font-size: 14px; color: #333; }
-  .prod .ph { height: 150px; border-radius: 5px; background: linear-gradient(160deg, #c9c3b8, #8f877a); margin-bottom: 10px; }
-  .prod b { display: block; font-size: 15px; color: #111; }
-  .prod.promo { outline: 3px solid var(--blue); outline-offset: 2px; background: #fff8e8; }
-  .prod.promo .ph { background: linear-gradient(160deg, #ffcf6b, #ff8a3d); }
-  .picker { position: absolute; left: 290px; top: 150px; width: 300px; background: #1b191d; color: #eceef0; border: 1px solid #37343b; border-radius: 12px; padding: 14px; box-shadow: 0 24px 48px -12px rgba(0, 0, 0, .5); font-size: 13px; z-index: 5; }
-  .picker small { color: #a7a1ac; }
-  .picker code { display: block; margin: 8px 0 12px; background: #242229; color: #eceef0; padding: 8px 10px; font-size: 13px; }
-  .picker .pb { display: flex; gap: 8px; }
-  .picker .pb span { border-radius: 999px; padding: 6px 14px; background: #2b282f; font-weight: 500; }
-  .picker .pb span:first-child { background: #e0a85a; color: #1b191d; font-weight: 700; }
-  .cursor { position: absolute; width: 22px; height: 22px; z-index: 6; }
-  .consent { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid #ddd; padding: 18px 36px; display: flex; align-items: center; gap: 16px; font-size: 15px; color: #333; opacity: .35; }
-  .consent span { flex: 1; text-decoration: line-through; }
-  .consent i { font-style: normal; border: 1px solid #1a73e8; color: #1a73e8; padding: 8px 14px; border-radius: 6px; font-weight: 600; }
+  /* ---- feature bento ------------------------------------------------- */
+  /* Cards with a real screenshot bleeding off the bottom-right edge. Each
+     screenshot pair plays a short loop: the page as it loads without Moat
+     (ads outlined, with their real share of the screen), then the same page
+     with Moat. Loops only while the card is on screen (.play, set by an
+     IntersectionObserver); reduced motion shows the "with Moat" state. */
+  .bento { margin-top: 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .bcard { position: relative; overflow: hidden; border-radius: 20px; background: var(--panel); box-shadow: 0 0 0 1px var(--line); padding: 36px 0 0 36px; display: flex; flex-direction: column; }
+  .bcard.wide { grid-column: 1 / -1; flex-direction: row; align-items: stretch; gap: 40px; padding: 0 0 0 44px; min-height: 480px; }
+  .bcard .txt { padding-right: 36px; max-width: 460px; }
+  .bcard.wide .txt { align-self: center; flex: 0 0 340px; padding: 44px 0; }
+  .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: rgba(111, 155, 224, .14); color: var(--blue-lt); }
+  .ic svg { width: 21px; height: 21px; }
+  .bcard h3 { margin-top: 18px; font-size: clamp(24px, 2.4vw, 30px); letter-spacing: -0.02em; }
+  .bcard p { margin-top: 10px; font-size: 16.5px; color: var(--soft); }
+  .bcard .note { margin-top: 12px; font-size: 14px; color: var(--soft); }
+  .bcard .note b { color: var(--ink); font-weight: 600; }
+
+  /* screenshot window, bleeding off the card's bottom/right edge */
+  .win { position: relative; margin-top: 30px; margin-right: -2px; border-radius: 12px 0 0 0; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 30px 60px -20px #000; flex: 1; min-height: 300px; }
+  .bcard.wide .win { margin-top: 44px; }
+  .win-bar { height: 34px; background: #35363a; display: flex; align-items: center; gap: 10px; padding: 0 12px; }
+  .win-bar .d { display: flex; gap: 6px; }
+  .win-bar .d i { width: 10px; height: 10px; border-radius: 50%; background: #5f6368; display: block; }
+  .win-bar .u { height: 24px; flex: 0 1 420px; border-radius: 12px; background: #202124; color: #e8eaed; font-size: 12.5px; display: flex; align-items: center; padding: 0 12px; white-space: nowrap; overflow: hidden; }
+  .shotbox { position: relative; width: 680px; aspect-ratio: 16 / 10; }
+  .bcard.wide .shotbox { width: 1060px; }
+  .shotbox img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .shotbox .before { animation: bf 8s infinite both paused; }
+  .mark { position: absolute; border: 2.5px solid #ff5a4f; border-radius: 6px; background: rgba(255, 90, 79, .16); animation: mk 8s infinite both paused; }
+  .flag { position: absolute; z-index: 3; left: 50%; transform: translateX(-50%); white-space: nowrap; background: #d63a30; color: #fff; font-size: 14px; font-weight: 600; padding: 7px 12px; border-radius: 8px; box-shadow: 0 10px 24px -8px rgba(0, 0, 0, .6); animation: mk 8s infinite both paused; }
+  .toast { position: absolute; z-index: 3; display: inline-flex; align-items: center; gap: 9px; background: #1b191d; color: #eceef0; font-size: 14px; font-weight: 600; padding: 9px 14px; border-radius: 10px; border: 1px solid #37343b; box-shadow: 0 16px 32px -10px rgba(0, 0, 0, .6); white-space: nowrap; animation: ts 8s infinite both paused; }
+  .toast svg { width: 16px; height: 16px; color: var(--blue-lt); flex: none; }
+  .before, .mark, .flag, .toast, .tabnew, .pcycle { animation-delay: .9s !important; }
+  .play .before, .play .mark, .play .flag, .play .toast, .play .tabnew, .play .pcycle { animation-play-state: running; }
+  /* 0-40% the page without Moat, ads outlined; 40-50% Moat clears it; 50-92% clean; loop */
+  @keyframes bf { 0%, 40% { opacity: 1; } 50%, 92% { opacity: 0; } 100% { opacity: 1; } }
+  @keyframes mk { 0%, 8% { opacity: 0; transform: scale(.98); } 14%, 38% { opacity: 1; transform: scale(1); } 46%, 100% { opacity: 0; transform: scale(.98); } }
+  .flag { animation-name: fl; }
+  @keyframes fl { 0%, 8% { opacity: 0; transform: translate(-50%, 6px); } 14%, 38% { opacity: 1; transform: translate(-50%, 0); } 46%, 100% { opacity: 0; transform: translate(-50%, -4px); } }
+  @keyframes ts { 0%, 48% { opacity: 0; transform: translateY(8px); } 54%, 88% { opacity: 1; transform: translateY(0); } 94%, 100% { opacity: 0; transform: translateY(0); } }
+
+  /* hijacked pop-up tab: a tab opens, gets struck out, and closes */
+  .tabstrip { margin-top: 30px; margin-right: -2px; border-radius: 12px 0 0 0; overflow: hidden; background: #202124; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14); flex: 1; min-height: 300px; display: flex; flex-direction: column; }
+  .tabs2 { height: 42px; display: flex; align-items: flex-end; gap: 4px; padding: 0 12px 0 72px; position: relative; font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .tabs2 .dd { position: absolute; left: 14px; top: 15px; display: flex; gap: 7px; }
+  .tabs2 .dd i { width: 11px; height: 11px; border-radius: 50%; background: #5f6368; display: block; }
+  .t2 { height: 34px; width: 230px; flex: none; border-radius: 9px 9px 0 0; display: flex; align-items: center; gap: 9px; padding: 0 12px; color: #bdc1c6; white-space: nowrap; overflow: hidden; }
+  .t2.on { background: #35363a; color: #e8eaed; }
+  .t2 .fv { width: 16px; height: 16px; border-radius: 4px; background: #5f6368; flex: none; }
+  .t2.bad .fv { background: #d93025; }
+  .tabnew { transform-origin: left center; animation: tn 6s infinite both paused; }
+  @keyframes tn {
+    0%, 12% { width: 0; opacity: 0; padding: 0; text-decoration: none; color: #bdc1c6; }
+    20%, 42% { width: 230px; opacity: 1; padding: 0 12px; text-decoration: none; color: #bdc1c6; }
+    50%, 62% { width: 230px; opacity: 1; padding: 0 12px; text-decoration: line-through; color: #ff8a80; }
+    74%, 100% { width: 0; opacity: 0; padding: 0; text-decoration: line-through; }
+  }
+  .tabpage { flex: 1; background: #35363a; padding: 10px 12px 0; }
+  .tabpage .omni { height: 32px; border-radius: 16px; background: #202124; color: #e8eaed; font: 13px system-ui, sans-serif; display: flex; align-items: center; padding: 0 14px; max-width: 460px; }
+  .tabpage .pg { margin-top: 10px; height: calc(100% - 42px); min-height: 200px; border-radius: 6px 0 0 0; background: #fff; padding: 22px 24px; font-family: Georgia, serif; color: #111; }
+  .tabpage .pg h5 { margin: 0 0 6px; font-size: 22px; }
+  .tabpage .pg p { margin: 0; font: 13.5px/1.6 system-ui, sans-serif; color: #555; max-width: 460px; }
+  .tabpage .toast { right: 18px; bottom: 18px; animation: tt 6s infinite both paused; }
+  .play .tabpage .toast { animation-play-state: running; }
+  @keyframes tt { 0%, 58% { opacity: 0; transform: translateY(8px); } 66%, 92% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
+
+  /* control: the same popup switching between on and paused */
+  .popstage { position: relative; margin-top: 30px; flex: 1; min-height: 360px; display: flex; justify-content: center; gap: 22px; padding: 0 36px 0 0; }
+  .popstage figure { margin: 0; position: relative; width: 260px; }
+  .popstage img { display: block; width: 260px; height: auto; border-radius: 12px 12px 0 0; box-shadow: 0 0 0 1px #37343b, 0 30px 60px -20px #000; }
+  .popstage .p-off { position: absolute; top: 0; left: 0; }
+  .popstage .cap { position: absolute; top: -14px; left: 16px; z-index: 3; color: #fff; font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 7px; }
+  .popstage .cap.on { background: var(--blue); }
+  .popstage .cap.off { background: #52525b; }
+  /* the real switch sits at ~79% x 59% of the "on" popup */
+  .popstage .tap { position: absolute; left: 78.8%; top: 58.6%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; border: 2.5px solid var(--blue); background: rgba(63, 111, 209, .18); box-shadow: 0 0 0 6px rgba(63, 111, 209, .18); z-index: 4; }
+  .pcycle { animation: 7s infinite both paused; }
+  .p-on, .cap.on { animation-name: pOn; }
+  .p-off, .cap.off { animation-name: pOff; }
+  .tap { animation-name: pTap; }
+  @keyframes pOn { 0%, 44% { opacity: 1; } 50%, 92% { opacity: 0; } 98%, 100% { opacity: 1; } }
+  @keyframes pOff { 0%, 44% { opacity: 0; } 50%, 92% { opacity: 1; } 98%, 100% { opacity: 0; } }
+  @keyframes pTap { 0%, 34% { opacity: 0; transform: scale(1.6); } 40% { opacity: 1; transform: scale(1); } 46%, 100% { opacity: 0; transform: scale(.7); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shotbox .before, .mark, .flag { animation: none; opacity: 0; }
+    .toast, .tabpage .toast { animation: none; opacity: 1; transform: none; }
+    .tabnew { animation: none; width: 0; opacity: 0; padding: 0; }
+    .p-on, .cap.on { animation: none; opacity: 1; }
+    .p-off, .cap.off, .tap { animation: none; opacity: 0; }
+  }
+  @media (max-width: 1000px) {
+    .bento { grid-template-columns: 1fr; }
+    .bcard.wide { flex-direction: column; padding: 32px 0 0 32px; min-height: 0; }
+    .bcard.wide .txt { flex: none; padding: 0 32px 0 0; }
+    .bcard.wide .win { margin-top: 28px; }
+  }
+  @media (max-width: 640px) {
+    .bcard, .bcard.wide { padding: 26px 0 0 22px; }
+    .shotbox, .bcard.wide .shotbox { width: 520px; }
+    .popstage { gap: 12px; padding-right: 22px; min-height: 300px; }
+
+  }
 
   /* ---- private by design cards --------------------------------------- */
   .cards { margin-top: 60px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
-  .card { background: var(--blue); color: #fff; border-radius: 16px; padding: 28px 24px 30px; box-shadow: 0 0 0 6px rgba(255, 255, 255, .05); }
-  .card svg { width: 30px; height: 30px; }
+  .card { background: var(--panel); color: var(--ink); border-radius: 16px; padding: 28px 24px 30px; box-shadow: 0 0 0 1px var(--line); }
+  .card svg { width: 44px; height: 44px; padding: 11px; border-radius: 12px; background: rgba(111, 155, 224, .14); color: var(--blue-lt); }
   .card h3 { margin-top: 18px; font-size: 22px; letter-spacing: -0.02em; }
-  .card p { margin-top: 10px; font-size: 16px; line-height: 1.55; color: rgba(255, 255, 255, .9); }
+  .card p { margin-top: 10px; font-size: 16px; line-height: 1.55; color: var(--soft); }
 
   /* ---- manifest v3 --------------------------------------------------- */
   .mv3 { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
@@ -224,50 +258,41 @@
   .cta-box { background: var(--blue); border-radius: 20px; padding: 60px 64px; display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
   .cta-box h2 { font-size: clamp(30px, 3.6vw, 44px); }
   .cta-box p { margin-top: 10px; color: rgba(255, 255, 255, .85); font-size: 18px; }
-  .cta-box .btn { margin-left: auto; }
 
-  /* ---- deep dive ----------------------------------------------------- */
-  .dd-list { margin-top: 56px; }
+
+  /* ---- details / summary base (used by the FAQ) --------------------- */
   details { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); margin-bottom: 12px; overflow: hidden; }
   summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 16px; padding: 22px 26px; font-weight: 600; font-size: 19px; letter-spacing: -0.01em; }
   summary::-webkit-details-marker { display: none; }
-  summary .tag { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--blue-lt); background: rgba(111, 155, 224, .12); border-radius: 999px; padding: 4px 10px; flex: none; }
   summary::after { content: ""; margin-left: auto; width: 10px; height: 10px; border-right: 2px solid var(--soft); border-bottom: 2px solid var(--soft); transform: rotate(45deg); transition: transform .15s; flex: none; }
   details[open] summary::after { transform: rotate(-135deg); }
   summary:hover { background: #15151a; }
-  .dd-body { padding: 4px 26px 28px; }
-  .dd-body > p.lead { color: var(--soft); font-size: 16px; max-width: 78ch; margin-bottom: 22px; }
-  .dd-body > p.lead b { color: var(--ink); }
-  .track { display: flex; align-items: stretch; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
-  .sf { flex: 0 0 auto; min-width: 132px; max-width: 210px; background: #16161b; border: 1px solid var(--line); border-radius: 8px; padding: 12px 13px; display: flex; flex-direction: column; gap: 5px; }
-  .sf .t { font-size: 14px; font-weight: 600; line-height: 1.3; }
-  .sf .d { font-size: 12.5px; color: var(--soft); line-height: 1.45; }
-  .sf .d code, .leg code { font-size: 11.5px; }
-  .sf.live { border-color: rgba(111, 155, 224, .55); }
-  .arrow { flex: 0 0 auto; align-self: center; width: 30px; height: 1.5px; background: #5c5c66; position: relative; margin: 0 -1px; }
-  .arrow::after { content: ""; position: absolute; right: -1px; top: 50%; width: 7px; height: 7px; border-top: 1.5px solid #5c5c66; border-right: 1.5px solid #5c5c66; transform: translateY(-50%) rotate(45deg); }
-  .branch { flex: 0 0 auto; display: grid; grid-template-columns: auto 30px 1fr; align-items: center; min-width: 330px; }
-  .branch .q { background: #16161b; border: 1px dashed rgba(111, 155, 224, .6); border-radius: 8px; padding: 11px 13px; font-size: 13.5px; font-weight: 600; line-height: 1.3; align-self: stretch; display: flex; align-items: center; max-width: 170px; }
-  .branch .legs { display: flex; flex-direction: column; gap: 8px; }
-  .leg { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
-  .leg .cond { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; flex: none; background: rgba(255, 255, 255, .08); color: var(--soft); }
-  .leg.yes .cond { background: rgba(111, 155, 224, .18); color: var(--blue-lt); }
-  .leg .out { background: #16161b; border: 1px solid var(--line); border-radius: 7px; padding: 8px 11px; line-height: 1.4; color: var(--soft); }
-  .leg .out b { color: var(--ink); font-weight: 600; }
-  .feeds { margin-top: 18px; font-size: 13.5px; color: var(--soft); display: flex; align-items: center; gap: 8px; }
-  .feeds .dash { flex: none; width: 46px; border-top: 1.5px dashed #5c5c66; }
-  .why ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; max-width: 80ch; }
-  .why li { position: relative; padding-left: 22px; font-size: 16px; line-height: 1.6; color: var(--soft); }
-  .why li::before { content: ""; position: absolute; left: 0; top: 10px; width: 7px; height: 7px; border-radius: 50%; background: var(--blue-lt); }
-  .why li b { color: var(--ink); font-weight: 600; }
+
+  /* ---- FAQ ----------------------------------------------------------- */
+  .faq-title { font-size: clamp(32px, 4vw, 48px); }
+  .faq { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; background: var(--panel); border-radius: 20px; box-shadow: 0 0 0 1px var(--line); padding: 12px 40px; }
+  .faq details { background: none; border: 0; border-radius: 0; margin: 0; border-bottom: 1px solid var(--line); padding: 22px 0 20px; overflow: visible; }
+  .faq-col details:last-child { border-bottom: 0; }
+  .faq summary { padding: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; gap: 12px; align-items: flex-start; }
+  .faq summary:hover { background: none; }
+  .faq summary::after { content: ""; width: 20px; height: 20px; border: 0; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--soft); transform: none; background: linear-gradient(var(--soft), var(--soft)) center / 9px 1.5px no-repeat, linear-gradient(var(--soft), var(--soft)) center / 1.5px 9px no-repeat; flex: none; margin-top: 2px; }
+  .faq details[open] summary::after { transform: none; background: linear-gradient(var(--soft), var(--soft)) center / 9px 1.5px no-repeat; }
+  .faq details p { margin-top: 10px; font-size: 16px; line-height: 1.6; color: var(--soft); max-width: 60ch; }
+  .faq details p a { color: var(--blue-lt); }
+  .faq details:target summary { color: var(--blue-lt); }
 
   /* ---- footer -------------------------------------------------------- */
-  footer { border-top: 1px solid var(--line); padding: 36px 0 52px; margin-top: 40px; }
-  footer .container { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 26px; font-size: 14.5px; color: var(--soft); }
-  footer a { color: var(--soft); text-decoration: none; }
-  footer a:hover { color: var(--ink); }
-  footer .logo { font-size: 19px; margin-right: 10px; color: var(--ink); }
-  footer .logo svg { width: 24px; height: 24px; }
+  footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 72px 0 40px; }
+  .foot-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 48px; flex-wrap: wrap; padding-bottom: 56px; border-bottom: 1px solid var(--line); }
+  footer .logo { font-size: 24px; color: var(--ink); }
+  footer .logo svg { width: 28px; height: 28px; }
+  .foot-cols { display: grid; grid-template-columns: repeat(3, minmax(150px, auto)); gap: 32px 80px; }
+  .foot-cols h4 { margin: 0 0 18px; font-size: 14px; font-weight: 500; color: var(--soft); }
+  .foot-cols a { display: block; margin-bottom: 14px; font-size: 16px; font-weight: 600; color: var(--ink); text-decoration: none; }
+  .foot-cols a:hover { color: var(--blue-lt); }
+  .foot-bottom { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 26px; font-size: 15px; color: var(--soft); }
+  @media (max-width: 900px) { .faq { grid-template-columns: 1fr; padding: 8px 24px; } .faq-col:first-child details:last-child { border-bottom: 1px solid var(--line); } }
+  @media (max-width: 640px) { .foot-cols { grid-template-columns: 1fr 1fr; gap: 28px 40px; } }
 
   /* ---- responsive ---------------------------------------------------- */
   @media (max-width: 1100px) {
@@ -277,8 +302,7 @@
   }
   @media (max-width: 1000px) {
     .nav-links { display: none; }
-    .row, .mv3 { grid-template-columns: 1fr; }
-    .row.flip .copy { order: 0; }
+    .mv3 { grid-template-columns: 1fr; }
     .cta-box { padding: 44px 32px; }
     .cta-box .btn { margin-left: 0; }
   }
@@ -290,21 +314,19 @@
     .cards { grid-template-columns: 1fr 1fr; }
     .card, .card:nth-child(n+4) { grid-column: auto; }
     .card:last-child { grid-column: 1 / -1; }
-    .crop { height: 380px; }
     .nums { gap: 32px; }
     .extras { padding: 26px 22px; }
     summary { padding: 18px; font-size: 17px; flex-wrap: wrap; }
-    .dd-body { padding: 4px 18px 24px; }
   }
   @media (max-width: 420px) { .cards { grid-template-columns: 1fr; } }
-  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 </style>
 </head>
 <body>
 
 <!-- Store-launch swap: every element with data-store is an install CTA.
-     Until the Chrome Web Store listing is live they point at the GitHub
-     repo's install section. At launch, point each href at the store listing. -->
+     Until the Chrome Web Store listing is live they say "Coming soon to
+     Chrome" and point at GitHub releases. At launch, change their text to
+     "Add to Chrome" / "Get Moat" and their href to the store listing. -->
 
 <div class="nav-wrap">
   <div class="container">
@@ -316,10 +338,10 @@
       <div class="nav-links">
         <a href="#features">Features</a>
         <a href="#privacy">Privacy</a>
-        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
         <a href="https://github.com/Samuelabhinav37/moat">GitHub ↗</a>
       </div>
-      <a class="btn btn-blue" data-store href="https://github.com/Samuelabhinav37/moat#install--build">Get Moat</a>
+      <a class="btn btn-blue" href="#get">Get Moat</a>
     </nav>
   </div>
 </div>
@@ -329,73 +351,42 @@
     <h1>Ad blocking that<br>keeps to itself.</h1>
     <p class="sub">Moat blocks ads, trackers and hijacked popups. No server, no account, no telemetry.</p>
     <div class="cta">
-      <a class="btn btn-blue btn-big" data-store href="https://github.com/Samuelabhinav37/moat#install--build">
+      <a class="btn btn-blue btn-big" data-store href="https://github.com/Samuelabhinav37/moat/releases">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Get Moat. It's free.
+        Coming soon to Chrome
       </a>
+      <p class="alt">Want it now? <a href="https://github.com/Samuelabhinav37/moat#install--build">Install from source</a>. It works in Chrome and Firefox today.</p>
     </div>
     <div class="trust">
       <span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Open source</b> (GPL-3.0)</span>
       <span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Chrome</b> and <b>Firefox</b></span>
-      <span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Nothing about you <b>leaves your device</b></span>
+      <span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Free</b> with no paid tier</span>
     </div>
   </div>
 
   <div class="container demo">
-    <div data-fit="1160"><div class="bw">
+    <div data-fit="1600"><div class="bw">
       <div class="bw-tabs"><div class="dots"><i></i><i></i><i></i></div>
-        <div class="bw-tab on"><span class="fv"></span>The town that rebuilt its harbour</div>
-        <div class="bw-tab dead"><span class="fv"></span>you-won-a-prize.example</div>
+        <div class="bw-tab on"><span class="fv"></span>The Best Password Managers to Secure…</div>
       </div>
       <div class="bw-bar">
         <span class="nv">←→↻</span>
-        <div class="bw-omni"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2"/></svg>example.com/news</div>
-        <div class="bw-ext"><svg viewBox="0 0 32 32"><line x1="24" y1="8" x2="16" y2="16" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="currentColor"/><circle cx="16" cy="16" r="2.8" fill="currentColor" fill-opacity=".85"/><circle cx="9" cy="25" r="2.2" fill="currentColor" fill-opacity=".7"/><circle cx="5.5" cy="11" r="2" fill="currentColor" fill-opacity=".62"/></svg><b>128</b></div>
+        <div class="bw-omni"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2"/></svg>wired.com/story/best-password-managers/</div>
+        <div class="bw-ext"><svg viewBox="0 0 32 32"><line x1="24" y1="8" x2="16" y2="16" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="currentColor"/><circle cx="16" cy="16" r="2.8" fill="currentColor" fill-opacity=".85"/><circle cx="9" cy="25" r="2.2" fill="currentColor" fill-opacity=".7"/><circle cx="5.5" cy="11" r="2" fill="currentColor" fill-opacity=".62"/></svg><b>18</b></div>
         <div class="bw-me"></div>
       </div>
       <div class="stage" id="stage">
-        <div class="layer after" aria-hidden="true">
-          <div class="site-h"><b>The Daily</b>World<span>Local</span><span>Sport</span><span>Culture</span></div>
-          <div class="lb gap"></div>
-          <div class="site-b">
-            <div>
-              <h1>The town that rebuilt its harbour by hand</h1>
-              <div class="by">By a staff writer · 6 min read</div>
-              <div class="ph"></div>
-              <p>For three winters the storms took a little more of the sea wall. This spring the fishing families stopped waiting for the council and started on it themselves.</p>
-            </div>
-            <div class="rail">
-              <h4>More stories</h4>
-              <div class="st">A bakery that opens at 4 a.m. for night-shift nurses</div>
-              <div class="st">The last ferry pilot on the river retires</div>
-            </div>
-          </div>
-          <div class="mp">
-            <div class="mp-h"><svg viewBox="0 0 32 32"><line x1="24" y1="8" x2="16" y2="16" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="currentColor"/><circle cx="16" cy="16" r="2.8" fill="currentColor"/><circle cx="9" cy="25" r="2.2" fill="currentColor"/><circle cx="5.5" cy="11" r="2" fill="currentColor"/></svg>Moat<span>Settings</span></div>
-            <div class="mp-n"><b>128</b><span>Blocked on this page</span></div>
-            <div class="mp-s"><div><b>71</b>Ads</div><div><b>54</b>Trackers</div><div><b>3</b>Popups</div></div>
-            <div class="mp-site"><div>example.com<small>● protected</small></div><span class="mp-t"></span></div>
-            <div class="mp-b">Block an element…</div>
-          </div>
+        <div class="layer after">
+          <img class="shot" src="shots/hero-after.webp" width="1600" height="900" alt="A WIRED article with Moat on: the page starts with the headline, no ad.">
+          <img class="popup-shot" src="shots/hero-popup.png" width="260" height="507" alt="Moat popup: 18 blocked on this page, 3 ads, 14 trackers, 1 popup.">
           <span class="tag-in a">With Moat</span>
         </div>
-        <div class="layer before" aria-hidden="true">
-          <div class="site-h"><b>The Daily</b>World<span>Local</span><span>Sport</span><span>Culture</span></div>
-          <div class="lb adu">728 × 90 LEADERBOARD</div>
-          <div class="site-b">
-            <div>
-              <h1>The town that rebuilt its harbour by hand</h1>
-              <div class="by">By a staff writer · 6 min read</div>
-              <div class="ph"></div>
-            </div>
-            <div class="mr adu">300 × 250 AD</div>
-          </div>
-          <div class="scam"><div class="t">⚠ Your computer may be infected</div><div class="b">We found 3 viruses on this device. Click <u>here</u> to run a free scan now.<div class="k">Scan now</div></div></div>
-          <div class="cookie"><span>We and our 214 partners use cookies to personalise ads and measure you across sites.</span><i class="g">Manage</i><i>Accept all</i></div>
+        <div class="layer before">
+          <img class="shot" src="shots/hero-before.webp" width="1600" height="900" alt="The same WIRED article without Moat: a large display ad sits above the headline.">
           <span class="tag-in b">Without Moat</span>
         </div>
         <div class="divider" aria-hidden="true"><div class="knob"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6-6 6 6 6M15 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-        <input class="range" type="range" min="0" max="100" value="62" aria-label="Drag to compare the same page without Moat and with Moat">
+        <input class="range" type="range" min="0" max="100" value="55" aria-label="Drag to compare the same page without Moat and with Moat">
       </div>
     </div></div>
     <p class="demo-cap">Drag the handle to see the same page with and without Moat.</p>
@@ -406,72 +397,108 @@
   <!-- ============ FEATURES ============ -->
   <section class="block" id="features" aria-labelledby="features-h">
     <div class="container">
-      <h2 class="sr-only" id="features-h">What Moat does</h2>
-      <div class="rows" style="margin-top:0">
-        <div class="row">
-          <div class="copy">
-            <h3>Pages load clean, the first time.</h3>
-            <div class="feats">
-              <div class="feat"><h4>Blocks ads and trackers</h4><p>About 350,000 filter rules run inside the browser's own blocking engine, on every site.</p></div>
-              <div class="feat"><h4>Closes hijacked popups</h4><p>Redirect tabs and pop-unders get shut the moment they open. You never see them.</p></div>
-            </div>
-          </div>
-          <div class="crop" aria-hidden="true">
-            <div class="bw-tabs"><div class="dots"><i></i><i></i><i></i></div>
-              <div class="bw-tab on"><span class="fv"></span>Recipes for tonight</div>
-              <div class="bw-tab dead"><span class="fv"></span>you-won-a-prize.example</div>
-            </div>
-            <div class="bw-bar"><span class="nv">←→↻</span><div class="bw-omni" style="max-width:520px">recipes.example/tonight</div></div>
-            <div class="pg">
-              <h5>Slow-roast tomato soup</h5>
-              <div class="meta">Serves four · 1 hour 20 minutes</div>
-              <div class="ph"></div>
-              <p>Halve the tomatoes and roast them cut side up with the garlic until the edges catch.</p>
-              <div class="toast" style="left:56px;top:150px"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Hijacked popup closed <em>0 clicks</em></div>
-            </div>
-          </div>
-        </div>
+      <div class="sec-head">
+        <h2 id="features-h">What Moat does</h2>
+        <p>It works the moment you install it. There's nothing to set up.</p>
+      </div>
 
-        <div class="row flip">
-          <div class="copy">
-            <h3>Less clutter. Fewer clicks.</h3>
-            <div class="feats">
-              <div class="feat"><h4>Says no to cookie banners</h4><p>Consent pop-ups get rejected for you, so you stop clicking "no" on every site.</p></div>
-              <div class="feat"><h4>Tidies up after itself</h4><p>The empty boxes a blocked ad leaves behind collapse, so pages don't look broken.</p></div>
+      <div class="bento">
+        <!-- ads: BBC Weather, ad rects measured in the real 1440x900 capture -->
+        <article class="bcard wide">
+          <div class="txt">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M4 20 20 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <h3>Just the page you came for.</h3>
+            <p>About 350,000 filter rules stop ads and trackers before they load, on every site.</p>
+            <p class="note">On this page, ads took up <b>42% of the first screen</b>.</p>
+          </div>
+          <div class="win" aria-hidden="true">
+            <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">bbc.co.uk/weather</span></div>
+            <div class="shotbox">
+              <img src="shots/bbc-after.webp" width="1440" height="900" alt="" loading="lazy">
+              <img class="before" src="shots/bbc-before.webp" width="1440" height="900" alt="" loading="lazy">
+              <span class="mark" style="left:0;top:14.2%;width:100%;height:31.9%"></span>
+              <span class="mark" style="left:72.5%;top:53.3%;width:20.8%;height:46.7%"></span>
+              <span class="flag" style="left:36%;top:48%">Ads: 42% of the screen</span>
+              <span class="toast" style="left:24px;bottom:24px"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Blocked by Moat</span>
             </div>
           </div>
-          <div class="crop" aria-hidden="true">
-            <div class="bw-bar" style="width:1000px"><span class="nv">←→↻</span><div class="bw-omni" style="max-width:520px">news.example/today</div></div>
-            <div class="pg">
-              <h5>Clear tonight, frost by morning</h5>
-              <div class="meta">Updated 18:40 · Low of 1°C</div>
-              <p>Skies clear after sunset as the high pressure settles in. It's a good night for stars away from town lights.</p>
-              <p>Expect frost on car windscreens before 7 a.m. and a bright, still morning.</p>
-            </div>
-            <div class="consent"><span>This website uses cookies. We and our partners store and access information on your device.</span><i>Accept all</i></div>
-            <div class="toast" style="right:24px;bottom:14px"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Cookie banner rejected</div>
-          </div>
-        </div>
+        </article>
 
-        <div class="row">
-          <div class="copy">
+        <!-- clutter: Allrecipes -->
+        <article class="bcard">
+          <div class="txt">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <h3>Less clutter.</h3>
+            <p>Blocked ads don't leave empty boxes behind, so the page closes up around what you're reading.</p>
+          </div>
+          <div class="win" aria-hidden="true">
+            <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">allrecipes.com</span></div>
+            <div class="shotbox">
+              <img src="shots/recipe-after.webp" width="1440" height="900" alt="" loading="lazy">
+              <img class="before" src="shots/recipe-before.webp" width="1440" height="900" alt="" loading="lazy">
+              <span class="mark" style="left:24.7%;top:17.8%;width:50.6%;height:10%"></span>
+              <span class="mark" style="left:63.75%;top:40.6%;width:20.8%;height:59.4%"></span>
+              <span class="flag" style="left:34%;top:31%">2 ads above the recipe</span>
+              <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Space given back</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- cookies: GOV.UK, banner rejected by Moat (switch on in Settings) -->
+        <article class="bcard">
+          <div class="txt">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.5 12.5A8.5 8.5 0 1 1 11.5 3.5a3 3 0 0 0 4 3.8 3 3 0 0 0 5 5.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="9" cy="10" r="1.2" fill="currentColor"/><circle cx="13.5" cy="15" r="1.2" fill="currentColor"/></svg></span>
+            <h3>No more cookie banners.</h3>
+            <p>Switch it on once and Moat answers them for you, sharing as little as the site allows.</p>
+          </div>
+          <div class="win" aria-hidden="true">
+            <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">gov.uk</span></div>
+            <div class="shotbox">
+              <img src="shots/govuk-after.webp" width="1440" height="900" alt="" loading="lazy">
+              <img class="before" src="shots/govuk-before.webp" width="1440" height="900" alt="" loading="lazy">
+              <span class="mark" style="left:0;top:0;width:100%;height:36.1%"></span>
+              <span class="flag" style="left:40%;top:40%">Cookie banner: 36% of the screen</span>
+              <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Rejected additional cookies</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- hijacked pop-up tabs -->
+        <article class="bcard">
+          <div class="txt">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="7" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 4h9.5A2 2 0 0 1 20.5 6v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m7.5 10.5 4 4m0-4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <h3>Closes hijacked pop-ups.</h3>
+            <p>Fake prize and fake virus tabs get shut the moment they open. You never see them.</p>
+          </div>
+          <div class="tabstrip" aria-hidden="true">
+            <div class="tabs2"><span class="dd"><i></i><i></i><i></i></span>
+              <span class="t2 on"><span class="fv"></span>Slow-roast tomato soup</span>
+              <span class="t2 bad tabnew"><span class="fv"></span>you-won-a-prize.example</span>
+            </div>
+            <div class="tabpage" style="position:relative">
+              <div class="omni">recipes.example/tomato-soup</div>
+              <div class="pg"><h5>Slow-roast tomato soup</h5><p>Halve the tomatoes and roast them cut side up with the garlic until the edges catch.</p><p style="margin-top:10px">Blend with the stock, then season with salt and a little sugar. Serve with bread.</p><div style="margin-top:16px;height:120px;border-radius:6px;background:linear-gradient(160deg,#d4b89b,#a77c5c 60%,#6d4c35);max-width:460px"></div></div>
+              <span class="toast"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Pop-up tab closed</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- control: the real popup, on and paused -->
+        <article class="bcard">
+          <div class="txt">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="8" width="18" height="8" rx="4" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="12" r="2.2" fill="currentColor"/></svg></span>
             <h3>You stay in control.</h3>
-            <div class="feats">
-              <div class="feat"><h4>Block anything with a click</h4><p>Point at an element a filter list missed and it's gone, on that site, for good.</p></div>
-              <div class="feat"><h4>Pause on one site</h4><p>Trust a site? Switch Moat off there. Everywhere else stays protected.</p></div>
-            </div>
+            <p>Trust a site? One switch pauses Moat there. Anything a filter list misses, you can block with a click.</p>
           </div>
-          <div class="crop" aria-hidden="true">
-            <div class="bw-bar" style="width:1000px"><span class="nv">←→↻</span><div class="bw-omni" style="max-width:520px">shop.example/deals</div></div>
-            <div class="shop">
-              <div class="prod promo"><div class="ph"></div><b>Limited offer! Ends soon!</b>Sign up for 10% off</div>
-              <div class="prod"><div class="ph"></div><b>Waxed leather boot</b>£120</div>
-              <div class="prod"><div class="ph"></div><b>Wool hiking sock</b>£14</div>
-            </div>
-            <svg class="cursor" viewBox="0 0 24 24" style="left:150px;top:150px"><path d="M4 3l7 17 2.5-7L21 10.5z" fill="#111" stroke="#fff" stroke-width="1.3"/></svg>
-            <div class="picker"><small>Element picker</small><code>.promo-card--hero</code><div class="pb"><span>Block</span><span>Gray out</span><span>Cancel</span></div></div>
+          <div class="popstage" aria-hidden="true">
+            <figure class="pcy">
+              <span class="cap on pcycle">On</span><span class="cap off pcycle">Paused</span>
+              <img class="p-on pcycle" src="shots/pop-on.png" width="260" height="507" alt="" loading="lazy">
+              <img class="p-off pcycle" src="shots/pop-paused.png" width="260" height="407" alt="" loading="lazy">
+              <span class="tap pcycle"></span>
+            </figure>
           </div>
-        </div>
+        </article>
       </div>
     </div>
   </section>
@@ -532,7 +559,7 @@
           <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Tracker uncloaking</b> for trackers hiding behind a site's own domain.</li>
         </ul>
         <div class="actions">
-          <a class="btn btn-blue" data-store href="https://github.com/Samuelabhinav37/moat#install--build">Get Moat</a>
+          <a class="btn btn-blue" href="https://github.com/Samuelabhinav37/moat#install--build">Install from source</a>
           <a class="btn btn-line" href="https://github.com/Samuelabhinav37/moat">View the source</a>
         </div>
       </div>
@@ -540,114 +567,40 @@
   </section>
 
   <!-- ============ CTA ============ -->
-  <section>
+  <section id="get">
     <div class="container">
       <div class="cta-box">
         <div>
           <h2>Start browsing quieter today.</h2>
-          <p>Free for Chrome and Firefox. It takes a minute to set up.</p>
+          <p>Moat is on its way to the Chrome Web Store. You can install it from source now.</p>
         </div>
-        <a class="btn btn-white" data-store href="https://github.com/Samuelabhinav37/moat#install--build">Get Moat. It's free.</a>
+        <div class="cta-btns">
+          <a class="btn btn-white" href="https://github.com/Samuelabhinav37/moat#install--build">Install from source</a>
+          <a class="btn btn-ghost-w" data-store href="https://github.com/Samuelabhinav37/moat/releases">Watch for the release</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ DEEP DIVE ============ -->
-  <section class="block" id="how" style="border-top:0">
+
+  <!-- ============ FAQ ============ -->
+  <section class="block" id="faq">
     <div class="container">
-      <div class="sec-head">
-        <h2>How it works, for the curious</h2>
-        <p>The technical detail behind the claims above. Open any section.</p>
-      </div>
-
-      <div class="dd-list">
-        <details>
-          <summary><span class="tag">Enforce</span>What happens on every page load</summary>
-          <div class="dd-body">
-            <p class="lead">Three layers act in parallel, all on your device: the network filter, the scripts that run inside the page, and a safety net for popup tabs the scripts never saw.</p>
-            <div class="track">
-              <div class="sf"><span class="t">Network request</span><span class="d">Any file, frame or navigation the page asks for.</span></div>
-              <div class="arrow"></div>
-              <div class="branch">
-                <div class="q">Matches a built-in blocking rule?</div>
-                <div class="arrow"></div>
-                <div class="legs">
-                  <div class="leg yes"><span class="cond">match</span><span class="out"><b>Block it</b>, or swap in a harmless stand-in.</span></div>
-                  <div class="leg no"><span class="cond">no match</span><span class="out">The request goes ahead normally.</span></div>
-                </div>
-              </div>
-              <div class="arrow"></div>
-              <div class="sf"><span class="t">Page scripts @ <code>document_start</code></span><span class="d">Hide leftover ad boxes with CSS, and add fingerprint protection if it's on.</span></div>
-              <div class="arrow"></div>
-              <div class="branch">
-                <div class="q">New tab lands on a known popup domain?</div>
-                <div class="arrow"></div>
-                <div class="legs">
-                  <div class="leg yes"><span class="cond">match</span><span class="out"><b>Close the tab</b> quietly.</span></div>
-                  <div class="leg no"><span class="cond">no match</span><span class="out">Watched briefly for a late redirect, then left alone.</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <details>
-          <summary><span class="tag">Refresh</span>The live-update channel</summary>
-          <div class="dd-body">
-            <p class="lead">A small set of fixes updates faster than store releases can: about 460 popup domains, an emergency block and allow list, and fixes for hiding page elements. The file list is checked against a <b>signing key built into Moat</b> (Ed25519), and each file against its <b>SHA-256 hash</b>, before anything is used. If a check fails, Moat keeps what it shipped with.</p>
-            <div class="track">
-              <div class="sf live"><span class="t">Timer fires</span><span class="d">About once a day. The first run waits a random 30 to 180 minutes.</span></div>
-              <div class="arrow"></div>
-              <div class="branch">
-                <div class="q">Last update under 18 hours old?</div>
-                <div class="arrow"></div>
-                <div class="legs">
-                  <div class="leg yes"><span class="cond">fresh</span><span class="out"><b>Skip the network</b> and use the saved copy.</span></div>
-                  <div class="leg no"><span class="cond">stale</span><span class="out">Download <code>manifest.json</code> and its signature.</span></div>
-                </div>
-              </div>
-              <div class="arrow"></div>
-              <div class="branch">
-                <div class="q">Signature and hashes check out?</div>
-                <div class="arrow"></div>
-                <div class="legs">
-                  <div class="leg no"><span class="cond">fails</span><span class="out"><b>Keep the built-in lists.</b> Try again next time.</span></div>
-                  <div class="leg yes"><span class="cond">passes</span><span class="out"><b>Apply</b> the three files below.</span></div>
-                </div>
-              </div>
-            </div>
-            <div class="feeds"><span class="dash"></span> A verified update feeds straight into blocking:</div>
-            <div class="track" style="margin-top:12px">
-              <div class="sf live"><span class="t">redirect-domains</span><span class="d">New blocking rules, plus the popup tab list. Both saved for restarts.</span></div>
-              <div class="sf live" style="margin-left:12px"><span class="t">quick-fixes</span><span class="d">Block and allow rules only. Nothing that can redirect or rewrite a request can arrive this way.</span></div>
-              <div class="sf live" style="margin-left:12px"><span class="t">cosmetic-fixes</span><span class="d">Checked CSS selectors, used from the next page load.</span></div>
-            </div>
-          </div>
-        </details>
-
-        <details class="why">
-          <summary><span class="tag">Trust</span>Why the privacy claim holds</summary>
-          <div class="dd-body">
-            <ul>
-              <li><b>There's nothing to sell.</b> No telemetry, no account and no server. Even a new owner would find little to make money from.</li>
-              <li><b>Updates carry data, never code.</b> Only block and allow rules and CSS selectors arrive. Each selector goes through the same <code>isSafeCosmeticSelector</code> check as your own rules, with limits on length and count.</li>
-              <li><b>Signed, then hashed.</b> Even if the hosting were taken over, the worst an attacker could do is block or allow a list of domains.</li>
-              <li><b>A strict content security policy.</b> Every script ships inside the extension. There's no <code>eval</code> and no remote script.</li>
-              <li><b>It asks to read every site.</b> An ad blocker has to see requests on every page to block them. There's no narrower permission that does the job.</li>
-            </ul>
-          </div>
-        </details>
-
-        <details class="why">
-          <summary><span class="tag">Scale</span>Why it holds at scale</summary>
-          <div class="dd-body">
-            <ul>
-              <li><b>No shared bottleneck.</b> Every copy runs on its own. The browser stores handle downloads and updates, so ten thousand or ten million users is Google, Mozilla and GitHub's load, not ours.</li>
-              <li>The <b>only</b> regular download is the daily file from GitHub Pages. It's a few kilobytes and sits behind a CDN cache.</li>
-              <li><b>Chrome limits blocking rules</b> across all your extensions combined. Moat notices when that limit is close and offers a lighter preset.</li>
-            </ul>
-          </div>
-        </details>
+      <h2 class="faq-title">Frequently asked questions</h2>
+      <div class="faq">
+        <div class="faq-col">
+          <details id="faq-free" open><summary>Is Moat free?</summary><p>Yes. Moat is free and open source under GPL-3.0. There's no paid tier, no premium unlock and no subscription.</p></details>
+          <details id="faq-what" open><summary>What does Moat block?</summary><p>Ads, trackers and hijacked pop-up tabs, out of the box. Cookie banners, fingerprinting protection and leaked-password warnings are switches in Settings.</p></details>
+          <details id="faq-data" open><summary>Does Moat collect my data?</summary><p>No. There's no Moat server, no account and no analytics. The only thing it downloads is a small, signed file of filter fixes once a day, and that request carries nothing about you.</p></details>
+          <details id="faq-money" open><summary>How does Moat make money?</summary><p>It doesn't. Moat is an open-source project with no server to pay for. Nothing you do is sold, and it doesn't show "acceptable" ads.</p></details>
+        </div>
+        <div class="faq-col">
+          <details id="faq-how" open><summary>How does Moat work?</summary><p>Filter lists run inside the browser's own blocking engine, so ads and trackers are stopped before they load. A small signed update arrives once a day. <a href="https://github.com/Samuelabhinav37/moat/blob/master/docs/design-notes.md">Read the technical details</a>.</p></details>
+          <details id="faq-perm" open><summary>Why does it ask to read every site?</summary><p>An ad blocker has to see a page's requests to block them, on every site you visit. Moat reads pages on your computer only and never sends their content anywhere.</p></details>
+          <details id="faq-pause" open><summary>Can I turn it off for one site?</summary><p>Yes. Open the Moat popup on that site and flip the switch. Everywhere else stays protected.</p></details>
+          <details id="faq-firefox" open><summary>Does it work in Firefox?</summary><p>Yes. Moat is built from one codebase for both Chrome and Firefox, including Firefox for Android.</p></details>
+          <details id="faq-store" open><summary>When will it be in the Chrome Web Store?</summary><p>It's being prepared for submission now. Until then you can <a href="https://github.com/Samuelabhinav37/moat#install--build">install it from source</a> in a couple of minutes.</p></details>
+        </div>
       </div>
     </div>
   </section>
@@ -655,32 +608,43 @@
 
 <footer>
   <div class="container">
-    <a class="logo" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#030307" stroke="rgba(255,255,255,.18)"/><line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="#fff"/><circle cx="16" cy="16" r="2.8" fill="rgba(255,255,255,.85)"/><circle cx="9" cy="25" r="2.2" fill="rgba(255,255,255,.7)"/><circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)"/></svg>Moat</a>
-    <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md">Changelog</a>
-    <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md">Privacy</a>
-    <a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml">Build status</a>
-    <span>GPL-3.0</span>
-    <span>Chrome · Firefox</span>
-    <a href="https://github.com/Samuelabhinav37/moat">GitHub</a>
+    <div class="foot-top">
+      <a class="logo" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#030307" stroke="rgba(255,255,255,.18)"/><line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="#fff"/><circle cx="16" cy="16" r="2.8" fill="rgba(255,255,255,.85)"/><circle cx="9" cy="25" r="2.2" fill="rgba(255,255,255,.7)"/><circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)"/></svg>Moat</a>
+      <div class="foot-cols" role="navigation" aria-label="Footer">
+        <div><h4>Product</h4><a href="#features">Features</a><a href="#privacy">Privacy</a><a href="#faq">FAQ</a></div>
+        <div><h4>Resources</h4><a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md">Changelog</a><a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md">Privacy policy</a><a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml">Build status</a><a href="https://github.com/Samuelabhinav37/moat#install--build">Install from source</a></div>
+        <div><h4>Project</h4><a href="https://github.com/Samuelabhinav37/moat">GitHub</a><a href="https://github.com/Samuelabhinav37/moat/blob/master/LICENSE">GPL-3.0 license</a><a href="https://github.com/Samuelabhinav37/moat/issues">Report an issue</a></div>
+      </div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Moat</span><span>Free and open source.</span></div>
   </div>
 </footer>
 
 <script>
   (function () {
-    // Keep the browser mockup at true 1:1 size. On narrow screens, stop at
-    // half size and crop around the before/after divider instead.
+    // Scale the whole 1600px browser window as one unit to fit. On narrow
+    // screens, stop at about a third and crop around the divider instead.
     function fit() {
       document.querySelectorAll("[data-fit]").forEach(function (outer) {
         var inner = outer.firstElementChild, w = Number(outer.dataset.fit), ow = outer.clientWidth;
-        var s = Math.max(0.5, Math.min(1, ow / w)), sw = w * s;
-        // Only when it still overflows: centre the crop on the divider (62%).
-        var tx = sw > ow ? Math.max(ow - sw, Math.min(0, ow / 2 - sw * 0.62)) : 0;
+        var s = Math.max(0.35, Math.min(1, ow / w)), sw = w * s;
+        // Only when it still overflows: centre the crop on the divider (55%).
+        var tx = sw > ow ? Math.max(ow - sw, Math.min(0, ow / 2 - sw * 0.55)) : 0;
         inner.style.transform = "translateX(" + tx + "px) scale(" + s + ")";
         outer.style.height = inner.offsetHeight * s + "px";
       });
     }
     addEventListener("resize", fit);
     fit();
+    // Feature cards: run their loops only while on screen.
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { e.target.classList.toggle("play", e.isIntersecting); });
+      }, { threshold: 0.35 });
+      document.querySelectorAll(".bcard").forEach(function (c) { io.observe(c); });
+    } else {
+      document.querySelectorAll(".bcard").forEach(function (c) { c.classList.add("play"); });
+    }
     // Before/after divider. Without JS the page still shows a fixed split.
     var stage = document.getElementById("stage");
     stage.querySelector(".range").addEventListener("input", function (e) {
