@@ -13,7 +13,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  actions: write # to start CI on the refresh branch (see the last step)
 
 jobs:
   refresh:
@@ -56,17 +55,4 @@ jobs:
             gh pr create --base master --head "$BR" \
               --title "chore: weekly filter refresh" \
               --body "Automated \`npm run filters:update\`. This diff only ever covers the small, tracked \`live/*.json\` slice — rules/dnr/ and rules/redirect-resources/ are gitignored, so the bulk of the ruleset (AdGuard, Peter Lowe, oisd) regenerates invisibly to this PR even when its content changes. Review what's here, then merge — CI runs the full gate on the PR."
-          fi
-
-      # A push/PR made with GITHUB_TOKEN never triggers other workflows, so the
-      # PR would otherwise arrive with no CI at all. workflow_dispatch is the one
-      # event GITHUB_TOKEN may trigger; its result attaches to the branch commit
-      # and shows on the PR.
-      - name: Run CI on the refresh branch
-        if: success()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if git rev-parse --verify -q refs/heads/chore/filter-refresh >/dev/null; then
-            gh workflow run ci.yml --ref chore/filter-refresh
           fi
