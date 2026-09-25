@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isCandidateForUncloak, isCnameCloakDestination } from "./cnameUncloakMatch";
+import { isCandidateForUncloak, isCnameCloakDestination, pageHostnameForRequest } from "./cnameUncloakMatch";
 
 describe("isCnameCloakDestination", () => {
   it("matches an exact entry in the destination list", () => {
@@ -27,5 +27,21 @@ describe("isCandidateForUncloak", () => {
 
   it("is a candidate for the exact same hostname as the page", () => {
     expect(isCandidateForUncloak("example.com", "example.com")).toBe(true);
+  });
+});
+
+describe("pageHostnameForRequest", () => {
+  it("uses Firefox's documentUrl for a request from the top-level page", () => {
+    expect(pageHostnameForRequest({ type: "script", documentUrl: "https://site.example/a" })).toBe("site.example");
+  });
+
+  it("falls back to Chrome's initiator, since Chrome has no documentUrl", () => {
+    expect(pageHostnameForRequest({ type: "xmlhttprequest", initiator: "https://www.site.example" })).toBe("www.site.example");
+  });
+
+  it("skips page navigations and requests with no known page", () => {
+    expect(pageHostnameForRequest({ type: "main_frame", documentUrl: "https://site.example/" })).toBeNull();
+    expect(pageHostnameForRequest({ type: "script" })).toBeNull();
+    expect(pageHostnameForRequest({ type: "script", initiator: "null" })).toBeNull();
   });
 });

@@ -33,3 +33,24 @@ export function isCandidateForUncloak(requestHostname: string, pageHostname: str
   const pageApex = domainChain(pageHostname).at(-1);
   return requestApex !== undefined && requestApex === pageApex;
 }
+
+/** The hostname of the page a request was made from, or null when there's
+ * nothing to uncloak: the request is a page navigation itself, or the page
+ * is unknown.
+ *
+ * Until 0.11.131 both paths skipped `frameId === 0` instead, but frameId 0
+ * means "made in the top-level frame", so every script and image the main
+ * page loads was skipped and only iframe requests were ever checked. Chrome's
+ * webRequest also has no `documentUrl` (verified in Chrome for Testing 154:
+ * a top-page request carries only `initiator`), so the Chrome path never
+ * checked anything at all. */
+export function pageHostnameForRequest(details: { type: string; documentUrl?: string; initiator?: string }): string | null {
+  if (details.type === "main_frame") return null;
+  const pageUrl = details.documentUrl ?? details.initiator;
+  if (!pageUrl) return null;
+  try {
+    return new URL(pageUrl).hostname || null;
+  } catch {
+    return null;
+  }
+}

@@ -25,7 +25,7 @@
 //    candidate set Firefox gates on, not every hostname visited.
 import browser from "webextension-polyfill";
 import type { WebRequest } from "webextension-polyfill";
-import { isCandidateForUncloak, isCnameCloakDestination } from "./cnameUncloakMatch";
+import { isCandidateForUncloak, isCnameCloakDestination, pageHostnameForRequest } from "./cnameUncloakMatch";
 import { safeHostname } from "./redirectDomainMatch";
 import { recordSignalEvent } from "./usageStats";
 import { recordFired } from "./liveHeuristics";
@@ -36,17 +36,8 @@ import {
   MAX_CNAME_DOH_RULES,
   type DohResponse,
 } from "./cnameUncloakDoh";
+import { isPagePaused, loadCloakDestinations, setUncloakSettings } from "./cnameDestinations";
 import type { Settings } from "../types";
-
-let cloakDestinations: Set<string> | null = null;
-
-async function loadCloakDestinations(): Promise<Set<string>> {
-  if (cloakDestinations) return cloakDestinations;
-  const url = browser.runtime.getURL("rules/cname-cloak-destinations.json");
-  const domains = (await (await fetch(url)).json()) as string[];
-  cloakDestinations = new Set(domains);
-  return cloakDestinations;
-}
 
 const DOH_ENDPOINT = "https://cloudflare-dns.com/dns-query";
 
@@ -106,12 +97,13 @@ function onBeforeRequest(details: WebRequest.OnBeforeRequestDetailsType): void {
 }
 
 async function handleBeforeRequest(details: WebRequest.OnBeforeRequestDetailsType): Promise<void> {
-  if (details.frameId === 0 || !details.documentUrl) return;
-
-  const pageHostname = safeHostname(details.documentUrl);
+  // Chrome has no documentUrl; pageHostnameForRequest falls back to initiator.
+  const pageHostname = pageHostnameForRequest(details as { type: string; documentUrl?: string; initiator?: string });
   const requestHostname = safeHostname(details.url);
   if (!pageHostname || !requestHostname) return;
   if (!isCandidateForUncloak(requestHostname, pageHostname)) return;
+  // Before the DoH lookup, so a paused site's hostnames never leave the browser.
+  if (isPagePaused(pageHostname)) return;
   if (checkedThisSession.has(requestHostname)) return;
 
   if (checkedThisSession.size >= MAX_CHECKED_ENTRIES) checkedThisSession.clear();
@@ -175,6 +167,7 @@ async function clearBlockedHostnames(): Promise<void> {
  * is safe on every browser. */
 export function applyCnameUncloakChrome(settings: Settings): void {
   if (!isSupported()) return;
+  setUncloakSettings(settings);
 
   const shouldRun = settings.enabled && settings.cnameUncloaking;
   if (shouldRun) {

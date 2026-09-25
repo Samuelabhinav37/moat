@@ -127,7 +127,9 @@ is in [`docs/design-notes.md`](docs/design-notes.md).
 - **Auto-reject cookie banners** (opt-in). Clicks "reject" on the major consent platforms via a
   declarative rule format, never injected JS.
 - **Uncloak disguised trackers** (opt-in). Resolves CNAME-cloaked subdomains and blocks the ones
-  that lead to a tracker (Firefox via its DNS API; Chrome via a public DoH lookup).
+  that lead to a tracker: anything on AdGuard's CNAME list or already blocked by Moat's own
+  tracker and ad lists, the way uBlock Origin re-applies its filters (Firefox via its DNS API;
+  Chrome via a public DoH lookup). Skipped on paused sites.
 - **Privacy toggles** (opt-in). Fingerprint resistance, third-party cookie blocking, WebRTC leak
   protection.
 - **Global Privacy Control.** Sends `Sec-GPC`, a legally binding opt-out signal in a dozen US states.

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Settings } from "../types";
 
 const addListener = vi.fn();
@@ -14,7 +14,11 @@ vi.mock("webextension-polyfill", () => ({
   },
 }));
 
+vi.mock("./usageStats", () => ({ recordSignalEvent: vi.fn(() => Promise.resolve()) }));
+vi.mock("./liveHeuristics", () => ({ recordFired: vi.fn() }));
+
 const { applyCnameUncloakChrome } = await import("./cnameUncloakChrome");
+const { resetCnameDestinationsForTest } = await import("./cnameDestinations");
 
 const baseSettings: Settings = {
   disabledSites: [],
@@ -93,5 +97,53 @@ describe("applyCnameUncloakChrome", () => {
     updateDynamicRules.mockClear();
     applyCnameUncloakChrome({ ...baseSettings, cnameUncloaking: false, webrtcLeakProtection: true });
     expect(updateDynamicRules).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("the Chrome uncloaking listener", () => {
+  // DoH answers: metrics.site.example is a disguised subdomain whose real
+  // address is one of Moat's own tracker domains (not on the CNAME list).
+  const FILES: Record<string, unknown> = {
+    "test://rules/cname-cloak-destinations.json": ["cloak.example"],
+    "test://rules/uncloak-domains.json": { trackers: ["tracker.example"], ads: [] },
+  };
+  const fetchMock = vi.fn(async (url: string) => {
+    if (url.startsWith("https://cloudflare-dns.com/")) {
+      return { ok: true, json: async () => ({ Answer: [{ type: 5, data: "eu.collect.tracker.example." }] }) };
+    }
+    return { ok: true, json: async () => FILES[url] };
+  });
+
+  beforeEach(() => {
+    resetCnameDestinationsForTest();
+    fetchMock.mockClear();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  async function fire(settings: Settings, page: string, request: string): Promise<void> {
+    addListener.mockClear();
+    // Off first, so the listener registers fresh and this test gets its own copy.
+    applyCnameUncloakChrome({ ...settings, cnameUncloaking: false });
+    applyCnameUncloakChrome({ ...settings, cnameUncloaking: true });
+    const listener = addListener.mock.calls.at(-1)![0] as (details: unknown) => void;
+    updateDynamicRules.mockClear();
+    // The shape Chrome really sends for a top-page request: frameId 0, no documentUrl.
+    listener({ url: request, initiator: new URL(page).origin, frameId: 0, type: "script", tabId: 3 });
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
+  it("blocks a disguised subdomain whose real address is one of Moat's own tracker domains", async () => {
+    await fire(baseSettings, "https://site.example/", "https://metrics.site.example/collect");
+    expect(updateDynamicRules).toHaveBeenCalledWith(
+      expect.objectContaining({ addRules: [expect.objectContaining({ condition: expect.objectContaining({ urlFilter: "||metrics.site.example^" }) })] })
+    );
+  });
+
+  it("never looks up or blocks anything on a paused site", async () => {
+    await fire({ ...baseSettings, disabledSites: ["paused.example"] }, "https://paused.example/", "https://metrics.paused.example/collect");
+    expect(fetchMock).not.toHaveBeenCalledWith(expect.stringContaining("cloudflare-dns.com"), expect.anything());
+    expect(updateDynamicRules).not.toHaveBeenCalled();
   });
 });

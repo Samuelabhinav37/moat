@@ -720,6 +720,29 @@ writeFileSync(
   join(outDir, "manifest.json"),
   JSON.stringify(manifestEntries, null, 2)
 );
+
+// The tracker and ad domains CNAME uncloaking checks a disguised subdomain's
+// real address against (src/background/cnameDestinations.ts), the way uBlock
+// Origin re-applies its own filters to the uncloaked name. Needed because no
+// browser lets an extension ask its static rulesets "would this URL match?"
+// outside development (declarativeNetRequest.testMatchOutcome). Kept per
+// group so turning Trackers or Ads off in Settings turns it off here too.
+// Only loaded at runtime when the opt-in uncloaking setting is on.
+const UNCLOAK_GROUPS = ["trackers", "ads"];
+const uncloakDomains = Object.fromEntries(
+  UNCLOAK_GROUPS.map((group) => {
+    const domains = new Set();
+    for (const entry of manifestEntries.filter((e) => e.group === group)) {
+      const rules = JSON.parse(readFileSync(join(outDir, entry.file), "utf8"));
+      for (const domain of plainBlockedDomains(rules, { allowResourceTypes: true })) domains.add(domain);
+    }
+    return [group, [...domains].sort()];
+  })
+);
+writeFileSync(join(outDir, "uncloak-domains.json"), JSON.stringify(uncloakDomains));
+console.log(
+  `uncloak-domains.json: ${UNCLOAK_GROUPS.map((group) => `${uncloakDomains[group].length} ${group}`).join(", ")} domains`
+);
 // Hand-curated additions, same convention as ad-networks.json/seo-spam-domains.json/
 // circumvention-services.json -- domains confirmed (not guessed) to redirect
 // to something worth closing (a popup/scam page) that AdGuard's own popups/

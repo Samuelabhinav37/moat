@@ -18,20 +18,11 @@
 // warming pass with a fail-open-on-first-hit compromise.
 import browser from "webextension-polyfill";
 import type { WebRequest } from "webextension-polyfill";
-import { isCandidateForUncloak, isCnameCloakDestination } from "./cnameUncloakMatch";
+import { isCandidateForUncloak, isCnameCloakDestination, pageHostnameForRequest } from "./cnameUncloakMatch";
+import { isPagePaused, loadCloakDestinations, setUncloakSettings } from "./cnameDestinations";
 import { recordSignalEvent } from "./usageStats";
 import { recordFired } from "./liveHeuristics";
 import type { Settings } from "../types";
-
-let cloakDestinations: Set<string> | null = null;
-
-async function loadCloakDestinations(): Promise<Set<string>> {
-  if (cloakDestinations) return cloakDestinations;
-  const url = browser.runtime.getURL("rules/cname-cloak-destinations.json");
-  const domains = (await (await fetch(url)).json()) as string[];
-  cloakDestinations = new Set(domains);
-  return cloakDestinations;
-}
 
 // Firefox's own dns.resolve() already sits in front of the OS/network DNS
 // cache; this second, in-memory cache exists only to skip the extra
@@ -72,13 +63,10 @@ function safeHostname(url: string): string | null {
 }
 
 async function onBeforeRequest(details: WebRequest.OnBeforeRequestDetailsType): Promise<WebRequest.BlockingResponse> {
-  // main_frame navigation is the page itself, not a subresource that could
-  // be a disguised tracker -- and documentUrl is unset there anyway (per
-  // Firefox's own docs), so there'd be no "first-party page" to compare
-  // against.
-  if (details.frameId === 0 || !details.documentUrl) return {};
-
-  const pageHostname = safeHostname(details.documentUrl);
+  // A page navigation is the page itself, not a subresource that could be a
+  // disguised tracker. See pageHostnameForRequest for why this isn't a
+  // frameId check.
+  const pageHostname = pageHostnameForRequest(details);
   const requestHostname = safeHostname(details.url);
   if (!pageHostname || !requestHostname) return {};
 
@@ -87,6 +75,7 @@ async function onBeforeRequest(details: WebRequest.OnBeforeRequestDetailsType): 
   // request to a domain that doesn't share the page's apex doesn't need
   // this at all.
   if (!isCandidateForUncloak(requestHostname, pageHostname)) return {};
+  if (isPagePaused(pageHostname)) return {};
 
   const [destinations, canonical] = await Promise.all([loadCloakDestinations(), resolveCanonicalName(requestHostname)]);
   if (canonical && isCnameCloakDestination(canonical, destinations)) {
@@ -108,6 +97,7 @@ export function isSupported(): boolean {
  * toggle here. A no-op everywhere but Firefox with the `dns` permission. */
 export function applyCnameUncloak(settings: Settings): void {
   if (!isSupported()) return;
+  setUncloakSettings(settings);
 
   const shouldRun = settings.enabled && settings.cnameUncloaking;
   if (shouldRun && !registered) {

@@ -76,8 +76,9 @@ only to an organization's own infrastructure, never to Moat's developer.
    there Moat instead sends the candidate hostname to Cloudflare's public
    DNS-over-HTTPS resolver (`cloudflare-dns.com`) -- a third party sees that
    narrow, filtered set of hostnames, though never your full browsing
-   history or which page you were on. Either way, this never runs at all
-   unless you explicitly enable it.
+   history or which page you were on. Nothing is looked up for a site
+   you have paused. Either way, this never runs at all unless you
+   explicitly enable it.
 3. **Leaked-password check, off by default.** If you turn on "Check
    passwords against known breaches" in Settings, Moat checks a password you
    type into a page against Have I Been Pwned's Pwned Passwords database,

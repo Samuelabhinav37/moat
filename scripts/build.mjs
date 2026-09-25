@@ -132,6 +132,7 @@ function copyStaticAssets() {
     "company-info.json",
     "consent-rules.json",
     "cname-cloak-destinations.json",
+    "uncloak-domains.json",
     ...cosmeticsFiles,
   ]) {
     cpSync(resolve(rulesDir, file), resolve(outDir, "rules", file));

@@ -3,6 +3,35 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.131
+
+### Fixed
+- **"Catch hidden trackers" had never worked on Chrome, and only half-worked on Firefox.** Both
+  paths skipped any request with `frameId === 0`, meant to skip page navigations. But frameId 0
+  means "made in the top-level frame", so every script and image the main page loads was
+  skipped. Only requests inside iframes were ever checked. The Chrome path also required
+  `details.documentUrl`, which Chrome's webRequest doesn't have. A top-page request there carries
+  only `initiator` (checked in Chrome for Testing 154), so it returned early every time.
+  The new `pageHostnameForRequest` skips only real navigations (`type === "main_frame"`) and
+  reads the page from `documentUrl`, falling back to `initiator`.
+  Note for privacy: Chrome users who turned this on now really send candidate hostnames to
+  Cloudflare's DoH resolver, as PRIVACY.md always described.
+- **Uncloaking now skips paused sites.** It used to resolve and block on them. On Chrome that
+  also means a paused site's hostnames are never sent to the DoH resolver.
+
+### Changed
+- **Disguised trackers are now checked against Moat's own lists too, the way uBlock Origin does
+  it.** A disguised subdomain is blocked when its real address is on AdGuard's CNAME list **or**
+  is already blocked by Moat's tracker or ad lists (106,377 + 52,191 domains, in the new
+  `rules/uncloak-domains.json`). Only lists you have on count, so turning Trackers off turns this
+  off too. Example checked live: `dii3.bitiba.nl` points at Adobe's `zooplus.tt.omtrdc.net`. That
+  address isn't on AdGuard's list, but Moat's tracker list blocks `omtrdc.net`, and Chrome for
+  Testing now adds a block rule for it.
+  The 3.7 MB file only loads while the opt-in setting is on, and costs about 11 MB of memory in
+  the background worker.
+- Both paths share one loader (`cnameDestinations.ts`) instead of two copies. New tests cover the
+  Firefox listener, which had none, plus the Chrome listener with the real Chrome request shape.
+
 ## 0.11.130
 
 ### Fixed
