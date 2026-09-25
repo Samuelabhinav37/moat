@@ -41,3 +41,21 @@ export function orderGroupsByDropPriority(wantOn: FilterListInfo[]): string[] {
     })
     .map((list) => list.group);
 }
+
+/** How many static rules a set of filter-group choices really turns on,
+ * counting every ruleset in the manifest -- including a group the choices
+ * don't mention, which effectiveFilterGroupState treats as on. That gap is
+ * how oisd ended up on in every preset, uncounted, until 0.11.130.
+ * scripts/validate-rules.mjs uses this to fail the build when the
+ * fresh-install preset no longer fits Chrome's static-rule limit. */
+export function enabledRuleCount(
+  entries: ReadonlyArray<{ group: string; ruleCount: number }>,
+  filterGroups: Settings["filterGroups"]
+): number {
+  const state = effectiveFilterGroupState(
+    true,
+    filterGroups,
+    entries.map((entry) => entry.group)
+  );
+  return entries.filter((entry) => state[entry.group]).reduce((sum, entry) => sum + entry.ruleCount, 0);
+}

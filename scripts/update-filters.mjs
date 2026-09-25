@@ -14,6 +14,7 @@ import { buildCircumventionServiceRules } from "./lib/circumventionServiceRules.
 import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
 import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
 import { buildOisdRules } from "./lib/oisdRules.mjs";
+import { plainBlockedDomains, isBlockedByDomainChain } from "./lib/blockedDomains.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
 import { writeLiveFilterSourceProvenance, readPreviousLiveFilterSourceProvenance } from "./lib/liveFilterSourceProvenance.mjs";
 
@@ -675,7 +676,27 @@ if (oisdDomains.length < 20000) {
 }
 writeFileSync(join(outDir, "oisd-domains.json"), JSON.stringify(oisdDomains));
 liveFilterSources.push({ name: "oisd", url: OISD_URL, text: oisdText, itemCount: oisdDomains.length });
-const { kept: oisdRules, consolidatedCount: oisdConsolidated } = consolidateSiblingRules(buildOisdRules(oisdDomains));
+
+// oisd is on in every preset, and about 70% of it repeats domains the `ads`
+// group (also on in every preset) already blocks outright. Shipping those
+// twice pushed the Standard preset, the fresh-install default, past
+// Chrome's ~330,000 static-rule limit, so Chrome dropped the tracker lists
+// on every new install (fixed 0.11.130). Only `ads` is pruned against:
+// it's never off in a preset, so turning another group off can't silently
+// take oisd coverage with it. One real difference: oisd rules also block
+// top-level navigation (main_frame) and the ads rules don't, so typing a
+// pruned ad domain into the address bar is no longer blocked. Requests from
+// pages (the ads themselves) are blocked exactly as before.
+const adsBlockedDomains = new Set(
+  manifestEntries
+    .filter((entry) => entry.group === "ads")
+    .flatMap((entry) => [...plainBlockedDomains(JSON.parse(readFileSync(join(outDir, entry.file), "utf8")))])
+);
+const oisdUniqueDomains = oisdDomains.filter((domain) => !isBlockedByDomainChain(domain, adsBlockedDomains));
+console.log(
+  `oisd: ${oisdDomains.length - oisdUniqueDomains.length} of ${oisdDomains.length} domains already blocked by the ads group, pruned`
+);
+const { kept: oisdRules, consolidatedCount: oisdConsolidated } = consolidateSiblingRules(buildOisdRules(oisdUniqueDomains));
 if (oisdConsolidated > 0) {
   console.log(`oisd: ${oisdConsolidated} sibling rule(s) consolidated to an apex rule`);
 }

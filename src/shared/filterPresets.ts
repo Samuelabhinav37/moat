@@ -1,8 +1,9 @@
-// Filtering-level presets shown at the top of the Filter Lists tab, and
-// (lite only) applied automatically on a genuine fresh install -- see
+// Filtering-level presets: the "How much to block" cards in Settings, plus
+// Essential under Advanced settings -> Filter lists. "standard" (shown as
+// Balanced) is applied automatically on a genuine fresh install -- see
 // background/settings.ts's applyFreshInstallDefaults(). Pure module (no
 // browser APIs) so it's directly unit-testable, and shared rather than
-// options-only since the background bundle needs "lite" too.
+// options-only since the background bundle needs it too.
 import type { Settings } from "../types";
 
 export const ALL_TOGGLEABLE_GROUPS = [
@@ -17,17 +18,23 @@ export const ALL_TOGGLEABLE_GROUPS = [
   "social-widgets",
   "cookie-notices",
   "annoyances",
+  "oisd",
 ] as const;
 
-const SECURITY_AND_ADS = ["ads", "popups", "malicious-urls", "phishing-urls", "scam", "badware"];
+// oisd is on in every preset. It used to be missing from this file entirely,
+// which still left it on (a group no preset mentions reads as on) but
+// uncounted, and pushed the fresh-install preset past Chrome's rule limit.
+// The build now prunes the ~70% of it the ads lists already cover, and
+// scripts/validate-rules.mjs fails if "standard" stops fitting.
+const SECURITY_AND_ADS = ["ads", "oisd", "popups", "malicious-urls", "phishing-urls", "scam", "badware"];
 
 // Same as essential, minus phishing-urls (Moat's single largest security
-// list at ~64,600 rules). Not a hand-picked ideal blocklist -- it exists
-// purely to give a fresh install a smaller starting footprint (~89,000 rules
-// vs. essential's ~154,000, vs. every group on by default at ~276,000) so
-// it's less likely to blow past whatever's left of the browser's shared
-// static-rule budget (see README's Known Limitations section). Still real
-// ad+malware+scam blocking, just without the one list that costs the most.
+// list at ~64,600 rules). Not a hand-picked ideal blocklist -- it's the
+// smallest footprint on offer, for a browser whose shared static-rule budget
+// is already mostly taken by other extensions (see README's Known
+// Limitations section). Still real ad+malware+scam blocking, just without
+// the one list that costs the most. Run `npm run filters:update` to see each
+// preset's current rule total.
 const LITE_GROUPS = SECURITY_AND_ADS.filter((group) => group !== "phishing-urls");
 
 interface PresetDefinition {

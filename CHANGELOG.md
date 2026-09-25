@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.130
+
+### Fixed
+- **Every fresh Chrome install lost its tracker lists.** Chrome allows one extension about
+  330,000 static rules. The fresh-install preset (Standard) needed 345,378, so Chrome dropped
+  the three tracker rulesets and the popup showed "Some filter lists are off" on first open.
+  The cause was the oisd community list (56,265 rules). It was added after the presets and never
+  added to them, and a group no preset mentions reads as on. So it ran in every preset,
+  uncounted.
+  - The build now drops oisd domains the `ads` lists already block outright (35,589 of 56,333).
+    Only `ads` is used, because it's on in every preset. Standard is now **309,840** rules, and
+    even Strict (every list) fits at 313,775.
+  - One real difference: oisd rules also blocked typing one of those ad domains straight into
+    the address bar, and the ads rules don't. Ads loaded by pages are blocked exactly as before.
+  - oisd is now an explicit group in every preset, so turning it off shows as a custom mix.
+  - `scripts/validate-rules.mjs` prints each preset's rule total. It fails the build if Standard
+    goes over 320,000, so a weekly filter refresh can't quietly bring this back.
+  - Verified on a brand-new Chrome for Testing profile: all 21 Standard rulesets on (trackers
+    included), no dropped groups, 20,160 rules of headroom, and no limit notice in the popup.
+
 ## 0.11.129
 
 ### Changed

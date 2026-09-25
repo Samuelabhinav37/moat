@@ -165,12 +165,14 @@ export function seedFromSyncIfEmpty(): Promise<void> {
  * -- those are the ones with real login-flow friction (see
  * shared/knownLoginDomains.ts), not something to default a stranger into.
  *
- * Moat's bundled filter lists sum to roughly 276,000 rules across all 11
- * groups -- about 9x the 30,000 static rules Chrome guarantees any one
- * extension, with the remainder drawn from a pool shared across every
- * installed extension (see README's Known Limitations section). Standard's
- * ~200,000 rules can still exceed that guarantee on a browser with several
- * other rule-heavy extensions; applyFilterGroupState's graceful-degradation
+ * Chrome guarantees any one extension 30,000 static rules and lends the
+ * rest from a 300,000-rule pool shared by every installed extension (see
+ * README's Known Limitations section). Standard is sized to fit that
+ * ~330,000 ceiling on its own: scripts/validate-rules.mjs fails the build
+ * if it grows past 320,000. Until 0.11.130 it didn't fit -- the uncounted
+ * oisd group put it at ~345,000, so every fresh Chrome install lost its
+ * tracker lists. With several other rule-heavy extensions installed it can
+ * still overflow the shared pool; applyFilterGroupState's graceful-degradation
  * retry loop handles that by dropping the least-essential group first, same
  * as it always has -- this default just doesn't pre-emptively shrink for
  * every fresh install to dodge a problem most installs won't actually hit.

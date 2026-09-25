@@ -35,7 +35,7 @@ Everything happens on your computer, and nothing about you is ever sent anywhere
 
 ## What it does
 
-- **Blocks ads and trackers** on every site, using about 350,000 filter rules that run inside the
+- **Blocks ads and trackers** on every site, using about 310,000 filter rules that run inside the
   browser's own blocking engine, so pages stay fast.
 - **Closes hijacked pop-ups.** Fake prize and fake virus tabs are shut the moment they open.
 - **Tidies up the page.** The empty boxes a blocked ad leaves behind collapse, so pages don't look
@@ -109,7 +109,7 @@ is in [`docs/design-notes.md`](docs/design-notes.md).
 <details>
 <summary><strong>Everything Moat does, in technical detail</strong></summary>
 
-- **Network blocking.** ~349,000 `declarativeNetRequest` rules from 11 bundled AdGuard filter lists
+- **Network blocking.** ~314,000 `declarativeNetRequest` rules from 11 bundled AdGuard filter lists
   (ads, trackers, malicious/phishing/scam domains, cookie notices, annoyances), plus three
   independent third-party sources for redundant coverage (a daily-updated scam-domain list, a
   community ad/tracker/malware aggregate, and a longstanding ad-server list), plus a few
@@ -179,9 +179,10 @@ One codebase builds for Chrome and Firefox. The Firefox build also targets **Fir
 - **The YouTube dimmer and feed scanner are DOM heuristics** and can stop matching when a site
   changes its markup. Both are switchable; the feed scanner is off by default and English-only.
 - **Chrome's static-rule budget is shared across every installed extension** (~30,000 guaranteed;
-  Moat ships ~349,000). With other rule-heavy extensions present, some lists may not enable:
-  `filterGroups.ts` drops the least essential first and the Filter Lists tab shows which. Fresh
-  installs start on the Standard preset; Lite or Essential use the smallest footprint.
+  Moat ships ~314,000; the fresh-install preset uses ~310,000 and fits on its own). With other
+  rule-heavy extensions present, some lists may not enable: `filterGroups.ts` drops the least
+  essential first, and Advanced settings → Filter lists shows which. Fresh installs start on
+  Balanced; Light or Essential use the smallest footprint.
 - **`web-ext lint` reports 4 expected warnings, 0 errors**: a false-positive coinminer hit on a
   blocked domain name, plus feature-detected references to Chrome-only debug APIs.
 

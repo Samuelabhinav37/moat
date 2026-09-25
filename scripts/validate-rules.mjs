@@ -7,6 +7,8 @@ import { createPublicKey, verify as edVerify } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { LIVE_MANIFEST_PUBLIC_KEY } from "../src/shared/liveSigningKey.ts";
+import { PRESETS } from "../src/shared/filterPresets.ts";
+import { enabledRuleCount } from "../src/background/filterGroupState.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rulesDir = join(__dirname, "..", "rules", "dnr");
@@ -65,6 +67,24 @@ for (const entry of manifest) {
 }
 
 console.log(`\n${manifest.length} rulesets, ${totalRules} total rules`);
+
+// Chrome allows one extension about 330,000 static rules in total (30,000
+// guaranteed + a 300,000 pool shared with every other extension). "standard"
+// is what a fresh install turns on, so it has to fit on its own with some
+// headroom -- otherwise Chrome drops lists on every new install, which is
+// exactly what happened until 0.11.130. Fail here instead of shipping that.
+const FRESH_INSTALL_RULE_CEILING = 320_000;
+for (const [name, preset] of Object.entries(PRESETS)) {
+  console.log(`preset ${name}: ${enabledRuleCount(manifest, preset.filterGroups)} rules`);
+}
+const freshInstallRules = enabledRuleCount(manifest, PRESETS.standard.filterGroups);
+if (freshInstallRules > FRESH_INSTALL_RULE_CEILING) {
+  console.error(
+    `The fresh-install preset (standard) needs ${freshInstallRules} rules, over the ${FRESH_INSTALL_RULE_CEILING} ceiling -- ` +
+      "Chrome would drop filter lists on every new install. Trim a list or change the preset."
+  );
+  ok = false;
+}
 
 const cosmeticsManifest = JSON.parse(readFileSync(join(rulesDir, "cosmetics-manifest.json"), "utf8"));
 const meta = JSON.parse(readFileSync(join(rulesDir, cosmeticsManifest.meta), "utf8"));

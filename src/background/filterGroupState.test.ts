@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { effectiveFilterGroupState, orderGroupsByDropPriority, type FilterListInfo } from "./filterGroupState";
+import { effectiveFilterGroupState, enabledRuleCount, orderGroupsByDropPriority, type FilterListInfo } from "./filterGroupState";
 
 describe("effectiveFilterGroupState", () => {
   it("defaults every group to on when there are no overrides and the master switch is on", () => {
@@ -109,5 +109,23 @@ describe("orderGroupsByDropPriority", () => {
     const droppedSecurity = dropped.filter((g) => securityGroups.has(g));
     const remainingNonSecurity = remaining.filter((g) => !securityGroups.has(g));
     expect(droppedSecurity.length === 0 || remainingNonSecurity.length === 0).toBe(true);
+  });
+});
+
+describe("enabledRuleCount", () => {
+  const entries = [
+    { group: "ads", ruleCount: 100 },
+    { group: "ads", ruleCount: 50 },
+    { group: "trackers", ruleCount: 70 },
+    { group: "oisd", ruleCount: 30 },
+  ];
+
+  it("sums only the rulesets whose group is on", () => {
+    expect(enabledRuleCount(entries, { ads: true, trackers: false, oisd: false })).toBe(150);
+  });
+
+  it("counts a group the choices don't mention, since it's treated as on", () => {
+    // The 0.11.130 bug: oisd wasn't in any preset, so it was on and uncounted.
+    expect(enabledRuleCount(entries, { ads: true, trackers: false })).toBe(180);
   });
 });
