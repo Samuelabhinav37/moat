@@ -3,6 +3,9 @@ name: CI
 on:
   push:
   pull_request:
+  # Lets filter-refresh.yml start CI on its bot branch: pushes and PRs made with
+  # GITHUB_TOKEN never trigger workflows, but a workflow_dispatch from it does.
+  workflow_dispatch:
 
 jobs:
   build:
