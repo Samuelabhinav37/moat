@@ -106,6 +106,8 @@
 
   .stage { position: relative; height: 900px; overflow: hidden; --x: 55%; }
   .layer { position: absolute; inset: 0; background: #fff; color: #1d1d1f; }
+  .layer.after { z-index: 1; }
+  .layer.before { z-index: 2; }
   .layer .shot { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .popup-shot { position: absolute; top: 4px; right: 8px; width: 260px; height: auto; border-radius: 12px; box-shadow: 0 0 0 1px #37343b, 0 24px 48px -12px rgba(0, 0, 0, .55); z-index: 5; }
   .before { clip-path: inset(0 calc(100% - var(--x)) 0 0); }
@@ -114,6 +116,26 @@
   .tag-in.a { right: 14px; bottom: 14px; background: var(--blue); color: #fff; }
 
 
+  /* Hero autoplay (same idea as the feature cards): outline the real ad,
+     sweep the divider across to the Moat side, show the result, loop.
+     Only while the hero is on screen, never after the visitor touches the
+     slider, and never with reduced motion. Needs @property so --x can
+     animate; browsers without it just keep the static 55% split. */
+  @property --x { syntax: "<percentage>"; inherits: true; initial-value: 55%; }
+  .hmark, .hflag, .htoast { position: absolute; opacity: 0; pointer-events: none; }
+  .hmark { border: 4px solid #ff5a4f; border-radius: 8px; background: rgba(255, 90, 79, .14); z-index: 3; }
+  .hflag { transform: translateX(-50%); z-index: 4; white-space: nowrap; background: #d63a30; color: #fff; font-size: 22px; font-weight: 600; padding: 10px 18px; border-radius: 10px; box-shadow: 0 14px 30px -10px rgba(0, 0, 0, .6); }
+  .htoast { left: 32px; bottom: 32px; z-index: 6; display: inline-flex; align-items: center; gap: 12px; background: #1b191d; color: #eceef0; font-size: 21px; font-weight: 600; padding: 13px 20px; border-radius: 12px; border: 1px solid #37343b; box-shadow: 0 20px 40px -12px rgba(0, 0, 0, .7); }
+  .htoast svg { width: 22px; height: 22px; color: var(--blue-lt); }
+  .stage.auto { animation: hx 10s .6s infinite both paused; }
+  .stage.auto .hmark { animation: hm 10s .6s infinite both paused; }
+  .stage.auto .hflag { animation: hf 10s .6s infinite both paused; }
+  .stage.auto .htoast { animation: ht 10s .6s infinite both paused; }
+  .stage.auto.run, .stage.auto.run .hmark, .stage.auto.run .hflag, .stage.auto.run .htoast { animation-play-state: running; }
+  @keyframes hx { 0%, 40% { --x: 100%; } 58%, 86% { --x: 0%; } 100% { --x: 100%; } }
+  @keyframes hm { 0%, 6% { opacity: 0; } 12%, 38% { opacity: 1; } 44%, 100% { opacity: 0; } }
+  @keyframes hf { 0%, 8% { opacity: 0; transform: translate(-50%, 10px); } 14%, 38% { opacity: 1; transform: translate(-50%, 0); } 44%, 100% { opacity: 0; transform: translate(-50%, -6px); } }
+  @keyframes ht { 0%, 58% { opacity: 0; transform: translateY(10px); } 63%, 84% { opacity: 1; transform: translateY(0); } 90%, 100% { opacity: 0; } }
   .divider { position: absolute; top: 0; bottom: 0; left: var(--x); width: 0; z-index: 6; pointer-events: none; }
   .divider::before { content: ""; position: absolute; top: 0; bottom: 0; left: -1.5px; width: 3px; background: var(--blue); }
   .knob { position: absolute; top: 50%; left: -26px; width: 52px; height: 52px; margin-top: -26px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; box-shadow: 0 0 0 5px rgba(255, 255, 255, .9), 0 10px 24px rgba(0, 0, 0, .45); }
@@ -385,7 +407,10 @@
         <div class="layer before">
           <img class="shot" src="shots/hero-before.webp" srcset="shots/hero-before-1200.webp 1200w, shots/hero-before.webp 2400w" sizes="(max-width: 700px) 560px, 1600px" width="1600" height="900" alt="The same WIRED article without Moat: a large display ad sits above the headline.">
           <span class="tag-in b">Without Moat</span>
+          <span class="hmark" style="left:0;top:15.6%;width:100%;height:29.4%"></span>
+          <span class="hflag" style="left:50%;top:47.5%">This ad takes up 29% of the screen</span>
         </div>
+        <span class="htoast" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Moat blocked 18 things on this page</span>
         <div class="divider" aria-hidden="true"><div class="knob"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6-6 6 6 6M15 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
         <input class="range" type="range" min="0" max="100" value="55" aria-label="Compare the same page without Moat and with Moat" aria-describedby="demo-desc" aria-valuetext="55% of the page shown without Moat">
       </div>
@@ -649,7 +674,24 @@
     }
     // Before/after divider. Without JS the page still shows a fixed split.
     var stage = document.getElementById("stage");
-    stage.querySelector(".range").addEventListener("input", function (e) {
+    var range = stage.querySelector(".range");
+    // Hero autoplay: runs while visible until the visitor takes the handle.
+    var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!still && window.CSS && "registerProperty" in CSS) {
+      stage.classList.add("auto");
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (en) { stage.classList.toggle("run", en[0].isIntersecting); }, { threshold: 0.3 }).observe(stage);
+      } else {
+        stage.classList.add("run");
+      }
+      var stop = function () {
+        if (!stage.classList.contains("auto")) return;
+        stage.classList.remove("auto", "run");
+        stage.style.setProperty("--x", range.value + "%");
+      };
+      ["pointerdown", "keydown", "focus", "touchstart"].forEach(function (t) { range.addEventListener(t, stop, { passive: true }); });
+    }
+    range.addEventListener("input", function (e) {
       stage.style.setProperty("--x", e.target.value + "%");
       e.target.setAttribute("aria-valuetext", e.target.value + "% of the page shown without Moat");
     });
