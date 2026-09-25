@@ -17,6 +17,11 @@ import { findInvisibleText } from "../shared/findInvisibleText";
 const OPTIONS_HTML = join(__dirname, "options.html");
 const THEME_CSS = join(__dirname, "..", "ui", "theme.css");
 
+// Each test re-imports the page module after vi.resetModules() and builds a
+// full jsdom document; under a loaded full-suite run on a slower machine that
+// cold import alone can pass vitest's 5s default. Local-only flake, green in CI.
+vi.setConfig({ testTimeout: 20_000 });
+
 let caughtErrors: unknown[] = [];
 
 beforeEach(() => {
