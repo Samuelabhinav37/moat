@@ -68,7 +68,9 @@ identifies exactly the source used for submitted packages.
 ## Filter lists
 
 `.github/workflows/filter-refresh.yml` runs `npm run filters:update` every Monday and opens a
-`chore/filter-refresh` PR. Review the diff and merge — CI runs the full gate on the PR. Nothing
+`chore/filter-refresh` PR. GitHub holds CI on PRs opened by the Actions bot, so click
+**Approve and run** on the PR first; CI then runs the full gate. Review the diff and merge once it
+passes. Nothing
 auto-merges.
 
 **What that diff actually covers, and what it doesn't:** `rules/dnr/` and `rules/redirect-resources/`
