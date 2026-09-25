@@ -10,57 +10,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
+  /* Same dark palette as the extension's own src/ui/theme.css -- this page
+     is product surface, not a separate brand, so it carries the same tokens
+     rather than its own light/dark theme. */
   :root {
-    --bg: #f4f6f8;
-    --surface: #ffffff;
-    --surface-2: #eceff2;
-    --border: #d7dde3;
-    --ink: #18202c;
-    --ink-soft: #586573;
-    --ink-faint: #8a95a1;
-    --accent: #c1791f;
-    --accent-line: #c1791f;
-    --accent-soft: #f4e7d3;
-    --good: #2f7d54;
-    --bad: #b23b3b;
-    --track: #e7ebef;
-    --shadow: 0 1px 2px rgba(20, 30, 45, .05), 0 8px 24px -12px rgba(20, 30, 45, .12);
-    color-scheme: light;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #0f1621;
-      --surface: #16202b;
-      --surface-2: #1c2734;
-      --border: #2a3745;
-      --ink: #e7ecf2;
-      --ink-soft: #94a1b0;
-      --ink-faint: #6b7886;
-      --accent: #e0982f;
-      --accent-line: #e0982f;
-      --accent-soft: #392e1c;
-      --good: #55b482;
-      --bad: #d76b6b;
-      --track: #1a2530;
-      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -14px rgba(0, 0, 0, .55);
-      color-scheme: dark;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #0f1621;
-    --surface: #16202b;
-    --surface-2: #1c2734;
-    --border: #2a3745;
-    --ink: #e7ecf2;
-    --ink-soft: #94a1b0;
-    --ink-faint: #6b7886;
-    --accent: #e0982f;
-    --accent-line: #e0982f;
-    --accent-soft: #392e1c;
-    --good: #55b482;
-    --bad: #d76b6b;
-    --track: #1a2530;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -14px rgba(0, 0, 0, .55);
+    --bg: #1b191d;
+    --surface: #242229;
+    --surface-2: #2b282f;
+    --border: #37343b;
+    --ink: #eceef0;
+    --ink-soft: #a7a1ac;
+    --accent: #6f9be0;
+    --accent-line: #6f9be0;
+    --good: #43c13a;
+    --good-fg: #0e2b0c;
+    --shadow: 0 8px 24px -12px rgba(0, 0, 0, .5);
     color-scheme: dark;
   }
 
@@ -98,7 +62,7 @@
     font-size: 11.5px;
     letter-spacing: .16em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    color: var(--ink-soft);
   }
 
   /* ---- header ------------------------------------------------------- */
@@ -142,18 +106,17 @@
     box-shadow: var(--shadow);
   }
   .cta a.primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
+    background: var(--good);
+    border-color: var(--good);
+    color: var(--good-fg);
+    font-weight: 600;
   }
-  :root[data-theme="dark"] .cta a.primary,
-  :root:not([data-theme="light"]) .cta a.primary { color: #17110a; }
   .cta a svg { width: 15px; height: 15px; flex: none; }
 
   .avail {
     margin-top: 16px;
     font-size: 12.5px;
-    color: var(--ink-faint);
+    color: var(--ink-soft);
     font-family: "IBM Plex Mono", monospace;
   }
 
@@ -218,7 +181,7 @@
     margin-left: auto;
     font-family: "IBM Plex Mono", monospace;
     font-size: 12px;
-    color: var(--ink-faint);
+    color: var(--ink-soft);
   }
   .loop-head .runs b { color: var(--ink-soft); font-weight: 500; }
   .loop > p.note {
@@ -261,7 +224,7 @@
     align-self: center;
     width: 30px;
     height: 2px;
-    background: var(--ink-faint);
+    background: var(--ink-soft);
     position: relative;
     margin: 0 -1px;
   }
@@ -270,8 +233,8 @@
     position: absolute;
     right: -1px; top: 50%;
     width: 7px; height: 7px;
-    border-top: 2px solid var(--ink-faint);
-    border-right: 2px solid var(--ink-faint);
+    border-top: 2px solid var(--ink-soft);
+    border-right: 2px solid var(--ink-soft);
     transform: translateY(-50%) rotate(45deg);
   }
   .arrow.live, .arrow.live::after { background: var(--accent-line); border-color: var(--accent-line); }
@@ -308,7 +271,7 @@
     flex: none;
   }
   .leg.yes .cond { background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
-  .leg.no .cond { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad); }
+  .leg.no .cond { background: var(--surface-2); color: var(--ink-soft); }
   .leg .out {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -322,7 +285,7 @@
   .feeds {
     margin-top: 16px;
     font-size: 12.5px;
-    color: var(--ink-faint);
+    color: var(--ink-soft);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -369,7 +332,7 @@
     top: 8px;
     width: 6px; height: 6px;
     border-radius: 50%;
-    background: var(--ink-faint);
+    background: var(--ink-soft);
   }
   .panel li b { color: var(--ink); font-weight: 500; }
   .panel li code { font-size: 11.5px; }
@@ -411,7 +374,7 @@
     gap: 8px 22px;
     font-family: "IBM Plex Mono", monospace;
     font-size: 12px;
-    color: var(--ink-faint);
+    color: var(--ink-soft);
     align-items: center;
   }
   footer a { color: var(--ink-soft); text-decoration: none; }
