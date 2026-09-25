@@ -3,6 +3,29 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.126
+
+### Security
+- **Live-update manifest signing is now actually on.** The Ed25519 public key has shipped since
+  0.11.81, but no `live/manifest.json.sig` was ever published, so every client ran the live
+  channel on SHA-256 hashes alone and trust rested on the GitHub account, not the offline key.
+  The signature is now committed and deployed to GitHub Pages with the rest of `live/`.
+  `update-live-manifest.mjs` keeps an existing `.sig` when it still verifies against the shipped
+  public key, so CI, release, publish, and fork-PR runs don't need the private key. Only
+  `filter-refresh.yml`, the one workflow that changes `live/*.json`, is given
+  `LIVE_SIGNING_PRIVATE_KEY`. A live file that changes without the key still fails the run.
+
+### Fixed
+- **The weekly filter refresh failed every Monday** at PR creation ("GitHub Actions is not
+  permitted to create or approve pull requests"). The repo setting is now on and documented in
+  `docs/RELEASING.md`.
+- **The store listing had no justification for `browsingData`**, added with the popup's "Clear
+  site data…" button. README and PRIVACY.md already disclosed it. The CWS permission table in
+  `docs/store-listing.md` now does too, and its privacy-policy URL points at PRIVACY.md itself
+  instead of the landing page.
+- **jsdom render tests timed out under a loaded full-suite run** on slower machines (5s default,
+  a cold page-module import per test). The popup, options and logger render tests now allow 20s.
+
 ## 0.11.125
 
 ### Fixed

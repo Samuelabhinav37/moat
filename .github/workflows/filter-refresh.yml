@@ -26,7 +26,12 @@ jobs:
           cache: npm
 
       - run: npm ci
+      # The only workflow that can change live/*.json, so the only one that
+      # needs to re-sign live/manifest.json. Every other workflow keeps the
+      # committed .sig as long as it still verifies (see update-live-manifest.mjs).
       - run: npm run filters:update
+        env:
+          LIVE_SIGNING_PRIVATE_KEY: ${{ secrets.LIVE_SIGNING_PRIVATE_KEY }}
 
       - name: Open / update the refresh PR
         env:

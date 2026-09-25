@@ -12,7 +12,7 @@
 //
 // Run as the last step of `npm run filters:update`, and by hand any time a
 // live/*.json is edited (then `git push`).
-import { createHash, sign as edSign, createPrivateKey } from "node:crypto";
+import { createHash, sign as edSign, verify as edVerify, createPrivateKey, createPublicKey } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -28,6 +28,27 @@ const TRACKED_FILES = [
 ];
 
 const sha256Hex = (buf) => createHash("sha256").update(buf).digest("hex");
+
+// The public key lives in TS source the extension bundles; read it from there
+// rather than duplicating it, so a key rotation can't leave this check stale.
+function shippedPublicKey() {
+  const src = readFileSync(join(liveDir, "..", "src", "shared", "liveSigningKey.ts"), "utf8");
+  return src.match(/LIVE_MANIFEST_PUBLIC_KEY\s*=\s*"([^"]*)"/)?.[1] ?? "";
+}
+
+function committedSigStillVerifies(manifestBytes) {
+  const raw = shippedPublicKey();
+  if (!raw) return false;
+  try {
+    // SPKI DER for Ed25519 = fixed 12-byte header + the 32-byte raw key.
+    const spki = Buffer.concat([Buffer.from("302a300506032b6570032100", "hex"), Buffer.from(raw, "base64")]);
+    const key = createPublicKey({ key: spki, format: "der", type: "spki" });
+    const sig = Buffer.from(readFileSync(join(liveDir, "manifest.json.sig"), "utf8").trim(), "base64");
+    return edVerify(null, manifestBytes, key, sig);
+  } catch {
+    return false;
+  }
+}
 
 const files = {};
 for (const name of TRACKED_FILES) {
@@ -55,17 +76,24 @@ if (keyPem && keyPem.includes("PRIVATE KEY")) {
   const sig = edSign(null, manifestBytes, createPrivateKey(keyPem));
   writeFileSync(sigPath, sig.toString("base64") + "\n");
   console.log(`live/manifest.json + .sig updated (${TRACKED_FILES.length} files, signed)`);
+} else if (existsSync(sigPath) && committedSigStillVerifies(manifestBytes)) {
+  // No key this run, but the manifest bytes are unchanged and the committed
+  // .sig still verifies against the shipped public key -- keep it. This is
+  // the ordinary CI / release / fork-PR case: every workflow runs
+  // filters:update, and only the one that actually changes live/*.json
+  // (filter-refresh.yml, which is given the secret) needs to re-sign.
+  console.log(`live/manifest.json unchanged, existing .sig still verifies (${TRACKED_FILES.length} files, signed)`);
 } else if (existsSync(sigPath)) {
   // A committed .sig with no key available this run used to be silently
   // deleted here, which would let the live channel quietly regress from
   // signed to hash-only trust with no CI failure and no visible diff other
   // than a deleted file in the same commit as everything else
-  // filters:update touches. Refuse instead -- this should never happen in
-  // ordinary CI (no workflow sets this var today), so hitting it means
-  // either a real key was expected and isn't present, or someone means to
-  // drop signing on purpose and should say so explicitly.
+  // filters:update touches. Refuse instead -- reaching this branch means a
+  // live/*.json actually changed (an unchanged manifest is handled above),
+  // so either the signing key was expected and isn't present, or someone
+  // means to drop signing on purpose and should say so explicitly.
   console.error(
-    "live/manifest.json.sig exists but LIVE_SIGNING_PRIVATE_KEY is not set for this run -- " +
+    "live/*.json changed and live/manifest.json.sig no longer verifies, but LIVE_SIGNING_PRIVATE_KEY is not set for this run -- " +
       "refusing to silently drop the signature. If you're deliberately turning signing off, " +
       "remove live/manifest.json.sig yourself first (git rm live/manifest.json.sig)."
   );

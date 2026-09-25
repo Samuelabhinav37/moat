@@ -57,7 +57,13 @@ identifies exactly the source used for submitted packages.
 - To turn on **manifest signing**: `node scripts/gen-live-signing-key.mjs` once, put the private
   key PEM in the `LIVE_SIGNING_PRIVATE_KEY` Actions secret, paste the public key into
   `src/shared/liveSigningKey.ts`, and commit a `npm run filters:update` (which now also writes
-  `live/manifest.json.sig`).
+  `live/manifest.json.sig`). **Done as of 0.11.126.** Only `filter-refresh.yml` is given the secret,
+  because it's the one workflow that changes `live/*.json`. Every other workflow keeps the
+  committed `.sig` while it still verifies, and fails loudly if a live file changed without the
+  key. To re-sign after a hand edit to `live/`:
+  `LIVE_SIGNING_PRIVATE_KEY="$(cat key.pem)" node scripts/update-live-manifest.mjs`.
+- The weekly refresh opens its PR with the Actions token, which needs *Settings → Actions →
+  General → Allow GitHub Actions to create and approve pull requests* switched on.
 
 ## Filter lists
 
