@@ -43,6 +43,7 @@
   a { color: var(--ink); text-underline-offset: 4px; }
   :focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 4px; border-radius: 6px; }
   code { font-family: ui-monospace, "Cascadia Mono", Menlo, monospace; font-size: .84em; background: rgba(255, 255, 255, .08); border-radius: 4px; padding: .05em .35em; }
+  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
 
   /* ---- buttons ------------------------------------------------------- */
@@ -377,18 +378,19 @@
       </div>
       <div class="stage" id="stage">
         <div class="layer after">
-          <img class="shot" src="shots/hero-after.webp" width="1600" height="900" alt="A WIRED article with Moat on: the page starts with the headline, no ad.">
+          <img class="shot" src="shots/hero-after.webp" srcset="shots/hero-after-1200.webp 1200w, shots/hero-after.webp 2400w" sizes="(max-width: 700px) 560px, 1600px" width="1600" height="900" alt="A WIRED article with Moat on: the page starts with the headline, no ad.">
           <img class="popup-shot" src="shots/hero-popup.png" width="260" height="507" alt="Moat popup: 18 blocked on this page, 3 ads, 14 trackers, 1 popup.">
           <span class="tag-in a">With Moat</span>
         </div>
         <div class="layer before">
-          <img class="shot" src="shots/hero-before.webp" width="1600" height="900" alt="The same WIRED article without Moat: a large display ad sits above the headline.">
+          <img class="shot" src="shots/hero-before.webp" srcset="shots/hero-before-1200.webp 1200w, shots/hero-before.webp 2400w" sizes="(max-width: 700px) 560px, 1600px" width="1600" height="900" alt="The same WIRED article without Moat: a large display ad sits above the headline.">
           <span class="tag-in b">Without Moat</span>
         </div>
         <div class="divider" aria-hidden="true"><div class="knob"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6-6 6 6 6M15 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-        <input class="range" type="range" min="0" max="100" value="55" aria-label="Drag to compare the same page without Moat and with Moat">
+        <input class="range" type="range" min="0" max="100" value="55" aria-label="Compare the same page without Moat and with Moat" aria-describedby="demo-desc" aria-valuetext="55% of the page shown without Moat">
       </div>
     </div></div>
+    <p class="sr-only" id="demo-desc">Left of the handle: a WIRED article without Moat, with a large display ad above the headline. Right of the handle: the same article with Moat, which starts at the headline, and Moat's popup showing 18 things blocked.</p>
     <p class="demo-cap">Drag the handle to see the same page with and without Moat.</p>
   </div>
 </header>
@@ -414,8 +416,8 @@
           <div class="win" aria-hidden="true">
             <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">bbc.co.uk/weather</span></div>
             <div class="shotbox">
-              <img src="shots/bbc-after.webp" width="1440" height="900" alt="" loading="lazy">
-              <img class="before" src="shots/bbc-before.webp" width="1440" height="900" alt="" loading="lazy">
+              <img src="shots/bbc-after.webp" srcset="shots/bbc-after-1040.webp 1040w, shots/bbc-after.webp 1440w" sizes="(max-width: 640px) 520px, 1060px" width="1440" height="900" alt="" loading="lazy">
+              <img class="before" src="shots/bbc-before.webp" srcset="shots/bbc-before-1040.webp 1040w, shots/bbc-before.webp 1440w" sizes="(max-width: 640px) 520px, 1060px" width="1440" height="900" alt="" loading="lazy">
               <span class="mark" style="left:0;top:14.2%;width:100%;height:31.9%"></span>
               <span class="mark" style="left:72.5%;top:53.3%;width:20.8%;height:46.7%"></span>
               <span class="flag" style="left:36%;top:48%">Ads: 42% of the screen</span>
@@ -434,8 +436,8 @@
           <div class="win" aria-hidden="true">
             <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">allrecipes.com</span></div>
             <div class="shotbox">
-              <img src="shots/recipe-after.webp" width="1440" height="900" alt="" loading="lazy">
-              <img class="before" src="shots/recipe-before.webp" width="1440" height="900" alt="" loading="lazy">
+              <img src="shots/recipe-after.webp" srcset="shots/recipe-after-1040.webp 1040w, shots/recipe-after.webp 1440w" sizes="(max-width: 640px) 520px, 680px" width="1440" height="900" alt="" loading="lazy">
+              <img class="before" src="shots/recipe-before.webp" srcset="shots/recipe-before-1040.webp 1040w, shots/recipe-before.webp 1440w" sizes="(max-width: 640px) 520px, 680px" width="1440" height="900" alt="" loading="lazy">
               <span class="mark" style="left:24.7%;top:17.8%;width:50.6%;height:10%"></span>
               <span class="mark" style="left:63.75%;top:40.6%;width:20.8%;height:59.4%"></span>
               <span class="flag" style="left:34%;top:31%">2 ads above the recipe</span>
@@ -454,8 +456,8 @@
           <div class="win" aria-hidden="true">
             <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">gov.uk</span></div>
             <div class="shotbox">
-              <img src="shots/govuk-after.webp" width="1440" height="900" alt="" loading="lazy">
-              <img class="before" src="shots/govuk-before.webp" width="1440" height="900" alt="" loading="lazy">
+              <img src="shots/govuk-after.webp" srcset="shots/govuk-after-1040.webp 1040w, shots/govuk-after.webp 1440w" sizes="(max-width: 640px) 520px, 680px" width="1440" height="900" alt="" loading="lazy">
+              <img class="before" src="shots/govuk-before.webp" srcset="shots/govuk-before-1040.webp 1040w, shots/govuk-before.webp 1440w" sizes="(max-width: 640px) 520px, 680px" width="1440" height="900" alt="" loading="lazy">
               <span class="mark" style="left:0;top:0;width:100%;height:36.1%"></span>
               <span class="flag" style="left:40%;top:40%">Cookie banner: 36% of the screen</span>
               <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Rejected additional cookies</span>
@@ -589,17 +591,17 @@
       <h2 class="faq-title">Frequently asked questions</h2>
       <div class="faq">
         <div class="faq-col">
-          <details id="faq-free" open><summary>Is Moat free?</summary><p>Yes. Moat is free and open source under GPL-3.0. There's no paid tier, no premium unlock and no subscription.</p></details>
-          <details id="faq-what" open><summary>What does Moat block?</summary><p>Ads, trackers and hijacked pop-up tabs, out of the box. Cookie banners, fingerprinting protection and leaked-password warnings are switches in Settings.</p></details>
-          <details id="faq-data" open><summary>Does Moat collect my data?</summary><p>No. There's no Moat server, no account and no analytics. The only thing it downloads is a small, signed file of filter fixes once a day, and that request carries nothing about you.</p></details>
-          <details id="faq-money" open><summary>How does Moat make money?</summary><p>It doesn't. Moat is an open-source project with no server to pay for. Nothing you do is sold, and it doesn't show "acceptable" ads.</p></details>
+          <details id="faq-free"><summary>Is Moat free?</summary><p>Yes. Moat is free and open source under GPL-3.0. There's no paid tier, no premium unlock and no subscription.</p></details>
+          <details id="faq-what"><summary>What does Moat block?</summary><p>Ads, trackers and hijacked pop-up tabs, out of the box. Cookie banners, fingerprinting protection and leaked-password warnings are switches in Settings.</p></details>
+          <details id="faq-data"><summary>Does Moat collect my data?</summary><p>No. There's no Moat server, no account and no analytics. The only thing it downloads is a small, signed file of filter fixes once a day, and that request carries nothing about you.</p></details>
+          <details id="faq-money"><summary>How does Moat make money?</summary><p>It doesn't. Moat is an open-source project with no server to pay for. Nothing you do is sold, and it doesn't show "acceptable" ads.</p></details>
         </div>
         <div class="faq-col">
-          <details id="faq-how" open><summary>How does Moat work?</summary><p>Filter lists run inside the browser's own blocking engine, so ads and trackers are stopped before they load. A small signed update arrives once a day. <a href="https://github.com/Samuelabhinav37/moat/blob/master/docs/design-notes.md">Read the technical details</a>.</p></details>
-          <details id="faq-perm" open><summary>Why does it ask to read every site?</summary><p>An ad blocker has to see a page's requests to block them, on every site you visit. Moat reads pages on your computer only and never sends their content anywhere.</p></details>
-          <details id="faq-pause" open><summary>Can I turn it off for one site?</summary><p>Yes. Open the Moat popup on that site and flip the switch. Everywhere else stays protected.</p></details>
-          <details id="faq-firefox" open><summary>Does it work in Firefox?</summary><p>Yes. Moat is built from one codebase for both Chrome and Firefox, including Firefox for Android.</p></details>
-          <details id="faq-store" open><summary>When will it be in the Chrome Web Store?</summary><p>It's being prepared for submission now. Until then you can <a href="https://github.com/Samuelabhinav37/moat#install--build">install it from source</a> in a couple of minutes.</p></details>
+          <details id="faq-how"><summary>How does Moat work?</summary><p>Filter lists run inside the browser's own blocking engine, so ads and trackers are stopped before they load. A small signed update arrives once a day. <a href="https://github.com/Samuelabhinav37/moat/blob/master/docs/design-notes.md">Read the technical details</a>.</p></details>
+          <details id="faq-perm"><summary>Why does it ask to read every site?</summary><p>An ad blocker has to see a page's requests to block them, on every site you visit. Moat reads pages on your computer only and never sends their content anywhere.</p></details>
+          <details id="faq-pause"><summary>Can I turn it off for one site?</summary><p>Yes. Open the Moat popup on that site and flip the switch. Everywhere else stays protected.</p></details>
+          <details id="faq-firefox"><summary>Does it work in Firefox?</summary><p>Yes. Moat is built from one codebase for both Chrome and Firefox, including Firefox for Android.</p></details>
+          <details id="faq-store"><summary>When will it be in the Chrome Web Store?</summary><p>It's being prepared for submission now. Until then you can <a href="https://github.com/Samuelabhinav37/moat#install--build">install it from source</a> in a couple of minutes.</p></details>
         </div>
       </div>
     </div>
@@ -649,6 +651,7 @@
     var stage = document.getElementById("stage");
     stage.querySelector(".range").addEventListener("input", function (e) {
       stage.style.setProperty("--x", e.target.value + "%");
+      e.target.setAttribute("aria-valuetext", e.target.value + "% of the page shown without Moat");
     });
   })();
 </script>
