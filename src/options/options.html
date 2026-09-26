@@ -1039,6 +1039,135 @@
         color: var(--muted);
       }
 
+      /* ---------- Desktop dashboard (dashboard.ts) ---------- */
+      .dash-nav,
+      .page-head {
+        display: none;
+      }
+      @media (min-width: 900px) {
+        body {
+          --side: 248px;
+        }
+        .topbar {
+          position: sticky;
+          top: 0;
+          z-index: 5;
+          background: var(--page);
+        }
+        .dash-nav {
+          display: block;
+          position: fixed;
+          top: 65px;
+          left: 0;
+          bottom: 0;
+          width: var(--side);
+          box-sizing: border-box;
+          padding: 20px 14px;
+          border-right: 1px solid var(--line);
+          overflow-y: auto;
+        }
+        .nav-group {
+          margin: 18px 12px 6px;
+          font-size: 12.5px;
+          font-weight: 600;
+          color: var(--muted);
+        }
+        .nav-group:first-child {
+          margin-top: 0;
+        }
+        .dash-nav a {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 8px 12px;
+          border-radius: 8px;
+          color: var(--fg);
+          font-size: 14.5px;
+        }
+        .dash-nav a:hover {
+          background: var(--panel);
+          text-decoration: none;
+        }
+        .dash-nav a[aria-current="page"] {
+          background: var(--panel-2);
+          font-weight: 600;
+        }
+        .dash-nav a[aria-current="page"]::before {
+          content: "";
+          position: absolute;
+          left: -14px;
+          top: 8px;
+          bottom: 8px;
+          width: 3px;
+          border-radius: 0 3px 3px 0;
+          background: var(--blue-lt);
+        }
+        .dash-nav svg {
+          flex: none;
+          width: 18px;
+          height: 18px;
+          color: var(--muted);
+        }
+        .dash-nav a[aria-current="page"] svg {
+          color: var(--blue-lt);
+        }
+        .dash-nav .count {
+          margin-left: auto;
+          font-size: 12.5px;
+          font-weight: 400;
+          color: var(--muted);
+          font-variant-numeric: tabular-nums;
+        }
+        main.wrap {
+          box-sizing: border-box;
+          max-width: 1040px;
+          min-height: calc(100vh - 65px);
+          margin: 0 auto 0 var(--side);
+          padding: 36px 48px 40px;
+        }
+        .site-foot {
+          margin-left: var(--side);
+        }
+        .head {
+          display: none;
+        }
+        .page-head {
+          display: flex;
+          align-items: baseline;
+          flex-wrap: wrap;
+          gap: 6px 16px;
+        }
+        .page-head h1 {
+          margin: 0;
+          font-size: 28px;
+          font-weight: 700;
+          letter-spacing: -0.025em;
+        }
+        .page-head p {
+          margin: 0;
+          color: var(--muted);
+        }
+        /* Every screen's sections are in the page; show only this one's. */
+        .advbtn,
+        .adv-title,
+        .dash-off {
+          display: none !important;
+        }
+        #advanced {
+          display: block !important;
+        }
+        .sec.dash-first {
+          border-top: 0;
+        }
+        .sec.dash-solo h2 {
+          display: none;
+        }
+        .sec.dash-solo .lead {
+          margin-top: 0;
+        }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         *,
         *::before,
@@ -1096,16 +1225,37 @@
         <a class="help" href="https://samuelabhinav37.github.io/moat/#faq" target="_blank" rel="noopener" data-i18n="settingsHelp">Help</a>
       </header>
 
+      <!-- Desktop only: one screen per group (see dashboard.ts). Phones keep
+           the single scrolling page below. -->
+      <nav class="dash-nav" aria-label="Settings" data-i18n-aria-label="settingsTitle">
+        <p class="nav-group" data-i18n="navGroupProtection">Protection</p>
+        <a href="#blocking" data-page="blocking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg><span class="nav-name" data-i18n="navBlocking">Blocking</span><span class="nav-lead" hidden data-i18n="pageLeadBlocking">How much to block, and the extras on top</span></a>
+        <a href="#paused" data-page="paused"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span class="nav-name" data-i18n="navPaused">Paused sites</span><span class="count" id="nav-count-paused" hidden></span><span class="nav-lead" hidden data-i18n="pageLeadPaused">Sites where ads and trackers are allowed</span></a>
+        <a href="#hidden" data-page="hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span class="nav-name" data-i18n="navHidden">Hidden on pages</span><span class="count" id="nav-count-hidden" hidden></span><span class="nav-lead" hidden data-i18n="pageLeadHidden">Parts of pages you removed or grayed out</span></a>
+        <p class="nav-group" data-i18n="navGroupAdvanced">Advanced</p>
+        <a href="#filters" data-page="filters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg><span class="nav-name" data-i18n="tabFilters">Filter lists</span><span class="nav-lead" hidden data-i18n="pageLeadFilters">The lists behind each level</span></a>
+        <a href="#privacy" data-page="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a3 3 0 100-6 3 3 0 000 6zM5 20a7 7 0 0114 0" /></svg><span class="nav-name" data-i18n="advPrivacyTitle">Privacy extras</span><span class="nav-lead" hidden data-i18n="pageLeadPrivacy">More protection against being followed and identified</span></a>
+        <a href="#rules" data-page="rules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg><span class="nav-name" data-i18n="advRulesTitle">Block and allow</span><span class="nav-lead" hidden data-i18n="pageLeadRules">Your own always and never lists</span></a>
+        <a href="#trackers" data-page="trackers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18l5-6 4 3 7-9" /></svg><span class="nav-name" data-i18n="tabTrackers">Trackers</span><span class="nav-lead" hidden data-i18n="pageLeadTrackers">Companies Moat stopped this week</span></a>
+        <p class="nav-group" data-i18n="navGroupMoat">Moat</p>
+        <a href="#backup" data-page="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span><span class="nav-lead" hidden data-i18n="pageLeadBackup">Save your settings or move them to another computer</span></a>
+        <a href="#about" data-page="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About Moat</span><span class="nav-lead" hidden data-i18n="pageLeadAbout">This version, and everything that ever leaves your device</span></a>
+      </nav>
+
       <main class="wrap">
         <div class="head">
           <h1 data-i18n="settingsTitle">Settings</h1>
+        </div>
+        <div class="page-head">
+          <h1 id="page-title"></h1>
+          <p id="page-lead"></p>
         </div>
 
         <div class="panel">
           <!-- How much to block: three presets, each a radio card with a
                three-step meter and what it adds. Essential/Custom live under
                Advanced; a note appears here when one of those is active. -->
-          <section class="sec">
+          <section class="sec" data-page="blocking">
             <div>
               <h2 data-i18n="levelTitle">How much to block</h2>
               <p class="lead" data-i18n="levelLead">This applies to every site you visit. Balanced suits almost everyone. Choose Strict for the most privacy, or Light if a site you use keeps breaking.</p>
@@ -1133,7 +1283,7 @@
             </div>
           </section>
 
-          <section class="sec">
+          <section class="sec" data-page="blocking">
             <div>
               <h2 data-i18n="featuresTitle">Features</h2>
               <p class="lead" data-i18n="featuresLead">Extra protections that work on top of the level you chose above. Turn on the ones you want.</p>
@@ -1141,7 +1291,7 @@
             <div class="setting-rows" id="feature-rows"></div>
           </section>
 
-          <section class="sec">
+          <section class="sec" data-page="paused">
             <div>
               <h2 data-i18n="optionsExceptionsTitle">Sites you've paused</h2>
               <p class="lead" data-i18n="optionsExceptionsHint">Ads and trackers load normally on these sites. Known dangerous sites stay blocked. To pause one, click Moat's icon while you're on it and flip the switch.</p>
@@ -1155,7 +1305,7 @@
             </div>
           </section>
 
-          <section class="sec">
+          <section class="sec" data-page="hidden">
             <div>
               <h2 data-i18n="optionsHiddenElementsTitle">Things you've hidden</h2>
               <p class="lead" data-i18n="optionsHiddenElementsHint">Parts of pages you removed with Block an element. Remove one to bring it back.</p>
@@ -1188,7 +1338,7 @@
 
           <!-- Filter lists -->
           <div class="panel">
-            <section class="sec">
+            <section class="sec" data-page="filters">
               <div>
                 <h2 data-i18n="tabFilters">Filter lists</h2>
                 <p class="lead" data-i18n="optionsIndividualListsHint">The lists behind "How much to block". Changing one here switches your level to Custom.</p>
@@ -1225,7 +1375,7 @@
 
           <!-- Privacy extras -->
           <div class="panel">
-            <section class="sec">
+            <section class="sec" data-page="privacy">
               <div>
                 <h2 data-i18n="advPrivacyTitle">Privacy extras</h2>
                 <p class="lead" data-i18n="advPrivacyLead">Extra protection against being followed and identified. Off by default because a few sites can break.</p>
@@ -1236,7 +1386,7 @@
 
           <!-- Block and allow -->
           <div class="panel">
-            <section class="sec">
+            <section class="sec" data-page="rules">
               <div>
                 <h2 data-i18n="advRulesTitle">Block and allow</h2>
                 <p class="lead" data-i18n="advRulesLead">Your own rules. They always win over the filter lists.</p>
@@ -1292,7 +1442,7 @@
 
           <!-- Trackers -->
           <div class="panel">
-            <section class="sec">
+            <section class="sec" data-page="trackers">
               <div>
                 <h2 data-i18n="tabTrackers">Trackers</h2>
                 <p class="lead" data-i18n="optionsTrackersDesc">Companies Moat stopped this week. Counted on your device and never uploaded.</p>
@@ -1317,7 +1467,7 @@
           <!-- Backup and sync. Grouped by where the data goes: the file stays
                on this device; sync is the one control that sends anything. -->
           <div class="panel">
-            <section class="sec">
+            <section class="sec" data-page="backup">
               <div>
                 <h2 data-i18n="tabBackup">Backup and sync</h2>
                 <p class="lead" data-i18n="optionsBackupDesc">Keep your settings, rules and paused sites safe, or carry them to another computer.</p>
@@ -1362,7 +1512,7 @@
                paragraph. Keep it in sync with PRIVACY.md, in the same commit
                as any change to what the product sends. -->
           <div class="panel">
-            <section class="sec">
+            <section class="sec" data-page="about">
               <div>
                 <h2 data-i18n="tabAbout">About Moat</h2>
                 <p class="lead" data-i18n="optionsAboutDesc">What this version is, and everything that ever leaves your device.</p>

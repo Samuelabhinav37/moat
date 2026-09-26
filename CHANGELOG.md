@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.147
+
+### Changed
+- **Settings is a dashboard on desktop.** From 900px wide, a sidebar splits the page into screens
+  instead of one long scroll: Protection (Blocking, Paused sites, Hidden on pages), Advanced
+  (Filter lists, Privacy extras, Block and allow, Trackers) and Moat (Backup and sync, About Moat).
+  Each screen has its own title and one-line summary, and its own link (`options.html#paused`,
+  ...), so Back and bookmarks work. Paused sites and Hidden on pages show their counts in the
+  sidebar. Advanced settings no longer needs expanding on desktop. Phones keep the single page.
+  Every section stays in the page; `src/options/dashboard.ts` only marks which ones the current
+  screen shows.
+
 ## 0.11.146
 
 ### Changed

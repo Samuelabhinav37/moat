@@ -1,0 +1,76 @@
+// Desktop dashboard for the Settings page: a sidebar with one screen per
+// group, picked by the URL hash (#paused, #filters, ...) so Back and
+// bookmarks work. Every section stays in the page; this only marks which
+// ones belong to the current screen, and the CSS hides the rest at desktop
+// widths (min-width: 900px). Phones keep the single scrolling page.
+
+export const PAGE_KEYS = ["blocking", "paused", "hidden", "filters", "privacy", "rules", "trackers", "backup", "about"] as const;
+export type PageKey = (typeof PAGE_KEYS)[number];
+export const DEFAULT_PAGE: PageKey = "blocking";
+
+export function pageFromHash(hash: string): PageKey {
+  const key = hash.replace(/^#/, "");
+  return (PAGE_KEYS as readonly string[]).includes(key) ? (key as PageKey) : DEFAULT_PAGE;
+}
+
+/** Marks the sections and panels of one screen as shown and the rest as
+ * off, and points the sidebar and page heading at it. */
+export function showPage(key: PageKey, root: Document = document): void {
+  const sections = Array.from(root.querySelectorAll<HTMLElement>("section[data-page]"));
+  for (const section of sections) section.classList.toggle("dash-off", section.dataset.page !== key);
+  const visible = sections.filter((section) => section.dataset.page === key);
+  visible.forEach((section, i) => {
+    section.classList.toggle("dash-first", i === 0);
+    // A screen with a single section doesn't repeat the page title as its own heading.
+    section.classList.toggle("dash-solo", visible.length === 1);
+  });
+  for (const panel of root.querySelectorAll<HTMLElement>(".panel")) {
+    panel.classList.toggle("dash-off", !visible.some((section) => panel.contains(section)));
+  }
+
+  let link: HTMLElement | null = null;
+  for (const a of root.querySelectorAll<HTMLElement>(".dash-nav a[data-page]")) {
+    const current = a.dataset.page === key;
+    if (current) {
+      a.setAttribute("aria-current", "page");
+      link = a;
+    } else {
+      a.removeAttribute("aria-current");
+    }
+  }
+  const title = root.getElementById("page-title");
+  const lead = root.getElementById("page-lead");
+  if (title) title.textContent = link?.querySelector(".nav-name")?.textContent ?? "";
+  if (lead) lead.textContent = link?.querySelector(".nav-lead")?.textContent ?? "";
+}
+
+/** Keeps a sidebar count in step with the rows of one or more lists. */
+function watchCount(countEl: HTMLElement, lists: HTMLElement[]): void {
+  const update = () => {
+    const count = lists.reduce((sum, list) => sum + list.children.length, 0);
+    countEl.textContent = count ? count.toLocaleString() : "";
+    countEl.hidden = count === 0;
+  };
+  const observer = new MutationObserver(update);
+  for (const list of lists) observer.observe(list, { childList: true });
+  update();
+}
+
+export function initDashboard(win: Window = window): void {
+  const doc = win.document;
+  const show = () => {
+    showPage(pageFromHash(win.location.hash), doc);
+    win.scrollTo?.(0, 0);
+  };
+  win.addEventListener("hashchange", show);
+  showPage(pageFromHash(win.location.hash), doc);
+
+  const byId = (id: string) => doc.getElementById(id);
+  const pausedCount = byId("nav-count-paused");
+  const hiddenCount = byId("nav-count-hidden");
+  const siteList = byId("site-list");
+  const hiddenRows = byId("hidden-element-rows");
+  const grayRows = byId("grayscale-element-rows");
+  if (pausedCount && siteList) watchCount(pausedCount, [siteList]);
+  if (hiddenCount && hiddenRows) watchCount(hiddenCount, grayRows ? [hiddenRows, grayRows] : [hiddenRows]);
+}

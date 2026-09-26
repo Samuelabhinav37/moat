@@ -1446,5 +1446,50 @@
         "content": "$1"
       }
     }
+  },
+  "navGroupProtection": {
+    "message": "Protection"
+  },
+  "navBlocking": {
+    "message": "Blocking"
+  },
+  "navPaused": {
+    "message": "Paused sites"
+  },
+  "navHidden": {
+    "message": "Hidden on pages"
+  },
+  "navGroupAdvanced": {
+    "message": "Advanced"
+  },
+  "navGroupMoat": {
+    "message": "Moat"
+  },
+  "pageLeadBlocking": {
+    "message": "How much to block, and the extras on top"
+  },
+  "pageLeadPaused": {
+    "message": "Sites where ads and trackers are allowed"
+  },
+  "pageLeadHidden": {
+    "message": "Parts of pages you removed or grayed out"
+  },
+  "pageLeadFilters": {
+    "message": "The lists behind each level"
+  },
+  "pageLeadPrivacy": {
+    "message": "More protection against being followed and identified"
+  },
+  "pageLeadRules": {
+    "message": "Your own always and never lists"
+  },
+  "pageLeadTrackers": {
+    "message": "Companies Moat stopped this week"
+  },
+  "pageLeadBackup": {
+    "message": "Save your settings or move them to another computer"
+  },
+  "pageLeadAbout": {
+    "message": "This version, and everything that ever leaves your device"
   }
 }

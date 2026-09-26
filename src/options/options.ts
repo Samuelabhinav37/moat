@@ -10,6 +10,7 @@ import { detectPreset, presetPatch, type PresetName } from "../shared/filterPres
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
+import { initDashboard } from "./dashboard";
 import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
 import { customRuleStatKey, isStale } from "../shared/customRuleStats";
@@ -100,6 +101,7 @@ function tFallback(key: string, fallback: string, substitutions?: string | strin
 }
 
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
+initDashboard();
 
 // ---------- Advanced settings (expands in place) ----------
 

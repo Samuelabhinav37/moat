@@ -1444,5 +1444,50 @@
         "content": "$1"
       }
     }
+  },
+  "navGroupProtection": {
+    "message": "Protección"
+  },
+  "navBlocking": {
+    "message": "Bloqueo"
+  },
+  "navPaused": {
+    "message": "Sitios en pausa"
+  },
+  "navHidden": {
+    "message": "Ocultado en páginas"
+  },
+  "navGroupAdvanced": {
+    "message": "Avanzado"
+  },
+  "navGroupMoat": {
+    "message": "Moat"
+  },
+  "pageLeadBlocking": {
+    "message": "Cuánto bloquear y las funciones extra"
+  },
+  "pageLeadPaused": {
+    "message": "Sitios donde se permiten anuncios y rastreadores"
+  },
+  "pageLeadHidden": {
+    "message": "Partes de páginas que quitaste o pusiste en gris"
+  },
+  "pageLeadFilters": {
+    "message": "Las listas detrás de cada nivel"
+  },
+  "pageLeadPrivacy": {
+    "message": "Más protección contra el seguimiento y la identificación"
+  },
+  "pageLeadRules": {
+    "message": "Tus propias listas de bloquear siempre y nunca"
+  },
+  "pageLeadTrackers": {
+    "message": "Empresas que Moat detuvo esta semana"
+  },
+  "pageLeadBackup": {
+    "message": "Guarda tus ajustes o llévalos a otro ordenador"
+  },
+  "pageLeadAbout": {
+    "message": "Esta versión y todo lo que sale de tu dispositivo"
   }
 }
