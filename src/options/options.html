@@ -409,6 +409,45 @@
         font-weight: 600;
         overflow-wrap: anywhere;
       }
+      /* Site icons (siteIcon.ts): the browser's cached icon, or a letter. */
+      .site-icon {
+        display: inline-grid;
+        place-items: center;
+        flex: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .site-icon.has-img {
+        background: #fff;
+        border-color: transparent;
+      }
+      .site-icon img {
+        display: block;
+        width: 16px;
+        height: 16px;
+      }
+      .rule-site {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .rule-site .site-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        font-size: 10px;
+      }
+      .rule-site .site-icon img {
+        width: 12px;
+        height: 12px;
+      }
       /* Bulk select (bulkSelect.ts): row checkboxes and the bar above. */
       .row-check,
       .bulk-all input {
@@ -419,7 +458,7 @@
         accent-color: var(--blue);
         cursor: pointer;
       }
-      ul.site-list li > span {
+      ul.site-list li > span:not(.site-icon) {
         flex: 1;
         min-width: 0;
       }

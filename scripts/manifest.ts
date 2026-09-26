@@ -216,7 +216,11 @@ export function buildManifest(target: "chrome" | "firefox") {
       // (only the original small Chrome-parity surface -- cookies/images/
       // javascript/popups/etc.), and its own manifest linter rejects the
       // permission key outright if it's listed there regardless.
-      permissions: [...manifest.permissions, "webRequest", "contentSettings"],
+      // favicon: site icons beside the hostnames in Settings, read from
+      // Chrome's own local favicon cache (src/options/siteIcon.ts). No
+      // install warning (checked with management.getPermissionWarningsByManifest)
+      // and no network request. Firefox has no equivalent; it shows letters.
+      permissions: [...manifest.permissions, "webRequest", "contentSettings", "favicon"],
       background: {
         service_worker: "background.js",
       },

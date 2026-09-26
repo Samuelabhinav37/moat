@@ -11,6 +11,7 @@ import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rules
 import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
 import { applyBulkSelect, type BulkLabels } from "./bulkSelect";
+import { buildSiteIcon, faviconUrl } from "./siteIcon";
 import { initDashboard } from "./dashboard";
 import { initSettingsSearch } from "./settingsSearch";
 import { createSavedToast } from "./savedToast";
@@ -546,6 +547,11 @@ function offerUndo<T>(undo: UndoRemoval<T> | undefined, item: T, rerenderSelf: (
   });
 }
 
+// Chrome only: the manifest asks for "favicon" there (see siteIcon.ts).
+const faviconsSupported = (browser.runtime.getManifest().permissions ?? []).includes("favicon");
+const siteIcon = (hostname: string) =>
+  buildSiteIcon(document, hostname, faviconUrl(hostname, (path) => browser.runtime.getURL(path), faviconsSupported));
+
 /** Acting on several selected rows at once: the button's wording and what
  * the toast says afterwards. */
 interface BulkRemoval {
@@ -562,7 +568,8 @@ function renderRows<T>(
   onRemove: (item: T) => Promise<unknown>,
   rerenderSelf: () => Promise<void>,
   undo?: UndoRemoval<T>,
-  bulk?: BulkRemoval
+  bulk?: BulkRemoval,
+  withIcons = false
 ): void {
   emptyState.style.display = items.length ? "none" : "block";
   const rows = items.map((item) => {
@@ -579,6 +586,7 @@ function renderRows<T>(
       offerUndo(undo, item, rerenderSelf);
     });
 
+    if (withIcons) li.append(siteIcon(label.textContent));
     li.append(label, remove);
     return li;
   });
@@ -610,7 +618,7 @@ function renderDomainList(
   undo?: UndoRemoval<string>,
   bulk?: BulkRemoval
 ): void {
-  renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove, rerenderSelf, undo, bulk);
+  renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove, rerenderSelf, undo, bulk, true);
 }
 
 const bulkLabelsFor = (action: (count: number) => string): BulkLabels => ({
@@ -1124,7 +1132,7 @@ function buildRuleRow(
   selectorEl.textContent = selector;
   const siteEl = document.createElement("span");
   siteEl.className = "rule-site";
-  siteEl.textContent = hostname;
+  siteEl.append(siteIcon(hostname), document.createTextNode(hostname));
   main.append(selectorEl, siteEl);
 
   const meta = document.createElement("div");

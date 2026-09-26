@@ -167,6 +167,7 @@ One codebase builds for Chrome and Firefox. The Firefox build also targets **Fir
 | `scripting` | Registers the optional content scripts only for the sites each applies to; injects cosmetic CSS; runs the element picker only when you click "Block an element…". |
 | `contentSettings` | Sets the camera/mic/location permission default to "block" for the opt-in ambush-prompt guard. Chrome only. Inert unless that toggle is on. |
 | `browsingData` | Backs the popup's manual "Clear site data…" button, scoped to the current site. Never called automatically. |
+| `favicon` (Chrome only) | Shows each site's icon beside it in Settings lists, read from Chrome's own local icon cache. No network request. |
 
 </details>
 

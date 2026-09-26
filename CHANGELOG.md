@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.153
+
+### Added
+- **Site icons in Settings lists (Chrome).** Paused sites, the always/never block lists and hidden
+  elements show each site's icon beside its name, so a long list can be scanned by logo. They come
+  from Chrome's own local favicon cache through the new `favicon` permission: no network request,
+  nothing sent. Chrome shows no new install warning for it (checked with
+  `management.getPermissionWarningsByManifest`, before and after). Firefox has no equivalent and
+  shows the site's first letter instead (`src/options/siteIcon.ts`).
+
 ## 0.11.152
 
 ### Added
