@@ -78,6 +78,7 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
       siteDisabled: false,
       enabled: true,
       blockedOnTab: 12,
+      unsorted: 4,
       breakdown: { ads: 5, trackers: 2, popups: 1 },
       companyBreakdown: { "Google LLC": 5 },
       droppedFilterGroups: [],

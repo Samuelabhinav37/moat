@@ -1,8 +1,9 @@
-// Combines the two sources of "what got blocked on this tab": badge.ts's
-// real-time popup/redirect firewall catches, and matchStats.ts's static
+// Combines the sources of "what got blocked on this tab": badge.ts's
+// real-time popup/redirect firewall catches, matchStats.ts's static
 // ads/trackers/popups breakdown from declarativeNetRequest's own match
-// feedback. Also owns painting the toolbar badge, since that number has to
-// reflect both sources -- neither module paints on its own.
+// feedback, and liveBlocks.ts's quota-free count of refused requests (the
+// total never depends on getMatchedRules succeeding). Also owns painting the
+// toolbar badge, since that number has to reflect all of them.
 import browser from "webextension-polyfill";
 import { forgetTab as forgetDynamicTab, getCount, recordBlock, resetCount } from "./badge";
 import {
@@ -15,6 +16,7 @@ import {
 } from "./matchStats";
 import { recordBlockedTotal, recordCompanyMatches } from "./usageStats";
 import { NOTHING_RECORDED, unrecorded, type Recorded } from "../shared/statsDelta";
+import { forgetLive, getLiveCount, resetLive } from "./liveBlocks";
 
 export type { Breakdown };
 
@@ -32,9 +34,38 @@ export function combinedCompanyBreakdown(tabId: number): Record<string, number> 
   return getCompanyBreakdown(tabId);
 }
 
+/** Network blocks on the current page: the live count, or the rule-based
+ * count when that's higher (redirect stand-ins are matched rules but not
+ * refused requests). */
+function staticTotal(tabId: number): number {
+  const b = getBreakdown(tabId);
+  return Math.max(getLiveCount(tabId), b.ads + b.trackers + b.popups);
+}
+
 export function combinedTotal(tabId: number): number {
-  const breakdown = combinedBreakdown(tabId);
-  return breakdown.ads + breakdown.trackers + breakdown.popups;
+  return staticTotal(tabId) + getCount(tabId);
+}
+
+/** Blocks counted in the total that the ads/trackers/pop-ups split doesn't
+ * cover yet, because getMatchedRules hasn't been readable since they
+ * happened. The popup shows these as "N not sorted yet". */
+export function unsortedCount(tabId: number): number {
+  const b = combinedBreakdown(tabId);
+  return Math.max(0, combinedTotal(tabId) - (b.ads + b.trackers + b.popups));
+}
+
+// A live block can arrive hundreds of times a second on a bad page; repaint
+// the badge at most twice a second per tab.
+const paintTimers = new Map<number, ReturnType<typeof setTimeout>>();
+export function onLiveBlock(tabId: number): void {
+  if (paintTimers.has(tabId)) return;
+  paintTimers.set(
+    tabId,
+    setTimeout(() => {
+      paintTimers.delete(tabId);
+      void paint(tabId);
+    }, 500)
+  );
 }
 
 async function paint(tabId: number): Promise<void> {
@@ -65,6 +96,7 @@ const recordedByTab = new Map<number, Recorded>();
 
 export function resetForNavigation(tabId: number, pageStart?: number): void {
   recordedByTab.delete(tabId);
+  resetLive(tabId, pageStart);
   resetCount(tabId);
   resetBreakdown(tabId, pageStart);
   void paint(tabId);
@@ -75,10 +107,10 @@ export function resetForNavigation(tabId: number, pageStart?: number): void {
  * finishes loading, again a few seconds later (ads often load after the
  * load event), and when the popup opens. */
 export async function refreshStaticBreakdown(tabId: number, hostname: string): Promise<void> {
-  const breakdown = await refreshBreakdown(tabId);
+  await refreshBreakdown(tabId);
   await paint(tabId);
   if (!hostname) return;
-  const total = breakdown.ads + breakdown.trackers + breakdown.popups;
+  const total = staticTotal(tabId);
   const fresh = unrecorded(recordedByTab.get(tabId) ?? NOTHING_RECORDED, total, getCompanyBreakdown(tabId));
   recordedByTab.set(tabId, fresh.next);
   if (fresh.total > 0) void recordBlockedTotal(hostname, fresh.total);
@@ -87,6 +119,7 @@ export async function refreshStaticBreakdown(tabId: number, hostname: string): P
 
 export function forgetTab(tabId: number): void {
   recordedByTab.delete(tabId);
+  forgetLive(tabId);
   forgetDynamicTab(tabId);
   forgetBreakdownTab(tabId);
 }

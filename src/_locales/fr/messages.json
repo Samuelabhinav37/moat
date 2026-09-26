@@ -1423,5 +1423,13 @@
   },
   "tourSeeFact3Sub": {
     "message": "Cela se passe sur tous les sites, sur votre appareil, dès l’installation de Moat."
+  },
+  "popupUnsorted": {
+    "message": "$COUNT$ pas encore classés",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

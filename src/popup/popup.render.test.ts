@@ -61,4 +61,12 @@ describe("popup.html render", () => {
     const findings = findInvisibleText(document.body);
     expect(findings).toEqual([]);
   });
+
+  it("says how many blocks the split hasn't sorted yet", async () => {
+    await renderPopup();
+    const line = document.getElementById("unsorted");
+    expect(line?.hidden).toBe(false);
+    expect(line?.textContent).toBe("4 not sorted yet");
+    expect(document.getElementById("count")?.textContent).toBe("12");
+  });
 });

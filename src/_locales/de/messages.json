@@ -1423,5 +1423,13 @@
   },
   "tourSeeFact3Sub": {
     "message": "Das passiert auf jeder Seite, auf deinem Gerät, sobald Moat installiert ist."
+  },
+  "popupUnsorted": {
+    "message": "$COUNT$ noch nicht zugeordnet",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

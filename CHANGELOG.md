@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.142
+
+### Fixed
+- **After heavy browsing the popup and badge showed 0 blocked.** The count came only from Chrome's
+  `getMatchedRules`, which allows 20 calls per 10 minutes; Moat spends one or two per page load, so
+  after about ten pages in ten minutes every read failed and the numbers fell to 0 (found by the test
+  audit's stress run: 30 page loads, then 0 on a page with blocks).
+  - New `src/background/liveBlocks.ts` counts, per tab and with no quota, every request Chrome's
+    blocking engine refuses (`webRequest.onErrorOccurred`, `net::ERR_BLOCKED_BY_CLIENT`) and every
+    ad script swapped for one of Moat's stand-ins (`onBeforeRedirect` to
+    `web-accessible-resources/redirects/`). The total and the toolbar badge use it, and the badge
+    now updates live (at most twice a second per tab).
+  - Block times are kept per tab, so the new page's first blocks survive when Chrome reports them
+    before the "new page" event reaches the worker (a race the smoke test caught).
+  - The ads/trackers/pop-ups tiles still come from the rules that matched. When they lag behind the
+    total, the popup says so: "N not sorted yet" (en/es/fr/de).
+  - The late 8-second recount is skipped once 15 of the 20 calls are used, leaving room for popup
+    opens.
+  - New smoke check: 25 quick page loads, then the popup must still count the page (3, as before
+    the quota ran out).
+
 ## 0.11.141
 
 ### Fixed

@@ -250,6 +250,21 @@ try {
   await popup.close();
   await longPage.close();
 
+  // Chrome allows 20 getMatchedRules calls per 10 minutes. Use them up with
+  // quick page loads, then the popup must still count this page's blocks
+  // (the live count needs no quota; before 0.11.142 it showed 0).
+  for (let i = 0; i < 25; i++) {
+    const q = await browser.newPage();
+    await q.goto(`http://quota${i}.moat-smoke.test/`, { waitUntil: "load" }).catch(() => {});
+    await q.close();
+  }
+  const quotaPage = await load(`http://${NEWS}/`, 2500);
+  popup = await openPopup(sw);
+  const afterQuota = await popup.evaluate(() => Number(document.getElementById("count")?.textContent));
+  check("popup still counts after the rate limit is used up", afterQuota >= 2, `${afterQuota} blocked`);
+  await popup.close();
+  await quotaPage.close();
+
   // 7. Pause on the site, from the popup's own switch.
   await news.bringToFront();
   popup = await openPopup(sw);

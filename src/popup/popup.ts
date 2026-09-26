@@ -255,6 +255,16 @@ async function render(): Promise<void> {
   document.getElementById("count-ads")!.textContent = String(status.breakdown.ads);
   document.getElementById("count-trackers")!.textContent = String(status.breakdown.trackers);
   document.getElementById("count-popups")!.textContent = String(status.breakdown.popups);
+  const unsorted = document.getElementById("unsorted")!;
+  unsorted.hidden = status.unsorted <= 0;
+  if (status.unsorted > 0) {
+    unsorted.textContent = getMessageOrFallback(
+      (key, subs) => browser.i18n.getMessage(key, subs),
+      "popupUnsorted",
+      `${status.unsorted} not sorted yet`,
+      String(status.unsorted)
+    );
+  }
   // A qualitative read over the same real count shown numerically above it,
   // not a new measurement -- see shared/protectionLevel.ts for why this
   // isn't a before/after "grade" the way DuckDuckGo's is (Moat has no

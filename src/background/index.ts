@@ -3,6 +3,8 @@ import {
   combinedBreakdown,
   combinedCompanyBreakdown,
   combinedTotal,
+  onLiveBlock,
+  unsortedCount,
   forgetTab,
   recordDynamicCatch,
   refreshStaticBreakdown,
@@ -68,7 +70,8 @@ import {
   noteTabUrl,
   pickBestNormalTab,
 } from "./lastNormalTab";
-import { getGroupBreakdown, isMatchedRulesSupported } from "./matchStats";
+import { getGroupBreakdown, isMatchedRulesSupported, recentMatchedRulesCalls } from "./matchStats";
+import { startLiveBlockCounting } from "./liveBlocks";
 import { recordSignalEvent } from "./usageStats";
 import { SIGNAL_KEYS } from "../shared/usageStatsState";
 import {
@@ -199,6 +202,10 @@ async function resolveNormalTabId(): Promise<number | null> {
   return pickBestNormalTab(active);
 }
 
+// Quota-free count of refused requests per tab (see liveBlocks.ts). Top
+// level, so a blocked request can wake the worker.
+startLiveBlockCounting(onLiveBlock);
+
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0) return;
   resetForNavigation(details.tabId, details.timeStamp);
@@ -230,6 +237,8 @@ browser.webNavigation.onBeforeNavigate.addListener((details) => {
 // popup reads again when it opens. getMatchedRules allows 20 calls per 10
 // minutes, which is why the late read is for the active tab only.
 const LATE_REFRESH_MS = 8000;
+// Leave 5 of Chrome's 20 getMatchedRules calls per 10 minutes for popup opens.
+const LATE_REFRESH_CALL_BUDGET = 15;
 browser.webNavigation.onCompleted.addListener((details) => {
   if (details.frameId !== 0) return;
   void refreshStaticBreakdown(details.tabId, hostnameOf(details.url));
@@ -237,7 +246,9 @@ browser.webNavigation.onCompleted.addListener((details) => {
     void browser.tabs
       .get(details.tabId)
       .then((tab) => {
-        if (tab.active && tab.url === details.url) return refreshStaticBreakdown(details.tabId, hostnameOf(details.url));
+        if (tab.active && tab.url === details.url && recentMatchedRulesCalls() < LATE_REFRESH_CALL_BUDGET) {
+          return refreshStaticBreakdown(details.tabId, hostnameOf(details.url));
+        }
       })
       .catch(() => {
         // Tab closed in the meantime.
@@ -297,6 +308,7 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
           siteDisabled: hostname ? await isSiteDisabled(hostname) : false,
           enabled: settings.enabled,
           blockedOnTab: tab?.id !== undefined ? combinedTotal(tab.id) : 0,
+          unsorted: tab?.id !== undefined ? unsortedCount(tab.id) : 0,
           breakdown: tab?.id !== undefined ? combinedBreakdown(tab.id) : { ads: 0, trackers: 0, popups: 0 },
           companyBreakdown: tab?.id !== undefined ? combinedCompanyBreakdown(tab.id) : {},
           droppedFilterGroups: filterStatus?.droppedGroups ?? [],

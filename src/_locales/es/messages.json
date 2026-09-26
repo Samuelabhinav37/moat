@@ -1423,5 +1423,13 @@
   },
   "tourSeeFact3Sub": {
     "message": "Esto pasa en todos los sitios, en tu dispositivo, desde que instalas Moat."
+  },
+  "popupUnsorted": {
+    "message": "$COUNT$ sin clasificar todavía",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

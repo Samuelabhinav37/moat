@@ -53,6 +53,18 @@ async function loadUncounted(): Promise<UncountedRules> {
 // don't use it (the options page) and `web-ext lint` only ever flags this
 // one line. The guard below and background/index.ts's company-breakdown
 // handler both go through this rather than reaching for `chrome.` again.
+// getMatchedRules allows 20 calls per 10 minutes outside a user gesture.
+// Remember when calls were made, so optional reads (the late refresh) can
+// leave room for the ones a person is waiting on (opening the popup).
+const QUOTA_WINDOW_MS = 10 * 60 * 1000;
+const callTimes: number[] = [];
+
+/** getMatchedRules calls made in the last 10 minutes. */
+export function recentMatchedRulesCalls(now = Date.now()): number {
+  while (callTimes.length > 0 && now - callTimes[0]! > QUOTA_WINDOW_MS) callTimes.shift();
+  return callTimes.length;
+}
+
 function matchedRulesApi(): typeof chrome.declarativeNetRequest.getMatchedRules | undefined {
   return chrome.declarativeNetRequest?.getMatchedRules;
 }
@@ -119,6 +131,7 @@ export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
     if (!getMatchedRules) return getBreakdown(tabId);
 
     const minTimeStamp = pageStartByTab.get(tabId);
+    callTimes.push(Date.now());
     const [manifest, companies, uncounted, { rulesMatchedInfo }] = await Promise.all([
       loadRulesetManifest(),
       loadCompanies(),

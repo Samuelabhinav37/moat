@@ -235,6 +235,10 @@ export interface StatusResponse {
   siteDisabled: boolean;
   enabled: boolean;
   blockedOnTab: number;
+  /** Blocks in blockedOnTab not yet covered by `breakdown`: the total comes
+   * from a quota-free live count, the split from getMatchedRules, which
+   * Chrome rate-limits (see background/liveBlocks.ts). 0 when they agree. */
+  unsorted: number;
   /** Real counts from declarativeNetRequest's own match feedback (Chrome
    * only -- see background/matchStats.ts) plus the popup/redirect firewall's
    * real-time catches, folded into "popups". */

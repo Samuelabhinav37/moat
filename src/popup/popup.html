@@ -140,6 +140,14 @@
         display: block;
       }
 
+      /* The total is exact; the split can lag behind it (Chrome rate-limits
+         the rule lookup), so say how many blocks aren't in a tile yet. */
+      .unsorted {
+        margin: -6px 0 12px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--t3);
+      }
       .breakdown {
         display: flex;
         gap: 8px;
@@ -408,6 +416,7 @@
         <div class="seg"><span class="n" id="count-trackers">0</span><span class="l"><i class="dot trackers"></i><span data-i18n="popupTrackers">Trackers</span></span></div>
         <div class="seg"><span class="n" id="count-popups">0</span><span class="l"><i class="dot popups"></i><span data-i18n="popupPopups">Popups</span></span></div>
       </div>
+      <p class="unsorted" id="unsorted" hidden></p>
 
       <details id="company-details" hidden>
         <summary data-i18n="popupByCompany">By company</summary>

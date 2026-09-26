@@ -1425,5 +1425,13 @@
   },
   "tourSeeFact3Sub": {
     "message": "This happens on every site, on your device, from the moment Moat is installed."
+  },
+  "popupUnsorted": {
+    "message": "$COUNT$ not sorted yet",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }
