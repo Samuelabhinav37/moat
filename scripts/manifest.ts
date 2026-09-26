@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { PRESETS } from "../src/shared/filterPresets.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rulesManifestPath = join(__dirname, "..", "rules", "dnr", "manifest.json");
@@ -14,16 +15,29 @@ const { version: packageVersion } = JSON.parse(readFileSync(packageJsonPath, "ut
 
 interface RulesetEntry {
   id: string;
+  group: string;
   name: string;
   enabled: boolean;
   file: string;
+}
+
+// Rulesets on at install are the fresh-install preset's (Balanced, "standard").
+// Enabling all ~314k rules and trimming them at startup made Chrome index
+// everything on install: the worker took 3.1 s to start against uBlock Origin
+// Lite's 1.1 s (docs/research/test-audit-2026-09.md, finding 4.5). Other
+// levels' groups are switched on at startup by background/filterGroups.ts,
+// which reapplies after every update (its "already applied" record lives in
+// storage.session, which Chrome clears on update). Groups no preset lists,
+// like the privacy headers, stay on.
+export function enabledAtInstall(group: string): boolean {
+  return PRESETS.standard.filterGroups[group] ?? true;
 }
 
 function loadRuleResources() {
   const entries = JSON.parse(readFileSync(rulesManifestPath, "utf8")) as RulesetEntry[];
   return entries.map((entry) => ({
     id: entry.id,
-    enabled: entry.enabled,
+    enabled: entry.enabled && enabledAtInstall(entry.group),
     path: `rules/${entry.file}`,
   }));
 }

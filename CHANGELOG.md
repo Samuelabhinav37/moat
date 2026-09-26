@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.144
+
+### Changed
+- **Only the Balanced rulesets are switched on at install.** The manifest used to enable all 25 and
+  Moat trimmed them at startup; now the three that Balanced leaves off (social widgets, cookie
+  notices, annoyances) start off (`enabledAtInstall` in `scripts/manifest.ts`, reading
+  `PRESETS.standard`), and Moat switches them on at startup for anyone who uses them. Measured over
+  five fresh installs each: final rulesets in place 3.96 s → 3.53 s; worker start and memory
+  unchanged. The startup gap to uBlock Origin Lite (1.1 s) is Chrome compiling Moat's much larger
+  rule set before the worker starts (22 rulesets on Balanced vs uBO Lite's 6), which is also where
+  Moat's coverage lead comes from, so this change doesn't close it. Verified: 22 rulesets on a fresh
+  install, 25 after turning the extra lists on.
+
 ## 0.11.143
 
 ### Fixed
