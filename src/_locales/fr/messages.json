@@ -1566,5 +1566,56 @@
         "content": "$1"
       }
     }
+  },
+  "bulkSelectAll": {
+    "message": "Tout sÃ©lectionner"
+  },
+  "bulkSelectRow": {
+    "message": "SÃ©lectionner $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      }
+    }
+  },
+  "bulkSelected": {
+    "message": "$COUNT$ sÃ©lectionnÃ©s",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "bulkResume": {
+    "message": "RÃ©activer $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "bulkRemove": {
+    "message": "Retirer $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "toastResumedMany": {
+    "message": "$COUNT$ sites rÃ©activÃ©s",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "toastRemovedMany": {
+    "message": "$COUNT$ sites retirÃ©s",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

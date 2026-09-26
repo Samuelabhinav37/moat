@@ -409,6 +409,58 @@
         font-weight: 600;
         overflow-wrap: anywhere;
       }
+      /* Bulk select (bulkSelect.ts): row checkboxes and the bar above. */
+      .row-check,
+      .bulk-all input {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        flex: none;
+        accent-color: var(--blue);
+        cursor: pointer;
+      }
+      ul.site-list li > span {
+        flex: 1;
+        min-width: 0;
+      }
+      ul.site-list li.is-selected {
+        background: var(--tint);
+      }
+      .bulk-bar {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 34px;
+        margin-bottom: 8px;
+        padding: 0 16px;
+        font-size: 14px;
+      }
+      .bulk-all {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .bulk-count {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .bulk-action {
+        margin-left: auto;
+        padding: 6px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-2);
+        color: var(--fg);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .bulk-action:hover:not(:disabled) {
+        border-color: var(--blue-lt);
+      }
       ul.site-list li + li {
         border-top: 1px solid var(--line);
       }

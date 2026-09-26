@@ -10,6 +10,7 @@ import { detectPreset, presetPatch, type PresetName } from "../shared/filterPres
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
+import { applyBulkSelect, type BulkLabels } from "./bulkSelect";
 import { initDashboard } from "./dashboard";
 import { initSettingsSearch } from "./settingsSearch";
 import { createSavedToast } from "./savedToast";
@@ -545,6 +546,13 @@ function offerUndo<T>(undo: UndoRemoval<T> | undefined, item: T, rerenderSelf: (
   });
 }
 
+/** Acting on several selected rows at once: the button's wording and what
+ * the toast says afterwards. */
+interface BulkRemoval {
+  labels: BulkLabels;
+  done: (count: number) => string;
+}
+
 function renderRows<T>(
   list: HTMLUListElement,
   emptyState: HTMLElement,
@@ -553,29 +561,43 @@ function renderRows<T>(
   removeLabel: string,
   onRemove: (item: T) => Promise<unknown>,
   rerenderSelf: () => Promise<void>,
-  undo?: UndoRemoval<T>
+  undo?: UndoRemoval<T>,
+  bulk?: BulkRemoval
 ): void {
   emptyState.style.display = items.length ? "none" : "block";
-  list.replaceChildren(
-    ...items.map((item) => {
-      const li = document.createElement("li");
-      const label = document.createElement("span");
-      label.textContent = formatLabel(item);
-      li.dataset.search = label.textContent;
+  const rows = items.map((item) => {
+    const li = document.createElement("li");
+    const label = document.createElement("span");
+    label.textContent = formatLabel(item);
+    li.dataset.search = label.textContent;
 
-      const remove = document.createElement("button");
-      remove.textContent = removeLabel;
-      remove.addEventListener("click", async () => {
-        await onRemove(item);
-        await rerenderSelf();
-        offerUndo(undo, item, rerenderSelf);
-      });
+    const remove = document.createElement("button");
+    remove.textContent = removeLabel;
+    remove.addEventListener("click", async () => {
+      await onRemove(item);
+      await rerenderSelf();
+      offerUndo(undo, item, rerenderSelf);
+    });
 
-      li.append(label, remove);
-      return li;
-    })
-  );
+    li.append(label, remove);
+    return li;
+  });
+  list.replaceChildren(...rows);
   applyLongList(list, longListLabels);
+  if (!bulk) return;
+  const keys = items.map(formatLabel);
+  applyBulkSelect(list, rows, keys, bulk.labels, async (chosenKeys) => {
+    const chosen = items.filter((_, i) => chosenKeys.includes(keys[i]!));
+    for (const item of chosen) await onRemove(item);
+    await rerenderSelf();
+    if (!undo) return;
+    savedToast.offerUndo(bulk.done(chosen.length), tFallback("toastUndo", "Undo"), () => {
+      void (async () => {
+        for (const item of chosen) await undo.restore(item);
+        await rerenderSelf();
+      })();
+    });
+  });
 }
 
 function renderDomainList(
@@ -585,10 +607,26 @@ function renderDomainList(
   removeLabel: string,
   onRemove: (domain: string) => Promise<void>,
   rerenderSelf: () => Promise<void>,
-  undo?: UndoRemoval<string>
+  undo?: UndoRemoval<string>,
+  bulk?: BulkRemoval
 ): void {
-  renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove, rerenderSelf, undo);
+  renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove, rerenderSelf, undo, bulk);
 }
+
+const bulkLabelsFor = (action: (count: number) => string): BulkLabels => ({
+  selectAll: tFallback("bulkSelectAll", "Select all"),
+  selectRow: (label) => tFallback("bulkSelectRow", `Select ${label}`, label),
+  selected: (count) => tFallback("bulkSelected", `${count} selected`, String(count)),
+  action,
+});
+const bulkResume: BulkRemoval = {
+  labels: bulkLabelsFor((count) => tFallback("bulkResume", `Resume ${count}`, String(count))),
+  done: (count) => tFallback("toastResumedMany", `Resumed ${count} sites`, String(count)),
+};
+const bulkRemove: BulkRemoval = {
+  labels: bulkLabelsFor((count) => tFallback("bulkRemove", `Remove ${count}`, String(count))),
+  done: (count) => tFallback("toastRemovedMany", `Removed ${count} sites`, String(count)),
+};
 
 const undoResume: UndoRemoval<string> = {
   message: (hostname) => tFallback("toastResumed", `Resumed ${hostname}`, hostname),
@@ -1352,7 +1390,8 @@ async function rerenderSiteList(): Promise<void> {
     tFallback("commonResume", "Resume"),
     (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
     rerenderSiteList,
-    undoResume
+    undoResume,
+    bulkResume
   );
 }
 
@@ -1365,7 +1404,8 @@ async function rerenderCustomBlockList(): Promise<void> {
     tFallback("commonRemove", "Remove"),
     (domain) => sendRemoveCustomDomain("customBlockedDomains", domain),
     rerenderCustomBlockList,
-    undoRemoveDomain("customBlockedDomains")
+    undoRemoveDomain("customBlockedDomains"),
+    bulkRemove
   );
 }
 
@@ -1378,7 +1418,8 @@ async function rerenderCustomAllowList(): Promise<void> {
     tFallback("commonRemove", "Remove"),
     (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
     rerenderCustomAllowList,
-    undoRemoveDomain("customAllowedDomains")
+    undoRemoveDomain("customAllowedDomains"),
+    bulkRemove
   );
 }
 
@@ -1431,7 +1472,8 @@ async function render(): Promise<void> {
     tFallback("commonResume", "Resume"),
     (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
     rerenderSiteList,
-    undoResume
+    undoResume,
+    bulkResume
   );
 
   const filterGroupStatus = await getFilterGroupStatus();
@@ -1472,7 +1514,8 @@ async function render(): Promise<void> {
     tFallback("commonRemove", "Remove"),
     (domain) => sendRemoveCustomDomain("customBlockedDomains", domain),
     rerenderCustomBlockList,
-    undoRemoveDomain("customBlockedDomains")
+    undoRemoveDomain("customBlockedDomains"),
+    bulkRemove
   );
   renderDomainList(
     customAllowList,
@@ -1481,7 +1524,8 @@ async function render(): Promise<void> {
     tFallback("commonRemove", "Remove"),
     (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
     rerenderCustomAllowList,
-    undoRemoveDomain("customAllowedDomains")
+    undoRemoveDomain("customAllowedDomains"),
+    bulkRemove
   );
   const customRuleStats = await getCustomRuleStats();
   renderRuleGroup(

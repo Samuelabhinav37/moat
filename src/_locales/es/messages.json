@@ -1566,5 +1566,56 @@
         "content": "$1"
       }
     }
+  },
+  "bulkSelectAll": {
+    "message": "Seleccionar todo"
+  },
+  "bulkSelectRow": {
+    "message": "Seleccionar $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      }
+    }
+  },
+  "bulkSelected": {
+    "message": "$COUNT$ seleccionados",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "bulkResume": {
+    "message": "Reanudar $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "bulkRemove": {
+    "message": "Quitar $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "toastResumedMany": {
+    "message": "$COUNT$ sitios reanudados",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "toastRemovedMany": {
+    "message": "$COUNT$ sitios quitados",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

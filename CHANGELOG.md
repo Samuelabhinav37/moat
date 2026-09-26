@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.152
+
+### Added
+- **Bulk actions on Settings site lists.** Paused sites and the always/never block lists get a
+  checkbox per row and a bar with "Select all" and "Resume 3" / "Remove 3". While the list's search
+  is in use, Select all takes only the matches. Afterwards the toast offers Undo for the whole
+  batch (`src/options/bulkSelect.ts`).
+
 ## 0.11.151
 
 ### Added
