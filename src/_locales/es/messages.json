@@ -850,17 +850,8 @@
   "optionsAboutDesc": {
     "message": "Qué versión es esta y todo lo que sale de tu dispositivo."
   },
-  "optionsDisclosureFeature": {
-    "message": "Función"
-  },
-  "optionsDisclosureSent": {
-    "message": "Qué se envía"
-  },
   "optionsDisclosureRecipient": {
     "message": "Quién lo recibe"
-  },
-  "optionsDisclosureDefault": {
-    "message": "Predeterminado"
   },
   "optionsDisclosureBlockingName": {
     "message": "Bloqueo y filtrado"
@@ -897,18 +888,6 @@
   },
   "optionsDisclosureStatsSent": {
     "message": "Nada sale de tu dispositivo. Los conteos permanecen almacenados localmente."
-  },
-  "optionsVersionLabel": {
-    "message": "versión"
-  },
-  "optionsVersionBuild": {
-    "message": "compilación"
-  },
-  "optionsVersionRules": {
-    "message": "reglas"
-  },
-  "optionsVersionUpdated": {
-    "message": "listas actualizadas"
   },
   "optionsShortcutHeading": {
     "message": "Atajo de teclado"
@@ -1489,5 +1468,58 @@
   },
   "pageLeadAbout": {
     "message": "Esta versión y todo lo que sale de tu dispositivo"
+  },
+  "aboutRulesUnit": {
+    "message": "reglas de bloqueo"
+  },
+  "aboutCheckFixes": {
+    "message": "Buscar correcciones de filtros"
+  },
+  "aboutFixesLast": {
+    "message": "Última descarga: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "aboutFixesNever": {
+    "message": "Aún no descargadas"
+  },
+  "aboutFixesChecking": {
+    "message": "Comprobando…"
+  },
+  "aboutFlowsTitle": {
+    "message": "Lo que sale de tu dispositivo"
+  },
+  "aboutFlowsNothing": {
+    "message": "Con tus ajustes actuales, nada de tu navegación sale de tu dispositivo."
+  },
+  "aboutFlowsSome": {
+    "message": "Una función que activaste envía algunos datos. Cada una aparece abajo."
+  },
+  "aboutShortcutTitle": {
+    "message": "Atajo de teclado"
+  },
+  "aboutShortcutChange": {
+    "message": "Cambiar"
+  },
+  "aboutShortcutDesc": {
+    "message": "Activa o desactiva Moat en todos los sitios."
+  },
+  "aboutShortcutNone": {
+    "message": "Sin atajo"
+  },
+  "aboutHelpTitle": {
+    "message": "Ayuda y detalles"
+  },
+  "searchPlaceholder": {
+    "message": "Buscar ajustes"
+  },
+  "searchNoResults": {
+    "message": "Ningún ajuste coincide."
+  },
+  "toastSaved": {
+    "message": "Guardado"
   }
 }

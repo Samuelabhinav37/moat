@@ -634,15 +634,6 @@
         font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
         font-size: 13px;
       }
-      .keycap {
-        display: inline-block;
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 12.5px;
-        border: 1px solid var(--selected);
-        border-radius: 6px;
-        padding: 1px 7px;
-        color: var(--fg);
-      }
 
       /* ---------- Disclosure ("show all") ---------- */
       details.more summary {
@@ -927,69 +918,243 @@
         border-top: 1px solid var(--line);
       }
 
-      /* On a phone the five-column table scrolls sideways inside its box
-         instead of widening the whole page. */
-      .box.table-scroll {
-        overflow-x: auto;
-      }
-      .disclosure-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 14px;
-      }
-      .disclosure-table th {
-        text-align: left;
-        font-weight: 500;
+      .about-note {
+        margin: 0;
+        font-size: 14.5px;
         color: var(--muted);
-        padding: 12px 16px;
       }
-      .disclosure-table td {
-        padding: 12px 16px;
-        border-top: 1px solid var(--line);
-        color: var(--muted);
-        vertical-align: top;
+
+      /* ---------- About Moat: a stack of cards ---------- */
+      .panel-bare {
+        background: none;
+        border: 0;
+        padding: 0;
       }
-      .disclosure-table td:first-child {
-        color: var(--fg);
+      .panel-bare > .sec {
+        padding-top: 0;
+      }
+      .about-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .ab-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+      }
+      .ab-card h3 {
+        margin: 0;
+        font-size: 16px;
         font-weight: 600;
       }
-      .disclosure-table .recipient-external,
-      .disclosure-table .default-on {
-        color: var(--fg);
+      .ab-id {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px 18px;
+        padding: 22px 24px;
       }
-      .version-grid {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 8px 24px;
-        margin: 20px 0 0;
-        font-size: 14.5px;
+      .ab-id img {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
       }
-      .version-grid dt {
+      .ab-id-text {
+        flex: 1;
+        min-width: 0;
+      }
+      .ab-name {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+      }
+      .ab-meta {
+        margin-top: 2px;
+        font-size: 14px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .ab-act {
+        margin-left: auto;
+        text-align: right;
+      }
+      .ab-act small {
+        display: block;
+        margin-top: 6px;
+        font-size: 12.5px;
         color: var(--muted);
       }
-      .version-grid dd {
-        margin: 0;
-      }
-      .about-links {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 18px;
-      }
-      .about-links a {
+      .ab-btn {
+        padding: 8px 14px;
         border: 1px solid var(--line);
         border-radius: 10px;
-        padding: 8px 14px;
+        background: var(--panel-2);
         color: var(--fg);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
       }
-      .about-links a:hover {
-        border-color: var(--muted);
+      .ab-btn:hover:not(:disabled) {
+        border-color: #4a4650;
+      }
+      .ab-btn:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .ab-head {
+        padding: 20px 24px 6px;
+      }
+      .ab-head p {
+        margin: 4px 0 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .flow-rows,
+      .ab-links {
+        list-style: none;
+        margin: 0;
+        padding: 6px 12px 12px;
+      }
+      .flow-row {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr) minmax(0, 170px) auto;
+        align-items: center;
+        gap: 14px;
+        padding: 12px;
+      }
+      .flow-row + .flow-row {
+        border-top: 1px solid var(--line);
+      }
+      .flow-icon {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--panel-2);
+        color: var(--muted);
+      }
+      .flow-icon svg,
+      .ab-links svg {
+        width: 18px;
+        height: 18px;
+      }
+      .flow-text b {
+        display: block;
+        font-size: 14.5px;
+        font-weight: 600;
+      }
+      .flow-text span {
+        display: block;
+        margin-top: 1px;
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      .flow-to {
+        font-size: 13.5px;
+      }
+      .flow-to.none {
+        color: var(--muted);
+      }
+      .pill {
+        display: inline-block;
+        justify-self: end;
+        padding: 3px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .pill::first-letter {
+        text-transform: uppercase;
+      }
+      .pill.on {
+        border-color: rgba(111, 155, 224, 0.45);
+        background: var(--tint);
+        color: var(--blue-lt);
+      }
+      .ab-two {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+        gap: 20px;
+      }
+      .ab-kb {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 20px 24px;
+      }
+      .ab-kb-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .keys {
+        display: flex;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .keys kbd {
+        padding: 5px 9px;
+        border: 1px solid var(--line);
+        border-bottom-width: 2px;
+        border-radius: 7px;
+        background: var(--panel-2);
+        color: var(--fg);
+        font: 600 13px ui-monospace, "SFMono-Regular", Consolas, monospace;
+      }
+      .ab-kb-desc {
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .ab-links a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        color: var(--fg);
+        font-size: 14.5px;
+      }
+      .ab-links a:hover {
+        background: var(--panel-2);
         text-decoration: none;
       }
-      .about-note {
-        margin: 16px 0 0;
-        font-size: 14.5px;
+      .ab-links svg {
         color: var(--muted);
+      }
+      .ab-links .chev {
+        margin-left: auto;
+        color: var(--muted);
+      }
+      @media (max-width: 640px) {
+        .ab-two {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .ab-act {
+          margin-left: 0;
+          text-align: left;
+        }
+        /* Recipient drops under the text; the state stays on the right. */
+        .flow-row {
+          grid-template-columns: 36px minmax(0, 1fr) auto;
+        }
+        .flow-to {
+          grid-column: 2;
+          grid-row: 2;
+          margin-top: -8px;
+        }
+        .flow-row .pill {
+          grid-column: 3;
+          grid-row: 1;
+        }
       }
 
       /* ---------- Footer (same as the website) ---------- */
@@ -1037,6 +1202,150 @@
         padding-top: 22px;
         font-size: 14px;
         color: var(--muted);
+      }
+
+      /* ---------- Search settings (settingsSearch.ts) ---------- */
+      .search {
+        position: relative;
+        flex: 1;
+        max-width: 520px;
+        margin: 0 24px;
+      }
+      .search > svg {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        width: 17px;
+        height: 17px;
+        transform: translateY(-50%);
+        color: var(--muted);
+        pointer-events: none;
+      }
+      .search input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 9px 36px 9px 38px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        color: var(--fg);
+        font: inherit;
+        font-size: 14.5px;
+      }
+      .search input::placeholder {
+        color: var(--muted);
+      }
+      .search input:focus {
+        outline: none;
+        border-color: var(--blue-lt);
+        background: var(--panel-2);
+      }
+      .search-key {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 1px 7px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        color: var(--muted);
+        font: 12px ui-monospace, Consolas, monospace;
+        pointer-events: none;
+      }
+      .search input:focus ~ .search-key,
+      .search input:not(:placeholder-shown) ~ .search-key {
+        display: none;
+      }
+      .search-results {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 20;
+        margin: 0;
+        padding: 6px;
+        list-style: none;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel-2);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+      }
+      .search-results li[role="option"] {
+        display: flex;
+        flex-direction: column;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .search-results li[aria-selected="true"],
+      .search-results li[role="option"]:hover {
+        background: var(--tint);
+      }
+      .result-title {
+        font-size: 14.5px;
+        font-weight: 600;
+      }
+      .result-where {
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      .result-empty {
+        padding: 10px 12px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      /* Where a search result lands, for a moment. */
+      .search-hit {
+        animation: search-hit 1.8s var(--ease);
+        border-radius: 12px;
+      }
+      @keyframes search-hit {
+        0%, 60% { box-shadow: 0 0 0 2px var(--blue-lt), 0 0 0 8px rgba(111, 155, 224, 0.18); }
+        100% { box-shadow: 0 0 0 2px transparent, 0 0 0 8px transparent; }
+      }
+
+      /* ---------- "Saved" toast (savedToast.ts) ---------- */
+      .toast {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel-2);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+        font-size: 14.5px;
+        font-weight: 600;
+      }
+      .toast svg {
+        width: 16px;
+        height: 16px;
+        color: var(--blue-lt);
+      }
+      .toast.show {
+        animation: toast-in 0.25s var(--ease);
+      }
+      @keyframes toast-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: none; }
+      }
+      @media (max-width: 640px) {
+        .search {
+          margin: 0 12px;
+        }
+        .search-key {
+          display: none;
+        }
+        .toast {
+          left: 16px;
+          right: 16px;
+          bottom: 16px;
+          justify-content: center;
+        }
       }
 
       /* ---------- Desktop dashboard (dashboard.ts) ---------- */
@@ -1166,6 +1475,10 @@
         .sec.dash-solo .lead {
           margin-top: 0;
         }
+        /* About's page summary already says what its own lead says. */
+        .sec.dash-solo[data-page="about"] > div:first-child {
+          display: none;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -1222,6 +1535,24 @@
     <div id="shell">
       <header class="topbar">
         <span class="brand"><img src="icons/icon48.png" alt="" /><span>Moat</span></span>
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4" /></svg>
+          <input
+            type="search"
+            id="settings-search"
+            placeholder="Search settings"
+            data-i18n-placeholder="searchPlaceholder"
+            aria-label="Search settings"
+            data-i18n-aria-label="searchPlaceholder"
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="search-results"
+            aria-autocomplete="list"
+            autocomplete="off"
+          />
+          <kbd class="search-key" aria-hidden="true">/</kbd>
+          <ul class="search-results" id="search-results" role="listbox" hidden></ul>
+        </div>
         <a class="help" href="https://samuelabhinav37.github.io/moat/#faq" target="_blank" rel="noopener" data-i18n="settingsHelp">Help</a>
       </header>
 
@@ -1241,6 +1572,11 @@
         <a href="#backup" data-page="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span><span class="nav-lead" hidden data-i18n="pageLeadBackup">Save your settings or move them to another computer</span></a>
         <a href="#about" data-page="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About Moat</span><span class="nav-lead" hidden data-i18n="pageLeadAbout">This version, and everything that ever leaves your device</span></a>
       </nav>
+
+      <div class="toast" id="saved-toast" role="status" aria-live="polite" hidden>
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>
+        <span id="saved-toast-label">Saved</span>
+      </div>
 
       <main class="wrap">
         <div class="head">
@@ -1511,77 +1847,85 @@
           <!-- About. WARNING: a wrong row in this table is worse than a vague
                paragraph. Keep it in sync with PRIVACY.md, in the same commit
                as any change to what the product sends. -->
-          <div class="panel">
+          <div class="panel panel-bare">
             <section class="sec" data-page="about">
               <div>
                 <h2 data-i18n="tabAbout">About Moat</h2>
                 <p class="lead" data-i18n="optionsAboutDesc">What this version is, and everything that ever leaves your device.</p>
               </div>
-              <div>
-                <div class="box table-scroll">
-                  <table class="disclosure-table">
-                    <thead>
-                      <tr>
-                        <th data-i18n="optionsDisclosureFeature">Feature</th>
-                        <th data-i18n="optionsDisclosureSent">What's sent</th>
-                        <th data-i18n="optionsDisclosureRecipient">Who receives it</th>
-                        <th data-i18n="optionsDisclosureDefault">Default</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td data-i18n="optionsDisclosureBlockingName">Blocking &amp; filtering</td>
-                        <td data-i18n="optionsDisclosureBlockingSent">Nothing. Runs entirely on your device.</td>
-                        <td class="recipient-none" data-i18n="commonNobody">Nobody</td>
-                        <td class="default-on" data-i18n="commonAlwaysOn">always on</td>
-                      </tr>
-                      <tr>
-                        <td data-i18n="optionsDisclosureUpdatesName">Filter fixes</td>
-                        <td data-i18n="optionsDisclosureUpdatesSent">One small signed file, downloaded once a day. It carries nothing about you.</td>
-                        <td class="recipient-external" data-i18n="optionsDisclosureUpdatesRecipient">GitHub Pages (file hosting)</td>
-                        <td class="default-on" data-i18n="commonOn">on</td>
-                      </tr>
-                      <tr>
-                        <td data-i18n="optionsDisclosureBreachName">Breach checking</td>
-                        <td data-i18n="optionsDisclosureBreachSent">A short scrambled fragment of a password, never the password itself</td>
-                        <td class="recipient-external" data-i18n="optionsDisclosureBreachRecipient">Have I Been Pwned</td>
-                        <td class="default-off" data-i18n="commonOff">off</td>
-                      </tr>
-                      <tr>
-                        <td data-i18n="optionsDisclosureSyncName">Settings sync</td>
-                        <td data-i18n="optionsDisclosureSyncSent">Your Moat settings. No browsing data.</td>
-                        <td class="recipient-external" id="disclosure-sync-recipient">Your browser vendor</td>
-                        <td class="default-off" data-i18n="commonOff">off</td>
-                      </tr>
-                      <tr>
-                        <td data-i18n="optionsDisclosureStatsName">Statistics</td>
-                        <td data-i18n="optionsDisclosureStatsSent">Nothing leaves your device. Counts stay stored locally.</td>
-                        <td class="recipient-none" data-i18n="commonNobody">Nobody</td>
-                        <td class="default-on" data-i18n="commonAlwaysOn">always on</td>
-                      </tr>
-                    </tbody>
-                  </table>
+              <div class="about-stack">
+                <div class="ab-card ab-id">
+                  <img src="icons/icon48.png" alt="" />
+                  <div class="ab-id-text">
+                    <div class="ab-name">Moat <span id="version-number">—</span></div>
+                    <div class="ab-meta"><span id="version-build">—</span> · <span id="version-rules">—</span> <span data-i18n="aboutRulesUnit">blocking rules</span></div>
+                  </div>
+                  <div class="ab-act">
+                    <button type="button" class="ab-btn" id="about-check-fixes" data-i18n="aboutCheckFixes">Check for filter fixes</button>
+                    <small id="version-updated">—</small>
+                  </div>
                 </div>
                 <p class="about-note" id="managed-notice" hidden>
                   <strong>Managed install:</strong> your organization set the policies shown here. Your
                   administrator can see and change those policies, but not your browsing history.
                 </p>
-                <dl class="version-grid" id="version-grid">
-                  <dt data-i18n="optionsVersionLabel">version</dt><dd id="version-number">—</dd>
-                  <dt data-i18n="optionsVersionBuild">build</dt><dd id="version-build">—</dd>
-                  <dt data-i18n="optionsVersionRules">rules</dt><dd id="version-rules">—</dd>
-                  <dt data-i18n="optionsVersionUpdated">lists updated</dt><dd id="version-updated">—</dd>
-                </dl>
-                <p class="about-note">
-                  <span class="keycap" id="shortcut-keys">Ctrl+Shift+M</span>
-                  turns Moat on or off. Change it at <code>chrome://extensions/shortcuts</code>.
-                </p>
-                <div class="about-links">
-                  <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener" data-i18n="optionsPrivacyPolicyLink">Full privacy policy</a>
-                  <a href="logger.html" target="_blank" rel="noopener" data-i18n="optionsDiagnosticsLink">Diagnostics</a>
-                  <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="optionsChangelogLink">Changelog</a>
-                  <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="optionsSourceCodeLink">Source code</a>
-                  <a href="NOTICE.md" target="_blank" rel="noopener" data-i18n="optionsThirdPartyNoticesLink">Third-party licenses</a>
+                <div class="ab-card">
+                  <div class="ab-head">
+                    <h3 data-i18n="aboutFlowsTitle">What leaves your device</h3>
+                    <p id="about-flows-summary"></p>
+                  </div>
+                  <ul class="flow-rows" id="about-flows">
+                    <li class="flow-row" data-flow="blocking">
+                      <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg></span>
+                      <span class="flow-text"><b data-i18n="optionsDisclosureBlockingName">Blocking &amp; filtering</b><span data-i18n="optionsDisclosureBlockingSent">Nothing. Runs entirely on your device.</span></span>
+                      <span class="flow-to none" data-i18n="commonNobody">Nobody</span>
+                      <span class="pill on" data-i18n="commonAlwaysOn">always on</span>
+                    </li>
+                    <li class="flow-row" data-flow="stats">
+                      <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6 4 4 6-8" /></svg></span>
+                      <span class="flow-text"><b data-i18n="optionsDisclosureStatsName">Statistics</b><span data-i18n="optionsDisclosureStatsSent">Nothing leaves your device. Counts stay stored locally.</span></span>
+                      <span class="flow-to none" data-i18n="commonNobody">Nobody</span>
+                      <span class="pill on" data-i18n="commonAlwaysOn">always on</span>
+                    </li>
+                    <li class="flow-row" data-flow="updates">
+                      <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg></span>
+                      <span class="flow-text"><b data-i18n="optionsDisclosureUpdatesName">Filter fixes</b><span data-i18n="optionsDisclosureUpdatesSent">One small signed file, downloaded once a day. It carries nothing about you.</span></span>
+                      <span class="flow-to" data-i18n="optionsDisclosureUpdatesRecipient">GitHub Pages (file hosting)</span>
+                      <span class="pill on" data-i18n="commonOn">on</span>
+                    </li>
+                    <li class="flow-row" data-flow="breach">
+                      <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z" /></svg></span>
+                      <span class="flow-text"><b data-i18n="optionsDisclosureBreachName">Breach checking</b><span data-i18n="optionsDisclosureBreachSent">A short scrambled fragment of a password, never the password itself</span></span>
+                      <span class="flow-to" data-i18n="optionsDisclosureBreachRecipient">Have I Been Pwned</span>
+                      <span class="pill" id="flow-state-breach" data-i18n="commonOff">off</span>
+                    </li>
+                    <li class="flow-row" data-flow="sync">
+                      <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0114-5M20 12a8 8 0 01-14 5M18 3v4h-4M6 21v-4h4" /></svg></span>
+                      <span class="flow-text"><b data-i18n="optionsDisclosureSyncName">Settings sync</b><span data-i18n="optionsDisclosureSyncSent">Your Moat settings. No browsing data.</span></span>
+                      <span class="flow-to" id="disclosure-sync-recipient">Your browser vendor</span>
+                      <span class="pill" id="flow-state-sync" data-i18n="commonOff">off</span>
+                    </li>
+                  </ul>
+                </div>
+                <div class="ab-two">
+                  <div class="ab-card ab-kb">
+                    <h3 data-i18n="aboutShortcutTitle">Keyboard shortcut</h3>
+                    <div class="ab-kb-row">
+                      <span class="keys" id="shortcut-keys"></span>
+                      <button type="button" class="ab-btn" id="shortcut-change" data-i18n="aboutShortcutChange">Change</button>
+                    </div>
+                    <span class="ab-kb-desc" data-i18n="aboutShortcutDesc">Turns Moat on or off on every site.</span>
+                  </div>
+                  <div class="ab-card">
+                    <div class="ab-head"><h3 data-i18n="aboutHelpTitle">Help and details</h3></div>
+                    <ul class="ab-links">
+                    <li><a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg><span data-i18n="optionsPrivacyPolicyLink">Full privacy policy</span><span class="chev" aria-hidden="true">›</span></a></li>
+                    <li><a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7" /></svg><span data-i18n="optionsChangelogLink">Changelog</span><span class="chev" aria-hidden="true">›</span></a></li>
+                    <li><a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l-5-6 5-6M15 6l5 6-5 6" /></svg><span data-i18n="optionsSourceCodeLink">Source code</span><span class="chev" aria-hidden="true">›</span></a></li>
+                    <li><a href="logger.html" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8v5M12 16h.01M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span data-i18n="optionsDiagnosticsLink">Diagnostics</span><span class="chev" aria-hidden="true">›</span></a></li>
+                    <li><a href="NOTICE.md" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h9l3 3v13H6zM9 12h6M9 16h6" /></svg><span data-i18n="optionsThirdPartyNoticesLink">Third-party licenses</span><span class="chev" aria-hidden="true">›</span></a></li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </section>

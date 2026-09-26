@@ -177,10 +177,15 @@ describe("Backup and sync (DR-15)", () => {
 });
 
 describe("About Moat (DR-13)", () => {
-  it("renders the 5-row privacy disclosure table and a populated version grid", async () => {
+  it("lists the 5 data flows with their current state, and the version", async () => {
     await renderOptions();
 
-    expect(document.querySelectorAll(".disclosure-table tbody tr").length).toBe(5);
+    expect(document.querySelectorAll("#about-flows .flow-row").length).toBe(5);
+    // Current state, not the install default: the mock has the breach check
+    // on and sync off.
+    expect(document.getElementById("flow-state-breach")?.classList.contains("on")).toBe(true);
+    expect(document.getElementById("flow-state-sync")?.classList.contains("on")).toBe(false);
+    expect(document.getElementById("about-flows-summary")?.textContent).toMatch(/sends a little data/);
     expect(document.getElementById("version-number")?.textContent).toBe("0.0.0-test");
     expect(document.getElementById("version-build")?.textContent).toBe("Chrome");
     // This jsdom harness has no real rules/manifest.json to fetch, so the

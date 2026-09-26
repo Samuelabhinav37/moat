@@ -852,17 +852,8 @@
   "optionsAboutDesc": {
     "message": "What this version is, and everything that ever leaves your device."
   },
-  "optionsDisclosureFeature": {
-    "message": "Feature"
-  },
-  "optionsDisclosureSent": {
-    "message": "What's sent"
-  },
   "optionsDisclosureRecipient": {
     "message": "Who receives it"
-  },
-  "optionsDisclosureDefault": {
-    "message": "Default"
   },
   "optionsDisclosureBlockingName": {
     "message": "Blocking & filtering"
@@ -899,18 +890,6 @@
   },
   "optionsDisclosureStatsSent": {
     "message": "Nothing leaves your device. Counts stay stored locally."
-  },
-  "optionsVersionLabel": {
-    "message": "version"
-  },
-  "optionsVersionBuild": {
-    "message": "build"
-  },
-  "optionsVersionRules": {
-    "message": "rules"
-  },
-  "optionsVersionUpdated": {
-    "message": "lists updated"
   },
   "optionsShortcutHeading": {
     "message": "Keyboard shortcut"
@@ -1491,5 +1470,58 @@
   },
   "pageLeadAbout": {
     "message": "This version, and everything that ever leaves your device"
+  },
+  "aboutRulesUnit": {
+    "message": "blocking rules"
+  },
+  "aboutCheckFixes": {
+    "message": "Check for filter fixes"
+  },
+  "aboutFixesLast": {
+    "message": "Last downloaded $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "aboutFixesNever": {
+    "message": "Not downloaded yet"
+  },
+  "aboutFixesChecking": {
+    "message": "Checking…"
+  },
+  "aboutFlowsTitle": {
+    "message": "What leaves your device"
+  },
+  "aboutFlowsNothing": {
+    "message": "With your current settings, nothing about your browsing leaves your device."
+  },
+  "aboutFlowsSome": {
+    "message": "A feature you turned on sends a little data. Each one is listed below."
+  },
+  "aboutShortcutTitle": {
+    "message": "Keyboard shortcut"
+  },
+  "aboutShortcutChange": {
+    "message": "Change"
+  },
+  "aboutShortcutDesc": {
+    "message": "Turns Moat on or off on every site."
+  },
+  "aboutShortcutNone": {
+    "message": "No shortcut set"
+  },
+  "aboutHelpTitle": {
+    "message": "Help and details"
+  },
+  "searchPlaceholder": {
+    "message": "Search settings"
+  },
+  "searchNoResults": {
+    "message": "No settings match."
+  },
+  "toastSaved": {
+    "message": "Saved"
   }
 }

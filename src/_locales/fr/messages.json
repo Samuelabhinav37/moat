@@ -850,17 +850,8 @@
   "optionsAboutDesc": {
     "message": "Quelle version vous utilisez, et tout ce qui quitte votre appareil."
   },
-  "optionsDisclosureFeature": {
-    "message": "Fonctionnalité"
-  },
-  "optionsDisclosureSent": {
-    "message": "Ce qui est envoyé"
-  },
   "optionsDisclosureRecipient": {
     "message": "Qui le reçoit"
-  },
-  "optionsDisclosureDefault": {
-    "message": "Par défaut"
   },
   "optionsDisclosureBlockingName": {
     "message": "Blocage et filtrage"
@@ -897,18 +888,6 @@
   },
   "optionsDisclosureStatsSent": {
     "message": "Rien ne quitte votre appareil. Les compteurs restent stockés localement."
-  },
-  "optionsVersionLabel": {
-    "message": "version"
-  },
-  "optionsVersionBuild": {
-    "message": "build"
-  },
-  "optionsVersionRules": {
-    "message": "règles"
-  },
-  "optionsVersionUpdated": {
-    "message": "listes mises à jour"
   },
   "optionsShortcutHeading": {
     "message": "Raccourci clavier"
@@ -1489,5 +1468,58 @@
   },
   "pageLeadAbout": {
     "message": "Cette version, et tout ce qui quitte votre appareil"
+  },
+  "aboutRulesUnit": {
+    "message": "règles de blocage"
+  },
+  "aboutCheckFixes": {
+    "message": "Chercher des correctifs de filtres"
+  },
+  "aboutFixesLast": {
+    "message": "Dernier téléchargement : $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "aboutFixesNever": {
+    "message": "Pas encore téléchargés"
+  },
+  "aboutFixesChecking": {
+    "message": "Vérification…"
+  },
+  "aboutFlowsTitle": {
+    "message": "Ce qui quitte votre appareil"
+  },
+  "aboutFlowsNothing": {
+    "message": "Avec vos réglages actuels, rien de votre navigation ne quitte votre appareil."
+  },
+  "aboutFlowsSome": {
+    "message": "Une fonction que vous avez activée envoie quelques données. Chacune est listée ci-dessous."
+  },
+  "aboutShortcutTitle": {
+    "message": "Raccourci clavier"
+  },
+  "aboutShortcutChange": {
+    "message": "Modifier"
+  },
+  "aboutShortcutDesc": {
+    "message": "Active ou désactive Moat sur tous les sites."
+  },
+  "aboutShortcutNone": {
+    "message": "Aucun raccourci"
+  },
+  "aboutHelpTitle": {
+    "message": "Aide et détails"
+  },
+  "searchPlaceholder": {
+    "message": "Rechercher un réglage"
+  },
+  "searchNoResults": {
+    "message": "Aucun réglage ne correspond."
+  },
+  "toastSaved": {
+    "message": "Enregistré"
   }
 }

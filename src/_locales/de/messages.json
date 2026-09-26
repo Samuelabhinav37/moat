@@ -850,17 +850,8 @@
   "optionsAboutDesc": {
     "message": "Welche Version das ist, und alles, was dein Gerät je verlässt."
   },
-  "optionsDisclosureFeature": {
-    "message": "Funktion"
-  },
-  "optionsDisclosureSent": {
-    "message": "Was gesendet wird"
-  },
   "optionsDisclosureRecipient": {
     "message": "Wer es erhält"
-  },
-  "optionsDisclosureDefault": {
-    "message": "Standard"
   },
   "optionsDisclosureBlockingName": {
     "message": "Blockieren & Filtern"
@@ -897,18 +888,6 @@
   },
   "optionsDisclosureStatsSent": {
     "message": "Nichts verlässt dein Gerät. Zählungen bleiben lokal gespeichert."
-  },
-  "optionsVersionLabel": {
-    "message": "Version"
-  },
-  "optionsVersionBuild": {
-    "message": "Build"
-  },
-  "optionsVersionRules": {
-    "message": "Regeln"
-  },
-  "optionsVersionUpdated": {
-    "message": "Listen aktualisiert"
   },
   "optionsShortcutHeading": {
     "message": "Tastenkombination"
@@ -1489,5 +1468,58 @@
   },
   "pageLeadAbout": {
     "message": "Diese Version und alles, was dein Gerät je verlässt"
+  },
+  "aboutRulesUnit": {
+    "message": "Blockierregeln"
+  },
+  "aboutCheckFixes": {
+    "message": "Nach Filter-Korrekturen suchen"
+  },
+  "aboutFixesLast": {
+    "message": "Zuletzt geladen: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "aboutFixesNever": {
+    "message": "Noch nicht geladen"
+  },
+  "aboutFixesChecking": {
+    "message": "Wird geprüft…"
+  },
+  "aboutFlowsTitle": {
+    "message": "Was dein Gerät verlässt"
+  },
+  "aboutFlowsNothing": {
+    "message": "Mit deinen aktuellen Einstellungen verlässt nichts über dein Surfen dein Gerät."
+  },
+  "aboutFlowsSome": {
+    "message": "Eine Funktion, die du eingeschaltet hast, sendet ein paar Daten. Jede steht unten."
+  },
+  "aboutShortcutTitle": {
+    "message": "Tastenkürzel"
+  },
+  "aboutShortcutChange": {
+    "message": "Ändern"
+  },
+  "aboutShortcutDesc": {
+    "message": "Schaltet Moat auf allen Websites ein oder aus."
+  },
+  "aboutShortcutNone": {
+    "message": "Kein Kürzel festgelegt"
+  },
+  "aboutHelpTitle": {
+    "message": "Hilfe und Details"
+  },
+  "searchPlaceholder": {
+    "message": "Einstellungen suchen"
+  },
+  "searchNoResults": {
+    "message": "Keine Einstellung passt."
+  },
+  "toastSaved": {
+    "message": "Gespeichert"
   }
 }

@@ -11,6 +11,8 @@ import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rules
 import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
 import { initDashboard } from "./dashboard";
+import { initSettingsSearch } from "./settingsSearch";
+import { createSavedToast } from "./savedToast";
 import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
 import { customRuleStatKey, isStale } from "../shared/customRuleStats";
@@ -43,6 +45,7 @@ import type {
   UsageSignal,
   UsageSummaryResponse,
 } from "../types";
+import { STORAGE_KEY } from "../types";
 import { joinCompanyBreakdown, type CompanyInfo } from "./trackerView";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { parseFilterListImport } from "../shared/filterListImport";
@@ -126,6 +129,30 @@ function setAdvancedOpen(open: boolean): void {
 
 advancedToggle.addEventListener("click", () => {
   setAdvancedOpen(advancedToggle.getAttribute("aria-expanded") !== "true");
+});
+
+// ---------- Search settings and the "Saved" toast ----------
+
+initSettingsSearch(
+  document.getElementById("settings-search") as HTMLInputElement,
+  document.getElementById("search-results") as HTMLUListElement,
+  {
+    // On the single-page (phone) layout, Advanced settings has to be open
+    // for anything inside it to be seen.
+    reveal: (target) => {
+      if (advancedSection.contains(target) && advancedSection.hidden) setAdvancedOpen(true);
+    },
+    noResults: tFallback("searchNoResults", "No settings match."),
+    isDesktop: () => window.matchMedia?.("(min-width: 900px)").matches ?? false,
+  }
+);
+
+const savedToast = createSavedToast(
+  document.getElementById("saved-toast") as HTMLElement,
+  document.getElementById("saved-toast-label") as HTMLElement
+);
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && STORAGE_KEY in changes) savedToast.settingsChanged(tFallback("toastSaved", "Saved"));
 });
 
 // The per-tab tracker breakdown is fetched lazily, only once its own
@@ -1162,7 +1189,42 @@ const disclosureSyncRecipientEl = document.getElementById("disclosure-sync-recip
 // cosmetic one.
 const SYNC_VENDOR_NAME = isFirefoxPrivacyWebsitesSupported ? tFallback("commonMozilla", "Mozilla") : tFallback("commonGoogle", "Google");
 
-async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy>>): Promise<void> {
+const flowStateBreachEl = document.getElementById("flow-state-breach") as HTMLElement;
+const flowStateSyncEl = document.getElementById("flow-state-sync") as HTMLElement;
+const aboutFlowsSummaryEl = document.getElementById("about-flows-summary") as HTMLElement;
+const shortcutKeysEl = document.getElementById("shortcut-keys") as HTMLElement;
+const shortcutChangeButton = document.getElementById("shortcut-change") as HTMLButtonElement;
+const aboutCheckFixesButton = document.getElementById("about-check-fixes") as HTMLButtonElement;
+
+function setFlowState(el: HTMLElement, on: boolean): void {
+  el.textContent = on ? tFallback("commonOn", "on") : tFallback("commonOff", "off");
+  el.classList.toggle("on", on);
+}
+
+/** The toggle shortcut as key caps, read from the browser (the user may
+ * have changed it) rather than the manifest's suggestion. */
+async function renderShortcut(): Promise<void> {
+  let shortcut = "";
+  try {
+    const commands = await browser.commands.getAll();
+    shortcut = commands.find((command) => command.name === "toggle-protection")?.shortcut ?? "";
+  } catch {
+    // No commands API here (tests, or a browser without it).
+  }
+  if (!shortcut) {
+    shortcutKeysEl.textContent = tFallback("aboutShortcutNone", "No shortcut set");
+    return;
+  }
+  shortcutKeysEl.replaceChildren(
+    ...shortcut.split("+").map((key) => {
+      const kbd = document.createElement("kbd");
+      kbd.textContent = key;
+      return kbd;
+    })
+  );
+}
+
+async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy>>, settings: Settings): Promise<void> {
   const manifest = browser.runtime.getManifest();
   versionNumberEl.textContent = manifest.version;
   versionBuildEl.textContent = isFirefoxPrivacyWebsitesSupported ? tFallback("commonFirefox", "Firefox") : tFallback("commonChrome", "Chrome");
@@ -1171,12 +1233,50 @@ async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy
   versionRulesEl.textContent = activeRuleCountText;
   const liveUpdateStatus = await getLiveUpdateStatus();
   versionUpdatedEl.textContent = liveUpdateStatus
-    ? new Date(liveUpdateStatus.timestamp).toLocaleDateString()
-    : tFallback("commonNever", "Never");
+    ? tFallback(
+        "aboutFixesLast",
+        `Last downloaded ${new Date(liveUpdateStatus.timestamp).toLocaleDateString()}`,
+        new Date(liveUpdateStatus.timestamp).toLocaleDateString()
+      )
+    : tFallback("aboutFixesNever", "Not downloaded yet");
+
+  // Current state, not the install default: this is what is being sent now.
+  setFlowState(flowStateBreachEl, settings.leakedPasswordCheck);
+  setFlowState(flowStateSyncEl, settings.syncEnabled);
+  aboutFlowsSummaryEl.textContent =
+    settings.leakedPasswordCheck || settings.syncEnabled
+      ? tFallback("aboutFlowsSome", "A feature you turned on sends a little data. Each one is listed below.")
+      : tFallback("aboutFlowsNothing", "With your current settings, nothing about your browsing leaves your device.");
 
   disclosureSyncRecipientEl.textContent = SYNC_VENDOR_NAME;
   managedNotice.hidden = Object.keys(policy).length === 0;
+  await renderShortcut();
 }
+
+aboutCheckFixesButton.addEventListener("click", async () => {
+  aboutCheckFixesButton.disabled = true;
+  versionUpdatedEl.textContent = tFallback("aboutFixesChecking", "Checking…");
+  try {
+    const message: CheckForLiveUpdatesMessage = { type: "check-for-live-updates" };
+    await browser.runtime.sendMessage(message);
+  } finally {
+    aboutCheckFixesButton.disabled = false;
+    await render();
+  }
+});
+
+// Firefox opens its own shortcut manager; Chrome's lives on an internal page
+// an extension may open in a tab but a plain link can't reach. An older
+// Firefox has neither, so the button goes.
+const canOpenShortcuts =
+  typeof (browser.commands as { openShortcutSettings?: unknown } | undefined)?.openShortcutSettings === "function" ||
+  !isFirefoxPrivacyWebsitesSupported;
+shortcutChangeButton.hidden = !canOpenShortcuts;
+shortcutChangeButton.addEventListener("click", () => {
+  const commands = browser.commands as typeof browser.commands & { openShortcutSettings?: () => Promise<void> };
+  if (typeof commands.openShortcutSettings === "function") void commands.openShortcutSettings();
+  else void browser.tabs.create({ url: "chrome://extensions/shortcuts" });
+});
 
 // ---------- Render ----------
 
@@ -1340,7 +1440,7 @@ async function render(): Promise<void> {
   grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
 
   await renderBackupTab(settings);
-  await renderAboutTab(policy);
+  await renderAboutTab(policy, settings);
 }
 
 addButton.addEventListener("click", async () => {

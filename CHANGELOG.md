@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.148
+
+### Added
+- **Search settings.** A search box in the Settings top bar (press `/` to jump to it) finds any
+  screen, setting, level or rule field, in whatever language the page is in. Picking a result
+  opens its screen, or on a phone opens Advanced settings if needed, then scrolls to it and
+  highlights it for a moment (`src/options/settingsSearch.ts`).
+- **"Saved" confirmation.** A small toast when a change you made on the Settings page is stored.
+  Background writes never trigger it (`src/options/savedToast.ts`).
+
+### Changed
+- **About Moat redesigned.** A header card with the version, rule count and a "Check for filter
+  fixes" button (with when they were last downloaded, instead of a bare "lists updated: Never").
+  "What leaves your device" is now a list showing each item's current state (On, Off, Always on)
+  instead of its install default, with a one-line summary of whether anything is being sent. The
+  keyboard shortcut is read from the browser and shown as keys, with a Change button that opens
+  the browser's shortcut settings instead of a `chrome://` address you can't click. The links are
+  a labelled list.
+
 ## 0.11.147
 
 ### Changed
