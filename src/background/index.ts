@@ -199,7 +199,7 @@ async function resolveNormalTabId(): Promise<number | null> {
 
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0) return;
-  resetForNavigation(details.tabId);
+  resetForNavigation(details.tabId, details.timeStamp);
   resetHeuristicFiring(details.tabId);
   // Inject the bundled + user cosmetic CSS as a user-origin stylesheet from
   // here, instead of the content script building a <style> on the page

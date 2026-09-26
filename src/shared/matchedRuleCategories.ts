@@ -34,6 +34,22 @@ export interface MatchedRuleRef {
 
 export type Breakdown = Record<BreakdownBucket, number>;
 
+/** rulesetId -> ids of rules that match without stopping a request (allow
+ * exceptions, header edits, URL cleaning). Built by
+ * scripts/update-filters.mjs as rules/dnr/uncounted-rules.json. */
+export type UncountedRules = Record<string, number[]>;
+
+/** Drops matches that didn't block anything, so every count built from the
+ * result (popup tiles, per-list totals, companies, security events) only
+ * sees real blocks. */
+export function countedMatches<T extends MatchedRuleRef>(uncounted: UncountedRules, matches: T[]): T[] {
+  const byRuleset = new Map(Object.entries(uncounted).map(([id, ruleIds]) => [id, new Set(ruleIds)]));
+  return matches.filter((match) => {
+    if (match.ruleId === undefined) return true;
+    return !byRuleset.get(match.rulesetId)?.has(match.ruleId);
+  });
+}
+
 export function summarizeMatchedRules(
   manifest: RulesetManifestEntry[],
   matches: MatchedRuleRef[]

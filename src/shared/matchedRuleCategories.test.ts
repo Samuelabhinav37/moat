@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { summarizeMatchedRules, summarizeMatchesByGroup } from "./matchedRuleCategories";
+import { countedMatches, summarizeMatchedRules, summarizeMatchesByGroup } from "./matchedRuleCategories";
 import type { RulesetManifestEntry } from "./rulesetManifest";
 
 function entry(id: string, group: string): RulesetManifestEntry {
@@ -76,5 +76,27 @@ describe("summarizeMatchesByGroup", () => {
 
   it("returns an empty object for no matches", () => {
     expect(summarizeMatchesByGroup(manifest, [])).toEqual({});
+  });
+});
+
+describe("countedMatches", () => {
+  const uncounted = { "ruleset_trackers": [339185644], "ruleset_privacy-headers": [1] };
+
+  it("drops non-blocking rules, like the Permissions-Policy header rules every page load matches", () => {
+    const result = countedMatches(uncounted, [
+      { rulesetId: "ruleset_trackers", ruleId: 339185644 },
+      { rulesetId: "ruleset_privacy-headers", ruleId: 1 },
+      { rulesetId: "ruleset_trackers", ruleId: 42 },
+    ]);
+    expect(result).toEqual([{ rulesetId: "ruleset_trackers", ruleId: 42 }]);
+  });
+
+  it("only drops the listed id in its own ruleset", () => {
+    const result = countedMatches(uncounted, [{ rulesetId: "ruleset_ads-1", ruleId: 1 }]);
+    expect(result).toEqual([{ rulesetId: "ruleset_ads-1", ruleId: 1 }]);
+  });
+
+  it("keeps matches with no rule id", () => {
+    expect(countedMatches(uncounted, [{ rulesetId: "ruleset_trackers" }])).toEqual([{ rulesetId: "ruleset_trackers" }]);
   });
 });

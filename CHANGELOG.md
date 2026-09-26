@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.134
+
+### Fixed
+- **The popup counted things that weren't blocked.** It counted every rule Chrome reported as
+  matched, including rules that only add a header or allow a request. Seven such rules match on
+  every page load: five AdGuard `Permissions-Policy` rules (turning off ad-auction and Topics
+  features), one more from the Popups list, and Moat's own Sec-GPC header. So a page that loads
+  nothing, like example.com, showed "6 blocked / 5 trackers".
+  - `filters:update` now writes `rules/dnr/uncounted-rules.json`: every rule that matches without
+    stopping a request (10,628 of them: allow exceptions, header edits, `$removeparam` URL
+    cleaning). The popup tiles, the Filter Lists "matched" line, the company breakdown and
+    Athena security events all skip those. Blocks and ad-script stand-in redirects still count.
+    `validate-rules.mjs` checks every listed id exists.
+- **A page could inherit the previous page's count.** Chrome returns a tab's matches from the
+  last few minutes, previous pages included. An ad-heavy site's late requests showed up on the
+  page that replaced it. The count now only asks for matches since the current page committed.
+  Verified in Chrome for Testing: example.com shows 0, both on a fresh tab and right after
+  theguardian.com (which shows 7).
+
 ## 0.11.133
 
 ### Fixed

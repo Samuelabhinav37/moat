@@ -57,9 +57,9 @@ export async function recordDynamicCatch(tabId: number, hostname: string): Promi
   if (hostname) void recordBlockedTotal(hostname, 1);
 }
 
-export function resetForNavigation(tabId: number): void {
+export function resetForNavigation(tabId: number, pageStart?: number): void {
   resetCount(tabId);
-  resetBreakdown(tabId);
+  resetBreakdown(tabId, pageStart);
   void paint(tabId);
 }
 

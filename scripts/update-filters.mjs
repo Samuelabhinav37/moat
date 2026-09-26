@@ -761,6 +761,26 @@ writeFileSync(join(outDir, "uncloak-domains.json"), JSON.stringify(uncloakDomain
 console.log(
   `uncloak-domains.json: ${UNCLOAK_GROUPS.map((group) => `${uncloakDomains[group].length} ${group}`).join(", ")} domains`
 );
+// Rules that match a request without stopping it: allow exceptions,
+// header edits (AdGuard's Permissions-Policy hardening and our own Sec-GPC
+// match every page load), and $removeparam URL cleaning. getMatchedRules()
+// reports them like any block, so the popup's "blocked" count would include
+// them (6 "blocked" on example.com, which loads nothing). Listed per ruleset
+// so src/background/matchStats.ts can drop them before counting. Block rules
+// and extensionPath redirects (an ad script swapped for a stub) still count.
+const uncountedRules = {};
+for (const entry of manifestEntries) {
+  const rules = JSON.parse(readFileSync(join(outDir, entry.file), "utf8"));
+  const ids = rules
+    .filter((rule) => !(rule.action.type === "block" || rule.action.redirect?.extensionPath))
+    .map((rule) => rule.id);
+  if (ids.length > 0) uncountedRules[entry.id] = ids;
+}
+writeFileSync(join(outDir, "uncounted-rules.json"), JSON.stringify(uncountedRules));
+console.log(
+  `uncounted-rules.json: ${Object.values(uncountedRules).reduce((sum, ids) => sum + ids.length, 0)} non-blocking rules`
+);
+
 // Hand-curated additions, same convention as ad-networks.json/seo-spam-domains.json/
 // circumvention-services.json -- domains confirmed (not guessed) to redirect
 // to something worth closing (a popup/scam page) that AdGuard's own popups/

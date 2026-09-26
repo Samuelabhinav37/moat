@@ -7,7 +7,13 @@
 // support lags, so getMatchedRules may simply not exist there -- the catch
 // below just leaves the breakdown at zero in that case.
 import browser from "webextension-polyfill";
-import { summarizeMatchedRules, summarizeMatchesByGroup, type Breakdown } from "../shared/matchedRuleCategories";
+import {
+  countedMatches,
+  summarizeMatchedRules,
+  summarizeMatchesByGroup,
+  type Breakdown,
+  type UncountedRules,
+} from "../shared/matchedRuleCategories";
 import { summarizeCompanies, type RuleCompanies } from "../shared/matchedRuleCompanies";
 import { securityMatches } from "../shared/securityRuleCategories";
 import { clearTabFromMaps } from "./tabMapCleanup";
@@ -31,6 +37,15 @@ async function loadCompanies(): Promise<RuleCompanies> {
   return companiesCache;
 }
 
+let uncountedCache: UncountedRules | null = null;
+
+async function loadUncounted(): Promise<UncountedRules> {
+  if (uncountedCache) return uncountedCache;
+  const url = browser.runtime.getURL("rules/uncounted-rules.json");
+  uncountedCache = (await (await fetch(url)).json()) as UncountedRules;
+  return uncountedCache;
+}
+
 // The single reference in the whole codebase to this Chrome-only DNR
 // feedback global (Firefox doesn't implement it) -- kept in one function
 // body, not at module scope, so it tree-shakes cleanly out of bundles that
@@ -44,6 +59,11 @@ function matchedRulesApi(): typeof chrome.declarativeNetRequest.getMatchedRules 
 const breakdownByTab = new Map<number, Breakdown>();
 const companiesByTab = new Map<number, Record<string, number>>();
 const groupsByTab = new Map<number, Record<string, number>>();
+// When each tab's current page committed. getMatchedRules({ tabId }) alone
+// returns the tab's matches from the last few minutes, previous pages
+// included (an ad-heavy site's late requests showed up on the example.com
+// that replaced it), so the refresh asks only for matches since this.
+const pageStartByTab = new Map<number, number>();
 
 export function getBreakdown(tabId: number): Breakdown {
   return breakdownByTab.get(tabId) ?? EMPTY;
@@ -74,10 +94,15 @@ export function isMatchedRulesSupported(): boolean {
 }
 
 function clearTab(tabId: number): void {
-  clearTabFromMaps(tabId, breakdownByTab, companiesByTab, groupsByTab);
+  clearTabFromMaps(tabId, breakdownByTab, companiesByTab, groupsByTab, pageStartByTab);
 }
 
-export const resetBreakdown = clearTab;
+/** Called when a tab's top frame commits a new page. pageStart is the
+ * commit's own timestamp (webNavigation details.timeStamp). */
+export function resetBreakdown(tabId: number, pageStart?: number): void {
+  clearTab(tabId);
+  if (pageStart !== undefined) pageStartByTab.set(tabId, pageStart);
+}
 export const forgetTab = clearTab;
 
 export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
@@ -89,15 +114,20 @@ export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
     const getMatchedRules = matchedRulesApi();
     if (!getMatchedRules) return getBreakdown(tabId);
 
-    const [manifest, companies, { rulesMatchedInfo }] = await Promise.all([
+    const minTimeStamp = pageStartByTab.get(tabId);
+    const [manifest, companies, uncounted, { rulesMatchedInfo }] = await Promise.all([
       loadRulesetManifest(),
       loadCompanies(),
-      getMatchedRules({ tabId }),
+      loadUncounted(),
+      getMatchedRules(minTimeStamp === undefined ? { tabId } : { tabId, minTimeStamp }),
     ]);
-    const matches = rulesMatchedInfo.map((info) => ({
-      rulesetId: info.rule.rulesetId,
-      ruleId: info.rule.ruleId,
-    }));
+    const matches = countedMatches(
+      uncounted,
+      rulesMatchedInfo.map((info) => ({
+        rulesetId: info.rule.rulesetId,
+        ruleId: info.rule.ruleId,
+      }))
+    );
     const breakdown = summarizeMatchedRules(manifest, matches);
     breakdownByTab.set(tabId, breakdown);
     companiesByTab.set(tabId, summarizeCompanies(companies, matches));

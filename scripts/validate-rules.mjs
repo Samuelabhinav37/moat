@@ -355,6 +355,27 @@ for (const [rulesetId, byRuleId] of Object.entries(ruleCompanies)) {
 }
 console.log(`rule-companies.json: ${attributedCount} rules attributed to a company`);
 
+// uncounted-rules.json: rulesetId -> ids of non-blocking rules the popup
+// count skips. A stale id would silently count again, so check them all.
+const uncountedRules = JSON.parse(readFileSync(join(rulesDir, "uncounted-rules.json"), "utf8"));
+let uncountedCount = 0;
+for (const [rulesetId, ruleIds] of Object.entries(uncountedRules)) {
+  const knownIds = rulesetRuleIds.get(rulesetId);
+  if (!knownIds) {
+    console.error(`uncounted-rules.json: unknown rulesetId "${rulesetId}"`);
+    ok = false;
+    continue;
+  }
+  for (const ruleId of ruleIds) {
+    uncountedCount += 1;
+    if (!knownIds.has(ruleId)) {
+      console.error(`uncounted-rules.json: rulesetId "${rulesetId}" has no rule ${ruleId}`);
+      ok = false;
+    }
+  }
+}
+console.log(`uncounted-rules.json: ${uncountedCount} non-blocking rules left out of the popup count`);
+
 // company-info.json: name -> { description: string, url: string | null },
 // keyed by the same company-name strings rule-companies.json uses. Every key
 // must actually appear as an attributed company, or the options "Trackers"
