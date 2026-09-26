@@ -14,7 +14,7 @@ import {
   resetBreakdown,
   type Breakdown,
 } from "./matchStats";
-import { recordBlockedTotal, recordCompanyMatches } from "./usageStats";
+import { recordBlockKinds, recordBlockedTotal, recordCompanyMatches } from "./usageStats";
 import { NOTHING_RECORDED, unrecorded, type Recorded } from "../shared/statsDelta";
 import { forgetLive, getLiveCount, resetLive } from "./liveBlocks";
 
@@ -87,15 +87,19 @@ export async function recordDynamicCatch(tabId: number, hostname: string): Promi
   recordBlock(tabId);
   await paint(tabId);
   if (hostname) void recordBlockedTotal(hostname, 1);
+  void recordBlockKinds({ popups: 1 });
 }
 
 // What each tab's current page has already added to the weekly usage stats.
 // The page is refreshed more than once (see refreshStaticBreakdown's
 // callers), and each refresh adds only what's new.
 const recordedByTab = new Map<number, Recorded>();
+// The same, for the ads/trackers/pop-ups split (the Settings Overview).
+const recordedKindsByTab = new Map<number, Recorded>();
 
 export function resetForNavigation(tabId: number, pageStart?: number): void {
   recordedByTab.delete(tabId);
+  recordedKindsByTab.delete(tabId);
   resetLive(tabId, pageStart);
   resetCount(tabId);
   resetBreakdown(tabId, pageStart);
@@ -115,10 +119,21 @@ export async function refreshStaticBreakdown(tabId: number, hostname: string): P
   recordedByTab.set(tabId, fresh.next);
   if (fresh.total > 0) void recordBlockedTotal(hostname, fresh.total);
   if (Object.keys(fresh.counts).length > 0) void recordCompanyMatches(hostname, fresh.counts);
+  // Only blocks whose rule says what they are; "not sorted yet" ones stay
+  // out of the split rather than being guessed.
+  const b = getBreakdown(tabId);
+  const kinds = unrecorded(recordedKindsByTab.get(tabId) ?? NOTHING_RECORDED, 0, {
+    ads: b.ads,
+    trackers: b.trackers,
+    popups: b.popups,
+  });
+  recordedKindsByTab.set(tabId, kinds.next);
+  if (Object.keys(kinds.counts).length > 0) void recordBlockKinds(kinds.counts);
 }
 
 export function forgetTab(tabId: number): void {
   recordedByTab.delete(tabId);
+  recordedKindsByTab.delete(tabId);
   forgetLive(tabId);
   forgetDynamicTab(tabId);
   forgetBreakdownTab(tabId);

@@ -1617,5 +1617,22 @@
         "content": "$1"
       }
     }
+  },
+  "ovKindAds": {
+    "message": "Werbung"
+  },
+  "ovKindTrackers": {
+    "message": "Tracker"
+  },
+  "ovKindPopups": {
+    "message": "Pop-ups"
+  },
+  "ovKindUnsorted": {
+    "message": "$COUNT$ nicht zugeordnet",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

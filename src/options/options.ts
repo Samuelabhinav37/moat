@@ -1725,6 +1725,19 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   document.getElementById("ov-today-total")!.textContent = usage.today.total.toLocaleString();
   document.getElementById("ov-week-empty")!.hidden = week > 0;
 
+  // The split only covers blocks whose kind is known (recorded from
+  // 0.11.154 on), so whatever is left of the total is said plainly.
+  const kinds = usage.weekKinds;
+  const sorted = kinds.ads + kinds.trackers + kinds.popups;
+  document.getElementById("ov-kinds")!.hidden = sorted === 0;
+  document.getElementById("ov-kind-ads")!.textContent = kinds.ads.toLocaleString();
+  document.getElementById("ov-kind-trackers")!.textContent = kinds.trackers.toLocaleString();
+  document.getElementById("ov-kind-popups")!.textContent = kinds.popups.toLocaleString();
+  const unsortedEl = document.getElementById("ov-kind-unsorted")!;
+  const unsorted = week - sorted;
+  unsortedEl.hidden = unsorted <= 0;
+  unsortedEl.textContent = tFallback("ovKindUnsorted", `${unsorted.toLocaleString()} not sorted`, unsorted.toLocaleString());
+
   const chart = document.getElementById("ov-chart") as HTMLElement;
   const max = Math.max(...days, 1);
   const todayLabel = tFallback("ovToday", "Today");

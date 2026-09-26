@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.154
+
+### Added
+- **This week's ads / trackers / pop-ups split on the Settings Overview.** Moat now also counts,
+  per day and on the device only, how many of the blocks it records were ads, trackers or pop-ups
+  (from the same rule matches the popup's tiles use, plus the pop-up firewall's catches). The
+  Overview shows the week's split under the total, and "N not sorted" for blocks whose kind isn't
+  known, including any from before this version. Kept in the same local usage stats, same 14-day
+  retention, never synced or exported.
+
 ## 0.11.153
 
 ### Added

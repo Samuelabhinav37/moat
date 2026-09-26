@@ -661,6 +661,12 @@ export interface UsageSignalSummary {
  * getFilterGroupStatus elsewhere in this file's callers), not via a
  * message. Only tab-scoped data that lives in the background worker's own
  * in-memory state (e.g. FilterListMatchesResponse below) needs a message. */
+export interface BlockKinds {
+  ads: number;
+  trackers: number;
+  popups: number;
+}
+
 export interface UsageSummaryResponse {
   today: { total: number; hostnameCount: number };
   /** Null until at least 8 days of history exist (need last week's same
@@ -668,6 +674,9 @@ export interface UsageSummaryResponse {
   lastWeekSameWeekday: { total: number } | null;
   /** Total blocked per day, oldest to today -- 7 entries. */
   sparkline: number[];
+  /** This week's blocks by kind. Recorded from 0.11.154 on, and only where
+   * the kind is known, so these can add up to less than the total. */
+  weekKinds: BlockKinds;
   bySignal: Partial<Record<UsageSignal, UsageSignalSummary>>;
   companiesThisWeek: Array<{ company: string; count: number; hostnameCount: number }>;
   /** Distinct companies per day, oldest to today -- 7 entries. Real data

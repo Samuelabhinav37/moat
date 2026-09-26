@@ -4,7 +4,7 @@
 // convention as filterGroupState.ts/matchedRuleCategories.ts, so the date-
 // bucketing and retention-pruning edge cases are testable without a browser
 // extension context.
-import type { UsageSignal, UsageSignalSummary, UsageSummaryResponse } from "../types";
+import type { BlockKinds, UsageSignal, UsageSignalSummary, UsageSummaryResponse } from "../types";
 
 export const SIGNAL_KEYS: readonly UsageSignal[] = [
   "fingerprint",
@@ -42,6 +42,8 @@ export interface UsageDay {
   hostnames: string[];
   signals: Partial<Record<UsageSignal, HostnameCounts>>;
   companies: Record<string, HostnameCounts>;
+  /** Blocks by kind. Absent on days recorded before 0.11.154. */
+  kinds?: BlockKinds;
 }
 
 export interface UsageStatsState {
@@ -120,6 +122,18 @@ export function recordCompanyMatches(
   });
 }
 
+export const NO_KINDS: BlockKinds = { ads: 0, trackers: 0, popups: 0 };
+
+export function recordBlockKinds(state: UsageStatsState, kinds: Partial<BlockKinds>, when: number): UsageStatsState {
+  const entries = (Object.entries(kinds) as [keyof BlockKinds, number][]).filter(([, count]) => count > 0);
+  if (entries.length === 0) return state;
+  return withDay(state, dateKey(when), (day) => {
+    const next = { ...NO_KINDS, ...day.kinds };
+    for (const [kind, count] of entries) next[kind] += count;
+    return { ...day, kinds: next };
+  });
+}
+
 export function recordSignalEvent(
   state: UsageStatsState,
   signal: UsageSignal,
@@ -168,6 +182,14 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
   const lastWeekSameWeekday = haveLastWeek ? { total: dayOrEmpty(state, lastWeekKey).total } : null;
 
   const sparkline = last7.map((date) => dayOrEmpty(state, date).total);
+  const weekKinds = { ...NO_KINDS };
+  for (const date of last7) {
+    const kinds = dayOrEmpty(state, date).kinds;
+    if (!kinds) continue;
+    weekKinds.ads += kinds.ads;
+    weekKinds.trackers += kinds.trackers;
+    weekKinds.popups += kinds.popups;
+  }
 
   const bySignal: Partial<Record<UsageSignal, UsageSignalSummary>> = {};
   for (const signal of SIGNAL_KEYS) {
@@ -218,6 +240,7 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
     today: { total: today.total, hostnameCount: today.hostnames.length },
     lastWeekSameWeekday,
     sparkline,
+    weekKinds,
     bySignal,
     companiesThisWeek,
     companiesTrend,

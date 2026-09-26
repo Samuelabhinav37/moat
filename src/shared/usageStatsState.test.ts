@@ -5,6 +5,7 @@ import {
   RETENTION_DAYS,
   dateKey,
   pruneOldDays,
+  recordBlockKinds,
   recordBlockedTotal,
   recordCompanyMatches,
   recordSignalEvent,
@@ -180,5 +181,30 @@ describe("summarize", () => {
     expect(trend).toHaveLength(7);
     expect(trend[6]).toBe(2); // today: Acme + Globex
     expect(trend[5]).toBe(1); // yesterday: Acme only
+  });
+});
+
+describe("recordBlockKinds / weekKinds", () => {
+  it("adds each kind to the day, ignoring zeros", () => {
+    let state: UsageStatsState = EMPTY_STATE;
+    state = recordBlockKinds(state, { ads: 3, trackers: 2 }, NOW);
+    state = recordBlockKinds(state, { popups: 1, ads: 0 }, NOW);
+    expect(state.days[dateKey(NOW)]!.kinds).toEqual({ ads: 3, trackers: 2, popups: 1 });
+    expect(recordBlockKinds(state, { ads: 0 }, NOW)).toBe(state);
+  });
+
+  it("sums the last 7 days, and days recorded before the split count as nothing", () => {
+    let state: UsageStatsState = EMPTY_STATE;
+    // An older-format day: a total but no kinds.
+    state = recordBlockedTotal(state, "old.example", 40, NOW - 2 * DAY_MS);
+    state = recordBlockKinds(state, { ads: 5 }, NOW - 1 * DAY_MS);
+    state = recordBlockKinds(state, { ads: 1, trackers: 4, popups: 2 }, NOW);
+    // Outside the week.
+    state = recordBlockKinds(state, { ads: 100 }, NOW - 8 * DAY_MS);
+    expect(summarize(state, NOW).weekKinds).toEqual({ ads: 6, trackers: 4, popups: 2 });
+  });
+
+  it("is all zeros with no history", () => {
+    expect(summarize(EMPTY_STATE, NOW).weekKinds).toEqual({ ads: 0, trackers: 0, popups: 0 });
   });
 });

@@ -7,13 +7,14 @@ import browser from "webextension-polyfill";
 import {
   EMPTY_STATE,
   pruneOldDays,
+  recordBlockKinds as recordBlockKindsPure,
   recordBlockedTotal as recordBlockedTotalPure,
   recordCompanyMatches as recordCompanyMatchesPure,
   recordSignalEvent as recordSignalEventPure,
   summarize,
   type UsageStatsState,
 } from "../shared/usageStatsState";
-import type { UsageSignal, UsageSummaryResponse } from "../types";
+import type { BlockKinds, UsageSignal, UsageSummaryResponse } from "../types";
 
 const USAGE_STATS_KEY = "usageStats";
 
@@ -43,6 +44,10 @@ function mutate(updater: (current: UsageStatsState, when: number) => UsageStatsS
 
 export function recordBlockedTotal(hostname: string, count: number): Promise<void> {
   return mutate((state, when) => recordBlockedTotalPure(state, hostname, count, when));
+}
+
+export function recordBlockKinds(kinds: Partial<BlockKinds>): Promise<void> {
+  return mutate((state, when) => recordBlockKindsPure(state, kinds, when));
 }
 
 export function recordCompanyMatches(hostname: string, companyBreakdown: Record<string, number>): Promise<void> {

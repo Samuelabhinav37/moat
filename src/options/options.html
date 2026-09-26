@@ -1600,6 +1600,19 @@
           letter-spacing: -0.03em;
           font-variant-numeric: tabular-nums;
         }
+        .ov-kinds {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px 16px;
+          margin-top: 10px;
+          font-size: 13.5px;
+          color: var(--muted);
+        }
+        .ov-kinds b {
+          color: var(--fg);
+          font-weight: 600;
+          font-variant-numeric: tabular-nums;
+        }
         .ov-today {
           text-align: right;
           font-size: 13.5px;
@@ -1859,6 +1872,12 @@
               <div>
                 <div class="ov-big" id="ov-week-total">—</div>
                 <div class="ov-sub" data-i18n="ovWeekLabel">ads and trackers stopped this week</div>
+                <div class="ov-kinds" id="ov-kinds" hidden>
+                  <span><b id="ov-kind-ads">0</b> <span data-i18n="ovKindAds">ads</span></span>
+                  <span><b id="ov-kind-trackers">0</b> <span data-i18n="ovKindTrackers">trackers</span></span>
+                  <span><b id="ov-kind-popups">0</b> <span data-i18n="ovKindPopups">pop-ups</span></span>
+                  <span class="ov-unsorted" id="ov-kind-unsorted" hidden></span>
+                </div>
               </div>
               <div class="ov-today"><b id="ov-today-total">—</b><span data-i18n="ovTodayLabel">today</span></div>
             </div>
