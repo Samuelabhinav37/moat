@@ -72,6 +72,7 @@ import {
 } from "./lastNormalTab";
 import { getGroupBreakdown, isMatchedRulesSupported, recentMatchedRulesCalls } from "./matchStats";
 import { startLiveBlockCounting } from "./liveBlocks";
+import { rememberGenericSelectors } from "./genericSelectorCache";
 import { recordSignalEvent } from "./usageStats";
 import { SIGNAL_KEYS } from "../shared/usageStatsState";
 import {
@@ -430,6 +431,9 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
         if (sender.tab?.id !== undefined) {
           void injectGenericSelectors(sender.tab.id, sender.frameId ?? 0, selectors);
         }
+        // Top frame only: the next page load on this site gets them in the
+        // commit-time stylesheet, before first paint (genericSelectorCache.ts).
+        if ((sender.frameId ?? 0) === 0) void rememberGenericSelectors(message.hostname, selectors);
         return { selectors };
       })();
     }

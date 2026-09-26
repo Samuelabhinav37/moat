@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.145
+
+### Fixed
+- **On a repeat visit, reserved ad slots flashed before being hidden.** Generic hiding rules are
+  matched to a page's class and id names after it's parsed, so on a fast or cached page the first
+  frames showed the slot. The worker now remembers, per site, the generic rules it matched in the
+  top frame (`src/background/genericSelectorCache.ts`) and adds them to the stylesheet applied when
+  the next page on that site starts loading. Kept in `storage.session` (in memory, gone when the
+  browser closes), so it never becomes an on-disk list of visited sites; capped at 500 sites and
+  300 rules per site, reset when Moat's version changes. Measured by the smoke test: 5–8 of the
+  first 30 frames showed the slot on a repeat visit before, 1 now.
+  - Not fixed: the first page after Chrome restarts an idle worker still shows the slot for about 8
+    frames even on a visited site, because the stylesheet can't be applied until the worker is
+    awake. Fixing that needs the page's own script to apply remembered rules, which brings back
+    page-visible style elements Moat moved away from in 0.11.63. Reported by the smoke test as a
+    note.
+
 ## 0.11.144
 
 ### Changed

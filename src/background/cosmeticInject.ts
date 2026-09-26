@@ -22,6 +22,7 @@ import {
   customSelectorsForHostname,
 } from "../content/cosmeticSelectors";
 import { cosmeticSliceFor } from "./cosmeticIndex";
+import { cachedGenericSelectors } from "./genericSelectorCache";
 import { getEffectiveSettings, isSiteDisabled } from "./settings";
 import { safeHostname } from "./redirectDomainMatch";
 import { LIVE_COSMETIC_FIXES_KEY, LIVE_YOUTUBE_QUICK_FIXES_KEY } from "../types";
@@ -52,16 +53,19 @@ export async function injectCosmeticsForCommit(tabId: number, url: string): Prom
   if (!settings.enabled) return;
   if (await isSiteDisabled(hostname)) return;
 
-  const [slice, liveFixes, liveYoutubeFixes] = await Promise.all([
+  const [slice, liveFixes, liveYoutubeFixes, rememberedGenerics] = await Promise.all([
     cosmeticSliceFor(hostname).catch(() => null),
     readLiveFixMap(LIVE_COSMETIC_FIXES_KEY),
     readLiveFixMap(LIVE_YOUTUBE_QUICK_FIXES_KEY),
+    cachedGenericSelectors(hostname).catch(() => [] as string[]),
   ]);
   if (!slice) return;
 
   const hideSelectors = [
     ...slice.genericHigh,
     ...slice.domainSelectors,
+    // Generic selectors the surveyor found on this site earlier this session.
+    ...rememberedGenerics,
     ...customSelectorsForHostname(settings.customCosmeticRules, hostname),
     ...customSelectorsForHostname(liveFixes, hostname),
     ...customSelectorsForHostname(liveYoutubeFixes, hostname),
