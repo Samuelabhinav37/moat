@@ -6,9 +6,9 @@
     <title>Moat Settings</title>
     <link rel="stylesheet" href="theme.css" />
     <style>
-      /* One page, laid out like a settings page people actually read: a
-         title and one plain sentence on the left of each section, the
-         controls on the right. Everything most people change is on the
+      /* One page, laid out like a settings page people actually read: one
+         narrow column, each section a title and a plain sentence with its
+         controls right under it. Everything most people change is on the
          main panel; the rest opens in place under "Advanced settings".
          Switches and primary buttons use Moat blue here (theme.css's green
          --on still drives the popup). */
@@ -83,7 +83,7 @@
       }
 
       .wrap {
-        max-width: 1120px;
+        max-width: 780px;
         margin: 0 auto;
         padding: 40px 32px 20px;
       }
@@ -99,31 +99,6 @@
         font-weight: 700;
         letter-spacing: -0.025em;
       }
-      .status {
-        margin-left: auto;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 12px 14px 12px 18px;
-      }
-      .status-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 600;
-      }
-      .status-line {
-        font-size: 14px;
-        color: var(--muted);
-      }
-      .status-line b {
-        color: var(--fg);
-        font-weight: 600;
-        font-variant-numeric: tabular-nums;
-      }
 
       /* ---------- Panels and sections ---------- */
       .panel {
@@ -135,9 +110,9 @@
       }
       .sec {
         display: grid;
-        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-        gap: 48px;
-        padding: 32px 0;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+        padding: 28px 0;
       }
       .sec + .sec {
         border-top: 1px solid var(--line);
@@ -151,7 +126,7 @@
       .sec .lead {
         margin: 6px 0 0;
         color: var(--muted);
-        max-width: 38ch;
+        max-width: 64ch;
       }
       .sec .lead + .lead {
         margin-top: 10px;
@@ -275,6 +250,12 @@
         font-size: 13px;
         color: var(--caution);
       }
+      .setting-note {
+        display: block;
+        margin-top: 6px;
+        font-size: 13px;
+        color: var(--muted);
+      }
       .setting-evidence {
         display: block;
         margin-top: 6px;
@@ -315,180 +296,81 @@
       .levels {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-        align-items: start;
+        gap: 12px;
       }
       .level {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
         min-width: 0;
         white-space: normal;
-        background: none;
-        border: 0;
-        padding: 0;
         text-align: left;
-        cursor: pointer;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel-2);
         color: inherit;
+        font: inherit;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+      }
+      .level:hover:not(:disabled) {
+        border-color: #45414c;
+      }
+      .level[aria-checked="true"] {
+        border-color: var(--blue);
+        background: var(--tint);
       }
       .level:disabled {
         cursor: not-allowed;
         opacity: 0.6;
       }
-      .level-thumb {
-        display: block;
-        border-radius: 14px;
-        padding: 12px;
-        background: var(--panel-2);
-        border: 2px solid transparent;
-        transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease);
-      }
-      .level:hover:not(:disabled) .level-thumb {
-        border-color: var(--line);
-        transform: translateY(-2px);
-      }
-      .level[aria-checked="true"] .level-thumb {
-        border-color: var(--blue);
-        background: rgba(63, 111, 209, 0.16);
-      }
-      .level:focus-visible {
-        outline: none;
-      }
-      .level:focus-visible .level-thumb {
-        outline: 2px solid var(--blue-lt);
-        outline-offset: 3px;
-      }
-      .mini {
-        display: block;
-        border-radius: 7px;
-        background: #2d2a33;
-        overflow: hidden;
-      }
-      .mini-bar {
-        position: relative;
-        height: 12px;
-        background: #38343f;
+      .level-top {
         display: flex;
-        gap: 3px;
-        padding: 4px 6px;
+        align-items: center;
+        gap: 10px;
       }
-      .mini-bar i {
-        width: 4px;
-        height: 4px;
+      .level-radio {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 18px;
+        height: 18px;
+        box-sizing: border-box;
+        border: 2px solid #5c5763;
         border-radius: 50%;
-        background: #5c5764;
       }
-      .mini-eye {
-        position: absolute;
-        right: 6px;
-        top: 2px;
-        width: 14px;
+      .level[aria-checked="true"] .level-radio {
+        border-color: var(--blue-lt);
+      }
+      .level[aria-checked="true"] .level-radio::after {
+        content: "";
+        width: 8px;
         height: 8px;
         border-radius: 50%;
-        background: #b58cf0;
-      }
-      .mini-page {
-        padding: 8px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        height: 146px;
-        align-content: flex-start;
-      }
-      .mini-page i {
-        display: block;
-        position: relative;
-        border-radius: 4px;
-        background: #45404d;
-        height: 22px;
-        flex: 1 1 40%;
-      }
-      .mini-page i.w {
-        flex-basis: 100%;
-      }
-      .mini-page i.ad {
-        height: 18px;
-        background: repeating-linear-gradient(135deg, #8a4f47 0 5px, #744039 5px 10px);
-      }
-      .mini-page i.ck {
-        height: 14px;
-        background: #cfd3da;
-      }
-      .mini-page i.t::after {
-        content: "";
-        position: absolute;
-        right: 5px;
-        top: 7px;
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #d9a441;
-      }
-      /* Each card loops its own kind of blocking: the page as it loads, then
-         what that level removes. */
-      .level .mini-page i.ad,
-      .level .mini-page i.ck,
-      .level .mini-eye,
-      .level .mini-page i.t::after {
-        animation: 4.5s var(--ease) infinite both;
-      }
-      .level .mini-page i.ad {
-        animation-name: gone-bar;
-      }
-      .level[data-level="standard"] .mini-page i.t::after,
-      .level[data-level="strict"] .mini-page i.t::after {
-        animation-name: gone-dot;
-        animation-delay: 0.25s;
-      }
-      .level[data-level="strict"] .mini-page i.ck {
-        animation-name: gone-bar;
-        animation-delay: 0.5s;
-      }
-      .level[data-level="strict"] .mini-eye {
-        animation-name: gone-dot;
-        animation-delay: 0.6s;
-      }
-      @keyframes gone-bar {
-        0%, 30% { opacity: 1; transform: scaleY(1); }
-        42%, 88% { opacity: 0; transform: scaleY(0.2); }
-        100% { opacity: 1; transform: scaleY(1); }
-      }
-      @keyframes gone-dot {
-        0%, 30% { opacity: 1; transform: scale(1); }
-        40%, 88% { opacity: 0; transform: scale(0); }
-        100% { opacity: 1; transform: scale(1); }
+        background: var(--blue-lt);
       }
       .level-name {
-        display: block;
-        margin-top: 12px;
         font-weight: 600;
-        transition: color 0.2s;
       }
-      .level[aria-checked="true"] .level-name {
-        color: var(--blue-lt);
+      /* How much each level blocks, as 1, 2 or 3 filled steps. */
+      .level-meter {
+        display: flex;
+        gap: 4px;
+      }
+      .level-meter i {
+        flex: 1;
+        height: 4px;
+        border-radius: 2px;
+        background: #3a3740;
+      }
+      .level-meter i.on {
+        background: var(--blue-lt);
       }
       .level-desc {
-        display: block;
-        margin-top: 2px;
         font-size: 14px;
         color: var(--muted);
         line-height: 1.45;
-      }
-      .legend {
-        display: flex;
-        gap: 16px;
-        flex-wrap: wrap;
-        margin-top: 16px;
-        font-size: 13px;
-        color: var(--muted);
-      }
-      .legend span {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .legend .key {
-        display: inline-block;
-        width: 12px;
-        height: 8px;
-        border-radius: 2px;
       }
       .level-note {
         margin: 14px 0 0;
@@ -513,16 +395,21 @@
         margin: 0;
         padding: 0;
       }
-      .site-list li {
+      /* ul.site-list, to beat theme.css's popup-sized rule of the same
+         specificity, which drew every row as its own little box. */
+      ul.site-list li {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 14px;
-        padding: 13px 18px;
+        padding: 11px 16px;
+        border: 0;
+        border-radius: 0;
+        font-size: 15px;
         font-weight: 600;
         overflow-wrap: anywhere;
       }
-      .site-list li + li {
+      ul.site-list li + li {
         border-top: 1px solid var(--line);
       }
       .site-list li button,
@@ -546,20 +433,59 @@
         display: none;
       }
       .empty-card {
-        border: 1px dashed #3a3740;
-        border-radius: 14px;
-        background: var(--panel-2);
-        padding: 34px 22px;
-        text-align: center;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 13px 16px;
+        font-size: 14px;
       }
       .empty-card b {
         display: block;
-        font-size: 16px;
+        font-weight: 600;
       }
       .empty-card span {
         display: block;
-        margin-top: 4px;
+        margin-top: 2px;
         color: var(--muted);
+      }
+
+      /* Long lists: a search box and the first few rows, with a button for
+         the rest (see longList.ts). */
+      .list-search {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel-2);
+        color: var(--fg);
+        font: inherit;
+        font-size: 14px;
+      }
+      .list-search::placeholder {
+        color: var(--muted);
+      }
+      .list-more {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 8px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .list-more button {
+        border: 0;
+        background: none;
+        padding: 4px 0;
+        color: var(--blue-lt);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .list-more button:hover {
+        text-decoration: underline;
       }
       .empty-state {
         color: var(--muted);
@@ -628,7 +554,7 @@
 
       /* ---------- Forms and buttons ---------- */
       .field + .field {
-        margin-top: 22px;
+        margin-top: 28px;
       }
       .field-label {
         display: block;
@@ -1120,14 +1046,6 @@
           animation: none !important;
           transition: none !important;
         }
-        /* Loops off: show each level's finished result. */
-        .level .mini-page i.ad,
-        .level[data-level="strict"] .mini-page i.ck,
-        .level[data-level="strict"] .mini-eye,
-        .level[data-level="standard"] .mini-page i.t::after,
-        .level[data-level="strict"] .mini-page i.t::after {
-          opacity: 0;
-        }
       }
       @media (max-width: 860px) {
         .sec {
@@ -1139,9 +1057,23 @@
         }
         .levels {
           grid-template-columns: minmax(0, 1fr);
+          gap: 8px;
         }
-        .status {
-          margin-left: 0;
+        /* One row per level: name and meter on top, the sentence below. */
+        .level {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 64px;
+          align-items: center;
+          gap: 6px 12px;
+          padding: 14px;
+        }
+        .level-meter {
+          grid-column: 2;
+          grid-row: 1;
+        }
+        .level-desc {
+          grid-column: 1 / 3;
+          padding-left: 28px;
         }
         .topbar,
         .site-foot {
@@ -1167,55 +1099,35 @@
       <main class="wrap">
         <div class="head">
           <h1 data-i18n="settingsTitle">Settings</h1>
-          <div class="status">
-            <div>
-              <div class="status-title">
-                <span id="master-status-title" data-i18n="settingsStatusOn">Moat is on</span>
-                <span class="locked-badge" id="protection-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
-              </div>
-              <div class="status-line"><b id="metric-blocked-today">—</b> <span data-i18n="optionsBlockedTodayBaseline">ads and trackers stopped today</span></div>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="master-toggle" aria-labelledby="master-status-title" />
-              <span class="track"><span class="thumb"></span></span>
-            </label>
-          </div>
         </div>
 
         <div class="panel">
-          <!-- How much to block: three presets, each card looping its own
-               kind of blocking on a tiny page (ads, tracker dots, a cookie
-               banner, a fingerprinting "eye"). Essential/Custom live under
+          <!-- How much to block: three presets, each a radio card with a
+               three-step meter and what it adds. Essential/Custom live under
                Advanced; a note appears here when one of those is active. -->
           <section class="sec">
             <div>
               <h2 data-i18n="levelTitle">How much to block</h2>
-              <p class="lead" data-i18n="levelLead">Balanced suits almost everyone. Pick Strict for the most privacy, or Light if a site you use keeps breaking.</p>
+              <p class="lead" data-i18n="levelLead">This applies to every site you visit. Balanced suits almost everyone. Choose Strict for the most privacy, or Light if a site you use keeps breaking.</p>
             </div>
             <div>
               <div class="levels" id="level-cards" role="radiogroup" aria-labelledby="level-title-sr">
                 <span id="level-title-sr" hidden data-i18n="levelTitle">How much to block</span>
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="lite">
-                  <span class="level-thumb" aria-hidden="true"><span class="mini"><span class="mini-bar"><i></i><i></i><i></i><span class="mini-eye"></span></span><span class="mini-page"><i class="ad w"></i><i class="t"></i><i class="t"></i><i class="w"></i><i class="t"></i><i></i><i class="ck w"></i></span></span></span>
-                  <span class="level-name" data-i18n="presetLite">Light</span>
-                  <span class="level-desc" data-i18n="levelLightDesc">Removes ads, scams and pop-ups. Trackers still load.</span>
+                  <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetLite">Light</span></span>
+                  <span class="level-meter" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
+                  <span class="level-desc" data-i18n="levelLightDesc">Blocks ads, pop-ups, and scam and malware sites. Trackers still load, so sites that depend on them keep working.</span>
                 </button>
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="standard">
-                  <span class="level-thumb" aria-hidden="true"><span class="mini"><span class="mini-bar"><i></i><i></i><i></i><span class="mini-eye"></span></span><span class="mini-page"><i class="ad w"></i><i class="t"></i><i class="t"></i><i class="w"></i><i class="t"></i><i></i><i class="ck w"></i></span></span></span>
-                  <span class="level-name" data-i18n="presetStandard">Balanced</span>
-                  <span class="level-desc" data-i18n="levelBalancedDesc">Also stops trackers and phishing. Recommended.</span>
+                  <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetStandard">Balanced</span></span>
+                  <span class="level-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
+                  <span class="level-desc" data-i18n="levelBalancedDesc">Everything in Light, plus trackers, tracking added to links, and phishing sites. Recommended.</span>
                 </button>
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="strict">
-                  <span class="level-thumb" aria-hidden="true"><span class="mini"><span class="mini-bar"><i></i><i></i><i></i><span class="mini-eye"></span></span><span class="mini-page"><i class="ad w"></i><i class="t"></i><i class="t"></i><i class="w"></i><i class="t"></i><i></i><i class="ck w"></i></span></span></span>
-                  <span class="level-name" data-i18n="presetStrict">Strict</span>
-                  <span class="level-desc" data-i18n="levelStrictDesc">Also cookie banners and fingerprinting. A few sites may break.</span>
+                  <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetStrict">Strict</span></span>
+                  <span class="level-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+                  <span class="level-desc" data-i18n="levelStrictDesc">Everything in Balanced, plus cookie notices, social buttons, fingerprinting and third-party cookies. A few sites may not work right.</span>
                 </button>
-              </div>
-              <div class="legend" aria-hidden="true">
-                <span><span class="key" style="background: repeating-linear-gradient(135deg, #8a4f47 0 3px, #744039 3px 6px)"></span><span data-i18n="levelLegendAds">Ads</span></span>
-                <span><span class="key" style="background: #d9a441; width: 8px; border-radius: 50%"></span><span data-i18n="levelLegendTrackers">Trackers</span></span>
-                <span><span class="key" style="background: #cfd3da"></span><span data-i18n="levelLegendCookies">Cookie banners</span></span>
-                <span><span class="key" style="background: #b58cf0; border-radius: 50%"></span><span data-i18n="levelLegendFingerprint">Fingerprinting</span></span>
               </div>
               <p class="level-note" id="level-note" hidden data-i18n="levelCustomNote">You're using your own mix of filter lists. Change it under Advanced settings.</p>
             </div>
@@ -1224,7 +1136,7 @@
           <section class="sec">
             <div>
               <h2 data-i18n="featuresTitle">Features</h2>
-              <p class="lead" data-i18n="featuresLead">Ads, trackers and scam pop-ups are always blocked. These are the extras people change most.</p>
+              <p class="lead" data-i18n="featuresLead">Extra protections that work on top of the level you chose above. Turn on the ones you want.</p>
             </div>
             <div class="setting-rows" id="feature-rows"></div>
           </section>

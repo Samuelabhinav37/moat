@@ -483,9 +483,6 @@
   "optionsProtectionDesc": {
     "message": "Ce que Moat bloque, et ce qu'il laisse passer. Tout se passe sur votre appareil."
   },
-  "optionsBlockedTodayBaseline": {
-    "message": "publicités et traceurs bloqués aujourd'hui"
-  },
   "optionsBlockedTodayComparison": {
     "message": " · contre $COUNT$ le même jour la semaine dernière",
     "placeholders": {
@@ -706,17 +703,6 @@
   },
   "optionsRulesStaleLabel": {
     "message": "obsolètes"
-  },
-  "optionsRuleAddedMeta": {
-    "message": "Ajoutée il y a $DAYS$ jours · masqué $COUNT$ fois depuis",
-    "placeholders": {
-      "days": {
-        "content": "$1"
-      },
-      "count": {
-        "content": "$2"
-      }
-    }
   },
   "optionsRuleStaleMeta": {
     "message": "Aucune correspondance depuis 30 jours. Le site a probablement changé."
@@ -1008,38 +994,20 @@
   "settingsHelp": {
     "message": "Aide"
   },
-  "settingsStatusOn": {
-    "message": "Moat est activé"
-  },
-  "settingsStatusOff": {
-    "message": "Moat est désactivé"
-  },
   "levelTitle": {
     "message": "Quel niveau de blocage"
   },
   "levelLead": {
-    "message": "Équilibré convient à presque tout le monde. Choisissez Strict pour un maximum de confidentialité, ou Léger si un site que vous utilisez ne fonctionne plus."
+    "message": "S'applique à tous les sites que vous visitez. Équilibré convient à presque tout le monde. Choisissez Strict pour un maximum de confidentialité, ou Léger si un site que vous utilisez ne fonctionne plus."
   },
   "levelLightDesc": {
-    "message": "Supprime les publicités, arnaques et pop-ups. Les traqueurs se chargent encore."
+    "message": "Bloque les publicités, les fenêtres pop-up et les sites d'arnaque et de logiciels malveillants. Les traqueurs se chargent toujours, donc les sites qui en dépendent continuent de fonctionner."
   },
   "levelBalancedDesc": {
-    "message": "Bloque aussi les traqueurs et l'hameçonnage. Recommandé."
+    "message": "Tout ce que fait Léger, plus les traqueurs, le pistage ajouté aux liens et les sites d'hameçonnage. Recommandé."
   },
   "levelStrictDesc": {
-    "message": "Aussi les bannières de cookies et l'empreinte numérique. Quelques sites peuvent mal fonctionner."
-  },
-  "levelLegendAds": {
-    "message": "Publicités"
-  },
-  "levelLegendTrackers": {
-    "message": "Traqueurs"
-  },
-  "levelLegendCookies": {
-    "message": "Bannières de cookies"
-  },
-  "levelLegendFingerprint": {
-    "message": "Empreinte numérique"
+    "message": "Tout ce que fait Équilibré, plus les bandeaux de cookies, les boutons sociaux, l'empreinte numérique et les cookies tiers. Quelques sites peuvent mal fonctionner."
   },
   "levelCustomNote": {
     "message": "Vous utilisez votre propre combinaison de listes de filtres. Modifiez-la dans les paramètres avancés."
@@ -1048,7 +1016,7 @@
     "message": "Fonctionnalités"
   },
   "featuresLead": {
-    "message": "Les publicités, traqueurs et pop-ups frauduleux sont toujours bloqués. Voici les options les plus souvent modifiées."
+    "message": "Des protections en plus du niveau choisi ci-dessus. Activez celles que vous voulez."
   },
   "pausedEmptyTitle": {
     "message": "Aucun site en pause"
@@ -1426,6 +1394,51 @@
   },
   "popupUnsorted": {
     "message": "$COUNT$ pas encore classés",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "listSearch": {
+    "message": "Rechercher"
+  },
+  "listShowAll": {
+    "message": "Tout afficher ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "listShowFewer": {
+    "message": "Afficher moins"
+  },
+  "listNoMatches": {
+    "message": "Aucun résultat."
+  },
+  "optionsRuleAddedToday": {
+    "message": "Ajouté aujourd'hui"
+  },
+  "optionsRuleAddedYesterday": {
+    "message": "Ajouté hier"
+  },
+  "optionsRuleAddedDaysAgo": {
+    "message": "Ajouté il y a $DAYS$ jours",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsRuleHitsNone": {
+    "message": "pas encore vu sur une page"
+  },
+  "optionsRuleHitsOnce": {
+    "message": "masqué une fois depuis"
+  },
+  "optionsRuleHitsCount": {
+    "message": "masqué $COUNT$ fois depuis",
     "placeholders": {
       "count": {
         "content": "$1"

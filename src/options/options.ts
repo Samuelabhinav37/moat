@@ -9,6 +9,7 @@ import { isSupported as isCnameUncloakChromeSupported } from "../background/cnam
 import { detectPreset, presetPatch, type PresetName } from "../shared/filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { getUsageSummary } from "../background/usageStats";
+import { applyLongList, type LongListLabels } from "./longList";
 import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
 import { customRuleStatKey, isStale } from "../shared/customRuleStats";
@@ -156,6 +157,8 @@ interface ProtectionDef {
   titleKey: readonly [string, string];
   descKey: readonly [string, string];
   cautionKey?: readonly [string, string];
+  /** A reassuring detail, shown in plain text rather than the caution color. */
+  noteKey?: readonly [string, string];
   signal?: UsageSignal;
   metricLabelKey?: readonly [string, string];
   evidenceUnit?: EvidenceUnit;
@@ -315,7 +318,7 @@ const PROTECTIONS: ProtectionDef[] = [
     evidenceUnit: "week",
     titleKey: ["optionsLeakedPasswordToggleLabel", "Check passwords against known breaches"],
     descKey: ["optionsLeakedPasswordDrawerDesc", "Warns if a password you type has appeared in a known breach."],
-    cautionKey: ["optionsLeakedPasswordCaution", "Only a short piece of its hash ever leaves your device."],
+    noteKey: ["optionsLeakedPasswordCaution", "Only a short piece of its hash ever leaves your device."],
     metricLabelKey: ["optionsLeakedPasswordMetricLabel", "passwords checked this week"],
   },
 ];
@@ -422,9 +425,6 @@ function isAnyPermissionGuardOn(settings: Settings): boolean {
   return settings.permissionGuardCamera || settings.permissionGuardMicrophone || settings.permissionGuardLocation;
 }
 
-const masterToggle = document.getElementById("master-toggle") as HTMLInputElement;
-const protectionLockedBadge = document.getElementById("protection-locked-badge") as HTMLElement;
-const masterStatusTitle = document.getElementById("master-status-title") as HTMLElement;
 const featureRowsEl = document.getElementById("feature-rows") as HTMLElement;
 const protectionGroupsEl = document.getElementById("protection-groups") as HTMLElement;
 
@@ -483,6 +483,13 @@ function normalizeHostname(input: string): string | null {
  * removing one entry doesn't need to tear down and rebuild every other
  * list plus the filter-groups checkboxes on the page too, which is what
  * calling the page-level render() here would do. */
+const longListLabels: LongListLabels = {
+  search: tFallback("listSearch", "Search"),
+  showAll: (count) => tFallback("listShowAll", `Show all ${count}`, String(count)),
+  showFewer: tFallback("listShowFewer", "Show fewer"),
+  noMatches: tFallback("listNoMatches", "No matches."),
+};
+
 function renderRows<T>(
   list: HTMLUListElement,
   emptyState: HTMLElement,
@@ -498,6 +505,7 @@ function renderRows<T>(
       const li = document.createElement("li");
       const label = document.createElement("span");
       label.textContent = formatLabel(item);
+      li.dataset.search = label.textContent;
 
       const remove = document.createElement("button");
       remove.textContent = removeLabel;
@@ -510,6 +518,7 @@ function renderRows<T>(
       return li;
     })
   );
+  applyLongList(list, longListLabels);
 }
 
 function renderDomainList(
@@ -573,6 +582,7 @@ function buildProtectionRow(def: ProtectionDef, settings: Settings, usage: Usage
     else if (chromeSupported) extra.push(buildLine("setting-desc", cnameChromeDohHint));
   }
   if (def.cautionKey) extra.push(buildLine("setting-caution", tFallback(...def.cautionKey)));
+  if (def.noteKey) extra.push(buildLine("setting-note", tFallback(...def.noteKey)));
   if (checked) {
     const evidence = evidenceTextFor(def, usage);
     if (evidence) extra.push(buildLine("setting-evidence", evidence));
@@ -658,27 +668,13 @@ function renderProtectionGroups(settings: Settings, usage: UsageSummaryResponse)
   protectionGroupsEl.replaceChildren(...advancedRows);
 }
 
-async function renderProtectionTab(settings: Settings, policy: Awaited<ReturnType<typeof getManagedPolicy>>): Promise<void> {
-  const protectionLocked = isLocked("protection", policy);
-  masterToggle.checked = settings.enabled;
-  masterToggle.disabled = protectionLocked;
-  protectionLockedBadge.hidden = !protectionLocked;
-  masterStatusTitle.textContent = settings.enabled
-    ? tFallback("settingsStatusOn", "Moat is on")
-    : tFallback("settingsStatusOff", "Moat is off");
-
+async function renderProtectionTab(settings: Settings): Promise<void> {
   const usage = await getUsageSummary();
   lastSettings = settings;
   lastUsage = usage;
 
-  document.getElementById("metric-blocked-today")!.textContent = usage.today.total.toLocaleString();
   renderProtectionGroups(settings, usage);
 }
-
-masterToggle.addEventListener("change", async () => {
-  await setSettings({ enabled: masterToggle.checked });
-  await render();
-});
 
 function renderLiveStatus(
   status: Awaited<ReturnType<typeof getLiveUpdateStatus>>,
@@ -998,6 +994,7 @@ function buildRuleRow(
 
   const row = document.createElement("div");
   row.className = "rule-row";
+  row.dataset.search = `${hostname} ${selector}`;
 
   const main = document.createElement("div");
   main.className = "rule-main";
@@ -1020,11 +1017,19 @@ function buildRuleRow(
     );
   } else if (stat) {
     const days = Math.max(0, Math.floor((now - stat.createdAt) / 86_400_000));
-    meta.textContent = tFallback(
-      "optionsRuleAddedMeta",
-      `Added ${days} days ago · hidden ${stat.hitCount} times since`,
-      [String(days), String(stat.hitCount)]
-    );
+    const added =
+      days === 0
+        ? tFallback("optionsRuleAddedToday", "Added today")
+        : days === 1
+          ? tFallback("optionsRuleAddedYesterday", "Added yesterday")
+          : tFallback("optionsRuleAddedDaysAgo", `Added ${days} days ago`, String(days));
+    const hits =
+      stat.hitCount === 0
+        ? tFallback("optionsRuleHitsNone", "not seen on a page yet")
+        : stat.hitCount === 1
+          ? tFallback("optionsRuleHitsOnce", "hidden once since")
+          : tFallback("optionsRuleHitsCount", `hidden ${stat.hitCount} times since`, String(stat.hitCount));
+    meta.textContent = `${added} · ${hits}`;
   }
   if (stale || stat) main.append(meta);
 
@@ -1058,6 +1063,7 @@ function renderRuleGroup(
     .sort((a, b) => a.hostname.localeCompare(b.hostname));
   emptyState.style.display = rows.length ? "none" : "block";
   container.replaceChildren(...rows.map((r) => buildRuleRow(kind, r.hostname, r.selector, stats, onRemove, rerenderSelf)));
+  applyLongList(container, longListLabels);
 }
 
 pickElementButton.addEventListener("click", async () => {
@@ -1246,7 +1252,7 @@ async function rerenderGrayscaleElementList(): Promise<void> {
 async function render(): Promise<void> {
   const [settings, policy] = await Promise.all([getEffectiveSettings(), getManagedPolicy()]);
 
-  await renderProtectionTab(settings, policy);
+  await renderProtectionTab(settings);
   if (lastUsage) renderWeeklyTrackers(lastUsage);
 
   renderSyncStatus(settings.syncEnabled, await getSyncStatus());

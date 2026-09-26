@@ -485,9 +485,6 @@
   "optionsProtectionDesc": {
     "message": "What Moat blocks, and what it leaves alone. Everything here runs on your device."
   },
-  "optionsBlockedTodayBaseline": {
-    "message": "ads and trackers stopped today"
-  },
   "optionsBlockedTodayComparison": {
     "message": " · vs $COUNT$ same day last week",
     "placeholders": {
@@ -708,17 +705,6 @@
   },
   "optionsRulesStaleLabel": {
     "message": "gone stale"
-  },
-  "optionsRuleAddedMeta": {
-    "message": "Added $DAYS$ days ago · hidden $COUNT$ times since",
-    "placeholders": {
-      "days": {
-        "content": "$1"
-      },
-      "count": {
-        "content": "$2"
-      }
-    }
   },
   "optionsRuleStaleMeta": {
     "message": "Hasn't matched in 30 days. The site probably changed."
@@ -1010,38 +996,20 @@
   "settingsHelp": {
     "message": "Help"
   },
-  "settingsStatusOn": {
-    "message": "Moat is on"
-  },
-  "settingsStatusOff": {
-    "message": "Moat is off"
-  },
   "levelTitle": {
     "message": "How much to block"
   },
   "levelLead": {
-    "message": "Balanced suits almost everyone. Pick Strict for the most privacy, or Light if a site you use keeps breaking."
+    "message": "This applies to every site you visit. Balanced suits almost everyone. Choose Strict for the most privacy, or Light if a site you use keeps breaking."
   },
   "levelLightDesc": {
-    "message": "Removes ads, scams and pop-ups. Trackers still load."
+    "message": "Blocks ads, pop-ups, and scam and malware sites. Trackers still load, so sites that depend on them keep working."
   },
   "levelBalancedDesc": {
-    "message": "Also stops trackers and phishing. Recommended."
+    "message": "Everything in Light, plus trackers, tracking added to links, and phishing sites. Recommended."
   },
   "levelStrictDesc": {
-    "message": "Also cookie banners and fingerprinting. A few sites may break."
-  },
-  "levelLegendAds": {
-    "message": "Ads"
-  },
-  "levelLegendTrackers": {
-    "message": "Trackers"
-  },
-  "levelLegendCookies": {
-    "message": "Cookie banners"
-  },
-  "levelLegendFingerprint": {
-    "message": "Fingerprinting"
+    "message": "Everything in Balanced, plus cookie notices, social buttons, fingerprinting and third-party cookies. A few sites may not work right."
   },
   "levelCustomNote": {
     "message": "You're using your own mix of filter lists. Change it under Advanced settings."
@@ -1050,7 +1018,7 @@
     "message": "Features"
   },
   "featuresLead": {
-    "message": "Ads, trackers and scam pop-ups are always blocked. These are the extras people change most."
+    "message": "Extra protections that work on top of the level you chose above. Turn on the ones you want."
   },
   "pausedEmptyTitle": {
     "message": "No sites are paused"
@@ -1428,6 +1396,51 @@
   },
   "popupUnsorted": {
     "message": "$COUNT$ not sorted yet",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "listSearch": {
+    "message": "Search"
+  },
+  "listShowAll": {
+    "message": "Show all $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "listShowFewer": {
+    "message": "Show fewer"
+  },
+  "listNoMatches": {
+    "message": "No matches."
+  },
+  "optionsRuleAddedToday": {
+    "message": "Added today"
+  },
+  "optionsRuleAddedYesterday": {
+    "message": "Added yesterday"
+  },
+  "optionsRuleAddedDaysAgo": {
+    "message": "Added $DAYS$ days ago",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsRuleHitsNone": {
+    "message": "not seen on a page yet"
+  },
+  "optionsRuleHitsOnce": {
+    "message": "hidden once since"
+  },
+  "optionsRuleHitsCount": {
+    "message": "hidden $COUNT$ times since",
     "placeholders": {
       "count": {
         "content": "$1"

@@ -483,9 +483,6 @@
   "optionsProtectionDesc": {
     "message": "Was Moat blockiert und was nicht. Das läuft alles auf deinem Gerät."
   },
-  "optionsBlockedTodayBaseline": {
-    "message": "Werbung und Tracker heute gestoppt"
-  },
   "optionsBlockedTodayComparison": {
     "message": " · gegenüber $COUNT$ am selben Tag letzte Woche",
     "placeholders": {
@@ -706,17 +703,6 @@
   },
   "optionsRulesStaleLabel": {
     "message": "veraltet"
-  },
-  "optionsRuleAddedMeta": {
-    "message": "Vor $DAYS$ Tagen hinzugefügt · seitdem $COUNT$ Mal ausgeblendet",
-    "placeholders": {
-      "days": {
-        "content": "$1"
-      },
-      "count": {
-        "content": "$2"
-      }
-    }
   },
   "optionsRuleStaleMeta": {
     "message": "Seit 30 Tagen kein Treffer mehr. Die Website hat sich wahrscheinlich geändert."
@@ -1008,38 +994,20 @@
   "settingsHelp": {
     "message": "Hilfe"
   },
-  "settingsStatusOn": {
-    "message": "Moat ist an"
-  },
-  "settingsStatusOff": {
-    "message": "Moat ist aus"
-  },
   "levelTitle": {
     "message": "Wie viel blockiert wird"
   },
   "levelLead": {
-    "message": "Ausgewogen passt für fast alle. Wähle Streng für die meiste Privatsphäre oder Leicht, wenn eine Website, die du nutzt, nicht mehr funktioniert."
+    "message": "Gilt für jede Website, die du besuchst. Ausgewogen passt für fast alle. Wähle Streng für den meisten Datenschutz oder Leicht, wenn eine Website, die du nutzt, nicht mehr funktioniert."
   },
   "levelLightDesc": {
-    "message": "Entfernt Werbung, Betrug und Pop-ups. Tracker laden weiterhin."
+    "message": "Blockiert Werbung, Pop-ups sowie Betrugs- und Malware-Seiten. Tracker werden weiter geladen, damit Websites, die sie brauchen, funktionieren."
   },
   "levelBalancedDesc": {
-    "message": "Stoppt auch Tracker und Phishing. Empfohlen."
+    "message": "Alles aus Leicht, dazu Tracker, Tracking in Links und Phishing-Seiten. Empfohlen."
   },
   "levelStrictDesc": {
-    "message": "Auch Cookie-Banner und Fingerprinting. Einige Websites funktionieren eventuell nicht."
-  },
-  "levelLegendAds": {
-    "message": "Werbung"
-  },
-  "levelLegendTrackers": {
-    "message": "Tracker"
-  },
-  "levelLegendCookies": {
-    "message": "Cookie-Banner"
-  },
-  "levelLegendFingerprint": {
-    "message": "Fingerprinting"
+    "message": "Alles aus Ausgewogen, dazu Cookie-Hinweise, Social-Media-Buttons, Fingerprinting und Drittanbieter-Cookies. Einige Websites funktionieren eventuell nicht richtig."
   },
   "levelCustomNote": {
     "message": "Du nutzt deine eigene Auswahl an Filterlisten. Ändere sie unter Erweiterte Einstellungen."
@@ -1048,7 +1016,7 @@
     "message": "Funktionen"
   },
   "featuresLead": {
-    "message": "Werbung, Tracker und betrügerische Pop-ups werden immer blockiert. Das sind die Extras, die am häufigsten geändert werden."
+    "message": "Zusätzlicher Schutz, der zu der oben gewählten Stufe dazukommt. Schalte ein, was du möchtest."
   },
   "pausedEmptyTitle": {
     "message": "Keine Websites pausiert"
@@ -1426,6 +1394,51 @@
   },
   "popupUnsorted": {
     "message": "$COUNT$ noch nicht zugeordnet",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "listSearch": {
+    "message": "Suchen"
+  },
+  "listShowAll": {
+    "message": "Alle $COUNT$ anzeigen",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "listShowFewer": {
+    "message": "Weniger anzeigen"
+  },
+  "listNoMatches": {
+    "message": "Keine Treffer."
+  },
+  "optionsRuleAddedToday": {
+    "message": "Heute hinzugefügt"
+  },
+  "optionsRuleAddedYesterday": {
+    "message": "Gestern hinzugefügt"
+  },
+  "optionsRuleAddedDaysAgo": {
+    "message": "Vor $DAYS$ Tagen hinzugefügt",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsRuleHitsNone": {
+    "message": "noch auf keiner Seite gesehen"
+  },
+  "optionsRuleHitsOnce": {
+    "message": "seitdem einmal ausgeblendet"
+  },
+  "optionsRuleHitsCount": {
+    "message": "seitdem $COUNT$-mal ausgeblendet",
     "placeholders": {
       "count": {
         "content": "$1"

@@ -483,9 +483,6 @@
   "optionsProtectionDesc": {
     "message": "Qué bloquea Moat y qué no. Todo esto funciona en tu dispositivo."
   },
-  "optionsBlockedTodayBaseline": {
-    "message": "anuncios y rastreadores detenidos hoy"
-  },
   "optionsBlockedTodayComparison": {
     "message": " · frente a $COUNT$ el mismo día de la semana pasada",
     "placeholders": {
@@ -706,17 +703,6 @@
   },
   "optionsRulesStaleLabel": {
     "message": "obsoletas"
-  },
-  "optionsRuleAddedMeta": {
-    "message": "Añadida hace $DAYS$ días · oculto $COUNT$ veces desde entonces",
-    "placeholders": {
-      "days": {
-        "content": "$1"
-      },
-      "count": {
-        "content": "$2"
-      }
-    }
   },
   "optionsRuleStaleMeta": {
     "message": "No coincide desde hace 30 días. Probablemente el sitio cambió."
@@ -1008,38 +994,20 @@
   "settingsHelp": {
     "message": "Ayuda"
   },
-  "settingsStatusOn": {
-    "message": "Moat está activado"
-  },
-  "settingsStatusOff": {
-    "message": "Moat está desactivado"
-  },
   "levelTitle": {
     "message": "Cuánto bloquear"
   },
   "levelLead": {
-    "message": "Equilibrado sirve para casi todo el mundo. Elige Estricto para la máxima privacidad, o Ligero si un sitio que usas deja de funcionar."
+    "message": "Se aplica a todos los sitios que visitas. Equilibrado sirve para casi todo el mundo. Elige Estricto para la máxima privacidad, o Ligero si un sitio que usas deja de funcionar."
   },
   "levelLightDesc": {
-    "message": "Elimina anuncios, estafas y ventanas emergentes. Los rastreadores siguen cargando."
+    "message": "Bloquea anuncios, ventanas emergentes y sitios de estafas y malware. Los rastreadores se siguen cargando, así que los sitios que dependen de ellos siguen funcionando."
   },
   "levelBalancedDesc": {
-    "message": "También detiene rastreadores y phishing. Recomendado."
+    "message": "Todo lo de Ligero, más rastreadores, el rastreo añadido a los enlaces y sitios de phishing. Recomendado."
   },
   "levelStrictDesc": {
-    "message": "También banners de cookies y huella digital. Algunos sitios pueden fallar."
-  },
-  "levelLegendAds": {
-    "message": "Anuncios"
-  },
-  "levelLegendTrackers": {
-    "message": "Rastreadores"
-  },
-  "levelLegendCookies": {
-    "message": "Banners de cookies"
-  },
-  "levelLegendFingerprint": {
-    "message": "Huella digital"
+    "message": "Todo lo de Equilibrado, más avisos de cookies, botones sociales, huellas digitales y cookies de terceros. Algunos sitios pueden no funcionar bien."
   },
   "levelCustomNote": {
     "message": "Estás usando tu propia combinación de listas de filtros. Cámbiala en Configuración avanzada."
@@ -1048,7 +1016,7 @@
     "message": "Funciones"
   },
   "featuresLead": {
-    "message": "Los anuncios, rastreadores y ventanas emergentes fraudulentas siempre se bloquean. Estos son los extras que más se cambian."
+    "message": "Protecciones extra que funcionan además del nivel que elegiste arriba. Activa las que quieras."
   },
   "pausedEmptyTitle": {
     "message": "No hay sitios pausados"
@@ -1426,6 +1394,51 @@
   },
   "popupUnsorted": {
     "message": "$COUNT$ sin clasificar todavía",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "listSearch": {
+    "message": "Buscar"
+  },
+  "listShowAll": {
+    "message": "Mostrar los $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "listShowFewer": {
+    "message": "Mostrar menos"
+  },
+  "listNoMatches": {
+    "message": "Sin resultados."
+  },
+  "optionsRuleAddedToday": {
+    "message": "Añadido hoy"
+  },
+  "optionsRuleAddedYesterday": {
+    "message": "Añadido ayer"
+  },
+  "optionsRuleAddedDaysAgo": {
+    "message": "Añadido hace $DAYS$ días",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsRuleHitsNone": {
+    "message": "aún no ha aparecido en una página"
+  },
+  "optionsRuleHitsOnce": {
+    "message": "ocultado una vez desde entonces"
+  },
+  "optionsRuleHitsCount": {
+    "message": "ocultado $COUNT$ veces desde entonces",
     "placeholders": {
       "count": {
         "content": "$1"

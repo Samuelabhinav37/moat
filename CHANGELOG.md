@@ -3,6 +3,30 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.146
+
+### Changed
+- **Settings page redesign.** One narrower column, each section's title and sentence above its
+  controls, so the page no longer has an empty left half on wide screens.
+- **"How much to block" is three plain cards.** Each has a radio, a three-step meter for how much it
+  blocks, and a sentence saying exactly what it adds over the level below (Light: ads, pop-ups,
+  scam and malware sites; Balanced: plus trackers, link tracking and phishing; Strict: plus cookie
+  notices, social buttons, fingerprinting and third-party cookies). They replace the looping page
+  animations, which caught in a single frame looked identical for all three levels.
+- **Removed the "Moat is on" card beside the title.** Turning Moat off stays in the popup and the
+  keyboard shortcut.
+- **Long lists stay short.** Paused sites, hidden and grayed-out elements, and the always/never
+  block lists show their first 5 entries with "Show all N", and a search box from 8 entries
+  (`src/options/longList.ts`).
+- **Wording.** The Features intro no longer claims trackers are always blocked (they aren't on
+  Light). Hidden elements say "Added today · not seen on a page yet" instead of "Added 0 days ago ·
+  hidden 0 times since". The leaked-password note is plain text instead of the warning color.
+  Empty lists are one slim note instead of a large dashed box.
+
+### Fixed
+- Paused sites in Settings were each drawn as a separate small box: the popup's `ul.site-list li`
+  rule in `theme.css` outranked the page's own.
+
 ## 0.11.145
 
 ### Fixed
