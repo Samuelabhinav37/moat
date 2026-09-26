@@ -131,7 +131,8 @@ manifest and loading the cosmetic index lazily per site closes the gap.
 ### 4.6 Test coverage gaps (low)
 
 117 source modules, 111 test files; 37 modules have no test of their own. Largest: the background
-message router (`background/index.ts`, 600 lines) and the in-page scripts (page-world guard,
+message router (`background/index.ts`, 600 lines; since split into `messageRouter.ts` with its
+own tests) and the in-page scripts (page-world guard,
 bridge, cookie rejector, element picker, YouTube dimmer, feed scanner). The popup, options and
 welcome pages have render tests, and `npm run smoke` now covers the in-page scripts end to end.
 
@@ -144,9 +145,59 @@ welcome pages have render tests, and `npm run smoke` now covers the in-page scri
 - **Behind:** content-heavy pages (4.1), count accuracy under heavy browsing (4.2), startup time and
   idle memory vs uBO Lite (4.5), and the custom-list cap (4.3).
 
+## 6. After the fixes (0.11.145)
+
+Same harness, rerun on 0.11.145 against uBO Lite only (the other packages were unchanged). One run
+per site, so page timings move by a few hundred milliseconds between runs.
+
+| | Moat 0.11.140 | Moat 0.11.145 | uBO Lite (rerun) |
+|---|---|---|---|
+| d3ward hosts blocked | 130/131 | 130/131 | 92/131 |
+| Visible ad slots left (8 sites) | 4 | 4 | 12 |
+| Requests (8 sites) | 1,415 | 1,372 | 1,404 |
+| Page main-thread work (sum) | 35.6 s | 40.3 s | 39.9 s |
+| Cloudflare Turnstile | 3/3 | 3/3 | 3/3 |
+| Background worker memory | 9 MB | 9 MB | 1 MB |
+| Startup (worker ready) | 3.1 s | 3.6 s | 1.2 s |
+
+Main-thread work rose for both blockers, so that is the sites, not Moat. Median LCP in this run was
+1.9 s for Moat and 1.3 s for uBO Lite, set by weather.com and espn.com, where the audit run had
+them level. It needs repeated runs before it means anything.
+
+Stress tests on 0.11.145:
+
+| Test | 0.11.140 | 0.11.145 |
+|---|---|---|
+| Page adding 5,000 elements: main-thread / restyle | 1.19 s / 0.82 s | **0.38 s / 0.11 s** |
+| Popup and badge after 30 page loads (2 blocked) | 0 | **2** |
+| 2,000 "always block" domains | 1,000 rules, last domain open, 100 s | **4 rules, last domain blocked, 54 s** |
+| 25 tabs, 150 navigations, 100-tab churn, settings thrash | pass | pass |
+
+Repeat-visit ad flash (smoke test): 5–8 frames before, 1–2 after.
+
+Still open:
+- **Startup.** Enabling only the Balanced rulesets in the manifest (0.11.144) made the final
+  ruleset set ready sooner (3.96 s → 3.53 s in the smoke test), but the worker-ready time did not
+  move. The remaining gap is Chrome compiling the enabled rules, roughly 3× what uBO Lite enables.
+- **Cold-start flash** stays at about 8 frames: with an idle worker nothing can add the cached
+  selectors before the first paint. Fixing it needs a style the page itself carries, which makes
+  Moat easier for sites to detect.
+- **Idle memory** 9 MB vs 1 MB, unchanged.
+- **4.6** The message router now has its own module and tests (`messageRouter.test.ts`).
+
 ## Reproducing
 
-Scripts used for this audit live in the session scratchpad (`bench.mjs`, `stress.mjs`); the
-repeatable parts are in the repo as `npm run smoke`. Competitor packages come from
+The harness lives in `scripts/benchmark/` (see its README). It is not part of CI: it loads live
+sites and takes about 25 minutes.
+
+```
+node scripts/benchmark/fetch-competitors.mjs   # Web Store packages into .cache/benchmark/ext
+npm run build
+node scripts/benchmark/bench.mjs               # coverage, 8 sites, startup, memory
+node scripts/benchmark/stress.mjs              # Moat-only stress tests on local pages
+```
+
+Competitor packages come from
 `https://clients2.google.com/service/update2/crx?response=redirect&prodversion=154.0&acceptformat=crx3&x=id%3D<id>%26uc`
-(strip the CRX3 header, unzip, load unpacked).
+(strip the CRX3 header, unzip, load unpacked). The repeatable in-page checks run in CI as
+`npm run smoke`.
