@@ -34,6 +34,9 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      # web-ext lint only validates Firefox; this loads dist/chrome into Chrome
+      # for Testing and fails if Chrome rejects it (the 0.11.31-0.11.37 outage).
+      - run: npm run check:chrome-load
       - run: npm run lint:firefox
 
       - name: Package store zips

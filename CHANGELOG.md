@@ -5,6 +5,19 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## Unreleased
 
+### Added
+- **CI now checks that Chrome will actually load Moat.** `web-ext lint` only validates Firefox,
+  so Chrome-only rejections passed CI green. That's how Chrome refused the whole extension from
+  0.11.31 to 0.11.37. `npm run check:chrome-load` (`scripts/check-chrome-load.mjs`) loads
+  `dist/chrome` into Chrome for Testing and fails unless the service worker starts, the version
+  matches `package.json`, rulesets are enabled, and the popup, options and logger pages open with
+  no script error. It runs in CI, the release workflow and the store-publish workflow.
+  - Tested both ways. Re-adding the old `"additionalProperties": false` to `managed_schema.json`
+    fails it with Chrome's own "Invalid type for attribute 'additionalProperties'" error, and so
+    does a thrown error in `popup.js`. The unmodified build passes.
+  - New dev dependencies: `puppeteer-core` 25 and `@puppeteer/browsers` 3 (the 24/2 releases pull
+    in a vulnerable `extract-zip`). Chrome for Testing downloads into the gitignored `.cache/`.
+
 ### Changed
 - **Spanish, French and German caught up with the English copy.** Eight strings still carried
   wording the English had since dropped: "Protection activated" for the master switch, "domains"

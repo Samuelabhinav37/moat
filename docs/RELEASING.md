@@ -13,7 +13,8 @@
 
 5. Push a `vX.Y.Z` tag matching `package.json`'s version. `.github/workflows/release.yml` then, on
    a clean checkout: verifies the tag matches `package.json`, refreshes filters, runs rule
-   validation / type checking / unit tests / both browser builds / Firefox extension linting,
+   validation / type checking / unit tests / both browser builds / a real Chrome load check
+   (`npm run check:chrome-load`) / Firefox extension linting,
    runs `npm run zip`, computes `SHA256SUMS.txt`, and opens a **draft** GitHub Release with
    `chrome.zip`, `firefox.zip`, and `SHA256SUMS.txt` attached and the matching `CHANGELOG.md`
    section as the body. The tag/version guard fails the run if they disagree.
