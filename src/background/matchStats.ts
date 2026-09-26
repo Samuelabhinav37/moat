@@ -21,6 +21,7 @@ import { loadRulesetManifest } from "./rulesetManifestLoader";
 import { getManagedPolicy } from "./managedPolicy";
 import { isAthenaConfigured, queueSecurityEvent } from "./athenaIntegration";
 import { resolveSecurityRuleDomain } from "./securityRuleDomain";
+import { NOTHING_RECORDED, unrecorded, type Recorded } from "../shared/statsDelta";
 
 export type { Breakdown };
 
@@ -64,6 +65,9 @@ const groupsByTab = new Map<number, Record<string, number>>();
 // included (an ad-heavy site's late requests showed up on the example.com
 // that replaced it), so the refresh asks only for matches since this.
 const pageStartByTab = new Map<number, number>();
+// Security matches already sent to Athena for the tab's current page, so a
+// second refresh of the same page doesn't send them again.
+const securitySentByTab = new Map<number, Recorded>();
 
 export function getBreakdown(tabId: number): Breakdown {
   return breakdownByTab.get(tabId) ?? EMPTY;
@@ -94,7 +98,7 @@ export function isMatchedRulesSupported(): boolean {
 }
 
 function clearTab(tabId: number): void {
-  clearTabFromMaps(tabId, breakdownByTab, companiesByTab, groupsByTab, pageStartByTab);
+  clearTabFromMaps(tabId, breakdownByTab, companiesByTab, groupsByTab, pageStartByTab, securitySentByTab);
 }
 
 /** Called when a tab's top frame commits a new page. pageStart is the
@@ -140,7 +144,8 @@ export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
     // the common one. queueSecurityEvent itself still no-ops instantly if
     // Athena isn't configured; this guard just avoids the policy read at
     // all for the vast majority of page loads that hit neither.
-    const flagged = securityMatches(manifest, matches);
+    const allFlagged = securityMatches(manifest, matches);
+    const flagged = newSecurityMatches(tabId, allFlagged);
     if (flagged.length > 0) {
       const policy = await getManagedPolicy();
       // Domain resolution (a ruleset fetch-and-index) only runs when
@@ -167,4 +172,22 @@ export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
     // quota was hit -- keep whatever was there before.
     return getBreakdown(tabId);
   }
+}
+
+/** The flagged matches not already sent for this tab's current page. The
+ * same rule can match several requests, so this counts per rule. */
+function newSecurityMatches<T extends { rulesetId: string; ruleId?: number }>(tabId: number, flagged: T[]): T[] {
+  if (flagged.length === 0) return flagged;
+  const key = (m: T) => `${m.rulesetId}:${m.ruleId ?? ""}`;
+  const counts: Record<string, number> = {};
+  for (const m of flagged) counts[key(m)] = (counts[key(m)] ?? 0) + 1;
+  const fresh = unrecorded(securitySentByTab.get(tabId) ?? NOTHING_RECORDED, flagged.length, counts);
+  securitySentByTab.set(tabId, fresh.next);
+  const remaining = { ...fresh.counts };
+  return flagged.filter((m) => {
+    const k = key(m);
+    if (!remaining[k]) return false;
+    remaining[k] -= 1;
+    return true;
+  });
 }

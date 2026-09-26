@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.139
+
+### Fixed
+- **The popup and toolbar badge undercounted on ad-heavy pages.** They read Chrome's list of
+  matched rules once, when the page fired its load event, but most ads load after that. On
+  weather.com 7 requests had been blocked at the load event and 23 within twelve seconds; the
+  popup said 8.
+  - The active tab now gets a second read 8 seconds after load, and the popup reads again when it
+    opens. `getMatchedRules` allows 20 calls per 10 minutes (calls tied to a user gesture are
+    exempt), so the late read is for the active tab only; if a read fails, the last numbers stand.
+  - The weekly usage stats and Athena security events add up whatever they're given, so each read
+    now records only what's new since the last read of the same page (`src/shared/statsDelta.ts`).
+    That also fixes the weekly totals, which had the same undercount.
+  - Verified in Chrome for Testing: weather.com's badge goes from 8 to 20 without opening the
+    popup, and the popup shows 22 (3 ads, 18 trackers, 1 pop-up) against 23 blocked requests in
+    Chrome's own network log. forbes.com: 21 in the popup, 20 in the log.
+
 ## 0.11.138
 
 ### Added

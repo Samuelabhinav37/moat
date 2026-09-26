@@ -223,12 +223,26 @@ browser.webNavigation.onBeforeNavigate.addListener((details) => {
 });
 
 // Static ads/trackers/popups counts come from declarativeNetRequest's own
-// match feedback, which is only meaningful once the page has actually
-// finished loading and made its requests -- hence onCompleted, not
-// onCommitted (which only clears the stale numbers from the previous page).
+// match feedback, read once the page has finished loading (onCommitted only
+// clears the previous page's numbers). Ads keep loading after the load
+// event: on weather.com 7 requests were blocked by then and 27 within ten
+// seconds. So the active tab gets one more read a little later, and the
+// popup reads again when it opens. getMatchedRules allows 20 calls per 10
+// minutes, which is why the late read is for the active tab only.
+const LATE_REFRESH_MS = 8000;
 browser.webNavigation.onCompleted.addListener((details) => {
   if (details.frameId !== 0) return;
   void refreshStaticBreakdown(details.tabId, hostnameOf(details.url));
+  setTimeout(() => {
+    void browser.tabs
+      .get(details.tabId)
+      .then((tab) => {
+        if (tab.active && tab.url === details.url) return refreshStaticBreakdown(details.tabId, hostnameOf(details.url));
+      })
+      .catch(() => {
+        // Tab closed in the meantime.
+      });
+  }, LATE_REFRESH_MS);
   // Also covers navigating an already-active tab, which fires no onActivated.
   noteTabUrl(details.tabId, details.url);
 });
@@ -273,6 +287,10 @@ browser.runtime.onMessage.addListener((raw: unknown, sender: Runtime.MessageSend
         // so fall back to whichever tab the user is currently looking at.
         const tab = sender.tab ?? (await browser.tabs.query({ active: true, currentWindow: true }))[0];
         const hostname = hostnameOf(tab?.url);
+        // The popup is opening: read the latest matches so its numbers
+        // include everything blocked since the page loaded. If the read
+        // fails (quota, tab gone) the last numbers stand.
+        if (tab?.id !== undefined) await refreshStaticBreakdown(tab.id, hostname);
         const [settings, filterStatus] = await Promise.all([getEffectiveSettings(), getFilterGroupStatus()]);
         return {
           hostname,

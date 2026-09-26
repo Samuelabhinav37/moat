@@ -14,6 +14,7 @@ import {
   type Breakdown,
 } from "./matchStats";
 import { recordBlockedTotal, recordCompanyMatches } from "./usageStats";
+import { NOTHING_RECORDED, unrecorded, type Recorded } from "../shared/statsDelta";
 
 export type { Breakdown };
 
@@ -57,25 +58,35 @@ export async function recordDynamicCatch(tabId: number, hostname: string): Promi
   if (hostname) void recordBlockedTotal(hostname, 1);
 }
 
+// What each tab's current page has already added to the weekly usage stats.
+// The page is refreshed more than once (see refreshStaticBreakdown's
+// callers), and each refresh adds only what's new.
+const recordedByTab = new Map<number, Recorded>();
+
 export function resetForNavigation(tabId: number, pageStart?: number): void {
+  recordedByTab.delete(tabId);
   resetCount(tabId);
   resetBreakdown(tabId, pageStart);
   void paint(tabId);
 }
 
-/** Same hostname-attribution posture as recordDynamicCatch above -- the
- * navigating tab's own hostname, from background/index.ts's
- * webNavigation.onCompleted details.url. */
+/** Re-reads the tab's matched rules, repaints the badge, and adds anything
+ * new to the weekly stats under the tab's own hostname. Called when the page
+ * finishes loading, again a few seconds later (ads often load after the
+ * load event), and when the popup opens. */
 export async function refreshStaticBreakdown(tabId: number, hostname: string): Promise<void> {
   const breakdown = await refreshBreakdown(tabId);
   await paint(tabId);
   if (!hostname) return;
   const total = breakdown.ads + breakdown.trackers + breakdown.popups;
-  if (total > 0) void recordBlockedTotal(hostname, total);
-  void recordCompanyMatches(hostname, getCompanyBreakdown(tabId));
+  const fresh = unrecorded(recordedByTab.get(tabId) ?? NOTHING_RECORDED, total, getCompanyBreakdown(tabId));
+  recordedByTab.set(tabId, fresh.next);
+  if (fresh.total > 0) void recordBlockedTotal(hostname, fresh.total);
+  if (Object.keys(fresh.counts).length > 0) void recordCompanyMatches(hostname, fresh.counts);
 }
 
 export function forgetTab(tabId: number): void {
+  recordedByTab.delete(tabId);
   forgetDynamicTab(tabId);
   forgetBreakdownTab(tabId);
 }
