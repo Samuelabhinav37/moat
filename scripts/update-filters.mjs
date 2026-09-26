@@ -11,6 +11,8 @@ import { pruneRedundantRules } from "./lib/pruneRedundantRules.mjs";
 import { consolidateSiblingRules } from "./lib/consolidateSiblingRules.mjs";
 import { buildServerSideAnalyticsRules } from "./lib/serverSideAnalyticsRules.mjs";
 import { buildCircumventionServiceRules } from "./lib/circumventionServiceRules.mjs";
+import { buildRetryLoopStubRules, retryLoopStubResources } from "./lib/retryLoopStubRules.mjs";
+import { dropSiteBreakingHeaderRules } from "./lib/siteBreakingHeaderRules.mjs";
 import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
 import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
 import { buildOisdRules } from "./lib/oisdRules.mjs";
@@ -116,7 +118,10 @@ for (const ruleset of RULESETS) {
     `ruleset_${ruleset.id}`,
     `ruleset_${ruleset.id}.json`
   );
-  const rawRules = JSON.parse(readFileSync(srcPath, "utf8"));
+  // Header rules that break bot checks and Google sign-in (see
+  // scripts/lib/siteBreakingHeaderRules.mjs) come out before anything else.
+  const { kept: rawRules, changed: breakingHeaderRules } = dropSiteBreakingHeaderRules(JSON.parse(readFileSync(srcPath, "utf8")));
+  if (breakingHeaderRules > 0) console.log(`  ${ruleset.slug}: removed ${breakingHeaderRules} site-breaking Permissions-Policy rule(s)`);
 
   const cleaned = [];
   for (const rule of rawRules) {
@@ -469,6 +474,23 @@ manifestEntries.push({
   enabled: true,
   file: "ruleset_trackers-extra.json",
   ruleCount: ownTrackerExtraRules.length,
+});
+
+// Our own rules, in the "ads" group so they follow the Ads toggle: stand-in
+// replies for requests a page retries in a tight loop when blocked outright
+// (scripts/lib/retryLoopStubRules.mjs lists each one and where it was
+// measured).
+const ownRetryLoopStubRules = buildRetryLoopStubRules();
+for (const resource of retryLoopStubResources()) neededRedirectResources.add(resource);
+writeFileSync(join(outDir, "ruleset_ads-extra.json"), JSON.stringify(ownRetryLoopStubRules));
+manifestEntries.push({
+  id: "ruleset_ads-extra",
+  group: "ads",
+  category: "ads",
+  name: "Moat: Ads filter (retry-loop fixes)",
+  enabled: true,
+  file: "ruleset_ads-extra.json",
+  ruleCount: ownRetryLoopStubRules.length,
 });
 
 // Third-party, not sourced from AdGuard: jarelllama/Scam-Blocklist (GPL-3.0

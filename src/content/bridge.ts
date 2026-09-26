@@ -14,6 +14,7 @@ import {
 import { getEffectiveSettings } from "../background/settings";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
 import { effectiveValue } from "../shared/perSiteOverrides";
+import { randomToken } from "../shared/randomToken";
 
 // Routed through the background worker rather than calling
 // getOrCreateFingerprintSeed/getOrCreateSessionFingerprintSeed directly the
@@ -33,7 +34,10 @@ async function fetchFingerprintSeed(session: boolean): Promise<string> {
 // One token per page load, sent with every config message so the MAIN-world
 // guards can tell a real update from a later message spoofed by the page
 // itself (same-window postMessage has no other origin check available).
-const guardToken = crypto.randomUUID();
+// Not crypto.randomUUID(): it's missing on plain-http pages, and throwing
+// here killed this whole script there (guards never configured, blocks
+// never reported).
+const guardToken = randomToken();
 
 // Claim the guards' trust-on-first-use slot *synchronously*, before any page
 // script runs. This content script executes ahead of the page's first

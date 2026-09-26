@@ -25,4 +25,7 @@ jobs:
       # web-ext lint only validates Firefox; this loads dist/chrome into Chrome
       # for Testing and fails if Chrome rejects it (the 0.11.31-0.11.37 outage).
       - run: npm run check:chrome-load
+      # Live checks against local test pages: element hiding, ad-box collapse,
+      # pause, "Never block", the cookie rejector switch, a worker cold start.
+      - run: npm run smoke
       - run: npm run lint:firefox

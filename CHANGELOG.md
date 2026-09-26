@@ -3,6 +3,49 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.140
+
+### Fixed
+- **On plain-http pages, Moat's page bridge crashed before doing anything.** `bridge.ts` built its
+  guard token with `crypto.randomUUID()`, which only exists on secure (https) pages. On http
+  sites the pop-up firewall never reported what it caught, pausing never switched the in-page
+  guards off, and the fingerprint guard never got its settings. It now uses `getRandomValues()`
+  (`src/shared/randomToken.ts`), which works everywhere. Found by the new smoke test.
+- **Moat switched off bot-check tokens and Google sign-in on every site.** Three header rules in
+  AdGuard's lists append `Permissions-Policy: private-state-token-redemption=()`,
+  `private-state-token-issuance=()` and `identity-credentials-get=()` to every page. Permissions
+  policy is inherited by frames, so Private State Tokens (anti-fraud tokens that let a browser
+  already proven human skip repeat bot checks) were also off inside Cloudflare's challenge frame,
+  and FedCM ("Sign in with Google" prompts, used by LinkedIn and Glassdoor) was off on the page.
+  `scripts/lib/siteBreakingHeaderRules.mjs` now removes just those three when the lists are
+  built. The ad-tech ones (ad auctions, interest groups, Topics) stay. Measured in Cloudflare's
+  real Turnstile frame: `allowsFeature("private-state-token-redemption")` was false with Moat, true
+  now. Reported as Cloudflare checks getting stuck on Glassdoor; the live challenge was too
+  unpredictable to prove this was the whole cause, since Cloudflare also challenged the test
+  browser without Moat after repeat visits.
+- **cnn.com's video player hammered a blocked request about 280 times a second.** With
+  `cdn-media.brightline.tv/config/` blocked, the player re-requested it 5,673 times in 20 seconds.
+  A new first-party ruleset in the Ads group (`ruleset_ads-extra`, from
+  `scripts/lib/retryLoopStubRules.mjs`) answers it with an empty JSON stand-in instead, so the
+  player gets a valid reply and stops. Verified on cnn.com: 5,684 blocked requests in 20 seconds
+  before, 12 after. (CNN's ad-stitched live stream, `media.max.com/*/main.mpd`, stays blocked; that
+  is AdGuard's deliberate rule.)
+
+### Added
+- **`npm run smoke`: live checks in a real Chrome, now part of CI.** Local test pages served under
+  real hostnames (Chrome's `--host-resolver-rules`), so Moat's real rules apply while the pages stay
+  fixed: generic element hiding, blocked ad requests, empty ad-box collapse, the first painted
+  frames, an advanced `:has-text` rule on athlonoutdoors.com, the popup count and width (including
+  a long hostname), pausing and unpausing, "Never block", the cookie rejector's script following
+  its switch, the retry-loop stand-in, no script errors on http pages, and a service-worker cold
+  start, plus a check that bot-check tokens and Google sign-in stay allowed in the page and its
+  frames. 29 checks.
+  - Known and reported every run as a note, not a failure: generic hiding arrives after the page
+    is parsed (the content script asks the worker which token-matched rules apply), so a fast page
+    can paint a reserved ad slot first. Measured: 6 to 8 of the first 30 frames on a repeat visit
+    to a cached page, 8 to 10 on the first page after Chrome restarts an idle worker (roughly 100
+    to 170 ms). Site-specific rules are injected at commit time and aren't affected.
+
 ## Unreleased
 
 ### Changed
