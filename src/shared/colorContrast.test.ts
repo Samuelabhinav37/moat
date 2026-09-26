@@ -2,6 +2,13 @@ import { describe, expect, it } from "vitest";
 import { contrastRatio, INVISIBLE_TEXT_CONTRAST_FLOOR, isTransparent, parseColor, relativeLuminance } from "./colorContrast";
 
 describe("parseColor", () => {
+  it("reads hex, the form a theme token resolves to", () => {
+    expect(parseColor("#6f9be0")).toEqual({ r: 111, g: 155, b: 224, a: 1 });
+    expect(parseColor("#fff")).toEqual({ r: 255, g: 255, b: 255, a: 1 });
+    expect(parseColor("#00000080")?.a).toBeCloseTo(0.5, 2);
+    expect(parseColor("#12")).toBeNull();
+  });
+
   it("parses rgb()", () => {
     expect(parseColor("rgb(255, 255, 255)")).toEqual({ r: 255, g: 255, b: 255, a: 1 });
   });

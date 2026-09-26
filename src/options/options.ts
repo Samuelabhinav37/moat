@@ -11,7 +11,6 @@ import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rules
 import { getUsageSummary } from "../background/usageStats";
 import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
-import { dismissWelcome, shouldShowWelcome } from "../background/updateNotice";
 import { customRuleStatKey, isStale } from "../shared/customRuleStats";
 import { validateImportedSettings } from "../background/settingsPortability";
 import { summarizeSettingsImport } from "../shared/settingsDiff";
@@ -1613,25 +1612,4 @@ importSettingsCancelButton.addEventListener("click", () => {
   resetImportConfirm();
 });
 
-// ---------- Welcome panel (first run only) ----------
-
-const shellEl = document.getElementById("shell") as HTMLElement;
-const welcomePanel = document.getElementById("welcome-panel") as HTMLElement;
-
-void shouldShowWelcome().then((show) => {
-  if (!show) return;
-  shellEl.hidden = true;
-  welcomePanel.hidden = false;
-});
-
-document.getElementById("welcome-continue")!.addEventListener("click", async () => {
-  await dismissWelcome();
-  welcomePanel.hidden = true;
-  shellEl.hidden = false;
-});
-
-// render() runs unconditionally, whether or not the welcome panel is
-// currently showing over #shell -- cheap, and it means Settings is already
-// populated the instant "Continue" is clicked instead of needing its own
-// loading state.
 void render();

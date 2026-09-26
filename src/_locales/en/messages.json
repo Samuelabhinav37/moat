@@ -803,54 +803,6 @@
   "tabBackup": {
     "message": "Backup and sync"
   },
-  "welcomeTitle": {
-    "message": "Welcome to Moat"
-  },
-  "welcomeAlreadyOnHeading": {
-    "message": "Already protecting you"
-  },
-  "welcomeFilterListsTitle": {
-    "message": "Ads, trackers and known-malicious sites blocked"
-  },
-  "welcomeFilterListsEvidence": {
-    "message": "Balanced filter lists, on by default"
-  },
-  "welcomeGrayscaleTitle": {
-    "message": "YouTube video ads dimmed automatically"
-  },
-  "welcomeGrayscaleEvidence": {
-    "message": "In-stream ads are grayed out while they play"
-  },
-  "welcomePopupFirewallTitle": {
-    "message": "Popup and redirect firewall"
-  },
-  "welcomePopupFirewallEvidence": {
-    "message": "Always on. Hijacked tabs are closed automatically."
-  },
-  "welcomeWorthTurningOnHeading": {
-    "message": "Worth turning on"
-  },
-  "welcomeFingerprintTitle": {
-    "message": "Block device fingerprinting"
-  },
-  "welcomeFingerprintEvidence": {
-    "message": "Off by default since it can occasionally affect a CAPTCHA"
-  },
-  "welcomeLeakedPasswordTitle": {
-    "message": "Warn about leaked passwords"
-  },
-  "welcomeLeakedPasswordEvidence": {
-    "message": "Off by default. Only a scrambled fragment of a password ever leaves your device."
-  },
-  "welcomeMoreInSettings": {
-    "message": "Both are one click away in Settings."
-  },
-  "welcomeShortcutHint": {
-    "message": "toggles protection on and off, anytime."
-  },
-  "welcomeContinueButton": {
-    "message": "Continue to Settings"
-  },
   "optionsMigrationImportSummary": {
     "message": "Import from another blocker…"
   },
@@ -1214,5 +1166,264 @@
   },
   "footerFreeOpenSource": {
     "message": "Free and open source."
+  },
+  "tourPageTitle": {
+    "message": "Welcome to Moat"
+  },
+  "tourBack": {
+    "message": "Back"
+  },
+  "tourSeeTitle": {
+    "message": "Moat is already on."
+  },
+  "tourHowTitle": {
+    "message": "How Moat works"
+  },
+  "tourHowLede": {
+    "message": "Moat stops ads and trackers before they download, not after they appear."
+  },
+  "tourHow1Title": {
+    "message": "The page asks for things"
+  },
+  "tourHow1Sub": {
+    "message": "Images, scripts, ads and trackers, often hundreds per page."
+  },
+  "tourHow2Title": {
+    "message": "Moat checks each one on your device"
+  },
+  "tourHow2Sub": {
+    "message": "Against about 310,000 rules from public filter lists like AdGuard's. Nothing is sent anywhere to decide."
+  },
+  "tourHow3Title": {
+    "message": "Matches never load"
+  },
+  "tourHow3Sub": {
+    "message": "And neither does anything they would have loaded next."
+  },
+  "tourHow4Title": {
+    "message": "Leftovers get tidied"
+  },
+  "tourHow4Sub": {
+    "message": "Empty ad boxes fold away. Cookie banners get a “reject” where the site allows it."
+  },
+  "tourPinTitle": {
+    "message": "Pin Moat next to the address bar."
+  },
+  "tourPinLede": {
+    "message": "Then its icon shows how much each page tried to load, and you can pause it on a site in one click."
+  },
+  "tourPinStep1": {
+    "message": "Click the puzzle piece in your toolbar."
+  },
+  "tourPinWatching": {
+    "message": "This tab updates as soon as you pin it."
+  },
+  "tourPinBenefit1": {
+    "message": "See each page's count at a glance"
+  },
+  "tourPinBenefit2": {
+    "message": "Pause Moat if a site breaks"
+  },
+  "tourPinBenefit3": {
+    "message": "Hide anything the lists miss"
+  },
+  "tourPopupTitle": {
+    "message": "Everything is one click away."
+  },
+  "tourPopupLede": {
+    "message": "Click Moat's icon on any page. This is what it showed on weather.com."
+  },
+  "tourLegend1Title": {
+    "message": "What this page tried to load"
+  },
+  "tourLegend1Sub": {
+    "message": "Split into ads, trackers and pop-ups."
+  },
+  "tourLegend2Title": {
+    "message": "Site broken? Switch Moat off here"
+  },
+  "tourLegend2Sub": {
+    "message": "Only for this site. Everywhere else stays protected."
+  },
+  "tourLegend3Title": {
+    "message": "Hide anything the lists miss"
+  },
+  "tourLegend3Sub": {
+    "message": "Point at it, click, and it stays gone."
+  },
+  "tourContinue": {
+    "message": "Continue"
+  },
+  "tourSkip": {
+    "message": "Skip tour"
+  },
+  "tourExampleSite": {
+    "message": "Example site"
+  },
+  "tourShowPage": {
+    "message": "Show the page"
+  },
+  "tourWithout": {
+    "message": "Without Moat"
+  },
+  "tourWith": {
+    "message": "With Moat"
+  },
+  "tourAdTag": {
+    "message": "AD"
+  },
+  "tourFlowHint": {
+    "message": "What happened on weather.com, request by request"
+  },
+  "tourReplay": {
+    "message": "Replay"
+  },
+  "tourFlowAsks": {
+    "message": "weather.com asks for"
+  },
+  "tourFlowMoat": {
+    "message": "Moat, on your device"
+  },
+  "tourFlowResult": {
+    "message": "Result"
+  },
+  "tourPinTryHint": {
+    "message": "Try it here first. The real buttons are in your toolbar."
+  },
+  "tourMenuExtensions": {
+    "message": "Extensions"
+  },
+  "tourMenuAccess": {
+    "message": "Full access. These extensions can see and change information on this site."
+  },
+  "tourMenuPinMoat": {
+    "message": "Pin Moat"
+  },
+  "tourMenuManage": {
+    "message": "Manage extensions"
+  },
+  "tourMenuMoatOptions": {
+    "message": "Moat options"
+  },
+  "tourMenuPinToolbar": {
+    "message": "Pin to Toolbar"
+  },
+  "tourMenuManageOne": {
+    "message": "Manage Extension"
+  },
+  "tourMenuRemove": {
+    "message": "Remove Extension"
+  },
+  "tourPopupHint": {
+    "message": "Moat's popup on weather.com, with the numbers from that visit"
+  },
+  "tourWeatherBeforeAlt": {
+    "message": "weather.com without Moat: a large product ad fills the top of the page"
+  },
+  "tourWeatherAfterAlt": {
+    "message": "weather.com with Moat: the ad is gone and the story moves up"
+  },
+  "tourWeatherFact1": {
+    "message": "The ad at the top is gone"
+  },
+  "tourForbesBeforeAlt": {
+    "message": "forbes.com without Moat: a banner ad sits under the menu"
+  },
+  "tourForbesAfterAlt": {
+    "message": "forbes.com with Moat: the banner is gone"
+  },
+  "tourForbesFact1": {
+    "message": "The banner under the menu is gone"
+  },
+  "tourReqPage": {
+    "message": "The page itself"
+  },
+  "tourReqMaps": {
+    "message": "Weather maps and photos"
+  },
+  "tourReqAdServer": {
+    "message": "Google ad server"
+  },
+  "tourReqAuction": {
+    "message": "Ad auction"
+  },
+  "tourReqAnalytics": {
+    "message": "Behavior analytics"
+  },
+  "tourReqFirstParty": {
+    "message": "Tracker on weather.com's own domain"
+  },
+  "tourReqMonitoring": {
+    "message": "Session monitoring"
+  },
+  "tourReqAudience": {
+    "message": "Audience data for advertisers"
+  },
+  "tourStepLabel": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "tourFinish": {
+    "message": "Start browsing"
+  },
+  "tourContinueUnpinned": {
+    "message": "Continue without pinning"
+  },
+  "tourOpenSettings": {
+    "message": "Open Settings"
+  },
+  "tourSeeLede": {
+    "message": "This is $SITE$, loaded twice in Chrome: once on its own and once with Moat. Flip the switch to compare.",
+    "placeholders": {
+      "site": {
+        "content": "$1"
+      }
+    }
+  },
+  "tourLoaded": {
+    "message": "Loaded"
+  },
+  "tourStopped": {
+    "message": "Stopped"
+  },
+  "tourPinStep2Firefox": {
+    "message": "Click the gear next to Moat, then Pin to Toolbar."
+  },
+  "tourPinStep2Chrome": {
+    "message": "Click the pin next to Moat."
+  },
+  "tourPinDone": {
+    "message": "Pinned. Moat is next to your address bar."
+  },
+  "tourPinAlready": {
+    "message": "Already pinned. You're all set."
+  },
+  "tourPinNotYet": {
+    "message": "Moat isn't pinned yet"
+  },
+  "tourWeatherFact1Sub": {
+    "message": "The story moves up into its place."
+  },
+  "tourForbesFact1Sub": {
+    "message": "The headlines move up."
+  },
+  "tourSeeFact2": {
+    "message": "Stopped before it downloaded"
+  },
+  "tourSeeFact2Sub": {
+    "message": "The ad and the trackers behind it never loaded, so the page had less to fetch."
+  },
+  "tourSeeFact3": {
+    "message": "Nothing to set up"
+  },
+  "tourSeeFact3Sub": {
+    "message": "This happens on every site, on your device, from the moment Moat is installed."
   }
 }

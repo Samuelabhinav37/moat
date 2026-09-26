@@ -35,6 +35,7 @@ import {
 import { OVERRIDABLE_KEYS } from "../shared/perSiteOverrides";
 import { exportSettings, isBoundedStringArray, isSelectorMap, validateImportedSettings } from "./settingsPortability";
 import { dismissOnboarding, dismissUpdateNotice, getPopupUiNotices, recordUpdateSeen } from "./updateNotice";
+import { maybeOpenFirstRunTour } from "./firstRunTour";
 import { initPopupGuard } from "./popupGuard";
 import { fetchAndApply, initLiveUpdates } from "./liveUpdates";
 import { getManagedPolicy } from "./managedPolicy";
@@ -128,6 +129,7 @@ void initializeSettings();
 browser.runtime.onInstalled.addListener((details) => {
   void recordUpdateSeen();
   void initializeSettings(details.reason);
+  void maybeOpenFirstRunTour(details.reason);
 });
 
 // An admin can push/change managed policy at any point during a session

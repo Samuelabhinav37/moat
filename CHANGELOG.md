@@ -3,6 +3,36 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.138
+
+### Added
+- **A first-run tour.** A tab opens once, right after a fresh install, with four short steps:
+  1. **Moat is already on.** Real before/after screenshots of weather.com and forbes.com, loaded
+     in Chrome with and without Moat. A switch flips between the two.
+  2. **How Moat works.** weather.com's real requests, one by one: the page and its maps load;
+     doubleclick, rubiconproject, amplitude, newrelic and three others are stopped.
+  3. **Pin it.** Steps for Chrome or Firefox (detected), a practice toolbar to click, and a status
+     box that reads the browser's real pin state (`action.getUserSettings`, live on Chrome 130+
+     through `onUserSettingsChanged`). It says "Already pinned" when the browser pinned Moat on its
+     own, which Chrome for Testing 154 already does. Where the browser can't say, the box is hidden.
+  4. **Meet the popup.** weather.com's real counts: 27 blocked, 4 ads, 22 trackers, 1 pop-up.
+  - Protection never waits on the tour. Closing it early changes nothing.
+  - It doesn't open on updates, or when an organization installed Moat through policy
+    (`installType` "admin"). Those users still get the popup's one-line first-run card.
+  - All text is in English, Spanish, French and German.
+  - Verified in Chrome for Testing: the tab opens on install, every step renders at 1280×800 and at
+    phone width, the pin status reads the real browser state, and "Start browsing" closes it.
+  - Research and measurements: `docs/research/first-run-tour-2026-09.md`.
+
+### Removed
+- **The Welcome panel in Settings.** The tour replaces it. Settings now opens straight to settings.
+
+### Fixed
+- **The render tests' invisible-text check skipped every theme color.** Colors set through CSS
+  variables resolve to hex (`#6f9be0`), and the checker only read `rgb()`, so it treated them as
+  "no background". It reads hex now, and caught a grey-on-blue number in the new tour's popup
+  illustration straight away.
+
 ## 0.11.137
 
 ### Added

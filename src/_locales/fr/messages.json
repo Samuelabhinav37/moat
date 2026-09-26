@@ -801,54 +801,6 @@
   "tabBackup": {
     "message": "Sauvegarde et synchronisation"
   },
-  "welcomeTitle": {
-    "message": "Bienvenue sur Moat"
-  },
-  "welcomeAlreadyOnHeading": {
-    "message": "Vous protège déjà"
-  },
-  "welcomeFilterListsTitle": {
-    "message": "Publicités, trackers et sites malveillants connus bloqués"
-  },
-  "welcomeFilterListsEvidence": {
-    "message": "Listes de filtres Équilibré, activées par défaut"
-  },
-  "welcomeGrayscaleTitle": {
-    "message": "Les publicités vidéo YouTube sont automatiquement assombries"
-  },
-  "welcomeGrayscaleEvidence": {
-    "message": "Les publicités intégrées sont grisées pendant leur lecture"
-  },
-  "welcomePopupFirewallTitle": {
-    "message": "Pare-feu contre les popups et redirections"
-  },
-  "welcomePopupFirewallEvidence": {
-    "message": "Toujours actif. Les onglets détournés sont fermés automatiquement."
-  },
-  "welcomeWorthTurningOnHeading": {
-    "message": "À activer"
-  },
-  "welcomeFingerprintTitle": {
-    "message": "Bloquer l'empreinte de l'appareil"
-  },
-  "welcomeFingerprintEvidence": {
-    "message": "Désactivé par défaut car cela peut parfois affecter un CAPTCHA"
-  },
-  "welcomeLeakedPasswordTitle": {
-    "message": "Signaler les mots de passe divulgués"
-  },
-  "welcomeLeakedPasswordEvidence": {
-    "message": "Désactivé par défaut. Seul un fragment chiffré d'un mot de passe quitte jamais votre appareil."
-  },
-  "welcomeMoreInSettings": {
-    "message": "Les deux sont à un clic dans les paramètres."
-  },
-  "welcomeShortcutHint": {
-    "message": "active et désactive la protection à tout moment."
-  },
-  "welcomeContinueButton": {
-    "message": "Continuer vers les paramètres"
-  },
   "optionsMigrationImportSummary": {
     "message": "Importer depuis un autre bloqueur…"
   },
@@ -1212,5 +1164,264 @@
   },
   "footerFreeOpenSource": {
     "message": "Gratuit et open source."
+  },
+  "tourPageTitle": {
+    "message": "Bienvenue dans Moat"
+  },
+  "tourBack": {
+    "message": "Retour"
+  },
+  "tourSeeTitle": {
+    "message": "Moat est déjà activé."
+  },
+  "tourHowTitle": {
+    "message": "Comment fonctionne Moat"
+  },
+  "tourHowLede": {
+    "message": "Moat arrête les publicités et les traqueurs avant leur téléchargement, pas après leur apparition."
+  },
+  "tourHow1Title": {
+    "message": "La page demande des éléments"
+  },
+  "tourHow1Sub": {
+    "message": "Images, scripts, publicités et traqueurs, souvent des centaines par page."
+  },
+  "tourHow2Title": {
+    "message": "Moat vérifie chacun sur votre appareil"
+  },
+  "tourHow2Sub": {
+    "message": "Avec environ 310 000 règles issues de listes de filtres publiques comme celles d’AdGuard. Rien n’est envoyé nulle part pour décider."
+  },
+  "tourHow3Title": {
+    "message": "Ce qui correspond ne se charge jamais"
+  },
+  "tourHow3Sub": {
+    "message": "Ni tout ce que cela aurait chargé ensuite."
+  },
+  "tourHow4Title": {
+    "message": "Les restes sont nettoyés"
+  },
+  "tourHow4Sub": {
+    "message": "Les emplacements publicitaires vides se referment. Les bannières de cookies reçoivent un « refuser » quand le site le permet."
+  },
+  "tourPinTitle": {
+    "message": "Épinglez Moat à côté de la barre d’adresse."
+  },
+  "tourPinLede": {
+    "message": "Son icône montre alors ce que chaque page a tenté de charger, et vous pouvez le mettre en pause sur un site en un clic."
+  },
+  "tourPinStep1": {
+    "message": "Cliquez sur la pièce de puzzle dans votre barre d’outils."
+  },
+  "tourPinWatching": {
+    "message": "Cet onglet se met à jour dès que vous l’épinglez."
+  },
+  "tourPinBenefit1": {
+    "message": "Voir le compteur de chaque page d’un coup d’œil"
+  },
+  "tourPinBenefit2": {
+    "message": "Mettre Moat en pause si un site ne marche plus"
+  },
+  "tourPinBenefit3": {
+    "message": "Masquer ce que les listes ratent"
+  },
+  "tourPopupTitle": {
+    "message": "Tout est à un clic."
+  },
+  "tourPopupLede": {
+    "message": "Cliquez sur l’icône de Moat sur n’importe quelle page. Voici ce qu’elle affichait sur weather.com."
+  },
+  "tourLegend1Title": {
+    "message": "Ce que cette page a tenté de charger"
+  },
+  "tourLegend1Sub": {
+    "message": "Répartis entre publicités, traqueurs et pop-ups."
+  },
+  "tourLegend2Title": {
+    "message": "Un site ne marche plus ? Désactivez Moat ici"
+  },
+  "tourLegend2Sub": {
+    "message": "Seulement pour ce site. Tout le reste reste protégé."
+  },
+  "tourLegend3Title": {
+    "message": "Masquez ce que les listes ratent"
+  },
+  "tourLegend3Sub": {
+    "message": "Pointez, cliquez, et il ne revient plus."
+  },
+  "tourContinue": {
+    "message": "Continuer"
+  },
+  "tourSkip": {
+    "message": "Passer la visite"
+  },
+  "tourExampleSite": {
+    "message": "Site d’exemple"
+  },
+  "tourShowPage": {
+    "message": "Afficher la page"
+  },
+  "tourWithout": {
+    "message": "Sans Moat"
+  },
+  "tourWith": {
+    "message": "Avec Moat"
+  },
+  "tourAdTag": {
+    "message": "PUB"
+  },
+  "tourFlowHint": {
+    "message": "Ce qui s’est passé sur weather.com, requête par requête"
+  },
+  "tourReplay": {
+    "message": "Rejouer"
+  },
+  "tourFlowAsks": {
+    "message": "weather.com demande"
+  },
+  "tourFlowMoat": {
+    "message": "Moat, sur votre appareil"
+  },
+  "tourFlowResult": {
+    "message": "Résultat"
+  },
+  "tourPinTryHint": {
+    "message": "Essayez d’abord ici. Les vrais boutons sont dans votre barre d’outils."
+  },
+  "tourMenuExtensions": {
+    "message": "Extensions"
+  },
+  "tourMenuAccess": {
+    "message": "Accès complet. Ces extensions peuvent voir et modifier les informations de ce site."
+  },
+  "tourMenuPinMoat": {
+    "message": "Épingler Moat"
+  },
+  "tourMenuManage": {
+    "message": "Gérer les extensions"
+  },
+  "tourMenuMoatOptions": {
+    "message": "Options de Moat"
+  },
+  "tourMenuPinToolbar": {
+    "message": "Épingler à la barre d’outils"
+  },
+  "tourMenuManageOne": {
+    "message": "Gérer l’extension"
+  },
+  "tourMenuRemove": {
+    "message": "Supprimer l’extension"
+  },
+  "tourPopupHint": {
+    "message": "La fenêtre de Moat sur weather.com, avec les chiffres de cette visite"
+  },
+  "tourWeatherBeforeAlt": {
+    "message": "weather.com sans Moat : une grande publicité pour un produit occupe le haut de la page"
+  },
+  "tourWeatherAfterAlt": {
+    "message": "weather.com avec Moat : la publicité a disparu et l’article remonte"
+  },
+  "tourWeatherFact1": {
+    "message": "La publicité du haut a disparu"
+  },
+  "tourForbesBeforeAlt": {
+    "message": "forbes.com sans Moat : une bannière publicitaire sous le menu"
+  },
+  "tourForbesAfterAlt": {
+    "message": "forbes.com avec Moat : la bannière a disparu"
+  },
+  "tourForbesFact1": {
+    "message": "La bannière sous le menu a disparu"
+  },
+  "tourReqPage": {
+    "message": "La page elle-même"
+  },
+  "tourReqMaps": {
+    "message": "Cartes et photos météo"
+  },
+  "tourReqAdServer": {
+    "message": "Serveur publicitaire de Google"
+  },
+  "tourReqAuction": {
+    "message": "Enchère publicitaire"
+  },
+  "tourReqAnalytics": {
+    "message": "Analyse du comportement"
+  },
+  "tourReqFirstParty": {
+    "message": "Traqueur sur le propre domaine de weather.com"
+  },
+  "tourReqMonitoring": {
+    "message": "Enregistrement de session"
+  },
+  "tourReqAudience": {
+    "message": "Données d’audience pour annonceurs"
+  },
+  "tourStepLabel": {
+    "message": "Étape $CURRENT$ sur $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "tourFinish": {
+    "message": "Commencer à naviguer"
+  },
+  "tourContinueUnpinned": {
+    "message": "Continuer sans épingler"
+  },
+  "tourOpenSettings": {
+    "message": "Ouvrir les paramètres"
+  },
+  "tourSeeLede": {
+    "message": "Voici $SITE$, chargé deux fois dans Chrome : une fois seul et une fois avec Moat. Basculez pour comparer.",
+    "placeholders": {
+      "site": {
+        "content": "$1"
+      }
+    }
+  },
+  "tourLoaded": {
+    "message": "Chargé"
+  },
+  "tourStopped": {
+    "message": "Arrêté"
+  },
+  "tourPinStep2Firefox": {
+    "message": "Cliquez sur l’engrenage à côté de Moat, puis sur Épingler à la barre d’outils."
+  },
+  "tourPinStep2Chrome": {
+    "message": "Cliquez sur l’épingle à côté de Moat."
+  },
+  "tourPinDone": {
+    "message": "Épinglé. Moat est à côté de votre barre d’adresse."
+  },
+  "tourPinAlready": {
+    "message": "Déjà épinglé. Tout est prêt."
+  },
+  "tourPinNotYet": {
+    "message": "Moat n’est pas encore épinglé"
+  },
+  "tourWeatherFact1Sub": {
+    "message": "L’article remonte à sa place."
+  },
+  "tourForbesFact1Sub": {
+    "message": "Les titres remontent."
+  },
+  "tourSeeFact2": {
+    "message": "Arrêté avant le téléchargement"
+  },
+  "tourSeeFact2Sub": {
+    "message": "La publicité et les traqueurs qui l’accompagnent ne se sont jamais chargés, la page avait donc moins à récupérer."
+  },
+  "tourSeeFact3": {
+    "message": "Rien à configurer"
+  },
+  "tourSeeFact3Sub": {
+    "message": "Cela se passe sur tous les sites, sur votre appareil, dès l’installation de Moat."
   }
 }

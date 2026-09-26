@@ -9,7 +9,7 @@
 // downloaded once into .cache/chrome-for-testing (or CHROME_PATH if set).
 // Checks: the service worker starts, its manifest version matches
 // package.json, static rulesets got enabled, and the popup, options and
-// logger pages open without a script error.
+// logger and welcome pages open without a script error.
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -20,7 +20,7 @@ import puppeteer from "puppeteer-core";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const extensionDir = join(root, "dist", "chrome");
 const cacheDir = join(root, ".cache", "chrome-for-testing");
-const PAGES = ["popup.html", "options.html", "logger.html"];
+const PAGES = ["popup.html", "options.html", "logger.html", "welcome.html"];
 
 if (!existsSync(join(extensionDir, "manifest.json"))) {
   console.error('dist/chrome is missing. Run "npm run build" first.');

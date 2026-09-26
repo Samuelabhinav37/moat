@@ -10,10 +10,24 @@
  * in particular, an *unresolved* "var(--x)" string (see resolveVarColor
  * below for why that shows up at all) or "transparent"/"rgba(0, 0, 0, 0)". */
 export function parseColor(value: string): { r: number; g: number; b: number; a: number } | null {
+  const hex = parseHexColor(value.trim());
+  if (hex) return hex;
   const match = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/.exec(value.trim());
   if (!match) return null;
   const [, r, g, b, a] = match;
   return { r: Number(r), g: Number(g), b: Number(b), a: a === undefined ? 1 : Number(a) };
+}
+
+// A theme token resolved through a custom property comes back as written
+// in the stylesheet (#6f9be0), not as rgb(). Without this every hex token
+// read as "no background" and the invisible-text check skipped it.
+function parseHexColor(value: string): { r: number; g: number; b: number; a: number } | null {
+  const match = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(value);
+  if (!match) return null;
+  let digits = match[1]!;
+  if (digits.length <= 4) digits = [...digits].map((d) => d + d).join("");
+  const channel = (i: number) => parseInt(digits.slice(i, i + 2), 16);
+  return { r: channel(0), g: channel(2), b: channel(4), a: digits.length === 8 ? channel(6) / 255 : 1 };
 }
 
 /** True for a color this codebase's CSS would treat as "no background here,

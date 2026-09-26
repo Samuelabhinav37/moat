@@ -220,7 +220,7 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
     // its fallback string -- this is what actually caught the v0.11.89 raw-
     // settings-key-name bug, and is a stricter check than a real install
     // (which has real _locales strings) would ever exercise.
-    i18n: { getMessage: () => "" },
+    i18n: { getMessage: () => "", getUILanguage: () => "en" },
   };
 
   return { browser, storageLocalData };
