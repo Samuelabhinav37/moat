@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.135
+
+### Fixed
+- **Long hostnames wrapped mid-word in the popup** ("www.theguardian.co" / "m"). The hostname
+  could break at any character. It now breaks only after a dot ("www.theguardian." / "com"),
+  still clamped to two lines, in both the site card and the "Paused on" banner. A single label
+  too long for a line still breaks inside itself, as a last resort. Checked in Chrome for Testing
+  on theguardian.com, a four-part hostname and a very long single label.
+
 ## 0.11.134
 
 ### Fixed

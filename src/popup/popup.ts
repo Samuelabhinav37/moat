@@ -16,6 +16,7 @@ import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { PROTECTION_LEVEL_MESSAGE_KEY, protectionLevelForCount } from "../shared/protectionLevel";
 import { getEffectiveSettings } from "../background/settings";
 import { effectiveValue, OVERRIDABLE_KEYS, type OverridableSettingKey } from "../shared/perSiteOverrides";
+import { setBreakableHostname } from "./hostnameBreaks";
 
 // Firefox for Android opens the action popup as a full-width panel with no
 // toolbar anchor, so Moat's fixed 260px column reads as a narrow strip. Give
@@ -290,8 +291,8 @@ async function render(): Promise<void> {
   // used to decide whether to show the button at all, same condition that
   // already gates the whole site-card above.
   freshStartButton.hidden = false;
-  hostnameEl.textContent = status.hostname;
-  pausedHostname.textContent = status.hostname;
+  setBreakableHostname(hostnameEl, status.hostname);
+  setBreakableHostname(pausedHostname, status.hostname);
   renderPermissionGuardNotice(status.hostname, status.permissionGuard);
   void renderSiteOverrides(status.hostname).catch(() => {
     // Best-effort -- the core pause/protect toggle above still works fine

@@ -108,7 +108,7 @@
         margin-bottom: 12px;
         /* Same long-hostname concern as .host -- it's interpolated into this
            sentence and would otherwise overflow the banner. */
-        overflow-wrap: anywhere;
+        overflow-wrap: break-word;
       }
 
       .notice {
@@ -273,9 +273,10 @@
         font-size: 13.5px;
         font-weight: 700;
         color: #38373b;
-        /* A hostname can be one long word with no break opportunity; let it
-           break anywhere and clamp to two lines rather than overflow. */
-        overflow-wrap: anywhere;
+        /* popup.ts adds a <wbr> after each dot so a long hostname wraps
+           there. break-word only splits inside a label when that label alone
+           can't fit, then the clamp keeps it to two lines. */
+        overflow-wrap: break-word;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
