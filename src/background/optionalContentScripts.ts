@@ -3,7 +3,7 @@
 // so their bundles are not parsed and executed on every page load for the
 // (default) user who has never turned the feature on.
 //
-// - consent-rejector.js       ~18 KB, <all_urls>, cookieBannerAutoReject (off by default)
+// - consent-rejector.js       ~18 KB, <all_urls>, cookieBannerAutoReject (on by default since 0.11.136)
 // - leaked-password-check.js  ~13 KB, <all_urls>, leakedPasswordCheck (off by default)
 //
 // element-picker.js is handled separately (popup.ts injects it with

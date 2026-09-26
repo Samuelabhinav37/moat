@@ -51,16 +51,16 @@ describe("planReconcile", () => {
     expect(unregisterIds).toEqual([LEAKED]);
   });
 
-  it("defaults (both off) register nothing", () => {
+  it("defaults register only the cookie-banner rejector (on by default since 0.11.136)", () => {
     const { register, unregisterIds } = planReconcile(DEFAULT_SETTINGS, []);
-    expect(register).toEqual([]);
+    expect(register.map((s) => s.id)).toEqual([CONSENT]);
     expect(unregisterIds).toEqual([]);
   });
 });
 
 describe("reconcileOptionalContentScripts", () => {
   it("registers the enabled script with the expected shape", async () => {
-    await reconcileOptionalContentScripts(settings({ leakedPasswordCheck: true }));
+    await reconcileOptionalContentScripts(settings({ cookieBannerAutoReject: false, leakedPasswordCheck: true }));
     expect(scripting.registerContentScripts).toHaveBeenCalledWith([
       expect.objectContaining({
         id: LEAKED,

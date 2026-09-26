@@ -124,7 +124,7 @@ is in [`docs/design-notes.md`](docs/design-notes.md).
   hiding breaks the layout.
 - **Grayed-out video ads.** Dims YouTube in-stream ads that can't be blocked outright.
 - **Feed ad removal** (opt-in). Removes sponsored posts from Instagram, LinkedIn and YouTube feeds.
-- **Auto-reject cookie banners** (opt-in). Clicks "reject" on the major consent platforms via a
+- **Auto-reject cookie banners** (on by default, skipped on sign-in pages). Clicks "reject" on the major consent platforms via a
   declarative rule format, never injected JS.
 - **Uncloak disguised trackers** (opt-in). Resolves CNAME-cloaked subdomains and blocks the ones
   that lead to a tracker: anything on AdGuard's CNAME list or already blocked by Moat's own

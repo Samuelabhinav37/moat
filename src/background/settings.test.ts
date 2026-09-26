@@ -118,7 +118,7 @@ describe("getSettings", () => {
       customGrayscaleRules: {},
       grayscaleUnblockableAds: true,
       aggressiveFeedAdRemoval: false,
-      cookieBannerAutoReject: false,
+      cookieBannerAutoReject: true,
       cnameUncloaking: false,
       syncEnabled: false,
       leakedPasswordCheck: false,

@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.136
+
+### Changed
+- **Cookie banners are rejected by default on new installs.** The store listing already said Moat
+  auto-rejects them, but the setting shipped off. It's now on for fresh installs. Known sign-in
+  domains still skip it (so a "reject" click can't break a login flow), and it can be turned off
+  in Settings or per site from the popup.
+  - Existing installs keep their current setting. Saved settings can't tell "chose off" apart from
+    "never touched", so Moat doesn't flip it for anyone who already has it.
+  - Verified in Chrome for Testing on a fresh profile with no settings changed: the consent
+    rejector registers at startup, and GOV.UK's banner is gone with the cookie policy left at
+    essential-only. Without Moat the same banner shows.
+  - README and the marketing site no longer describe it as opt-in.
+
 ## 0.11.135
 
 ### Fixed
