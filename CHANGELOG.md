@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.150
+
+### Changed
+- **Settings screens switch instantly on desktop.** Each panel used to replay a staggered rise
+  (up to 0.36 s of delay) on every sidebar click; that animation now only plays when Advanced
+  settings opens on the single-page phone layout.
+
 ## 0.11.149
 
 ### Added
