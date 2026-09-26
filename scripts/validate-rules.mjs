@@ -123,6 +123,10 @@ const meta = JSON.parse(readFileSync(join(rulesDir, cosmeticsManifest.meta), "ut
 // genericByHash maps a token hash to a string array. The "nothing dropped
 // in the partition" check lives in update-cosmetics.mjs, which still has the
 // flat parser output to compare against.
+if (Array.isArray(meta.genericHigh) && meta.genericHigh.some((s) => typeof s === "string" && s.includes(":has("))) {
+  console.error(`${cosmeticsManifest.meta}: "genericHigh" contains a :has() selector; those make every DOM change expensive (scripts/lib/genericTokenIndex.mjs)`);
+  ok = false;
+}
 if (!Array.isArray(meta.genericHigh) || meta.genericHigh.some((s) => typeof s !== "string")) {
   console.error(`${cosmeticsManifest.meta}: "genericHigh" must be an array of strings`);
   ok = false;

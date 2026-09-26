@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.141
+
+### Fixed
+- **Pages that keep adding content (feeds, infinite scroll) cost far more CPU with Moat on.** Nine
+  generic `:has()` selectors from AdGuard's lists sat in the stylesheet injected into every page,
+  and Chrome re-checks `:has()` on every DOM change. All nine target a rare Google AMP ad layout.
+  They're now left out of the always-on set at build time (`withoutCostlyAlwaysOn` in
+  `scripts/lib/genericTokenIndex.mjs`), and `validate-rules.mjs` fails if one comes back.
+  Site-specific `:has()` rules are unaffected. On a page adding 5,000 elements: main-thread work
+  1.19 s before, 0.36 s after (0.14 s with no blocker); restyling 0.82 s before, 0.11 s after; every
+  late-added ad still hidden. Found by the test audit (`docs/research/test-audit-2026-09.md`), and
+  the likeliest cause of the slowness reported on LinkedIn's feed.
+
 ## 0.11.140
 
 ### Fixed

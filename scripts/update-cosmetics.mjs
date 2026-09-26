@@ -10,7 +10,7 @@ import { dirname, join } from "node:path";
 import { JSDOM } from "jsdom";
 import { buildCosmeticIndex } from "./lib/parseCosmeticRules.mjs";
 import { bucketForDomain } from "./lib/domainBucket.mjs";
-import { partitionGenericSelectors } from "./lib/genericTokenIndex.mjs";
+import { partitionGenericSelectors, withoutCostlyAlwaysOn } from "./lib/genericTokenIndex.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -187,14 +187,19 @@ for (const domain of allPerDomainKeys) {
 // with no usable anchor -- always injected. Assert the partition drops
 // nothing: every generic selector must land in genericHigh or under at
 // least one hash (a selector list lands under several).
-const { genericByHash, genericHigh } = partitionGenericSelectors(index.generic);
-const filedGeneric = new Set(genericHigh);
+const { genericByHash, genericHigh: partitionedHigh } = partitionGenericSelectors(index.generic);
+const filedGeneric = new Set(partitionedHigh);
 for (const list of Object.values(genericByHash)) for (const s of list) filedGeneric.add(s);
 if (filedGeneric.size !== index.generic.length || index.generic.some((s) => !filedGeneric.has(s))) {
   throw new Error(
     `generic-token partition lost selectors: ${index.generic.length} in, ${filedGeneric.size} filed. ` +
       `Check scripts/lib/genericTokenIndex.mjs.`
   );
+}
+// Deliberately after the no-loss check: these are dropped on purpose.
+const { kept: genericHigh, dropped: costlyGeneric } = withoutCostlyAlwaysOn(partitionedHigh);
+if (costlyGeneric.length > 0) {
+  console.log(`Left ${costlyGeneric.length} generic :has() selector(s) out of the always-on set (too costly on every page)`);
 }
 
 writeFileSync(

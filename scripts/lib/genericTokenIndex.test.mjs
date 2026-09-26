@@ -3,6 +3,7 @@ import { tokenHash } from "./tokenHash.mjs";
 import {
   extractAnchorToken,
   partitionGenericSelectors,
+  withoutCostlyAlwaysOn,
   splitSelectorList,
 } from "./genericTokenIndex.mjs";
 
@@ -99,5 +100,17 @@ describe("partitionGenericSelectors", () => {
     ]);
     expect(genericByHash[tokenHash("ad")]).toEqual([".alpha.ad", ".zeta.ad"]);
     expect(genericHigh).toEqual(["[a-attr]", "[z-attr]"]);
+  });
+});
+
+describe("withoutCostlyAlwaysOn", () => {
+  it("drops :has() selectors and keeps everything else", () => {
+    const { kept, dropped } = withoutCostlyAlwaysOn([
+      'amp-ad-exit + div[class*=" "]:has(+ div[aria-hidden="true"])',
+      'div[id^="ad-"]',
+      "#cmdTextDisplay ~ *",
+    ]);
+    expect(dropped).toEqual(['amp-ad-exit + div[class*=" "]:has(+ div[aria-hidden="true"])']);
+    expect(kept).toEqual(['div[id^="ad-"]', "#cmdTextDisplay ~ *"]);
   });
 });

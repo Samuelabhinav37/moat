@@ -129,3 +129,23 @@ export function partitionGenericSelectors(genericSelectors) {
 
   return { genericByHash, genericHigh };
 }
+
+// `:has()` is the one selector feature whose cost scales with every DOM
+// change: Chrome re-evaluates it as content is added, and genericHigh is
+// injected into every page. Measured on a page adding 5,000 elements:
+// restyle time 0.82 s with the 9 generic `:has()` selectors AdGuard ships
+// (all aimed at a rare Google AMP ad layout), 0.10 s without, 0.01 s with no
+// blocker at all (docs/research/test-audit-2026-09.md, finding 4.1). They
+// come out of the always-on set; site-specific `:has()` rules are unaffected
+// because they only load on their own sites.
+export function isCostlyAlwaysOn(selector) {
+  return selector.includes(":has(");
+}
+
+/** genericHigh without the selectors too costly to run on every page. */
+export function withoutCostlyAlwaysOn(genericHigh) {
+  const kept = [];
+  const dropped = [];
+  for (const selector of genericHigh) (isCostlyAlwaysOn(selector) ? dropped : kept).push(selector);
+  return { kept, dropped };
+}
