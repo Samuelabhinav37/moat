@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.143
+
+### Fixed
+- **"Always block" and "Never block" lists silently stopped working after 1,000 domains.** Each
+  domain was its own dynamic rule and the list was cut at 1,000 with no message: in the test audit's
+  stress run, 2,000 domains produced 1,000 rules and the 2,000th was never blocked. Rules now carry
+  up to 500 domains each (`condition.requestDomains`, which covers subdomains exactly like the old
+  `||domain^` filter), so a list holds up to 500,000 domains; the organisation-managed block list
+  gets the same packing. Verified in Chrome for Testing: 2,000 domains become 4 rules, and the
+  first, the last and a subdomain of one in the middle are all blocked. No Settings warning was
+  added, since the new limit isn't realistically reachable.
+
 ## 0.11.142
 
 ### Fixed

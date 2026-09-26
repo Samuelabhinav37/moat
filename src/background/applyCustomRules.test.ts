@@ -68,8 +68,8 @@ describe("applyCustomRules", () => {
     );
 
     const args = updateDynamicRules.mock.calls[0]![0];
-    const allowFilters = args.addRules.filter((r) => r.action.type === "allow").map((r) => r.condition.urlFilter);
-    expect(allowFilters).toEqual(["||safe.com^"]);
+    const allowed = args.addRules.filter((r) => r.action.type === "allow").flatMap((r) => r.condition.requestDomains ?? []);
+    expect(allowed).toEqual(["safe.com"]);
   });
 
   it("never emits an allow rule for the PARENT of a managed-blocked domain either", async () => {
@@ -81,8 +81,8 @@ describe("applyCustomRules", () => {
     );
 
     const args = updateDynamicRules.mock.calls[0]![0];
-    const allowFilters = args.addRules.filter((r) => r.action.type === "allow").map((r) => r.condition.urlFilter);
-    expect(allowFilters).toEqual(["||safe.com^"]);
+    const allowed = args.addRules.filter((r) => r.action.type === "allow").flatMap((r) => r.condition.requestDomains ?? []);
+    expect(allowed).toEqual(["safe.com"]);
   });
 });
 

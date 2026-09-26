@@ -7,6 +7,7 @@ import {
   CUSTOM_ALLOW_ID_START,
   CUSTOM_BLOCK_ID_START,
   MAX_CUSTOM_RULES_PER_LIST,
+  DOMAINS_PER_RULE,
   buildPauseRule,
   buildManagedBlockRules,
   PAUSE_RULE_ID,
@@ -19,29 +20,39 @@ import {
   SECURITY_PRIORITY_OFFSET,
 } from "../shared/rulePriorities";
 
+/** Every domain a set of packed rules covers, in order. */
+const domainsOf = (rules: { condition: { requestDomains?: string[] } }[]) => rules.flatMap((r) => r.condition.requestDomains ?? []);
+
 describe("buildCustomBlockRules", () => {
-  it("builds one block rule per domain covering every resource type", () => {
+  it("builds a block rule covering the domain (and its subdomains) for every resource type", () => {
     const rules = buildCustomBlockRules(["a.com"]);
     expect(rules).toHaveLength(1);
     expect(rules[0]?.action).toEqual({ type: "block" });
-    expect(rules[0]?.condition.urlFilter).toBe("||a.com^");
+    expect(rules[0]?.condition.requestDomains).toEqual(["a.com"]);
     expect(rules[0]?.condition.resourceTypes).toContain("main_frame");
     expect(rules[0]?.condition.resourceTypes).toContain("xmlhttprequest");
   });
 
-  it("assigns ids starting at CUSTOM_BLOCK_ID_START", () => {
-    const rules = buildCustomBlockRules(["a.com", "b.com"]);
-    expect(rules.map((r) => r.id)).toEqual([CUSTOM_BLOCK_ID_START, CUSTOM_BLOCK_ID_START + 1]);
+  it("packs domains into rules of DOMAINS_PER_RULE, ids from CUSTOM_BLOCK_ID_START", () => {
+    const domains = Array.from({ length: 2000 }, (_, i) => `d${i}.com`);
+    const rules = buildCustomBlockRules(domains);
+    expect(rules).toHaveLength(2000 / DOMAINS_PER_RULE);
+    expect(rules.map((r) => r.id)).toEqual([0, 1, 2, 3].map((i) => CUSTOM_BLOCK_ID_START + i));
+    expect(domainsOf(rules)).toEqual(domains);
   });
 
-  it("caps at MAX_CUSTOM_RULES_PER_LIST", () => {
-    const domains = Array.from({ length: MAX_CUSTOM_RULES_PER_LIST + 10 }, (_, i) => `d${i}.com`);
-    expect(buildCustomBlockRules(domains)).toHaveLength(MAX_CUSTOM_RULES_PER_LIST);
+  it("no longer drops domains past 1,000 (the old one-rule-per-domain cap)", () => {
+    const domains = Array.from({ length: 1500 }, (_, i) => `d${i}.com`);
+    expect(domainsOf(buildCustomBlockRules(domains))).toContain("d1499.com");
+  });
+
+  it("drops duplicates", () => {
+    expect(domainsOf(buildCustomBlockRules(["a.com", "a.com", "b.com"]))).toEqual(["a.com", "b.com"]);
   });
 
   it("skips a malformed entry instead of letting it break the whole batch", () => {
     const rules = buildCustomBlockRules(["a.com", "not a domain", "https://b.com/path", "", "c.com"]);
-    expect(rules.map((r) => r.condition.urlFilter)).toEqual(["||a.com^", "||c.com^"]);
+    expect(domainsOf(rules)).toEqual(["a.com", "c.com"]);
   });
 
   it("still rejects a domain with a port, path, or credentials attached", () => {
@@ -51,8 +62,7 @@ describe("buildCustomBlockRules", () => {
 
   it("converts an internationalized domain to its punycode form instead of dropping it", () => {
     const rules = buildCustomBlockRules(["münchen.de"]);
-    expect(rules).toHaveLength(1);
-    expect(rules[0]?.condition.urlFilter).toBe("||xn--mnchen-3ya.de^");
+    expect(domainsOf(rules)).toEqual(["xn--mnchen-3ya.de"]);
   });
 });
 
@@ -96,7 +106,7 @@ describe("buildCustomAllowRules", () => {
 
     it("keeps an allow entry unrelated to any managed-blocked domain", () => {
       const rules = buildCustomAllowRules(["safe.com"], ["tracker.com"]);
-      expect(rules.map((r) => r.condition.urlFilter)).toEqual(["||safe.com^"]);
+      expect(domainsOf(rules)).toEqual(["safe.com"]);
     });
 
     it("keeps every allow entry when neverAllow is empty or omitted, unchanged from before", () => {
@@ -118,7 +128,7 @@ describe("buildCustomAllowRules", () => {
 
 describe("id range helpers", () => {
   it("allCustomBlockRuleIds covers exactly what buildCustomBlockRules can produce at the cap", () => {
-    const domains = Array.from({ length: MAX_CUSTOM_RULES_PER_LIST }, (_, i) => `d${i}.com`);
+    const domains = Array.from({ length: MAX_CUSTOM_RULES_PER_LIST * DOMAINS_PER_RULE }, (_, i) => `d${i}.com`);
     const builtIds = new Set(buildCustomBlockRules(domains).map((r) => r.id));
     expect(new Set(allCustomBlockRuleIds())).toEqual(builtIds);
   });
@@ -166,7 +176,7 @@ describe("buildManagedBlockRules", () => {
     const [rule] = buildManagedBlockRules(["banned.example"]);
     expect(rule?.priority).toBe(ENTERPRISE_PRIORITY);
     expect(rule?.action.type).toBe("block");
-    expect(rule?.condition.urlFilter).toBe("||banned.example^");
+    expect(rule?.condition.requestDomains).toEqual(["banned.example"]);
   });
 });
 

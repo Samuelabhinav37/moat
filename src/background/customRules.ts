@@ -11,7 +11,12 @@ export const CUSTOM_BLOCK_ID_START = 800_000;
 export const CUSTOM_ALLOW_ID_START = 810_000;
 export const PAUSE_RULE_ID = 815_000;
 export const MANAGED_BLOCK_ID_START = 820_000;
+/** Rule ids reserved per list. Each rule carries up to DOMAINS_PER_RULE
+ * domains, so a list holds up to 500,000 domains. */
 export const MAX_CUSTOM_RULES_PER_LIST = 1000;
+/** Domains per rule (condition.requestDomains). Until 0.11.143 every domain
+ * was its own rule and a list silently stopped at 1,000 domains. */
+export const DOMAINS_PER_RULE = 500;
 
 // Bare hostname only (labels of alphanumerics/hyphens, dot-separated, no
 // protocol/path/port) -- `domain` gets interpolated straight into a DNR
@@ -70,16 +75,31 @@ export const ALL_RESOURCE_TYPES: DeclarativeNetRequest.ResourceType[] = [
   "other",
 ];
 
+/** Valid, de-duplicated domains packed into rules of up to DOMAINS_PER_RULE
+ * each. requestDomains matches a domain and its subdomains, exactly like the
+ * `||domain^` urlFilter these used to be. */
+function packedRules(
+  domains: readonly string[],
+  idStart: number,
+  priority: number,
+  action: "block" | "allow"
+): DeclarativeNetRequest.Rule[] {
+  const unique = [...new Set(domains)];
+  const rules: DeclarativeNetRequest.Rule[] = [];
+  for (let i = 0; i < unique.length && rules.length < MAX_CUSTOM_RULES_PER_LIST; i += DOMAINS_PER_RULE) {
+    rules.push({
+      id: idStart + rules.length,
+      priority,
+      action: { type: action },
+      condition: { requestDomains: unique.slice(i, i + DOMAINS_PER_RULE), resourceTypes: ALL_RESOURCE_TYPES },
+    });
+  }
+  return rules;
+}
+
 /** Blocks a whole site outright -- unlike the redirect safety net (main_frame only), this covers every resource type. */
 export function buildCustomBlockRules(domains: string[]): DeclarativeNetRequest.Rule[] {
-  return filterValidDomains(domains)
-    .slice(0, MAX_CUSTOM_RULES_PER_LIST)
-    .map((domain, index) => ({
-      id: CUSTOM_BLOCK_ID_START + index,
-      priority: 1,
-      action: { type: "block" },
-      condition: { urlFilter: `||${domain}^`, resourceTypes: ALL_RESOURCE_TYPES },
-    }));
+  return packedRules(filterValidDomains(domains), CUSTOM_BLOCK_ID_START, 1, "block");
 }
 
 /**
@@ -118,15 +138,8 @@ function overlapsAnyDomain(candidate: string, others: readonly string[]): boolea
  */
 export function buildCustomAllowRules(domains: string[], neverAllow: readonly string[] = []): DeclarativeNetRequest.Rule[] {
   const blocked = filterValidDomains([...neverAllow]);
-  return filterValidDomains(domains)
-    .filter((domain) => !overlapsAnyDomain(domain, blocked))
-    .slice(0, MAX_CUSTOM_RULES_PER_LIST)
-    .map((domain, index) => ({
-      id: CUSTOM_ALLOW_ID_START + index,
-      priority: NEVER_BLOCK_PRIORITY,
-      action: { type: "allow" },
-      condition: { urlFilter: `||${domain}^`, resourceTypes: ALL_RESOURCE_TYPES },
-    }));
+  const allowed = filterValidDomains(domains).filter((domain) => !overlapsAnyDomain(domain, blocked));
+  return packedRules(allowed, CUSTOM_ALLOW_ID_START, NEVER_BLOCK_PRIORITY, "allow");
 }
 
 export function allCustomBlockRuleIds(): number[] {
@@ -164,14 +177,7 @@ export function buildPauseRule(disabledSites: string[]): DeclarativeNetRequest.R
  * entry can reopen it. They're still merged into customBlockedDomains too,
  * so the Settings page lists them as before. */
 export function buildManagedBlockRules(domains: readonly string[]): DeclarativeNetRequest.Rule[] {
-  return filterValidDomains([...domains])
-    .slice(0, MAX_CUSTOM_RULES_PER_LIST)
-    .map((domain, index) => ({
-      id: MANAGED_BLOCK_ID_START + index,
-      priority: ENTERPRISE_PRIORITY,
-      action: { type: "block" },
-      condition: { urlFilter: `||${domain}^`, resourceTypes: ALL_RESOURCE_TYPES },
-    }));
+  return packedRules(filterValidDomains([...domains]), MANAGED_BLOCK_ID_START, ENTERPRISE_PRIORITY, "block");
 }
 
 export function allManagedBlockRuleIds(): number[] {
