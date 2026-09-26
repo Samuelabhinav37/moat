@@ -36,6 +36,8 @@ import type {
   RemoveCosmeticRuleMessage,
   RemoveCustomDomainMessage,
   RemoveGrayscaleRuleMessage,
+  SaveCosmeticRuleMessage,
+  SaveGrayscaleRuleMessage,
   Settings,
   SettingsPatchField,
   SetSettingsPatchMessage,
@@ -73,6 +75,16 @@ async function setSiteDisabled(hostname: string, disabled: boolean): Promise<voi
 
 async function removeCustomCosmeticRule(hostname: string, selector: string): Promise<void> {
   const message: RemoveCosmeticRuleMessage = { type: "remove-cosmetic-rule", hostname, selector };
+  await browser.runtime.sendMessage(message);
+}
+
+async function saveCosmeticRule(hostname: string, selector: string): Promise<void> {
+  const message: SaveCosmeticRuleMessage = { type: "save-cosmetic-rule", hostname, selector };
+  await browser.runtime.sendMessage(message);
+}
+
+async function saveGrayscaleRule(hostname: string, selector: string): Promise<void> {
+  const message: SaveGrayscaleRuleMessage = { type: "save-grayscale-rule", hostname, selector };
   await browser.runtime.sendMessage(message);
 }
 
@@ -149,7 +161,8 @@ initSettingsSearch(
 
 const savedToast = createSavedToast(
   document.getElementById("saved-toast") as HTMLElement,
-  document.getElementById("saved-toast-label") as HTMLElement
+  document.getElementById("saved-toast-label") as HTMLElement,
+  document.getElementById("saved-toast-action") as HTMLButtonElement
 );
 browser.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && STORAGE_KEY in changes) savedToast.settingsChanged(tFallback("toastSaved", "Saved"));
@@ -519,6 +532,19 @@ const longListLabels: LongListLabels = {
   noMatches: tFallback("listNoMatches", "No matches."),
 };
 
+/** How to put a removed entry back, and what the toast says meanwhile. */
+interface UndoRemoval<T> {
+  message: (item: T) => string;
+  restore: (item: T) => Promise<unknown>;
+}
+
+function offerUndo<T>(undo: UndoRemoval<T> | undefined, item: T, rerenderSelf: () => Promise<void>): void {
+  if (!undo) return;
+  savedToast.offerUndo(undo.message(item), tFallback("toastUndo", "Undo"), () => {
+    void undo.restore(item).then(rerenderSelf);
+  });
+}
+
 function renderRows<T>(
   list: HTMLUListElement,
   emptyState: HTMLElement,
@@ -526,7 +552,8 @@ function renderRows<T>(
   formatLabel: (item: T) => string,
   removeLabel: string,
   onRemove: (item: T) => Promise<unknown>,
-  rerenderSelf: () => Promise<void>
+  rerenderSelf: () => Promise<void>,
+  undo?: UndoRemoval<T>
 ): void {
   emptyState.style.display = items.length ? "none" : "block";
   list.replaceChildren(
@@ -541,6 +568,7 @@ function renderRows<T>(
       remove.addEventListener("click", async () => {
         await onRemove(item);
         await rerenderSelf();
+        offerUndo(undo, item, rerenderSelf);
       });
 
       li.append(label, remove);
@@ -556,9 +584,34 @@ function renderDomainList(
   domains: string[],
   removeLabel: string,
   onRemove: (domain: string) => Promise<void>,
-  rerenderSelf: () => Promise<void>
+  rerenderSelf: () => Promise<void>,
+  undo?: UndoRemoval<string>
 ): void {
-  renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove, rerenderSelf);
+  renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove, rerenderSelf, undo);
+}
+
+const undoResume: UndoRemoval<string> = {
+  message: (hostname) => tFallback("toastResumed", `Resumed ${hostname}`, hostname),
+  restore: (hostname) => setSiteDisabled(hostname, true),
+};
+
+function undoRemoveDomain(field: CustomDomainListField): UndoRemoval<string> {
+  return {
+    message: (domain) => tFallback("toastRemoved", `Removed ${domain}`, domain),
+    restore: (domain) => sendAddCustomDomain(field, domain),
+  };
+}
+
+interface RuleEntry {
+  hostname: string;
+  selector: string;
+}
+
+function undoRemoveRule(restore: (hostname: string, selector: string) => Promise<void>): UndoRemoval<RuleEntry> {
+  return {
+    message: (rule) => tFallback("toastRuleRemoved", `Removed an element on ${rule.hostname}`, rule.hostname),
+    restore: (rule) => restore(rule.hostname, rule.selector),
+  };
 }
 
 // ---------- Setting rows ----------
@@ -1015,7 +1068,8 @@ function buildRuleRow(
   selector: string,
   stats: Record<string, CustomRuleStat>,
   onRemove: (hostname: string, selector: string) => Promise<unknown>,
-  rerenderSelf: () => Promise<void>
+  rerenderSelf: () => Promise<void>,
+  undo?: UndoRemoval<RuleEntry>
 ): HTMLElement {
   const now = Date.now();
   const stat = stats[customRuleStatKey(kind, hostname, selector)];
@@ -1072,6 +1126,7 @@ function buildRuleRow(
   remove.addEventListener("click", async () => {
     await onRemove(hostname, selector);
     await rerenderSelf();
+    offerUndo(undo, { hostname, selector }, rerenderSelf);
   });
 
   row.append(main, remove);
@@ -1085,13 +1140,14 @@ function renderRuleGroup(
   rules: Record<string, string[]>,
   stats: Record<string, CustomRuleStat>,
   onRemove: (hostname: string, selector: string) => Promise<unknown>,
-  rerenderSelf: () => Promise<void>
+  rerenderSelf: () => Promise<void>,
+  undo?: UndoRemoval<RuleEntry>
 ): void {
   const rows = Object.entries(rules)
     .flatMap(([hostname, selectors]) => selectors.map((selector) => ({ hostname, selector })))
     .sort((a, b) => a.hostname.localeCompare(b.hostname));
   emptyState.style.display = rows.length ? "none" : "block";
-  container.replaceChildren(...rows.map((r) => buildRuleRow(kind, r.hostname, r.selector, stats, onRemove, rerenderSelf)));
+  container.replaceChildren(...rows.map((r) => buildRuleRow(kind, r.hostname, r.selector, stats, onRemove, rerenderSelf, undo)));
   applyLongList(container, longListLabels);
 }
 
@@ -1295,7 +1351,8 @@ async function rerenderSiteList(): Promise<void> {
     settings.disabledSites,
     tFallback("commonResume", "Resume"),
     (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
-    rerenderSiteList
+    rerenderSiteList,
+    undoResume
   );
 }
 
@@ -1307,7 +1364,8 @@ async function rerenderCustomBlockList(): Promise<void> {
     settings.customBlockedDomains,
     tFallback("commonRemove", "Remove"),
     (domain) => sendRemoveCustomDomain("customBlockedDomains", domain),
-    rerenderCustomBlockList
+    rerenderCustomBlockList,
+    undoRemoveDomain("customBlockedDomains")
   );
 }
 
@@ -1319,7 +1377,8 @@ async function rerenderCustomAllowList(): Promise<void> {
     settings.customAllowedDomains,
     tFallback("commonRemove", "Remove"),
     (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
-    rerenderCustomAllowList
+    rerenderCustomAllowList,
+    undoRemoveDomain("customAllowedDomains")
   );
 }
 
@@ -1332,7 +1391,8 @@ async function rerenderHiddenElementList(): Promise<void> {
     settings.customCosmeticRules,
     stats,
     removeCustomCosmeticRule,
-    rerenderHiddenElementList
+    rerenderHiddenElementList,
+    undoRemoveRule(saveCosmeticRule)
   );
   grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
 }
@@ -1346,7 +1406,8 @@ async function rerenderGrayscaleElementList(): Promise<void> {
     settings.customGrayscaleRules,
     stats,
     removeGrayscaleRule,
-    rerenderGrayscaleElementList
+    rerenderGrayscaleElementList,
+    undoRemoveRule(saveGrayscaleRule)
   );
   grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
 }
@@ -1369,7 +1430,8 @@ async function render(): Promise<void> {
     settings.disabledSites,
     tFallback("commonResume", "Resume"),
     (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
-    rerenderSiteList
+    rerenderSiteList,
+    undoResume
   );
 
   const filterGroupStatus = await getFilterGroupStatus();
@@ -1409,7 +1471,8 @@ async function render(): Promise<void> {
     settings.customBlockedDomains,
     tFallback("commonRemove", "Remove"),
     (domain) => sendRemoveCustomDomain("customBlockedDomains", domain),
-    rerenderCustomBlockList
+    rerenderCustomBlockList,
+    undoRemoveDomain("customBlockedDomains")
   );
   renderDomainList(
     customAllowList,
@@ -1417,7 +1480,8 @@ async function render(): Promise<void> {
     settings.customAllowedDomains,
     tFallback("commonRemove", "Remove"),
     (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
-    rerenderCustomAllowList
+    rerenderCustomAllowList,
+    undoRemoveDomain("customAllowedDomains")
   );
   const customRuleStats = await getCustomRuleStats();
   renderRuleGroup(
@@ -1427,7 +1491,8 @@ async function render(): Promise<void> {
     settings.customCosmeticRules,
     customRuleStats,
     removeCustomCosmeticRule,
-    rerenderHiddenElementList
+    rerenderHiddenElementList,
+    undoRemoveRule(saveCosmeticRule)
   );
   renderRuleGroup(
     "gray",
@@ -1436,7 +1501,8 @@ async function render(): Promise<void> {
     settings.customGrayscaleRules,
     customRuleStats,
     removeGrayscaleRule,
-    rerenderGrayscaleElementList
+    rerenderGrayscaleElementList,
+    undoRemoveRule(saveGrayscaleRule)
   );
   // The "Grayed out" block only appears once someone has actually grayed
   // something out -- most people never will, so it stays out of the way.

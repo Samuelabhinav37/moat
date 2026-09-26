@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.151
+
+### Added
+- **Undo after removing something in Settings.** Resuming a paused site, removing an always/never
+  block entry, or removing a hidden or grayed-out element shows a toast like "Resumed reddit.com"
+  with an Undo button for 6 seconds. Undo puts the entry back through the same messages the
+  picker and the add fields use, so managed-policy rules still apply.
+
 ## 0.11.150
 
 ### Changed

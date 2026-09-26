@@ -1539,5 +1539,32 @@
   },
   "optionsCompanyReachOne": {
     "message": "1 Website"
+  },
+  "toastUndo": {
+    "message": "RÃ¼ckgÃ¤ngig"
+  },
+  "toastResumed": {
+    "message": "$HOST$ fortgesetzt",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "toastRemoved": {
+    "message": "$HOST$ entfernt",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "toastRuleRemoved": {
+    "message": "Element auf $HOST$ entfernt",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
   }
 }

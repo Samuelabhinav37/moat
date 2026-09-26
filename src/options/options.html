@@ -1326,6 +1326,21 @@
         height: 16px;
         color: var(--blue-lt);
       }
+      .toast-action {
+        margin-left: 8px;
+        padding: 4px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: none;
+        color: var(--blue-lt);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .toast-action:hover {
+        border-color: var(--blue-lt);
+      }
       .toast.show {
         animation: toast-in 0.25s var(--ease);
       }
@@ -1733,6 +1748,7 @@
       <div class="toast" id="saved-toast" role="status" aria-live="polite" hidden>
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>
         <span id="saved-toast-label">Saved</span>
+        <button type="button" class="toast-action" id="saved-toast-action" hidden>Undo</button>
       </div>
 
       <main class="wrap">
