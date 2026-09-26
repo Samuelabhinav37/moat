@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Unreleased
+
+### Changed
+- **Spanish, French and German caught up with the English copy.** Eight strings still carried
+  wording the English had since dropped: "Protection activated" for the master switch, "domains"
+  where the hints now say "sites", "only..." and "the Standard level blocks..." in the preset
+  hints, a `--` dash, and "breaches" in the leaked-password warning. Found by comparing, per key,
+  when the English last changed against when each translation did. The "grayed out" hint now uses
+  the same word the rest of each translation already uses.
+
 ## 0.11.136
 
 ### Changed

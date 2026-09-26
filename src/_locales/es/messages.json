@@ -138,10 +138,10 @@
     "message": "Bloquea anuncios, rastreadores y ventanas emergentes secuestradas."
   },
   "optionsMasterToggleLabel": {
-    "message": "Protección activada"
+    "message": "Protección"
   },
   "optionsMasterToggleHint": {
-    "message": "Activa o desactiva todo el bloqueo globalmente."
+    "message": "Activa o desactiva todo el bloqueo, en todas partes."
   },
   "optionsManagedBadge": {
     "message": "Administrado por tu organización"
@@ -262,7 +262,7 @@
     "message": "Bloquear siempre"
   },
   "optionsBlockedSitesHint": {
-    "message": "Bloquea siempre estos dominios, sin importar las listas de filtros."
+    "message": "Bloquea siempre estos sitios, digan lo que digan las listas de filtros."
   },
   "optionsAddDomainInvalid": {
     "message": "Eso no parece un dominio válido."
@@ -295,7 +295,7 @@
     "message": "En gris"
   },
   "optionsDimmedElementsHint": {
-    "message": "Elementos que seleccionaste para \"Atenuar\". Elimínalos aquí para restaurar su visibilidad normal."
+    "message": "Elementos que pusiste en gris con el selector. Quita uno para restaurarlo."
   },
   "optionsTrackersHeading": {
     "message": "Rastreadores en la pestaña actual"
@@ -364,13 +364,13 @@
     "message": "No se bloquea nada."
   },
   "presetHintLite": {
-    "message": "Una versión más ligera de Esencial -- omite la lista de seguridad más grande."
+    "message": "Como Esencial, sin la lista de seguridad más grande."
   },
   "presetHintEssential": {
-    "message": "Solo anuncios, ventanas emergentes y sitios maliciosos conocidos."
+    "message": "Anuncios, ventanas emergentes y sitios maliciosos conocidos."
   },
   "presetHintStandard": {
-    "message": "El nivel Estándar bloquea anuncios, rastreadores y sitios maliciosos conocidos."
+    "message": "Anuncios, rastreadores y sitios maliciosos conocidos."
   },
   "presetHintStrict": {
     "message": "Todas las listas, más todos los extras de privacidad."
@@ -457,7 +457,7 @@
     "message": "No se pudo leer ese archivo."
   },
   "leakedPasswordWarning": {
-    "message": "Esta contraseña ha aparecido en filtraciones de datos conocidas."
+    "message": "Esta contraseña ha aparecido en una filtración de datos conocida."
   },
   "optionsLeakedPasswordToggleLabel": {
     "message": "Avisar de contraseñas filtradas"

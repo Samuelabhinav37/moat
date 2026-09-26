@@ -138,10 +138,10 @@
     "message": "Blockiert Werbung, Tracker und gekaperte Pop-ups."
   },
   "optionsMasterToggleLabel": {
-    "message": "Schutz aktiviert"
+    "message": "Schutz"
   },
   "optionsMasterToggleHint": {
-    "message": "Schaltet die gesamte Blockierung global ein oder aus."
+    "message": "Schaltet die gesamte Blockierung überall ein oder aus."
   },
   "optionsManagedBadge": {
     "message": "Verwaltet durch deine Organisation"
@@ -262,7 +262,7 @@
     "message": "Immer blockieren"
   },
   "optionsBlockedSitesHint": {
-    "message": "Blockiert diese Domains immer, unabhängig von den Filterlisten."
+    "message": "Blockiert diese Websites immer, egal was die Filterlisten sagen."
   },
   "optionsAddDomainInvalid": {
     "message": "Das sieht nicht wie eine gültige Domain aus."
@@ -295,7 +295,7 @@
     "message": "Ausgegraut"
   },
   "optionsDimmedElementsHint": {
-    "message": "Elemente, die du zum \"Abdunkeln\" ausgewählt hast. Entferne sie hier, um die normale Sichtbarkeit wiederherzustellen."
+    "message": "Elemente, die du mit dem Picker ausgegraut hast. Entferne eines, um es wiederherzustellen."
   },
   "optionsTrackersHeading": {
     "message": "Tracker im aktuellen Tab"
@@ -364,13 +364,13 @@
     "message": "Nichts wird blockiert."
   },
   "presetHintLite": {
-    "message": "Eine leichtere Version von Grundlegend -- lässt die größte Sicherheitsliste weg."
+    "message": "Wie Grundlegend, ohne die größte Sicherheitsliste."
   },
   "presetHintEssential": {
-    "message": "Nur Werbung, Pop-ups und bekannte bösartige Websites."
+    "message": "Werbung, Pop-ups und bekannte bösartige Websites."
   },
   "presetHintStandard": {
-    "message": "Die Stufe Standard blockiert Werbung, Tracker und bekannte bösartige Websites."
+    "message": "Werbung, Tracker und bekannte bösartige Websites."
   },
   "presetHintStrict": {
     "message": "Alle Listen, plus alle Datenschutz-Extras."
@@ -457,7 +457,7 @@
     "message": "Diese Datei konnte nicht gelesen werden."
   },
   "leakedPasswordWarning": {
-    "message": "Dieses Passwort ist in bekannten Datenlecks aufgetaucht."
+    "message": "Dieses Passwort ist in einem bekannten Datenleck aufgetaucht."
   },
   "optionsLeakedPasswordToggleLabel": {
     "message": "Vor geleakten Passwörtern warnen"

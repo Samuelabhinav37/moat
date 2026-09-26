@@ -138,10 +138,10 @@
     "message": "Bloque les publicités, les traqueurs et les pop-ups détournés."
   },
   "optionsMasterToggleLabel": {
-    "message": "Protection activée"
+    "message": "Protection"
   },
   "optionsMasterToggleHint": {
-    "message": "Active ou désactive tout le blocage globalement."
+    "message": "Active ou désactive tout le blocage, partout."
   },
   "optionsManagedBadge": {
     "message": "Géré par votre organisation"
@@ -262,7 +262,7 @@
     "message": "Toujours bloquer"
   },
   "optionsBlockedSitesHint": {
-    "message": "Bloque toujours ces domaines, quelles que soient les listes de filtres."
+    "message": "Bloque toujours ces sites, quoi qu’en disent les listes de filtres."
   },
   "optionsAddDomainInvalid": {
     "message": "Cela ne ressemble pas à un domaine valide."
@@ -295,7 +295,7 @@
     "message": "Grisés"
   },
   "optionsDimmedElementsHint": {
-    "message": "Éléments que vous avez choisi d'\"Estomper\". Supprimez-les ici pour restaurer leur visibilité normale."
+    "message": "Éléments que vous avez grisés avec le sélecteur. Supprimez-en un pour le rétablir."
   },
   "optionsTrackersHeading": {
     "message": "Traqueurs sur l'onglet actuel"
@@ -364,13 +364,13 @@
     "message": "Rien n'est bloqué."
   },
   "presetHintLite": {
-    "message": "Une version plus légère d'Essentiel -- omet la plus grande liste de sécurité."
+    "message": "Comme Essentiel, sans la plus grande liste de sécurité."
   },
   "presetHintEssential": {
-    "message": "Uniquement les publicités, les pop-ups et les sites malveillants connus."
+    "message": "Publicités, pop-ups et sites malveillants connus."
   },
   "presetHintStandard": {
-    "message": "Le niveau Standard bloque les publicités, les traqueurs et les sites malveillants connus."
+    "message": "Publicités, traqueurs et sites malveillants connus."
   },
   "presetHintStrict": {
     "message": "Toutes les listes, plus toutes les options de confidentialité."
@@ -457,7 +457,7 @@
     "message": "Impossible de lire ce fichier."
   },
   "leakedPasswordWarning": {
-    "message": "Ce mot de passe est apparu dans des fuites de données connues."
+    "message": "Ce mot de passe est apparu dans une fuite de données connue."
   },
   "optionsLeakedPasswordToggleLabel": {
     "message": "Signaler les mots de passe divulgués"
