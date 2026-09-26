@@ -14,12 +14,11 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Browser, computeExecutablePath, detectBrowserPlatform, install, resolveBuildId } from "@puppeteer/browsers";
 import puppeteer from "puppeteer-core";
+import { chromePath } from "./chrome-for-testing.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const extensionDir = join(root, "dist", "chrome");
-const cacheDir = join(root, ".cache", "chrome-for-testing");
 const PAGES = ["popup.html", "options.html", "logger.html", "welcome.html"];
 
 if (!existsSync(join(extensionDir, "manifest.json"))) {
@@ -27,17 +26,6 @@ if (!existsSync(join(extensionDir, "manifest.json"))) {
   process.exit(1);
 }
 
-async function chromePath() {
-  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
-  const platform = detectBrowserPlatform();
-  const buildId = await resolveBuildId(Browser.CHROME, platform, "stable");
-  const executablePath = computeExecutablePath({ browser: Browser.CHROME, buildId, cacheDir });
-  if (!existsSync(executablePath)) {
-    console.log(`Downloading Chrome for Testing ${buildId}...`);
-    await install({ browser: Browser.CHROME, buildId, cacheDir });
-  }
-  return executablePath;
-}
 
 const failures = [];
 const expectedVersion = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
@@ -63,7 +51,7 @@ process.on("unhandledRejection", refused);
 
 const browser = await puppeteer
   .launch({
-    executablePath: await chromePath(),
+    executablePath: await chromePath(root),
     headless: true,
     pipe: true,
     enableExtensions: [extensionDir],

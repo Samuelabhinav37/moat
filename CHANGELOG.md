@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Unreleased
+
+### Changed
+- **New Chrome Web Store images, built from real captures.** The old set was hand-built mock-ups
+  with placeholder boxes and made-up numbers, and showed the Settings page from before 0.11.127.
+  - Five screenshots: ads disappearing on weather.com, the privacy promise with weather.com's
+    real requests, the popup hanging from its toolbar icon, a cookie banner rejected on gov.uk,
+    and pausing Moat on a site. A new promo tile and marquee follow the store's guidance: saturated
+    color, almost no text, readable at half size.
+  - Designed for how the store shows them, measured on five competitor listings: screenshots at
+    584×365, promo tiles at 208×133.
+  - `npm run store:capture` retakes the captures from live sites with the current build (the popup
+    at 2×, stacked from 200px bands because popup windows reject device-scale emulation), and
+    `npm run store:build` turns them into the store images. The Chrome for Testing lookup that
+    `check-chrome-load.mjs` had is now shared in `scripts/chrome-for-testing.mjs`.
+
 ## 0.11.139
 
 ### Fixed
