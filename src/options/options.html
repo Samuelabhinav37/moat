@@ -1350,7 +1350,8 @@
 
       /* ---------- Desktop dashboard (dashboard.ts) ---------- */
       .dash-nav,
-      .page-head {
+      .page-head,
+      .overview {
         display: none;
       }
       @media (min-width: 900px) {
@@ -1457,6 +1458,162 @@
           margin: 0;
           color: var(--muted);
         }
+        /* ---------- Overview ---------- */
+        .overview:not(.dash-off) {
+          display: grid;
+          grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+          gap: 20px;
+          margin-top: 24px;
+          padding: 0;
+        }
+        .ov-card {
+          background: var(--panel);
+          border: 1px solid var(--line);
+          border-radius: 16px;
+          padding: 22px 24px;
+        }
+        .ov-card h3 {
+          margin: 0;
+          font-size: 15px;
+          font-weight: 600;
+        }
+        .ov-sub {
+          font-size: 13.5px;
+          color: var(--muted);
+        }
+        .ov-week-head {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          gap: 24px;
+        }
+        .ov-big {
+          font-size: 44px;
+          font-weight: 700;
+          line-height: 1.05;
+          letter-spacing: -0.03em;
+          font-variant-numeric: tabular-nums;
+        }
+        .ov-today {
+          text-align: right;
+          font-size: 13.5px;
+          color: var(--muted);
+        }
+        .ov-today b {
+          display: block;
+          font-size: 20px;
+          color: var(--fg);
+          font-variant-numeric: tabular-nums;
+        }
+        .ov-chart {
+          display: grid;
+          grid-template-columns: repeat(7, minmax(0, 1fr));
+          gap: 10px;
+          align-items: end;
+          height: 150px;
+          margin-top: 20px;
+        }
+        .ov-col {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 8px;
+          height: 100%;
+        }
+        .ov-bar {
+          width: 100%;
+          max-width: 38px;
+          min-height: 2px;
+          border-radius: 6px 6px 2px 2px;
+          background: #3a5a9e;
+        }
+        .ov-col.today .ov-bar {
+          background: var(--blue-lt);
+        }
+        .ov-day {
+          font-size: 12px;
+          color: var(--muted);
+        }
+        .ov-col.today .ov-day {
+          color: var(--fg);
+          font-weight: 600;
+        }
+        .ov-empty {
+          margin: 12px 0 0;
+          font-size: 14px;
+          color: var(--muted);
+        }
+        .ov-level {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .ov-level-name {
+          font-size: 20px;
+          font-weight: 700;
+        }
+        .ov-level .level-meter i {
+          height: 5px;
+        }
+        .ov-links {
+          list-style: none;
+          margin: 4px 0 0;
+          padding: 0;
+        }
+        .ov-links a {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 9px 0;
+          border-top: 1px solid var(--line);
+          color: var(--fg);
+          font-size: 14.5px;
+        }
+        .ov-links a:hover {
+          color: var(--blue-lt);
+          text-decoration: none;
+        }
+        .ov-links svg {
+          width: 17px;
+          height: 17px;
+          color: var(--muted);
+        }
+        .ov-links b {
+          margin-left: auto;
+          font-variant-numeric: tabular-nums;
+        }
+        .ov-actions {
+          grid-column: 1 / -1;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 12px;
+        }
+        .ov-action {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 13px 16px;
+          border: 1px solid var(--line);
+          border-radius: 12px;
+          background: var(--panel);
+          color: var(--fg);
+          font: inherit;
+          font-size: 14.5px;
+          font-weight: 600;
+          cursor: pointer;
+          text-align: left;
+        }
+        .ov-action:hover {
+          border-color: #4a4650;
+          background: var(--panel-2);
+        }
+        .ov-action svg {
+          width: 18px;
+          height: 18px;
+          color: var(--blue-lt);
+          flex: none;
+        }
         /* Every screen's sections are in the page; show only this one's. */
         .advbtn,
         .adv-title,
@@ -1469,14 +1626,9 @@
         .sec.dash-first {
           border-top: 0;
         }
-        .sec.dash-solo h2 {
-          display: none;
-        }
-        .sec.dash-solo .lead {
-          margin-top: 0;
-        }
-        /* About's page summary already says what its own lead says. */
-        .sec.dash-solo[data-page="about"] > div:first-child {
+        /* A screen with one section uses that section's sentence as its
+           subtitle, so the section's own heading block would repeat it. */
+        .sec.dash-solo > div:first-child {
           display: none;
         }
       }
@@ -1556,21 +1708,21 @@
         <a class="help" href="https://samuelabhinav37.github.io/moat/#faq" target="_blank" rel="noopener" data-i18n="settingsHelp">Help</a>
       </header>
 
-      <!-- Desktop only: one screen per group (see dashboard.ts). Phones keep
+      <!-- Desktop only: one screen per task (see dashboard.ts). Phones keep
            the single scrolling page below. -->
       <nav class="dash-nav" aria-label="Settings" data-i18n-aria-label="settingsTitle">
+        <a href="#overview" data-page="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4h6v4h-6zM4 20h6v-3H4z" /></svg><span class="nav-name" data-i18n="navOverview">Overview</span><span class="nav-lead" hidden data-i18n="pageLeadOverview">What Moat did for you this week</span></a>
         <p class="nav-group" data-i18n="navGroupProtection">Protection</p>
-        <a href="#blocking" data-page="blocking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg><span class="nav-name" data-i18n="navBlocking">Blocking</span><span class="nav-lead" hidden data-i18n="pageLeadBlocking">How much to block, and the extras on top</span></a>
-        <a href="#paused" data-page="paused"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span class="nav-name" data-i18n="navPaused">Paused sites</span><span class="count" id="nav-count-paused" hidden></span><span class="nav-lead" hidden data-i18n="pageLeadPaused">Sites where ads and trackers are allowed</span></a>
-        <a href="#hidden" data-page="hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span class="nav-name" data-i18n="navHidden">Hidden on pages</span><span class="count" id="nav-count-hidden" hidden></span><span class="nav-lead" hidden data-i18n="pageLeadHidden">Parts of pages you removed or grayed out</span></a>
-        <p class="nav-group" data-i18n="navGroupAdvanced">Advanced</p>
-        <a href="#filters" data-page="filters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg><span class="nav-name" data-i18n="tabFilters">Filter lists</span><span class="nav-lead" hidden data-i18n="pageLeadFilters">The lists behind each level</span></a>
-        <a href="#privacy" data-page="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a3 3 0 100-6 3 3 0 000 6zM5 20a7 7 0 0114 0" /></svg><span class="nav-name" data-i18n="advPrivacyTitle">Privacy extras</span><span class="nav-lead" hidden data-i18n="pageLeadPrivacy">More protection against being followed and identified</span></a>
-        <a href="#rules" data-page="rules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg><span class="nav-name" data-i18n="advRulesTitle">Block and allow</span><span class="nav-lead" hidden data-i18n="pageLeadRules">Your own always and never lists</span></a>
-        <a href="#trackers" data-page="trackers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18l5-6 4 3 7-9" /></svg><span class="nav-name" data-i18n="tabTrackers">Trackers</span><span class="nav-lead" hidden data-i18n="pageLeadTrackers">Companies Moat stopped this week</span></a>
-        <p class="nav-group" data-i18n="navGroupMoat">Moat</p>
-        <a href="#backup" data-page="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span><span class="nav-lead" hidden data-i18n="pageLeadBackup">Save your settings or move them to another computer</span></a>
-        <a href="#about" data-page="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About Moat</span><span class="nav-lead" hidden data-i18n="pageLeadAbout">This version, and everything that ever leaves your device</span></a>
+        <a href="#blocking" data-page="blocking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg><span class="nav-name" data-i18n="navBlockingLevel">Blocking level</span><span class="nav-lead" hidden data-i18n="pageLeadBlocking">How much to block, and the extras on top</span></a>
+        <a href="#privacy" data-page="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a3 3 0 100-6 3 3 0 000 6zM5 20a7 7 0 0114 0" /></svg><span class="nav-name" data-i18n="navPrivacy">Privacy</span></a>
+        <a href="#filters" data-page="filters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg><span class="nav-name" data-i18n="tabFilters">Filter lists</span></a>
+        <p class="nav-group" data-i18n="navGroupExceptions">Your exceptions</p>
+        <a href="#paused" data-page="paused"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span class="nav-name" data-i18n="navPaused">Paused sites</span><span class="count" id="nav-count-paused" hidden></span></a>
+        <a href="#hidden" data-page="hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span class="nav-name" data-i18n="navHidden">Hidden on pages</span><span class="count" id="nav-count-hidden" hidden></span></a>
+        <a href="#rules" data-page="rules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg><span class="nav-name" data-i18n="navRules">Always and never block</span></a>
+        <p class="nav-group" data-i18n="navGroupSettings">Settings</p>
+        <a href="#backup" data-page="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span></a>
+        <a href="#about" data-page="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About Moat</span></a>
       </nav>
 
       <div class="toast" id="saved-toast" role="status" aria-live="polite" hidden>
@@ -1586,6 +1738,40 @@
           <h1 id="page-title"></h1>
           <p id="page-lead"></p>
         </div>
+
+        <!-- Overview (desktop only): the week at a glance, from the counts
+             Moat already keeps on this device (usageStats.ts). -->
+        <section class="sec overview" data-page="overview" aria-labelledby="page-title">
+          <div class="ov-card ov-week">
+            <div class="ov-week-head">
+              <div>
+                <div class="ov-big" id="ov-week-total">—</div>
+                <div class="ov-sub" data-i18n="ovWeekLabel">ads and trackers stopped this week</div>
+              </div>
+              <div class="ov-today"><b id="ov-today-total">—</b><span data-i18n="ovTodayLabel">today</span></div>
+            </div>
+            <div class="ov-chart" id="ov-chart"></div>
+            <p class="ov-empty" id="ov-week-empty" hidden data-i18n="ovWeekEmpty">Nothing blocked yet this week. Browse a few sites and this fills in.</p>
+          </div>
+          <div class="ov-card ov-level">
+            <div>
+              <h3 data-i18n="navBlockingLevel">Blocking level</h3>
+              <span class="ov-sub" data-i18n="ovLevelSub">Applies to every site</span>
+            </div>
+            <div class="ov-level-name" id="ov-level-name">—</div>
+            <div class="level-meter" id="ov-level-meter" aria-hidden="true"><i></i><i></i><i></i></div>
+            <ul class="ov-links">
+              <li><a href="#paused"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span data-i18n="navPaused">Paused sites</span><b id="ov-paused-count">0</b></a></li>
+              <li><a href="#hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span data-i18n="navHidden">Hidden on pages</span><b id="ov-hidden-count">0</b></a></li>
+              <li><a href="#blocking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg><span data-i18n="ovChangeLevel">Change level</span><b aria-hidden="true">›</b></a></li>
+            </ul>
+          </div>
+          <div class="ov-actions">
+            <button type="button" class="ov-action" id="ov-pick-element"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4l7 17 2-7 7-2z" /></svg><span data-i18n="ovBlockElement">Block an element</span></button>
+            <button type="button" class="ov-action" id="ov-save-backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span data-i18n="optionsExportTitle">Save a backup</span></button>
+            <button type="button" class="ov-action" id="ov-check-fixes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0114-5M20 12a8 8 0 01-14 5M18 3v4h-4M6 21v-4h4" /></svg><span data-i18n="aboutCheckFixes">Check for filter fixes</span></button>
+          </div>
+        </section>
 
         <div class="panel">
           <!-- How much to block: three presets, each a radio card with a
@@ -1778,7 +1964,7 @@
 
           <!-- Trackers -->
           <div class="panel">
-            <section class="sec" data-page="trackers">
+            <section class="sec" data-page="overview">
               <div>
                 <h2 data-i18n="tabTrackers">Trackers</h2>
                 <p class="lead" data-i18n="optionsTrackersDesc">Companies Moat stopped this week. Counted on your device and never uploaded.</p>

@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.149
+
+### Added
+- **Overview, the Settings page's new home on desktop.** This week's total with a 7-day chart and
+  today's count, your blocking level with its meter, paused and hidden counts linking to their
+  screens, and quick actions (Block an element, Save a backup, Check for filter fixes). Below it,
+  the tracking companies Moat stopped this week (formerly the Trackers screen; `#trackers` links
+  still land here). All from the counts Moat already keeps on the device; nothing new is
+  recorded.
+
+### Changed
+- **Sidebar grouped by task:** Overview; Protection (Blocking level, Privacy, Filter lists); Your
+  exceptions (Paused sites, Hidden on pages, Always and never block); Settings (Backup and sync,
+  About Moat).
+- **Nothing said twice.** On a screen with one section, that section's own sentence is the page
+  subtitle and its heading block is not repeated inside the card.
+- The weekly tracker list shows 5 companies with "Show all", like the other long lists.
+
+### Fixed
+- "1 sites" under a tracking company now reads "1 site".
+
 ## 0.11.148
 
 ### Added

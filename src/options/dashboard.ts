@@ -1,15 +1,19 @@
 // Desktop dashboard for the Settings page: a sidebar with one screen per
-// group, picked by the URL hash (#paused, #filters, ...) so Back and
+// task, picked by the URL hash (#paused, #filters, ...) so Back and
 // bookmarks work. Every section stays in the page; this only marks which
 // ones belong to the current screen, and the CSS hides the rest at desktop
 // widths (min-width: 900px). Phones keep the single scrolling page.
 
-export const PAGE_KEYS = ["blocking", "paused", "hidden", "filters", "privacy", "rules", "trackers", "backup", "about"] as const;
+export const PAGE_KEYS = ["overview", "blocking", "privacy", "filters", "paused", "hidden", "rules", "backup", "about"] as const;
 export type PageKey = (typeof PAGE_KEYS)[number];
-export const DEFAULT_PAGE: PageKey = "blocking";
+export const DEFAULT_PAGE: PageKey = "overview";
+
+/** Screens that were folded into another, so old links still land. */
+const MOVED: Record<string, PageKey> = { trackers: "overview" };
 
 export function pageFromHash(hash: string): PageKey {
   const key = hash.replace(/^#/, "");
+  if (MOVED[key]) return MOVED[key];
   return (PAGE_KEYS as readonly string[]).includes(key) ? (key as PageKey) : DEFAULT_PAGE;
 }
 
@@ -21,7 +25,8 @@ export function showPage(key: PageKey, root: Document = document): void {
   const visible = sections.filter((section) => section.dataset.page === key);
   visible.forEach((section, i) => {
     section.classList.toggle("dash-first", i === 0);
-    // A screen with a single section doesn't repeat the page title as its own heading.
+    // A screen with a single section uses its sentence as the subtitle, so
+    // the section's own heading block is hidden (see the CSS).
     section.classList.toggle("dash-solo", visible.length === 1);
   });
   for (const panel of root.querySelectorAll<HTMLElement>(".panel")) {
@@ -41,7 +46,8 @@ export function showPage(key: PageKey, root: Document = document): void {
   const title = root.getElementById("page-title");
   const lead = root.getElementById("page-lead");
   if (title) title.textContent = link?.querySelector(".nav-name")?.textContent ?? "";
-  if (lead) lead.textContent = link?.querySelector(".nav-lead")?.textContent ?? "";
+  const soloLead = visible.length === 1 ? visible[0]!.querySelector(".lead")?.textContent : null;
+  if (lead) lead.textContent = soloLead ?? link?.querySelector(".nav-lead")?.textContent ?? "";
 }
 
 /** Keeps a sidebar count in step with the rows of one or more lists. */

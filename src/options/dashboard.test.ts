@@ -28,6 +28,11 @@ describe("pageFromHash", () => {
     expect(pageFromHash("filters")).toBe("filters");
     expect(pageFromHash("")).toBe(DEFAULT_PAGE);
     expect(pageFromHash("#nope")).toBe(DEFAULT_PAGE);
+    expect(DEFAULT_PAGE).toBe("overview");
+  });
+
+  it("sends the old Trackers link to the Overview it was folded into", () => {
+    expect(pageFromHash("#trackers")).toBe("overview");
   });
 });
 
@@ -40,6 +45,12 @@ describe("showPage", () => {
     expect(document.querySelector('[aria-current="page"]')!.getAttribute("data-page")).toBe("blocking");
     expect(document.getElementById("level")!.classList.contains("dash-first")).toBe(true);
     expect(document.getElementById("level")!.classList.contains("dash-solo")).toBe(false);
+  });
+
+  it("uses a lone section's own sentence as the page subtitle", () => {
+    document.getElementById("paused")!.insertAdjacentHTML("afterbegin", '<p class="lead">Ads load normally here.</p>');
+    showPage("paused");
+    expect(document.getElementById("page-lead")!.textContent).toBe("Ads load normally here.");
   });
 
   it("marks a lone section so its heading doesn't repeat the page title", () => {

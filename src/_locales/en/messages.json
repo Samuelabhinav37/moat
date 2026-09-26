@@ -1429,47 +1429,14 @@
   "navGroupProtection": {
     "message": "Protection"
   },
-  "navBlocking": {
-    "message": "Blocking"
-  },
   "navPaused": {
     "message": "Paused sites"
   },
   "navHidden": {
     "message": "Hidden on pages"
   },
-  "navGroupAdvanced": {
-    "message": "Advanced"
-  },
-  "navGroupMoat": {
-    "message": "Moat"
-  },
   "pageLeadBlocking": {
     "message": "How much to block, and the extras on top"
-  },
-  "pageLeadPaused": {
-    "message": "Sites where ads and trackers are allowed"
-  },
-  "pageLeadHidden": {
-    "message": "Parts of pages you removed or grayed out"
-  },
-  "pageLeadFilters": {
-    "message": "The lists behind each level"
-  },
-  "pageLeadPrivacy": {
-    "message": "More protection against being followed and identified"
-  },
-  "pageLeadRules": {
-    "message": "Your own always and never lists"
-  },
-  "pageLeadTrackers": {
-    "message": "Companies Moat stopped this week"
-  },
-  "pageLeadBackup": {
-    "message": "Save your settings or move them to another computer"
-  },
-  "pageLeadAbout": {
-    "message": "This version, and everything that ever leaves your device"
   },
   "aboutRulesUnit": {
     "message": "blocking rules"
@@ -1523,5 +1490,56 @@
   },
   "toastSaved": {
     "message": "Saved"
+  },
+  "navOverview": {
+    "message": "Overview"
+  },
+  "navBlockingLevel": {
+    "message": "Blocking level"
+  },
+  "navPrivacy": {
+    "message": "Privacy"
+  },
+  "navRules": {
+    "message": "Always and never block"
+  },
+  "navGroupExceptions": {
+    "message": "Your exceptions"
+  },
+  "navGroupSettings": {
+    "message": "Settings"
+  },
+  "pageLeadOverview": {
+    "message": "What Moat did for you this week"
+  },
+  "ovWeekLabel": {
+    "message": "ads and trackers stopped this week"
+  },
+  "ovTodayLabel": {
+    "message": "today"
+  },
+  "ovWeekEmpty": {
+    "message": "Nothing blocked yet this week. Browse a few sites and this fills in."
+  },
+  "ovLevelSub": {
+    "message": "Applies to every site"
+  },
+  "ovChangeLevel": {
+    "message": "Change level"
+  },
+  "ovBlockElement": {
+    "message": "Block an element"
+  },
+  "ovToday": {
+    "message": "Today"
+  },
+  "ovLevelOff": {
+    "message": "Off"
+  },
+  "ovLevelCustom": {
+    "message": "Your own mix"
+  },
+  "optionsCompanyReachOne": {
+    "message": "1 site"
   }
 }

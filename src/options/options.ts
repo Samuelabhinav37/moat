@@ -1355,7 +1355,10 @@ async function render(): Promise<void> {
   const [settings, policy] = await Promise.all([getEffectiveSettings(), getManagedPolicy()]);
 
   await renderProtectionTab(settings);
-  if (lastUsage) renderWeeklyTrackers(lastUsage);
+  if (lastUsage) {
+    renderWeeklyTrackers(lastUsage);
+    renderOverview(settings, lastUsage);
+  }
 
   renderSyncStatus(settings.syncEnabled, await getSyncStatus());
   renderLiveStatus(await getLiveUpdateStatus(), await getYoutubeQuickFixesStatus());
@@ -1547,7 +1550,10 @@ function renderWeeklyTrackers(usage: UsageSummaryResponse): void {
       name.textContent = company.company;
       const reach = document.createElement("div");
       reach.className = "wt-reach";
-      reach.textContent = tFallback("optionsCompanyReach", `${company.hostnameCount} sites`, String(company.hostnameCount));
+      reach.textContent =
+        company.hostnameCount === 1
+          ? tFallback("optionsCompanyReachOne", "1 site")
+          : tFallback("optionsCompanyReach", `${company.hostnameCount} sites`, String(company.hostnameCount));
       nameCell.append(name, reach);
 
       // Fill is relative to the top company's own count, not a total -- a
@@ -1568,7 +1574,83 @@ function renderWeeklyTrackers(usage: UsageSummaryResponse): void {
       return row;
     })
   );
+  applyLongList(container, longListLabels);
 }
+
+// ---------- Overview (desktop) ----------
+
+const LEVEL_STEPS: Partial<Record<PresetName | "custom", number>> = { lite: 1, essential: 1, standard: 2, strict: 3 };
+
+function levelLabel(preset: PresetName | "custom"): string {
+  switch (preset) {
+    case "lite":
+      return tFallback("presetLite", "Light");
+    case "essential":
+      return tFallback("presetEssential", "Essential");
+    case "standard":
+      return tFallback("presetStandard", "Balanced");
+    case "strict":
+      return tFallback("presetStrict", "Strict");
+    case "off":
+      return tFallback("ovLevelOff", "Off");
+    default:
+      return tFallback("ovLevelCustom", "Your own mix");
+  }
+}
+
+/** The week at a glance, from the same local counts the Trackers list
+ * reads: usage.sparkline is 7 daily totals, oldest first, ending today. */
+function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
+  const days = usage.sparkline.slice(-7);
+  const week = days.reduce((sum, n) => sum + n, 0);
+  document.getElementById("ov-week-total")!.textContent = week.toLocaleString();
+  document.getElementById("ov-today-total")!.textContent = usage.today.total.toLocaleString();
+  document.getElementById("ov-week-empty")!.hidden = week > 0;
+
+  const chart = document.getElementById("ov-chart") as HTMLElement;
+  const max = Math.max(...days, 1);
+  const todayLabel = tFallback("ovToday", "Today");
+  chart.replaceChildren(
+    ...days.map((count, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (days.length - 1 - i));
+      const isToday = i === days.length - 1;
+      const dayName = isToday ? todayLabel : date.toLocaleDateString(undefined, { weekday: "short" });
+      const col = document.createElement("div");
+      col.className = isToday ? "ov-col today" : "ov-col";
+      col.setAttribute("role", "img");
+      col.setAttribute("aria-label", `${dayName}: ${count.toLocaleString()}`);
+      col.title = `${count.toLocaleString()} · ${date.toLocaleDateString()}`;
+      const bar = document.createElement("div");
+      bar.className = "ov-bar";
+      bar.style.height = `${Math.round((count / max) * 118)}px`;
+      const label = document.createElement("span");
+      label.className = "ov-day";
+      label.textContent = dayName;
+      col.append(bar, label);
+      return col;
+    })
+  );
+
+  const preset = detectPreset(settings);
+  document.getElementById("ov-level-name")!.textContent = levelLabel(preset);
+  const steps = LEVEL_STEPS[preset];
+  const meter = document.getElementById("ov-level-meter") as HTMLElement;
+  meter.hidden = steps === undefined;
+  meter.querySelectorAll("i").forEach((step, i) => step.classList.toggle("on", steps !== undefined && i < steps));
+
+  document.getElementById("ov-paused-count")!.textContent = settings.disabledSites.length.toLocaleString();
+  const hidden = [settings.customCosmeticRules, settings.customGrayscaleRules].reduce(
+    (sum, rules) => sum + Object.values(rules).reduce((n, selectors) => n + selectors.length, 0),
+    0
+  );
+  document.getElementById("ov-hidden-count")!.textContent = hidden.toLocaleString();
+}
+
+// Quick actions reuse the real buttons, so they behave exactly the same.
+document.getElementById("ov-pick-element")!.addEventListener("click", () => pickElementButton.click());
+document.getElementById("ov-save-backup")!.addEventListener("click", () => exportSettingsButton.click());
+document.getElementById("ov-check-fixes")!.addEventListener("click", () => aboutCheckFixesButton.click());
 
 // company name -> { description, url }, fetched once on first view. Lazy on
 // purpose: it's ~450KB of text nobody needs unless they open this tab.

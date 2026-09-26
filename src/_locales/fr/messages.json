@@ -1427,47 +1427,14 @@
   "navGroupProtection": {
     "message": "Protection"
   },
-  "navBlocking": {
-    "message": "Blocage"
-  },
   "navPaused": {
     "message": "Sites en pause"
   },
   "navHidden": {
     "message": "Masqué sur les pages"
   },
-  "navGroupAdvanced": {
-    "message": "Avancé"
-  },
-  "navGroupMoat": {
-    "message": "Moat"
-  },
   "pageLeadBlocking": {
     "message": "Le niveau de blocage et les options en plus"
-  },
-  "pageLeadPaused": {
-    "message": "Sites où les publicités et les traqueurs sont autorisés"
-  },
-  "pageLeadHidden": {
-    "message": "Parties de pages que vous avez retirées ou grisées"
-  },
-  "pageLeadFilters": {
-    "message": "Les listes derrière chaque niveau"
-  },
-  "pageLeadPrivacy": {
-    "message": "Plus de protection contre le pistage et l'identification"
-  },
-  "pageLeadRules": {
-    "message": "Vos propres listes « toujours » et « jamais »"
-  },
-  "pageLeadTrackers": {
-    "message": "Entreprises bloquées par Moat cette semaine"
-  },
-  "pageLeadBackup": {
-    "message": "Sauvegardez vos réglages ou transférez-les vers un autre ordinateur"
-  },
-  "pageLeadAbout": {
-    "message": "Cette version, et tout ce qui quitte votre appareil"
   },
   "aboutRulesUnit": {
     "message": "règles de blocage"
@@ -1521,5 +1488,56 @@
   },
   "toastSaved": {
     "message": "Enregistré"
+  },
+  "navOverview": {
+    "message": "Vue d'ensemble"
+  },
+  "navBlockingLevel": {
+    "message": "Niveau de blocage"
+  },
+  "navPrivacy": {
+    "message": "Confidentialité"
+  },
+  "navRules": {
+    "message": "Toujours et jamais bloquer"
+  },
+  "navGroupExceptions": {
+    "message": "Vos exceptions"
+  },
+  "navGroupSettings": {
+    "message": "Réglages"
+  },
+  "pageLeadOverview": {
+    "message": "Ce que Moat a fait pour vous cette semaine"
+  },
+  "ovWeekLabel": {
+    "message": "publicités et traqueurs arrêtés cette semaine"
+  },
+  "ovTodayLabel": {
+    "message": "aujourd'hui"
+  },
+  "ovWeekEmpty": {
+    "message": "Rien de bloqué cette semaine pour l'instant. Visitez quelques sites et ceci se remplira."
+  },
+  "ovLevelSub": {
+    "message": "S'applique à tous les sites"
+  },
+  "ovChangeLevel": {
+    "message": "Changer de niveau"
+  },
+  "ovBlockElement": {
+    "message": "Bloquer un élément"
+  },
+  "ovToday": {
+    "message": "Aujourd'hui"
+  },
+  "ovLevelOff": {
+    "message": "Désactivé"
+  },
+  "ovLevelCustom": {
+    "message": "Votre propre combinaison"
+  },
+  "optionsCompanyReachOne": {
+    "message": "1 site"
   }
 }

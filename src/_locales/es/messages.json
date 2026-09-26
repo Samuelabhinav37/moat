@@ -1427,47 +1427,14 @@
   "navGroupProtection": {
     "message": "Protección"
   },
-  "navBlocking": {
-    "message": "Bloqueo"
-  },
   "navPaused": {
     "message": "Sitios en pausa"
   },
   "navHidden": {
     "message": "Ocultado en páginas"
   },
-  "navGroupAdvanced": {
-    "message": "Avanzado"
-  },
-  "navGroupMoat": {
-    "message": "Moat"
-  },
   "pageLeadBlocking": {
     "message": "Cuánto bloquear y las funciones extra"
-  },
-  "pageLeadPaused": {
-    "message": "Sitios donde se permiten anuncios y rastreadores"
-  },
-  "pageLeadHidden": {
-    "message": "Partes de páginas que quitaste o pusiste en gris"
-  },
-  "pageLeadFilters": {
-    "message": "Las listas detrás de cada nivel"
-  },
-  "pageLeadPrivacy": {
-    "message": "Más protección contra el seguimiento y la identificación"
-  },
-  "pageLeadRules": {
-    "message": "Tus propias listas de bloquear siempre y nunca"
-  },
-  "pageLeadTrackers": {
-    "message": "Empresas que Moat detuvo esta semana"
-  },
-  "pageLeadBackup": {
-    "message": "Guarda tus ajustes o llévalos a otro ordenador"
-  },
-  "pageLeadAbout": {
-    "message": "Esta versión y todo lo que sale de tu dispositivo"
   },
   "aboutRulesUnit": {
     "message": "reglas de bloqueo"
@@ -1521,5 +1488,56 @@
   },
   "toastSaved": {
     "message": "Guardado"
+  },
+  "navOverview": {
+    "message": "Resumen"
+  },
+  "navBlockingLevel": {
+    "message": "Nivel de bloqueo"
+  },
+  "navPrivacy": {
+    "message": "Privacidad"
+  },
+  "navRules": {
+    "message": "Bloquear siempre y nunca"
+  },
+  "navGroupExceptions": {
+    "message": "Tus excepciones"
+  },
+  "navGroupSettings": {
+    "message": "Ajustes"
+  },
+  "pageLeadOverview": {
+    "message": "Lo que Moat hizo por ti esta semana"
+  },
+  "ovWeekLabel": {
+    "message": "anuncios y rastreadores detenidos esta semana"
+  },
+  "ovTodayLabel": {
+    "message": "hoy"
+  },
+  "ovWeekEmpty": {
+    "message": "Aún no se ha bloqueado nada esta semana. Visita algunos sitios y esto se irá llenando."
+  },
+  "ovLevelSub": {
+    "message": "Se aplica a todos los sitios"
+  },
+  "ovChangeLevel": {
+    "message": "Cambiar nivel"
+  },
+  "ovBlockElement": {
+    "message": "Bloquear un elemento"
+  },
+  "ovToday": {
+    "message": "Hoy"
+  },
+  "ovLevelOff": {
+    "message": "Desactivado"
+  },
+  "ovLevelCustom": {
+    "message": "Tu propia combinación"
+  },
+  "optionsCompanyReachOne": {
+    "message": "1 sitio"
   }
 }
