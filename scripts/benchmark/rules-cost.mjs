@@ -119,7 +119,27 @@ async function measure(extDir) {
 }
 
 const median = (xs) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
-const builds = [{ name: "unpacked", dir: unpackedExt }, { name: "packed 5000/rule", dir: packedExt }, ...variants];
+// A what-if: the packed build minus pattern block rules that never fired in
+// a crawl (TRIM=.cache/crawl/cold-rules.json), security lists excluded.
+if (process.env.TRIM) {
+  const cold = JSON.parse(readFileSync(process.env.TRIM, "utf8"));
+  const dir = join(work, "trimmed");
+  cpSync(packedExt, dir, { recursive: true });
+  const manifest = JSON.parse(readFileSync(join(packedExt, "rules", "manifest.json"), "utf8"));
+  let removed = 0;
+  for (const entry of manifest) {
+    if (entry.category === "security" || !cold[entry.id]) continue;
+    const drop = new Set(cold[entry.id]);
+    const rules = JSON.parse(readFileSync(join(packedExt, "rules", entry.file), "utf8")).filter((r) => !drop.has(r.id));
+    removed += entry.ruleCount - rules.length;
+    entry.ruleCount = rules.length;
+    writeFileSync(join(dir, "rules", entry.file), JSON.stringify(rules));
+  }
+  writeFileSync(join(dir, "rules", "manifest.json"), JSON.stringify(manifest));
+  console.log(`trimmed variant: ${removed.toLocaleString()} never-fired non-security pattern rules removed`);
+  variants.push({ name: "packed + trimmed", dir });
+}
+const builds = [{ name: "unpacked", dir: unpackedExt }, { name: "packed", dir: packedExt }, ...variants];
 const results = Object.fromEntries(builds.map((b) => [b.name, []]));
 for (let i = 0; i < runs; i++) {
   for (const b of builds) results[b.name].push(await measure(b.dir));

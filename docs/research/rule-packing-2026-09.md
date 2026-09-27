@@ -62,11 +62,45 @@ Live benchmark (`scripts/benchmark/bench.mjs moat`): 130/131 test hosts blocked 
 Cloudflare Turnstile passed 2/3 in that run; repeated separately, 8/8 packed, 7/8 original rules,
 8/8 with no extension, and nothing blocked on the page by either build, so it's the live service.
 
-## Not done here
+## Phase 3: daily security lists (0.11.156)
 
-- Company attribution is kept by not packing attributed rules. Packing trackers per company would
-  pack those too, at the cost of one scanned rule per company.
-- Pattern rules (about 66,000) are unchanged. Trimming ones that never fire needs a hit-rate crawl
-  and a decision about moving them to Strict; see the plan in the conversation that led here.
-- Security lists (phishing, scam, malware) could now be shipped as a few packed dynamic rules
-  refreshed daily through the signed live-update channel.
+The phishing, malicious-URL and scam lists are refreshed daily from their upstream sources and
+applied as a few packed dynamic rules next to the bundled ones. See CHANGELOG 0.11.156,
+`src/shared/liveSecurity.ts` (guardrails) and `.github/workflows/security-live.yml`.
+
+## Phase 2: do the remaining pattern rules earn their place?
+
+`scripts/benchmark/crawl-rule-hits.mjs` loaded Moat with the original rules and every list on,
+and counted every rule Chrome reported firing (`onRuleMatchedDebug`) on the homepages of the
+Tranco top sites. The run was stopped at 600 of 1,000 (the machine ran low on memory); 311 of the
+600 loaded as web pages (the rest are infrastructure domains like gstatic.com or akamai.net).
+`scripts/benchmark/analyze-rule-hits.mjs`:
+
+| Kind | Fired | Total |
+|---|---|---|
+| Pattern block rules | 229 | 55,758 (0.4%) |
+| Domain rules | 321 | 246,508 |
+| Exceptions (allow) | 64 | 8,116 |
+| Redirects (stubs) | 19 | 3,485 |
+| Header rules | 5 | 22 |
+
+Most pattern rules are the security lists' phishing and malware URL rules (36,000), which should
+never fire on a popular legitimate homepage; that says nothing about their value, so they were not
+candidates. Exceptions and redirects exist to stop breakage and stay regardless.
+
+The candidates were the 18,081 ad/tracker/annoyance pattern rules that never fired. A what-if build
+without them (`TRIM=.cache/crawl/cold-rules.json node scripts/benchmark/rules-cost.mjs`):
+
+| Build | Rules | Rules ready | Compiled index | Rule files |
+|---|---|---|---|---|
+| Original | 313,889 | 3.73 s | 38.1 MB | 52.8 MB |
+| Packed (shipped) | 71,771 | 2.08 s | 17.7 MB | 21.1 MB |
+| Packed + cold patterns removed | 53,690 | 1.90 s | 15.2 MB | 18.7 MB |
+
+(A busier machine than the earlier table, so all times are higher; compare rows.)
+
+**Decision: not trimmed.** Removing them would save about 0.2 s and 2.5 MB on top of the 1.6 s and
+20 MB packing already saved, while the crawl only saw homepages of popular sites, from one US
+connection, logged out. Pattern rules are the long tail (article pages, smaller and regional
+sites), exactly what a homepage crawl can't see. Revisit only with a crawl of inner pages across
+regions, and then as "move to Strict", not deletion.
