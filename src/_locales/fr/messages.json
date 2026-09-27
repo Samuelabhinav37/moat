@@ -860,10 +860,10 @@
     "message": "Rien. Fonctionne entièrement sur votre appareil."
   },
   "optionsDisclosureUpdatesName": {
-    "message": "Correctifs de filtres"
+    "message": "Mises Ã  jour quotidiennes"
   },
   "optionsDisclosureUpdatesSent": {
-    "message": "Un petit fichier signé, téléchargé une fois par jour. Il ne contient rien sur vous."
+    "message": "Correctifs de filtres et listes d'hameÃ§onnage et d'arnaques du jour, tÃ©lÃ©chargÃ©s une fois par jour sous forme de fichiers signÃ©s. Rien sur vous n'est envoyÃ©."
   },
   "optionsDisclosureUpdatesRecipient": {
     "message": "GitHub Pages (hébergement de fichiers)"

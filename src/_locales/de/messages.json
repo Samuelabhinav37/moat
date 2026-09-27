@@ -860,10 +860,10 @@
     "message": "Nichts. Läuft vollständig auf deinem Gerät."
   },
   "optionsDisclosureUpdatesName": {
-    "message": "Filterkorrekturen"
+    "message": "TÃ¤gliche Updates"
   },
   "optionsDisclosureUpdatesSent": {
-    "message": "Eine kleine signierte Datei, einmal täglich heruntergeladen. Sie enthält nichts über dich."
+    "message": "Filter-Korrekturen und die aktuellen Phishing- und Betrugslisten, einmal tÃ¤glich als signierte Dateien geladen. Es wird nichts Ã¼ber dich gesendet."
   },
   "optionsDisclosureUpdatesRecipient": {
     "message": "GitHub Pages (Datei-Hosting)"

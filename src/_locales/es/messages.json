@@ -860,10 +860,10 @@
     "message": "Nada. Se ejecuta completamente en tu dispositivo."
   },
   "optionsDisclosureUpdatesName": {
-    "message": "Correcciones de filtros"
+    "message": "Actualizaciones diarias"
   },
   "optionsDisclosureUpdatesSent": {
-    "message": "Un pequeño archivo firmado, descargado una vez al día. No contiene nada sobre ti."
+    "message": "Correcciones de filtros y las listas de phishing y estafas del dÃ­a, descargadas una vez al dÃ­a como archivos firmados. No se envÃ­a nada sobre ti."
   },
   "optionsDisclosureUpdatesRecipient": {
     "message": "GitHub Pages (alojamiento de archivos)"

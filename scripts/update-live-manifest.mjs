@@ -19,13 +19,16 @@ import { dirname, join } from "node:path";
 
 const liveDir = join(dirname(fileURLToPath(import.meta.url)), "..", "live");
 
-// Everything in live/ except the manifest itself.
+// Everything in live/ except the manifest itself. security-domains.json is
+// written by the daily security-live workflow (scripts/update-live-security.mjs),
+// so it's only listed once it exists.
 const TRACKED_FILES = [
   "redirect-domains.json",
   "quick-fixes.json",
   "cosmetic-fixes.json",
   "youtube-quick-fixes.json",
-];
+  "security-domains.json",
+].filter((name) => existsSync(join(liveDir, name)));
 
 const sha256Hex = (buf) => createHash("sha256").update(buf).digest("hex");
 

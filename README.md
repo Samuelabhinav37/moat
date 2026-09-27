@@ -51,8 +51,9 @@ Everything happens on your computer, and nothing about you is ever sent anywhere
 
 - **No server.** There's no Moat backend. Blocking happens inside your browser.
 - **No account and no telemetry.** Nothing to sign up for, no analytics, no crash reports.
-- **One small download a day:** a signed file of filter fixes, checked against a key built into
-  the extension before it's used. That request carries nothing about you.
+- **A few downloads a day:** signed files of filter fixes and today's phishing, malware and scam
+  domain lists, checked against a key built into the extension before they're used. Those
+  requests carry nothing about you.
 - **Open source.** Anyone can read the code, build it and compare it with what they installed.
 
 The complete details, case by case, are in the [privacy policy](PRIVACY.md).

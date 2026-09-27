@@ -862,10 +862,10 @@
     "message": "Nothing. Runs entirely on your device."
   },
   "optionsDisclosureUpdatesName": {
-    "message": "Filter fixes"
+    "message": "Daily updates"
   },
   "optionsDisclosureUpdatesSent": {
-    "message": "One small signed file, downloaded once a day. It carries nothing about you."
+    "message": "Filter fixes and today's phishing and scam lists, downloaded once a day as signed files. Nothing about you is sent."
   },
   "optionsDisclosureUpdatesRecipient": {
     "message": "GitHub Pages (file hosting)"

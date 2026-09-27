@@ -8,9 +8,10 @@
   and no crash reporting. Its developer receives nothing about you, ever.
 - **What's stored:** your settings (filter lists, paused sites, custom
   rules) in your browser's own local storage, never transmitted by default.
-- **What leaves your device:** roughly once a day Moat downloads a few small
-  static filter-fix files from a public GitHub Pages URL — a plain file
-  download that carries nothing about you. Two opt-in features (both off by
+- **What leaves your device:** roughly once a day Moat downloads a few
+  static files from a public GitHub Pages URL (filter fixes and today's
+  phishing, malware and scam domain lists) — a plain file download that
+  carries nothing about you. Two opt-in features (both off by
   default) send something derived from what you type to a third party (never
   to Moat); one enterprise-only feature sends security events to your own
   organization's server. All four are detailed below.
@@ -56,9 +57,13 @@ only to an organization's own infrastructure, never to Moat's developer.
    (`samuelabhinav37.github.io/moat/live`): a signed `manifest.json` (plus
    its `manifest.json.sig`), a list of known ad-redirect domains for the
    popup/redirect firewall, an emergency "quick fixes" block/allow channel,
-   and a "cosmetic fixes" channel of element-hiding selectors -- all three
-   payloads empty by default (see the README), there to patch filter
-   breakage faster than a full store release allows. Moat verifies each file
+   and a "cosmetic fixes" channel of element-hiding selectors -- those
+   three empty by default (see the README), there to patch filter breakage
+   faster than a full store release allows -- and `security-domains.json`,
+   today's copy of the phishing, malicious-URL and scam domain lists that are
+   also bundled (about 0.5 MB compressed), so newly reported phishing sites
+   are blocked within a day instead of at the next release. It can only add
+   blocks. Moat verifies each file
    against a SHA-256 hash in the manifest, and the manifest itself against a
    bundled Ed25519 public key, before applying anything; a failed check
    means Moat keeps its bundled baseline. These are plain file downloads --
@@ -122,8 +127,8 @@ only to an organization's own infrastructure, never to Moat's developer.
 Nothing else in Moat makes a network request. In particular: the full
 filter lists and cosmetic-hiding rules that block ads and trackers are
 bundled into the extension at build time (see the project's README for
-exactly which lists), not fetched live -- only the small fix files in item 1
-above are, and those only patch the bundled baseline.
+exactly which lists), not fetched live -- only the files in item 1 above are, and those only
+patch or refresh the bundled baseline.
 
 ## Permissions
 

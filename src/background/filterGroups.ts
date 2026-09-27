@@ -5,6 +5,7 @@
 // diff: there are only ~11 groups, so idempotent full application is cheap
 // and avoids drift if something updates state outside this module.
 import browser from "webextension-polyfill";
+import { applyLiveSecurityRules } from "./liveSecurityRules";
 import { groupChunkIds, summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { effectiveFilterGroupState, orderGroupsByDropPriority } from "./filterGroupState";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
@@ -114,6 +115,8 @@ export async function applyFilterGroupState(settings: Settings, options: ApplyFi
         enableRulesetIds: idsFor(enabling),
         disableRulesetIds: idsFor([...wantOff, ...droppedGroups]),
       });
+      // The daily security lists follow their bundled lists on or off.
+      await applyLiveSecurityRules().catch(() => {});
       await browser.storage.local.set({
         [STATUS_KEY]: {
           ok: droppedGroups.length === 0,

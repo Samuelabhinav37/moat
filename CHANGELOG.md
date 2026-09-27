@@ -3,6 +3,32 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.156
+
+### Added
+- **Daily phishing, malicious-URL and scam lists.** Those three lists were only as fresh as the
+  last Moat release. `.github/workflows/security-live.yml` now fetches them daily from the same
+  upstream sources the bundled copies come from (malware-filter's phishing and URLhaus lists, and
+  jarelllama's scam list), signs them into the live channel as `security-domains.json` (about
+  0.5 MB compressed), and publishes without waiting for a review. The extension applies them as a
+  few packed block rules next to the bundled ones, only for the security lists switched on in
+  Settings (`src/background/liveSecurityRules.ts`).
+  - They can only add blocks, in the security band: pausing a site or "Never block" still can't
+    unblock a known phishing or malware domain, same as the bundled lists.
+  - Guardrails on every run (`src/shared/liveSecurity.ts`): only well-formed host names, never an
+    IP address, a public suffix (the first run dropped six, such as dynamic-DNS services that host
+    thousands of unrelated sites) or a protected site like google.com or paypal.com. A day where
+    a list shrank by more than half, or more than max(5,000, 25%) domains changed, isn't published:
+    it opens a pull request for review instead.
+  - Checked end to end in Chrome: a domain only in the daily list is blocked as a page and as a
+    subdomain script, switching Phishing off in Settings removes it and on restores it, a paused
+    site stays blocked, and google.com placed in the list is not blocked.
+- Settings' About now lists this download ("Daily updates"); PRIVACY.md and the README say so too.
+
+### Fixed
+- The browser-driving checks no longer fail on a network blip while looking up the current Chrome
+  for Testing version; they fall back to the newest downloaded build.
+
 ## 0.11.155
 
 ### Changed

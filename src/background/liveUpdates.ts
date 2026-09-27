@@ -7,10 +7,13 @@
 // live/redirect-domains.json and apply it as dynamic declarativeNetRequest
 // `block` rules plus feed the tab safety net (popupGuard.ts).
 //
-// The live files change only when someone runs `npm run filters:update` and
-// pushes -- no scheduled automation writes to the repo. This just means a
-// fresher list reaches installed copies without waiting on a new store
-// release.
+// Most live files change only when someone runs `npm run filters:update`
+// and pushes. The one exception is security-domains.json: the daily
+// phishing/malicious-URL/scam lists, refreshed and signed each day by
+// .github/workflows/security-live.yml without a review (it can only add
+// blocks, within the guardrails in src/shared/liveSecurity.ts; a day that
+// breaks them goes to a pull request instead). Either way a fresher list
+// reaches installed copies without waiting on a new store release.
 //
 // Hosting: GitHub Pages (gh-pages branch, published by
 // .github/workflows/publish-live.yml on any push that touches live/).
@@ -37,6 +40,7 @@ import { allLiveDynamicRuleIds, buildDynamicRedirectRules, filterValidRedirectDo
 import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from "./quickFixRules";
 import { countCosmeticFixSelectors, filterValidCosmeticFixes } from "./liveCosmeticFixes";
 import { verifyLiveManifest } from "./liveSignature";
+import { storeLiveSecurityPayload } from "./liveSecurityRules";
 import { reapplySettings } from "./settings";
 import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY, LIVE_YOUTUBE_QUICK_FIXES_KEY } from "../types";
 import { LIVE_MANIFEST_PUBLIC_KEY } from "../shared/liveSigningKey";
@@ -96,6 +100,8 @@ interface LiveUpdateStatus {
   // actually something to say.
   quickFixCount?: number;
   cosmeticFixCount?: number;
+  /** Domains in the daily security lists last applied (liveSecurityRules.ts). */
+  securityDomainCount?: number;
   // True only when a public signing key IS baked into this build
   // (src/shared/liveSigningKey.ts) but the manifest was still accepted
   // without ever getting a signature to check it against -- i.e. the SHA-256
@@ -233,12 +239,26 @@ export async function fetchAndApply(options: { force?: boolean } = {}): Promise<
       // Keep whatever cosmetic fixes are already in storage.
     }
 
+    // Daily security lists. Absent from manifests published before they
+    // existed, which is fine: the bundled lists still apply.
+    let securityDomainCount: number | undefined;
+    if (hashes["security-domains.json"]) {
+      try {
+        securityDomainCount = await storeLiveSecurityPayload(
+          await fetchVerified("security-domains.json", hashes["security-domains.json"])
+        );
+      } catch {
+        // Keep the lists applied from the last good fetch.
+      }
+    }
+
     await setStatus({
       ok: true,
       timestamp: Date.now(),
       domainCount,
       quickFixCount,
       cosmeticFixCount,
+      securityDomainCount,
       signatureExpectedButMissing,
     });
   } catch {
