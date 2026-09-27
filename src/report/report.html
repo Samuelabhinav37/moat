@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n="reportPageTitle">Report a problem</title>
+    <link rel="stylesheet" href="theme.css" />
+    <style>
+      /* Report a problem (report.ts). Opened from the popup for the site in
+         the current tab, or from Settings. Everything a report contains is
+         shown under "What will be sent" before anything leaves the device. */
+      :root {
+        --page: #141317;
+        --panel: #1b191d;
+        --panel-2: #222027;
+        --line: #2e2b33;
+        --blue: #3f6fd1;
+        --blue-lt: #6f9be0;
+        --tint: rgba(111, 155, 224, 0.15);
+      }
+      body { background: var(--page); font-size: 15px; line-height: 1.5; }
+      [hidden] { display: none !important; }
+      :focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 2px; }
+      .wrap { max-width: 600px; margin: 0 auto; padding: 36px 20px 64px; display: grid; gap: 22px; }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
+      .brand img { width: 28px; height: 28px; }
+      h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+      .lead { margin: 6px 0 0; color: var(--muted); }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 22px; }
+      fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 10px; min-width: 0; }
+      legend, .label { font-weight: 600; padding: 0; margin-bottom: 10px; }
+      .hint { font-size: 13.5px; color: var(--muted); margin: 0; }
+      .site { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
+      .site img { width: 20px; height: 20px; border-radius: 4px; }
+      input[type="text"], textarea {
+        width: 100%; font: inherit; color: var(--fg); background: var(--page);
+        border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+      }
+      textarea { min-height: 110px; resize: vertical; }
+      .choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .choice {
+        display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer;
+        border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2);
+      }
+      .choice:has(input:checked) { border-color: var(--blue-lt); background: var(--tint); }
+      .choice input { accent-color: var(--blue-lt); margin: 0; }
+      .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+      .pills .choice { padding: 8px 12px; }
+      .pause-now { justify-self: start; }
+      .check { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+      .check input { accent-color: var(--blue-lt); margin-top: 4px; }
+      .check small { display: block; color: var(--muted); word-break: break-all; }
+      .count { font-size: 12.5px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+      details summary { cursor: pointer; color: var(--blue-lt); font-weight: 600; }
+      pre {
+        margin: 10px 0 0; padding: 12px; background: var(--page); border: 1px solid var(--line); border-radius: 10px;
+        white-space: pre-wrap; word-break: break-word; font: 12.5px/1.5 ui-monospace, Consolas, monospace; color: var(--muted);
+      }
+      .send-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+      button { padding: 10px 16px; border-radius: 10px; font-weight: 600; }
+      button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+      button.primary:hover { background: #2f57ad; border-color: #2f57ad; }
+      button:disabled { opacity: 0.5; cursor: default; }
+      .status { margin: 0; font-size: 14px; color: var(--muted); }
+      .status.error { color: var(--caution); }
+      .done { text-align: left; }
+      .done h2 { font-size: 22px; margin: 0 0 6px; }
+      .ref { font: 600 14px ui-monospace, Consolas, monospace; color: var(--fg); }
+      @media (max-width: 520px) { .choices { grid-template-columns: minmax(0, 1fr); } }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <div class="brand"><img src="icons/icon48.png" alt="" /><span>Moat</span></div>
+      <div>
+        <h1 data-i18n="reportPageTitle">Report a problem</h1>
+        <p class="lead" data-i18n="reportLead">Tell Moat's developer what went wrong. You'll see everything that gets sent before you send it.</p>
+      </div>
+
+      <form class="card" id="report-form" novalidate>
+        <fieldset>
+          <legend data-i18n="reportSiteLabel">Site</legend>
+          <div class="site" id="site-fixed" hidden><img id="site-icon" alt="" hidden /><span id="site-name"></span></div>
+          <input type="text" id="site-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="site-input-label" hidden />
+          <span id="site-input-label" hidden data-i18n="reportSiteLabel">Site</span>
+        </fieldset>
+
+        <fieldset>
+          <legend data-i18n="reportWhatLabel">What's wrong?</legend>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="category" value="ads" /><span data-i18n="reportCategoryAds">Ads still showing</span></label>
+            <label class="choice"><input type="radio" name="category" value="broken" /><span data-i18n="reportCategoryBroken">Site broken or won't load</span></label>
+            <label class="choice"><input type="radio" name="category" value="cookie" /><span data-i18n="reportCategoryCookie">Cookie banner still showing</span></label>
+            <label class="choice"><input type="radio" name="category" value="other" /><span data-i18n="reportCategoryOther">Something else</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend data-i18n="reportPauseLabel">Does pausing Moat on this site fix it?</legend>
+          <div class="pills">
+            <label class="choice"><input type="radio" name="pause" value="yes" /><span data-i18n="reportPauseYes">Yes</span></label>
+            <label class="choice"><input type="radio" name="pause" value="no" /><span data-i18n="reportPauseNo">No</span></label>
+            <label class="choice"><input type="radio" name="pause" value="untried" checked /><span data-i18n="reportPauseUntried">Haven't tried</span></label>
+          </div>
+          <button type="button" class="pause-now" id="pause-now" hidden data-i18n="reportPauseNow">Pause Moat here and reload the page</button>
+          <p class="hint" id="pause-status" hidden></p>
+        </fieldset>
+
+        <fieldset>
+          <label class="label" for="note" data-i18n="reportNoteLabel">Anything else? (optional)</label>
+          <textarea id="note" maxlength="2000" data-i18n-placeholder="reportNotePlaceholder" placeholder="What did you expect, and what happened instead?"></textarea>
+          <div class="count" id="note-count">0 / 2000</div>
+          <p class="hint" data-i18n="reportNoteHint">Don't include passwords, names or other personal details.</p>
+        </fieldset>
+
+        <label class="check" id="include-url-row" hidden>
+          <input type="checkbox" id="include-url" />
+          <span><span data-i18n="reportIncludeUrl">Include the full page address</span><small id="page-url"></small></span>
+        </label>
+
+        <details id="preview">
+          <summary data-i18n="reportPreview">What will be sent</summary>
+          <pre id="preview-text"></pre>
+          <p class="hint" id="preview-hint" data-i18n="reportPreviewHint">It goes to Moat's developer as a private report, never to the site. The report service doesn't store your IP address.</p>
+        </details>
+
+        <div class="send-row">
+          <button type="submit" class="primary" id="send" data-i18n="reportSend">Send report</button>
+          <button type="button" id="copy" hidden data-i18n="reportCopy">Copy report</button>
+          <button type="button" id="github" hidden data-i18n="reportGithub">Open on GitHub</button>
+        </div>
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+      </form>
+
+      <section class="card done" id="done" hidden>
+        <div>
+          <h2 data-i18n="reportDoneTitle">Thanks, your report was sent</h2>
+          <p class="hint"><span data-i18n="reportDoneRef">Reference:</span> <span class="ref" id="done-ref"></span></p>
+        </div>
+        <p class="hint" data-i18n="reportDoneHint">Most site fixes reach every Moat install within a day, without an update.</p>
+      </section>
+    </main>
+    <script src="report.js"></script>
+  </body>
+</html>

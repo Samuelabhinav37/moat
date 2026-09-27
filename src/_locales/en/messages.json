@@ -1763,5 +1763,158 @@
   "pickerKindBox": {
     "message": "Box",
     "description": "What was picked: a box or section of the page."
+  },
+  "reportPageTitle": {
+    "message": "Report a problem",
+    "description": "Title of the Report a problem page."
+  },
+  "reportLead": {
+    "message": "Tell Moat's developer what went wrong. You'll see everything that gets sent before you send it.",
+    "description": "Intro under the Report a problem title."
+  },
+  "reportSiteLabel": {
+    "message": "Site",
+    "description": "Label for the site the report is about."
+  },
+  "reportWhatLabel": {
+    "message": "What's wrong?",
+    "description": "Question above the four problem categories."
+  },
+  "reportCategoryAds": {
+    "message": "Ads still showing",
+    "description": "Problem category."
+  },
+  "reportCategoryBroken": {
+    "message": "Site broken or won't load",
+    "description": "Problem category."
+  },
+  "reportCategoryCookie": {
+    "message": "Cookie banner still showing",
+    "description": "Problem category."
+  },
+  "reportCategoryOther": {
+    "message": "Something else",
+    "description": "Problem category."
+  },
+  "reportPauseLabel": {
+    "message": "Does pausing Moat on this site fix it?",
+    "description": "Question: does pausing Moat fix the problem."
+  },
+  "reportPauseYes": {
+    "message": "Yes",
+    "description": "Answer to the pause question."
+  },
+  "reportPauseNo": {
+    "message": "No",
+    "description": "Answer to the pause question."
+  },
+  "reportPauseUntried": {
+    "message": "Haven't tried",
+    "description": "Answer to the pause question."
+  },
+  "reportPauseNow": {
+    "message": "Pause Moat here and reload the page",
+    "description": "Button that pauses Moat on the reported site and reloads its tab."
+  },
+  "reportNoteLabel": {
+    "message": "Anything else? (optional)",
+    "description": "Label of the free-text note."
+  },
+  "reportNotePlaceholder": {
+    "message": "What did you expect, and what happened instead?",
+    "description": "Placeholder of the free-text note."
+  },
+  "reportNoteHint": {
+    "message": "Don't include passwords, names or other personal details.",
+    "description": "Warning under the note field."
+  },
+  "reportIncludeUrl": {
+    "message": "Include the full page address",
+    "description": "Checkbox, off by default: send the full URL, not just the site name."
+  },
+  "reportPreview": {
+    "message": "What will be sent",
+    "description": "Expander showing the exact report text."
+  },
+  "reportPreviewHint": {
+    "message": "It goes to Moat's developer as a private report, never to the site. The report service doesn't store your IP address.",
+    "description": "Where the report goes, under the preview."
+  },
+  "reportSend": {
+    "message": "Send report",
+    "description": "Primary button."
+  },
+  "reportCopy": {
+    "message": "Copy report",
+    "description": "Button that copies the report text."
+  },
+  "reportGithub": {
+    "message": "Open on GitHub",
+    "description": "Button that opens the report as a GitHub issue."
+  },
+  "reportDoneTitle": {
+    "message": "Thanks, your report was sent",
+    "description": "Heading after a successful send."
+  },
+  "reportDoneRef": {
+    "message": "Reference:",
+    "description": "Label before the report's reference number."
+  },
+  "reportDoneHint": {
+    "message": "Most site fixes reach every Moat install within a day, without an update.",
+    "description": "Note after a successful send."
+  },
+  "reportNoService": {
+    "message": "Sending straight from Moat isn't set up in this version. Copy the report, or open it on GitHub.",
+    "description": "Shown when no report service is configured."
+  },
+  "reportPausedHint": {
+    "message": "Moat is paused on $HOST$ and the page reloaded. Check it, then answer above. Turn Moat back on from its icon when you're done.",
+    "description": "After pausing and reloading. $HOST$ is the site.",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportNeedCategory": {
+    "message": "Choose what's wrong first.",
+    "description": "Validation message."
+  },
+  "reportNeedSite": {
+    "message": "Enter the site's address, like example.com.",
+    "description": "Validation message."
+  },
+  "reportInvalid": {
+    "message": "Something in this report can't be sent. Try copying it instead.",
+    "description": "Validation message."
+  },
+  "reportSending": {
+    "message": "Sending…",
+    "description": "While sending."
+  },
+  "reportBusy": {
+    "message": "Too many reports right now. Wait a minute and send again, or copy the report.",
+    "description": "Rate-limited."
+  },
+  "reportSendFailed": {
+    "message": "Couldn't send. Your report is still here, so you can send it again, copy it, or open it on GitHub.",
+    "description": "Send failed."
+  },
+  "reportCopied": {
+    "message": "Copied. Paste it wherever you'd like to send it.",
+    "description": "After copying."
+  },
+  "reportCopyManual": {
+    "message": "Select the text under What will be sent and copy it.",
+    "description": "When the clipboard is unavailable."
+  },
+  "reportLoadFailed": {
+    "message": "Couldn't load Moat's details. You can still describe the problem and copy it.",
+    "description": "Load failure."
+  },
+  "reportPreviewHintPublic": {
+    "message": "Opening it on GitHub makes it a public issue there. Leave out anything you wouldn't post publicly.",
+    "description": "Under the report preview when reports can only be sent through GitHub."
   }
 }

@@ -1729,5 +1729,121 @@
   },
   "pickerKindBox": {
     "message": "Block"
+  },
+  "reportPageTitle": {
+    "message": "Problem melden"
+  },
+  "reportLead": {
+    "message": "Sag dem Entwickler von Moat, was nicht geklappt hat. Du siehst alles, was gesendet wird, bevor du es sendest."
+  },
+  "reportSiteLabel": {
+    "message": "Website"
+  },
+  "reportWhatLabel": {
+    "message": "Was ist los?"
+  },
+  "reportCategoryAds": {
+    "message": "Werbung wird noch angezeigt"
+  },
+  "reportCategoryBroken": {
+    "message": "Website kaputt oder lädt nicht"
+  },
+  "reportCategoryCookie": {
+    "message": "Cookie-Banner wird noch angezeigt"
+  },
+  "reportCategoryOther": {
+    "message": "Etwas anderes"
+  },
+  "reportPauseLabel": {
+    "message": "Hilft es, Moat auf dieser Website zu pausieren?"
+  },
+  "reportPauseYes": {
+    "message": "Ja"
+  },
+  "reportPauseNo": {
+    "message": "Nein"
+  },
+  "reportPauseUntried": {
+    "message": "Nicht ausprobiert"
+  },
+  "reportPauseNow": {
+    "message": "Moat hier pausieren und Seite neu laden"
+  },
+  "reportNoteLabel": {
+    "message": "Sonst noch etwas? (optional)"
+  },
+  "reportNotePlaceholder": {
+    "message": "Was hast du erwartet, und was ist stattdessen passiert?"
+  },
+  "reportNoteHint": {
+    "message": "Gib keine Passwörter, Namen oder andere persönliche Daten an."
+  },
+  "reportIncludeUrl": {
+    "message": "Vollständige Seitenadresse mitsenden"
+  },
+  "reportPreview": {
+    "message": "Was gesendet wird"
+  },
+  "reportPreviewHint": {
+    "message": "Die Meldung geht privat an den Entwickler von Moat, nie an die Website. Der Meldedienst speichert deine IP-Adresse nicht."
+  },
+  "reportSend": {
+    "message": "Meldung senden"
+  },
+  "reportCopy": {
+    "message": "Meldung kopieren"
+  },
+  "reportGithub": {
+    "message": "Auf GitHub öffnen"
+  },
+  "reportDoneTitle": {
+    "message": "Danke, deine Meldung wurde gesendet"
+  },
+  "reportDoneRef": {
+    "message": "Referenz:"
+  },
+  "reportDoneHint": {
+    "message": "Die meisten Korrekturen erreichen jede Moat-Installation innerhalb eines Tages, ohne Update."
+  },
+  "reportNoService": {
+    "message": "Diese Version kann Meldungen noch nicht direkt senden. Kopiere die Meldung oder öffne sie auf GitHub."
+  },
+  "reportPausedHint": {
+    "message": "Moat ist auf $HOST$ pausiert und die Seite wurde neu geladen. Prüfe sie und antworte oben. Schalte Moat danach über sein Symbol wieder ein.",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportNeedCategory": {
+    "message": "Wähle zuerst aus, was los ist."
+  },
+  "reportNeedSite": {
+    "message": "Gib die Adresse der Website ein, zum Beispiel example.com."
+  },
+  "reportInvalid": {
+    "message": "Etwas in dieser Meldung kann nicht gesendet werden. Kopiere sie stattdessen."
+  },
+  "reportSending": {
+    "message": "Wird gesendet …"
+  },
+  "reportBusy": {
+    "message": "Gerade kommen zu viele Meldungen. Warte eine Minute und sende erneut, oder kopiere die Meldung."
+  },
+  "reportSendFailed": {
+    "message": "Senden fehlgeschlagen. Deine Meldung ist noch da. Du kannst sie erneut senden, kopieren oder auf GitHub öffnen."
+  },
+  "reportCopied": {
+    "message": "Kopiert. Füge sie ein, wo du sie senden möchtest."
+  },
+  "reportCopyManual": {
+    "message": "Markiere den Text unter Was gesendet wird und kopiere ihn."
+  },
+  "reportLoadFailed": {
+    "message": "Moats Angaben konnten nicht geladen werden. Du kannst das Problem trotzdem beschreiben und kopieren."
+  },
+  "reportPreviewHintPublic": {
+    "message": "Auf GitHub wird daraus ein öffentliches Issue. Lass alles weg, was du nicht öffentlich posten würdest."
   }
 }

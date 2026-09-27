@@ -3,6 +3,29 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.163
+
+### Added
+- **Report a problem, inside Moat.** The popup's "Report a problem…" button, and "Report an
+  issue" in Settings, used to open a GitHub form, which needs a GitHub account. They now open
+  Moat's own report page (`src/report/`).
+  - It's filled in for the site in the current tab. You choose what's wrong (ads still showing,
+    site broken, cookie banner still showing, or something else) and say whether pausing Moat
+    fixes it. A "Pause Moat here and reload the page" button lets you check. You can add a note.
+  - The full page address is only included if you tick the box. Otherwise the report names the
+    site alone.
+  - "What will be sent" shows the exact report before anything leaves the device: the site,
+    what's wrong, your note, Moat's version, the browser, the blocking level and the lists
+    switched on. Nothing else. One shared definition (`src/shared/problemReport.ts`) builds and
+    checks it, so the preview can't differ from what's sent.
+  - In this version the page offers **Copy report** and **Open on GitHub**, and says GitHub
+    issues are public. Sending straight to Moat's developer needs the report service
+    (`report-worker/`), which isn't switched on yet. Nothing is sent anywhere by this version.
+  - Translated into all four languages.
+
+### Removed
+- `src/popup/reportIssue.ts`, the GitHub-only report link, replaced by the page above.
+
 ## 0.11.162
 
 ### Changed

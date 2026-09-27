@@ -1,15 +1,12 @@
 import browser from "webextension-polyfill";
 import type {
   AllowPermissionGuardOriginMessage,
-  GetReportContextMessage,
   GetStatusMessage,
   GetUiNoticesMessage,
-  ReportContextResponse,
   SetPerSiteOverrideMessage,
   StatusResponse,
   ToggleSiteMessage,
 } from "../types";
-import { buildIssueUrl } from "./reportIssue";
 import { buildFreshStartRemoval } from "./freshStart";
 import type { PopupUiNotices } from "../background/updateNotice";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
@@ -447,10 +444,11 @@ freshStartButton.addEventListener("click", async () => {
 document.getElementById("report-problem")?.addEventListener("click", async (event) => {
   const button = event.currentTarget as HTMLButtonElement;
   try {
-    const message: GetReportContextMessage = { type: "get-report-context" };
-    const context = (await browser.runtime.sendMessage(message)) as ReportContextResponse;
-    const url = buildIssueUrl(context, browser.runtime.getManifest().version);
-    await browser.tabs.create({ url });
+    // Moat's own report page, for the site in this tab (report/report.ts):
+    // no GitHub account needed, and nothing is sent until Send is pressed.
+    const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+    const query = tab?.id !== undefined ? `?tab=${tab.id}` : "";
+    await browser.tabs.create({ url: browser.runtime.getURL(`report.html${query}`) });
     window.close();
   } catch {
     // A dead click here (background unreachable, tab creation blocked)

@@ -1729,5 +1729,121 @@
   },
   "pickerKindBox": {
     "message": "Bloque"
+  },
+  "reportPageTitle": {
+    "message": "Informar de un problema"
+  },
+  "reportLead": {
+    "message": "Cuéntale al desarrollador de Moat qué ha fallado. Verás todo lo que se envía antes de enviarlo."
+  },
+  "reportSiteLabel": {
+    "message": "Sitio"
+  },
+  "reportWhatLabel": {
+    "message": "¿Qué pasa?"
+  },
+  "reportCategoryAds": {
+    "message": "Siguen apareciendo anuncios"
+  },
+  "reportCategoryBroken": {
+    "message": "El sitio falla o no carga"
+  },
+  "reportCategoryCookie": {
+    "message": "Sigue apareciendo el aviso de cookies"
+  },
+  "reportCategoryOther": {
+    "message": "Otra cosa"
+  },
+  "reportPauseLabel": {
+    "message": "¿Se arregla al pausar Moat en este sitio?"
+  },
+  "reportPauseYes": {
+    "message": "Sí"
+  },
+  "reportPauseNo": {
+    "message": "No"
+  },
+  "reportPauseUntried": {
+    "message": "No lo he probado"
+  },
+  "reportPauseNow": {
+    "message": "Pausar Moat aquí y recargar la página"
+  },
+  "reportNoteLabel": {
+    "message": "¿Algo más? (opcional)"
+  },
+  "reportNotePlaceholder": {
+    "message": "¿Qué esperabas y qué pasó en su lugar?"
+  },
+  "reportNoteHint": {
+    "message": "No incluyas contraseñas, nombres ni otros datos personales."
+  },
+  "reportIncludeUrl": {
+    "message": "Incluir la dirección completa de la página"
+  },
+  "reportPreview": {
+    "message": "Lo que se enviará"
+  },
+  "reportPreviewHint": {
+    "message": "Llega al desarrollador de Moat como informe privado, nunca al sitio. El servicio de informes no guarda tu dirección IP."
+  },
+  "reportSend": {
+    "message": "Enviar informe"
+  },
+  "reportCopy": {
+    "message": "Copiar informe"
+  },
+  "reportGithub": {
+    "message": "Abrir en GitHub"
+  },
+  "reportDoneTitle": {
+    "message": "Gracias, tu informe se ha enviado"
+  },
+  "reportDoneRef": {
+    "message": "Referencia:"
+  },
+  "reportDoneHint": {
+    "message": "La mayoría de los arreglos llegan a todas las instalaciones de Moat en un día, sin actualizar."
+  },
+  "reportNoService": {
+    "message": "Esta versión aún no puede enviar informes directamente. Copia el informe o ábrelo en GitHub."
+  },
+  "reportPausedHint": {
+    "message": "Moat está en pausa en $HOST$ y la página se ha recargado. Compruébala y responde arriba. Vuelve a activar Moat desde su icono cuando termines.",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportNeedCategory": {
+    "message": "Primero elige qué pasa."
+  },
+  "reportNeedSite": {
+    "message": "Escribe la dirección del sitio, como example.com."
+  },
+  "reportInvalid": {
+    "message": "Algo de este informe no se puede enviar. Prueba a copiarlo."
+  },
+  "reportSending": {
+    "message": "Enviando…"
+  },
+  "reportBusy": {
+    "message": "Hay demasiados informes ahora mismo. Espera un minuto y vuelve a enviarlo, o copia el informe."
+  },
+  "reportSendFailed": {
+    "message": "No se pudo enviar. Tu informe sigue aquí: puedes reenviarlo, copiarlo o abrirlo en GitHub."
+  },
+  "reportCopied": {
+    "message": "Copiado. Pégalo donde quieras enviarlo."
+  },
+  "reportCopyManual": {
+    "message": "Selecciona el texto de Lo que se enviará y cópialo."
+  },
+  "reportLoadFailed": {
+    "message": "No se pudieron cargar los datos de Moat. Aún puedes describir el problema y copiarlo."
+  },
+  "reportPreviewHintPublic": {
+    "message": "Al abrirlo en GitHub se convierte en una incidencia pública. No incluyas nada que no publicarías."
   }
 }

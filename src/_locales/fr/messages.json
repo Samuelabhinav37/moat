@@ -1729,5 +1729,121 @@
   },
   "pickerKindBox": {
     "message": "Bloc"
+  },
+  "reportPageTitle": {
+    "message": "Signaler un problème"
+  },
+  "reportLead": {
+    "message": "Dites au développeur de Moat ce qui ne va pas. Vous verrez tout ce qui est envoyé avant l'envoi."
+  },
+  "reportSiteLabel": {
+    "message": "Site"
+  },
+  "reportWhatLabel": {
+    "message": "Quel est le problème ?"
+  },
+  "reportCategoryAds": {
+    "message": "Des pubs s'affichent encore"
+  },
+  "reportCategoryBroken": {
+    "message": "Le site ne fonctionne pas ou ne charge pas"
+  },
+  "reportCategoryCookie": {
+    "message": "Le bandeau de cookies s'affiche encore"
+  },
+  "reportCategoryOther": {
+    "message": "Autre chose"
+  },
+  "reportPauseLabel": {
+    "message": "Mettre Moat en pause sur ce site règle-t-il le problème ?"
+  },
+  "reportPauseYes": {
+    "message": "Oui"
+  },
+  "reportPauseNo": {
+    "message": "Non"
+  },
+  "reportPauseUntried": {
+    "message": "Pas essayé"
+  },
+  "reportPauseNow": {
+    "message": "Mettre Moat en pause ici et recharger la page"
+  },
+  "reportNoteLabel": {
+    "message": "Autre chose ? (facultatif)"
+  },
+  "reportNotePlaceholder": {
+    "message": "À quoi vous attendiez-vous, et que s'est-il passé ?"
+  },
+  "reportNoteHint": {
+    "message": "N'indiquez ni mot de passe, ni nom, ni autre donnée personnelle."
+  },
+  "reportIncludeUrl": {
+    "message": "Inclure l'adresse complète de la page"
+  },
+  "reportPreview": {
+    "message": "Ce qui sera envoyé"
+  },
+  "reportPreviewHint": {
+    "message": "Il est envoyé au développeur de Moat en privé, jamais au site. Le service de signalement ne conserve pas votre adresse IP."
+  },
+  "reportSend": {
+    "message": "Envoyer le signalement"
+  },
+  "reportCopy": {
+    "message": "Copier le signalement"
+  },
+  "reportGithub": {
+    "message": "Ouvrir sur GitHub"
+  },
+  "reportDoneTitle": {
+    "message": "Merci, votre signalement a été envoyé"
+  },
+  "reportDoneRef": {
+    "message": "Référence :"
+  },
+  "reportDoneHint": {
+    "message": "La plupart des correctifs arrivent sur toutes les installations de Moat en un jour, sans mise à jour."
+  },
+  "reportNoService": {
+    "message": "Cette version ne peut pas encore envoyer directement. Copiez le signalement ou ouvrez-le sur GitHub."
+  },
+  "reportPausedHint": {
+    "message": "Moat est en pause sur $HOST$ et la page a été rechargée. Vérifiez-la, puis répondez ci-dessus. Réactivez Moat depuis son icône ensuite.",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportNeedCategory": {
+    "message": "Choisissez d'abord le problème."
+  },
+  "reportNeedSite": {
+    "message": "Saisissez l'adresse du site, par exemple example.com."
+  },
+  "reportInvalid": {
+    "message": "Une partie de ce signalement ne peut pas être envoyée. Essayez de le copier."
+  },
+  "reportSending": {
+    "message": "Envoi…"
+  },
+  "reportBusy": {
+    "message": "Trop de signalements en ce moment. Attendez une minute et renvoyez, ou copiez le signalement."
+  },
+  "reportSendFailed": {
+    "message": "Envoi impossible. Votre signalement est toujours là : renvoyez-le, copiez-le ou ouvrez-le sur GitHub."
+  },
+  "reportCopied": {
+    "message": "Copié. Collez-le où vous voulez l'envoyer."
+  },
+  "reportCopyManual": {
+    "message": "Sélectionnez le texte sous Ce qui sera envoyé et copiez-le."
+  },
+  "reportLoadFailed": {
+    "message": "Impossible de charger les infos de Moat. Vous pouvez quand même décrire le problème et le copier."
+  },
+  "reportPreviewHintPublic": {
+    "message": "L'ouvrir sur GitHub en fait un ticket public. N'y mettez rien que vous ne publieriez pas."
   }
 }

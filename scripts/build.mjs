@@ -44,6 +44,7 @@ const ENTRIES = [
   ["logger", "src/logger/logger.ts"],
   ["warning", "src/warning/warning.ts"],
   ["welcome", "src/welcome/welcome.ts"],
+  ["report", "src/report/report.ts"],
 ];
 
 const outDir = resolve(root, "dist", target);
@@ -162,6 +163,7 @@ function copyStaticAssets() {
   cpSync(resolve(root, "src/logger/logger.html"), resolve(outDir, "logger.html"));
   cpSync(resolve(root, "src/warning/warning.html"), resolve(outDir, "warning.html"));
   cpSync(resolve(root, "src/welcome/welcome.html"), resolve(outDir, "welcome.html"));
+  cpSync(resolve(root, "src/report/report.html"), resolve(outDir, "report.html"));
   cpSync(resolve(root, "src/welcome/img"), resolve(outDir, "welcome", "img"), { recursive: true });
   cpSync(resolve(root, "src/managed_schema.json"), resolve(outDir, "managed_schema.json"));
 
