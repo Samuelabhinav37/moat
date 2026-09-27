@@ -28,7 +28,7 @@ A free, open-source ad blocker for Chrome and Firefox. No server, no account, no
 </p>
 
 Moat removes ads, trackers, cookie banners and scam pop-ups before a page finishes loading.
-Everything happens on your computer, and nothing about you is ever sent anywhere.
+Everything happens on your computer, and nothing about you is sent anywhere, unless you choose to send a problem report.
 
 > **Coming soon** to the Chrome Web Store and Firefox Add-ons. Until then you can
 > [install it from source](#install-it-today) in a few minutes. It works in both browsers today.
@@ -49,7 +49,8 @@ Everything happens on your computer, and nothing about you is ever sent anywhere
 
 ## Private by design
 
-- **No server.** There's no Moat backend. Blocking happens inside your browser.
+- **Blocking needs no server.** It happens inside your browser. The only thing Moat runs online is a small
+  inbox for problem reports you choose to send, which keeps no logs.
 - **No account and no telemetry.** Nothing to sign up for, no analytics, no crash reports.
 - **A few downloads a day:** signed files of filter fixes and today's phishing, malware and scam
   domain lists, checked against a key built into the extension before they're used. Those

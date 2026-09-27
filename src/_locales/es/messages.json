@@ -1845,5 +1845,17 @@
   },
   "reportPreviewHintPublic": {
     "message": "Al abrirlo en GitHub se convierte en una incidencia pública. No incluyas nada que no publicarías."
+  },
+  "optionsDisclosureReportsName": {
+    "message": "Informes de problemas"
+  },
+  "optionsDisclosureReportsSent": {
+    "message": "Solo cuando pulsas Enviar: el sitio, qué falló, tu nota y la versión y ajustes de Moat. Lo ves todo antes."
+  },
+  "optionsDisclosureReportsRecipient": {
+    "message": "El desarrollador de Moat, en privado"
+  },
+  "optionsDisclosureReportsWhen": {
+    "message": "al enviar"
   }
 }

@@ -4,8 +4,10 @@
 
 - **What Moat reads:** page content on sites you visit, entirely on your
   device, to block ads/trackers/popups and hide ad elements.
-- **Where it goes:** nowhere. Moat has no server, no account, no analytics,
-  and no crash reporting. Its developer receives nothing about you, ever.
+- **Where it goes:** nowhere. Moat has no account, no analytics and no
+  crash reporting. Its developer receives nothing about you, except a
+  problem report you choose to send, shown to you in full before you
+  press Send.
 - **What's stored:** your settings (filter lists, paused sites, custom
   rules) in your browser's own local storage, never transmitted by default.
 - **What leaves your device:** roughly once a day Moat downloads a few
@@ -14,11 +16,14 @@
   carries nothing about you. Two opt-in features (both off by
   default) send something derived from what you type to a third party (never
   to Moat); one enterprise-only feature sends security events to your own
-  organization's server. All four are detailed below.
+  organization's server; and a problem report you write reaches Moat's
+  developer only when you press Send. All are detailed below.
 
-Moat does not collect, store, sell, or transmit any user data to Moat or
-its developer, ever, under any configuration. There is no crash reporting
-and no account or sign-in of any kind. For a personal or open-source
+Moat does not collect, sell, or transmit any user data to Moat or its
+developer on its own. The one exception is a problem report: it's sent only
+when you fill it in and press Send, and the report page shows you exactly
+what it contains first (item 6 below). Nothing is ever sent automatically.
+There is no crash reporting and no account or sign-in of any kind. For a personal or open-source
 install -- everyone reading this outside of an organization that has
 specifically deployed enterprise device-management policy for Moat -- there
 is also no analytics or telemetry of any kind, full stop. This document
@@ -123,6 +128,23 @@ only to an organization's own infrastructure, never to Moat's developer.
    server as the outbound events above, never to any server Moat's
    developer operates. The response is signature-verified before anything
    in it is applied; a policy that doesn't verify is discarded.
+
+6. **Problem reports, only when you press Send.** "Report a problem…" in
+   the popup (or "Report an issue" in Settings) opens a page inside Moat.
+   Nothing is sent until you press Send, and "What will be sent" shows the
+   whole report first. A report contains: the site's name (the full page
+   address only if you tick "Include the full page address"), which
+   problem you chose, whether pausing Moat fixed it, your note if you
+   wrote one, Moat's version, your browser and its major version (for
+   example "Chrome 141"), your blocking level, and the names of the filter
+   lists you have on. Nothing else: no browsing history, no cookies, no
+   other tabs. It goes to Moat's report service, a Cloudflare Worker that
+   files it as an issue in a private GitHub repository that only Moat's
+   developer can read. The service keeps no logs and stores nothing
+   itself. Your IP address reaches Cloudflare, as with any web request;
+   the service uses it only to limit how many reports one address can send
+   a minute, and never passes it on. If you'd rather, the same page can
+   copy the report or open it as a public GitHub issue instead.
 
 Nothing else in Moat makes a network request. In particular: the full
 filter lists and cosmetic-hiding rules that block ads and trackers are

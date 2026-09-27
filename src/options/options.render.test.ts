@@ -180,7 +180,9 @@ describe("About Moat (DR-13)", () => {
   it("lists the 5 data flows with their current state, and the version", async () => {
     await renderOptions();
 
-    expect(document.querySelectorAll("#about-flows .flow-row").length).toBe(5);
+    expect(document.querySelectorAll("#about-flows .flow-row:not([hidden])").length).toBe(5);
+    // Problem reports only show as a data flow once the report service is set up.
+    expect(document.getElementById("flow-reports")?.hidden).toBe(true);
     // Current state, not the install default: the mock has the breach check
     // on and sync off.
     expect(document.getElementById("flow-state-breach")?.classList.contains("on")).toBe(true);

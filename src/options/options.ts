@@ -15,6 +15,7 @@ import { buildSiteIcon, faviconUrl } from "./siteIcon";
 import { initDashboard } from "./dashboard";
 import { buildInlineExplainer, initExplainerPanel, sceneFor } from "./explainerPanel";
 import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
+import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { initSettingsSearch } from "./settingsSearch";
 import { createSavedToast } from "./savedToast";
 import { getCustomRuleStats } from "../background/customRuleStats";
@@ -125,6 +126,8 @@ const explainerPanel = initExplainerPanel(document, tFallback);
 if (window.matchMedia?.("(min-width: 900px)").matches) {
   (document.getElementById("filter-lists-more") as HTMLDetailsElement | null)?.setAttribute("open", "");
 }
+// Problem reports only appear as a data flow in builds that can send them.
+(document.getElementById("flow-reports") as HTMLElement | null)?.toggleAttribute("hidden", !REPORT_ENDPOINT);
 // Who receives each About data flow, by logo as well as name.
 for (const [flow, brand] of [["updates", "github"], ["breach", "haveibeenpwned"]] as const) {
   const to = document.querySelector<HTMLElement>(`.flow-row[data-flow="${flow}"] .flow-to`);

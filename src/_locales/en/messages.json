@@ -1916,5 +1916,21 @@
   "reportPreviewHintPublic": {
     "message": "Opening it on GitHub makes it a public issue there. Leave out anything you wouldn't post publicly.",
     "description": "Under the report preview when reports can only be sent through GitHub."
+  },
+  "optionsDisclosureReportsName": {
+    "message": "Problem reports",
+    "description": "Settings > About, 'What leaves your device': the problem-report row."
+  },
+  "optionsDisclosureReportsSent": {
+    "message": "Only when you press Send: the site, what went wrong, your note, and Moat's version and settings. You see all of it first.",
+    "description": "Settings > About, 'What leaves your device': the problem-report row."
+  },
+  "optionsDisclosureReportsRecipient": {
+    "message": "Moat's developer, privately",
+    "description": "Settings > About, 'What leaves your device': the problem-report row."
+  },
+  "optionsDisclosureReportsWhen": {
+    "message": "when you send",
+    "description": "Settings > About, 'What leaves your device': the problem-report row."
   }
 }

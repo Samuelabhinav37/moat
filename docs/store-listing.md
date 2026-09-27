@@ -25,7 +25,7 @@ goes in which slot and how to rebuild them).
 Moat is an ad blocker and popup/redirect firewall that keeps to itself: no
 server, no account, no telemetry, no crash reporting. Everything it does runs
 on your device, against pages already in your browser, and its developer
-receives nothing about you under any setting. It is built for Manifest V3 from
+receives nothing about you unless you send a problem report yourself. It is built for Manifest V3 from
 day one — not a stripped-down port of an older extension.
 
 **What it does**
