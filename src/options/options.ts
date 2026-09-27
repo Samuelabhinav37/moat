@@ -14,6 +14,7 @@ import { applyBulkSelect, type BulkLabels } from "./bulkSelect";
 import { buildSiteIcon, faviconUrl } from "./siteIcon";
 import { initDashboard } from "./dashboard";
 import { buildInlineExplainer, initExplainerPanel, sceneFor } from "./explainerPanel";
+import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { initSettingsSearch } from "./settingsSearch";
 import { createSavedToast } from "./savedToast";
 import { getCustomRuleStats } from "../background/customRuleStats";
@@ -120,6 +121,11 @@ function tFallback(key: string, fallback: string, substitutions?: string | strin
 
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 const explainerPanel = initExplainerPanel(document, tFallback);
+// Who receives each About data flow, by logo as well as name.
+for (const [flow, brand] of [["updates", "github"], ["breach", "haveibeenpwned"]] as const) {
+  const to = document.querySelector<HTMLElement>(`.flow-row[data-flow="${flow}"] .flow-to`);
+  if (to) prependBrand(to, brand);
+}
 initDashboard(window, explainerPanel.showScreen);
 
 // ---------- Advanced settings (expands in place) ----------
@@ -205,6 +211,8 @@ interface ProtectionDef {
   cautionKey?: readonly [string, string];
   /** A reassuring detail, shown in plain text rather than the caution color. */
   noteKey?: readonly [string, string];
+  /** Logos of the sites this setting acts on, shown in place of the line icon. */
+  brands?: BrandId[];
   signal?: UsageSignal;
   metricLabelKey?: readonly [string, string];
   evidenceUnit?: EvidenceUnit;
@@ -306,6 +314,7 @@ const PROTECTIONS: ProtectionDef[] = [
   {
     id: "grayscale",
     settingKey: "grayscaleUnblockableAds",
+    brands: ["youtube"],
     group: "annoyances",
     signal: "grayscaleAds",
     evidenceUnit: "today",
@@ -319,6 +328,7 @@ const PROTECTIONS: ProtectionDef[] = [
   {
     id: "feedScan",
     settingKey: "aggressiveFeedAdRemoval",
+    brands: ["instagram", "youtube"],
     group: "annoyances",
     signal: "feedAdRemoval",
     evidenceUnit: "week",
@@ -429,6 +439,7 @@ function buildIcon(name: string): HTMLElement {
  * (cautions, evidence, chips). */
 function buildSettingRow(options: {
   icon: string;
+  brands?: BrandId[];
   titleId: string;
   title: string;
   desc?: string;
@@ -458,7 +469,7 @@ function buildSettingRow(options: {
     row.dataset.explain = scene;
     text.append(buildInlineExplainer(scene, tFallback));
   }
-  row.append(buildIcon(options.icon), text);
+  row.append(options.brands?.length ? buildBrandTile(document, options.brands) : buildIcon(options.icon), text);
   if (options.control) row.append(options.control);
   return row;
 }
@@ -716,7 +727,11 @@ function buildProtectionRow(def: ProtectionDef, settings: Settings, usage: Usage
     const firefoxSupported = isCnameUncloakFirefoxSupported();
     const chromeSupported = isCnameUncloakChromeSupported();
     if (!firefoxSupported && !chromeSupported) extra.push(buildLine("setting-caution", cnameUnsupportedHint));
-    else if (chromeSupported) extra.push(buildLine("setting-desc", cnameChromeDohHint));
+    else if (chromeSupported) {
+      const hint = buildLine("setting-desc", cnameChromeDohHint);
+      prependBrand(hint, "cloudflare");
+      extra.push(hint);
+    }
   }
   if (def.cautionKey) extra.push(buildLine("setting-caution", tFallback(...def.cautionKey)));
   if (def.noteKey) extra.push(buildLine("setting-note", tFallback(...def.noteKey)));
@@ -731,6 +746,7 @@ function buildProtectionRow(def: ProtectionDef, settings: Settings, usage: Usage
   });
   const row = buildSettingRow({
     icon: def.id,
+    brands: def.brands,
     titleId,
     title: tFallback(...def.titleKey),
     desc: tFallback(...def.descKey),
@@ -1303,6 +1319,9 @@ const disclosureSyncRecipientEl = document.getElementById("disclosure-sync-recip
 // DR-15 treats a wrong recipient here as a privacy-disclosure bug, not a
 // cosmetic one.
 const SYNC_VENDOR_NAME = isFirefoxPrivacyWebsitesSupported ? tFallback("commonMozilla", "Mozilla") : tFallback("commonGoogle", "Google");
+// Firefox's mark stands for Mozilla's sync: Mozilla's own wordmark is
+// near-black and wouldn't show on this dark page.
+const SYNC_VENDOR_BRAND: BrandId = isFirefoxPrivacyWebsitesSupported ? "firefox" : "google";
 
 const flowStateBreachEl = document.getElementById("flow-state-breach") as HTMLElement;
 const flowStateSyncEl = document.getElementById("flow-state-sync") as HTMLElement;
@@ -1364,6 +1383,7 @@ async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy
       : tFallback("aboutFlowsNothing", "With your current settings, nothing about your browsing leaves your device.");
 
   disclosureSyncRecipientEl.textContent = SYNC_VENDOR_NAME;
+  prependBrand(disclosureSyncRecipientEl, SYNC_VENDOR_BRAND);
   managedNotice.hidden = Object.keys(policy).length === 0;
   await renderShortcut();
 }
@@ -1635,6 +1655,7 @@ async function renderBackupTab(settings: Settings): Promise<void> {
   exportFilenameEl.textContent = exportFilename();
   syncToggle.checked = settings.syncEnabled;
   syncRecipientEl.textContent = SYNC_VENDOR_NAME;
+  prependBrand(syncRecipientEl, SYNC_VENDOR_BRAND);
 
   const lastBackupAt = await getLastBackupAt();
   if (lastBackupAt === null) {

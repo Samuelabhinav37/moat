@@ -177,3 +177,13 @@ build time). MPL-2.0 is file-level copyleft and does not require the rest of
 this repository to be relicensed; the polyfill's own license text travels
 with its source file per MPL-2.0 Section 3.1, satisfied by linking to the
 upstream repository above and keeping the dependency unmodified.
+
+## Simple Icons -- CC0-1.0
+
+Source: [simple-icons/simple-icons](https://github.com/simple-icons/simple-icons) 16.33.0,
+CC0 1.0 Universal. The path data for the YouTube, Instagram, Cloudflare, Google,
+Firefox, GitHub and Have I Been Pwned marks in `src/options/brandIcons.ts` comes
+from this package. The Settings page shows each mark unaltered, only beside the
+name of the site or service it stands for, to say which site a setting acts on or
+who receives data. Moat is not affiliated with or endorsed by any of them. All
+product names, logos and trademarks are the property of their respective owners.

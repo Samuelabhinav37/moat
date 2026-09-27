@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.158
+
+### Added
+- **Brand logos in Settings.** People spot a logo faster than a name, so settings that act on a
+  particular site now show its logo, and every place that names who receives data shows that
+  company's logo before the name.
+  - Dim YouTube ads shows YouTube's logo, and Hide sponsored posts shows Instagram's and
+    YouTube's. LinkedIn's logo isn't included because LinkedIn asked the icon library to remove it.
+  - Sync shows Google on Chrome and Firefox on Firefox, in Backup and sync and in About.
+  - About's data flows show GitHub for daily updates and Have I Been Pwned for breach checking.
+    On Chrome, the Catch hidden trackers note shows Cloudflare's logo.
+  - The marks come from Simple Icons (CC0) and ship inside the extension, so nothing is fetched.
+    Each is used unaltered and only beside the name it stands for. GitHub and Have I Been Pwned
+    use their white versions, since their brand colours are near-black and would disappear on
+    the dark page. Credited in NOTICE.md (`src/options/brandIcons.ts`).
+
 ## 0.11.157
 
 ### Added

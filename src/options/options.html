@@ -234,6 +234,37 @@
           transform: scale(1.14);
         }
       }
+      /* Brand logos (brandIcons.ts): full colour on the neutral tile, which
+         keeps its "on" tint like every other row. */
+      .brand-tile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .setting-icon.brand-tile svg {
+        width: 22px;
+        height: 22px;
+      }
+      .brand-stack {
+        gap: 2px;
+      }
+      .setting-icon.brand-stack svg {
+        width: 15px;
+        height: 15px;
+      }
+      .with-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .setting-desc.with-brand {
+        display: flex;
+        align-items: flex-start;
+      }
+      .setting-desc.with-brand .brand-logo {
+        flex: none;
+        margin-top: 3px;
+      }
       .setting-title {
         display: block;
         font-weight: 600;
