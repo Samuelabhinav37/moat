@@ -11,7 +11,11 @@ export interface RulesetManifestEntry {
   name: string;
   enabled: boolean;
   file: string;
+  /** Rules as Chrome counts them (after scripts/pack-rules.mjs). */
   ruleCount: number;
+  /** Filter entries before packing, one per domain or pattern. Absent in
+   * manifests written before packing existed. */
+  entryCount?: number;
 }
 
 /** Every static ruleset id belonging to a given group (chunked lists share one group, e.g. "ads-1"/"ads-2" -> "ads"). */
@@ -25,6 +29,7 @@ interface FilterListSummary {
   category: RulesetManifestEntry["category"];
   name: string;
   ruleCount: number;
+  entryCount: number;
 }
 
 export function summarizeFilterLists(manifest: RulesetManifestEntry[]): FilterListSummary[] {
@@ -34,12 +39,14 @@ export function summarizeFilterLists(manifest: RulesetManifestEntry[]): FilterLi
     const existing = byGroup.get(entry.group);
     if (existing) {
       existing.ruleCount += entry.ruleCount;
+      existing.entryCount += entry.entryCount ?? entry.ruleCount;
     } else {
       byGroup.set(entry.group, {
         group: entry.group,
         category: entry.category,
         name: entry.name.replace(/\s*\(\d+\/\d+\)$/, ""),
         ruleCount: entry.ruleCount,
+        entryCount: entry.entryCount ?? entry.ruleCount,
       });
     }
   }

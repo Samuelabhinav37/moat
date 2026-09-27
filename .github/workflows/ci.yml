@@ -25,6 +25,10 @@ jobs:
       # web-ext lint only validates Firefox; this loads dist/chrome into Chrome
       # for Testing and fails if Chrome rejects it (the 0.11.31-0.11.37 outage).
       - run: npm run check:chrome-load
+      # Packing (scripts/pack-rules.mjs) must not change what gets blocked:
+      # Chrome's own match results for every 20th listed domain, packed vs
+      # original rules, must be identical.
+      - run: npm run check:rule-packing -- --sample 20
       # Live checks against local test pages: element hiding, ad-box collapse,
       # pause, "Never block", the cookie rejector switch, a worker cold start.
       - run: npm run smoke

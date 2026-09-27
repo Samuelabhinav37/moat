@@ -179,6 +179,8 @@ Still open:
 - **Startup.** Enabling only the Balanced rulesets in the manifest (0.11.144) made the final
   ruleset set ready sooner (3.96 s → 3.53 s in the smoke test), but the worker-ready time did not
   move. The remaining gap is Chrome compiling the enabled rules, roughly 3× what uBO Lite enables.
+  **Update (0.11.155):** packing domain rules (313,889 → 71,771 rules, identical blocking) brought
+  startup to 1.6 s and halved the compiled index; see `rule-packing-2026-09.md`.
 - **Cold-start flash** stays at about 8 frames: with an idle worker nothing can add the cached
   selectors before the first paint. Fixing it needs a style the page itself carries, which makes
   Moat easier for sites to detect.

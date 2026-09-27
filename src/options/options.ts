@@ -892,8 +892,10 @@ async function loadRulesetManifest(): Promise<RulesetManifestEntry[] | null> {
   }
 }
 
-// Read by the About section's "rules" line so both places always show the
-// same number.
+// Read by the About section's "rules" line. Filter entries, not Chrome
+// rules: packing (scripts/pack-rules.mjs) stores many domains per rule, so
+// the rule count says how much of Chrome's budget Moat uses, and the entry
+// count says how much it blocks.
 let activeRuleCountText = "—";
 
 function renderFilterBudget(settings: Settings, lists: ReturnType<typeof summarizeFilterLists>): void {
@@ -902,13 +904,15 @@ function renderFilterBudget(settings: Settings, lists: ReturnType<typeof summari
     settings.filterGroups,
     lists.map((list) => list.group)
   );
-  const activeRuleCount = lists.filter((list) => state[list.group]).reduce((sum, list) => sum + list.ruleCount, 0);
-  activeRuleCountText = activeRuleCount.toLocaleString();
+  const active = lists.filter((list) => state[list.group]);
+  const activeRuleCount = active.reduce((sum, list) => sum + list.ruleCount, 0);
+  const budgetText = activeRuleCount.toLocaleString();
+  activeRuleCountText = active.reduce((sum, list) => sum + list.entryCount, 0).toLocaleString();
 
   document.getElementById("filters-budget-line")!.textContent = tFallback(
     "advBudgetLine",
-    `Chrome lets all your extensions use ${CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString()} blocking rules in total. Moat is using ${activeRuleCountText}.`,
-    [CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString(), activeRuleCountText]
+    `Chrome lets all your extensions use ${CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString()} blocking rules in total. Moat is using ${budgetText}.`,
+    [CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString(), budgetText]
   );
   const percent = Math.min(100, Math.round((activeRuleCount / CHROME_GLOBAL_STATIC_RULE_LIMIT) * 100));
   const fill = document.getElementById("filters-budget-fill") as HTMLElement;
@@ -976,11 +980,11 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
 
   filterListRows.replaceChildren(
     ...lists
-      .sort((a, b) => b.ruleCount - a.ruleCount)
+      .sort((a, b) => b.entryCount - a.entryCount)
       .map((list) => {
         const titleId = `filter-list-${list.group}-label`;
         const matchCount = matches.matchesByGroup[list.group] ?? 0;
-        const countText = tFallback("optionsRuleCount", `${list.ruleCount.toLocaleString()} rules`, list.ruleCount.toLocaleString());
+        const countText = tFallback("optionsRuleCount", `${list.entryCount.toLocaleString()} rules`, list.entryCount.toLocaleString());
         const matchedSuffix =
           matchCount > 0 ? tFallback("optionsFilterMatchedOnPage", ` · matched ${matchCount} times on this page`, String(matchCount)) : "";
         const extra: HTMLElement[] = [];

@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.155
+
+### Changed
+- **Domain rules are packed: 313,889 rules become 71,771, with identical blocking.** 78% of Moat's
+  rules were plain "block this domain" rules, one domain each. `scripts/pack-rules.mjs` (part of
+  `npm run filters:update`) packs each list's rules that are identical apart from the domain into
+  `requestDomains` rules, which match a domain and its subdomains exactly as `||domain^` does.
+  Every other rule, and every rule a company is attributed to, keeps its form and id.
+  - Proof: `scripts/check-rule-packing.mjs` asks Chrome itself what it would do with 527,066
+    requests covering every listed domain, packed vs original: 0 differences. CI runs it on a
+    sample every push. Live benchmark: same 130/131 test hosts blocked, same 4 ad slots left.
+  - Measured (`scripts/benchmark/rules-cost.mjs`): rules compiled and active 3.1 s â†’ 1.9 s,
+    compiled rule index 38 MB â†’ 18 MB, rule files 53 MB â†’ 21 MB, match lookup cost unchanged.
+    Live benchmark startup 3.6 s â†’ 1.6 s. Moat now uses 22% of Chrome's shared rule limit
+    instead of 94%.
+  - Settings keeps showing the lists' filter entries (313,889); the Chrome budget line shows the
+    real rule count.
+  - Write-up: `docs/research/rule-packing-2026-09.md`.
+
 ## 0.11.154
 
 ### Added

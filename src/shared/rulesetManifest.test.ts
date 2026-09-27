@@ -26,7 +26,17 @@ describe("summarizeFilterLists", () => {
   it("collapses chunked entries into one row per group with a summed rule count", () => {
     const rows = summarizeFilterLists(manifest);
     const ads = rows.find((r) => r.group === "ads");
-    expect(ads).toEqual({ group: "ads", category: "ads", name: "AdGuard Base filter", ruleCount: 150 });
+    expect(ads).toEqual({ group: "ads", category: "ads", name: "AdGuard Base filter", ruleCount: 150, entryCount: 150 });
+  });
+
+  it("sums packed rules and filter entries separately", () => {
+    const packed: RulesetManifestEntry[] = [
+      { ...manifest[0]!, ruleCount: 20, entryCount: 100 },
+      { ...manifest[1]!, ruleCount: 5, entryCount: 50 },
+    ];
+    const ads = summarizeFilterLists(packed).find((r) => r.group === "ads");
+    expect(ads?.ruleCount).toBe(25);
+    expect(ads?.entryCount).toBe(150);
   });
 
   it("strips the (n/m) chunk suffix from the display name", () => {

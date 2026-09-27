@@ -1,6 +1,7 @@
 node_modules/
 dist/
 rules/dnr/
+rules/dnr-unpacked/
 rules/redirect-resources/
 coverage/
 *.zip
