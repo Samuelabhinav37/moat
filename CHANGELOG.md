@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.162
+
+### Changed
+- **Block an element, redesigned.** The old picker opened a box in the bottom-right corner that
+  showed a raw CSS selector, used Moat's old red and green, and put four equal buttons in a row.
+  - While you pick, a pill at the top of the page says "Click anything to hide it. Esc to cancel."
+    and the outline is Moat blue.
+  - After a click, the element fades as a preview and a card opens right next to it, staying on
+    screen and out of the way. It says what you picked in words ("Image, 300 × 250"). The
+    selector is still there under Details.
+  - Bigger and Smaller (or the up and down arrow keys) widen the selection to the box around it
+    or step back in, so you can catch a whole ad slot and not just its picture.
+  - One clear main action, "Hide on example.com". "Just this time", "Gray out instead" and
+    Cancel sit below it. Enter confirms and Esc cancels, which puts the page back as it was.
+  - The picker's UI lives in a closed shadow root, so a page's own styles can't break it. What
+    gets saved is unchanged. Translated into all four languages.
+- `npm run smoke` gained a check that picks an element in Chrome, confirms it, and sees it stay
+  hidden after a reload.
+
 ## 0.11.161
 
 ### Changed

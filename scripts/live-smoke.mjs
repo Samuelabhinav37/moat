@@ -304,6 +304,36 @@ try {
   await send(extId, { type: "set-settings-patch", patch: { cookieBannerAutoReject: true } });
   check("switching it on registers it again", (await registered()).includes("moat-consent-rejector"));
 
+  // 9b. Block an element: start the picker the way the popup does, click the
+  // article paragraph, confirm with Enter, and it stays hidden after reload.
+  const pickPage = await load(`http://${NEWS}/`, 1500);
+  await sw.evaluate(async (host) => {
+    // Earlier checks leave tabs open on the same page: the newest is ours.
+    const [tab] = (await chrome.tabs.query({ url: `http://${host}/*` })).sort((a, b) => b.id - a.id);
+    try {
+      await chrome.tabs.sendMessage(tab.id, { type: "start-picker" });
+    } catch {
+      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["element-picker.js"] });
+      await chrome.tabs.sendMessage(tab.id, { type: "start-picker" });
+    }
+  }, NEWS);
+  await sleep(300);
+  const para = await (await pickPage.$("p.article")).boundingBox();
+  await pickPage.mouse.move(para.x + 10, para.y + 5);
+  await sleep(150);
+  await pickPage.mouse.click(para.x + 10, para.y + 5);
+  await sleep(300);
+  const cardShown = await pickPage.$eval("[data-moat-picker]", () => true).catch(() => false);
+  await pickPage.keyboard.press("Enter");
+  await sleep(800);
+  await pickPage.reload({ waitUntil: "load" });
+  await sleep(1500);
+  const paraShown = await visible(pickPage, "p.article");
+  const headShown = await visible(pickPage, "h1.article");
+  check("Block an element: picked paragraph stays hidden after reload", cardShown && !paraShown && headShown,
+    `card ${cardShown ? "shown" : "missing"}, paragraph ${paraShown ? "visible" : "hidden"}, headline ${headShown ? "visible" : "hidden"}`);
+  await pickPage.close();
+
   // 10. Service-worker cold start, in a fresh browser that never attaches a
   // debugger to the worker: Chrome won't restart a stopped worker that
   // DevTools is attached to, which real users never have.

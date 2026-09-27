@@ -1702,5 +1702,66 @@
   "advTrackersEmptyWeek": {
     "message": "None yet this week. Companies show up here as Moat stops their trackers while you browse.",
     "description": "Weekly tracker summary on the Settings Overview when no tracker company has been blocked yet this week."
+  },
+  "pickerHint": {
+    "message": "Click anything to hide it. Esc to cancel.",
+    "description": "Instruction shown at the top of a page while picking an element to hide."
+  },
+  "pickerTitle": {
+    "message": "Hide this?",
+    "description": "Heading of the card shown after clicking an element to hide."
+  },
+  "pickerBigger": {
+    "message": "Bigger",
+    "description": "Button that widens the picked area to the element around it."
+  },
+  "pickerSmaller": {
+    "message": "Smaller",
+    "description": "Button that narrows the picked area back to the element inside."
+  },
+  "pickerHideOnSite": {
+    "message": "Hide on $HOST$",
+    "description": "Primary button: hides the picked element on this site every visit. $HOST$ is the site name.",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "pickerJustOnce": {
+    "message": "Just this time",
+    "description": "Button: hides the picked element until the page reloads, without saving."
+  },
+  "pickerGrayOut": {
+    "message": "Gray out instead",
+    "description": "Link: grays the picked element out instead of hiding it."
+  },
+  "pickerDetails": {
+    "message": "Details",
+    "description": "Expander showing the technical selector for the picked element."
+  },
+  "pickerKindImage": {
+    "message": "Image",
+    "description": "What was picked: an image."
+  },
+  "pickerKindFrame": {
+    "message": "Embedded frame",
+    "description": "What was picked: an embedded frame (iframe)."
+  },
+  "pickerKindVideo": {
+    "message": "Video",
+    "description": "What was picked: a video or audio player."
+  },
+  "pickerKindLink": {
+    "message": "Link",
+    "description": "What was picked: a link."
+  },
+  "pickerKindText": {
+    "message": "Text",
+    "description": "What was picked: a piece of text."
+  },
+  "pickerKindBox": {
+    "message": "Box",
+    "description": "What was picked: a box or section of the page."
   }
 }

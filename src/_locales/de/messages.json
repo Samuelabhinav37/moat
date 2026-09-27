@@ -1682,5 +1682,52 @@
   },
   "advTrackersEmptyWeek": {
     "message": "Diese Woche noch keine. Unternehmen erscheinen hier, sobald Moat beim Surfen ihre Tracker stoppt."
+  },
+  "pickerHint": {
+    "message": "Klicke auf etwas, um es auszublenden. Esc zum Abbrechen."
+  },
+  "pickerTitle": {
+    "message": "Das ausblenden?"
+  },
+  "pickerBigger": {
+    "message": "Größer"
+  },
+  "pickerSmaller": {
+    "message": "Kleiner"
+  },
+  "pickerHideOnSite": {
+    "message": "Auf $HOST$ ausblenden",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "pickerJustOnce": {
+    "message": "Nur dieses Mal"
+  },
+  "pickerGrayOut": {
+    "message": "Stattdessen grau"
+  },
+  "pickerDetails": {
+    "message": "Details"
+  },
+  "pickerKindImage": {
+    "message": "Bild"
+  },
+  "pickerKindFrame": {
+    "message": "Eingebetteter Rahmen"
+  },
+  "pickerKindVideo": {
+    "message": "Video"
+  },
+  "pickerKindLink": {
+    "message": "Link"
+  },
+  "pickerKindText": {
+    "message": "Text"
+  },
+  "pickerKindBox": {
+    "message": "Block"
   }
 }

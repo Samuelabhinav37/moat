@@ -1682,5 +1682,52 @@
   },
   "advTrackersEmptyWeek": {
     "message": "Aucune pour l'instant cette semaine. Les entreprises apparaissent ici au fur et à mesure que Moat bloque leurs traqueurs pendant votre navigation."
+  },
+  "pickerHint": {
+    "message": "Cliquez sur un élément pour le masquer. Échap pour annuler."
+  },
+  "pickerTitle": {
+    "message": "Masquer ceci ?"
+  },
+  "pickerBigger": {
+    "message": "Plus grand"
+  },
+  "pickerSmaller": {
+    "message": "Plus petit"
+  },
+  "pickerHideOnSite": {
+    "message": "Masquer sur $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "pickerJustOnce": {
+    "message": "Juste cette fois"
+  },
+  "pickerGrayOut": {
+    "message": "Griser plutôt"
+  },
+  "pickerDetails": {
+    "message": "Détails"
+  },
+  "pickerKindImage": {
+    "message": "Image"
+  },
+  "pickerKindFrame": {
+    "message": "Cadre intégré"
+  },
+  "pickerKindVideo": {
+    "message": "Vidéo"
+  },
+  "pickerKindLink": {
+    "message": "Lien"
+  },
+  "pickerKindText": {
+    "message": "Texte"
+  },
+  "pickerKindBox": {
+    "message": "Bloc"
   }
 }
