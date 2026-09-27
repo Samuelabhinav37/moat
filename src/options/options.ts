@@ -889,10 +889,17 @@ const filterCheckUpdates = document.getElementById("filter-check-updates") as HT
 // tFallback below) -- kept as one table so the two can't drift apart.
 const PRESET_HINTS: Record<PresetName | "custom", { key: string; fallback: string }> = {
   off: { key: "presetHintOff", fallback: "Nothing is blocked." },
-  lite: { key: "presetHintLite", fallback: "Like Essential, without the largest security list." },
+  // The three levels say exactly what their Blocking level cards say.
+  lite: {
+    key: "levelLightDesc",
+    fallback: "Blocks ads, pop-ups, and scam and malware sites. Trackers still load, so sites that depend on them keep working.",
+  },
   essential: { key: "presetHintEssential", fallback: "Ads, popups, and known-malicious sites." },
-  standard: { key: "presetHintStandard", fallback: "Ads, trackers, and known-malicious sites." },
-  strict: { key: "presetHintStrict", fallback: "Every list, plus all the Privacy extras." },
+  standard: { key: "levelBalancedDesc", fallback: "Everything in Light, plus trackers, tracking added to links, and phishing sites. Recommended." },
+  strict: {
+    key: "levelStrictDesc",
+    fallback: "Everything in Balanced, plus cookie notices, social buttons, fingerprinting and third-party cookies. A few sites may not work right.",
+  },
   custom: { key: "presetHintCustom", fallback: "A mix you've set up yourself." },
 };
 
@@ -938,10 +945,13 @@ function renderFilterBudget(settings: Settings, lists: ReturnType<typeof summari
   const budgetText = activeRuleCount.toLocaleString();
   activeRuleCountText = active.reduce((sum, list) => sum + list.entryCount, 0).toLocaleString();
 
+  // Entries (what the lists contain, and what About shows) vs rules (what
+  // they're packed into for Chrome), said together so the two numbers never
+  // look like they disagree.
   document.getElementById("filters-budget-line")!.textContent = tFallback(
     "advBudgetLine",
-    `Chrome lets all your extensions use ${CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString()} blocking rules in total. Moat is using ${budgetText}.`,
-    [CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString(), budgetText]
+    `Chrome lets all your extensions use ${CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString()} blocking rules in total. Moat packs its ${activeRuleCountText} filter entries into ${budgetText} of them.`,
+    [CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString(), budgetText, activeRuleCountText]
   );
   const percent = Math.min(100, Math.round((activeRuleCount / CHROME_GLOBAL_STATIC_RULE_LIMIT) * 100));
   const fill = document.getElementById("filters-budget-fill") as HTMLElement;
@@ -1000,6 +1010,9 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
   presetHint.textContent = tFallback(PRESET_HINTS[preset].key, PRESET_HINTS[preset].fallback);
   for (const button of presetRow.querySelectorAll<HTMLButtonElement>("[data-preset]")) {
     button.setAttribute("aria-pressed", String(button.dataset.preset === preset));
+    // Same three levels as Blocking level; Essential only shows while it's
+    // the one in use, so people who picked it can still see and keep it.
+    if (button.dataset.preset === "essential") button.hidden = preset !== "essential";
   }
 
   renderFilterBudget(settings, lists);

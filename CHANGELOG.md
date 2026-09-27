@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.161
+
+### Changed
+- **Levels and counts agree across Settings.**
+  - Filter lists offers the same three levels as Blocking level (Light, Balanced, Strict), with
+    the same descriptions. Essential only appears while it's the level in use, so anyone who
+    chose it still sees it selected.
+  - About showed "309,952 blocking rules" while Filter lists said Moat was using 68,018. Both
+    were right: one counts the lists' entries, the other the Chrome rules they're packed into
+    since 0.11.155. About now says "filter entries", and Filter lists says "Moat packs its
+    309,952 filter entries into 68,018 of them". Updated in all four languages; three preset
+    hints nothing used any more were removed.
+
 ## 0.11.160
 
 ### Changed

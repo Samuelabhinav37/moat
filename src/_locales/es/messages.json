@@ -363,17 +363,8 @@
   "presetHintOff": {
     "message": "No se bloquea nada."
   },
-  "presetHintLite": {
-    "message": "Como Esencial, sin la lista de seguridad más grande."
-  },
   "presetHintEssential": {
     "message": "Anuncios, ventanas emergentes y sitios maliciosos conocidos."
-  },
-  "presetHintStandard": {
-    "message": "Anuncios, rastreadores y sitios maliciosos conocidos."
-  },
-  "presetHintStrict": {
-    "message": "Todas las listas, más todos los extras de privacidad."
   },
   "presetHintCustom": {
     "message": "Una combinación que has armado tú mismo."
@@ -1022,13 +1013,16 @@
     "message": "Mostrar todas las listas"
   },
   "advBudgetLine": {
-    "message": "Chrome permite que todas tus extensiones usen $LIMIT$ reglas de bloqueo en total. Moat usa $USED$.",
+    "message": "Chrome permite que todas tus extensiones usen $LIMIT$ reglas de bloqueo en total. Moat agrupa sus $ENTRIES$ entradas de filtro en $USED$ de ellas.",
     "placeholders": {
       "limit": {
         "content": "$1"
       },
       "used": {
         "content": "$2"
+      },
+      "entries": {
+        "content": "$3"
       }
     }
   },
@@ -1437,7 +1431,7 @@
     "message": "Cuánto bloquear y las funciones extra"
   },
   "aboutRulesUnit": {
-    "message": "reglas de bloqueo"
+    "message": "entradas de filtro"
   },
   "aboutCheckFixes": {
     "message": "Buscar correcciones de filtros"

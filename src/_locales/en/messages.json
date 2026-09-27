@@ -365,17 +365,8 @@
   "presetHintOff": {
     "message": "Nothing is blocked."
   },
-  "presetHintLite": {
-    "message": "Like Essential, without the largest security list."
-  },
   "presetHintEssential": {
     "message": "Ads, popups, and known-malicious sites."
-  },
-  "presetHintStandard": {
-    "message": "Ads, trackers, and known-malicious sites."
-  },
-  "presetHintStrict": {
-    "message": "Every list, plus all the Privacy extras."
   },
   "presetHintCustom": {
     "message": "A mix you've set up yourself."
@@ -1024,13 +1015,16 @@
     "message": "Show all lists"
   },
   "advBudgetLine": {
-    "message": "Chrome lets all your extensions use $LIMIT$ blocking rules in total. Moat is using $USED$.",
+    "message": "Chrome lets all your extensions use $LIMIT$ blocking rules in total. Moat packs its $ENTRIES$ filter entries into $USED$ of them.",
     "placeholders": {
       "limit": {
         "content": "$1"
       },
       "used": {
         "content": "$2"
+      },
+      "entries": {
+        "content": "$3"
       }
     }
   },
@@ -1439,7 +1433,7 @@
     "message": "How much to block, and the extras on top"
   },
   "aboutRulesUnit": {
-    "message": "blocking rules"
+    "message": "filter entries"
   },
   "aboutCheckFixes": {
     "message": "Check for filter fixes"
