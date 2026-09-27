@@ -1,0 +1,29 @@
+# Moat's report service (see src/index.ts and README.md).
+# Deploy with scripts/report-setup-wizard.sh, which also sets GITHUB_TOKEN:
+#   npx wrangler deploy --config report-worker/wrangler.toml
+name = "moat-reports"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+workers_dev = true
+
+# Nothing about requests is kept: no Workers logs or traces.
+[observability]
+enabled = false
+
+[vars]
+REPORTS_REPO = "Samuelabhinav37/moat-reports"
+
+# Counted per Cloudflare location. Limits must use a period of 10 or 60 seconds.
+[[ratelimits]]
+name = "IP_LIMITER"
+namespace_id = "7301"
+  [ratelimits.simple]
+  limit = 5
+  period = 60
+
+[[ratelimits]]
+name = "SITE_LIMITER"
+namespace_id = "7302"
+  [ratelimits.simple]
+  limit = 20
+  period = 60

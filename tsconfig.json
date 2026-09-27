@@ -13,5 +13,5 @@
     "noEmit": true,
     "types": ["chrome"]
   },
-  "include": ["src"]
+  "include": ["src", "report-worker/src"]
 }
