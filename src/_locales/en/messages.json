@@ -1704,5 +1704,9 @@
   "explainBackup": {
     "message": "A backup is a plain text file you can open and read. Sync keeps the same settings on your other computers.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "advTrackersEmptyWeek": {
+    "message": "None yet this week. Companies show up here as Moat stops their trackers while you browse.",
+    "description": "Weekly tracker summary on the Settings Overview when no tracker company has been blocked yet this week."
   }
 }

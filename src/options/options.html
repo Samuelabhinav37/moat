@@ -554,11 +554,29 @@
       .site-list:empty {
         display: none;
       }
+      /* An empty list: an icon, what goes here and how to add one. Flat, not
+         a box inside the panel. */
       .empty-card {
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 13px 16px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 4px 0;
         font-size: 14px;
+      }
+      .empty-card .empty-icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        margin: 0;
+        border-radius: 50%;
+        background: var(--panel-2);
+        color: var(--muted);
+      }
+      .empty-card .empty-icon svg {
+        width: 20px;
+        height: 20px;
       }
       .empty-card b {
         display: block;
@@ -1712,6 +1730,12 @@
         .ov-col.today .ov-bar {
           background: var(--blue-lt);
         }
+        .ov-chart.is-empty .ov-bar {
+          height: 56px !important;
+          background: none;
+          border: 1.5px dashed var(--line);
+          box-sizing: border-box;
+        }
         .ov-day {
           font-size: 12px;
           color: var(--muted);
@@ -2254,8 +2278,11 @@
             <div>
               <div class="box" id="site-list-box"><ul class="site-list" id="site-list"></ul></div>
               <div class="empty-card" id="site-empty-state">
-                <b data-i18n="pausedEmptyTitle">No sites are paused</b>
-                <span data-i18n="pausedEmptyHint">Pause a site you trust to let its ads and trackers load. Known dangerous sites stay blocked.</span>
+                <span class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 5v14M15 5v14" /></svg></span>
+                <div>
+                  <b data-i18n="pausedEmptyTitle">No sites are paused</b>
+                  <span data-i18n="pausedEmptyHint">Pause a site you trust to let its ads and trackers load. Known dangerous sites stay blocked.</span>
+                </div>
               </div>
             </div>
           </section>
@@ -2268,8 +2295,11 @@
             <div>
               <div class="box" id="hidden-element-box"><div class="rule-rows" id="hidden-element-rows"></div></div>
               <div class="empty-card" id="hidden-element-empty">
-                <b data-i18n="hiddenEmptyTitle">Nothing hidden yet</b>
-                <span data-i18n="hiddenEmptyHint">Click Moat's icon, choose Block an element, then click what you want gone.</span>
+                <span class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg></span>
+                <div>
+                  <b data-i18n="hiddenEmptyTitle">Nothing hidden yet</b>
+                  <span data-i18n="hiddenEmptyHint">Click Moat's icon, choose Block an element, then click what you want gone.</span>
+                </div>
               </div>
               <div class="pick-row">
                 <button type="button" id="pick-element-button" data-i18n="optionsPickElementButton">Pick an element</button>
@@ -2320,7 +2350,7 @@
                   <div class="budget-bar"><div class="budget-bar-fill" id="filters-budget-fill"></div></div>
                   <span class="budget-caption" id="filters-budget-caption"></span>
                 </div>
-                <details class="more">
+                <details class="more" id="filter-lists-more">
                   <summary data-i18n="advShowAllLists">Show all lists</summary>
                   <div class="list-head">
                     <span></span>

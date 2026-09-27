@@ -121,6 +121,10 @@ function tFallback(key: string, fallback: string, substitutions?: string | strin
 
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 const explainerPanel = initExplainerPanel(document, tFallback);
+// Desktop has room for the filter list rows, so they start open there.
+if (window.matchMedia?.("(min-width: 900px)").matches) {
+  (document.getElementById("filter-lists-more") as HTMLDetailsElement | null)?.setAttribute("open", "");
+}
 // Who receives each About data flow, by logo as well as name.
 for (const [flow, brand] of [["updates", "github"], ["breach", "haveibeenpwned"]] as const) {
   const to = document.querySelector<HTMLElement>(`.flow-row[data-flow="${flow}"] .flow-to`);
@@ -591,7 +595,7 @@ function renderRows<T>(
   bulk?: BulkRemoval,
   withIcons = false
 ): void {
-  emptyState.style.display = items.length ? "none" : "block";
+  emptyState.style.display = items.length ? "none" : "";
   const rows = items.map((item) => {
     const li = document.createElement("li");
     const label = document.createElement("span");
@@ -1221,7 +1225,7 @@ function renderRuleGroup(
   const rows = Object.entries(rules)
     .flatMap(([hostname, selectors]) => selectors.map((selector) => ({ hostname, selector })))
     .sort((a, b) => a.hostname.localeCompare(b.hostname));
-  emptyState.style.display = rows.length ? "none" : "block";
+  emptyState.style.display = rows.length ? "none" : "";
   container.replaceChildren(...rows.map((r) => buildRuleRow(kind, r.hostname, r.selector, stats, onRemove, rerenderSelf, undo)));
   applyLongList(container, longListLabels);
 }
@@ -1682,11 +1686,10 @@ const trackersRefresh = document.getElementById("trackers-refresh") as HTMLAncho
 function renderWeeklyTrackers(usage: UsageSummaryResponse): void {
   const companies = usage.companiesThisWeek.length.toLocaleString();
   const attempts = usage.companiesThisWeek.reduce((sum, company) => sum + company.count, 0).toLocaleString();
-  document.getElementById("weekly-tracker-summary")!.textContent = tFallback(
-    "advTrackersSummary",
-    `${companies} companies · ${attempts} attempts blocked this week`,
-    [companies, attempts]
-  );
+  document.getElementById("weekly-tracker-summary")!.textContent =
+    usage.companiesThisWeek.length === 0
+      ? tFallback("advTrackersEmptyWeek", "None yet this week. Companies show up here as Moat stops their trackers while you browse.")
+      : tFallback("advTrackersSummary", `${companies} companies · ${attempts} attempts blocked this week`, [companies, attempts]);
 
   const container = document.getElementById("weekly-tracker-rows") as HTMLElement;
   const top = usage.companiesThisWeek.slice(0, 20);
@@ -1774,6 +1777,7 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   unsortedEl.textContent = tFallback("ovKindUnsorted", `${unsorted.toLocaleString()} not sorted`, unsorted.toLocaleString());
 
   const chart = document.getElementById("ov-chart") as HTMLElement;
+  chart.classList.toggle("is-empty", week === 0);
   const max = Math.max(...days, 1);
   const todayLabel = tFallback("ovToday", "Today");
   chart.replaceChildren(

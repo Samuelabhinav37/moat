@@ -1685,5 +1685,8 @@
   },
   "explainBackup": {
     "message": "Una copia de seguridad es un archivo de texto que puedes abrir y leer. La sincronización mantiene los mismos ajustes en tus otros ordenadores."
+  },
+  "advTrackersEmptyWeek": {
+    "message": "Ninguna todavía esta semana. Las empresas aparecen aquí a medida que Moat detiene sus rastreadores mientras navegas."
   }
 }

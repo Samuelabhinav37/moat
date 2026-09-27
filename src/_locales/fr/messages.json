@@ -1685,5 +1685,8 @@
   },
   "explainBackup": {
     "message": "Une sauvegarde est un simple fichier texte que vous pouvez ouvrir et lire. La synchronisation garde les mêmes réglages sur vos autres ordinateurs."
+  },
+  "advTrackersEmptyWeek": {
+    "message": "Aucune pour l'instant cette semaine. Les entreprises apparaissent ici au fur et à mesure que Moat bloque leurs traqueurs pendant votre navigation."
   }
 }

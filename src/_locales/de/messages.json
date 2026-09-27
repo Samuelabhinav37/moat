@@ -1685,5 +1685,8 @@
   },
   "explainBackup": {
     "message": "Eine Sicherung ist eine einfache Textdatei, die du öffnen und lesen kannst. Die Synchronisierung hält dieselben Einstellungen auf deinen anderen Computern."
+  },
+  "advTrackersEmptyWeek": {
+    "message": "Diese Woche noch keine. Unternehmen erscheinen hier, sobald Moat beim Surfen ihre Tracker stoppt."
   }
 }

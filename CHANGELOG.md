@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.160
+
+### Changed
+- **Settings on a fresh install no longer looks empty or broken.**
+  - Overview's week chart shows dashed outlines where the bars will be, instead of seven flat
+    lines that looked like data.
+  - The Trackers summary says "None yet this week" and what will show up, instead of
+    "0 companies · 0 attempts blocked this week". Translated into all four languages.
+  - Paused sites and Hidden on pages show a flat empty state with an icon, not a box inside the
+    panel.
+  - Filter lists shows its lists straight away on desktop, where there's room, instead of
+    behind "Show all lists".
+
+### Fixed
+- Empty-list messages in Settings were forced to `display: block` by script, which overrode
+  their own layout. They now fall back to their stylesheet.
+
 ## 0.11.159
 
 ### Changed
