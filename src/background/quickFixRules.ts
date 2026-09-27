@@ -21,6 +21,7 @@
 // belongs in a bundled static ruleset refreshed by `npm run filters:update`.
 import type { DeclarativeNetRequest } from "webextension-polyfill";
 import { ALL_RESOURCE_TYPES } from "./customRules";
+import { QUICK_FIX_PRIORITY } from "../shared/rulePriorities";
 
 export const QUICK_FIX_ID_START = 950_000;
 export const MAX_QUICK_FIX_RULES = 500;
@@ -58,7 +59,9 @@ export function filterValidQuickFixes(entries: unknown[]): { valid: QuickFixEntr
 export function buildQuickFixRules(entries: QuickFixEntry[]): DeclarativeNetRequest.Rule[] {
   return entries.slice(0, MAX_QUICK_FIX_RULES).map((entry, index) => ({
     id: QUICK_FIX_ID_START + index,
-    priority: 1,
+    // Its own band (rulePriorities.ts): at priority 1 an allow fix lost to
+    // every bundled block rule with a higher priority, ~2,000 of them.
+    priority: QUICK_FIX_PRIORITY,
     // Only "safe" action types reach here -- see isValidEntry / the module header.
     action: { type: entry.action },
     condition: { urlFilter: entry.urlFilter, resourceTypes: entry.resourceTypes },

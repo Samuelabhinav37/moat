@@ -7,6 +7,7 @@ import {
   QUICK_FIX_ID_START,
   type QuickFixEntry,
 } from "./quickFixRules";
+import { NEVER_BLOCK_PRIORITY, QUICK_FIX_PRIORITY, SECURITY_PRIORITY_OFFSET } from "../shared/rulePriorities";
 
 const block: QuickFixEntry = { action: "block", urlFilter: "||anti-adblock.example^", resourceTypes: ["script"] };
 const allow: QuickFixEntry = { action: "allow", urlFilter: "||over-blocked.example^", resourceTypes: ["main_frame"] };
@@ -63,10 +64,17 @@ describe("buildQuickFixRules", () => {
     const rules = buildQuickFixRules([block]);
     expect(rules[0]).toEqual({
       id: QUICK_FIX_ID_START,
-      priority: 1,
+      priority: QUICK_FIX_PRIORITY,
       action: { type: "block" },
       condition: { urlFilter: block.urlFilter, resourceTypes: ["script"] },
     });
+  });
+
+  it("sits above bundled rules and below Never block and the security lists", () => {
+    const [rule] = buildQuickFixRules([allow]);
+    expect(rule!.priority).toBeGreaterThan(1_100_201);
+    expect(rule!.priority).toBeLessThan(NEVER_BLOCK_PRIORITY);
+    expect(rule!.priority).toBeLessThan(SECURITY_PRIORITY_OFFSET);
   });
 
   it("builds an allow rule as-is", () => {

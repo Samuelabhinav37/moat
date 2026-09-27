@@ -1,0 +1,71 @@
+name: Sign live fixes
+
+# Signs the live manifest after a fix lands in live/quick-fixes.json or
+# live/cosmetic-fixes.json (typically a report-bot pull request, merged by a
+# person), then publishes it. Fixes merged this way reach every install
+# within a day, without a store release.
+#
+# Only this workflow and security-live.yml hold LIVE_SIGNING_PRIVATE_KEY. A
+# pull request never touches live/manifest.json or its signature: that's
+# regenerated here, from what was merged.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "live/quick-fixes.json"
+      - "live/cosmetic-fixes.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: sign-live
+  cancel-in-progress: false
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Nothing to do if already signed
+        id: check
+        run: |
+          if node scripts/check-live-manifest.mjs; then echo "needed=false" >> "$GITHUB_OUTPUT"; else echo "needed=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Check the fixes are well-formed
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          npm ci --ignore-scripts
+          npx vitest run src/background/liveFixesData.test.ts src/background/quickFixRules.test.ts src/background/liveCosmeticFixes.test.ts
+
+      - name: Sign the live manifest
+        if: steps.check.outputs.needed == 'true'
+        env:
+          LIVE_SIGNING_PRIVATE_KEY: ${{ secrets.LIVE_SIGNING_PRIVATE_KEY }}
+        run: |
+          node scripts/update-live-manifest.mjs
+          node scripts/check-live-manifest.mjs
+
+      - name: Commit and publish
+        if: steps.check.outputs.needed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add live/manifest.json live/manifest.json.sig
+          git commit -m "live: sign fixes ($(git log -1 --format=%h -- live/quick-fixes.json live/cosmetic-fixes.json))"
+          git pull --rebase origin master
+          git push origin HEAD:master
+          # Pushes made with the workflow's own token don't start other
+          # workflows, so start the gh-pages deploy explicitly.
+          gh workflow run publish-live.yml --ref master

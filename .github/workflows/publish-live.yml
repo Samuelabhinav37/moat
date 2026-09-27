@@ -33,7 +33,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      # A fix merged into live/ (quick-fixes.json or cosmetic-fixes.json)
+      # isn't signed yet: installs would reject it. sign-live.yml signs it
+      # and starts this workflow again, so skip until then.
+      - name: Check the live manifest is signed
+        id: signed
+        run: |
+          if node scripts/check-live-manifest.mjs; then echo "ok=true" >> "$GITHUB_OUTPUT"
+          else echo "::notice::live/ isn't signed for these files yet; sign-live.yml will publish after signing."; fi
+
       - name: Deploy to gh-pages
+        if: steps.signed.outputs.ok == 'true'
         run: |
           set -euo pipefail
           SRC="$(git rev-parse --short HEAD)"

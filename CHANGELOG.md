@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.164
+
+### Fixed
+- **Live "allow" fixes couldn't unbreak most sites.** Rules from the live quick-fix channel were
+  added at priority 1, while about 2,000 bundled block rules sit higher (up to 1,100,201). An
+  allow fix lost to all of them, so a fix pushed to unbreak a site often did nothing. Quick
+  fixes now have their own band, 1,150,000 (`src/shared/rulePriorities.ts`). That's above every
+  bundled ad and tracker rule, below your own "Never block" and pause, and far below the
+  security lists, which a fix still can never unblock.
+
+### Added
+- **Fixes merged into the live channel are signed and published automatically.** A fix that lands
+  in `live/quick-fixes.json` or `live/cosmetic-fixes.json` on master (for example from a problem
+  report) is checked, signed with the key only GitHub holds, and published by the new
+  `.github/workflows/sign-live.yml`. It reaches every install within a day, with no store release.
+  - `scripts/check-live-manifest.mjs` confirms every live file matches its signed hash.
+    `publish-live.yml` now runs it first and skips publishing until the manifest is signed,
+    since installs would reject the unsigned files anyway.
+  - `src/background/liveFixesData.test.ts` checks the committed fix files with the extension's
+    own validators before signing, so no merged fix is silently dropped on users' machines.
+
 ## 0.11.163
 
 ### Added

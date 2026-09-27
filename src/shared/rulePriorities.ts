@@ -4,6 +4,7 @@
 // So the order of these bands is the whole policy:
 //
 //   bundled ads / trackers / annoyances   <= 1,100,201 (AdGuard's own range)
+//   live quick fixes (block or allow)        1,150,000
 //   user "Never block" (allow)               1,200,000
 //   paused site (allowAllRequests)           1,300,000
 //   bundled security lists                   original + 2,000,000
@@ -18,6 +19,10 @@
 
 /** Highest priority any bundled non-security rule may have. */
 export const BUNDLED_NON_SECURITY_MAX_PRIORITY = 1_199_999;
+/** Live quick fixes (quickFixRules.ts): above every bundled ad/tracker rule,
+ * so an allow fix really unbreaks a site, but below your own "Never block"
+ * and pause, and far below the security lists it can never unblock. */
+export const QUICK_FIX_PRIORITY = 1_150_000;
 export const NEVER_BLOCK_PRIORITY = 1_200_000;
 export const PAUSE_PRIORITY = 1_300_000;
 /** Added to every rule in a "security" category ruleset at build time. */
