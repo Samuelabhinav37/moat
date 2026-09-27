@@ -78,7 +78,9 @@ function actionTable(dir, manifest) {
 
 async function outcomes(extDir, table) {
   const profile = mkdtempSync(join(tmpdir(), "moat-packcheck-profile-"));
-  const browser = await puppeteer.launch({ executablePath: await chromePath(root), headless: true, pipe: true, userDataDir: profile, enableExtensions: [extDir] });
+  const browser = await puppeteer.launch({ executablePath: await chromePath(root), headless: true, pipe: true, userDataDir: profile, enableExtensions: [extDir],
+    // GitHub's Linux runners can't use Chrome's sandbox (same as check-chrome-load.mjs).
+    args: process.env.CI ? ["--no-sandbox"] : [] });
   try {
     const target = await browser.waitForTarget((t) => t.type() === "service_worker" && t.url().startsWith("chrome-extension://"), { timeout: 60000 });
     const worker = await target.worker();

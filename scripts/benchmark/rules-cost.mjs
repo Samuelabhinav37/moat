@@ -76,7 +76,9 @@ for (let i = 0; i < domains.length && lookups.length < 50000; i += 5) {
 async function measure(extDir) {
   const profile = mkdtempSync(join(tmpdir(), "moat-rulecost-profile-"));
   const launched = Date.now();
-  const browser = await puppeteer.launch({ executablePath: await chromePath(root), headless: true, pipe: true, userDataDir: profile, enableExtensions: [extDir] });
+  const browser = await puppeteer.launch({ executablePath: await chromePath(root), headless: true, pipe: true, userDataDir: profile, enableExtensions: [extDir],
+    // GitHub's Linux runners can't use Chrome's sandbox (same as check-chrome-load.mjs).
+    args: process.env.CI ? ["--no-sandbox"] : [] });
   try {
     const target = await browser.waitForTarget((t) => t.type() === "service_worker" && t.url().startsWith("chrome-extension://"), { timeout: 60000 });
     const workerAt = Date.now() - launched;
