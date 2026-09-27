@@ -192,6 +192,28 @@ REPO="Samuelabhinav37/moat-reports"
 WRANGLER="npx -y wrangler@4"
 CONFIG="report-worker/wrangler.toml"
 
+# Every stage reads your answers from the keyboard. Run through Claude Code's
+# "!" prefix (or any pipe) there's no keyboard, so every prompt would read an
+# empty answer: stop before doing anything instead.
+if [[ ! -t 0 ]]; then
+  printf '
+  This wizard needs your keyboard, so run it in your own terminal window
+'
+  printf '  (Git Bash on Windows), not through Claude Code'"'"'s "!" prefix:
+
+'
+  printf '    cd ~/projects/moat && bash scripts/report-setup-wizard.sh
+
+'
+  exit 1
+fi
+note_windows_browser() {
+  # explorer.exe reports failure even when it opens the page, so the
+  # "couldn't open a browser" warning above can be wrong on Windows.
+  command -v explorer.exe >/dev/null 2>&1 && note "(On Windows that warning is often wrong: check your browser for a new tab first.)"
+  return 0
+}
+
 banner "Moat report service setup"
 
 # ── 1 ────────────────────────────────────────────────────────────────────
@@ -214,12 +236,17 @@ pause
 stage "GitHub: a token that can only file issues there"
 say "The report service needs a token that can open issues in $REPO and nothing else."
 open_url "https://github.com/settings/personal-access-tokens/new"
+note_windows_browser
 step "Token name: moat-reports worker. Pick an expiration (a year is fine; you'll re-run this to renew)."
 step "Resource owner: your account (Samuelabhinav37)."
 step "Repository access: 'Only select repositories', then choose moat-reports."
 step "Permissions, Repository permissions: set 'Issues' to 'Read and write'. Leave everything else as is."
 step "Generate the token and copy it (it starts with github_pat_)."
 ask_secret REPORTS_GITHUB_TOKEN "Paste the token:"
+if [[ -z "$REPORTS_GITHUB_TOKEN" ]]; then
+  warn "Nothing was pasted. Copy the token from GitHub, then re-run; stage 1 won't repeat itself."
+  exit 1
+fi
 code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $REPORTS_GITHUB_TOKEN" "https://api.github.com/repos/$REPO/issues?per_page=1")
 if [[ "$code" == "200" ]]; then
   printf '  %s✓ token can read %s issues%s\n' "$GREEN" "$REPO" "$RESET"
