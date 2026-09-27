@@ -360,7 +360,7 @@ const PROTECTIONS: ProtectionDef[] = [
       "optionsSearchSlopDrawerDesc",
       "Hides search results that match a small, curated list of content-farm domains.",
     ],
-    cautionKey: [
+    noteKey: [
       "optionsSearchSlopCaution",
       "Each hidden batch stays one click away behind a \"Show\" link. Off by default, since this list can misfire in ways a fixed ad-network list won't.",
     ],

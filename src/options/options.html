@@ -213,7 +213,7 @@
         height: 44px;
         border-radius: 50%;
         background: var(--panel-2);
-        color: #7d7784;
+        color: var(--muted);
         display: grid;
         place-items: center;
         transition: background 0.3s, color 0.3s;
@@ -678,6 +678,25 @@
       .field + .field {
         margin-top: 28px;
       }
+      .rule-cards {
+        display: grid;
+        gap: 12px;
+      }
+      .rule-cards .field + .field {
+        margin-top: 0;
+      }
+      .rule-card {
+        padding: 16px 18px;
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+      .rule-card .site-list.box {
+        background: var(--panel);
+      }
+      .pick-row {
+        margin-top: 14px;
+      }
       .field-label {
         display: block;
         font-weight: 600;
@@ -924,11 +943,6 @@
       }
       #migration-import {
         margin-top: 22px;
-      }
-      #migration-import summary {
-        cursor: pointer;
-        color: var(--blue-lt);
-        font-weight: 600;
       }
       #migration-import[open] summary {
         margin-bottom: 10px;
@@ -1725,7 +1739,7 @@
         }
         .ov-links {
           list-style: none;
-          margin: 4px 0 0;
+          margin: auto 0 0;
           padding: 0;
         }
         .ov-links a {
@@ -2257,6 +2271,10 @@
                 <b data-i18n="hiddenEmptyTitle">Nothing hidden yet</b>
                 <span data-i18n="hiddenEmptyHint">Click Moat's icon, choose Block an element, then click what you want gone.</span>
               </div>
+              <div class="pick-row">
+                <button type="button" id="pick-element-button" data-i18n="optionsPickElementButton">Pick an element</button>
+                <p class="hint muted" id="pick-element-status" hidden></p>
+              </div>
               <div id="grayscale-element-block" hidden>
                 <p class="sub-h" style="margin-top: 22px" data-i18n="optionsDimmedElementsTitle">Grayed out</p>
                 <div class="box"><div class="rule-rows" id="grayscale-element-rows"></div></div>
@@ -2332,15 +2350,16 @@
                 <h2 data-i18n="advRulesTitle">Block and allow</h2>
                 <p class="lead" data-i18n="advRulesLead">Your own rules. They always win over the filter lists.</p>
               </div>
-              <div>
-                <div class="field">
+              <div class="rule-cards">
+                <div class="field rule-card">
                   <span class="field-label" data-i18n="advPauseSite">Pause Moat on a site</span>
+                  <span class="field-hint" data-i18n="pausedEmptyHint">Pause a site you trust to let its ads and trackers load. Known dangerous sites stay blocked.</span>
                   <div class="add-row">
                     <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="add-button" />
                     <button type="button" id="add-button" data-i18n="commonPause">Pause</button>
                   </div>
                 </div>
-                <div class="field">
+                <div class="field rule-card">
                   <span class="field-label" data-i18n="optionsBlockedSitesTitle">Always block</span>
                   <span class="field-hint" data-i18n="optionsBlockedSitesHint">Always block these sites, whatever the filter lists say.</span>
                   <ul class="site-list box" id="custom-block-list" style="margin-top: 10px"></ul>
@@ -2351,7 +2370,7 @@
                   </div>
                   <p class="hint muted" id="custom-block-add-status" hidden></p>
                 </div>
-                <div class="field">
+                <div class="field rule-card">
                   <span class="field-label" data-i18n="optionsAllowedSitesTitle">Never block</span>
                   <span class="field-hint" data-i18n="optionsAllowedSitesHint">Never block these sites, even when a filter list matches. Known dangerous sites stay blocked.</span>
                   <ul class="site-list box" id="custom-allow-list" style="margin-top: 10px"></ul>
@@ -2362,11 +2381,7 @@
                   </div>
                   <p class="hint muted" id="custom-allow-add-status" hidden></p>
                 </div>
-                <div class="field">
-                  <button type="button" id="pick-element-button" data-i18n="optionsPickElementButton">Pick an element</button>
-                  <p class="hint muted" id="pick-element-status" hidden></p>
-                </div>
-                <details id="migration-import">
+                <details id="migration-import" class="more">
                   <summary data-i18n="optionsMigrationImportSummary">Import from another blocker…</summary>
                   <p class="hint muted" data-i18n="optionsMigrationImportHint">Paste rules exported from uBlock Origin, AdGuard, or similar — blocked/allowed domains and per-site element-hiding rules. Other filter syntax isn't supported and will be skipped.</p>
                   <textarea id="migration-import-textarea" class="migration-import-textarea" rows="5" placeholder="||ads.example.com^&#10;example.com##.ad-banner"></textarea>

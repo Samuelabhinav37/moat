@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.159
+
+### Changed
+- **Settings visual polish.**
+  - Amber now only marks a real risk, like fingerprinting breaking a CAPTCHA. The search-results
+    note ("each hidden batch stays one click away") is reassurance, so it's plain grey now.
+  - Setting icons are lighter, so a switched-off row no longer looks disabled.
+  - "Import from another blocker" opens with the same chevron as every other expander.
+  - Always and never block puts pausing, always block and never block in their own cards, and
+    the pause card now says what pausing does.
+  - "Pick an element" moved to Hidden on pages, next to the list of what it hides.
+  - On Overview, the Blocking level card's links sit at the bottom, level with the chart card.
+
 ## 0.11.158
 
 ### Added
