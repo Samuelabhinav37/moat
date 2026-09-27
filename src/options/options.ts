@@ -13,6 +13,7 @@ import { applyLongList, type LongListLabels } from "./longList";
 import { applyBulkSelect, type BulkLabels } from "./bulkSelect";
 import { buildSiteIcon, faviconUrl } from "./siteIcon";
 import { initDashboard } from "./dashboard";
+import { buildInlineExplainer, initExplainerPanel, sceneFor } from "./explainerPanel";
 import { initSettingsSearch } from "./settingsSearch";
 import { createSavedToast } from "./savedToast";
 import { getCustomRuleStats } from "../background/customRuleStats";
@@ -118,7 +119,8 @@ function tFallback(key: string, fallback: string, substitutions?: string | strin
 }
 
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
-initDashboard();
+const explainerPanel = initExplainerPanel(document, tFallback);
+initDashboard(window, explainerPanel.showScreen);
 
 // ---------- Advanced settings (expands in place) ----------
 
@@ -449,6 +451,13 @@ function buildSettingRow(options: {
     text.append(desc);
   }
   if (options.extra) text.append(...options.extra);
+  // Rows with a "How it works" picture: the side panel follows them, and
+  // narrower screens get an inline button (explainerPanel.ts).
+  const scene = sceneFor(options.icon);
+  if (scene) {
+    row.dataset.explain = scene;
+    text.append(buildInlineExplainer(scene, tFallback));
+  }
   row.append(buildIcon(options.icon), text);
   if (options.control) row.append(options.control);
   return row;
@@ -1566,6 +1575,7 @@ async function render(): Promise<void> {
 
   await renderBackupTab(settings);
   await renderAboutTab(policy, settings);
+  explainerPanel.refresh();
 }
 
 addButton.addEventListener("click", async () => {

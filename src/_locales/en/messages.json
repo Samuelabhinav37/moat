@@ -1636,5 +1636,73 @@
         "content": "$1"
       }
     }
+  },
+  "explainHowItWorks": {
+    "message": "How it works",
+    "description": "Heading of the Settings side panel that pictures how the hovered setting works, and the button that opens the same picture on narrow screens."
+  },
+  "explainLevels": {
+    "message": "Each level adds more. Light stops ads and scams. Balanced also stops trackers. Strict also hides cookie notices and blocks third-party cookies.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainConsentReject": {
+    "message": "When a site shows a cookie banner, Moat picks the choice that shares the least, so you never have to click it.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainGrayscale": {
+    "message": "Some video ads come from the same server as the video, so blocking them would stop the video too. Moat fades them to gray while they play.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainFeedScan": {
+    "message": "As you scroll, Moat looks for the Sponsored label on posts and takes those posts out of your feed.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainLeakedPassword": {
+    "message": "Moat checks a short scrambled piece of a password you type against known breaches. Your password itself never leaves your computer.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainCookies": {
+    "message": "A tracker on one site leaves a cookie so it can spot you on the next one. Moat stops sites from sharing those cookies.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainWebrtc": {
+    "message": "Video-call features can show a page your real IP address, even behind a VPN. Moat keeps it hidden.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainFingerprint": {
+    "message": "Sites can recognize you from details like your screen, fonts and graphics card. Moat changes those details slightly on every visit.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainCname": {
+    "message": "Some trackers hide behind the site's own address. Moat looks up where that address really points and blocks it if it's a tracker.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainSearchSlop": {
+    "message": "Results from known content farms fold away behind a Show link, so they're still one click away.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainPermissionGuard": {
+    "message": "Pages that ask for your camera, microphone or location as soon as they load are stopped. Allow a site from Moat's popup when you trust it.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainLists": {
+    "message": "Filter lists are shared blocklists that their authors keep up to date. Moat combines the lists for your level into one set of rules.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainPaused": {
+    "message": "On a paused site, ads and trackers load as usual. Known phishing and malware sites stay blocked.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainHidden": {
+    "message": "Point at anything on a page and click it. Moat hides it there every time you visit.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainRules": {
+    "message": "Your own rules beat the filter lists. Always block a site, or never block one a list gets wrong.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
+  },
+  "explainBackup": {
+    "message": "A backup is a plain text file you can open and read. Sync keeps the same settings on your other computers.",
+    "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   }
 }

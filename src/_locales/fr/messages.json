@@ -1634,5 +1634,56 @@
         "content": "$1"
       }
     }
+  },
+  "explainHowItWorks": {
+    "message": "Comment ça marche"
+  },
+  "explainLevels": {
+    "message": "Chaque niveau en fait plus. Léger arrête les pubs et les arnaques. Équilibré arrête aussi les traqueurs. Strict masque en plus les bandeaux de cookies et bloque les cookies tiers."
+  },
+  "explainConsentReject": {
+    "message": "Quand un site affiche un bandeau de cookies, Moat choisit l’option qui partage le moins, pour que vous n’ayez jamais à cliquer."
+  },
+  "explainGrayscale": {
+    "message": "Certaines pubs vidéo viennent du même serveur que la vidéo, donc les bloquer couperait aussi la vidéo. Moat les passe en gris pendant leur lecture."
+  },
+  "explainFeedScan": {
+    "message": "Pendant que vous faites défiler, Moat repère la mention Sponsorisé et retire ces publications de votre fil."
+  },
+  "explainLeakedPassword": {
+    "message": "Moat compare un court fragment brouillé du mot de passe saisi avec des fuites connues. Votre mot de passe ne quitte jamais votre ordinateur."
+  },
+  "explainCookies": {
+    "message": "Un traqueur dépose un cookie sur un site pour vous reconnaître sur le suivant. Moat empêche les sites de partager ces cookies."
+  },
+  "explainWebrtc": {
+    "message": "Les fonctions d’appel vidéo peuvent montrer votre vraie adresse IP à une page, même derrière un VPN. Moat la garde cachée."
+  },
+  "explainFingerprint": {
+    "message": "Les sites peuvent vous reconnaître grâce à votre écran, vos polices et votre carte graphique. Moat modifie légèrement ces détails à chaque visite."
+  },
+  "explainCname": {
+    "message": "Certains traqueurs se cachent derrière l’adresse du site lui-même. Moat vérifie où cette adresse mène vraiment et la bloque si c’est un traqueur."
+  },
+  "explainSearchSlop": {
+    "message": "Les résultats des fermes de contenu connues sont repliés derrière un lien Afficher, toujours à un clic."
+  },
+  "explainPermissionGuard": {
+    "message": "Les pages qui demandent votre caméra, votre micro ou votre position dès le chargement sont arrêtées. Autorisez un site depuis la fenêtre de Moat quand vous lui faites confiance."
+  },
+  "explainLists": {
+    "message": "Les listes de filtres sont des listes de blocage partagées que leurs auteurs tiennent à jour. Moat réunit celles de votre niveau en un seul ensemble de règles."
+  },
+  "explainPaused": {
+    "message": "Sur un site en pause, les pubs et les traqueurs se chargent normalement. Les sites d’hameçonnage et malveillants connus restent bloqués."
+  },
+  "explainHidden": {
+    "message": "Pointez n’importe quel élément d’une page et cliquez. Moat le masque à chaque visite."
+  },
+  "explainRules": {
+    "message": "Vos propres règles passent avant les listes de filtres. Bloquez toujours un site, ou ne bloquez jamais un site qu’une liste bloque à tort."
+  },
+  "explainBackup": {
+    "message": "Une sauvegarde est un simple fichier texte que vous pouvez ouvrir et lire. La synchronisation garde les mêmes réglages sur vos autres ordinateurs."
   }
 }

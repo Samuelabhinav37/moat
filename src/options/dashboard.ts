@@ -62,14 +62,19 @@ function watchCount(countEl: HTMLElement, lists: HTMLElement[]): void {
   update();
 }
 
-export function initDashboard(win: Window = window): void {
+/** `onShow` runs after each screen change (the "How it works" panel follows it). */
+export function initDashboard(win: Window = window, onShow?: (key: PageKey) => void): void {
   const doc = win.document;
   const show = () => {
-    showPage(pageFromHash(win.location.hash), doc);
+    const key = pageFromHash(win.location.hash);
+    showPage(key, doc);
+    onShow?.(key);
     win.scrollTo?.(0, 0);
   };
   win.addEventListener("hashchange", show);
-  showPage(pageFromHash(win.location.hash), doc);
+  const first = pageFromHash(win.location.hash);
+  showPage(first, doc);
+  onShow?.(first);
 
   const byId = (id: string) => doc.getElementById(id);
   const pausedCount = byId("nav-count-paused");

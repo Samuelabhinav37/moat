@@ -1634,5 +1634,56 @@
         "content": "$1"
       }
     }
+  },
+  "explainHowItWorks": {
+    "message": "So funktioniert’s"
+  },
+  "explainLevels": {
+    "message": "Jede Stufe blockiert mehr. Leicht stoppt Werbung und Betrug. Ausgewogen stoppt zusätzlich Tracker. Streng blendet außerdem Cookie-Hinweise aus und blockiert Drittanbieter-Cookies."
+  },
+  "explainConsentReject": {
+    "message": "Zeigt eine Seite ein Cookie-Banner, wählt Moat die Option, die am wenigsten teilt. So musst du nie klicken."
+  },
+  "explainGrayscale": {
+    "message": "Manche Videowerbung kommt vom selben Server wie das Video. Sie zu blockieren würde auch das Video stoppen. Moat macht sie grau, solange sie läuft."
+  },
+  "explainFeedScan": {
+    "message": "Beim Scrollen sucht Moat nach der Kennzeichnung Gesponsert und nimmt diese Beiträge aus deinem Feed."
+  },
+  "explainLeakedPassword": {
+    "message": "Moat prüft ein kurzes, verschlüsseltes Stück deines Passworts gegen bekannte Datenlecks. Dein Passwort selbst verlässt nie deinen Computer."
+  },
+  "explainCookies": {
+    "message": "Ein Tracker hinterlässt auf einer Seite ein Cookie, um dich auf der nächsten wiederzuerkennen. Moat verhindert, dass Seiten diese Cookies teilen."
+  },
+  "explainWebrtc": {
+    "message": "Videoanruf-Funktionen können einer Seite deine echte IP-Adresse zeigen, sogar mit VPN. Moat hält sie verborgen."
+  },
+  "explainFingerprint": {
+    "message": "Seiten können dich an Details wie Bildschirm, Schriftarten und Grafikkarte erkennen. Moat verändert diese Details bei jedem Besuch ein wenig."
+  },
+  "explainCname": {
+    "message": "Manche Tracker verstecken sich hinter der eigenen Adresse der Seite. Moat prüft, wohin diese Adresse wirklich führt, und blockiert sie, wenn es ein Tracker ist."
+  },
+  "explainSearchSlop": {
+    "message": "Ergebnisse bekannter Content-Farmen werden hinter einem Anzeigen-Link eingeklappt und bleiben so einen Klick entfernt."
+  },
+  "explainPermissionGuard": {
+    "message": "Seiten, die gleich beim Laden nach Kamera, Mikrofon oder Standort fragen, werden gestoppt. Erlaube eine Seite im Moat-Fenster, wenn du ihr vertraust."
+  },
+  "explainLists": {
+    "message": "Filterlisten sind gemeinsame Sperrlisten, die ihre Autoren aktuell halten. Moat fasst die Listen deiner Stufe zu einem Regelsatz zusammen."
+  },
+  "explainPaused": {
+    "message": "Auf einer pausierten Seite laden Werbung und Tracker wie gewohnt. Bekannte Phishing- und Schadsoftware-Seiten bleiben blockiert."
+  },
+  "explainHidden": {
+    "message": "Zeige auf etwas auf einer Seite und klicke. Moat blendet es dort bei jedem Besuch aus."
+  },
+  "explainRules": {
+    "message": "Deine eigenen Regeln gehen vor den Filterlisten. Blockiere eine Seite immer, oder blockiere nie eine, die eine Liste fälschlich sperrt."
+  },
+  "explainBackup": {
+    "message": "Eine Sicherung ist eine einfache Textdatei, die du öffnen und lesen kannst. Die Synchronisierung hält dieselben Einstellungen auf deinen anderen Computern."
   }
 }

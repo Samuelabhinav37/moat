@@ -3,6 +3,30 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.157
+
+### Added
+- **"How it works" pictures in Settings.** Every protection and feature now has a small looping
+  picture of what it does. You can see a cookie banner answered for you, a video ad faded to gray,
+  a sponsored post folded out of a feed, or a cookie stopped between two sites. There are pictures
+  for the blocking levels, filter lists, paused sites, hidden elements, your own rules and backups
+  too. Each comes with one or two plain sentences, in all four languages.
+  - On wide screens (1280px and up) they sit in a side panel that follows the setting under the
+    pointer or keyboard focus. Narrower screens get a "How it works" link under each setting
+    that opens the same picture in place.
+  - They're drawn inline in the page's own colours, carry no words beyond example site names, and
+    hold still when your system asks for reduced motion (`src/options/explainers.ts`,
+    `explainerPanel.ts`).
+
+### Changed
+- **Settings uses the whole window on desktop.** The content column used to stop at about 940px
+  against the sidebar, leaving the right side of a wide screen empty. It's now centred in the
+  space beside the sidebar, with the picture panel next to it from 1280px, and the footer lines up
+  with it. Overview and About, which have no pictures, use the full width. Phones keep the single
+  scrolling page.
+- Every Settings screen shows its subtitle on its own line under the title. Before, it sat beside
+  the title on some screens and below it on others.
+
 ## 0.11.156
 
 ### Added

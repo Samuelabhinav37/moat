@@ -1535,24 +1535,41 @@
           color: var(--muted);
           font-variant-numeric: tabular-nums;
         }
+        /* One centred column in the space right of the sidebar. From
+           1280px, screens with a "How it works" picture get a second,
+           sticky column for it (see the explainer block below). */
         main.wrap {
           box-sizing: border-box;
-          max-width: 1040px;
+          display: grid;
+          grid-template-columns: minmax(0, 880px);
+          justify-content: center;
+          align-content: start;
+          column-gap: 40px;
+          max-width: none;
           min-height: calc(100vh - 65px);
-          margin: 0 auto 0 var(--side);
+          margin: 0 0 0 var(--side);
           padding: 36px 48px 40px;
+        }
+        main.wrap > * {
+          grid-column: 1;
+          min-width: 0;
         }
         .site-foot {
           margin-left: var(--side);
         }
+        /* The footer's content lines up with the centred column above. */
+        .site-foot > * {
+          max-width: 880px;
+          margin-inline: auto;
+        }
         .head {
           display: none;
         }
+        /* Title, then its one-line subtitle underneath, on every screen. */
         .page-head {
           display: flex;
-          align-items: baseline;
-          flex-wrap: wrap;
-          gap: 6px 16px;
+          flex-direction: column;
+          gap: 6px;
         }
         .page-head h1 {
           margin: 0;
@@ -1757,6 +1774,237 @@
         }
       }
 
+      /* ---------- "How it works" pictures (explainers.ts) ---------- */
+      .explainer,
+      .explainer[hidden] {
+        display: none;
+      }
+      @media (min-width: 1280px) {
+        body.has-explainer main.wrap {
+          grid-template-columns: minmax(0, 760px) 320px;
+        }
+        body:not(.has-explainer) main.wrap {
+          grid-template-columns: minmax(0, 1120px);
+        }
+        .explainer:not([hidden]) {
+          display: block;
+          grid-column: 2;
+          grid-row: 1 / span 40;
+          align-self: start;
+          position: sticky;
+          top: 101px;
+          margin-top: 68px;
+          padding: 20px;
+          background: var(--panel);
+          border: 1px solid var(--line);
+          border-radius: 16px;
+        }
+        .ex-howto {
+          display: none !important;
+        }
+        .site-foot > * {
+          max-width: 1120px;
+        }
+      }
+      @media (min-width: 1680px) {
+        body.has-explainer main.wrap {
+          grid-template-columns: minmax(0, 840px) 360px;
+        }
+        body:not(.has-explainer) main.wrap {
+          grid-template-columns: minmax(0, 1240px);
+        }
+        .site-foot > * {
+          max-width: 1240px;
+        }
+      }
+      .ex-kicker {
+        margin: 0;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .explainer h2 {
+        margin: 4px 0 14px;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .ex-stage,
+      .ex-inline-body {
+        background: var(--page);
+        border-radius: 12px;
+        padding: 10px;
+      }
+      .ex-caption,
+      .ex-inline-body p {
+        margin: 14px 0 0;
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+      .ex-inline-body {
+        max-width: 380px;
+        margin-top: 10px;
+      }
+      .ex-inline-body p {
+        margin: 10px 2px 2px;
+      }
+      .ex-howto {
+        display: block;
+        margin-top: 6px;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--blue-lt);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .ex-howto:hover {
+        text-decoration: underline;
+      }
+      .ex-scene {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .ex-scene * {
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      .ex-frame { fill: var(--panel-2); stroke: #3a3640; }
+      .ex-rule { stroke: var(--line); }
+      .ex-dot, .ex-line, .ex-avatar { fill: #4a4650; }
+      .ex-pill, .ex-track { fill: var(--page); }
+      .ex-host { fill: var(--muted); font: 600 7px system-ui, sans-serif; }
+      .ex-ad { fill: var(--panel); stroke: #6a6670; stroke-dasharray: 3 2; }
+      .ex-ad-mark { fill: var(--muted); font: 700 6.5px system-ui, sans-serif; }
+      .ex-shield { fill: var(--tint); stroke: var(--blue-lt); stroke-width: 1.5; stroke-linejoin: round; }
+      .ex-cross circle { fill: rgba(250, 109, 109, 0.14); stroke: var(--danger); stroke-width: 1.3; }
+      .ex-cross path { stroke: var(--danger); stroke-width: 1.6; stroke-linecap: round; }
+      .ex-check circle { fill: rgba(67, 193, 58, 0.14); stroke: var(--on); stroke-width: 1.3; }
+      .ex-check path { fill: none; stroke: var(--on); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      .ex-tracker { fill: var(--muted); }
+      .ex-banner { fill: var(--panel); stroke: #4a4650; }
+      .ex-btn { fill: #4a4650; }
+      .ex-btn-ghost { fill: none; stroke: #5a5660; }
+      .ex-step { fill: var(--line); }
+      .ex-video-fill { fill: #b86a3e; }
+      .ex-play { fill: rgba(255, 255, 255, 0.85); }
+      .ex-ad-chip { fill: var(--caution); }
+      .ex-ad-chip-text { fill: var(--caution-fg); font: 700 7px system-ui, sans-serif; }
+      .ex-progress { fill: var(--caution); }
+      .ex-card { fill: var(--panel-2); stroke: var(--line); }
+      .ex-card-ad { stroke: #5a5660; stroke-dasharray: 3 2; }
+      .ex-field { fill: var(--page); stroke: #4a4650; }
+      .ex-field-on { stroke: var(--blue-lt); }
+      .ex-field-bad { stroke: var(--danger); }
+      .ex-bullet { fill: var(--fg); }
+      .ex-warn { fill: var(--caution-wash); stroke: var(--caution); }
+      .ex-warn-icon { fill: none; stroke: var(--caution); stroke-width: 1.4; stroke-linejoin: round; }
+      .ex-cookie-body { fill: #b08a5a; }
+      .ex-cookie-chip { fill: #5e452a; }
+      .ex-wall { stroke: var(--blue-lt); stroke-width: 3; stroke-linecap: round; }
+      .ex-mono { fill: var(--fg); font: 600 8px ui-monospace, Consolas, monospace; }
+      .ex-mono-on { fill: var(--blue-lt); }
+      .ex-fp { fill: var(--blue-lt); opacity: 0.75; }
+      .ex-arrow { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+      .ex-fold { fill: var(--tint); stroke: var(--blue-lt); }
+      .ex-glyph { fill: none; stroke: var(--fg); stroke-width: 1.3; stroke-linejoin: round; }
+      .ex-switch { fill: var(--blue); }
+      .ex-knob { fill: #fff; }
+      .ex-outline { fill: var(--tint); stroke: var(--blue-lt); stroke-width: 1.5; stroke-dasharray: 4 3; opacity: 0; }
+      .ex-cursor { fill: var(--fg); stroke: var(--page); stroke-width: 1; stroke-linejoin: round; }
+
+      /* Loops: each scene plays its story in 4-5 s, holds, then resets.
+         Under reduced motion the rule below stops them on the first frame. */
+      .ex-lv1 { animation: ex-lv1 5s var(--ease) infinite; }
+      .ex-lv2 { animation: ex-lv2 5s var(--ease) infinite; }
+      .ex-lv3 { animation: ex-lv3 5s var(--ease) infinite; }
+      .ex-step1 { animation: ex-step1 5s var(--ease) infinite; }
+      .ex-step2 { animation: ex-step2 5s var(--ease) infinite; }
+      .ex-step3 { animation: ex-step3 5s var(--ease) infinite; }
+      @keyframes ex-lv1 { 0%, 15% { opacity: 1; } 24%, 92% { opacity: 0; } 100% { opacity: 1; } }
+      @keyframes ex-lv2 { 0%, 40% { opacity: 1; } 49%, 92% { opacity: 0; } 100% { opacity: 1; } }
+      @keyframes ex-lv3 { 0%, 65% { opacity: 1; transform: none; } 74%, 92% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; } }
+      @keyframes ex-step1 { 0%, 12% { fill: var(--line); } 16%, 92% { fill: var(--blue-lt); } 100% { fill: var(--line); } }
+      @keyframes ex-step2 { 0%, 37% { fill: var(--line); } 41%, 92% { fill: var(--blue-lt); } 100% { fill: var(--line); } }
+      @keyframes ex-step3 { 0%, 62% { fill: var(--line); } 66%, 92% { fill: var(--blue-lt); } 100% { fill: var(--line); } }
+
+      .ex-consent { animation: ex-consent 4.5s var(--ease) infinite; }
+      .ex-reject { animation: ex-reject 4.5s var(--ease) infinite; }
+      .ex-pop-late { animation: ex-pop-late 4.5s var(--spring) infinite; }
+      @keyframes ex-consent { 0% { opacity: 0; transform: translateY(24px); } 12%, 50% { opacity: 1; transform: none; } 60%, 100% { opacity: 0; transform: translateY(12px); } }
+      @keyframes ex-reject { 0%, 32% { fill: none; stroke: #5a5660; } 38%, 52% { fill: var(--tint); stroke: var(--blue-lt); } 100% { fill: none; stroke: #5a5660; } }
+      @keyframes ex-pop-late { 0%, 50% { opacity: 0; transform: scale(0.6); } 58%, 90% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+
+      .ex-video { animation: ex-gray 4.5s var(--ease) infinite; }
+      .ex-progress { transform-origin: left; animation: ex-progress 4.5s linear infinite; }
+      @keyframes ex-gray { 0%, 22% { filter: none; } 36%, 88% { filter: grayscale(1) brightness(0.7); } 100% { filter: none; } }
+      @keyframes ex-progress { from { transform: scaleX(0.2); } to { transform: scaleX(1); } }
+
+      .ex-sponsored { transform-origin: top; animation: ex-fold-away 4.5s var(--ease) infinite; }
+      .ex-feed-rise { animation: ex-rise 4.5s var(--ease) infinite; }
+      @keyframes ex-fold-away { 0%, 30% { opacity: 1; transform: none; } 42%, 90% { opacity: 0; transform: scaleY(0.2); } 100% { opacity: 1; } }
+      @keyframes ex-rise { 0%, 36% { transform: none; } 48%, 90% { transform: translateY(-34px); } 100% { transform: none; } }
+
+      .ex-bullet { animation: ex-type 4.5s steps(1) infinite; }
+      .ex-bullet1 { animation-delay: 0.15s; } .ex-bullet2 { animation-delay: 0.3s; } .ex-bullet3 { animation-delay: 0.45s; }
+      .ex-bullet4 { animation-delay: 0.6s; } .ex-bullet5 { animation-delay: 0.75s; } .ex-bullet6 { animation-delay: 0.9s; } .ex-bullet7 { animation-delay: 1.05s; }
+      .ex-breach { animation: ex-appear-late 4.5s var(--ease) infinite; }
+      @keyframes ex-type { 0%, 4% { opacity: 0; } 5%, 88% { opacity: 1; } 89%, 100% { opacity: 0; } }
+      @keyframes ex-appear-late { 0%, 42% { opacity: 0; transform: translateY(6px); } 50%, 88% { opacity: 1; transform: none; } 96%, 100% { opacity: 0; } }
+
+      .ex-cookie { animation: ex-cookie 4s var(--ease) infinite; }
+      .ex-wall { animation: ex-wall 4s var(--ease) infinite; }
+      @keyframes ex-cookie { 0%, 8% { opacity: 1; transform: none; } 40% { opacity: 1; transform: translateX(58px); } 48% { transform: translateX(50px) scale(0.9); } 58%, 100% { opacity: 0; transform: translateX(50px) scale(0.4); } }
+      @keyframes ex-wall { 0%, 36% { stroke-width: 3; } 42% { stroke-width: 5; } 50%, 100% { stroke-width: 3; } }
+
+      .ex-ip-real,
+      .ex-alias { animation: ex-out 4.5s var(--ease) infinite; }
+      .ex-ip-masked,
+      .ex-real,
+      .ex-unpause { animation: ex-in 4.5s var(--ease) infinite; }
+      @keyframes ex-out { 0%, 34% { opacity: 1; } 44%, 90% { opacity: 0; } 100% { opacity: 1; } }
+      @keyframes ex-in { 0%, 34% { opacity: 0; } 44%, 90% { opacity: 1; } 100% { opacity: 0; } }
+
+      .ex-fp { transform-origin: left; animation: ex-fp 3s var(--ease) infinite; }
+      .ex-fp2 { animation-delay: -0.8s; } .ex-fp3 { animation-delay: -1.6s; } .ex-fp4 { animation-delay: -2.3s; }
+      @keyframes ex-fp { 0%, 100% { transform: scaleX(0.6); } 25% { transform: scaleX(1.5); } 50% { transform: scaleX(0.9); } 75% { transform: scaleX(1.3); } }
+
+      .ex-arrow { animation: ex-dash 1.2s linear infinite; }
+      @keyframes ex-dash { to { stroke-dashoffset: -14; } }
+
+      .ex-slop { transform-origin: top; animation: ex-fold-away 4.5s var(--ease) infinite; }
+      .ex-slop-fold { animation: ex-appear-late 4.5s var(--ease) infinite; }
+      .ex-searchSlop .ex-feed-rise { animation-name: ex-rise-short; }
+      @keyframes ex-rise-short { 0%, 36% { transform: none; } 48%, 90% { transform: translateY(-16px); } 100% { transform: none; } }
+
+      .ex-prompt { animation: ex-prompt 4.5s var(--ease) infinite; }
+      @keyframes ex-prompt { 0%, 6% { opacity: 0; transform: scale(0.9); } 14%, 40% { opacity: 1; transform: none; } 52%, 100% { opacity: 0; transform: scale(0.85); } }
+
+      .ex-list { animation: ex-list 3.2s var(--ease) infinite; }
+      .ex-list1 { animation-delay: 0.2s; } .ex-list2 { animation-delay: 0.4s; } .ex-list3 { animation-delay: 0.6s; }
+      @keyframes ex-list { 0%, 100% { transform: none; } 20% { transform: translateX(6px); } 40% { transform: none; } }
+
+      .ex-toggle .ex-switch { animation: ex-switch 4.5s var(--ease) infinite; }
+      .ex-toggle .ex-knob { animation: ex-knob 4.5s var(--ease) infinite; }
+      @keyframes ex-switch { 0%, 26% { fill: var(--blue); } 32%, 90% { fill: #4a4650; } 100% { fill: var(--blue); } }
+      @keyframes ex-knob { 0%, 26% { transform: translateX(14px); } 32%, 90% { transform: none; } 100% { transform: translateX(14px); } }
+
+      .ex-cursor { animation: ex-cursor 4.5s var(--ease) infinite; }
+      .ex-outline { animation: ex-outline 4.5s var(--ease) infinite; }
+      .ex-picked { transform-origin: top; animation: ex-picked 4.5s var(--ease) infinite; }
+      .ex-hidden .ex-feed-rise { animation-name: ex-rise-far; }
+      @keyframes ex-cursor { 0% { opacity: 0; transform: translate(30px, 40px); } 10% { opacity: 1; } 26%, 36% { transform: none; } 40% { transform: scale(0.85); } 44%, 100% { transform: none; opacity: 1; } }
+      @keyframes ex-outline { 0%, 24% { opacity: 0; } 28%, 44% { opacity: 1; } 54%, 100% { opacity: 0; } }
+      @keyframes ex-picked { 0%, 44% { opacity: 1; transform: none; } 54%, 90% { opacity: 0; transform: scaleY(0.2); } 100% { opacity: 1; } }
+      @keyframes ex-rise-far { 0%, 46% { transform: none; } 58%, 90% { transform: translateY(-46px); } 100% { transform: none; } }
+
+      .ex-doc { animation: ex-doc 3.5s var(--ease) infinite; }
+      @keyframes ex-doc { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
       @media (prefers-reduced-motion: reduce) {
         *,
         *::before,
@@ -1864,6 +2112,15 @@
           <p id="page-lead"></p>
         </div>
 
+        <!-- Wide screens: a picture of how the setting under the pointer
+             works (explainerPanel.ts). Hidden where a screen has none. -->
+        <aside class="explainer" id="explainer" hidden aria-labelledby="explainer-title">
+          <p class="ex-kicker" data-i18n="explainHowItWorks">How it works</p>
+          <h2 id="explainer-title"></h2>
+          <div class="ex-stage" id="explainer-stage"></div>
+          <p class="ex-caption" id="explainer-caption"></p>
+        </aside>
+
         <!-- Overview (desktop only): the week at a glance, from the counts
              Moat already keeps on this device (usageStats.ts). -->
         <section class="sec overview" data-page="overview" aria-labelledby="page-title">
@@ -1914,7 +2171,7 @@
               <p class="lead" data-i18n="levelLead">This applies to every site you visit. Balanced suits almost everyone. Choose Strict for the most privacy, or Light if a site you use keeps breaking.</p>
             </div>
             <div>
-              <div class="levels" id="level-cards" role="radiogroup" aria-labelledby="level-title-sr">
+              <div class="levels" id="level-cards" data-explain="levels" role="radiogroup" aria-labelledby="level-title-sr">
                 <span id="level-title-sr" hidden data-i18n="levelTitle">How much to block</span>
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="lite">
                   <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetLite">Light</span></span>
