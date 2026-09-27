@@ -15,6 +15,7 @@ import { loadPageFixture } from "../shared/loadPageFixture";
 import { findInvisibleText } from "../shared/findInvisibleText";
 import type { Settings } from "../types";
 import { presetPatch } from "../shared/filterPresets";
+import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 
 const OPTIONS_HTML = join(__dirname, "options.html");
 const THEME_CSS = join(__dirname, "..", "ui", "theme.css");
@@ -180,9 +181,9 @@ describe("About Moat (DR-13)", () => {
   it("lists the 5 data flows with their current state, and the version", async () => {
     await renderOptions();
 
-    expect(document.querySelectorAll("#about-flows .flow-row:not([hidden])").length).toBe(5);
     // Problem reports only show as a data flow once the report service is set up.
-    expect(document.getElementById("flow-reports")?.hidden).toBe(true);
+    expect(document.querySelectorAll("#about-flows .flow-row:not([hidden])").length).toBe(REPORT_ENDPOINT ? 6 : 5);
+    expect(document.getElementById("flow-reports")?.hidden).toBe(!REPORT_ENDPOINT);
     // Current state, not the install default: the mock has the breach check
     // on and sync off.
     expect(document.getElementById("flow-state-breach")?.classList.contains("on")).toBe(true);

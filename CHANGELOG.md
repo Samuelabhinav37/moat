@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.165
+
+### Added
+- **Problem reports send straight to Moat's developer.** The report page from 0.11.163 now has a
+  Send button. Reports go to Moat's report service (`report-worker/`, deployed at
+  `moat-reports.samuelabhinav37.workers.dev`), which files each one as an issue in a private
+  repository. A second report for the same site and problem is added to the open issue instead.
+  - Nothing is sent until you press Send, and "What will be sent" shows all of it first.
+    Copy report and Open on GitHub stay available if sending fails.
+  - Settings > About lists "Problem reports" under what leaves your device, and PRIVACY.md
+    (item 6) lists every field a report contains.
+  - Checked end to end: a report sent from the built extension in Chrome arrived as an issue
+    with the right labels, and a repeat of it became a comment on that issue.
+
 ## 0.11.164
 
 ### Fixed
