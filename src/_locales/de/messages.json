@@ -1857,5 +1857,101 @@
   },
   "optionsDisclosureReportsWhen": {
     "message": "beim Senden"
+  },
+  "explainStepLevels1": {
+    "message": "Eine Seite mit Werbung, Trackern und Cookie-Hinweis"
+  },
+  "explainStepLevels2": {
+    "message": "Leicht entfernt die Werbung"
+  },
+  "explainStepLevels3": {
+    "message": "Ausgewogen stoppt auch die Tracker"
+  },
+  "explainStepLevels4": {
+    "message": "Streng blendet auch den Cookie-Hinweis aus"
+  },
+  "explainStepConsent1": {
+    "message": "Ein Cookie-Banner erscheint"
+  },
+  "explainStepConsent2": {
+    "message": "Moat wählt die Option, die am wenigsten teilt"
+  },
+  "explainStepConsent3": {
+    "message": "Das Banner ist weg"
+  },
+  "explainStepGrayscale1": {
+    "message": "Im Video läuft eine Werbung"
+  },
+  "explainStepGrayscale2": {
+    "message": "Moat blendet sie bis zum Ende grau aus"
+  },
+  "explainStepFeed1": {
+    "message": "Ein gesponserter Beitrag ist in deinem Feed"
+  },
+  "explainStepFeed2": {
+    "message": "Moat entfernt ihn"
+  },
+  "explainStepPassword1": {
+    "message": "Du gibst ein Passwort ein"
+  },
+  "explainStepPassword2": {
+    "message": "Es war in einem bekannten Datenleck, also warnt dich Moat"
+  },
+  "explainStepCookies1": {
+    "message": "Das Cookie eines Trackers will dir folgen"
+  },
+  "explainStepCookies2": {
+    "message": "Moat stoppt es auf der nächsten Seite"
+  },
+  "explainStepWebrtc1": {
+    "message": "Eine Anruffunktion kann deine echte IP-Adresse lesen"
+  },
+  "explainStepWebrtc2": {
+    "message": "Moat verbirgt sie vor der Seite"
+  },
+  "explainStepCname1": {
+    "message": "Ein Tracker versteckt sich unter der Adresse der Seite"
+  },
+  "explainStepCname2": {
+    "message": "Moat prüft, wohin sie wirklich zeigt"
+  },
+  "explainStepCname3": {
+    "message": "Es ist ein Tracker, also blockiert Moat ihn"
+  },
+  "explainStepSlop1": {
+    "message": "Ein Ergebnis einer Content-Farm erscheint"
+  },
+  "explainStepSlop2": {
+    "message": "Moat klappt es hinter einen Anzeigen-Link"
+  },
+  "explainStepPermission1": {
+    "message": "Eine Seite fragt beim Laden nach deiner Kamera"
+  },
+  "explainStepPermission2": {
+    "message": "Moat stoppt die Anfrage"
+  },
+  "explainStepPaused1": {
+    "message": "Du pausierst eine Seite, der du vertraust"
+  },
+  "explainStepPaused2": {
+    "message": "Ihre Werbung lädt wieder"
+  },
+  "explainStepPaused3": {
+    "message": "Gefährliche Seiten bleiben blockiert"
+  },
+  "explainStepHidden1": {
+    "message": "Zeig auf etwas auf der Seite"
+  },
+  "explainStepHidden2": {
+    "message": "Klick darauf"
+  },
+  "explainStepHidden3": {
+    "message": "Es ist weg, bei jedem Besuch"
+  },
+  "explainStepRules1": {
+    "message": "Deine eigenen Regeln werden zuerst geprüft"
+  },
+  "explainStepRules2": {
+    "message": "Eine Seite wird immer blockiert, die andere nie"
   }
 }

@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.166
+
+### Changed
+- **Settings: search sits in the middle of the top bar.** On screens 900px and wider, the top
+  bar is logo, search, Help, with the search box (up to 600px) centred on the window and its
+  results under it. Phones keep the full-width box.
+- **"How it works" stays next to the setting it explains.** The side panel used to change to
+  whichever row the mouse passed over, with nothing marking which row it meant, and stayed at
+  the top of the page. Now every setting with a picture has a "How it works" button. On wide
+  screens it moves the panel level with that row, points at it and highlights the row; pressing
+  it again or Esc puts the panel back beside the first section. Below 1280px the same button
+  opens the picture inside the row, one at a time. Moving the mouse no longer changes anything.
+- **The pictures say what's happening.** A short line under each picture follows its
+  animation step by step ("A cookie banner appears", "Moat picks the choice that shares the
+  least", "The banner is gone"). With reduced motion on, all the steps are listed at once. New
+  wording is in English, Spanish, French and German.
+- **Pictures are easier to read.** Text inside them is larger (7-8px up to 9.5px), and
+  whatever Moat acts on (the ad, the tracker, the cookie banner, the permission prompt) is
+  drawn in amber, so your eye goes to it first.
+
 ## 0.11.165
 
 ### Added

@@ -1,10 +1,11 @@
 // "How it works" scenes for the Settings page: one small looping picture
 // per setting, drawn as inline SVG and animated by the ex-* keyframes in
-// options.html. They use the page's own colours, carry no words (so they
-// need no translating), and hold still under prefers-reduced-motion. On
-// wide screens they fill the side panel for whichever row is hovered or
-// focused; narrower screens show them inline behind a "How it works"
-// button. Built with createElementNS, never innerHTML (web-ext lint).
+// options.html. They use the page's own colours, carry no words beyond
+// example hostnames (the step line under each one, in explainerPanel.ts,
+// is translated), and hold still under prefers-reduced-motion. Whatever
+// Moat acts on (the ad, the tracker, the banner) is drawn in amber. A
+// row's "How it works" button shows its scene in the side panel on wide
+// screens, or inline on narrower ones. Built with createElementNS, never innerHTML (web-ext lint).
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -192,7 +193,7 @@ const SCENES: Record<string, SceneBuilder> = {
   ],
 };
 
-/** Which scene each Settings screen shows before anything is hovered. */
+/** Which scene each Settings screen shows before a row's "How it works" is pressed. */
 export const SCREEN_SCENES: Record<string, string> = {
   blocking: "levels",
   privacy: "cookies",

@@ -1857,5 +1857,101 @@
   },
   "optionsDisclosureReportsWhen": {
     "message": "al enviar"
+  },
+  "explainStepLevels1": {
+    "message": "Una página con un anuncio, rastreadores y un aviso de cookies"
+  },
+  "explainStepLevels2": {
+    "message": "Ligero quita el anuncio"
+  },
+  "explainStepLevels3": {
+    "message": "Equilibrado también frena los rastreadores"
+  },
+  "explainStepLevels4": {
+    "message": "Estricto también oculta el aviso de cookies"
+  },
+  "explainStepConsent1": {
+    "message": "Aparece un aviso de cookies"
+  },
+  "explainStepConsent2": {
+    "message": "Moat elige la opción que menos comparte"
+  },
+  "explainStepConsent3": {
+    "message": "El aviso desaparece"
+  },
+  "explainStepGrayscale1": {
+    "message": "Un anuncio se reproduce dentro del vídeo"
+  },
+  "explainStepGrayscale2": {
+    "message": "Moat lo pone en gris hasta que termina"
+  },
+  "explainStepFeed1": {
+    "message": "Hay una publicación patrocinada en tu feed"
+  },
+  "explainStepFeed2": {
+    "message": "Moat la quita"
+  },
+  "explainStepPassword1": {
+    "message": "Escribes una contraseña"
+  },
+  "explainStepPassword2": {
+    "message": "Apareció en una filtración conocida, así que Moat te avisa"
+  },
+  "explainStepCookies1": {
+    "message": "La cookie de un rastreador intenta seguirte"
+  },
+  "explainStepCookies2": {
+    "message": "Moat la detiene en el siguiente sitio"
+  },
+  "explainStepWebrtc1": {
+    "message": "Una función de llamadas puede leer tu IP real"
+  },
+  "explainStepWebrtc2": {
+    "message": "Moat se la oculta a la página"
+  },
+  "explainStepCname1": {
+    "message": "Un rastreador se esconde bajo la dirección del propio sitio"
+  },
+  "explainStepCname2": {
+    "message": "Moat comprueba adónde apunta de verdad"
+  },
+  "explainStepCname3": {
+    "message": "Es un rastreador, así que Moat lo bloquea"
+  },
+  "explainStepSlop1": {
+    "message": "Aparece un resultado de una granja de contenido"
+  },
+  "explainStepSlop2": {
+    "message": "Moat lo pliega tras un enlace Mostrar"
+  },
+  "explainStepPermission1": {
+    "message": "Una página pide tu cámara al cargar"
+  },
+  "explainStepPermission2": {
+    "message": "Moat detiene la petición"
+  },
+  "explainStepPaused1": {
+    "message": "Pausas un sitio de confianza"
+  },
+  "explainStepPaused2": {
+    "message": "Sus anuncios vuelven a cargarse"
+  },
+  "explainStepPaused3": {
+    "message": "Los sitios peligrosos siguen bloqueados"
+  },
+  "explainStepHidden1": {
+    "message": "Señala algo de la página"
+  },
+  "explainStepHidden2": {
+    "message": "Haz clic"
+  },
+  "explainStepHidden3": {
+    "message": "Desaparece, en cada visita"
+  },
+  "explainStepRules1": {
+    "message": "Tus propias reglas se comprueban primero"
+  },
+  "explainStepRules2": {
+    "message": "Un sitio siempre se bloquea y el otro nunca"
   }
 }

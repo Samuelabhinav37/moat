@@ -469,8 +469,9 @@ function buildSettingRow(options: {
     text.append(desc);
   }
   if (options.extra) text.append(...options.extra);
-  // Rows with a "How it works" picture: the side panel follows them, and
-  // narrower screens get an inline button (explainerPanel.ts).
+  // Rows with a "How it works" picture get a button that shows it: in the
+  // side panel, level with the row, on wide screens, inline on narrower
+  // ones (explainerPanel.ts).
   const scene = sceneFor(options.icon);
   if (scene) {
     row.dataset.explain = scene;

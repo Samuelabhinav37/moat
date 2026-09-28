@@ -1857,5 +1857,101 @@
   },
   "optionsDisclosureReportsWhen": {
     "message": "à l'envoi"
+  },
+  "explainStepLevels1": {
+    "message": "Une page avec une pub, des traceurs et un bandeau cookies"
+  },
+  "explainStepLevels2": {
+    "message": "Léger retire la pub"
+  },
+  "explainStepLevels3": {
+    "message": "Équilibré bloque aussi les traceurs"
+  },
+  "explainStepLevels4": {
+    "message": "Strict masque aussi le bandeau cookies"
+  },
+  "explainStepConsent1": {
+    "message": "Un bandeau cookies apparaît"
+  },
+  "explainStepConsent2": {
+    "message": "Moat choisit l’option qui partage le moins"
+  },
+  "explainStepConsent3": {
+    "message": "Le bandeau disparaît"
+  },
+  "explainStepGrayscale1": {
+    "message": "Une pub passe dans la vidéo"
+  },
+  "explainStepGrayscale2": {
+    "message": "Moat la passe en gris jusqu’à la fin"
+  },
+  "explainStepFeed1": {
+    "message": "Une publication sponsorisée est dans ton fil"
+  },
+  "explainStepFeed2": {
+    "message": "Moat la retire"
+  },
+  "explainStepPassword1": {
+    "message": "Tu tapes un mot de passe"
+  },
+  "explainStepPassword2": {
+    "message": "Il figure dans une fuite connue, donc Moat te prévient"
+  },
+  "explainStepCookies1": {
+    "message": "Le cookie d’un traceur essaie de te suivre"
+  },
+  "explainStepCookies2": {
+    "message": "Moat l’arrête au site suivant"
+  },
+  "explainStepWebrtc1": {
+    "message": "Une fonction d’appel peut lire ta vraie adresse IP"
+  },
+  "explainStepWebrtc2": {
+    "message": "Moat la cache à la page"
+  },
+  "explainStepCname1": {
+    "message": "Un traceur se cache sous l’adresse du site"
+  },
+  "explainStepCname2": {
+    "message": "Moat vérifie où elle mène vraiment"
+  },
+  "explainStepCname3": {
+    "message": "C’est un traceur, donc Moat le bloque"
+  },
+  "explainStepSlop1": {
+    "message": "Un résultat de ferme à contenu apparaît"
+  },
+  "explainStepSlop2": {
+    "message": "Moat le replie derrière un lien Afficher"
+  },
+  "explainStepPermission1": {
+    "message": "Une page demande ta caméra dès son chargement"
+  },
+  "explainStepPermission2": {
+    "message": "Moat bloque la demande"
+  },
+  "explainStepPaused1": {
+    "message": "Tu mets en pause un site de confiance"
+  },
+  "explainStepPaused2": {
+    "message": "Ses pubs se chargent à nouveau"
+  },
+  "explainStepPaused3": {
+    "message": "Les sites dangereux restent bloqués"
+  },
+  "explainStepHidden1": {
+    "message": "Pointe un élément de la page"
+  },
+  "explainStepHidden2": {
+    "message": "Clique dessus"
+  },
+  "explainStepHidden3": {
+    "message": "Il disparaît, à chaque visite"
+  },
+  "explainStepRules1": {
+    "message": "Tes propres règles passent en premier"
+  },
+  "explainStepRules2": {
+    "message": "Un site est toujours bloqué, l’autre jamais"
   }
 }

@@ -1633,7 +1633,7 @@
   },
   "explainHowItWorks": {
     "message": "How it works",
-    "description": "Heading of the Settings side panel that pictures how the hovered setting works, and the button that opens the same picture on narrow screens."
+    "description": "Heading of the Settings side panel that pictures how a setting works, and the button on each setting that shows that picture."
   },
   "explainLevels": {
     "message": "Each level adds more. Light stops ads and scams. Balanced also stops trackers. Strict also hides cookie notices and blocks third-party cookies.",
@@ -1932,5 +1932,133 @@
   "optionsDisclosureReportsWhen": {
     "message": "when you send",
     "description": "Settings > About, 'What leaves your device': the problem-report row."
+  },
+  "explainStepLevels1": {
+    "message": "A page with an ad, trackers and a cookie notice",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepLevels2": {
+    "message": "Light removes the ad",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepLevels3": {
+    "message": "Balanced also stops the trackers",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepLevels4": {
+    "message": "Strict also hides the cookie notice",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepConsent1": {
+    "message": "A cookie banner appears",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepConsent2": {
+    "message": "Moat picks the choice that shares the least",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepConsent3": {
+    "message": "The banner is gone",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepGrayscale1": {
+    "message": "An ad plays inside the video",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepGrayscale2": {
+    "message": "Moat fades it to gray until it ends",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepFeed1": {
+    "message": "A sponsored post is in your feed",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepFeed2": {
+    "message": "Moat takes it out",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepPassword1": {
+    "message": "You type a password",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepPassword2": {
+    "message": "It was in a known breach, so Moat warns you",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepCookies1": {
+    "message": "A tracker's cookie tries to follow you",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepCookies2": {
+    "message": "Moat stops it at the next site",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepWebrtc1": {
+    "message": "A call feature can read your real IP address",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepWebrtc2": {
+    "message": "Moat hides it from the page",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepCname1": {
+    "message": "A tracker hides under the site's own address",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepCname2": {
+    "message": "Moat looks up where it really points",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepCname3": {
+    "message": "It's a tracker, so Moat blocks it",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepSlop1": {
+    "message": "A content-farm result shows up",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepSlop2": {
+    "message": "Moat folds it behind a Show link",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepPermission1": {
+    "message": "A page asks for your camera as it loads",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepPermission2": {
+    "message": "Moat stops the request",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepPaused1": {
+    "message": "You pause a site you trust",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepPaused2": {
+    "message": "Its ads load again",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepPaused3": {
+    "message": "Dangerous sites stay blocked",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepHidden1": {
+    "message": "Point at something on the page",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepHidden2": {
+    "message": "Click it",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepHidden3": {
+    "message": "It's gone, on every visit",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepRules1": {
+    "message": "Your own rules are checked first",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainStepRules2": {
+    "message": "One site is always blocked, the other never is",
+    "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
   }
 }
