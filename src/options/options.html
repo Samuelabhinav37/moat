@@ -1605,6 +1605,49 @@
         .dash-nav a[aria-current="page"] svg {
           color: var(--blue-lt);
         }
+        /* Colour tiles: one flat colour per screen with a white glyph, the
+           way Android and Apple Settings draw theirs (see
+           docs/research/settings-icons-and-help-2026-09.md). The same colour
+           marks that screen wherever it appears: the sidebar, Overview's
+           links and Overview's actions. Every shade keeps white at 5:1 or
+           more (navTiles.test.ts), and red and green stay out, because Moat
+           uses them for blocked and allowed. */
+        .dash-nav a[data-page="overview"] { --tile: #2563eb; }
+        .dash-nav a[data-page="blocking"],
+        .ov-links a[href="#blocking"] { --tile: #4f46e5; }
+        .dash-nav a[data-page="privacy"] { --tile: #0f766e; }
+        .dash-nav a[data-page="filters"],
+        #ov-check-fixes { --tile: #0369a1; }
+        .dash-nav a[data-page="paused"],
+        .ov-links a[href="#paused"] { --tile: #b45309; }
+        .dash-nav a[data-page="hidden"],
+        .ov-links a[href="#hidden"],
+        #ov-pick-element { --tile: #be185d; }
+        .dash-nav a[data-page="rules"] { --tile: #7e22ce; }
+        .dash-nav a[data-page="backup"],
+        #ov-save-backup { --tile: #c2410c; }
+        .dash-nav a[data-page="about"] { --tile: #475569; }
+        .dash-nav a svg,
+        .dash-nav a[aria-current="page"] svg,
+        .ov-links li a svg,
+        .ov-actions .ov-action svg {
+          box-sizing: border-box;
+          width: 28px;
+          height: 28px;
+          padding: 5px;
+          border-radius: 8px;
+          background: var(--tile);
+          color: #fff;
+          stroke-width: 2;
+        }
+        .dash-nav a {
+          padding-top: 6px;
+          padding-bottom: 6px;
+        }
+        /* The tile already marks the screen; the side bar would double it. */
+        .dash-nav a[aria-current="page"]::before {
+          display: none;
+        }
         .dash-nav .count {
           margin-left: auto;
           font-size: 12.5px;

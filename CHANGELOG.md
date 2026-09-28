@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.168
+
+### Changed
+- **Settings: colour icons.** Each screen has its own colour, drawn as a solid tile with a
+  white icon, wherever that screen appears: the sidebar, Overview's links and Overview's action
+  buttons. This is the way Android and Apple Settings draw theirs. The shades are dark enough
+  that the white icon keeps at least 5:1 contrast (WCAG asks 3:1 for icons), and
+  `src/options/navTiles.test.ts` fails the build if one drops below that. Red and green are left
+  out, because Moat uses them for blocked and allowed. The blue bar beside the current screen is
+  gone, since the tile and the highlighted row already mark it.
+
 ## 0.11.167
 
 ### Changed
