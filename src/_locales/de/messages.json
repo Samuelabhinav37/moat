@@ -1953,5 +1953,8 @@
   },
   "explainStepRules2": {
     "message": "Eine Seite wird immer blockiert, die andere nie"
+  },
+  "explainClose": {
+    "message": "Schließen"
   }
 }

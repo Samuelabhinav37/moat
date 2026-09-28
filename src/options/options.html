@@ -1862,59 +1862,89 @@
       .explainer[hidden] {
         display: none;
       }
+      /* One content width on every screen, whatever it explains. */
       @media (min-width: 1280px) {
-        body.has-explainer main.wrap {
-          grid-template-columns: minmax(0, 760px) 320px;
-        }
-        body:not(.has-explainer) main.wrap {
+        main.wrap {
           grid-template-columns: minmax(0, 1120px);
-        }
-        /* The panel starts beside the screen's first section. "How it
-           works" on a row moves it down level with that row (the offset is
-           set by explainerPanel.ts), and the row is highlighted, so it's
-           always clear which setting the picture explains. */
-        .explainer:not([hidden]) {
-          display: block;
-          grid-column: 2;
-          grid-row: 1 / span 40;
-          align-self: start;
-          position: relative;
-          margin-top: 68px;
-          padding: 20px;
-          background: var(--panel);
-          border: 1px solid var(--line);
-          border-radius: 16px;
-          transition: margin-top 0.25s var(--ease);
-        }
-        .explainer.anchored::before {
-          content: "";
-          position: absolute;
-          left: -8px;
-          top: 26px;
-          width: 14px;
-          height: 14px;
-          background: var(--panel);
-          border-left: 1px solid var(--line);
-          border-bottom: 1px solid var(--line);
-          transform: rotate(45deg);
-        }
-        .ex-inline-body {
-          display: none !important;
         }
         .site-foot > * {
           max-width: 1120px;
         }
       }
       @media (min-width: 1680px) {
-        body.has-explainer main.wrap {
-          grid-template-columns: minmax(0, 840px) 360px;
-        }
-        body:not(.has-explainer) main.wrap {
+        main.wrap {
           grid-template-columns: minmax(0, 1240px);
         }
         .site-foot > * {
           max-width: 1240px;
         }
+      }
+      /* The drawer: closed by default, so nothing is kept for it. It opens
+         from an info button, over the page from 900px and beside it from
+         1280px, where the page makes room while it's open. */
+      @media (min-width: 900px) {
+        body {
+          --drawer: 380px;
+        }
+        .explainer:not([hidden]) {
+          display: block;
+          position: fixed;
+          z-index: 6;
+          top: 65px;
+          right: 0;
+          bottom: 0;
+          width: var(--drawer);
+          box-sizing: border-box;
+          overflow-y: auto;
+          padding: 22px 24px 28px;
+          background: var(--panel);
+          border-left: 1px solid var(--line);
+          box-shadow: -16px 0 40px rgba(0, 0, 0, 0.35);
+          animation: ex-drawer-in 0.22s var(--ease);
+        }
+        .ex-inline-body {
+          display: none !important;
+        }
+      }
+      @media (min-width: 1280px) {
+        main.wrap,
+        .site-foot {
+          transition: margin-right 0.22s var(--ease);
+        }
+        body.ex-open main.wrap,
+        body.ex-open .site-foot {
+          margin-right: var(--drawer);
+        }
+        .explainer:not([hidden]) {
+          box-shadow: none;
+        }
+      }
+      @keyframes ex-drawer-in {
+        from { transform: translateX(28px); opacity: 0; }
+        to { transform: none; opacity: 1; }
+      }
+      .ex-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        background: none;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .ex-close:hover {
+        background: var(--panel-2);
+        color: var(--fg);
+      }
+      .ex-close svg {
+        width: 18px;
+        height: 18px;
       }
       .ex-kicker {
         margin: 0;
@@ -1923,7 +1953,7 @@
         color: var(--muted);
       }
       .explainer h2 {
-        margin: 4px 0 14px;
+        margin: 4px 40px 14px 0;
         font-size: 16px;
         font-weight: 600;
         letter-spacing: -0.01em;
@@ -1948,34 +1978,62 @@
       .ex-inline-body p {
         margin: 10px 2px 2px;
       }
-      .ex-howto {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        margin-top: 8px;
-        padding: 4px 11px 4px 9px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
+      /* Title and its info button on one line; the button follows the
+         last word when the title wraps. */
+      .setting-title-line,
+      .title-line {
+        display: block;
+      }
+      .title-line .setting-title {
+        display: inline;
+      }
+      .ex-info {
+        display: inline-grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        margin-left: 3px;
+        padding: 0;
+        vertical-align: -6px;
+        border: 0;
+        border-radius: 50%;
         background: none;
-        color: var(--fg);
-        font: inherit;
-        font-size: 12.5px;
-        font-weight: 500;
+        color: var(--muted);
         cursor: pointer;
       }
-      /* A small play mark: the picture is a short animation. */
-      .ex-howto::before {
-        content: "";
-        border-left: 7px solid var(--blue-lt);
-        border-top: 4.5px solid transparent;
-        border-bottom: 4.5px solid transparent;
+      .ex-info svg {
+        width: 19px;
+        height: 19px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.6;
+        stroke-linecap: round;
       }
-      .ex-howto:hover {
-        border-color: var(--muted);
+      .ex-info .ex-info-dot {
+        fill: currentColor;
+        stroke: none;
       }
-      .ex-howto[aria-expanded="true"] {
+      .ex-info:hover {
         background: var(--panel-2);
-        border-color: var(--blue-lt);
+        color: var(--fg);
+      }
+      .ex-info[aria-expanded="true"] {
+        background: var(--tint);
+        color: var(--blue-lt);
+      }
+      .page-title-line {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .page-title-line .ex-info {
+        width: 30px;
+        height: 30px;
+        vertical-align: 0;
+      }
+      .page-title-line .ex-info svg {
+        width: 22px;
+        height: 22px;
       }
       .setting-row.is-explaining {
         margin: 0 -14px;
@@ -2008,10 +2066,10 @@
       }
       /* A row with its picture open inline keeps its icon and switch at
          the top, beside the title, instead of floating mid-row. */
-      .setting-row:has(> div > .ex-inline > .ex-inline-body:not([hidden])) {
+      .setting-row:has(> div > .ex-inline-body:not([hidden])) {
         align-items: start;
       }
-      .setting-row:has(> div > .ex-inline > .ex-inline-body:not([hidden])) > :last-child {
+      .setting-row:has(> div > .ex-inline-body:not([hidden])) > :last-child {
         margin-top: 8px;
       }
       .ex-step-all + .ex-step-all {
@@ -2274,7 +2332,12 @@
           <h1 data-i18n="settingsTitle">Settings</h1>
         </div>
         <div class="page-head">
-          <h1 id="page-title"></h1>
+          <div class="page-title-line">
+            <h1 id="page-title"></h1>
+            <button type="button" class="ex-info" id="page-info" hidden aria-expanded="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.6" /><path d="M10 9v4.6" /><circle class="ex-info-dot" cx="10" cy="6.4" r="0.9" /></svg>
+            </button>
+          </div>
           <p id="page-lead"></p>
         </div>
 
@@ -2283,6 +2346,9 @@
              works" was pressed (explainerPanel.ts). Hidden where a screen
              has none. -->
         <aside class="explainer" id="explainer" hidden aria-labelledby="explainer-title">
+          <button type="button" class="ex-close" id="explainer-close" aria-label="Close" data-i18n-aria-label="explainClose">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" /></svg>
+          </button>
           <p class="ex-kicker" data-i18n="explainHowItWorks">How it works</p>
           <h2 id="explainer-title"></h2>
           <div class="ex-stage" id="explainer-stage"></div>

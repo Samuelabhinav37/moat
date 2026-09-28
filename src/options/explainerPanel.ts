@@ -1,9 +1,9 @@
 // Wires the "How it works" scenes (explainers.ts) into the Settings page.
-// Every row that has a scene gets a "How it works" button. Wide screens
-// (>= 1280px, see options.html) have a side panel: it starts beside the
-// screen's first section, and the button moves it level with its row and
-// highlights that row, so the picture is always next to what it explains.
-// Narrower screens have no panel: the button opens the picture inline.
+// A small info button sits after the title of each setting that has a
+// picture, and after the screen's title for the screen's own picture.
+// From 900px it opens a drawer at the right edge of the window, closed by
+// default so no room is kept for it (at 1280px and up the page makes room
+// for it while it's open). On phones it opens the picture inside the row.
 
 import { SCREEN_SCENES, buildScene, hasScene } from "./explainers";
 
@@ -228,6 +228,14 @@ export function buildStepLine(sceneId: string, scene: SVGElement, t: Translate):
   return line;
 }
 
+/** Rows whose description already says enough: no info button. */
+const ROWS_WITHOUT_HELP = new Set(["consentReject", "feedScan", "searchSlop"]);
+
+/** The scene a setting row's info button shows, or null for no button. */
+export function helpSceneFor(rowId: string): string | null {
+  return ROWS_WITHOUT_HELP.has(rowId) ? null : sceneFor(rowId);
+}
+
 function fillPicture(target: HTMLElement, sceneId: string, t: Translate, captionEl?: HTMLElement): void {
   const scene = buildScene(sceneId);
   const step = buildStepLine(sceneId, scene, t);
@@ -241,18 +249,43 @@ function fillPicture(target: HTMLElement, sceneId: string, t: Translate, caption
   target.replaceChildren(scene, ...(step ? [step] : []), text);
 }
 
-/** The "How it works" button under a row's text, and the inline picture it
- * opens on narrow screens. On wide screens the side panel handles the
- * click instead (see initExplainerPanel), and the inline body stays hidden
- * by CSS. */
-export function buildInlineExplainer(sceneId: string, t: Translate): HTMLElement {
-  const wrap = document.createElement("div");
-  wrap.className = "ex-inline";
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+/** The round "i" button. `title` is the setting (or screen) it explains,
+ * so a screen reader hears "Dim YouTube ads: How it works". */
+export function buildInfoButton(title: string, t: Translate): HTMLButtonElement {
+  const label = t("explainHowItWorks", "How it works");
   const button = document.createElement("button");
   button.type = "button";
-  button.className = "ex-howto";
-  button.textContent = t("explainHowItWorks", "How it works");
+  button.className = "ex-info";
+  button.title = label;
+  button.setAttribute("aria-label", `${title}: ${label}`);
   button.setAttribute("aria-expanded", "false");
+  button.append(infoIcon());
+  return button;
+}
+
+/** The "i" in a ring, drawn with the button's text colour. */
+export function infoIcon(): SVGSVGElement {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 20 20");
+  svg.setAttribute("aria-hidden", "true");
+  const ring = document.createElementNS(SVG_NS, "circle");
+  for (const [k, v] of Object.entries({ cx: "10", cy: "10", r: "7.6" })) ring.setAttribute(k, v);
+  const stem = document.createElementNS(SVG_NS, "path");
+  stem.setAttribute("d", "M10 9v4.6");
+  const dot = document.createElementNS(SVG_NS, "circle");
+  for (const [k, v] of Object.entries({ cx: "10", cy: "6.4", r: "0.9", class: "ex-info-dot" })) dot.setAttribute(k, v);
+  svg.append(ring, stem, dot);
+  return svg;
+}
+
+/** A row's info button and the inline picture it opens on phones. The
+ * button goes after the row's title, the body under the row's text. On
+ * wider screens the drawer takes the click (see initExplainerPanel) and
+ * the body stays hidden by CSS. */
+export function buildExplainer(sceneId: string, title: string, t: Translate): { button: HTMLButtonElement; body: HTMLElement } {
+  const button = buildInfoButton(title, t);
   const body = document.createElement("div");
   body.className = "ex-inline-body";
   body.hidden = true;
@@ -263,134 +296,120 @@ export function buildInlineExplainer(sceneId: string, t: Translate): HTMLElement
       // One open at a time.
       for (const other of document.querySelectorAll<HTMLElement>(".ex-inline-body:not([hidden])")) {
         other.hidden = true;
-        other.previousElementSibling?.setAttribute("aria-expanded", "false");
+        other.closest("[data-explain]")?.querySelector(".ex-info")?.setAttribute("aria-expanded", "false");
       }
       if (!body.firstChild) fillPicture(body, sceneId, t);
     }
     body.hidden = !open;
     button.setAttribute("aria-expanded", String(open));
   });
-  wrap.append(button, body);
-  return wrap;
+  return { button, body };
 }
 
-/** The name shown above a picture: the row's own title, the label its
- * group points at (the level cards), or else the screen's title. */
-function titleOf(doc: Document, target: HTMLElement | null): string {
-  const own = target?.querySelector(".setting-title")?.textContent;
-  if (own) return own;
-  const labelledBy = target?.getAttribute("aria-labelledby");
-  const label = labelledBy ? doc.getElementById(labelledBy)?.textContent : null;
-  return label || (doc.getElementById("page-title")?.textContent ?? "");
+/** The name shown above a picture: the row's own title, or else the
+ * screen's title. */
+function titleOf(doc: Document, row: HTMLElement | null): string {
+  const own = row?.querySelector(".setting-title")?.textContent;
+  return own || (doc.getElementById("page-title")?.textContent ?? "");
 }
 
-/** Fills the side panel for the current screen. A row's "How it works"
- * button, where the panel is showing, moves the panel level with that row
- * and highlights it; pressing it again (or Esc) puts the panel back beside
- * the screen's first section. `refresh` re-picks the first picture once
- * the screen's rows exist (they render after the screen is chosen). */
+/** Runs the drawer. `showScreen` closes it and shows or hides the info
+ * button next to the screen's title; `refresh` keeps an open drawer on its
+ * row after the settings re-render their rows. */
 export function initExplainerPanel(doc: Document, t: Translate): { showScreen: (page: string) => void; refresh: () => void } {
-  const panel = doc.getElementById("explainer");
+  const drawer = doc.getElementById("explainer");
   const titleEl = doc.getElementById("explainer-title");
   const stage = doc.getElementById("explainer-stage");
   const captionEl = doc.getElementById("explainer-caption");
-  let current = "";
+  const pageInfo = doc.getElementById("page-info");
   let page = "";
-  let anchoredRow: HTMLElement | null = null;
+  let openScene = "";
+  let openRow: HTMLElement | null = null;
+  let opener: HTMLElement | null = null;
 
-  const show = (id: string, title: string) => {
-    if (!panel || !stage || !titleEl || !captionEl) return;
-    if (titleEl.textContent !== title) titleEl.textContent = title;
-    if (id === current) return;
-    current = id;
-    fillPicture(stage, id, t, captionEl);
+  // A drawer from 900px (the desktop layout); phones use the inline picture.
+  const drawerLayout = () => doc.defaultView?.matchMedia?.("(min-width: 900px)").matches ?? true;
+
+  const mark = (on: boolean) => {
+    openRow?.classList.toggle("is-explaining", on);
+    opener?.setAttribute("aria-expanded", String(on));
   };
 
-  /** Lines the panel's top up with the row's, less the pointer's offset. */
-  const place = () => {
-    if (!panel) return;
-    if (anchoredRow && !anchoredRow.isConnected) reattach();
-    if (!anchoredRow) {
-      panel.style.marginTop = "";
-      return;
-    }
-    const base = panel.getBoundingClientRect().top - (parseFloat(getComputedStyle(panel).marginTop) || 0);
-    panel.style.marginTop = `${Math.max(0, anchoredRow.getBoundingClientRect().top - base - 8)}px`;
+  const close = (returnFocus = false) => {
+    if (!drawer || drawer.hidden) return;
+    mark(false);
+    drawer.hidden = true;
+    doc.body.classList.remove("ex-open");
+    if (returnFocus) opener?.focus();
+    openRow = null;
+    opener = null;
+    openScene = "";
   };
 
-  /** Settings re-render their rows after a change (flipping the switch on
-   * the row being explained, say), so find the new copy of the row. */
-  const reattach = () => {
-    const id = anchoredRow?.dataset.explain;
-    const again = Array.from(doc.querySelectorAll<HTMLElement>(`main [data-explain="${id}"]`)).find((el) => !el.closest(".dash-off"));
-    anchoredRow = again ?? null;
-    if (!anchoredRow) {
-      panel?.classList.remove("anchored");
-      return;
-    }
-    anchoredRow.classList.add("is-explaining");
-    anchoredRow.querySelector(".ex-howto")?.setAttribute("aria-expanded", "true");
-  };
-
-  const release = () => {
-    if (anchoredRow) {
-      anchoredRow.classList.remove("is-explaining");
-      anchoredRow.querySelector(".ex-howto")?.setAttribute("aria-expanded", "false");
-    }
-    anchoredRow = null;
-    panel?.classList.remove("anchored");
-    place();
-  };
-
-  const showDefault = () => {
-    const fallback = SCREEN_SCENES[page];
-    if (panel) panel.hidden = !fallback;
-    doc.body.classList.toggle("has-explainer", Boolean(fallback));
-    if (!fallback) return;
-    const first = Array.from(doc.querySelectorAll<HTMLElement>("main [data-explain]")).find((el) => !el.closest(".dash-off"));
-    if (first) show(first.dataset.explain!, titleOf(doc, first));
-    else show(fallback, titleOf(doc, null));
+  const open = (sceneId: string, title: string, row: HTMLElement | null, button: HTMLElement) => {
+    if (!drawer || !stage || !titleEl || !captionEl) return;
+    mark(false);
+    openRow = row;
+    opener = button;
+    mark(true);
+    titleEl.textContent = title;
+    if (sceneId !== openScene) fillPicture(stage, sceneId, t, captionEl);
+    openScene = sceneId;
+    drawer.hidden = false;
+    doc.body.classList.add("ex-open");
   };
 
   const showScreen = (next: string) => {
     page = next;
-    release();
-    showDefault();
+    close();
+    if (pageInfo) {
+      pageInfo.hidden = !SCREEN_SCENES[page];
+      const label = t("explainHowItWorks", "How it works");
+      pageInfo.title = label;
+      pageInfo.setAttribute("aria-label", `${doc.getElementById("page-title")?.textContent ?? ""}: ${label}`);
+    }
   };
 
-  const panelShowing = () => Boolean(panel && !panel.hidden && panel.offsetParent !== null);
+  pageInfo?.addEventListener("click", () => {
+    const scene = SCREEN_SCENES[page];
+    if (!scene) return;
+    if (opener === pageInfo && drawer && !drawer.hidden) close();
+    else open(scene, titleOf(doc, null), null, pageInfo);
+  });
 
-  doc.addEventListener("click", (event) => {
-    const button = event.target instanceof Element ? event.target.closest<HTMLElement>(".ex-howto") : null;
-    const row = button?.closest<HTMLElement>("[data-explain]");
-    if (!button || !row || row.closest(".dash-off") || !panelShowing()) return;
-    // The panel shows it; the inline picture stays closed.
-    event.preventDefault();
-    if (row === anchoredRow) {
-      release();
-      showDefault();
+  // Capture phase, so on wide screens the drawer claims the click before
+  // the row's own inline handler runs.
+  doc.addEventListener(
+    "click",
+    (event) => {
+      const button = event.target instanceof Element ? event.target.closest<HTMLElement>(".ex-info") : null;
+      const row = button?.closest<HTMLElement>("[data-explain]");
+      if (!button || !row || row.closest(".dash-off") || !drawerLayout()) return;
+      event.preventDefault();
+      if (button === opener && drawer && !drawer.hidden) close();
+      else open(row.dataset.explain!, titleOf(doc, row), row, button);
+    },
+    true
+  );
+  doc.getElementById("explainer-close")?.addEventListener("click", () => close(true));
+  doc.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && drawer && !drawer.hidden) close(true);
+  });
+
+  /** Settings re-render their rows after a change (flipping the switch on
+   * the row being explained, say), so find the new copy of the row. */
+  const refresh = () => {
+    if (!openRow || openRow.isConnected) return;
+    const id = openRow.dataset.explain;
+    const again = Array.from(doc.querySelectorAll<HTMLElement>(`main [data-explain="${id}"]`)).find((el) => !el.closest(".dash-off"));
+    if (!again) {
+      close();
       return;
     }
-    release();
-    anchoredRow = row;
-    row.classList.add("is-explaining");
-    button.setAttribute("aria-expanded", "true");
-    panel!.classList.add("anchored");
-    show(row.dataset.explain!, titleOf(doc, row));
-    place();
-  }, true);
-  doc.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && anchoredRow) {
-      const button = anchoredRow.querySelector<HTMLElement>(".ex-howto");
-      release();
-      showDefault();
-      button?.focus();
-    }
-  });
-  // Rows above can change height (a caution line appears, a list grows),
-  // so keep the panel level with its row.
-  const main = doc.querySelector("main");
-  if (main && typeof ResizeObserver !== "undefined") new ResizeObserver(() => place()).observe(main);
+    openRow = again;
+    opener = again.querySelector<HTMLElement>(".ex-info");
+    mark(true);
+  };
 
-  return { showScreen, refresh: () => (anchoredRow ? place() : showDefault()) };
+  return { showScreen, refresh };
 }

@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { SCREEN_SCENES, buildScene, hasScene } from "./explainers";
-import { CAPTIONS, STEPS, buildInlineExplainer, buildStepLine, initExplainerPanel, sceneFor, stepAt } from "./explainerPanel";
+import { CAPTIONS, STEPS, buildExplainer, buildStepLine, helpSceneFor, initExplainerPanel, sceneFor, stepAt } from "./explainerPanel";
 
 const t = (_key: string, fallback: string) => fallback;
 
@@ -26,8 +26,8 @@ const ROW_IDS = [
 function page(): void {
   document.body.innerHTML = `
     <main>
-      <div class="page-head"><h1 id="page-title">Privacy</h1></div>
-      <aside id="explainer" hidden><h2 id="explainer-title"></h2><div id="explainer-stage"></div><p id="explainer-caption"></p></aside>
+      <div class="page-head"><h1 id="page-title">Privacy</h1><button id="page-info" hidden></button></div>
+      <aside id="explainer" hidden><button id="explainer-close"></button><h2 id="explainer-title"></h2><div id="explainer-stage"></div><p id="explainer-caption"></p></aside>
       <section data-page="blocking" class="dash-off"><div data-explain="levels" aria-labelledby="lvl"><span id="lvl" hidden>How much to block</span></div></section>
       <section data-page="privacy">
         <div class="setting-row" data-explain="cookies"><div><span class="setting-title">Block cross-site cookies</span></div></div>
@@ -71,58 +71,79 @@ describe("scenes", () => {
   });
 });
 
-describe("side panel", () => {
-  // jsdom has no layout, so offsetParent is always null; the panel counts
-  // as showing when it isn't hidden.
+describe("drawer", () => {
+  const setWidth = (wide: boolean) => {
+    window.matchMedia = ((query: string) => ({ matches: wide, media: query })) as unknown as typeof window.matchMedia;
+  };
   beforeEach(() => {
-    Object.defineProperty(HTMLElement.prototype, "offsetParent", { configurable: true, get() { return this.hidden ? null : document.body; } });
+    setWidth(true);
     for (const row of document.querySelectorAll<HTMLElement>("[data-explain].setting-row")) {
-      row.firstElementChild!.append(buildInlineExplainer(row.dataset.explain!, t));
+      const title = row.querySelector(".setting-title")!;
+      const { button, body } = buildExplainer(row.dataset.explain!, title.textContent!, t);
+      title.after(button);
+      title.parentElement!.append(body);
     }
   });
-  const howTo = (id: string) => document.querySelector<HTMLButtonElement>(`[data-explain="${id}"] .ex-howto`)!;
+  const info = (id: string) => document.querySelector<HTMLButtonElement>(`[data-explain="${id}"] .ex-info`)!;
+  const drawer = () => document.getElementById("explainer")!;
   const title = () => document.getElementById("explainer-title")!.textContent;
 
-  it("opens on the screen's first row and doesn't follow the pointer", () => {
+  it("starts closed, with nothing kept for it", () => {
     const panel = initExplainerPanel(document, t);
     panel.showScreen("privacy");
-    expect(document.getElementById("explainer")!.hidden).toBe(false);
-    expect(document.body.classList.contains("has-explainer")).toBe(true);
-    expect(title()).toBe("Block cross-site cookies");
-    expect(document.querySelector("#explainer-stage svg")!.classList.contains("ex-cookies")).toBe(true);
-
-    document.getElementById("ip-switch")!.dispatchEvent(new Event("pointerover", { bubbles: true }));
-    document.getElementById("ip-switch")!.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
-    expect(title()).toBe("Block cross-site cookies");
+    expect(drawer().hidden).toBe(true);
+    expect(document.body.classList.contains("ex-open")).toBe(false);
+    // The screen has its own picture, so its title gets an info button.
+    expect(document.getElementById("page-info")!.hidden).toBe(false);
+    expect(document.getElementById("page-info")!.getAttribute("aria-label")).toBe("Privacy: How it works");
   });
 
-  it("moves to a row when its How it works is pressed, and back on a second press or Esc", () => {
+  it("opens from a row's info button, marks the row, and closes on a second press, Esc or the close button", () => {
     const panel = initExplainerPanel(document, t);
     panel.showScreen("privacy");
     const row = document.querySelector<HTMLElement>('[data-explain="webrtc"]')!;
-    howTo("webrtc").click();
+    info("webrtc").click();
+    expect(drawer().hidden).toBe(false);
+    expect(document.body.classList.contains("ex-open")).toBe(true);
     expect(title()).toBe("Keep your IP address private");
     expect(document.getElementById("explainer-caption")!.textContent).toBe(CAPTIONS.webrtc![1]);
     expect(row.classList.contains("is-explaining")).toBe(true);
-    expect(howTo("webrtc").getAttribute("aria-expanded")).toBe("true");
-    expect(document.getElementById("explainer")!.classList.contains("anchored")).toBe(true);
-    // The panel shows it, so the inline copy stays shut.
+    expect(info("webrtc").getAttribute("aria-expanded")).toBe("true");
+    // The drawer shows it, so the inline copy stays shut.
     expect(row.querySelector<HTMLElement>(".ex-inline-body")!.hidden).toBe(true);
 
-    howTo("webrtc").click();
-    expect(row.classList.contains("is-explaining")).toBe(false);
+    info("cookies").click();
     expect(title()).toBe("Block cross-site cookies");
-
-    howTo("webrtc").click();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
     expect(row.classList.contains("is-explaining")).toBe(false);
-    expect(document.getElementById("explainer")!.classList.contains("anchored")).toBe(false);
+    expect(info("webrtc").getAttribute("aria-expanded")).toBe("false");
+
+    info("cookies").click();
+    expect(drawer().hidden).toBe(true);
+
+    info("webrtc").click();
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    expect(drawer().hidden).toBe(true);
+    expect(document.activeElement).toBe(info("webrtc"));
+    expect(row.classList.contains("is-explaining")).toBe(false);
+
+    info("webrtc").click();
+    document.getElementById("explainer-close")!.click();
+    expect(drawer().hidden).toBe(true);
+  });
+
+  it("shows the screen's own picture from the title's info button", () => {
+    const panel = initExplainerPanel(document, t);
+    panel.showScreen("privacy");
+    document.getElementById("page-info")!.click();
+    expect(drawer().hidden).toBe(false);
+    expect(title()).toBe("Privacy");
+    expect(document.querySelector("#explainer-stage svg")!.classList.contains(`ex-${SCREEN_SCENES.privacy}`)).toBe(true);
   });
 
   it("stays on the row when the settings re-render it", () => {
     const panel = initExplainerPanel(document, t);
     panel.showScreen("privacy");
-    howTo("webrtc").click();
+    info("webrtc").click();
     const old = document.querySelector<HTMLElement>('[data-explain="webrtc"]')!;
     const fresh = old.cloneNode(true) as HTMLElement;
     fresh.classList.remove("is-explaining");
@@ -132,14 +153,29 @@ describe("side panel", () => {
     expect(title()).toBe("Keep your IP address private");
   });
 
-  it("hides itself where a screen has no picture", () => {
+  it("closes when the screen changes, and has no title button where a screen has no picture", () => {
     const panel = initExplainerPanel(document, t);
     panel.showScreen("privacy");
-    howTo("webrtc").click();
+    info("webrtc").click();
     panel.showScreen("overview");
-    expect(document.getElementById("explainer")!.hidden).toBe(true);
-    expect(document.body.classList.contains("has-explainer")).toBe(false);
+    expect(drawer().hidden).toBe(true);
     expect(document.querySelector(".is-explaining")).toBeNull();
+    expect(document.getElementById("page-info")!.hidden).toBe(true);
+  });
+
+  it("leaves phones to the picture inside the row", () => {
+    setWidth(false);
+    const panel = initExplainerPanel(document, t);
+    panel.showScreen("privacy");
+    info("webrtc").click();
+    expect(drawer().hidden).toBe(true);
+    expect(document.querySelector<HTMLElement>('[data-explain="webrtc"] .ex-inline-body')!.hidden).toBe(false);
+  });
+
+  it("skips rows whose description already says enough", () => {
+    for (const quiet of ["consentReject", "feedScan", "searchSlop"]) expect(helpSceneFor(quiet), quiet).toBeNull();
+    expect(helpSceneFor("grayscale")).toBe("grayscale");
+    expect(helpSceneFor("firefoxFirstPartyIsolate")).toBe("cookies");
   });
 });
 
@@ -176,22 +212,28 @@ describe("step lines", () => {
 
 describe("inline explainer", () => {
   it("opens and closes the picture under the row, one at a time", () => {
-    const wrap = buildInlineExplainer("cookies", t);
-    const other = buildInlineExplainer("webrtc", t);
-    document.body.append(wrap, other);
-    const button = wrap.querySelector("button")!;
-    const body = wrap.querySelector<HTMLElement>(".ex-inline-body")!;
-    expect(body.hidden).toBe(true);
-    button.click();
-    expect(body.hidden).toBe(false);
-    expect(button.getAttribute("aria-expanded")).toBe("true");
-    expect(body.querySelector("svg")).not.toBeNull();
-    expect(body.querySelector(".ex-step-line")).not.toBeNull();
-    other.querySelector("button")!.click();
-    expect(body.hidden).toBe(true);
-    expect(button.getAttribute("aria-expanded")).toBe("false");
-    button.click();
-    button.click();
-    expect(body.hidden).toBe(true);
+    // Phone width, where the drawer (from any earlier test) leaves the click alone.
+    window.matchMedia = ((query: string) => ({ matches: false, media: query })) as unknown as typeof window.matchMedia;
+    const a = buildExplainer("cookies", "Block cross-site cookies", t);
+    const b = buildExplainer("webrtc", "Keep your IP address private", t);
+    for (const { button, body } of [a, b]) {
+      const row = document.createElement("div");
+      row.dataset.explain = "x";
+      row.append(button, body);
+      document.body.append(row);
+    }
+    expect(a.button.getAttribute("aria-label")).toBe("Block cross-site cookies: How it works");
+    expect(a.body.hidden).toBe(true);
+    a.button.click();
+    expect(a.body.hidden).toBe(false);
+    expect(a.button.getAttribute("aria-expanded")).toBe("true");
+    expect(a.body.querySelector("svg")).not.toBeNull();
+    expect(a.body.querySelector(".ex-step-line")).not.toBeNull();
+    b.button.click();
+    expect(a.body.hidden).toBe(true);
+    expect(a.button.getAttribute("aria-expanded")).toBe("false");
+    a.button.click();
+    a.button.click();
+    expect(a.body.hidden).toBe(true);
   });
 });

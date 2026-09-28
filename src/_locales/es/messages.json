@@ -1953,5 +1953,8 @@
   },
   "explainStepRules2": {
     "message": "Un sitio siempre se bloquea y el otro nunca"
+  },
+  "explainClose": {
+    "message": "Cerrar"
   }
 }

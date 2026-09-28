@@ -13,7 +13,7 @@ import { applyLongList, type LongListLabels } from "./longList";
 import { applyBulkSelect, type BulkLabels } from "./bulkSelect";
 import { buildSiteIcon, faviconUrl } from "./siteIcon";
 import { initDashboard } from "./dashboard";
-import { buildInlineExplainer, initExplainerPanel, sceneFor } from "./explainerPanel";
+import { buildExplainer, helpSceneFor, initExplainerPanel } from "./explainerPanel";
 import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { initSettingsSearch } from "./settingsSearch";
@@ -461,7 +461,20 @@ function buildSettingRow(options: {
   title.className = "setting-title";
   title.id = options.titleId;
   title.textContent = options.title;
-  text.append(title);
+  // Rows with a "How it works" picture get a small info button after the
+  // title: it opens the drawer on desktop, or the picture inside the row on
+  // phones (explainerPanel.ts).
+  const scene = helpSceneFor(options.icon);
+  const explainer = scene ? buildExplainer(scene, options.title, tFallback) : null;
+  if (explainer) {
+    row.dataset.explain = scene!;
+    const line = document.createElement("span");
+    line.className = "title-line";
+    line.append(title, explainer.button);
+    text.append(line);
+  } else {
+    text.append(title);
+  }
   if (options.desc) {
     const desc = document.createElement("span");
     desc.className = "setting-desc";
@@ -469,14 +482,7 @@ function buildSettingRow(options: {
     text.append(desc);
   }
   if (options.extra) text.append(...options.extra);
-  // Rows with a "How it works" picture get a button that shows it: in the
-  // side panel, level with the row, on wide screens, inline on narrower
-  // ones (explainerPanel.ts).
-  const scene = sceneFor(options.icon);
-  if (scene) {
-    row.dataset.explain = scene;
-    text.append(buildInlineExplainer(scene, tFallback));
-  }
+  if (explainer) text.append(explainer.body);
   row.append(options.brands?.length ? buildBrandTile(document, options.brands) : buildIcon(options.icon), text);
   if (options.control) row.append(options.control);
   return row;

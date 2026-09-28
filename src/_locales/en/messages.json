@@ -2060,5 +2060,9 @@
   "explainStepRules2": {
     "message": "One site is always blocked, the other never is",
     "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
+  },
+  "explainClose": {
+    "message": "Close",
+    "description": "Settings > How it works drawer: the close button's name for screen readers."
   }
 }

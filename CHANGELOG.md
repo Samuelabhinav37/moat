@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.167
+
+### Changed
+- **Settings: "How it works" opens in a drawer, and every screen is the same width.** The side
+  column that held the picture is gone. It kept 320px free on seven screens even when there was
+  nothing in it, and made the settings narrower there than on Overview and About. Now a small
+  info button after a setting's name (and after the screen's title, for the screen's own
+  picture) opens a drawer at the right edge of the window. Nothing is kept for it while it's
+  closed. From 1280px the page makes room for it while it's open; between 900 and 1280px it
+  opens over the page. The close button, Esc, pressing the same info button again, or changing
+  screens all close it, and Esc puts focus back on the button. On phones the button opens the
+  picture inside the row, as before.
+- **Fewer info buttons.** The "How it works" pill on every row is replaced by the info button,
+  and rows whose description already says enough don't get one: Say no to cookie banners, Hide
+  sponsored posts and Hide low-quality search results. Each button is named for its setting for
+  screen readers ("Dim YouTube ads: How it works").
+
 ## 0.11.166
 
 ### Changed
