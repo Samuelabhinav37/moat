@@ -198,7 +198,7 @@
     "message": "Pausierte Websites"
   },
   "optionsExceptionsHint": {
-    "message": "Auf diesen Seiten laden Werbung und Tracker normal. Bekannte gefährliche Seiten bleiben blockiert. Zum Pausieren klicke auf der Seite auf das Moat-Symbol und lege den Schalter um."
+    "message": "Auf diesen Seiten laden Werbung und Tracker normal. Bekannte gefährliche Seiten bleiben blockiert. Füge hier eine hinzu oder pausiere eine Seite über das Moat-Symbol, während du dort bist."
   },
   "optionsNoSitesAdded": {
     "message": "Keine Websites hinzugefügt."
@@ -253,7 +253,7 @@
     "message": "Einzelne Filterlisten"
   },
   "optionsIndividualListsHint": {
-    "message": "Die Listen hinter „Wie viel blockiert wird“. Wenn du hier eine änderst, wechselt deine Stufe zu Benutzerdefiniert."
+    "message": "Die Listen hinter deiner Blockierstufe. Wenn du hier eine ein- oder ausschaltest, wird es deine eigene Auswahl."
   },
   "optionsLoadListsError": {
     "message": "Filterlisten konnten nicht geladen werden."
@@ -980,13 +980,13 @@
     "message": "Alles aus Ausgewogen, dazu Cookie-Hinweise, Social-Media-Buttons, Fingerprinting und Drittanbieter-Cookies. Einige Websites funktionieren eventuell nicht richtig."
   },
   "levelCustomNote": {
-    "message": "Du nutzt deine eigene Auswahl an Filterlisten. Ändere sie unter Erweiterte Einstellungen."
+    "message": "Du nutzt deine eigene Auswahl an Filterlisten."
   },
   "featuresTitle": {
-    "message": "Funktionen"
+    "message": "Störfaktoren"
   },
   "featuresLead": {
-    "message": "Zusätzlicher Schutz, der zu der oben gewählten Stufe dazukommt. Schalte ein, was du möchtest."
+    "message": "Entfernt Cookie-Banner, gesponserte Beiträge und anderen Ballast. Schalte ein, was du möchtest."
   },
   "pausedEmptyTitle": {
     "message": "Keine Websites pausiert"
@@ -1007,7 +1007,7 @@
     "message": "Erweiterte Einstellungen ausblenden"
   },
   "advancedButtonHint": {
-    "message": "Filterlisten, Datenschutz-Extras, eigene Regeln, Tracker, Sicherung und Version"
+    "message": "Datenschutz, Filterlisten, eigene Regeln, Tracker, Sicherung und Version"
   },
   "advShowAllLists": {
     "message": "Alle Listen anzeigen"
@@ -1956,5 +1956,35 @@
   },
   "explainClose": {
     "message": "Schließen"
+  },
+  "levelCustomNoteLink": {
+    "message": "Filterlisten ansehen"
+  },
+  "filtersLevelUsing": {
+    "message": "Aktive Stufe: $LEVEL$.",
+    "placeholders": {
+      "level": {
+        "content": "$1",
+        "example": "Balanced"
+      }
+    }
+  },
+  "filtersLevelCustom": {
+    "message": "Deine eigene Auswahl an Listen."
+  },
+  "filtersLevelChange": {
+    "message": "Stufe ändern"
+  },
+  "filtersLevelReset": {
+    "message": "Auf Ausgewogen zurücksetzen"
+  },
+  "privacyGroupTracking": {
+    "message": "Tracking"
+  },
+  "privacyGroupDevice": {
+    "message": "Dein Gerät"
+  },
+  "privacyGroupPermissions": {
+    "message": "Berechtigungen und Passwörter"
   }
 }

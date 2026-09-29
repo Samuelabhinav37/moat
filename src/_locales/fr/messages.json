@@ -198,7 +198,7 @@
     "message": "Sites mis en pause"
   },
   "optionsExceptionsHint": {
-    "message": "Les publicités et les traceurs se chargent normalement sur ces sites. Les sites dangereux connus restent bloqués. Pour en mettre un en pause, cliquez sur l'icône de Moat quand vous y êtes et basculez l'interrupteur."
+    "message": "Les pubs et les traceurs se chargent normalement sur ces sites. Les sites dangereux connus restent bloqués. Ajoutes-en un ici, ou mets un site en pause depuis l’icône de Moat quand tu y es."
   },
   "optionsNoSitesAdded": {
     "message": "Aucun site ajouté."
@@ -253,7 +253,7 @@
     "message": "Listes de filtres individuelles"
   },
   "optionsIndividualListsHint": {
-    "message": "Les listes derrière « Quel niveau de blocage ». En modifier une ici passe votre niveau en Personnalisé."
+    "message": "Les listes derrière ton niveau de blocage. En activer ou désactiver une ici en fait ton propre choix."
   },
   "optionsLoadListsError": {
     "message": "Impossible de charger les listes de filtres."
@@ -980,13 +980,13 @@
     "message": "Tout ce que fait Équilibré, plus les bandeaux de cookies, les boutons sociaux, l'empreinte numérique et les cookies tiers. Quelques sites peuvent mal fonctionner."
   },
   "levelCustomNote": {
-    "message": "Vous utilisez votre propre combinaison de listes de filtres. Modifiez-la dans les paramètres avancés."
+    "message": "Tu utilises ton propre choix de listes de filtres."
   },
   "featuresTitle": {
-    "message": "Fonctionnalités"
+    "message": "Nuisances"
   },
   "featuresLead": {
-    "message": "Des protections en plus du niveau choisi ci-dessus. Activez celles que vous voulez."
+    "message": "Retire les bandeaux cookies, les publications sponsorisées et le reste du fouillis. Active celles que tu veux."
   },
   "pausedEmptyTitle": {
     "message": "Aucun site en pause"
@@ -1007,7 +1007,7 @@
     "message": "Masquer les paramètres avancés"
   },
   "advancedButtonHint": {
-    "message": "Listes de filtres, options de confidentialité, vos règles, traqueurs, sauvegarde et version"
+    "message": "Confidentialité, listes de filtres, tes règles, traceurs, sauvegarde et version"
   },
   "advShowAllLists": {
     "message": "Afficher toutes les listes"
@@ -1956,5 +1956,35 @@
   },
   "explainClose": {
     "message": "Fermer"
+  },
+  "levelCustomNoteLink": {
+    "message": "Voir les listes de filtres"
+  },
+  "filtersLevelUsing": {
+    "message": "Niveau utilisé : $LEVEL$.",
+    "placeholders": {
+      "level": {
+        "content": "$1",
+        "example": "Balanced"
+      }
+    }
+  },
+  "filtersLevelCustom": {
+    "message": "Ton propre choix de listes."
+  },
+  "filtersLevelChange": {
+    "message": "Changer de niveau"
+  },
+  "filtersLevelReset": {
+    "message": "Revenir à Équilibré"
+  },
+  "privacyGroupTracking": {
+    "message": "Pistage"
+  },
+  "privacyGroupDevice": {
+    "message": "Ton appareil"
+  },
+  "privacyGroupPermissions": {
+    "message": "Autorisations et mots de passe"
   }
 }

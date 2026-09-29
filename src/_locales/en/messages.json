@@ -200,7 +200,7 @@
     "message": "Sites you've paused"
   },
   "optionsExceptionsHint": {
-    "message": "Ads and trackers load normally on these sites. Known dangerous sites stay blocked. To pause one, click Moat's icon while you're on it and flip the switch."
+    "message": "Ads and trackers load normally on these sites. Known dangerous sites stay blocked. Add one here, or pause a site from Moat's icon while you're on it."
   },
   "optionsNoSitesAdded": {
     "message": "No sites added."
@@ -255,7 +255,7 @@
     "message": "Individual filter lists"
   },
   "optionsIndividualListsHint": {
-    "message": "The lists behind \"How much to block\". Changing one here switches your level to Custom."
+    "message": "The lists behind your blocking level. Turning one on or off here makes it your own mix."
   },
   "optionsLoadListsError": {
     "message": "Couldn't load filter lists."
@@ -982,13 +982,14 @@
     "message": "Everything in Balanced, plus cookie notices, social buttons, fingerprinting and third-party cookies. A few sites may not work right."
   },
   "levelCustomNote": {
-    "message": "You're using your own mix of filter lists. Change it under Advanced settings."
+    "message": "You're using your own mix of filter lists.",
+    "description": "Settings > Blocking level: note under the level cards when the filter lists don't match any level. Followed by a link to Filter lists."
   },
   "featuresTitle": {
-    "message": "Features"
+    "message": "Annoyances"
   },
   "featuresLead": {
-    "message": "Extra protections that work on top of the level you chose above. Turn on the ones you want."
+    "message": "Clear away cookie banners, sponsored posts and other clutter. Turn on the ones you want."
   },
   "pausedEmptyTitle": {
     "message": "No sites are paused"
@@ -1009,7 +1010,7 @@
     "message": "Hide advanced settings"
   },
   "advancedButtonHint": {
-    "message": "Filter lists, privacy extras, your own rules, trackers, backup and version"
+    "message": "Privacy, filter lists, your own rules, trackers, backup and version"
   },
   "advShowAllLists": {
     "message": "Show all lists"
@@ -2064,5 +2065,43 @@
   "explainClose": {
     "message": "Close",
     "description": "Settings > How it works drawer: the close button's name for screen readers."
+  },
+  "levelCustomNoteLink": {
+    "message": "See Filter lists",
+    "description": "Settings > Blocking level: link after the own-mix note, opens Filter lists."
+  },
+  "filtersLevelUsing": {
+    "message": "Using $LEVEL$.",
+    "placeholders": {
+      "level": {
+        "content": "$1",
+        "example": "Balanced"
+      }
+    },
+    "description": "Settings > Filter lists: which blocking level is in use, e.g. 'Using Balanced.'"
+  },
+  "filtersLevelCustom": {
+    "message": "Your own mix of lists.",
+    "description": "Settings > Filter lists: shown instead of a level name when the lists were picked by hand."
+  },
+  "filtersLevelChange": {
+    "message": "Change level",
+    "description": "Settings > Filter lists: link to Blocking level."
+  },
+  "filtersLevelReset": {
+    "message": "Reset to Balanced",
+    "description": "Settings > Filter lists: button that replaces a hand-picked mix of lists with the Balanced level."
+  },
+  "privacyGroupTracking": {
+    "message": "Tracking",
+    "description": "Settings > Privacy: sub-heading over the tracking settings."
+  },
+  "privacyGroupDevice": {
+    "message": "Your device",
+    "description": "Settings > Privacy: sub-heading over fingerprinting and IP-address settings."
+  },
+  "privacyGroupPermissions": {
+    "message": "Permissions and passwords",
+    "description": "Settings > Privacy: sub-heading over permission prompts and the leaked-password check."
   }
 }

@@ -198,7 +198,7 @@
     "message": "Sitios que has pausado"
   },
   "optionsExceptionsHint": {
-    "message": "En estos sitios, los anuncios y rastreadores cargan con normalidad. Los sitios peligrosos conocidos siguen bloqueados. Para pausar uno, haz clic en el icono de Moat mientras estás en él y cambia el interruptor."
+    "message": "En estos sitios los anuncios y rastreadores cargan con normalidad. Los sitios peligrosos conocidos siguen bloqueados. Añade uno aquí o pausa un sitio desde el icono de Moat mientras lo visitas."
   },
   "optionsNoSitesAdded": {
     "message": "No se han añadido sitios."
@@ -253,7 +253,7 @@
     "message": "Listas de filtros individuales"
   },
   "optionsIndividualListsHint": {
-    "message": "Las listas detrás de «Cuánto bloquear». Cambiar una aquí pasa tu nivel a Personalizado."
+    "message": "Las listas detrás de tu nivel de bloqueo. Si activas o desactivas una aquí, pasa a ser tu propia combinación."
   },
   "optionsLoadListsError": {
     "message": "No se pudieron cargar las listas de filtros."
@@ -980,13 +980,13 @@
     "message": "Todo lo de Equilibrado, más avisos de cookies, botones sociales, huellas digitales y cookies de terceros. Algunos sitios pueden no funcionar bien."
   },
   "levelCustomNote": {
-    "message": "Estás usando tu propia combinación de listas de filtros. Cámbiala en Configuración avanzada."
+    "message": "Estás usando tu propia combinación de listas de filtros."
   },
   "featuresTitle": {
-    "message": "Funciones"
+    "message": "Molestias"
   },
   "featuresLead": {
-    "message": "Protecciones extra que funcionan además del nivel que elegiste arriba. Activa las que quieras."
+    "message": "Quita avisos de cookies, publicaciones patrocinadas y otras molestias. Activa las que quieras."
   },
   "pausedEmptyTitle": {
     "message": "No hay sitios pausados"
@@ -1007,7 +1007,7 @@
     "message": "Ocultar configuración avanzada"
   },
   "advancedButtonHint": {
-    "message": "Listas de filtros, extras de privacidad, tus reglas, rastreadores, copia de seguridad y versión"
+    "message": "Privacidad, listas de filtros, tus reglas, rastreadores, copia de seguridad y versión"
   },
   "advShowAllLists": {
     "message": "Mostrar todas las listas"
@@ -1956,5 +1956,35 @@
   },
   "explainClose": {
     "message": "Cerrar"
+  },
+  "levelCustomNoteLink": {
+    "message": "Ver listas de filtros"
+  },
+  "filtersLevelUsing": {
+    "message": "Usando $LEVEL$.",
+    "placeholders": {
+      "level": {
+        "content": "$1",
+        "example": "Balanced"
+      }
+    }
+  },
+  "filtersLevelCustom": {
+    "message": "Tu propia combinación de listas."
+  },
+  "filtersLevelChange": {
+    "message": "Cambiar nivel"
+  },
+  "filtersLevelReset": {
+    "message": "Volver a Equilibrado"
+  },
+  "privacyGroupTracking": {
+    "message": "Rastreo"
+  },
+  "privacyGroupDevice": {
+    "message": "Tu dispositivo"
+  },
+  "privacyGroupPermissions": {
+    "message": "Permisos y contraseñas"
   }
 }

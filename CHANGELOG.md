@@ -3,6 +3,33 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.169
+
+### Changed
+- **Settings: things moved to where people look for them.** The same nine screens and links;
+  only what's on them moved (see `docs/research/settings-ia-2026-09.md`).
+  - **Paused sites** has the "Pause Moat on a site" box. It used to be on Always and never block,
+    so the list and the way to add to it were on two screens.
+  - **Filter lists** no longer repeats the level buttons. One line says which level is in use
+    ("Using Balanced. Change level"), or "Your own mix of lists. Reset to Balanced" when the lists
+    were picked by hand. The level is now chosen in one place, on Blocking level. Essential has
+    no card of its own; it shows as your own mix.
+  - **Blocking level's extras are now "Annoyances"**: cookie banners, gray video ads, sponsored
+    posts and, moved from Privacy, low-quality search results. The leaked-password check moved
+    to Privacy.
+  - **Privacy** is split into Tracking, Your device, and Permissions and passwords.
+  - **Import from another blocker** moved from Always and never block to Backup and sync.
+  - **Section headings use the sidebar's names**, so phones and desktop say the same thing
+    (for example "Block and allow" is now "Always and never block" everywhere).
+  - **On phones**, Privacy now comes before Filter lists, the same order as the sidebar.
+  - The update link on Filter lists is called "Check for filter fixes", like the other two
+    buttons that do the same thing.
+
+### Fixed
+- **The note under the level cards pointed at a button desktop doesn't have.** "Change it under
+  Advanced settings" is now a "See Filter lists" link, which opens the Filter lists screen on
+  desktop and opens Advanced and scrolls to it on phones.
+
 ## 0.11.168
 
 ### Changed

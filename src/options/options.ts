@@ -160,6 +160,15 @@ advancedToggle.addEventListener("click", () => {
   setAdvancedOpen(advancedToggle.getAttribute("aria-expanded") !== "true");
 });
 
+for (const link of document.querySelectorAll<HTMLAnchorElement>("a.to-filters")) {
+  link.addEventListener("click", (event) => {
+    if (window.matchMedia?.("(min-width: 900px)").matches ?? true) return;
+    event.preventDefault();
+    if (advancedToggle.getAttribute("aria-expanded") !== "true") setAdvancedOpen(true);
+    document.querySelector('section[data-page="filters"]')?.scrollIntoView?.({ block: "start" });
+  });
+}
+
 // ---------- Search settings and the "Saved" toast ----------
 
 initSettingsSearch(
@@ -395,9 +404,17 @@ const VISIBLE_PROTECTIONS = PROTECTIONS.filter((def) => !def.firefoxOnly || isFi
 
 const SVG_NS_ICON = "http://www.w3.org/2000/svg";
 
-// The four extras people change most sit on the main panel; every other
-// protection row lives under Advanced settings -> Privacy extras.
-const FEATURE_IDS = ["consentReject", "grayscale", "feedScan", "leakedPassword"] as const;
+// Blocking level's "Annoyances": the page-clutter fixes, the code's own
+// `annoyances` group. Every other row lives on Privacy.
+const FEATURE_IDS = ["consentReject", "grayscale", "feedScan", "searchSlop"] as const;
+
+// Privacy, split into three groups so a long screen reads as a few short
+// lists. Rows a browser doesn't have (the Firefox-only ones) just drop out.
+const PRIVACY_GROUPS: { key: string; fallback: string; ids: string[] }[] = [
+  { key: "privacyGroupTracking", fallback: "Tracking", ids: ["cookies", "cname", "firefoxFirstPartyIsolate"] },
+  { key: "privacyGroupDevice", fallback: "Your device", ids: ["fingerprint", "firefoxResistFingerprinting", "webrtc"] },
+  { key: "privacyGroupPermissions", fallback: "Permissions and passwords", ids: ["permissionGuard", "leakedPassword"] },
+];
 
 // 24x24 line icons, one per setting row. Built with createElementNS, never
 // innerHTML: web-ext lint flags any innerHTML assignment it can't prove is
@@ -818,21 +835,32 @@ function buildPermissionGuardRow(settings: Settings): HTMLElement {
 }
 
 function renderProtectionGroups(settings: Settings, usage: UsageSummaryResponse): void {
-  const isFeature = (def: ProtectionDef): boolean => (FEATURE_IDS as readonly string[]).includes(def.id);
-
   featureRowsEl.replaceChildren(
     ...FEATURE_IDS.map((id) => VISIBLE_PROTECTIONS.find((def) => def.id === id))
       .filter((def): def is ProtectionDef => def !== undefined)
       .map((def) => buildProtectionRow(def, settings, usage))
   );
 
-  const advancedRows: HTMLElement[] = [];
-  for (const def of VISIBLE_PROTECTIONS.filter((d) => !isFeature(d))) {
-    advancedRows.push(buildProtectionRow(def, settings, usage));
-    if (def.id === "fingerprint" && settings.fingerprintResistance) advancedRows.push(buildFingerprintRotateRow(settings));
+  const privacyRows: HTMLElement[] = [];
+  for (const group of PRIVACY_GROUPS) {
+    const rows: HTMLElement[] = [];
+    for (const id of group.ids) {
+      if (id === "permissionGuard") {
+        rows.push(buildPermissionGuardRow(settings));
+        continue;
+      }
+      const def = VISIBLE_PROTECTIONS.find((d) => d.id === id);
+      if (!def) continue;
+      rows.push(buildProtectionRow(def, settings, usage));
+      if (def.id === "fingerprint" && settings.fingerprintResistance) rows.push(buildFingerprintRotateRow(settings));
+    }
+    if (!rows.length) continue;
+    const heading = document.createElement("p");
+    heading.className = "sub-h";
+    heading.textContent = tFallback(group.key, group.fallback);
+    privacyRows.push(heading, ...rows);
   }
-  advancedRows.push(buildPermissionGuardRow(settings));
-  protectionGroupsEl.replaceChildren(...advancedRows);
+  protectionGroupsEl.replaceChildren(...privacyRows);
 }
 
 async function renderProtectionTab(settings: Settings): Promise<void> {
@@ -887,7 +915,9 @@ function renderLiveStatus(
 
 // ---------- Filter Lists tab ----------
 
-const presetRow = document.getElementById("preset-row") as HTMLElement;
+const levelLineText = document.getElementById("level-line-text") as HTMLElement;
+const levelLineChange = document.getElementById("level-line-change") as HTMLAnchorElement;
+const levelLineReset = document.getElementById("level-line-reset") as HTMLButtonElement;
 const presetHint = document.getElementById("preset-hint") as HTMLElement;
 const filtersLockedBadge = document.getElementById("filters-locked-badge") as HTMLElement;
 const filterListRows = document.getElementById("filter-list-rows") as HTMLElement;
@@ -1003,6 +1033,9 @@ for (const card of levelCards) {
 }
 
 async function renderFilterLists(settings: Settings, droppedGroups: Set<string>): Promise<void> {
+  // Before the list manifest loads, so the level shows even if it can't.
+  const preset = detectPreset(settings);
+  renderLevelLine(preset);
   const manifest = await loadRulesetManifest();
   if (!manifest) {
     const loadError = tFallback("optionsLoadListsError", "Couldn't load filter lists.");
@@ -1016,14 +1049,9 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
   const lists = summarizeFilterLists(manifest);
   currentFilterGroups = settings.filterGroups;
 
-  const preset = detectPreset(settings);
   presetHint.textContent = tFallback(PRESET_HINTS[preset].key, PRESET_HINTS[preset].fallback);
-  for (const button of presetRow.querySelectorAll<HTMLButtonElement>("[data-preset]")) {
-    button.setAttribute("aria-pressed", String(button.dataset.preset === preset));
-    // Same three levels as Blocking level; Essential only shows while it's
-    // the one in use, so people who picked it can still see and keep it.
-    if (button.dataset.preset === "essential") button.hidden = preset !== "essential";
-  }
+  // The level line already says "Your own mix of lists."
+  presetHint.hidden = preset === "custom";
 
   renderFilterBudget(settings, lists);
 
@@ -1059,12 +1087,25 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
   );
 }
 
-for (const button of presetRow.querySelectorAll<HTMLButtonElement>("[data-preset]")) {
-  button.addEventListener("click", async () => {
-    await setSettings(presetPatch(button.dataset.preset as PresetName));
-    await render();
-  });
+/** "Using Balanced · Change level", or for a hand-picked mix (Essential
+ * included, which has no card) "Your own mix · Reset to Balanced". The level
+ * itself is only chosen on Blocking level. */
+function renderLevelLine(preset: PresetName | "custom"): void {
+  const onCard = (MAIN_LEVELS as readonly string[]).includes(preset);
+  if (onCard) {
+    const name = document.querySelector(`#level-cards .level[data-level="${preset}"] .level-name`)?.textContent ?? preset;
+    levelLineText.textContent = tFallback("filtersLevelUsing", `Using ${name}.`, name);
+  } else {
+    levelLineText.textContent = tFallback("filtersLevelCustom", "Your own mix of lists.");
+  }
+  levelLineChange.hidden = !onCard;
+  levelLineReset.hidden = onCard;
 }
+
+levelLineReset.addEventListener("click", async () => {
+  await setSettings(presetPatch("standard"));
+  await render();
+});
 
 filterCheckUpdates.addEventListener("click", (event) => {
   event.preventDefault();
@@ -1570,7 +1611,8 @@ async function render(): Promise<void> {
 
   const filtersLocked = isLocked("filterGroups", policy);
   filtersLockedBadge.hidden = !filtersLocked;
-  for (const button of presetRow.querySelectorAll<HTMLButtonElement>("[data-preset]")) button.disabled = filtersLocked;
+  levelLineReset.disabled = filtersLocked;
+  levelLineChange.hidden = levelLineChange.hidden || filtersLocked;
   await renderFilterLists(settings, new Set(filterGroupStatus?.droppedGroups ?? []));
   for (const input of filterListRows.querySelectorAll("input")) input.disabled = filtersLocked;
   renderLevels(detectPreset(settings), filtersLocked);

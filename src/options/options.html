@@ -824,6 +824,42 @@
         animation: rise 0.35s var(--ease);
       }
 
+      /* Filter lists: which level is in use, and where to change it. */
+      .level-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 12px;
+        margin: 0 0 6px;
+        font-weight: 600;
+      }
+      .level-line a,
+      .level-line .linklike {
+        font-weight: 600;
+      }
+      .linklike {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--blue-lt);
+        font: inherit;
+        cursor: pointer;
+      }
+      .linklike:hover {
+        text-decoration: underline;
+      }
+      .linklike:disabled {
+        color: var(--muted);
+        cursor: default;
+        text-decoration: none;
+      }
+      .pause-card {
+        margin-top: 16px;
+      }
+      .setting-rows .sub-h:first-child {
+        margin-top: 0;
+      }
+
       /* ---------- Advanced ---------- */
       .advbtn {
         margin-top: 24px;
@@ -2466,22 +2502,22 @@
                   <span class="level-desc" data-i18n="levelStrictDesc">Everything in Balanced, plus cookie notices, social buttons, fingerprinting and third-party cookies. A few sites may not work right.</span>
                 </button>
               </div>
-              <p class="level-note" id="level-note" hidden data-i18n="levelCustomNote">You're using your own mix of filter lists. Change it under Advanced settings.</p>
+              <p class="level-note" id="level-note" hidden><span data-i18n="levelCustomNote">You're using your own mix of filter lists.</span> <a href="#filters" class="to-filters" data-i18n="levelCustomNoteLink">See Filter lists</a></p>
             </div>
           </section>
 
           <section class="sec" data-page="blocking">
             <div>
-              <h2 data-i18n="featuresTitle">Features</h2>
-              <p class="lead" data-i18n="featuresLead">Extra protections that work on top of the level you chose above. Turn on the ones you want.</p>
+              <h2 data-i18n="featuresTitle">Annoyances</h2>
+              <p class="lead" data-i18n="featuresLead">Clear away cookie banners, sponsored posts and other clutter. Turn on the ones you want.</p>
             </div>
             <div class="setting-rows" id="feature-rows"></div>
           </section>
 
           <section class="sec" data-page="paused">
             <div>
-              <h2 data-i18n="optionsExceptionsTitle">Sites you've paused</h2>
-              <p class="lead" data-i18n="optionsExceptionsHint">Ads and trackers load normally on these sites. Known dangerous sites stay blocked. To pause one, click Moat's icon while you're on it and flip the switch.</p>
+              <h2 data-i18n="navPaused">Paused sites</h2>
+              <p class="lead" data-i18n="optionsExceptionsHint">Ads and trackers load normally on these sites. Known dangerous sites stay blocked. Add one here, or pause a site from Moat's icon while you're on it.</p>
             </div>
             <div>
               <div class="box" id="site-list-box"><ul class="site-list" id="site-list"></ul></div>
@@ -2492,12 +2528,19 @@
                   <span data-i18n="pausedEmptyHint">Pause a site you trust to let its ads and trackers load. Known dangerous sites stay blocked.</span>
                 </div>
               </div>
+              <div class="field rule-card pause-card">
+                <span class="field-label" data-i18n="advPauseSite">Pause Moat on a site</span>
+                <div class="add-row">
+                  <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="add-button" />
+                  <button type="button" id="add-button" data-i18n="commonPause">Pause</button>
+                </div>
+              </div>
             </div>
           </section>
 
           <section class="sec" data-page="hidden">
             <div>
-              <h2 data-i18n="optionsHiddenElementsTitle">Things you've hidden</h2>
+              <h2 data-i18n="navHidden">Hidden on pages</h2>
               <p class="lead" data-i18n="optionsHiddenElementsHint">Parts of pages you removed with Block an element. Remove one to bring it back.</p>
             </div>
             <div>
@@ -2525,7 +2568,7 @@
         <button type="button" class="advbtn" id="advanced-toggle" aria-expanded="false" aria-controls="advanced">
           <span>
             <span class="advbtn-title" id="advanced-toggle-title" data-i18n="advancedButton">Advanced settings</span>
-            <span class="advbtn-hint" data-i18n="advancedButtonHint">Filter lists, privacy extras, your own rules, trackers, backup and version</span>
+            <span class="advbtn-hint" data-i18n="advancedButtonHint">Privacy, filter lists, your own rules, trackers, backup and version</span>
           </span>
           <span class="advbtn-chev" aria-hidden="true"></span>
         </button>
@@ -2533,25 +2576,35 @@
         <div id="advanced" hidden>
           <h2 class="adv-title" id="advanced-title" data-i18n="advancedButton">Advanced settings</h2>
 
+          <!-- Privacy extras -->
+          <div class="panel">
+            <section class="sec" data-page="privacy">
+              <div>
+                <h2 data-i18n="navPrivacy">Privacy</h2>
+                <p class="lead" data-i18n="advPrivacyLead">Extra protection against being followed and identified. Off by default because a few sites can break.</p>
+              </div>
+              <div class="setting-rows" id="protection-groups"></div>
+            </section>
+          </div>
+
           <!-- Filter lists -->
           <div class="panel">
             <section class="sec" data-page="filters">
               <div>
                 <h2 data-i18n="tabFilters">Filter lists</h2>
-                <p class="lead" data-i18n="optionsIndividualListsHint">The lists behind "How much to block". Changing one here switches your level to Custom.</p>
+                <p class="lead" data-i18n="optionsIndividualListsHint">The lists behind your blocking level. Turning one on or off here makes it your own mix.</p>
               </div>
               <div>
                 <div class="budget-warning" id="filter-budget-warning" hidden>
                   <p data-i18n="optionsFilterBudgetWarning">Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules extensions can use in total, and that limit is easy to hit if you have another ad blocker or privacy extension running too. Try turning one of them off, or switch off a list below.</p>
                   <p id="filter-budget-detail" hidden></p>
                 </div>
-                <div class="preset-row" id="preset-row">
-                  <button type="button" data-preset="lite" data-i18n="presetLite">Light</button>
-                  <button type="button" data-preset="essential" data-i18n="presetEssential">Essential</button>
-                  <button type="button" data-preset="standard" data-i18n="presetStandard">Balanced</button>
-                  <button type="button" data-preset="strict" data-i18n="presetStrict">Strict</button>
+                <p class="level-line" id="level-line">
+                  <span id="level-line-text"></span>
+                  <a href="#blocking" id="level-line-change" data-i18n="filtersLevelChange">Change level</a>
+                  <button type="button" class="linklike" id="level-line-reset" hidden data-i18n="filtersLevelReset">Reset to Balanced</button>
                   <span class="locked-badge" id="filters-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
-                </div>
+                </p>
                 <p class="hint muted" id="preset-hint"></p>
                 <div class="budget">
                   <span id="filters-budget-line"></span>
@@ -2562,7 +2615,7 @@
                   <summary data-i18n="advShowAllLists">Show all lists</summary>
                   <div class="list-head">
                     <span></span>
-                    <a href="#" id="filter-check-updates" data-i18n="optionsCheckForUpdatesLink">Check for updates</a>
+                    <a href="#" id="filter-check-updates" data-i18n="aboutCheckFixes">Check for filter fixes</a>
                   </div>
                   <div class="setting-rows" id="filter-list-rows"></div>
                 </details>
@@ -2570,33 +2623,14 @@
             </section>
           </div>
 
-          <!-- Privacy extras -->
-          <div class="panel">
-            <section class="sec" data-page="privacy">
-              <div>
-                <h2 data-i18n="advPrivacyTitle">Privacy extras</h2>
-                <p class="lead" data-i18n="advPrivacyLead">Extra protection against being followed and identified. Off by default because a few sites can break.</p>
-              </div>
-              <div class="setting-rows" id="protection-groups"></div>
-            </section>
-          </div>
-
           <!-- Block and allow -->
           <div class="panel">
             <section class="sec" data-page="rules">
               <div>
-                <h2 data-i18n="advRulesTitle">Block and allow</h2>
+                <h2 data-i18n="navRules">Always and never block</h2>
                 <p class="lead" data-i18n="advRulesLead">Your own rules. They always win over the filter lists.</p>
               </div>
               <div class="rule-cards">
-                <div class="field rule-card">
-                  <span class="field-label" data-i18n="advPauseSite">Pause Moat on a site</span>
-                  <span class="field-hint" data-i18n="pausedEmptyHint">Pause a site you trust to let its ads and trackers load. Known dangerous sites stay blocked.</span>
-                  <div class="add-row">
-                    <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="add-button" />
-                    <button type="button" id="add-button" data-i18n="commonPause">Pause</button>
-                  </div>
-                </div>
                 <div class="field rule-card">
                   <span class="field-label" data-i18n="optionsBlockedSitesTitle">Always block</span>
                   <span class="field-hint" data-i18n="optionsBlockedSitesHint">Always block these sites, whatever the filter lists say.</span>
@@ -2619,17 +2653,6 @@
                   </div>
                   <p class="hint muted" id="custom-allow-add-status" hidden></p>
                 </div>
-                <details id="migration-import" class="more">
-                  <summary data-i18n="optionsMigrationImportSummary">Import from another blocker…</summary>
-                  <p class="hint muted" data-i18n="optionsMigrationImportHint">Paste rules exported from uBlock Origin, AdGuard, or similar — blocked/allowed domains and per-site element-hiding rules. Other filter syntax isn't supported and will be skipped.</p>
-                  <textarea id="migration-import-textarea" class="migration-import-textarea" rows="5" placeholder="||ads.example.com^&#10;example.com##.ad-banner"></textarea>
-                  <div class="actions" style="margin-top: 10px">
-                    <button type="button" id="migration-import-file-button" data-i18n="commonChooseFile">Choose file</button>
-                    <button type="button" id="migration-import-button" class="primary" data-i18n="optionsMigrationImportButton">Import</button>
-                  </div>
-                  <input type="file" id="migration-import-file-input" accept=".txt,text/plain" hidden />
-                  <p class="hint muted" id="migration-import-status" hidden></p>
-                </details>
               </div>
             </section>
           </div>
@@ -2698,6 +2721,17 @@
                   </div>
                 </div>
                 <p class="hint" id="sync-status" hidden></p>
+                <details id="migration-import" class="more">
+                  <summary data-i18n="optionsMigrationImportSummary">Import from another blocker…</summary>
+                  <p class="hint muted" data-i18n="optionsMigrationImportHint">Paste rules exported from uBlock Origin, AdGuard, or similar — blocked/allowed domains and per-site element-hiding rules. Other filter syntax isn't supported and will be skipped.</p>
+                  <textarea id="migration-import-textarea" class="migration-import-textarea" rows="5" placeholder="||ads.example.com^&#10;example.com##.ad-banner"></textarea>
+                  <div class="actions" style="margin-top: 10px">
+                    <button type="button" id="migration-import-file-button" data-i18n="commonChooseFile">Choose file</button>
+                    <button type="button" id="migration-import-button" class="primary" data-i18n="optionsMigrationImportButton">Import</button>
+                  </div>
+                  <input type="file" id="migration-import-file-input" accept=".txt,text/plain" hidden />
+                  <p class="hint muted" id="migration-import-status" hidden></p>
+                </details>
               </div>
             </section>
           </div>

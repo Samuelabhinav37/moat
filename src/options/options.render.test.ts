@@ -121,22 +121,71 @@ describe("Previously-orphaned i18n keys that turned out to be real content gaps"
   // audit's orphaned-key scan, then confirmed (not assumed) to be genuine
   // missing content rather than rename cruft by checking each one's
   // plausible location against its sibling sections.
-  it("'Things you've hidden' has its own heading and hint", async () => {
+  it("'Hidden on pages' has its own heading and hint", async () => {
     await renderOptions();
 
-    expect(document.body.textContent).toContain("Things you've hidden");
+    expect(document.querySelector('section[data-page="hidden"] h2')?.textContent).toBe("Hidden on pages");
     expect(document.body.textContent).toContain("Block an element");
   });
 
   it("Filter lists: the individual lists have a hint saying what changing one does", async () => {
     await renderOptions();
 
-    expect(document.body.textContent).toContain("switches your level to Custom");
+    expect(document.body.textContent).toContain("makes it your own mix");
   });
 
   it("Privacy extras: the merged permission-guard row has an explanatory line, not just a title and chips", async () => {
     await renderOptions();
     expect(document.body.textContent).toContain("Allow a site from the popup when you trust it");
+  });
+});
+
+describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
+  const inSection = (page: string, selector: string) =>
+    Array.from(document.querySelectorAll(`section[data-page="${page}"]`)).some((section) => section.querySelector(selector));
+  const rowTitles = (id: string) => Array.from(document.querySelectorAll(`#${id} .setting-title`), (el) => el.textContent);
+
+  it("puts the pause box on Paused sites and the blocker import on Backup", async () => {
+    await renderOptions();
+    expect(inSection("paused", "#add-input")).toBe(true);
+    expect(inSection("rules", "#add-input")).toBe(false);
+    expect(inSection("backup", "#migration-import")).toBe(true);
+    expect(inSection("rules", "#migration-import")).toBe(false);
+  });
+
+  it("keeps the annoyance fixes on Blocking level and the breach check on Privacy, in groups", async () => {
+    await renderOptions();
+    expect(rowTitles("feature-rows")).toContain("Hide low-quality search results");
+    expect(rowTitles("feature-rows")).not.toContain("Check passwords against known breaches");
+    expect(rowTitles("protection-groups")).toContain("Check passwords against known breaches");
+    expect(Array.from(document.querySelectorAll("#protection-groups .sub-h"), (el) => el.textContent)).toEqual([
+      "Tracking",
+      "Your device",
+      "Permissions and passwords",
+    ]);
+  });
+
+  it("chooses the level only on Blocking level; Filter lists just says which one is in use", async () => {
+    await renderOptions({ ...presetPatch("standard") });
+    expect(document.querySelector("[data-preset]")).toBeNull();
+    expect(document.getElementById("level-line-text")?.textContent).toBe("Using Balanced.");
+    expect(document.getElementById("level-line-change")?.hidden).toBe(false);
+    expect(document.getElementById("level-line-reset")?.hidden).toBe(true);
+  });
+
+  it("offers Reset to Balanced for a hand-picked mix, Essential included", async () => {
+    await renderOptions({ ...presetPatch("essential") });
+    expect(document.getElementById("level-line-text")?.textContent).toBe("Your own mix of lists.");
+    expect(document.getElementById("level-line-change")?.hidden).toBe(true);
+    expect(document.getElementById("level-line-reset")?.hidden).toBe(false);
+    expect(document.getElementById("level-note")?.hidden).toBe(false);
+  });
+
+  it("points the own-mix note at Filter lists, not at a hidden Advanced button", async () => {
+    await renderOptions();
+    const note = document.getElementById("level-note")!;
+    expect(note.textContent).not.toContain("Advanced settings");
+    expect(note.querySelector("a.to-filters")?.getAttribute("href")).toBe("#filters");
   });
 });
 
