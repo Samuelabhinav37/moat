@@ -671,7 +671,10 @@ function renderDomainList(
   undo?: UndoRemoval<string>,
   bulk?: BulkRemoval
 ): void {
-  renderRows(list, emptyState, [...domains].sort(), (domain) => domain, removeLabel, onRemove, rerenderSelf, undo, bulk, true);
+  // By name, ignoring a leading "www.", so www.amazon.com sits with the a's.
+  const bare = (domain: string) => domain.replace(/^www\./i, "");
+  const sorted = [...domains].sort((a, b) => bare(a).localeCompare(bare(b)));
+  renderRows(list, emptyState, sorted, (domain) => domain, removeLabel, onRemove, rerenderSelf, undo, bulk, true);
 }
 
 const bulkLabelsFor = (action: (count: number) => string): BulkLabels => ({

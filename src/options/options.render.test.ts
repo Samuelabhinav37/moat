@@ -197,6 +197,12 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
     expect(document.getElementById("override-empty")!.style.display).toBe("");
   });
 
+  it("sorts site lists by name, ignoring www.", async () => {
+    await renderOptions({ disabledSites: ["zeta.example", "www.alpha.example", "beta.example"] });
+    const names = Array.from(document.querySelectorAll("#site-list li"), (li) => li.querySelector("span:not(.site-icon)")?.textContent);
+    expect(names).toEqual(["www.alpha.example", "beta.example", "zeta.example"]);
+  });
+
   it("points the own-mix note at Filter lists, not at a hidden Advanced button", async () => {
     await renderOptions();
     const note = document.getElementById("level-note")!;

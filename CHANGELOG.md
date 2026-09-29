@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.175
+
+### Fixed
+- **GitHub's icon was a blank white square in Settings' site lists.** GitHub sends a white logo
+  to dark-themed browsers, and every icon sat on a white tile. Icons that are mostly white now
+  get a dark tile. Moat reads the icon's pixels to tell; the icon comes from Chrome's own cache,
+  so nothing is fetched.
+- **The letter tile never showed on Chrome.** For a site it has no icon for, Chrome's icon cache
+  returns its grey globe instead of an error, so every unknown site got a globe. Moat now
+  compares each icon with the one Chrome gives for a site that can't exist
+  (`moat-no-icon.invalid`), and keeps the site's first letter when they match.
+- **Site lists sort by name, ignoring a leading "www."**, so `www.amazon.com` sits with the a's.
+
 ## 0.11.174
 
 ### Fixed

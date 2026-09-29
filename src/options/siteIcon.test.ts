@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { buildSiteIcon, faviconUrl, siteInitial } from "./siteIcon";
+import { buildSiteIcon, faviconUrl, isLightIcon, samePixels, siteInitial } from "./siteIcon";
 
 const getURL = (path: string) => `chrome-extension://abc${path}`;
 
@@ -39,5 +39,29 @@ describe("buildSiteIcon", () => {
     const tile = buildSiteIcon(document, "example.org", null);
     expect(tile.textContent).toBe("E");
     expect(tile.classList.contains("has-img")).toBe(false);
+  });
+});
+
+/** A 2x2 picture from [r, g, b, a] pixels. */
+const pixels = (...rgba: number[][]) => new Uint8ClampedArray(rgba.flat());
+
+describe("isLightIcon", () => {
+  it("is true for a white logo on transparency (GitHub on a dark theme)", () => {
+    expect(isLightIcon(pixels([255, 255, 255, 255], [250, 250, 250, 255], [0, 0, 0, 0], [0, 0, 0, 0]))).toBe(true);
+  });
+
+  it("is false for a dark or colourful logo, and for a blank one", () => {
+    expect(isLightIcon(pixels([20, 20, 20, 255], [255, 255, 255, 255], [0, 0, 0, 0], [0, 0, 0, 0]))).toBe(false);
+    expect(isLightIcon(pixels([255, 0, 0, 255], [255, 0, 0, 255], [0, 0, 0, 0], [0, 0, 0, 0]))).toBe(false);
+    expect(isLightIcon(pixels([0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]))).toBe(false);
+  });
+});
+
+describe("samePixels", () => {
+  it("matches Chrome's default globe pixel for pixel, and nothing when unreadable", () => {
+    const globe = pixels([120, 120, 120, 255], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]);
+    expect(samePixels(globe, pixels([120, 120, 120, 255], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]))).toBe(true);
+    expect(samePixels(globe, pixels([121, 120, 120, 255], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]))).toBe(false);
+    expect(samePixels(null, globe)).toBe(false);
   });
 });
