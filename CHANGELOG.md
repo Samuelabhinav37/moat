@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.173
+
+### Fixed
+- **The popup treated browser pages as websites.** On the new tab page or `chrome://version`
+  it showed a "site" called "newtab" or "version", with a pause switch, a blocked count, and
+  Hide something, Clear site data and Report a problem buttons. `hostnameOf()` accepted any
+  URL; it now only gives a hostname for `http:` and `https:` pages. On browser pages, extension
+  pages and extension stores, the popup now says "Moat doesn't run on browser pages like this
+  one" and shows nothing that acts on a site. Everything else that asks for a tab's site (the
+  company breakdown, filter-list matches, fingerprint seeds, pop-up reports) gets the same
+  answer.
+
 ## 0.11.172
 
 ### Changed

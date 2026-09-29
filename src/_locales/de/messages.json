@@ -1809,5 +1809,8 @@
   },
   "aboutManagedNote": {
     "message": "Deine Organisation verwaltet diese Kopie von Moat und hat die hier gezeigten Richtlinien festgelegt. Deine Administratoren können diese Richtlinien sehen und ändern, aber nicht deinen Browserverlauf."
+  },
+  "popupInternalPage": {
+    "message": "Moat läuft nicht auf Browserseiten wie dieser. Öffne eine Website, um zu sehen, was Moat dort blockiert."
   }
 }

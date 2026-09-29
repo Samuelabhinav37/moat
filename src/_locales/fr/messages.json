@@ -1809,5 +1809,8 @@
   },
   "aboutManagedNote": {
     "message": "Ton organisation gère cette copie de Moat et a défini les règles affichées ici. Ton administrateur peut voir et modifier ces règles, mais pas ton historique de navigation."
+  },
+  "popupInternalPage": {
+    "message": "Moat ne fonctionne pas sur les pages du navigateur comme celle-ci. Ouvre un site web pour voir ce qu’il y bloque."
   }
 }

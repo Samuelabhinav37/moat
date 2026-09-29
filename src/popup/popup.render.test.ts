@@ -35,8 +35,8 @@ afterEach(() => {
   vi.doUnmock("webextension-polyfill");
 });
 
-async function renderPopup(): Promise<void> {
-  const { browser } = createMockBrowser({ hostname: "nytimes.com" });
+async function renderPopup(hostname = "nytimes.com"): Promise<void> {
+  const { browser } = createMockBrowser({ hostname });
   vi.doMock("webextension-polyfill", () => ({ default: browser }));
   loadPageFixture(POPUP_HTML, [THEME_CSS]);
   await import("./popup");
@@ -47,6 +47,18 @@ async function renderPopup(): Promise<void> {
 }
 
 describe("popup.html render", () => {
+  it("on a browser page, says Moat doesn't run there and offers nothing to act on", async () => {
+    // hostnameOf gives "" for chrome://, about: and extension pages.
+    await renderPopup("");
+    expect(document.getElementById("internal-page-notice")!.hidden).toBe(false);
+    expect(document.getElementById("stats")!.hidden).toBe(true);
+    expect(document.getElementById("site-card")!.style.display).toBe("none");
+    for (const id of ["start-picker", "fresh-start-button", "report-problem"]) {
+      expect((document.getElementById(id) as HTMLElement).hidden, id).toBe(true);
+    }
+    expect(caughtErrors).toEqual([]);
+  });
+
   it("renders without throwing or an unhandled rejection", async () => {
     await renderPopup();
     expect(caughtErrors).toEqual([]);

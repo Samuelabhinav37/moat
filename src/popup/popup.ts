@@ -310,8 +310,12 @@ async function render(): Promise<void> {
   const freshStartButton = document.getElementById("fresh-start-button") as HTMLButtonElement;
 
   if (!status.hostname) {
+    // A browser page (new tab, settings, an extension store): nothing to
+    // count, pause, hide or report here.
     siteCard.style.display = "none";
-    stats.hidden = false;
+    stats.hidden = true;
+    document.getElementById("internal-page-notice")!.hidden = false;
+    document.getElementById("start-picker")!.hidden = true;
     return;
   }
 

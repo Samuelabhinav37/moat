@@ -94,6 +94,13 @@ describe("hostnameOf", () => {
     expect(hostnameOf("not a url")).toBe("");
     expect(hostnameOf(undefined)).toBe("");
   });
+
+  it("gives no hostname for pages Moat doesn't run on", () => {
+    for (const url of ["chrome://newtab/", "chrome://version", "about:blank", "chrome-extension://abc/options.html", "moz-extension://abc/popup.html", "file:///C:/x.html", "view-source:https://a.example/"]) {
+      expect(hostnameOf(url), url).toBe("");
+    }
+    expect(hostnameOf("http://a.example/")).toBe("a.example");
+  });
 });
 
 describe("handleMessage: boundary checks", () => {

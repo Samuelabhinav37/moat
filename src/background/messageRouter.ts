@@ -96,10 +96,15 @@ async function resolveNormalTabId(): Promise<number | null> {
   return pickBestNormalTab(active);
 }
 
+/** A web page's hostname, or "" for anything else. chrome://newtab,
+ * about:blank, extension pages and the like have "hostnames" too
+ * ("newtab"), but Moat doesn't run there, so they must not look like a
+ * site you can pause or report. */
 export function hostnameOf(url: string | undefined): string {
   if (!url) return "";
   try {
-    return new URL(url).hostname;
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.hostname : "";
   } catch {
     return "";
   }

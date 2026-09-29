@@ -1938,5 +1938,9 @@
   "aboutManagedNote": {
     "message": "Your organization manages this copy of Moat and set the policies shown here. Your administrator can see and change those policies, but not your browsing history.",
     "description": "Settings > About: note shown on installs managed by an organization."
+  },
+  "popupInternalPage": {
+    "message": "Moat doesn't run on browser pages like this one. Open a website to see what it blocks there.",
+    "description": "Popup on a new tab, browser settings or extension store page, where Moat can't run."
   }
 }
