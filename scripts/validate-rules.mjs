@@ -380,6 +380,27 @@ for (const [rulesetId, ruleIds] of Object.entries(uncountedRules)) {
 }
 console.log(`uncounted-rules.json: ${uncountedCount} non-blocking rules left out of the popup count`);
 
+// ad-rules.json: rulesetId -> ids of single-site rules outside the ads lists
+// that block an ad server, counted as ads. Same stale-id check.
+const adRules = JSON.parse(readFileSync(join(rulesDir, "ad-rules.json"), "utf8"));
+let adRuleCount = 0;
+for (const [rulesetId, ruleIds] of Object.entries(adRules)) {
+  const knownIds = rulesetRuleIds.get(rulesetId);
+  if (!knownIds) {
+    console.error(`ad-rules.json: unknown rulesetId "${rulesetId}"`);
+    ok = false;
+    continue;
+  }
+  for (const ruleId of ruleIds) {
+    adRuleCount += 1;
+    if (!knownIds.has(ruleId)) {
+      console.error(`ad-rules.json: rulesetId "${rulesetId}" has no rule ${ruleId}`);
+      ok = false;
+    }
+  }
+}
+console.log(`ad-rules.json: ${adRuleCount} ad-server rules outside the ads lists`);
+
 // company-info.json: name -> { description: string, url: string | null },
 // keyed by the same company-name strings rule-companies.json uses. Every key
 // must actually appear as an attributed company, or the options "Trackers"

@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.174
+
+### Fixed
+- **The popup and Overview said "0 ads" on pages full of ads.** A test page loading AdSense,
+  Google's ad tag, Taboola and five tracking scripts showed 0 ads, 6 trackers and "2 not
+  sorted". Chrome's own rule matching (`testMatchOutcome`) showed two causes:
+  - The oisd community list had no bucket at all, so everything it blocked, AdSense included,
+    fell into "not sorted". oisd is mostly ad servers, so its blocks now count as ads.
+  - The tracking lists also stop ad servers (Google's ad tag, Taboola), and a block was counted
+    under the list whose rule won. A new build-time file, `rules/dnr/ad-rules.json`, lists the
+    184 tracking-list rules
+    whose single target is an ad server: a site the ads lists block, or one in
+    `rules/ad-networks.json`. Their blocks now count as ads. Rules packed with thousands of
+    sites can't be told apart this way and keep their list's bucket. Pop-up and security
+    rules always keep theirs.
+  - The same page now shows 4 ads and 4 trackers, with nothing unsorted.
+  - `scripts/build-ad-rules.mjs` writes the file in `filters:update`, right after
+    `pack-rules.mjs`, because packing renumbers single-site rules. `validate:rules` checks every
+    id in it.
+
 ## 0.11.173
 
 ### Fixed

@@ -11,6 +11,7 @@ import {
   countedMatches,
   summarizeMatchedRules,
   summarizeMatchesByGroup,
+  type AdRules,
   type Breakdown,
   type UncountedRules,
 } from "../shared/matchedRuleCategories";
@@ -36,6 +37,15 @@ async function loadCompanies(): Promise<RuleCompanies> {
   const url = browser.runtime.getURL("rules/rule-companies.json");
   companiesCache = (await (await fetch(url)).json()) as RuleCompanies;
   return companiesCache;
+}
+
+let adRulesCache: AdRules | null = null;
+
+async function loadAdRules(): Promise<AdRules> {
+  if (adRulesCache) return adRulesCache;
+  const url = browser.runtime.getURL("rules/ad-rules.json");
+  adRulesCache = (await (await fetch(url)).json()) as AdRules;
+  return adRulesCache;
 }
 
 let uncountedCache: UncountedRules | null = null;
@@ -132,10 +142,11 @@ export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
 
     const minTimeStamp = pageStartByTab.get(tabId);
     callTimes.push(Date.now());
-    const [manifest, companies, uncounted, { rulesMatchedInfo }] = await Promise.all([
+    const [manifest, companies, uncounted, adRules, { rulesMatchedInfo }] = await Promise.all([
       loadRulesetManifest(),
       loadCompanies(),
       loadUncounted(),
+      loadAdRules(),
       getMatchedRules(minTimeStamp === undefined ? { tabId } : { tabId, minTimeStamp }),
     ]);
     const matches = countedMatches(
@@ -145,7 +156,7 @@ export async function refreshBreakdown(tabId: number): Promise<Breakdown> {
         ruleId: info.rule.ruleId,
       }))
     );
-    const breakdown = summarizeMatchedRules(manifest, matches);
+    const breakdown = summarizeMatchedRules(manifest, matches, adRules);
     breakdownByTab.set(tabId, breakdown);
     companiesByTab.set(tabId, summarizeCompanies(companies, matches));
     groupsByTab.set(tabId, summarizeMatchesByGroup(manifest, matches));

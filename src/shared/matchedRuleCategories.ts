@@ -23,6 +23,9 @@ const GROUP_TO_BUCKET: Partial<Record<string, BreakdownBucket>> = {
   "phishing-urls": "trackers",
   scam: "trackers",
   badware: "trackers",
+  // A community list built mostly from ad servers (its manifest category is
+  // "ads"). Without a bucket, everything it blocked showed as "not sorted".
+  oisd: "ads",
 };
 
 export interface MatchedRuleRef {
@@ -50,13 +53,25 @@ export function countedMatches<T extends MatchedRuleRef>(uncounted: UncountedRul
   });
 }
 
+/** rulesetId -> ids of tracking-list rules that stop an ad server, counted
+ * as ads. Built by scripts/lib/adRules.mjs as rules/dnr/ad-rules.json. */
+export type AdRules = Record<string, number[]>;
+
+/** Each block goes in the bucket of the list whose rule stopped it, except
+ * that a tracking-list rule stopping an ad server counts as an ad. */
 export function summarizeMatchedRules(
   manifest: RulesetManifestEntry[],
-  matches: MatchedRuleRef[]
+  matches: MatchedRuleRef[],
+  adRules: AdRules = {}
 ): Breakdown {
   const idToGroup = new Map(manifest.map((entry) => [entry.id, entry.group]));
+  const adRuleIds = new Map(Object.entries(adRules).map(([id, ruleIds]) => [id, new Set(ruleIds)]));
   const counts: Breakdown = { ads: 0, trackers: 0, popups: 0 };
   for (const match of matches) {
+    if (match.ruleId !== undefined && adRuleIds.get(match.rulesetId)?.has(match.ruleId)) {
+      counts.ads += 1;
+      continue;
+    }
     const group = idToGroup.get(match.rulesetId);
     const bucket = group ? GROUP_TO_BUCKET[group] : undefined;
     if (bucket) counts[bucket] += 1;

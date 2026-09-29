@@ -50,6 +50,20 @@ describe("summarizeMatchedRules", () => {
   it("returns all zeros for no matches", () => {
     expect(summarizeMatchedRules(manifest, [])).toEqual({ ads: 0, trackers: 0, popups: 0 });
   });
+
+  it("counts a tracking-list rule that stops an ad server as an ad, and oisd as ads", () => {
+    const withOisd = [...manifest, { id: "ruleset_oisd-1", group: "oisd", category: "ads", name: "oisd", enabled: true, file: "o.json", ruleCount: 1 }];
+    const result = summarizeMatchedRules(
+      withOisd as typeof manifest,
+      [
+        { rulesetId: "ruleset_trackers", ruleId: 7 },
+        { rulesetId: "ruleset_trackers", ruleId: 8 },
+        { rulesetId: "ruleset_oisd-1", ruleId: 1 },
+      ],
+      { ruleset_trackers: [7] }
+    );
+    expect(result).toEqual({ ads: 2, trackers: 1, popups: 0 });
+  });
 });
 
 describe("summarizeMatchesByGroup", () => {
