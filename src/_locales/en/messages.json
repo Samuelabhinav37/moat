@@ -109,29 +109,14 @@
   "popupReportError": {
     "message": "Couldn't open the report page. Try again."
   },
-  "tabProtection": {
-    "message": "Protection"
-  },
   "tabFilters": {
     "message": "Filter lists"
-  },
-  "tabCustom": {
-    "message": "Custom Rules"
   },
   "tabTrackers": {
     "message": "Trackers"
   },
   "tabAbout": {
     "message": "About Moat"
-  },
-  "optionsTagline": {
-    "message": "Blocks ads, trackers, and hijacked popups."
-  },
-  "optionsMasterToggleLabel": {
-    "message": "Protection"
-  },
-  "optionsMasterToggleHint": {
-    "message": "Turn all blocking on or off, everywhere."
   },
   "optionsManagedBadge": {
     "message": "Managed by your organization"
@@ -184,17 +169,11 @@
   "optionsLiveStatusNotChecked": {
     "message": "Not checked yet."
   },
-  "optionsExceptionsTitle": {
-    "message": "Sites you've paused"
-  },
   "optionsExceptionsHint": {
     "message": "Ads and trackers load normally on these sites. Known dangerous sites stay blocked. Add one here, or pause a site from Moat's icon while you're on it."
   },
   "optionsNoSitesAdded": {
     "message": "No sites yet."
-  },
-  "commonAdd": {
-    "message": "Add"
   },
   "commonHostnamePlaceholder": {
     "message": "example.com"
@@ -221,12 +200,6 @@
   "optionsFilterBudgetDroppedBadge": {
     "message": "Off to stay within the browser limit"
   },
-  "optionsFilteringLevelTitle": {
-    "message": "Filtering level"
-  },
-  "presetOff": {
-    "message": "Off"
-  },
   "presetLite": {
     "message": "Light"
   },
@@ -238,9 +211,6 @@
   },
   "presetStrict": {
     "message": "Strict"
-  },
-  "optionsIndividualListsTitle": {
-    "message": "Individual filter lists"
   },
   "optionsIndividualListsHint": {
     "message": "The lists behind your blocking level. Turning one on or off here makes it your own mix."
@@ -269,12 +239,6 @@
   "optionsAllowedSitesHint": {
     "message": "Lets this address load on every site, even if a filter list blocks it. Other ads on the page stay blocked."
   },
-  "commonAllow": {
-    "message": "Allow"
-  },
-  "optionsHiddenElementsTitle": {
-    "message": "Things you've hidden"
-  },
   "optionsHiddenElementsHint": {
     "message": "Parts of pages you hid. Remove one to bring it back."
   },
@@ -283,12 +247,6 @@
   },
   "optionsDimmedElementsTitle": {
     "message": "Grayed out"
-  },
-  "optionsDimmedElementsHint": {
-    "message": "Elements you grayed out with the picker. Remove one to restore it."
-  },
-  "optionsTrackersHeading": {
-    "message": "Trackers on the current tab"
   },
   "optionsTrackersRefresh": {
     "message": "Refresh"
@@ -314,15 +272,6 @@
   },
   "optionsTrackersUnsupported": {
     "message": "This detailed tracker list only works in Chrome for now. Firefox doesn't support it yet."
-  },
-  "optionsPrivacyHeading": {
-    "message": "What leaves your device"
-  },
-  "optionsVersionHeading": {
-    "message": "Version"
-  },
-  "optionsDebuggingHeading": {
-    "message": "Diagnostics"
   },
   "optionsPrivacyPolicyLink": {
     "message": "Full privacy policy"
@@ -358,18 +307,6 @@
   },
   "presetHintCustom": {
     "message": "A mix you've set up yourself."
-  },
-  "categoryAds": {
-    "message": "Ads & trackers"
-  },
-  "categorySecurity": {
-    "message": "Security"
-  },
-  "categoryAnnoyance": {
-    "message": "Annoyances"
-  },
-  "categoryCore": {
-    "message": "Core"
   },
   "optionsLiveStatusOk": {
     "message": "Last updated $WHEN$. Covers $COUNT$ sites.",
@@ -457,55 +394,6 @@
   },
   "optionsSearchSlopToggleLabel": {
     "message": "Hide low-quality search results"
-  },
-  "optionsProtectionTitle": {
-    "message": "Protection"
-  },
-  "optionsProtectionDesc": {
-    "message": "What Moat blocks, and what it leaves alone. Everything here runs on your device."
-  },
-  "optionsBlockedTodayComparison": {
-    "message": " · vs $COUNT$ same day last week",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
-  "optionsSparklineCaption": {
-    "message": "last 7 days"
-  },
-  "optionsSitesTodayLabel": {
-    "message": "sites today"
-  },
-  "optionsProtectionsOnLabel": {
-    "message": "protections on"
-  },
-  "optionsDrawerBarsCaption": {
-    "message": "Mon — Sun"
-  },
-  "optionsDrawerCloseLabel": {
-    "message": "Close"
-  },
-  "optionsGroupOnCount": {
-    "message": "$COUNT$ of $TOTAL$ on",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      },
-      "total": {
-        "content": "$2"
-      }
-    }
-  },
-  "optionsPrivacyCategory": {
-    "message": "Privacy"
-  },
-  "optionsAnnoyancesCategory": {
-    "message": "Annoyances"
-  },
-  "optionsSafetyCategory": {
-    "message": "Safety"
   },
   "optionsFingerprintDrawerDesc": {
     "message": "Makes it harder for sites to recognize your device."
@@ -606,26 +494,6 @@
       }
     }
   },
-  "optionsDrawerStateOn": {
-    "message": "On"
-  },
-  "optionsDrawerStateOff": {
-    "message": "Off"
-  },
-  "optionsDrawerStateAdvanced": {
-    "message": "advanced"
-  },
-  "optionsFilterListsDesc": {
-    "message": "The rule sets Moat compiles into the browser's own blocker. Every one ships inside the extension itself, so nothing is fetched by your browser to make them work."
-  },
-  "optionsRulesActiveBaseline": {
-    "message": "rules active · Chrome's cap is $CAP$",
-    "placeholders": {
-      "cap": {
-        "content": "$1"
-      }
-    }
-  },
   "optionsBudgetPercentUsed": {
     "message": "$PERCENT$% of budget used",
     "placeholders": {
@@ -633,15 +501,6 @@
         "content": "$1"
       }
     }
-  },
-  "optionsFromDailyUpdatesLabel": {
-    "message": "from daily updates"
-  },
-  "optionsSinceLastCheckLabel": {
-    "message": "since last check"
-  },
-  "optionsCheckForUpdatesLink": {
-    "message": "Check for updates"
   },
   "optionsFilterMatchedOnPage": {
     "message": " · matched $COUNT$ times on this page",
@@ -651,54 +510,17 @@
       }
     }
   },
-  "optionsCustomRulesDesc": {
-    "message": "Everything you've hidden yourself with the element picker. These override the filter lists and never leave your browser."
-  },
   "optionsPickElementButton": {
     "message": "Hide something on a page"
   },
   "optionsPickElementFailed": {
     "message": "Couldn't start there. Moat can't run on browser pages or extension stores. Open a website and try again."
   },
-  "optionsCustomRulesBaseline": {
-    "message": "$COUNT$ rules, across $SITES$ sites",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      },
-      "sites": {
-        "content": "$2"
-      }
-    }
-  },
-  "optionsHiddenTimesBaseline": {
-    "message": "Hidden $COUNT$ times so far",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
-  "optionsRulesStillMatchingLabel": {
-    "message": "still matching"
-  },
-  "optionsRulesStaleLabel": {
-    "message": "gone stale"
-  },
   "optionsRuleStaleMeta": {
     "message": "Hasn't matched in 30 days. The site probably changed."
   },
   "optionsTrackersDesc": {
     "message": "Companies Moat stopped this week. Counted on your device and never uploaded."
-  },
-  "optionsCompaniesSeenBaseline": {
-    "message": "companies seen this week"
-  },
-  "optionsAttemptsBlockedLabel": {
-    "message": "attempts blocked"
-  },
-  "optionsGotThroughLabel": {
-    "message": "got through"
   },
   "optionsCompanyReach": {
     "message": "$COUNT$ sites",
@@ -750,9 +572,6 @@
   "commonChooseFile": {
     "message": "Choose file"
   },
-  "commonExport": {
-    "message": "Export"
-  },
   "commonNobody": {
     "message": "Nobody"
   },
@@ -780,53 +599,11 @@
   "optionsBackupDesc": {
     "message": "Keep your settings, rules and paused sites safe, or carry them to another computer."
   },
-  "optionsBackupSizeLabel": {
-    "message": "export size"
-  },
-  "optionsBackupSyncLabel": {
-    "message": "sync"
-  },
-  "optionsBackupToFileHeading": {
-    "message": "To a file"
-  },
-  "optionsBackupStaysHere": {
-    "message": "stays on your device"
-  },
   "optionsExportTitle": {
     "message": "Save a backup"
   },
   "optionsImportTitle": {
     "message": "Restore from a file"
-  },
-  "optionsImportHint": {
-    "message": "Replaces everything below. You'll see what changes before it applies."
-  },
-  "optionsBackupAcrossDevicesHeading": {
-    "message": "Across devices"
-  },
-  "optionsBackupLeavesDevice": {
-    "message": "leaves your device"
-  },
-  "optionsBackupContainsHeading": {
-    "message": "What a backup contains"
-  },
-  "optionsBackupProtections": {
-    "message": "protection settings"
-  },
-  "optionsBackupCustomRules": {
-    "message": "custom rules"
-  },
-  "optionsBackupExceptions": {
-    "message": "site exceptions"
-  },
-  "optionsBackupFilterChoices": {
-    "message": "filter list choices"
-  },
-  "optionsBackupNoHistory": {
-    "message": "no browsing history, ever"
-  },
-  "optionsBackupNoStats": {
-    "message": "no block counts or statistics"
   },
   "optionsAboutDesc": {
     "message": "What this version is, and everything that ever leaves your device."
@@ -869,9 +646,6 @@
   },
   "optionsDisclosureStatsSent": {
     "message": "Nothing leaves your device. Counts stay stored locally."
-  },
-  "optionsShortcutHeading": {
-    "message": "Keyboard shortcut"
   },
   "optionsDiagnosticsLink": {
     "message": "Diagnostics"
@@ -1017,14 +791,8 @@
       }
     }
   },
-  "advPrivacyTitle": {
-    "message": "Privacy extras"
-  },
   "advPrivacyLead": {
     "message": "Extra protection against being followed and identified. Off by default because a few sites can break."
-  },
-  "advRulesTitle": {
-    "message": "Block and allow"
   },
   "advRulesLead": {
     "message": "Your own rules. They always win over the filter lists."
@@ -2156,5 +1924,19 @@
       }
     },
     "description": "Popup notice after an update, followed by a 'See what's new' link."
+  },
+  "backupSavesFile": {
+    "message": "Saves $FILE$, a plain text file you can open and read.",
+    "placeholders": {
+      "file": {
+        "content": "$1",
+        "example": "moat-settings-2026-09-29.json"
+      }
+    },
+    "description": "Settings > Backup: under Save a backup. $FILE$ is the file name, e.g. moat-settings-2026-09-29.json."
+  },
+  "aboutManagedNote": {
+    "message": "Your organization manages this copy of Moat and set the policies shown here. Your administrator can see and change those policies, but not your browsing history.",
+    "description": "Settings > About: note shown on installs managed by an organization."
   }
 }

@@ -107,29 +107,14 @@
   "popupReportError": {
     "message": "Impossible d'ouvrir la page de signalement. Réessayez."
   },
-  "tabProtection": {
-    "message": "Protection"
-  },
   "tabFilters": {
     "message": "Listes de filtres"
-  },
-  "tabCustom": {
-    "message": "Règles personnalisées"
   },
   "tabTrackers": {
     "message": "Traqueurs"
   },
   "tabAbout": {
     "message": "À propos de Moat"
-  },
-  "optionsTagline": {
-    "message": "Bloque les publicités, les traqueurs et les pop-ups détournés."
-  },
-  "optionsMasterToggleLabel": {
-    "message": "Protection"
-  },
-  "optionsMasterToggleHint": {
-    "message": "Active ou désactive tout le blocage, partout."
   },
   "optionsManagedBadge": {
     "message": "Géré par votre organisation"
@@ -182,17 +167,11 @@
   "optionsLiveStatusNotChecked": {
     "message": "Pas encore vérifié."
   },
-  "optionsExceptionsTitle": {
-    "message": "Sites mis en pause"
-  },
   "optionsExceptionsHint": {
     "message": "Les pubs et les traceurs se chargent normalement sur ces sites. Les sites dangereux connus restent bloqués. Ajoutes-en un ici, ou mets un site en pause depuis l’icône de Moat quand tu y es."
   },
   "optionsNoSitesAdded": {
     "message": "Aucun site pour l’instant."
-  },
-  "commonAdd": {
-    "message": "Ajouter"
   },
   "commonHostnamePlaceholder": {
     "message": "exemple.com"
@@ -219,12 +198,6 @@
   "optionsFilterBudgetDroppedBadge": {
     "message": "Désactivée pour rester dans la limite du navigateur"
   },
-  "optionsFilteringLevelTitle": {
-    "message": "Niveau de filtrage"
-  },
-  "presetOff": {
-    "message": "Désactivé"
-  },
   "presetLite": {
     "message": "Léger"
   },
@@ -236,9 +209,6 @@
   },
   "presetStrict": {
     "message": "Strict"
-  },
-  "optionsIndividualListsTitle": {
-    "message": "Listes de filtres individuelles"
   },
   "optionsIndividualListsHint": {
     "message": "Les listes derrière ton niveau de blocage. En activer ou désactiver une ici en fait ton propre choix."
@@ -267,12 +237,6 @@
   "optionsAllowedSitesHint": {
     "message": "Laisse cette adresse se charger sur tous les sites, même si une liste de filtres la bloque. Les autres pubs de la page restent bloquées."
   },
-  "commonAllow": {
-    "message": "Autoriser"
-  },
-  "optionsHiddenElementsTitle": {
-    "message": "Éléments que vous avez masqués"
-  },
   "optionsHiddenElementsHint": {
     "message": "Les éléments de pages que tu as masqués. Retires-en un pour le faire réapparaître."
   },
@@ -281,12 +245,6 @@
   },
   "optionsDimmedElementsTitle": {
     "message": "Grisés"
-  },
-  "optionsDimmedElementsHint": {
-    "message": "Éléments que vous avez grisés avec le sélecteur. Supprimez-en un pour le rétablir."
-  },
-  "optionsTrackersHeading": {
-    "message": "Traqueurs sur l'onglet actuel"
   },
   "optionsTrackersRefresh": {
     "message": "Actualiser"
@@ -312,15 +270,6 @@
   },
   "optionsTrackersUnsupported": {
     "message": "Cette liste détaillée des traqueurs ne fonctionne pour l'instant que sur Chrome. Firefox ne la prend pas encore en charge."
-  },
-  "optionsPrivacyHeading": {
-    "message": "Ce qui quitte votre appareil"
-  },
-  "optionsVersionHeading": {
-    "message": "Version"
-  },
-  "optionsDebuggingHeading": {
-    "message": "Diagnostic"
   },
   "optionsPrivacyPolicyLink": {
     "message": "Politique de confidentialité complète"
@@ -356,18 +305,6 @@
   },
   "presetHintCustom": {
     "message": "Une combinaison que vous avez composée vous-même."
-  },
-  "categoryAds": {
-    "message": "Publicités et traqueurs"
-  },
-  "categorySecurity": {
-    "message": "Sécurité"
-  },
-  "categoryAnnoyance": {
-    "message": "Nuisances"
-  },
-  "categoryCore": {
-    "message": "Essentiel"
   },
   "optionsLiveStatusOk": {
     "message": "Dernière mise à jour le $WHEN$. Couvre $COUNT$ sites.",
@@ -455,55 +392,6 @@
   },
   "optionsSearchSlopToggleLabel": {
     "message": "Masquer les résultats de recherche de faible qualité"
-  },
-  "optionsProtectionTitle": {
-    "message": "Protection"
-  },
-  "optionsProtectionDesc": {
-    "message": "Ce que Moat bloque, et ce qu'il laisse passer. Tout se passe sur votre appareil."
-  },
-  "optionsBlockedTodayComparison": {
-    "message": " · contre $COUNT$ le même jour la semaine dernière",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
-  "optionsSparklineCaption": {
-    "message": "7 derniers jours"
-  },
-  "optionsSitesTodayLabel": {
-    "message": "sites aujourd'hui"
-  },
-  "optionsProtectionsOnLabel": {
-    "message": "protections activées"
-  },
-  "optionsDrawerBarsCaption": {
-    "message": "lun. — dim."
-  },
-  "optionsDrawerCloseLabel": {
-    "message": "Fermer"
-  },
-  "optionsGroupOnCount": {
-    "message": "$COUNT$ sur $TOTAL$ activées",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      },
-      "total": {
-        "content": "$2"
-      }
-    }
-  },
-  "optionsPrivacyCategory": {
-    "message": "Confidentialité"
-  },
-  "optionsAnnoyancesCategory": {
-    "message": "Nuisances"
-  },
-  "optionsSafetyCategory": {
-    "message": "Sécurité"
   },
   "optionsFingerprintDrawerDesc": {
     "message": "Rend plus difficile pour les sites de reconnaître ton appareil."
@@ -604,26 +492,6 @@
       }
     }
   },
-  "optionsDrawerStateOn": {
-    "message": "Activé"
-  },
-  "optionsDrawerStateOff": {
-    "message": "Désactivé"
-  },
-  "optionsDrawerStateAdvanced": {
-    "message": "avancé"
-  },
-  "optionsFilterListsDesc": {
-    "message": "Les jeux de règles que Moat compile dans le bloqueur natif du navigateur. Chacun est inclus dans l'extension elle-même, donc votre navigateur ne télécharge rien pour qu'ils fonctionnent."
-  },
-  "optionsRulesActiveBaseline": {
-    "message": "règles actives · la limite de Chrome est de $CAP$",
-    "placeholders": {
-      "cap": {
-        "content": "$1"
-      }
-    }
-  },
   "optionsBudgetPercentUsed": {
     "message": "$PERCENT$ % du quota utilisé",
     "placeholders": {
@@ -631,15 +499,6 @@
         "content": "$1"
       }
     }
-  },
-  "optionsFromDailyUpdatesLabel": {
-    "message": "issues des mises à jour quotidiennes"
-  },
-  "optionsSinceLastCheckLabel": {
-    "message": "depuis la dernière vérification"
-  },
-  "optionsCheckForUpdatesLink": {
-    "message": "Rechercher des mises à jour"
   },
   "optionsFilterMatchedOnPage": {
     "message": " · a correspondu $COUNT$ fois sur cette page",
@@ -649,54 +508,17 @@
       }
     }
   },
-  "optionsCustomRulesDesc": {
-    "message": "Tout ce que vous avez masqué vous-même avec le sélecteur d'éléments. Cela prime sur les listes de filtres et ne quitte jamais votre navigateur."
-  },
   "optionsPickElementButton": {
     "message": "Masquer un élément d’une page"
   },
   "optionsPickElementFailed": {
     "message": "Impossible de démarrer ici. Moat ne fonctionne pas sur les pages du navigateur ni dans les boutiques d’extensions. Ouvre un site web et réessaie."
   },
-  "optionsCustomRulesBaseline": {
-    "message": "$COUNT$ règles, sur $SITES$ sites",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      },
-      "sites": {
-        "content": "$2"
-      }
-    }
-  },
-  "optionsHiddenTimesBaseline": {
-    "message": "Masqué $COUNT$ fois jusqu'ici",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
-  "optionsRulesStillMatchingLabel": {
-    "message": "correspondent toujours"
-  },
-  "optionsRulesStaleLabel": {
-    "message": "obsolètes"
-  },
   "optionsRuleStaleMeta": {
     "message": "Aucune correspondance depuis 30 jours. Le site a probablement changé."
   },
   "optionsTrackersDesc": {
     "message": "Entreprises bloquées par Moat cette semaine. Comptées sur votre appareil, jamais envoyées."
-  },
-  "optionsCompaniesSeenBaseline": {
-    "message": "entreprises détectées cette semaine"
-  },
-  "optionsAttemptsBlockedLabel": {
-    "message": "tentatives bloquées"
-  },
-  "optionsGotThroughLabel": {
-    "message": "sont passées"
   },
   "optionsCompanyReach": {
     "message": "$COUNT$ sites",
@@ -748,9 +570,6 @@
   "commonChooseFile": {
     "message": "Choisir un fichier"
   },
-  "commonExport": {
-    "message": "Exporter"
-  },
   "commonNobody": {
     "message": "Personne"
   },
@@ -778,53 +597,11 @@
   "optionsBackupDesc": {
     "message": "Mettez vos paramètres, règles et sites en pause à l'abri, ou emportez-les sur un autre ordinateur."
   },
-  "optionsBackupSizeLabel": {
-    "message": "taille de l'export"
-  },
-  "optionsBackupSyncLabel": {
-    "message": "synchronisation"
-  },
-  "optionsBackupToFileHeading": {
-    "message": "Vers un fichier"
-  },
-  "optionsBackupStaysHere": {
-    "message": "reste sur votre appareil"
-  },
   "optionsExportTitle": {
     "message": "Enregistrer une sauvegarde"
   },
   "optionsImportTitle": {
     "message": "Restaurer depuis un fichier"
-  },
-  "optionsImportHint": {
-    "message": "Remplace tout ce qui suit. Vous verrez ce qui change avant que cela ne s'applique."
-  },
-  "optionsBackupAcrossDevicesHeading": {
-    "message": "Entre appareils"
-  },
-  "optionsBackupLeavesDevice": {
-    "message": "quitte votre appareil"
-  },
-  "optionsBackupContainsHeading": {
-    "message": "Ce que contient une sauvegarde"
-  },
-  "optionsBackupProtections": {
-    "message": "paramètres de protection"
-  },
-  "optionsBackupCustomRules": {
-    "message": "règles personnalisées"
-  },
-  "optionsBackupExceptions": {
-    "message": "exceptions de sites"
-  },
-  "optionsBackupFilterChoices": {
-    "message": "choix de listes de filtres"
-  },
-  "optionsBackupNoHistory": {
-    "message": "aucun historique de navigation, jamais"
-  },
-  "optionsBackupNoStats": {
-    "message": "aucun nombre de blocages ni statistiques"
   },
   "optionsAboutDesc": {
     "message": "Quelle version vous utilisez, et tout ce qui quitte votre appareil."
@@ -867,9 +644,6 @@
   },
   "optionsDisclosureStatsSent": {
     "message": "Rien ne quitte votre appareil. Les compteurs restent stockés localement."
-  },
-  "optionsShortcutHeading": {
-    "message": "Raccourci clavier"
   },
   "optionsDiagnosticsLink": {
     "message": "Diagnostic"
@@ -1014,14 +788,8 @@
       }
     }
   },
-  "advPrivacyTitle": {
-    "message": "Options de confidentialité"
-  },
   "advPrivacyLead": {
     "message": "Protection supplémentaire contre le suivi et l'identification. Désactivée par défaut car quelques sites peuvent mal fonctionner."
-  },
-  "advRulesTitle": {
-    "message": "Bloquer et autoriser"
   },
   "advRulesLead": {
     "message": "Vos propres règles. Elles l'emportent toujours sur les listes de filtres."
@@ -2029,5 +1797,17 @@
         "example": "0.11.171"
       }
     }
+  },
+  "backupSavesFile": {
+    "message": "Enregistre $FILE$, un fichier texte que tu peux ouvrir et lire.",
+    "placeholders": {
+      "file": {
+        "content": "$1",
+        "example": "moat-settings-2026-09-29.json"
+      }
+    }
+  },
+  "aboutManagedNote": {
+    "message": "Ton organisation gère cette copie de Moat et a défini les règles affichées ici. Ton administrateur peut voir et modifier ces règles, mais pas ton historique de navigation."
   }
 }

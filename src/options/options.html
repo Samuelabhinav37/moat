@@ -2723,7 +2723,7 @@
                   <button type="button" class="primary" id="export-settings-button" data-i18n="optionsExportTitle">Save a backup</button>
                   <button type="button" id="import-settings-button" data-i18n="optionsImportTitle">Restore from a file</button>
                 </div>
-                <p class="hint muted">Saves <code id="export-filename">moat-settings.json</code>, a plain text file you can open and read.</p>
+                <p class="hint muted" id="export-hint">Saves <code id="export-filename">moat-settings.json</code>, a plain text file you can open and read.</p>
                 <p class="backup-line"><span data-i18n="advLastBackup">Last backup:</span> <b class="caution" id="backup-metric-last">Never</b></p>
                 <input type="file" id="import-settings-input" accept="application/json" hidden />
                 <p class="hint muted" id="import-settings-status" hidden></p>
@@ -2787,8 +2787,7 @@
                   </div>
                 </div>
                 <p class="about-note" id="managed-notice" hidden>
-                  <strong>Managed install:</strong> your organization set the policies shown here. Your
-                  administrator can see and change those policies, but not your browsing history.
+                  <span data-i18n="aboutManagedNote">Your organization manages this copy of Moat and set the policies shown here. Your administrator can see and change those policies, but not your browsing history.</span>
                 </p>
                 <div class="ab-card">
                   <div class="ab-head">

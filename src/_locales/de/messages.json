@@ -107,29 +107,14 @@
   "popupReportError": {
     "message": "Die Meldeseite konnte nicht geöffnet werden. Versuche es erneut."
   },
-  "tabProtection": {
-    "message": "Schutz"
-  },
   "tabFilters": {
     "message": "Filterlisten"
-  },
-  "tabCustom": {
-    "message": "Eigene Regeln"
   },
   "tabTrackers": {
     "message": "Tracker"
   },
   "tabAbout": {
     "message": "Über Moat"
-  },
-  "optionsTagline": {
-    "message": "Blockiert Werbung, Tracker und gekaperte Pop-ups."
-  },
-  "optionsMasterToggleLabel": {
-    "message": "Schutz"
-  },
-  "optionsMasterToggleHint": {
-    "message": "Schaltet die gesamte Blockierung überall ein oder aus."
   },
   "optionsManagedBadge": {
     "message": "Verwaltet durch deine Organisation"
@@ -182,17 +167,11 @@
   "optionsLiveStatusNotChecked": {
     "message": "Noch nicht geprüft."
   },
-  "optionsExceptionsTitle": {
-    "message": "Pausierte Websites"
-  },
   "optionsExceptionsHint": {
     "message": "Auf diesen Seiten laden Werbung und Tracker normal. Bekannte gefährliche Seiten bleiben blockiert. Füge hier eine hinzu oder pausiere eine Seite über das Moat-Symbol, während du dort bist."
   },
   "optionsNoSitesAdded": {
     "message": "Noch keine Websites."
-  },
-  "commonAdd": {
-    "message": "Hinzufügen"
   },
   "commonHostnamePlaceholder": {
     "message": "beispiel.de"
@@ -219,12 +198,6 @@
   "optionsFilterBudgetDroppedBadge": {
     "message": "Aus, um im Browser-Limit zu bleiben"
   },
-  "optionsFilteringLevelTitle": {
-    "message": "Filterstufe"
-  },
-  "presetOff": {
-    "message": "Aus"
-  },
   "presetLite": {
     "message": "Leicht"
   },
@@ -236,9 +209,6 @@
   },
   "presetStrict": {
     "message": "Streng"
-  },
-  "optionsIndividualListsTitle": {
-    "message": "Einzelne Filterlisten"
   },
   "optionsIndividualListsHint": {
     "message": "Die Listen hinter deiner Blockierstufe. Wenn du hier eine ein- oder ausschaltest, wird es deine eigene Auswahl."
@@ -267,12 +237,6 @@
   "optionsAllowedSitesHint": {
     "message": "Lässt diese Adresse auf jeder Website laden, auch wenn eine Filterliste sie blockiert. Andere Werbung auf der Seite bleibt blockiert."
   },
-  "commonAllow": {
-    "message": "Erlauben"
-  },
-  "optionsHiddenElementsTitle": {
-    "message": "Was du ausgeblendet hast"
-  },
   "optionsHiddenElementsHint": {
     "message": "Teile von Seiten, die du ausgeblendet hast. Entferne einen, um ihn zurückzuholen."
   },
@@ -281,12 +245,6 @@
   },
   "optionsDimmedElementsTitle": {
     "message": "Ausgegraut"
-  },
-  "optionsDimmedElementsHint": {
-    "message": "Elemente, die du mit dem Picker ausgegraut hast. Entferne eines, um es wiederherzustellen."
-  },
-  "optionsTrackersHeading": {
-    "message": "Tracker im aktuellen Tab"
   },
   "optionsTrackersRefresh": {
     "message": "Aktualisieren"
@@ -312,15 +270,6 @@
   },
   "optionsTrackersUnsupported": {
     "message": "Diese detaillierte Tracker-Liste funktioniert vorerst nur in Chrome. Firefox unterstützt sie noch nicht."
-  },
-  "optionsPrivacyHeading": {
-    "message": "Was dein Gerät verlässt"
-  },
-  "optionsVersionHeading": {
-    "message": "Version"
-  },
-  "optionsDebuggingHeading": {
-    "message": "Diagnose"
   },
   "optionsPrivacyPolicyLink": {
     "message": "Vollständige Datenschutzerklärung"
@@ -356,18 +305,6 @@
   },
   "presetHintCustom": {
     "message": "Eine Kombination, die du selbst zusammengestellt hast."
-  },
-  "categoryAds": {
-    "message": "Werbung & Tracker"
-  },
-  "categorySecurity": {
-    "message": "Sicherheit"
-  },
-  "categoryAnnoyance": {
-    "message": "Störungen"
-  },
-  "categoryCore": {
-    "message": "Grundlage"
   },
   "optionsLiveStatusOk": {
     "message": "Zuletzt aktualisiert am $WHEN$. Umfasst $COUNT$ Websites.",
@@ -455,55 +392,6 @@
   },
   "optionsSearchSlopToggleLabel": {
     "message": "Minderwertige Suchergebnisse ausblenden"
-  },
-  "optionsProtectionTitle": {
-    "message": "Schutz"
-  },
-  "optionsProtectionDesc": {
-    "message": "Was Moat blockiert und was nicht. Das läuft alles auf deinem Gerät."
-  },
-  "optionsBlockedTodayComparison": {
-    "message": " · gegenüber $COUNT$ am selben Tag letzte Woche",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
-  "optionsSparklineCaption": {
-    "message": "letzte 7 Tage"
-  },
-  "optionsSitesTodayLabel": {
-    "message": "Websites heute"
-  },
-  "optionsProtectionsOnLabel": {
-    "message": "aktive Schutzfunktionen"
-  },
-  "optionsDrawerBarsCaption": {
-    "message": "Mo — So"
-  },
-  "optionsDrawerCloseLabel": {
-    "message": "Schließen"
-  },
-  "optionsGroupOnCount": {
-    "message": "$COUNT$ von $TOTAL$ aktiv",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      },
-      "total": {
-        "content": "$2"
-      }
-    }
-  },
-  "optionsPrivacyCategory": {
-    "message": "Privatsphäre"
-  },
-  "optionsAnnoyancesCategory": {
-    "message": "Störfaktoren"
-  },
-  "optionsSafetyCategory": {
-    "message": "Sicherheit"
   },
   "optionsFingerprintDrawerDesc": {
     "message": "Macht es Websites schwerer, dein Gerät zu erkennen."
@@ -604,26 +492,6 @@
       }
     }
   },
-  "optionsDrawerStateOn": {
-    "message": "An"
-  },
-  "optionsDrawerStateOff": {
-    "message": "Aus"
-  },
-  "optionsDrawerStateAdvanced": {
-    "message": "erweitert"
-  },
-  "optionsFilterListsDesc": {
-    "message": "Die Regelsätze, die Moat in den browsereigenen Blocker kompiliert. Jeder einzelne ist in der Erweiterung selbst enthalten, sodass Ihr Browser nichts nachlädt, damit sie funktionieren."
-  },
-  "optionsRulesActiveBaseline": {
-    "message": "aktive Regeln · Chromes Obergrenze liegt bei $CAP$",
-    "placeholders": {
-      "cap": {
-        "content": "$1"
-      }
-    }
-  },
   "optionsBudgetPercentUsed": {
     "message": "$PERCENT$ % des Kontingents genutzt",
     "placeholders": {
@@ -631,15 +499,6 @@
         "content": "$1"
       }
     }
-  },
-  "optionsFromDailyUpdatesLabel": {
-    "message": "aus täglichen Updates"
-  },
-  "optionsSinceLastCheckLabel": {
-    "message": "seit der letzten Prüfung"
-  },
-  "optionsCheckForUpdatesLink": {
-    "message": "Nach Updates suchen"
   },
   "optionsFilterMatchedOnPage": {
     "message": " · $COUNT$ Treffer auf dieser Seite",
@@ -649,54 +508,17 @@
       }
     }
   },
-  "optionsCustomRulesDesc": {
-    "message": "Alles, was du selbst mit dem Element-Picker ausgeblendet hast. Das hat Vorrang vor den Filterlisten und verlässt nie deinen Browser."
-  },
   "optionsPickElementButton": {
     "message": "Etwas auf einer Seite ausblenden"
   },
   "optionsPickElementFailed": {
     "message": "Dort konnte es nicht starten. Moat läuft nicht auf Browserseiten oder in Erweiterungs-Stores. Öffne eine Website und versuche es noch einmal."
   },
-  "optionsCustomRulesBaseline": {
-    "message": "$COUNT$ Regeln auf $SITES$ Websites",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      },
-      "sites": {
-        "content": "$2"
-      }
-    }
-  },
-  "optionsHiddenTimesBaseline": {
-    "message": "Bisher $COUNT$ Mal ausgeblendet",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
-  "optionsRulesStillMatchingLabel": {
-    "message": "noch aktiv"
-  },
-  "optionsRulesStaleLabel": {
-    "message": "veraltet"
-  },
   "optionsRuleStaleMeta": {
     "message": "Seit 30 Tagen kein Treffer mehr. Die Website hat sich wahrscheinlich geändert."
   },
   "optionsTrackersDesc": {
     "message": "Unternehmen, die Moat diese Woche gestoppt hat. Auf deinem Gerät gezählt und nie hochgeladen."
-  },
-  "optionsCompaniesSeenBaseline": {
-    "message": "diese Woche erkannte Unternehmen"
-  },
-  "optionsAttemptsBlockedLabel": {
-    "message": "blockierte Versuche"
-  },
-  "optionsGotThroughLabel": {
-    "message": "kamen durch"
   },
   "optionsCompanyReach": {
     "message": "$COUNT$ Websites",
@@ -748,9 +570,6 @@
   "commonChooseFile": {
     "message": "Datei auswählen"
   },
-  "commonExport": {
-    "message": "Exportieren"
-  },
   "commonNobody": {
     "message": "Niemand"
   },
@@ -778,53 +597,11 @@
   "optionsBackupDesc": {
     "message": "Sichere deine Einstellungen, Regeln und pausierten Websites oder nimm sie auf einen anderen Computer mit."
   },
-  "optionsBackupSizeLabel": {
-    "message": "Exportgröße"
-  },
-  "optionsBackupSyncLabel": {
-    "message": "Synchronisierung"
-  },
-  "optionsBackupToFileHeading": {
-    "message": "In eine Datei"
-  },
-  "optionsBackupStaysHere": {
-    "message": "bleibt auf deinem Gerät"
-  },
   "optionsExportTitle": {
     "message": "Sicherung speichern"
   },
   "optionsImportTitle": {
     "message": "Aus einer Datei wiederherstellen"
-  },
-  "optionsImportHint": {
-    "message": "Ersetzt alles unten. Du siehst, was sich ändert, bevor es angewendet wird."
-  },
-  "optionsBackupAcrossDevicesHeading": {
-    "message": "Geräteübergreifend"
-  },
-  "optionsBackupLeavesDevice": {
-    "message": "verlässt dein Gerät"
-  },
-  "optionsBackupContainsHeading": {
-    "message": "Was eine Sicherung enthält"
-  },
-  "optionsBackupProtections": {
-    "message": "Schutzeinstellungen"
-  },
-  "optionsBackupCustomRules": {
-    "message": "eigene Regeln"
-  },
-  "optionsBackupExceptions": {
-    "message": "Website-Ausnahmen"
-  },
-  "optionsBackupFilterChoices": {
-    "message": "Filterlisten-Auswahl"
-  },
-  "optionsBackupNoHistory": {
-    "message": "kein Browserverlauf, niemals"
-  },
-  "optionsBackupNoStats": {
-    "message": "keine Blockierzahlen oder Statistiken"
   },
   "optionsAboutDesc": {
     "message": "Welche Version das ist, und alles, was dein Gerät je verlässt."
@@ -867,9 +644,6 @@
   },
   "optionsDisclosureStatsSent": {
     "message": "Nichts verlässt dein Gerät. Zählungen bleiben lokal gespeichert."
-  },
-  "optionsShortcutHeading": {
-    "message": "Tastenkombination"
   },
   "optionsDiagnosticsLink": {
     "message": "Diagnose"
@@ -1014,14 +788,8 @@
       }
     }
   },
-  "advPrivacyTitle": {
-    "message": "Datenschutz-Extras"
-  },
   "advPrivacyLead": {
     "message": "Zusätzlicher Schutz gegen Verfolgung und Wiedererkennung. Standardmäßig aus, weil einige Websites sonst nicht funktionieren."
-  },
-  "advRulesTitle": {
-    "message": "Blockieren und erlauben"
   },
   "advRulesLead": {
     "message": "Deine eigenen Regeln. Sie haben immer Vorrang vor den Filterlisten."
@@ -2029,5 +1797,17 @@
         "example": "0.11.171"
       }
     }
+  },
+  "backupSavesFile": {
+    "message": "Speichert $FILE$, eine Textdatei, die du öffnen und lesen kannst.",
+    "placeholders": {
+      "file": {
+        "content": "$1",
+        "example": "moat-settings-2026-09-29.json"
+      }
+    }
+  },
+  "aboutManagedNote": {
+    "message": "Deine Organisation verwaltet diese Kopie von Moat und hat die hier gezeigten Richtlinien festgelegt. Deine Administratoren können diese Richtlinien sehen und ändern, aber nicht deinen Browserverlauf."
   }
 }

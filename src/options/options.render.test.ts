@@ -156,8 +156,8 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
   it("keeps the annoyance fixes on Blocking level and the breach check on Privacy, in groups", async () => {
     await renderOptions();
     expect(rowTitles("feature-rows")).toContain("Hide low-quality search results");
-    expect(rowTitles("feature-rows")).not.toContain("Check passwords against known breaches");
-    expect(rowTitles("protection-groups")).toContain("Check passwords against known breaches");
+    expect(rowTitles("feature-rows")).not.toContain("Warn about leaked passwords");
+    expect(rowTitles("protection-groups")).toContain("Warn about leaked passwords");
     expect(Array.from(document.querySelectorAll("#protection-groups .sub-h"), (el) => el.textContent)).toEqual([
       "Tracking",
       "Your device",
@@ -187,7 +187,7 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
     const rows = () => Array.from(document.querySelectorAll("#override-list li"));
     expect(rows()).toHaveLength(1);
     expect(rows()[0]!.textContent).toContain("example.com");
-    expect(rows()[0]!.textContent).toContain("Hide low-quality search results: Off");
+    expect(rows()[0]!.textContent).toContain("Hide low-quality search results: off");
     expect(document.getElementById("override-empty")!.style.display).toBe("none");
 
     rows()[0]!.querySelector("button")!.click();

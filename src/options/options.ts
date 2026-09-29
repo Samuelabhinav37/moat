@@ -253,20 +253,20 @@ const PROTECTIONS: ProtectionDef[] = [
     id: "cookies",
     settingKey: "blockThirdPartyCookies",
     group: "privacy",
-    titleKey: ["optionsCookiesToggleLabel", "Stop sites tracking you across the web"],
+    titleKey: ["optionsCookiesToggleLabel", "Block cross-site cookies"],
     descKey: [
       "optionsCookiesToggleHint",
-      "Stops sites from tracking you as you move from one to the next (blocks third-party cookies).",
+      "Stops sites following you from one website to the next.",
     ],
   },
   {
     id: "webrtc",
     settingKey: "webrtcLeakProtection",
     group: "privacy",
-    titleKey: ["optionsWebrtcToggleLabel", "Stop IP address leaks"],
+    titleKey: ["optionsWebrtcToggleLabel", "Keep your IP address private"],
     descKey: [
       "optionsWebrtcToggleHint",
-      "Keeps a website from seeing your real IP address if you're using a VPN.",
+      "Stops pages finding your real IP address through video-call features, even behind a VPN.",
     ],
   },
   {
@@ -282,7 +282,7 @@ const PROTECTIONS: ProtectionDef[] = [
     ],
     cautionKey: [
       "optionsFingerprintCaution",
-      "Can occasionally break a CAPTCHA or a bank's device check. If a site misbehaves, pause this first.",
+      "Can occasionally break a CAPTCHA or a bank's device check. If a site misbehaves, turn this off first.",
     ],
     metricLabelKey: ["optionsFingerprintMetricLabel", "sites that saw a disguised device this week"],
   },
@@ -292,10 +292,10 @@ const PROTECTIONS: ProtectionDef[] = [
     group: "privacy",
     signal: "cnameUncloak",
     evidenceUnit: "week",
-    titleKey: ["optionsCnameToggleLabel", "Catch trackers hiding in disguise"],
+    titleKey: ["optionsCnameToggleLabel", "Catch hidden trackers"],
     descKey: [
       "optionsCnameDrawerDesc",
-      "Some trackers disguise themselves as part of the site you're visiting.",
+      "Finds trackers that hide behind a website's own address.",
     ],
     metricLabelKey: ["optionsCnameMetricLabel", "sites protected this week"],
   },
@@ -336,7 +336,7 @@ const PROTECTIONS: ProtectionDef[] = [
     group: "annoyances",
     signal: "grayscaleAds",
     evidenceUnit: "today",
-    titleKey: ["optionsGrayscaleToggleLabel", "Gray out unblockable video ads"],
+    titleKey: ["optionsGrayscaleToggleLabel", "Dim YouTube ads"],
     descKey: [
       "optionsGrayscaleToggleHint",
       "Video ads Moat can't block are dimmed while they play.",
@@ -350,10 +350,10 @@ const PROTECTIONS: ProtectionDef[] = [
     group: "annoyances",
     signal: "feedAdRemoval",
     evidenceUnit: "week",
-    titleKey: ["optionsFeedScanToggleLabel", "Hide sponsored posts in feeds"],
+    titleKey: ["optionsFeedScanToggleLabel", "Hide sponsored posts"],
     descKey: [
       "optionsFeedScanToggleHint",
-      "Removes sponsored and promoted posts from Instagram, LinkedIn, and YouTube as you scroll.",
+      "Removes sponsored posts from Instagram, LinkedIn and YouTube feeds.",
     ],
     metricLabelKey: ["optionsFeedScanMetricLabel", "posts hidden this week"],
   },
@@ -376,11 +376,11 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsSearchSlopToggleLabel", "Hide low-quality search results"],
     descKey: [
       "optionsSearchSlopDrawerDesc",
-      "Hides search results that match a small, curated list of content-farm domains.",
+      "Filters known content-farm sites out of your search results.",
     ],
     noteKey: [
       "optionsSearchSlopCaution",
-      "Each hidden batch stays one click away behind a \"Show\" link. Off by default, since this list can misfire in ways a fixed ad-network list won't.",
+      "Each hidden batch stays one click away behind a \"Show\" link.",
     ],
     metricLabelKey: ["optionsSearchSlopMetricLabel", "results hidden this week"],
   },
@@ -390,9 +390,9 @@ const PROTECTIONS: ProtectionDef[] = [
     group: "safety",
     signal: "leakedPasswordCheck",
     evidenceUnit: "week",
-    titleKey: ["optionsLeakedPasswordToggleLabel", "Check passwords against known breaches"],
-    descKey: ["optionsLeakedPasswordDrawerDesc", "Warns if a password you type has appeared in a known breach."],
-    noteKey: ["optionsLeakedPasswordCaution", "Only a short piece of its hash ever leaves your device."],
+    titleKey: ["optionsLeakedPasswordToggleLabel", "Warn about leaked passwords"],
+    descKey: ["optionsLeakedPasswordDrawerDesc", "Tells you if a password you type has appeared in a data breach."],
+    noteKey: ["optionsLeakedPasswordCaution", "Only a short scrambled piece of it is ever checked."],
     metricLabelKey: ["optionsLeakedPasswordMetricLabel", "passwords checked this week"],
   },
 ];
@@ -712,8 +712,8 @@ async function setSiteOverrides(entry: SiteOverrideEntry, restore: boolean): Pro
 function renderSiteOverrides(settings: Settings): void {
   const entries = siteOverrideEntries(settings.perSiteOverrides);
   overrideEmpty.style.display = entries.length ? "none" : "";
-  const on = tFallback("commonOn", "On");
-  const off = tFallback("commonOff", "Off");
+  const on = tFallback("commonOn", "on");
+  const off = tFallback("commonOff", "off");
   overrideList.replaceChildren(
     ...entries.map((entry) => {
       const li = document.createElement("li");
@@ -1748,8 +1748,21 @@ const importSettingsConfirm = document.getElementById("import-settings-confirm")
 const importSettingsSummary = document.getElementById("import-settings-summary") as HTMLUListElement;
 const importSettingsApplyButton = document.getElementById("import-settings-apply-button") as HTMLButtonElement;
 const importSettingsCancelButton = document.getElementById("import-settings-cancel-button") as HTMLButtonElement;
-const exportFilenameEl = document.getElementById("export-filename") as HTMLElement;
+const exportHintEl = document.getElementById("export-hint") as HTMLElement;
 const backupMetricLastEl = document.getElementById("backup-metric-last") as HTMLElement;
+
+/** "Saves moat-settings-2026-09-29.json, a plain text file you can open and
+ * read." as one message, with the file name set as code where the
+ * translation puts $FILE$. */
+function renderExportHint(filename: string): void {
+  const MARK = "\u0001";
+  const sentence = tFallback("backupSavesFile", `Saves ${MARK}, a plain text file you can open and read.`, MARK);
+  const [before = "", after = ""] = sentence.split(MARK);
+  const code = document.createElement("code");
+  code.id = "export-filename";
+  code.textContent = filename;
+  exportHintEl.replaceChildren(before, code, after);
+}
 const syncRecipientEl = document.getElementById("sync-recipient") as HTMLElement;
 
 /** Same name the export button itself downloads -- so the hint above it and
@@ -1780,7 +1793,7 @@ syncToggle.addEventListener("change", async () => {
 });
 
 async function renderBackupTab(settings: Settings): Promise<void> {
-  exportFilenameEl.textContent = exportFilename();
+  renderExportHint(exportFilename());
   syncToggle.checked = settings.syncEnabled;
   syncRecipientEl.textContent = SYNC_VENDOR_NAME;
   prependBrand(syncRecipientEl, SYNC_VENDOR_BRAND);

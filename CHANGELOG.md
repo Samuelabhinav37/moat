@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.172
+
+### Changed
+- **String cleanup.** 67 message keys that nothing used any more are gone from all four
+  languages. That's 268 strings, which also means 201 fewer translations to keep up. The backup
+  hint and the managed-install note in Settings had English written straight into the page; they
+  now have keys and translations. The backup hint is one sentence with the file name slotted in,
+  and the managed-install note no longer starts with "Managed install:".
+- **The English written into the code as a fallback now matches `en.json`.** 21 had drifted, for
+  example "Check passwords against known breaches" where the extension says "Warn about leaked
+  passwords". Tests and the Diagnostics page use those fallbacks, so they showed old wording.
+
 ## 0.11.171
 
 ### Changed

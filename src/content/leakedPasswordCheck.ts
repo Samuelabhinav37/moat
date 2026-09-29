@@ -1,5 +1,5 @@
 // Isolated-world content script, top frame only, opt-in and off by default
-// (Settings -> "Check passwords against known breaches"). Warns -- never
+// (Settings -> Privacy -> "Warn about leaked passwords"). Warns -- never
 // blocks submission, never clears or modifies the field -- if a password
 // typed into the page has appeared in a known data breach, checked via
 // HaveIBeenPwned's Pwned Passwords k-anonymity API: only a 5-character

@@ -27,12 +27,12 @@ export const HEURISTIC_DEFS: readonly HeuristicScopeDef[] = [
   {
     id: "grayscaleAds",
     settingKey: "grayscaleUnblockableAds",
-    titleKey: ["optionsGrayscaleToggleLabel", "Gray out unblockable video ads"],
+    titleKey: ["optionsGrayscaleToggleLabel", "Dim YouTube ads"],
   },
   {
     id: "feedAdRemoval",
     settingKey: "aggressiveFeedAdRemoval",
-    titleKey: ["optionsFeedScanToggleLabel", "Hide sponsored posts in feeds"],
+    titleKey: ["optionsFeedScanToggleLabel", "Hide sponsored posts"],
   },
   {
     id: "cookieBannerReject",
@@ -47,7 +47,7 @@ export const HEURISTIC_DEFS: readonly HeuristicScopeDef[] = [
   {
     id: "leakedPasswordCheck",
     settingKey: "leakedPasswordCheck",
-    titleKey: ["optionsLeakedPasswordToggleLabel", "Check passwords against known breaches"],
+    titleKey: ["optionsLeakedPasswordToggleLabel", "Warn about leaked passwords"],
   },
   {
     id: "fingerprint",
@@ -57,7 +57,7 @@ export const HEURISTIC_DEFS: readonly HeuristicScopeDef[] = [
   {
     id: "cnameUncloak",
     settingKey: "cnameUncloaking",
-    titleKey: ["optionsCnameToggleLabel", "Catch trackers hiding in disguise"],
+    titleKey: ["optionsCnameToggleLabel", "Catch hidden trackers"],
   },
 ];
 
