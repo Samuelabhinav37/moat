@@ -56,6 +56,7 @@ import type {
 import { STORAGE_KEY } from "../types";
 import { joinCompanyBreakdown, type CompanyInfo } from "./trackerView";
 import { OVERRIDE_NAMES, siteOverrideEntries, type SiteOverrideEntry } from "./siteOverrides";
+import { describeSelector, type RuleKind } from "./ruleLabel";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { parseFilterListImport } from "../shared/filterListImport";
 import { MAX_STRING_LENGTH } from "../shared/importBounds";
@@ -1265,6 +1266,21 @@ function buildStaleTriangleIcon(): SVGSVGElement {
  * hostname -> selector[] maps, joined against customRuleStats.ts's separate
  * per-rule hit/staleness store (see the surface-redesign plan) keyed the
  * same way that module stores entries. */
+const RULE_KIND_NAMES: Record<RuleKind, readonly [string, string]> = {
+  image: ["pickerKindImage", "Image"],
+  frame: ["pickerKindFrame", "Embedded frame"],
+  video: ["pickerKindVideo", "Video"],
+  link: ["pickerKindLink", "Link"],
+  text: ["pickerKindText", "Text"],
+  box: ["pickerKindBox", "Box"],
+};
+
+function ruleLabel(selector: string): string {
+  const { kind, name } = describeSelector(selector);
+  const kindName = tFallback(RULE_KIND_NAMES[kind][0], RULE_KIND_NAMES[kind][1]);
+  return name ? tFallback("ruleLabelNamed", `${kindName} “${name}”`, [kindName, name]) : kindName;
+}
+
 function buildRuleRow(
   kind: "hide" | "gray",
   hostname: string,
@@ -1284,13 +1300,18 @@ function buildRuleRow(
 
   const main = document.createElement("div");
   main.className = "rule-main";
-  const selectorEl = document.createElement("span");
-  selectorEl.className = stale ? "rule-selector stale" : "rule-selector";
-  selectorEl.textContent = selector;
+  // What it is in words ("Box “sponsor box”"), then the site, then the
+  // selector itself in small print for anyone who wants it.
+  const labelEl = document.createElement("span");
+  labelEl.className = stale ? "rule-label stale" : "rule-label";
+  labelEl.textContent = ruleLabel(selector);
   const siteEl = document.createElement("span");
   siteEl.className = "rule-site";
   siteEl.append(siteIcon(hostname), document.createTextNode(hostname));
-  main.append(selectorEl, siteEl);
+  const selectorEl = document.createElement("span");
+  selectorEl.className = "rule-selector";
+  selectorEl.textContent = selector;
+  main.append(labelEl, siteEl, selectorEl);
 
   const meta = document.createElement("div");
   meta.className = "rule-meta";
@@ -1829,7 +1850,7 @@ function renderWeeklyTrackers(usage: UsageSummaryResponse): void {
   document.getElementById("weekly-tracker-summary")!.textContent =
     usage.companiesThisWeek.length === 0
       ? tFallback("advTrackersEmptyWeek", "None yet this week. Companies show up here as Moat stops their trackers while you browse.")
-      : tFallback("advTrackersSummary", `${companies} companies · ${attempts} attempts blocked this week`, [companies, attempts]);
+      : tFallback("advTrackersSummary", `Of this week's blocks, ${attempts} came from ${companies} companies Moat can name.`, [companies, attempts]);
 
   const container = document.getElementById("weekly-tracker-rows") as HTMLElement;
   const top = usage.companiesThisWeek.slice(0, 20);

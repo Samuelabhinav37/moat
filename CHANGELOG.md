@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.176
+
+### Changed
+- **Hidden on pages says what you hid.** Each item showed only its CSS selector
+  (`#sponsor-box`). It now leads with the kind of thing and the name the page gave it, for
+  example **Box “sponsor box”**, using the picker card's own names (Image, Link, Box and so on).
+  The selector moves to a small line underneath. Names made of generated hashes, like
+  `css-1x9ab2`, are skipped. The logic is in `src/options/ruleLabel.ts`.
+- **Overview's company count reads as part of the week's total.** "3 companies · 23 attempts
+  blocked this week" looked like a second total that disagreed with the headline number. It now
+  says "Of this week's blocks, 23 came from 3 companies Moat can name."
+
+### Not changed
+- The audit reported that the Filter lists switches looked disabled (grey knob). Measured in
+  Chrome, every switch is enabled, fully opaque and has a white knob. The audit's full-page
+  screenshot caught the knob mid-slide, so nothing needed fixing.
+
 ## 0.11.175
 
 ### Fixed

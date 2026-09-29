@@ -656,13 +656,20 @@
       .rule-row .rule-main {
         min-width: 0;
       }
-      .rule-row .rule-selector {
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 13.5px;
-        overflow-wrap: anywhere;
+      .rule-row .rule-label {
+        font-weight: 600;
       }
-      .rule-row .rule-selector.stale {
+      .rule-row .rule-label.stale {
         color: var(--muted);
+      }
+      /* The selector itself, in small print, on its own line. */
+      .rule-row .rule-selector {
+        display: block;
+        margin-top: 2px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+        color: var(--muted);
+        overflow-wrap: anywhere;
       }
       .rule-row .rule-site {
         font-size: 13px;

@@ -801,7 +801,7 @@
     "message": "Mettre en pause"
   },
   "advTrackersSummary": {
-    "message": "$COMPANIES$ entreprises · $ATTEMPTS$ tentatives bloquées cette semaine",
+    "message": "Parmi les blocages de cette semaine, $ATTEMPTS$ venaient de $COMPANIES$ entreprises que Moat peut identifier.",
     "placeholders": {
       "companies": {
         "content": "$1"
@@ -1812,5 +1812,18 @@
   },
   "popupInternalPage": {
     "message": "Moat ne fonctionne pas sur les pages du navigateur comme celle-ci. Ouvre un site web pour voir ce qu’il y bloque."
+  },
+  "ruleLabelNamed": {
+    "message": "$KIND$ « $NAME$ »",
+    "placeholders": {
+      "kind": {
+        "content": "$1",
+        "example": "Box"
+      },
+      "name": {
+        "content": "$2",
+        "example": "sponsor box"
+      }
+    }
   }
 }

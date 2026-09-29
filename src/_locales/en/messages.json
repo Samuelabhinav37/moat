@@ -804,7 +804,7 @@
     "message": "Pause"
   },
   "advTrackersSummary": {
-    "message": "$COMPANIES$ companies · $ATTEMPTS$ attempts blocked this week",
+    "message": "Of this week's blocks, $ATTEMPTS$ came from $COMPANIES$ companies Moat can name.",
     "placeholders": {
       "companies": {
         "content": "$1"
@@ -812,7 +812,8 @@
       "attempts": {
         "content": "$2"
       }
-    }
+    },
+    "description": "Settings > Overview > Trackers: how much of the week's total came from companies Moat can name. A part of the headline number, not a separate total."
   },
   "advTrackersOnTab": {
     "message": "On the tab you last used"
@@ -1942,5 +1943,19 @@
   "popupInternalPage": {
     "message": "Moat doesn't run on browser pages like this one. Open a website to see what it blocks there.",
     "description": "Popup on a new tab, browser settings or extension store page, where Moat can't run."
+  },
+  "ruleLabelNamed": {
+    "message": "$KIND$ “$NAME$”",
+    "placeholders": {
+      "kind": {
+        "content": "$1",
+        "example": "Box"
+      },
+      "name": {
+        "content": "$2",
+        "example": "sponsor box"
+      }
+    },
+    "description": "Settings > Hidden on pages: what a hidden item is. $KIND$ is Image, Link, Box and so on; $NAME$ is the name the page gave it."
   }
 }
