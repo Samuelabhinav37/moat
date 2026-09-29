@@ -1,8 +1,8 @@
-<p align="left">
-  <img src="icons/logo-banner.svg" width="64" height="64" alt="">
-</p>
+<h1 align="center">
+  <img src="icons/logo-banner.svg" width="64" height="64" alt="" align="absmiddle">
+  <span>Moat</span>
+</h1>
 
-<h1 align="center">Moat</h1>
 <p align="center"><strong>Ad blocking that keeps to itself.</strong><br>
 A free, open-source ad blocker for Chrome and Firefox. No server, no account, no telemetry.</p>
 
