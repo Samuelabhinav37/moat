@@ -181,6 +181,22 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
     expect(document.getElementById("level-note")?.hidden).toBe(false);
   });
 
+  it("lists settings changed for one site, and Reset clears them", async () => {
+    // The mock browser starts with example.com's low-quality-results filter off.
+    await renderOptions();
+    const rows = () => Array.from(document.querySelectorAll("#override-list li"));
+    expect(rows()).toHaveLength(1);
+    expect(rows()[0]!.textContent).toContain("example.com");
+    expect(rows()[0]!.textContent).toContain("Hide low-quality results: Off");
+    expect(document.getElementById("override-empty")!.style.display).toBe("none");
+
+    rows()[0]!.querySelector("button")!.click();
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(rows()).toHaveLength(0);
+    expect(document.getElementById("override-empty")!.style.display).toBe("");
+  });
+
   it("points the own-mix note at Filter lists, not at a hidden Advanced button", async () => {
     await renderOptions();
     const note = document.getElementById("level-note")!;

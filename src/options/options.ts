@@ -45,6 +45,7 @@ import type {
   SaveGrayscaleRuleMessage,
   Settings,
   SettingsPatchField,
+  SetPerSiteOverrideMessage,
   SetSettingsPatchMessage,
   StartElementPickerMessage,
   StartElementPickerResponse,
@@ -54,6 +55,7 @@ import type {
 } from "../types";
 import { STORAGE_KEY } from "../types";
 import { joinCompanyBreakdown, type CompanyInfo } from "./trackerView";
+import { OVERRIDE_NAMES, siteOverrideEntries, type SiteOverrideEntry } from "./siteOverrides";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { parseFilterListImport } from "../shared/filterListImport";
 import { MAX_STRING_LENGTH } from "../shared/importBounds";
@@ -686,6 +688,61 @@ const bulkRemove: BulkRemoval = {
   labels: bulkLabelsFor((count) => tFallback("bulkRemove", `Remove ${count}`, String(count))),
   done: (count) => tFallback("toastRemovedMany", `Removed ${count} sites`, String(count)),
 };
+
+// ---------- Changed for one site ----------
+
+const overrideList = document.getElementById("override-list") as HTMLUListElement;
+const overrideEmpty = document.getElementById("override-empty") as HTMLElement;
+
+async function setSiteOverrides(entry: SiteOverrideEntry, restore: boolean): Promise<void> {
+  for (const { key, value } of entry.changes) {
+    const message: SetPerSiteOverrideMessage = {
+      type: "set-per-site-override",
+      hostname: entry.hostname,
+      key,
+      value: restore ? value : null,
+    };
+    await browser.runtime.sendMessage(message);
+  }
+}
+
+/** One row per site: its icon and name, what was changed there ("Block
+ * fingerprinting: Off"), and Reset, which puts every setting on that site
+ * back to the usual one (with Undo). */
+function renderSiteOverrides(settings: Settings): void {
+  const entries = siteOverrideEntries(settings.perSiteOverrides);
+  overrideEmpty.style.display = entries.length ? "none" : "";
+  const on = tFallback("commonOn", "On");
+  const off = tFallback("commonOff", "Off");
+  overrideList.replaceChildren(
+    ...entries.map((entry) => {
+      const li = document.createElement("li");
+      li.dataset.search = entry.hostname;
+      const text = document.createElement("div");
+      const host = document.createElement("span");
+      host.textContent = entry.hostname;
+      const changes = document.createElement("span");
+      changes.className = "override-changes";
+      changes.textContent = entry.changes
+        .map(({ key, value }) => `${tFallback(OVERRIDE_NAMES[key][0], OVERRIDE_NAMES[key][1])}: ${value ? on : off}`)
+        .join(" · ");
+      text.append(host, changes);
+      const reset = document.createElement("button");
+      reset.textContent = tFallback("popupOverrideReset", "Reset");
+      reset.setAttribute("aria-label", tFallback("overridesResetSite", `Reset ${entry.hostname}`, entry.hostname));
+      reset.addEventListener("click", async () => {
+        await setSiteOverrides(entry, false);
+        await render();
+        savedToast.offerUndo(tFallback("toastReset", `Reset ${entry.hostname}`, entry.hostname), tFallback("toastUndo", "Undo"), () => {
+          void setSiteOverrides(entry, true).then(() => render());
+        });
+      });
+      li.append(siteIcon(entry.hostname), text, reset);
+      return li;
+    })
+  );
+  applyLongList(overrideList, longListLabels);
+}
 
 const undoResume: UndoRemoval<string> = {
   message: (hostname) => tFallback("toastResumed", `Resumed ${hostname}`, hostname),
@@ -1584,6 +1641,8 @@ async function render(): Promise<void> {
     undoResume,
     bulkResume
   );
+
+  renderSiteOverrides(settings);
 
   const filterGroupStatus = await getFilterGroupStatus();
   filterBudgetWarning.hidden = filterGroupStatus === null || filterGroupStatus.ok;

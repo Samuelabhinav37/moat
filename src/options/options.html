@@ -856,6 +856,18 @@
       .pause-card {
         margin-top: 16px;
       }
+      /* Changed for one site: the host, and under it what was changed. */
+      .override-list li > div {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+        margin-right: auto;
+      }
+      .override-list .override-changes {
+        font-size: 13px;
+        color: var(--muted);
+      }
       .setting-rows .sub-h:first-child {
         margin-top: 0;
       }
@@ -2392,7 +2404,7 @@
         <a href="#privacy" data-page="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a3 3 0 100-6 3 3 0 000 6zM5 20a7 7 0 0114 0" /></svg><span class="nav-name" data-i18n="navPrivacy">Privacy</span></a>
         <a href="#filters" data-page="filters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg><span class="nav-name" data-i18n="tabFilters">Filter lists</span></a>
         <p class="nav-group" data-i18n="navGroupExceptions">Your exceptions</p>
-        <a href="#paused" data-page="paused"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span class="nav-name" data-i18n="navPaused">Paused sites</span><span class="count" id="nav-count-paused" hidden></span></a>
+        <a href="#paused" data-page="paused"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span class="nav-name" data-i18n="navSites">Sites</span><span class="nav-lead" hidden data-i18n="pageLeadSites">Sites where Moat is paused, and settings you changed for one site</span><span class="count" id="nav-count-paused" hidden></span></a>
         <a href="#hidden" data-page="hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span class="nav-name" data-i18n="navHidden">Hidden on pages</span><span class="count" id="nav-count-hidden" hidden></span></a>
         <a href="#rules" data-page="rules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg><span class="nav-name" data-i18n="navRules">Always and never block</span></a>
         <p class="nav-group" data-i18n="navGroupSettings">Settings</p>
@@ -2533,6 +2545,23 @@
                 <div class="add-row">
                   <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="add-button" />
                   <button type="button" id="add-button" data-i18n="commonPause">Pause</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="sec" data-page="paused">
+            <div>
+              <h2 data-i18n="overridesTitle">Changed for one site</h2>
+              <p class="lead" data-i18n="overridesLead">Settings you turned on or off for a single site from Moat's icon. Reset a site to use your usual settings there again.</p>
+            </div>
+            <div>
+              <div class="box"><ul class="site-list override-list" id="override-list"></ul></div>
+              <div class="empty-card" id="override-empty">
+                <span class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></svg></span>
+                <div>
+                  <b data-i18n="overridesEmptyTitle">Nothing changed for a single site</b>
+                  <span data-i18n="overridesEmptyHint">To change a setting on one site only, click Moat's icon there and open Customize for this site.</span>
                 </div>
               </div>
             </div>

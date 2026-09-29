@@ -80,8 +80,9 @@ export function initDashboard(win: Window = window, onShow?: (key: PageKey) => v
   const pausedCount = byId("nav-count-paused");
   const hiddenCount = byId("nav-count-hidden");
   const siteList = byId("site-list");
+  const overrideList = byId("override-list");
   const hiddenRows = byId("hidden-element-rows");
   const grayRows = byId("grayscale-element-rows");
-  if (pausedCount && siteList) watchCount(pausedCount, [siteList]);
+  if (pausedCount && siteList) watchCount(pausedCount, overrideList ? [siteList, overrideList] : [siteList]);
   if (hiddenCount && hiddenRows) watchCount(hiddenCount, grayRows ? [hiddenRows, grayRows] : [hiddenRows]);
 }

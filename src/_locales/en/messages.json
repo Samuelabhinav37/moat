@@ -2103,5 +2103,49 @@
   "privacyGroupPermissions": {
     "message": "Permissions and passwords",
     "description": "Settings > Privacy: sub-heading over permission prompts and the leaked-password check."
+  },
+  "navSites": {
+    "message": "Sites",
+    "description": "Settings sidebar: the screen with paused sites and settings changed for one site."
+  },
+  "overridesTitle": {
+    "message": "Changed for one site",
+    "description": "Settings > Sites: heading of the list of settings changed for single sites."
+  },
+  "overridesLead": {
+    "message": "Settings you turned on or off for a single site from Moat's icon. Reset a site to use your usual settings there again.",
+    "description": "Settings > Sites: text under 'Changed for one site'."
+  },
+  "overridesEmptyTitle": {
+    "message": "Nothing changed for a single site",
+    "description": "Settings > Sites: empty state title of the per-site list."
+  },
+  "overridesEmptyHint": {
+    "message": "To change a setting on one site only, click Moat's icon there and open Customize for this site.",
+    "description": "Settings > Sites: empty state hint. 'Customize for this site' must match popupCustomizeSite."
+  },
+  "overridesResetSite": {
+    "message": "Reset $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    },
+    "description": "Settings > Sites: screen-reader name of a row's Reset button."
+  },
+  "toastReset": {
+    "message": "Reset $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    },
+    "description": "Toast after resetting a site's per-site settings, next to Undo."
+  },
+  "pageLeadSites": {
+    "message": "Sites where Moat is paused, and settings you changed for one site",
+    "description": "Settings > Sites: subtitle under the screen title."
   }
 }

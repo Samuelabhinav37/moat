@@ -111,6 +111,18 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
       Object.assign(settings, msg.patch as Partial<Settings>);
       return undefined;
     },
+    // Like background/settings.ts's setPerSiteOverride: null clears the key,
+    // and a site left with nothing is dropped.
+    "set-per-site-override": (msg) => {
+      const host = msg.hostname as string;
+      const key = msg.key as keyof Settings["perSiteOverrides"][string];
+      const site = { ...(settings.perSiteOverrides[host] ?? {}) };
+      if (msg.value === null) delete site[key];
+      else site[key] = msg.value as boolean;
+      if (Object.keys(site).length) settings.perSiteOverrides[host] = site;
+      else delete settings.perSiteOverrides[host];
+      return undefined;
+    },
     // Mutates the same `settings` object storageLocalData.settings already
     // points at, mirroring background/settings.ts's importCustomRules
     // closely enough for a render test to see the real effect on a later

@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.170
+
+### Added
+- **Settings lists the settings you changed for one site.** "Customize for this site" in the
+  popup lets you turn fingerprint protection, cookie-banner rejection, sponsored-post hiding and
+  the low-quality-results filter on or off for a single site. Until now nothing in Settings
+  showed those, so the only way to find or undo one was to go back to that site. The Paused sites
+  screen is now **Sites**, with a second list, **Changed for one site**: each site with its icon,
+  what was changed there ("Block fingerprinting: on"), and Reset, which puts that site back on
+  your usual settings (with Undo). The sidebar count covers both lists.
+
 ## 0.11.169
 
 ### Changed

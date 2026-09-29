@@ -1986,5 +1986,41 @@
   },
   "privacyGroupPermissions": {
     "message": "Berechtigungen und Passwörter"
+  },
+  "navSites": {
+    "message": "Websites"
+  },
+  "overridesTitle": {
+    "message": "Für eine Website geändert"
+  },
+  "overridesLead": {
+    "message": "Einstellungen, die du über das Moat-Symbol nur für eine Website ein- oder ausgeschaltet hast. Setze eine Website zurück, um dort wieder deine üblichen Einstellungen zu nutzen."
+  },
+  "overridesEmptyTitle": {
+    "message": "Nichts für eine einzelne Website geändert"
+  },
+  "overridesEmptyHint": {
+    "message": "Um eine Einstellung nur für eine Website zu ändern, klicke dort auf das Moat-Symbol und öffne Für diese Website anpassen."
+  },
+  "overridesResetSite": {
+    "message": "$HOST$ zurücksetzen",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toastReset": {
+    "message": "$HOST$ zurückgesetzt",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "pageLeadSites": {
+    "message": "Websites, auf denen Moat pausiert ist, und Einstellungen, die du für eine Website geändert hast"
   }
 }
