@@ -14,6 +14,7 @@ import { PROTECTION_LEVEL_MESSAGE_KEY, protectionLevelForCount } from "../shared
 import { getEffectiveSettings } from "../background/settings";
 import { effectiveValue, OVERRIDABLE_KEYS, type OverridableSettingKey } from "../shared/perSiteOverrides";
 import { setBreakableHostname } from "./hostnameBreaks";
+import { buildSiteIcon, faviconUrl } from "../options/siteIcon";
 
 // Firefox for Android opens the action popup as a full-width panel with no
 // toolbar anchor, so Moat's fixed 260px column reads as a narrow strip. Give
@@ -325,7 +326,16 @@ async function render(): Promise<void> {
   // used to decide whether to show the button at all, same condition that
   // already gates the whole site-card above.
   freshStartButton.hidden = false;
-  setBreakableHostname(hostnameEl, status.hostname);
+  // The card shows the site the way people say it: no leading "www.",
+  // with its own icon from the browser's cache (Chrome) or its letter.
+  const shownHost = status.hostname.replace(/^www\./i, "");
+  setBreakableHostname(hostnameEl, shownHost);
+  hostnameEl.title = status.hostname;
+  const faviconsSupported = (browser.runtime.getManifest().permissions ?? []).includes("favicon");
+  const icon = buildSiteIcon(document, status.hostname, faviconUrl(status.hostname, (path) => browser.runtime.getURL(path), faviconsSupported));
+  icon.classList.add("site-favicon");
+  icon.id = "site-favicon";
+  document.getElementById("site-favicon")?.replaceWith(icon);
   renderPausedSentence(pausedText, status.hostname);
   renderPermissionGuardNotice(status.hostname, status.permissionGuard);
   void renderSiteOverrides(status.hostname).catch(() => {

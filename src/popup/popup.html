@@ -212,12 +212,7 @@
       }
       #site-overrides summary {
         cursor: pointer;
-        /* Nested inside #site-card's white background, not the page's dark
-           one -- var(--t2) etc. are near-white and were rendering invisibly
-           here until this was actually looked at in a browser, not just
-           jsdom (which doesn't compute against a real background). Matches
-           .host/.site-state's own on-white palette below instead. */
-        color: #737278;
+        color: var(--t2);
         user-select: none;
       }
       #site-overrides-list {
@@ -239,19 +234,17 @@
         min-width: 0;
       }
       .override-row .label span:first-child {
-        color: #38373b;
+        color: var(--t1);
       }
       .override-row .label .sub {
-        /* Same muted-on-white tone as #site-overrides summary above --
-           already verified against this card's real (white) background. */
-        color: #737278;
+        color: var(--t3);
         font-size: 10.5px;
         line-height: 1.35;
       }
       .override-row .reset {
         border: none;
         background: none;
-        color: #737278;
+        color: var(--t2);
         font-size: 10.5px;
         text-decoration: underline;
         cursor: pointer;
@@ -265,11 +258,45 @@
         flex: none;
       }
 
+      /* The site card: a tile like the others, with the site's own icon.
+         It used to be the one white block in a dark panel. */
       .card {
-        background: #ffffff;
+        background: var(--s2);
         border: none;
         border-radius: 14px;
         padding: 12px 14px;
+      }
+      .site-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      /* Lets a long hostname wrap instead of running under the switch. */
+      .site-head > div {
+        min-width: 0;
+      }
+      .site-favicon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        background: var(--s1);
+        color: var(--t2);
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .site-favicon.has-img {
+        background: #fff;
+      }
+      .site-favicon.light-img {
+        background: #3a3a44;
+      }
+      .site-favicon img {
+        width: 18px;
+        height: 18px;
       }
       /* The hostname wrapper is a flex child; without min-width:0 it keeps its
          full intrinsic width and a long unbreakable hostname pushes the toggle
@@ -280,7 +307,7 @@
       .host {
         font-size: 13.5px;
         font-weight: 700;
-        color: #38373b;
+        color: var(--t1);
         /* popup.ts adds a <wbr> after each dot so a long hostname wraps
            there. break-word only splits inside a label when that label alone
            can't fit, then the clamp keeps it to two lines. */
@@ -296,28 +323,23 @@
         gap: 5px;
         font-size: 10.5px;
         font-weight: 600;
-        /* #3f78e0 (the old value) is only 4.22:1 on this white card, just
-           under WCAG AA's 4.5:1 for text this size -- darkened slightly,
-           same hue, to clear it (4.6:1). */
-        color: #3572d6;
+        /* Neutral: the switch beside it already shows on and off. */
+        color: var(--t2);
         margin-top: 2px;
       }
       .site-state i {
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: #3572d6;
+        background: var(--on);
         flex: none;
       }
-      .site-state.paused {
-        color: #737278;
-      }
       .site-state.paused i {
-        background: #737278;
+        background: var(--t3);
       }
 
       .switch .track {
-        background: #dcdcdc;
+        background: rgba(255, 255, 255, 0.18);
       }
       .switch .thumb {
         background: #fff;
@@ -432,9 +454,12 @@
 
     <div class="card" id="site-card">
       <div class="row">
-        <div>
-          <div class="host" id="hostname"></div>
-          <div class="site-state" id="site-state"><i></i><span id="site-state-text" data-i18n="popupProtected">Protected</span></div>
+        <div class="site-head">
+          <span class="site-favicon" id="site-favicon" aria-hidden="true"></span>
+          <div>
+            <div class="host" id="hostname"></div>
+            <div class="site-state" id="site-state"><i></i><span id="site-state-text" data-i18n="popupProtected">Protected</span></div>
+          </div>
         </div>
         <label class="switch">
           <input type="checkbox" id="site-toggle" aria-labelledby="hostname" />

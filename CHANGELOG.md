@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.177
+
+### Changed
+- **The popup's site card matches the rest of the popup.** It was the one white block in a dark
+  panel, with its own grey text and a blue "protected" label next to a green switch. Now it's a
+  dark tile like the others:
+  - The site's own icon sits beside its name, using the same code as Settings' site lists, so
+    it gets the dark plate for white logos and the letter when Chrome has no icon.
+  - The name drops a leading "www." (`youtube.com`), with the full hostname on hover.
+  - The status line is neutral with a small green or grey dot; the switch shows on and off.
+  - "Customize for this site" uses the popup's own text colours.
+
 ## 0.11.176
 
 ### Changed
