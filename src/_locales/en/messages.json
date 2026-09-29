@@ -4,26 +4,20 @@
     "description": "The extension's name, shown in the browser toolbar and extensions management page."
   },
   "extDescription": {
-    "message": "Blocks ads and trackers, and silently closes popup/redirect tabs, without nag screens.",
+    "message": "Blocks ads, trackers and pop-up tabs, with no nag screens.",
     "description": "The extension's short description, shown on the extensions management page and store listing."
   },
   "popupSettingsLink": {
     "message": "Settings"
   },
   "popupOnboardingCard": {
-    "message": "Moat blocks ads and trackers automatically. Use the switch below to pause it on a site, or Settings to fine-tune."
-  },
-  "popupUpdatePrefix": {
-    "message": "Updated to v"
-  },
-  "popupUpdateSeparator": {
-    "message": " -- "
+    "message": "Moat blocks ads and trackers on every site. If a site breaks, pause Moat there with this site's switch."
   },
   "popupUpdateLinkText": {
-    "message": "see what's new"
+    "message": "See what's new"
   },
   "popupBudgetNotice": {
-    "message": "Some filter lists are off. The browser's shared rule limit is full. "
+    "message": "Some blocking is off. Your browser's limit for blocking extensions is full. "
   },
   "popupBudgetNoticeLink": {
     "message": "Open Settings"
@@ -35,13 +29,13 @@
     "message": "Nothing to block on this page"
   },
   "popupProtectionLight": {
-    "message": "Light tracking blocked"
+    "message": "A few ads and trackers blocked"
   },
   "popupProtectionModerate": {
-    "message": "Moderate tracking blocked"
+    "message": "Quite a few ads and trackers blocked"
   },
   "popupProtectionHeavy": {
-    "message": "Heavy tracking blocked"
+    "message": "Lots of ads and trackers blocked"
   },
   "popupAds": {
     "message": "Ads"
@@ -50,7 +44,7 @@
     "message": "Trackers"
   },
   "popupPopups": {
-    "message": "Popups"
+    "message": "Pop-ups"
   },
   "popupByCompany": {
     "message": "By company"
@@ -59,16 +53,16 @@
     "message": "Customize for this site"
   },
   "popupOverrideFingerprint": {
-    "message": "Block fingerprinting"
+    "message": "Stop sites recognizing your device"
   },
   "popupOverrideFingerprintSub": {
     "message": "Makes your browser look slightly different each visit, so sites can't recognize you."
   },
   "popupOverrideCookieBanner": {
-    "message": "Auto-reject cookie banners"
+    "message": "Reject cookie banners"
   },
   "popupOverrideCookieBannerSub": {
-    "message": "Automatically clicks “reject” on cookie pop-ups for you."
+    "message": "Automatically clicks “reject” on cookie banners for you."
   },
   "popupOverrideFeedAds": {
     "message": "Hide sponsored posts"
@@ -77,7 +71,7 @@
     "message": "Hides sponsored and promoted posts as you scroll."
   },
   "popupOverrideSeoSpam": {
-    "message": "Hide low-quality results"
+    "message": "Hide low-quality search results"
   },
   "popupOverrideSeoSpamSub": {
     "message": "Hides search results from a list of known low-quality sites."
@@ -85,38 +79,32 @@
   "popupOverrideReset": {
     "message": "Reset"
   },
-  "popupPausedPrefix": {
-    "message": "Paused on "
-  },
-  "popupPausedSuffix": {
-    "message": ". Reload the page to see it unblocked."
-  },
   "popupProtected": {
-    "message": "protected"
+    "message": "Protected"
   },
   "popupPaused": {
-    "message": "paused"
+    "message": "Paused"
   },
   "popupReloadPage": {
     "message": "Reload page"
   },
   "popupBlockElement": {
-    "message": "Block an element…"
+    "message": "Hide something on this page…"
   },
   "popupFreshStartButton": {
     "message": "Clear site data…"
   },
   "popupFreshStartConfirm": {
-    "message": "Click again to clear"
+    "message": "Click again to clear. You'll be signed out of this site."
   },
   "popupFreshStartError": {
-    "message": "Couldn't clear site data."
+    "message": "Couldn't clear this site's data. Reload the page and try again."
   },
   "popupReportProblem": {
     "message": "Report a problem…"
   },
   "popupLoadError": {
-    "message": "Couldn't load status. Try reopening the popup."
+    "message": "Couldn't load this page's details. Click Moat's icon again."
   },
   "popupReportError": {
     "message": "Couldn't open the report page. Try again."
@@ -161,7 +149,7 @@
     "message": "Stops pages finding your real IP address through video-call features, even behind a VPN."
   },
   "optionsFingerprintToggleLabel": {
-    "message": "Block device fingerprinting"
+    "message": "Stop sites recognizing your device"
   },
   "optionsFingerprintRotateToggleLabel": {
     "message": "Use a new disguise each time you restart"
@@ -170,7 +158,7 @@
     "message": "Dim YouTube ads"
   },
   "optionsGrayscaleToggleHint": {
-    "message": "Video ads that can't be blocked are grayed out while they play."
+    "message": "Video ads Moat can't block are dimmed while they play."
   },
   "optionsFeedScanToggleLabel": {
     "message": "Hide sponsored posts"
@@ -179,10 +167,10 @@
     "message": "Removes sponsored posts from Instagram, LinkedIn and YouTube feeds."
   },
   "optionsConsentRejectToggleLabel": {
-    "message": "Say no to cookie banners"
+    "message": "Reject cookie banners"
   },
   "optionsConsentRejectToggleHint": {
-    "message": "Answers consent pop-ups for you, sharing as little as possible."
+    "message": "Picks the option that shares the least, so you don't have to."
   },
   "optionsCnameToggleLabel": {
     "message": "Catch hidden trackers"
@@ -191,7 +179,7 @@
     "message": "Not available in this browser."
   },
   "optionsCnameChromeDohHint": {
-    "message": "On Chrome, this checks disguised trackers using Cloudflare's public lookup service. It may miss the very first one it finds, then catches every one after that. Firefox does this itself, more privately, and catches every one from the start."
+    "message": "On Chrome, Moat asks Cloudflare where hidden trackers really point. It can miss the first one on a site. Firefox does this privately by itself."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Not checked yet."
@@ -203,7 +191,7 @@
     "message": "Ads and trackers load normally on these sites. Known dangerous sites stay blocked. Add one here, or pause a site from Moat's icon while you're on it."
   },
   "optionsNoSitesAdded": {
-    "message": "No sites added."
+    "message": "No sites yet."
   },
   "commonAdd": {
     "message": "Add"
@@ -212,10 +200,10 @@
     "message": "example.com"
   },
   "optionsFilterBudgetWarning": {
-    "message": "Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules extensions can use in total, and that limit is easy to hit if you have another ad blocker or privacy extension running too. Try turning one of them off, or switch off a list below."
+    "message": "Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules all extensions can use together. Another ad blocker or privacy extension can use up that limit. Turn one of them off, or turn off a list here."
   },
   "optionsFilterBudgetDetail": {
-    "message": "Your browser says $COUNT$ rule slots are left for all your extensions combined. Still low after turning off other extensions and reloading Moat? Try turning off a list below, Annoyances or Cookie Notices first.",
+    "message": "Your browser says $COUNT$ rules are left for all your extensions together. Still low after turning off other extensions and reloading Moat? Turn off a list here. Annoyances and Cookie Notices are good ones to try first.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -223,7 +211,7 @@
     }
   },
   "optionsFilterBudgetDropped": {
-    "message": "Turned off for now to stay within your browser's rule limit: $NAMES$.",
+    "message": "$NAMES$ are off for now to stay within your browser's limit.",
     "placeholders": {
       "names": {
         "content": "$1"
@@ -231,7 +219,7 @@
     }
   },
   "optionsFilterBudgetDroppedBadge": {
-    "message": "Not active (browser limit reached)"
+    "message": "Off to stay within the browser limit"
   },
   "optionsFilteringLevelTitle": {
     "message": "Filtering level"
@@ -258,7 +246,7 @@
     "message": "The lists behind your blocking level. Turning one on or off here makes it your own mix."
   },
   "optionsLoadListsError": {
-    "message": "Couldn't load filter lists."
+    "message": "Couldn't load filter lists. Reload this page to try again."
   },
   "optionsBlockedSitesTitle": {
     "message": "Always block"
@@ -267,7 +255,7 @@
     "message": "Always block these sites, whatever the filter lists say."
   },
   "optionsAddDomainInvalid": {
-    "message": "That doesn't look like a valid domain."
+    "message": "Enter a site address like example.com."
   },
   "optionsAddDomainFailed": {
     "message": "Couldn't add that domain. Try again."
@@ -279,7 +267,7 @@
     "message": "Never block"
   },
   "optionsAllowedSitesHint": {
-    "message": "Never block these sites, even when a filter list matches. Known dangerous sites stay blocked."
+    "message": "Lets this address load on every site, even if a filter list blocks it. Other ads on the page stay blocked."
   },
   "commonAllow": {
     "message": "Allow"
@@ -288,10 +276,10 @@
     "message": "Things you've hidden"
   },
   "optionsHiddenElementsHint": {
-    "message": "Parts of pages you removed with Block an element. Remove one to bring it back."
+    "message": "Parts of pages you hid. Remove one to bring it back."
   },
   "optionsNothingSelected": {
-    "message": "Nothing selected yet."
+    "message": "Nothing grayed out yet."
   },
   "optionsDimmedElementsTitle": {
     "message": "Grayed out"
@@ -355,7 +343,7 @@
     "message": "Stored by your browser account. No browsing data is included."
   },
   "optionsSyncStatusFailed": {
-    "message": "Couldn't sync your settings ($WHEN$). You may have too many custom rules or sites for your browser's sync storage. They're still saved on this device.",
+    "message": "Couldn't sync your settings on $WHEN$. You may have more rules or sites than your browser's sync storage can hold. They're still saved on this device.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -366,7 +354,7 @@
     "message": "Nothing is blocked."
   },
   "presetHintEssential": {
-    "message": "Ads, popups, and known-malicious sites."
+    "message": "Ads, pop-ups and dangerous sites."
   },
   "presetHintCustom": {
     "message": "A mix you've set up yourself."
@@ -384,7 +372,7 @@
     "message": "Core"
   },
   "optionsLiveStatusOk": {
-    "message": "Last updated $WHEN$ ($COUNT$ domains).",
+    "message": "Last updated $WHEN$. Covers $COUNT$ sites.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -395,7 +383,7 @@
     }
   },
   "optionsLiveStatusFailed": {
-    "message": "Last attempt failed ($WHEN$). Still using the built-in list until the next try.",
+    "message": "The last update failed on $WHEN$. Moat keeps using the lists it has until the next try.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -403,7 +391,7 @@
     }
   },
   "optionsLiveStatusQuickFixes": {
-    "message": " $COUNT$ extra fix(es) applied.",
+    "message": " Extra fixes: $COUNT$.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -411,7 +399,7 @@
     }
   },
   "optionsLiveStatusCosmeticFixes": {
-    "message": " $COUNT$ layout fix(es) applied.",
+    "message": " Layout fixes: $COUNT$.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -419,7 +407,7 @@
     }
   },
   "optionsLiveStatusYoutubeFixes": {
-    "message": " $COUNT$ YouTube fix(es) applied.",
+    "message": " YouTube fixes: $COUNT$.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -447,7 +435,7 @@
     "message": "That file doesn't look like a valid Moat settings export."
   },
   "optionsImportReadError": {
-    "message": "Couldn't read that file."
+    "message": "Couldn't read that file. Choose a backup file saved by Moat."
   },
   "leakedPasswordWarning": {
     "message": "This password has appeared in a known data breach."
@@ -456,7 +444,7 @@
     "message": "Warn about leaked passwords"
   },
   "popupPermissionGuardIntro": {
-    "message": "Moat's permission guard is blocking prompts on this site:"
+    "message": "This site asked for your camera, microphone or location. Moat stopped it."
   },
   "popupAllowCameraHere": {
     "message": "Allow camera here"
@@ -520,7 +508,7 @@
     "message": "Safety"
   },
   "optionsFingerprintDrawerDesc": {
-    "message": "Makes it harder for sites to recognise your computer from its settings."
+    "message": "Makes it harder for sites to recognize your device."
   },
   "optionsFingerprintCaution": {
     "message": "Can occasionally break a CAPTCHA or a bank's device check. If a site misbehaves, turn this off first."
@@ -556,7 +544,7 @@
     "message": "Location"
   },
   "optionsFingerprintMetricLabel": {
-    "message": "sites randomised this week"
+    "message": "sites that saw a disguised device this week"
   },
   "optionsCnameMetricLabel": {
     "message": "sites protected this week"
@@ -667,10 +655,10 @@
     "message": "Everything you've hidden yourself with the element picker. These override the filter lists and never leave your browser."
   },
   "optionsPickElementButton": {
-    "message": "Pick an element"
+    "message": "Hide something on a page"
   },
   "optionsPickElementFailed": {
-    "message": "Couldn't start the picker there."
+    "message": "Couldn't start there. Moat can't run on browser pages or extension stores. Open a website and try again."
   },
   "optionsCustomRulesBaseline": {
     "message": "$COUNT$ rules, across $SITES$ sites",
@@ -727,7 +715,7 @@
     "message": "This site was blocked"
   },
   "warningLede": {
-    "message": "Your organization's security policy blocks this site. This isn't Moat's own filter list — it's a domain your organization specifically named."
+    "message": "Your organization's security policy blocks this site. It isn't on one of Moat's own lists."
   },
   "warningGoBack": {
     "message": "Go back"
@@ -736,13 +724,13 @@
     "message": "Report a mistake"
   },
   "warningOverrideNote": {
-    "message": "This sends a note to your organization's security team for review — it does not unblock the site."
+    "message": "This sends a note to your organization's security team to review. It doesn't unblock the site."
   },
   "warningReasonPlaceholder": {
     "message": "Why do you think this was blocked in error?"
   },
   "warningSubmit": {
-    "message": "Submit"
+    "message": "Send to your security team"
   },
   "warningGoesToIT": {
     "message": "Goes to your IT team, not to Moat."
@@ -754,7 +742,7 @@
     "message": "Reported to your security team. This page stays blocked until they review it."
   },
   "warningReportedError": {
-    "message": "Couldn't send the report -- try again in a moment."
+    "message": "Couldn't send the report. Try again in a moment."
   },
   "commonAlwaysOn": {
     "message": "always on"
@@ -784,7 +772,7 @@
     "message": "Import from another blocker…"
   },
   "optionsMigrationImportHint": {
-    "message": "Paste rules exported from uBlock Origin, AdGuard, or similar — blocked/allowed domains and per-site element-hiding rules. Other filter syntax isn't supported and will be skipped."
+    "message": "Paste rules exported from uBlock Origin, AdGuard or a similar blocker. Moat imports blocked and allowed sites, and rules that hide parts of a site. Other rule types are skipped."
   },
   "optionsMigrationImportButton": {
     "message": "Import"
@@ -859,7 +847,7 @@
     "message": "Filter fixes and today's phishing and scam lists, downloaded once a day as signed files. Nothing about you is sent."
   },
   "optionsDisclosureUpdatesRecipient": {
-    "message": "GitHub Pages (file hosting)"
+    "message": "GitHub Pages, a file host"
   },
   "optionsDisclosureBreachName": {
     "message": "Breach checking"
@@ -970,16 +958,16 @@
     "message": "How much to block"
   },
   "levelLead": {
-    "message": "This applies to every site you visit. Balanced suits almost everyone. Choose Strict for the most privacy, or Light if a site you use keeps breaking."
+    "message": "Balanced suits most people. Pick Strict for more privacy, or Light if sites keep breaking."
   },
   "levelLightDesc": {
-    "message": "Blocks ads, pop-ups, and scam and malware sites. Trackers still load, so sites that depend on them keep working."
+    "message": "Blocks ads, pop-ups, and dangerous sites like scams and malware. Trackers still load, so sites that depend on them keep working."
   },
   "levelBalancedDesc": {
-    "message": "Everything in Light, plus trackers, tracking added to links, and phishing sites. Recommended."
+    "message": "Everything in Light, plus trackers, tracking added to links, and fake login sites. Recommended."
   },
   "levelStrictDesc": {
-    "message": "Everything in Balanced, plus cookie notices, social buttons, fingerprinting and third-party cookies. A few sites may not work right."
+    "message": "Everything in Balanced, plus cookie banners and social media buttons. It also stops sites recognizing your device, following you between sites, or seeing your IP address. A few sites may break."
   },
   "levelCustomNote": {
     "message": "You're using your own mix of filter lists.",
@@ -995,13 +983,13 @@
     "message": "No sites are paused"
   },
   "pausedEmptyHint": {
-    "message": "Pause a site you trust to let its ads and trackers load. Known dangerous sites stay blocked."
+    "message": "Pause a site you trust to let its ads and trackers load."
   },
   "hiddenEmptyTitle": {
     "message": "Nothing hidden yet"
   },
   "hiddenEmptyHint": {
-    "message": "Click Moat's icon, choose Block an element, then click what you want gone."
+    "message": "Click Moat's icon, choose Hide something on this page, then click what you want gone."
   },
   "advancedButton": {
     "message": "Advanced settings"
@@ -1101,7 +1089,7 @@
     "message": "GPL-3.0 license"
   },
   "footerReportIssue": {
-    "message": "Report an issue"
+    "message": "Report a problem"
   },
   "footerCopyright": {
     "message": "© 2026 Moat"
@@ -1116,7 +1104,7 @@
     "message": "Back"
   },
   "tourSeeTitle": {
-    "message": "Moat is already on."
+    "message": "Moat is already on"
   },
   "tourHowTitle": {
     "message": "How Moat works"
@@ -1134,7 +1122,7 @@
     "message": "Moat checks each one on your device"
   },
   "tourHow2Sub": {
-    "message": "Against about 310,000 rules from public filter lists like AdGuard's. Nothing is sent anywhere to decide."
+    "message": "It checks each request against hundreds of thousands of rules from public filter lists. Nothing leaves your device."
   },
   "tourHow3Title": {
     "message": "Matches never load"
@@ -1149,7 +1137,7 @@
     "message": "Empty ad boxes fold away. Cookie banners get a “reject” where the site allows it."
   },
   "tourPinTitle": {
-    "message": "Pin Moat next to the address bar."
+    "message": "Pin Moat next to the address bar"
   },
   "tourPinLede": {
     "message": "Then its icon shows how much each page tried to load, and you can pause it on a site in one click."
@@ -1170,7 +1158,7 @@
     "message": "Hide anything the lists miss"
   },
   "tourPopupTitle": {
-    "message": "Everything is one click away."
+    "message": "Everything is one click away"
   },
   "tourPopupLede": {
     "message": "Click Moat's icon on any page. This is what it showed on weather.com."
@@ -1182,7 +1170,7 @@
     "message": "Split into ads, trackers and pop-ups."
   },
   "tourLegend2Title": {
-    "message": "Site broken? Switch Moat off here"
+    "message": "Site broken? Pause Moat here"
   },
   "tourLegend2Sub": {
     "message": "Only for this site. Everywhere else stays protected."
@@ -1369,7 +1357,7 @@
     "message": "This happens on every site, on your device, from the moment Moat is installed."
   },
   "popupUnsorted": {
-    "message": "$COUNT$ not sorted yet",
+    "message": "Plus $COUNT$ more blocked",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -1508,7 +1496,7 @@
     "message": "What Moat did for you this week"
   },
   "ovWeekLabel": {
-    "message": "ads and trackers stopped this week"
+    "message": "ads, trackers and pop-ups stopped this week"
   },
   "ovTodayLabel": {
     "message": "today"
@@ -1523,7 +1511,7 @@
     "message": "Change level"
   },
   "ovBlockElement": {
-    "message": "Block an element"
+    "message": "Hide something on a page"
   },
   "ovToday": {
     "message": "Today"
@@ -1541,10 +1529,11 @@
     "message": "Undo"
   },
   "toastResumed": {
-    "message": "Resumed $HOST$",
+    "message": "Moat is back on for $HOST$",
     "placeholders": {
       "host": {
-        "content": "$1"
+        "content": "$1",
+        "example": "example.com"
       }
     }
   },
@@ -1625,7 +1614,7 @@
     "message": "pop-ups"
   },
   "ovKindUnsorted": {
-    "message": "$COUNT$ not sorted",
+    "message": "$COUNT$ other",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -1637,7 +1626,7 @@
     "description": "Heading of the Settings side panel that pictures how a setting works, and the button on each setting that shows that picture."
   },
   "explainLevels": {
-    "message": "Each level adds more. Light stops ads and scams. Balanced also stops trackers. Strict also hides cookie notices and blocks third-party cookies.",
+    "message": "Each level includes everything in the one before it, then blocks a bit more.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainConsentReject": {
@@ -1645,7 +1634,7 @@
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainGrayscale": {
-    "message": "Some video ads come from the same server as the video, so blocking them would stop the video too. Moat fades them to gray while they play.",
+    "message": "Some video ads come from the same server as the video, so blocking them would stop the video too. Moat dims them while they play.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainFeedScan": {
@@ -1685,7 +1674,7 @@
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainPaused": {
-    "message": "On a paused site, ads and trackers load as usual. Known phishing and malware sites stay blocked.",
+    "message": "On a paused site, ads and trackers load as usual. Known dangerous sites stay blocked.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainHidden": {
@@ -1705,7 +1694,7 @@
     "description": "Weekly tracker summary on the Settings Overview when no tracker company has been blocked yet this week."
   },
   "pickerHint": {
-    "message": "Click anything to hide it. Esc to cancel.",
+    "message": "Click anything to hide it. Press Esc to cancel.",
     "description": "Instruction shown at the top of a page while picking an element to hide."
   },
   "pickerTitle": {
@@ -1713,11 +1702,11 @@
     "description": "Heading of the card shown after clicking an element to hide."
   },
   "pickerBigger": {
-    "message": "Bigger",
+    "message": "Select more",
     "description": "Button that widens the picked area to the element around it."
   },
   "pickerSmaller": {
-    "message": "Smaller",
+    "message": "Select less",
     "description": "Button that narrows the picked area back to the element inside."
   },
   "pickerHideOnSite": {
@@ -1730,7 +1719,7 @@
     }
   },
   "pickerJustOnce": {
-    "message": "Just this time",
+    "message": "Hide until reload",
     "description": "Button: hides the picked element until the page reloads, without saving."
   },
   "pickerGrayOut": {
@@ -1935,7 +1924,7 @@
     "description": "Settings > About, 'What leaves your device': the problem-report row."
   },
   "explainStepLevels1": {
-    "message": "A page with an ad, trackers and a cookie notice",
+    "message": "A page with an ad, trackers and a cookie banner",
     "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
   },
   "explainStepLevels2": {
@@ -1947,7 +1936,7 @@
     "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
   },
   "explainStepLevels4": {
-    "message": "Strict also hides the cookie notice",
+    "message": "Strict also hides the cookie banner",
     "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
   },
   "explainStepConsent1": {
@@ -1967,7 +1956,7 @@
     "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
   },
   "explainStepGrayscale2": {
-    "message": "Moat fades it to gray until it ends",
+    "message": "Moat dims it until it ends",
     "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
   },
   "explainStepFeed1": {
@@ -2147,5 +2136,25 @@
   "pageLeadSites": {
     "message": "Sites where Moat is paused, and settings you changed for one site",
     "description": "Settings > Sites: subtitle under the screen title."
+  },
+  "popupPausedOn": {
+    "message": "Moat is paused on $HOST$. Reload the page to apply it.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    },
+    "description": "Popup banner on a paused site. $HOST$ is the site's address."
+  },
+  "popupUpdated": {
+    "message": "Moat updated to version $VERSION$.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.11.171"
+      }
+    },
+    "description": "Popup notice after an update, followed by a 'See what's new' link."
   }
 }

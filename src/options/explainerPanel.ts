@@ -17,9 +17,9 @@ const SCENE_ALIASES: Record<string, string> = {
 
 /** One or two plain sentences under each picture. */
 export const CAPTIONS: Record<string, [string, string]> = {
-  levels: ["explainLevels", "Each level adds more. Light stops ads and scams. Balanced also stops trackers. Strict also hides cookie notices and blocks third-party cookies."],
+  levels: ["explainLevels", "Each level includes everything in the one before it, then blocks a bit more."],
   consentReject: ["explainConsentReject", "When a site shows a cookie banner, Moat picks the choice that shares the least, so you never have to click it."],
-  grayscale: ["explainGrayscale", "Some video ads come from the same server as the video, so blocking them would stop the video too. Moat fades them to gray while they play."],
+  grayscale: ["explainGrayscale", "Some video ads come from the same server as the video, so blocking them would stop the video too. Moat dims them while they play."],
   feedScan: ["explainFeedScan", "As you scroll, Moat looks for the Sponsored label on posts and takes those posts out of your feed."],
   leakedPassword: ["explainLeakedPassword", "Moat checks a short scrambled piece of a password you type against known breaches. Your password itself never leaves your computer."],
   cookies: ["explainCookies", "A tracker on one site leaves a cookie so it can spot you on the next one. Moat stops sites from sharing those cookies."],
@@ -29,7 +29,7 @@ export const CAPTIONS: Record<string, [string, string]> = {
   searchSlop: ["explainSearchSlop", "Results from known content farms fold away behind a Show link, so they're still one click away."],
   permissionGuard: ["explainPermissionGuard", "Pages that ask for your camera, microphone or location as soon as they load are stopped. Allow a site from Moat's popup when you trust it."],
   lists: ["explainLists", "Filter lists are shared blocklists that their authors keep up to date. Moat combines the lists for your level into one set of rules."],
-  paused: ["explainPaused", "On a paused site, ads and trackers load as usual. Known phishing and malware sites stay blocked."],
+  paused: ["explainPaused", "On a paused site, ads and trackers load as usual. Known dangerous sites stay blocked."],
   hidden: ["explainHidden", "Point at anything on a page and click it. Moat hides it there every time you visit."],
   rules: ["explainRules", "Your own rules beat the filter lists. Always block a site, or never block one a list gets wrong."],
   backup: ["explainBackup", "A backup is a plain text file you can open and read. Sync keeps the same settings on your other computers."],

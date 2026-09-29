@@ -29,8 +29,8 @@ export function siteOverrideEntries(overrides: Settings["perSiteOverrides"]): Si
 
 /** The popup's own names for these settings, so both places say the same. */
 export const OVERRIDE_NAMES: Record<OverridableSettingKey, readonly [string, string]> = {
-  fingerprintResistance: ["popupOverrideFingerprint", "Block fingerprinting"],
-  cookieBannerAutoReject: ["popupOverrideCookieBanner", "Auto-reject cookie banners"],
+  fingerprintResistance: ["popupOverrideFingerprint", "Stop sites recognizing your device"],
+  cookieBannerAutoReject: ["popupOverrideCookieBanner", "Reject cookie banners"],
   aggressiveFeedAdRemoval: ["popupOverrideFeedAds", "Hide sponsored posts"],
-  hideSeoSpamResults: ["popupOverrideSeoSpam", "Hide low-quality results"],
+  hideSeoSpamResults: ["popupOverrideSeoSpam", "Hide low-quality search results"],
 };

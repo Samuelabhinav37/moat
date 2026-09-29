@@ -3,25 +3,19 @@
     "message": "Moat"
   },
   "extDescription": {
-    "message": "Bloquea anuncios y rastreadores, y cierra silenciosamente las pestañas emergentes o de redirección, sin pantallas molestas."
+    "message": "Bloquea anuncios, rastreadores y pestañas emergentes, sin avisos molestos."
   },
   "popupSettingsLink": {
     "message": "Configuración"
   },
   "popupOnboardingCard": {
-    "message": "Moat bloquea anuncios y rastreadores automáticamente. Usa el interruptor de abajo para pausarlo en un sitio, o Configuración para ajustarlo."
-  },
-  "popupUpdatePrefix": {
-    "message": "Actualizado a v"
-  },
-  "popupUpdateSeparator": {
-    "message": " -- "
+    "message": "Moat bloquea anuncios y rastreadores en todos los sitios. Si un sitio falla, pausa Moat allí con el interruptor de ese sitio."
   },
   "popupUpdateLinkText": {
-    "message": "ver novedades"
+    "message": "Ver novedades"
   },
   "popupBudgetNotice": {
-    "message": "Algunas listas de filtros están desactivadas. Se alcanzó el límite de reglas compartido del navegador. "
+    "message": "Parte del bloqueo está desactivado. Se llenó el límite de tu navegador para extensiones de bloqueo. "
   },
   "popupBudgetNoticeLink": {
     "message": "Abrir Configuración"
@@ -33,13 +27,13 @@
     "message": "Nada que bloquear en esta página"
   },
   "popupProtectionLight": {
-    "message": "Rastreo leve bloqueado"
+    "message": "Algunos anuncios y rastreadores bloqueados"
   },
   "popupProtectionModerate": {
-    "message": "Rastreo moderado bloqueado"
+    "message": "Bastantes anuncios y rastreadores bloqueados"
   },
   "popupProtectionHeavy": {
-    "message": "Rastreo intenso bloqueado"
+    "message": "Muchos anuncios y rastreadores bloqueados"
   },
   "popupAds": {
     "message": "Anuncios"
@@ -57,13 +51,13 @@
     "message": "Personalizar para este sitio"
   },
   "popupOverrideFingerprint": {
-    "message": "Bloquear huella digital"
+    "message": "Impedir que los sitios reconozcan tu dispositivo"
   },
   "popupOverrideFingerprintSub": {
     "message": "Hace que tu navegador se vea un poco distinto cada visita, para que los sitios no te reconozcan."
   },
   "popupOverrideCookieBanner": {
-    "message": "Rechazar automáticamente cookies"
+    "message": "Rechazar avisos de cookies"
   },
   "popupOverrideCookieBannerSub": {
     "message": "Hace clic en “rechazar” en los avisos de cookies por ti."
@@ -75,7 +69,7 @@
     "message": "Oculta publicaciones patrocinadas mientras navegas."
   },
   "popupOverrideSeoSpam": {
-    "message": "Ocultar resultados de baja calidad"
+    "message": "Ocultar resultados de búsqueda de baja calidad"
   },
   "popupOverrideSeoSpamSub": {
     "message": "Oculta resultados de búsqueda de sitios de baja calidad conocidos."
@@ -83,38 +77,32 @@
   "popupOverrideReset": {
     "message": "Restablecer"
   },
-  "popupPausedPrefix": {
-    "message": "Pausado en "
-  },
-  "popupPausedSuffix": {
-    "message": ". Recarga la página para verlo desbloqueado."
-  },
   "popupProtected": {
-    "message": "protegido"
+    "message": "Protegido"
   },
   "popupPaused": {
-    "message": "pausado"
+    "message": "En pausa"
   },
   "popupReloadPage": {
     "message": "Recargar página"
   },
   "popupBlockElement": {
-    "message": "Bloquear un elemento…"
+    "message": "Ocultar algo de esta página…"
   },
   "popupFreshStartButton": {
     "message": "Borrar datos del sitio…"
   },
   "popupFreshStartConfirm": {
-    "message": "Haz clic de nuevo para borrar"
+    "message": "Haz clic otra vez para borrar. Se cerrará tu sesión en este sitio."
   },
   "popupFreshStartError": {
-    "message": "No se pudieron borrar los datos del sitio."
+    "message": "No se pudieron borrar los datos de este sitio. Recarga la página e inténtalo de nuevo."
   },
   "popupReportProblem": {
     "message": "Reportar un problema…"
   },
   "popupLoadError": {
-    "message": "No se pudo cargar el estado. Intenta reabrir la ventana emergente."
+    "message": "No se pudieron cargar los detalles de esta página. Vuelve a hacer clic en el icono de Moat."
   },
   "popupReportError": {
     "message": "No se pudo abrir la página de reporte. Intenta de nuevo."
@@ -159,7 +147,7 @@
     "message": "Impide que las páginas descubran tu IP real mediante funciones de videollamada, incluso con una VPN."
   },
   "optionsFingerprintToggleLabel": {
-    "message": "Bloquear la huella digital del dispositivo"
+    "message": "Impedir que los sitios reconozcan tu dispositivo"
   },
   "optionsFingerprintRotateToggleLabel": {
     "message": "Usar un disfraz nuevo cada vez que reinicias el navegador"
@@ -168,7 +156,7 @@
     "message": "Atenuar anuncios de YouTube"
   },
   "optionsGrayscaleToggleHint": {
-    "message": "Los anuncios de vídeo que no se pueden bloquear se muestran en gris mientras se reproducen."
+    "message": "Los anuncios de vídeo que Moat no puede bloquear se atenúan mientras se reproducen."
   },
   "optionsFeedScanToggleLabel": {
     "message": "Ocultar publicaciones patrocinadas"
@@ -177,10 +165,10 @@
     "message": "Elimina publicaciones patrocinadas de los feeds de Instagram, LinkedIn y YouTube."
   },
   "optionsConsentRejectToggleLabel": {
-    "message": "Rechazar banners de cookies"
+    "message": "Rechazar avisos de cookies"
   },
   "optionsConsentRejectToggleHint": {
-    "message": "Responde por ti a las ventanas de consentimiento, compartiendo lo mínimo posible."
+    "message": "Elige la opción que menos comparte, para que no tengas que hacerlo tú."
   },
   "optionsCnameToggleLabel": {
     "message": "Detectar rastreadores ocultos"
@@ -189,7 +177,7 @@
     "message": "No disponible en este navegador."
   },
   "optionsCnameChromeDohHint": {
-    "message": "En Chrome, esto comprueba los rastreadores disfrazados usando el servicio de consultas públicas de Cloudflare. Puede pasar por alto el primero que encuentra, pero detecta todos los siguientes. Firefox hace esto por su cuenta, de forma más privada, y detecta todos desde el principio."
+    "message": "En Chrome, Moat pregunta a Cloudflare adónde apuntan de verdad los rastreadores ocultos. Puede pasar por alto el primero de un sitio. Firefox lo hace por sí mismo y en privado."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Aún no verificado."
@@ -201,7 +189,7 @@
     "message": "En estos sitios los anuncios y rastreadores cargan con normalidad. Los sitios peligrosos conocidos siguen bloqueados. Añade uno aquí o pausa un sitio desde el icono de Moat mientras lo visitas."
   },
   "optionsNoSitesAdded": {
-    "message": "No se han añadido sitios."
+    "message": "Aún no hay sitios."
   },
   "commonAdd": {
     "message": "Añadir"
@@ -210,10 +198,10 @@
     "message": "ejemplo.com"
   },
   "optionsFilterBudgetWarning": {
-    "message": "Algunas de las listas de filtros de Moat no se pudieron activar. Los navegadores limitan cuántas reglas de bloqueo pueden usar las extensiones en total, y ese límite es fácil de alcanzar si tienes otro bloqueador de anuncios o extensión de privacidad activo. Prueba a desactivar uno de ellos, o desactiva una lista abajo."
+    "message": "Algunas listas de filtros de Moat no se pudieron activar. Los navegadores limitan cuántas reglas de bloqueo pueden usar todas las extensiones juntas. Otro bloqueador o extensión de privacidad puede agotar ese límite. Desactiva una de ellas o desactiva una lista aquí."
   },
   "optionsFilterBudgetDetail": {
-    "message": "Tu navegador indica que quedan $COUNT$ espacios de reglas para todas tus extensiones juntas. ¿Sigue siendo bajo después de desactivar otras extensiones y recargar Moat? Desactiva una lista abajo, primero Molestias o Avisos de cookies.",
+    "message": "Tu navegador dice que quedan $COUNT$ reglas para todas tus extensiones juntas. ¿Sigue bajo tras desactivar otras extensiones y recargar Moat? Desactiva una lista aquí. Molestias y Avisos de cookies son buenas para empezar.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -221,7 +209,7 @@
     }
   },
   "optionsFilterBudgetDropped": {
-    "message": "Desactivadas por ahora para mantenerte dentro del límite de reglas de tu navegador: $NAMES$.",
+    "message": "$NAMES$ están desactivadas por ahora para no pasar el límite de tu navegador.",
     "placeholders": {
       "names": {
         "content": "$1"
@@ -229,7 +217,7 @@
     }
   },
   "optionsFilterBudgetDroppedBadge": {
-    "message": "No activa (límite del navegador alcanzado)"
+    "message": "Desactivada para no pasar el límite del navegador"
   },
   "optionsFilteringLevelTitle": {
     "message": "Nivel de filtrado"
@@ -256,7 +244,7 @@
     "message": "Las listas detrás de tu nivel de bloqueo. Si activas o desactivas una aquí, pasa a ser tu propia combinación."
   },
   "optionsLoadListsError": {
-    "message": "No se pudieron cargar las listas de filtros."
+    "message": "No se pudieron cargar las listas de filtros. Recarga esta página para intentarlo de nuevo."
   },
   "optionsBlockedSitesTitle": {
     "message": "Bloquear siempre"
@@ -265,7 +253,7 @@
     "message": "Bloquea siempre estos sitios, digan lo que digan las listas de filtros."
   },
   "optionsAddDomainInvalid": {
-    "message": "Eso no parece un dominio válido."
+    "message": "Escribe la dirección de un sitio, como example.com."
   },
   "optionsAddDomainFailed": {
     "message": "No se pudo agregar ese dominio. Intenta de nuevo."
@@ -277,7 +265,7 @@
     "message": "No bloquear nunca"
   },
   "optionsAllowedSitesHint": {
-    "message": "No bloquear nunca estos sitios, aunque coincida una lista de filtros. Los sitios peligrosos conocidos siguen bloqueados."
+    "message": "Deja que esta dirección cargue en todos los sitios, aunque una lista de filtros la bloquee. Los demás anuncios de la página siguen bloqueados."
   },
   "commonAllow": {
     "message": "Permitir"
@@ -286,10 +274,10 @@
     "message": "Cosas que has ocultado"
   },
   "optionsHiddenElementsHint": {
-    "message": "Partes de páginas que quitaste con Bloquear un elemento. Elimina una para recuperarla."
+    "message": "Partes de páginas que ocultaste. Quita una para que vuelva a aparecer."
   },
   "optionsNothingSelected": {
-    "message": "Nada seleccionado todavía."
+    "message": "Aún no hay nada en gris."
   },
   "optionsDimmedElementsTitle": {
     "message": "En gris"
@@ -353,7 +341,7 @@
     "message": "Se guarda en la cuenta de tu navegador. No incluye datos de navegación."
   },
   "optionsSyncStatusFailed": {
-    "message": "No se pudo sincronizar tu configuración ($WHEN$). Puede que tengas demasiadas reglas personalizadas o sitios para el almacenamiento de sincronización de tu navegador. Sigue guardada en este dispositivo.",
+    "message": "No se pudieron sincronizar tus ajustes el $WHEN$. Puede que tengas más reglas o sitios de los que caben en el almacenamiento de sincronización de tu navegador. Siguen guardados en este dispositivo.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -364,7 +352,7 @@
     "message": "No se bloquea nada."
   },
   "presetHintEssential": {
-    "message": "Anuncios, ventanas emergentes y sitios maliciosos conocidos."
+    "message": "Anuncios, ventanas emergentes y sitios peligrosos."
   },
   "presetHintCustom": {
     "message": "Una combinación que has armado tú mismo."
@@ -382,7 +370,7 @@
     "message": "Básico"
   },
   "optionsLiveStatusOk": {
-    "message": "Última actualización $WHEN$ ($COUNT$ dominios).",
+    "message": "Última actualización: $WHEN$. Cubre $COUNT$ sitios.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -393,7 +381,7 @@
     }
   },
   "optionsLiveStatusFailed": {
-    "message": "El último intento falló ($WHEN$). Se sigue usando la lista incluida hasta el próximo intento.",
+    "message": "La última actualización falló el $WHEN$. Moat sigue usando las listas que tiene hasta el próximo intento.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -401,7 +389,7 @@
     }
   },
   "optionsLiveStatusQuickFixes": {
-    "message": " $COUNT$ corrección(es) adicional(es) aplicada(s).",
+    "message": " Correcciones extra: $COUNT$.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -409,7 +397,7 @@
     }
   },
   "optionsLiveStatusCosmeticFixes": {
-    "message": " $COUNT$ corrección(es) de diseño aplicada(s).",
+    "message": " Correcciones de diseño: $COUNT$.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -417,7 +405,7 @@
     }
   },
   "optionsLiveStatusYoutubeFixes": {
-    "message": " $COUNT$ corrección(es) de YouTube aplicada(s).",
+    "message": " Correcciones para YouTube: $COUNT$.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -445,7 +433,7 @@
     "message": "Ese archivo no parece ser una exportación de configuración válida de Moat."
   },
   "optionsImportReadError": {
-    "message": "No se pudo leer ese archivo."
+    "message": "No se pudo leer ese archivo. Elige una copia de seguridad guardada por Moat."
   },
   "leakedPasswordWarning": {
     "message": "Esta contraseña ha aparecido en una filtración de datos conocida."
@@ -454,7 +442,7 @@
     "message": "Avisar de contraseñas filtradas"
   },
   "popupPermissionGuardIntro": {
-    "message": "El guardián de permisos de Moat está bloqueando solicitudes en este sitio:"
+    "message": "Este sitio pidió tu cámara, micrófono o ubicación. Moat lo detuvo."
   },
   "popupAllowCameraHere": {
     "message": "Permitir cámara aquí"
@@ -518,7 +506,7 @@
     "message": "Seguridad"
   },
   "optionsFingerprintDrawerDesc": {
-    "message": "Dificulta que los sitios reconozcan tu ordenador por su configuración."
+    "message": "Hace más difícil que los sitios reconozcan tu dispositivo."
   },
   "optionsFingerprintCaution": {
     "message": "Puede fallar a veces con un CAPTCHA o la verificación de un banco. Si un sitio falla, desactívalo primero."
@@ -554,7 +542,7 @@
     "message": "Ubicación"
   },
   "optionsFingerprintMetricLabel": {
-    "message": "sitios aleatorizados esta semana"
+    "message": "sitios que vieron un dispositivo disfrazado esta semana"
   },
   "optionsCnameMetricLabel": {
     "message": "sitios protegidos esta semana"
@@ -665,10 +653,10 @@
     "message": "Todo lo que has ocultado tú mismo con el selector de elementos. Esto tiene prioridad sobre las listas de filtros y nunca sale de tu navegador."
   },
   "optionsPickElementButton": {
-    "message": "Elegir un elemento"
+    "message": "Ocultar algo de una página"
   },
   "optionsPickElementFailed": {
-    "message": "No se pudo iniciar el selector ahí."
+    "message": "No se pudo iniciar ahí. Moat no funciona en páginas del navegador ni en tiendas de extensiones. Abre un sitio web e inténtalo de nuevo."
   },
   "optionsCustomRulesBaseline": {
     "message": "$COUNT$ reglas, en $SITES$ sitios",
@@ -725,7 +713,7 @@
     "message": "Este sitio fue bloqueado"
   },
   "warningLede": {
-    "message": "La política de seguridad de tu organización bloquea este sitio. Esta no es la lista de filtros propia de Moat — es un dominio que tu organización nombró específicamente."
+    "message": "La política de seguridad de tu organización bloquea este sitio. No está en ninguna de las listas propias de Moat."
   },
   "warningGoBack": {
     "message": "Volver"
@@ -734,13 +722,13 @@
     "message": "Reportar un error"
   },
   "warningOverrideNote": {
-    "message": "Esto envía una nota al equipo de seguridad de tu organización para su revisión — no desbloquea el sitio."
+    "message": "Esto envía una nota al equipo de seguridad de tu organización para que la revise. No desbloquea el sitio."
   },
   "warningReasonPlaceholder": {
     "message": "¿Por qué crees que esto se bloqueó por error?"
   },
   "warningSubmit": {
-    "message": "Enviar"
+    "message": "Enviar a tu equipo de seguridad"
   },
   "warningGoesToIT": {
     "message": "Va a tu equipo de TI, no a Moat."
@@ -752,7 +740,7 @@
     "message": "Reportado a tu equipo de seguridad. Esta página sigue bloqueada hasta que la revisen."
   },
   "warningReportedError": {
-    "message": "No se pudo enviar el reporte -- intenta de nuevo en un momento."
+    "message": "No se pudo enviar el informe. Inténtalo de nuevo en un momento."
   },
   "commonAlwaysOn": {
     "message": "siempre activo"
@@ -782,7 +770,7 @@
     "message": "Importar desde otro bloqueador…"
   },
   "optionsMigrationImportHint": {
-    "message": "Pega reglas exportadas de uBlock Origin, AdGuard o similares — dominios bloqueados/permitidos y reglas de ocultación de elementos por sitio. Otra sintaxis de filtro no es compatible y se omitirá."
+    "message": "Pega reglas exportadas de uBlock Origin, AdGuard u otro bloqueador parecido. Moat importa sitios bloqueados y permitidos, y reglas que ocultan partes de un sitio. Los demás tipos de reglas se omiten."
   },
   "optionsMigrationImportButton": {
     "message": "Importar"
@@ -857,7 +845,7 @@
     "message": "Correcciones de filtros y las listas de phishing y estafas del dÃ­a, descargadas una vez al dÃ­a como archivos firmados. No se envÃ­a nada sobre ti."
   },
   "optionsDisclosureUpdatesRecipient": {
-    "message": "GitHub Pages (alojamiento de archivos)"
+    "message": "GitHub Pages, un alojamiento de archivos"
   },
   "optionsDisclosureBreachName": {
     "message": "Verificación de filtraciones"
@@ -968,16 +956,16 @@
     "message": "Cuánto bloquear"
   },
   "levelLead": {
-    "message": "Se aplica a todos los sitios que visitas. Equilibrado sirve para casi todo el mundo. Elige Estricto para la máxima privacidad, o Ligero si un sitio que usas deja de funcionar."
+    "message": "Equilibrado sirve para casi todos. Elige Estricto para más privacidad, o Ligero si los sitios fallan a menudo."
   },
   "levelLightDesc": {
-    "message": "Bloquea anuncios, ventanas emergentes y sitios de estafas y malware. Los rastreadores se siguen cargando, así que los sitios que dependen de ellos siguen funcionando."
+    "message": "Bloquea anuncios, ventanas emergentes y sitios peligrosos como estafas y malware. Los rastreadores siguen cargando, así que los sitios que dependen de ellos siguen funcionando."
   },
   "levelBalancedDesc": {
-    "message": "Todo lo de Ligero, más rastreadores, el rastreo añadido a los enlaces y sitios de phishing. Recomendado."
+    "message": "Todo lo de Ligero, más rastreadores, rastreo añadido a los enlaces y sitios de inicio de sesión falsos. Recomendado."
   },
   "levelStrictDesc": {
-    "message": "Todo lo de Equilibrado, más avisos de cookies, botones sociales, huellas digitales y cookies de terceros. Algunos sitios pueden no funcionar bien."
+    "message": "Todo lo de Equilibrado, más avisos de cookies y botones de redes sociales. También impide que los sitios reconozcan tu dispositivo, te sigan de un sitio a otro o vean tu dirección IP. Algunos sitios pueden fallar."
   },
   "levelCustomNote": {
     "message": "Estás usando tu propia combinación de listas de filtros."
@@ -992,13 +980,13 @@
     "message": "No hay sitios pausados"
   },
   "pausedEmptyHint": {
-    "message": "Pausa un sitio de confianza para dejar que carguen sus anuncios y rastreadores. Los sitios peligrosos conocidos siguen bloqueados."
+    "message": "Pausa un sitio de confianza para que carguen sus anuncios y rastreadores."
   },
   "hiddenEmptyTitle": {
     "message": "Aún no has ocultado nada"
   },
   "hiddenEmptyHint": {
-    "message": "Haz clic en el icono de Moat, elige Bloquear un elemento y luego haz clic en lo que quieras quitar."
+    "message": "Haz clic en el icono de Moat, elige Ocultar algo de esta página y haz clic en lo que quieras quitar."
   },
   "advancedButton": {
     "message": "Configuración avanzada"
@@ -1113,7 +1101,7 @@
     "message": "Atrás"
   },
   "tourSeeTitle": {
-    "message": "Moat ya está activado."
+    "message": "Moat ya está activo"
   },
   "tourHowTitle": {
     "message": "Cómo funciona Moat"
@@ -1131,7 +1119,7 @@
     "message": "Moat revisa cada una en tu dispositivo"
   },
   "tourHow2Sub": {
-    "message": "Con unas 310.000 reglas de listas de filtros públicas, como las de AdGuard. No se envía nada a ningún sitio para decidir."
+    "message": "Compara cada petición con cientos de miles de reglas de listas de filtros públicas. Nada sale de tu dispositivo."
   },
   "tourHow3Title": {
     "message": "Lo que coincide nunca se carga"
@@ -1146,7 +1134,7 @@
     "message": "Los huecos de anuncios vacíos se cierran. Los avisos de cookies reciben un “rechazar” cuando el sitio lo permite."
   },
   "tourPinTitle": {
-    "message": "Fija Moat junto a la barra de direcciones."
+    "message": "Fija Moat junto a la barra de direcciones"
   },
   "tourPinLede": {
     "message": "Así su icono muestra cuánto intentó cargar cada página, y puedes pausarlo en un sitio con un clic."
@@ -1167,7 +1155,7 @@
     "message": "Ocultar lo que las listas no detecten"
   },
   "tourPopupTitle": {
-    "message": "Todo está a un clic."
+    "message": "Todo está a un clic"
   },
   "tourPopupLede": {
     "message": "Haz clic en el icono de Moat en cualquier página. Esto es lo que mostró en weather.com."
@@ -1179,7 +1167,7 @@
     "message": "Separado en anuncios, rastreadores y ventanas emergentes."
   },
   "tourLegend2Title": {
-    "message": "¿Un sitio falla? Desactiva Moat aquí"
+    "message": "¿El sitio falla? Pausa Moat aquí"
   },
   "tourLegend2Sub": {
     "message": "Solo en este sitio. Todo lo demás sigue protegido."
@@ -1366,7 +1354,7 @@
     "message": "Esto pasa en todos los sitios, en tu dispositivo, desde que instalas Moat."
   },
   "popupUnsorted": {
-    "message": "$COUNT$ sin clasificar todavía",
+    "message": "Y $COUNT$ más bloqueados",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -1505,7 +1493,7 @@
     "message": "Lo que Moat hizo por ti esta semana"
   },
   "ovWeekLabel": {
-    "message": "anuncios y rastreadores detenidos esta semana"
+    "message": "anuncios, rastreadores y ventanas emergentes frenados esta semana"
   },
   "ovTodayLabel": {
     "message": "hoy"
@@ -1520,7 +1508,7 @@
     "message": "Cambiar nivel"
   },
   "ovBlockElement": {
-    "message": "Bloquear un elemento"
+    "message": "Ocultar algo de una página"
   },
   "ovToday": {
     "message": "Hoy"
@@ -1538,10 +1526,11 @@
     "message": "Deshacer"
   },
   "toastResumed": {
-    "message": "Reanudado $HOST$",
+    "message": "Moat vuelve a estar activo en $HOST$",
     "placeholders": {
       "host": {
-        "content": "$1"
+        "content": "$1",
+        "example": "example.com"
       }
     }
   },
@@ -1622,7 +1611,7 @@
     "message": "ventanas emergentes"
   },
   "ovKindUnsorted": {
-    "message": "$COUNT$ sin clasificar",
+    "message": "$COUNT$ otros",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -1633,13 +1622,13 @@
     "message": "Cómo funciona"
   },
   "explainLevels": {
-    "message": "Cada nivel añade más. Ligero detiene anuncios y estafas. Equilibrado también detiene rastreadores. Estricto además oculta avisos de cookies y bloquea las cookies de terceros."
+    "message": "Cada nivel incluye todo lo del anterior y bloquea un poco más."
   },
   "explainConsentReject": {
     "message": "Cuando un sitio muestra un aviso de cookies, Moat elige la opción que comparte menos, así nunca tienes que pulsarlo."
   },
   "explainGrayscale": {
-    "message": "Algunos anuncios de vídeo vienen del mismo servidor que el vídeo, así que bloquearlos pararía también el vídeo. Moat los pasa a gris mientras se reproducen."
+    "message": "Algunos anuncios de vídeo vienen del mismo servidor que el vídeo, así que bloquearlos pararía también el vídeo. Moat los atenúa mientras se reproducen."
   },
   "explainFeedScan": {
     "message": "Mientras te desplazas, Moat busca la etiqueta Patrocinado en las publicaciones y las quita de tu feed."
@@ -1669,7 +1658,7 @@
     "message": "Las listas de filtros son listas de bloqueo compartidas que sus autores mantienen al día. Moat combina las de tu nivel en un solo conjunto de reglas."
   },
   "explainPaused": {
-    "message": "En un sitio en pausa, los anuncios y rastreadores cargan con normalidad. Los sitios de phishing y malware conocidos siguen bloqueados."
+    "message": "En un sitio en pausa, los anuncios y rastreadores cargan con normalidad. Los sitios peligrosos conocidos siguen bloqueados."
   },
   "explainHidden": {
     "message": "Señala cualquier cosa de una página y haz clic. Moat la oculta ahí cada vez que vuelvas."
@@ -1684,16 +1673,16 @@
     "message": "Ninguna todavía esta semana. Las empresas aparecen aquí a medida que Moat detiene sus rastreadores mientras navegas."
   },
   "pickerHint": {
-    "message": "Haz clic en cualquier cosa para ocultarla. Esc para cancelar."
+    "message": "Haz clic en cualquier cosa para ocultarla. Pulsa Esc para cancelar."
   },
   "pickerTitle": {
     "message": "¿Ocultar esto?"
   },
   "pickerBigger": {
-    "message": "Más grande"
+    "message": "Seleccionar más"
   },
   "pickerSmaller": {
-    "message": "Más pequeño"
+    "message": "Seleccionar menos"
   },
   "pickerHideOnSite": {
     "message": "Ocultar en $HOST$",
@@ -1704,7 +1693,7 @@
     }
   },
   "pickerJustOnce": {
-    "message": "Solo esta vez"
+    "message": "Ocultar hasta recargar"
   },
   "pickerGrayOut": {
     "message": "Poner en gris"
@@ -1883,7 +1872,7 @@
     "message": "Un anuncio se reproduce dentro del vídeo"
   },
   "explainStepGrayscale2": {
-    "message": "Moat lo pone en gris hasta que termina"
+    "message": "Moat lo atenúa hasta que termina"
   },
   "explainStepFeed1": {
     "message": "Hay una publicación patrocinada en tu feed"
@@ -2022,5 +2011,23 @@
   },
   "pageLeadSites": {
     "message": "Sitios donde Moat está en pausa y ajustes que cambiaste para un solo sitio"
+  },
+  "popupPausedOn": {
+    "message": "Moat está en pausa en $HOST$. Recarga la página para aplicarlo.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "popupUpdated": {
+    "message": "Moat se actualizó a la versión $VERSION$.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.11.171"
+      }
+    }
   }
 }

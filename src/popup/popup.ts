@@ -52,7 +52,12 @@ async function renderUiNotices(): Promise<void> {
 
   const updateNotice = document.getElementById("update-notice")!;
   if (notices.updateAvailable) {
-    document.getElementById("update-version")!.textContent = notices.updateVersion;
+    document.getElementById("update-text")!.textContent = getMessageOrFallback(
+      (key, subs) => browser.i18n.getMessage(key, subs),
+      "popupUpdated",
+      `Moat updated to version ${notices.updateVersion}.`,
+      notices.updateVersion
+    );
     updateNotice.hidden = false;
     void browser.runtime.sendMessage({ type: "dismiss-update-notice" });
   }
@@ -87,10 +92,10 @@ function renderCompanyBreakdown(companyBreakdown: Record<string, number>): void 
 // PROTECTIONS list uses for titleKey/descKey, so a missing/failed i18n
 // lookup falls back to real text instead of the raw settings-key name.
 const OVERRIDE_LABEL_KEYS: Record<OverridableSettingKey, readonly [string, string]> = {
-  fingerprintResistance: ["popupOverrideFingerprint", "Block fingerprinting"],
-  cookieBannerAutoReject: ["popupOverrideCookieBanner", "Auto-reject cookie banners"],
+  fingerprintResistance: ["popupOverrideFingerprint", "Stop sites recognizing your device"],
+  cookieBannerAutoReject: ["popupOverrideCookieBanner", "Reject cookie banners"],
   aggressiveFeedAdRemoval: ["popupOverrideFeedAds", "Hide sponsored posts"],
-  hideSeoSpamResults: ["popupOverrideSeoSpam", "Hide low-quality results"],
+  hideSeoSpamResults: ["popupOverrideSeoSpam", "Hide low-quality search results"],
 };
 
 // One-line plain-language explanation under each override's title -- this
@@ -105,7 +110,7 @@ const OVERRIDE_SUBTITLE_KEYS: Record<OverridableSettingKey, readonly [string, st
   ],
   cookieBannerAutoReject: [
     "popupOverrideCookieBannerSub",
-    "Automatically clicks “reject” on cookie pop-ups for you.",
+    "Automatically clicks “reject” on cookie banners for you.",
   ],
   aggressiveFeedAdRemoval: [
     "popupOverrideFeedAdsSub",
@@ -237,6 +242,24 @@ function renderPermissionGuardNotice(
   notice.hidden = !anyVisible;
 }
 
+/** "Moat is paused on example.com. Reload the page to apply it." as one
+ * message, with the site dropped in where the translation puts $HOST$ and
+ * still breakable at its dots. */
+function renderPausedSentence(el: HTMLElement, hostname: string): void {
+  const MARK = "\u0001";
+  const sentence = getMessageOrFallback(
+    (key, subs) => browser.i18n.getMessage(key, subs),
+    "popupPausedOn",
+    `Moat is paused on ${MARK}. Reload the page to apply it.`,
+    MARK
+  );
+  const [before = "", after = ""] = sentence.split(MARK);
+  const host = document.createElement("span");
+  host.className = "paused-host";
+  setBreakableHostname(host, hostname);
+  el.replaceChildren(before, host, after);
+}
+
 async function render(): Promise<void> {
   const status = await getStatus();
 
@@ -258,7 +281,7 @@ async function render(): Promise<void> {
     unsorted.textContent = getMessageOrFallback(
       (key, subs) => browser.i18n.getMessage(key, subs),
       "popupUnsorted",
-      `${status.unsorted} not sorted yet`,
+      `Plus ${status.unsorted} more blocked`,
       String(status.unsorted)
     );
   }
@@ -279,7 +302,7 @@ async function render(): Promise<void> {
   const toggle = document.getElementById("site-toggle") as HTMLInputElement;
   const stats = document.getElementById("stats")!;
   const pausedBanner = document.getElementById("paused-banner")!;
-  const pausedHostname = document.getElementById("paused-hostname")!;
+  const pausedText = document.getElementById("paused-text")!;
   const siteState = document.getElementById("site-state")!;
   const siteStateText = document.getElementById("site-state-text")!;
   const reloadButton = document.getElementById("reload-page") as HTMLButtonElement;
@@ -299,7 +322,7 @@ async function render(): Promise<void> {
   // already gates the whole site-card above.
   freshStartButton.hidden = false;
   setBreakableHostname(hostnameEl, status.hostname);
-  setBreakableHostname(pausedHostname, status.hostname);
+  renderPausedSentence(pausedText, status.hostname);
   renderPermissionGuardNotice(status.hostname, status.permissionGuard);
   void renderSiteOverrides(status.hostname).catch(() => {
     // Best-effort -- the core pause/protect toggle above still works fine
@@ -400,7 +423,7 @@ freshStartButton.addEventListener("click", async () => {
     freshStartButtonLabel.textContent = getMessageOrFallback(
       (key) => browser.i18n.getMessage(key),
       "popupFreshStartConfirm",
-      "Click again to clear"
+      "Click again to clear. You'll be signed out of this site."
     );
     clearTimeout(freshStartResetTimer);
     freshStartResetTimer = setTimeout(resetFreshStartButton, CONFIRM_WINDOW_MS);
@@ -436,7 +459,7 @@ freshStartButton.addEventListener("click", async () => {
     freshStartButtonLabel.textContent = getMessageOrFallback(
       (key) => browser.i18n.getMessage(key),
       "popupFreshStartError",
-      "Couldn't clear site data."
+      "Couldn't clear this site's data. Reload the page and try again."
     );
   }
 });
@@ -466,7 +489,7 @@ void render().catch(() => {
   document.getElementById("site-card")!.textContent = getMessageOrFallback(
     (key) => browser.i18n.getMessage(key),
     "popupLoadError",
-    "Couldn't load status. Try reopening the popup."
+    "Couldn't load this page's details. Click Moat's icon again."
   );
 });
 void renderUiNotices().catch(() => {

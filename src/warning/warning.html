@@ -100,10 +100,7 @@
       <span class="badge" data-i18n="warningBadge">Blocked by organization policy</span>
       <h1 data-i18n="warningTitle">This site was blocked</h1>
       <span id="hostname">—</span>
-      <p class="lede" data-i18n="warningLede">
-        Your organization's security policy blocks this site. This isn't Moat's own filter
-        list — it's a domain your organization specifically named.
-      </p>
+      <p class="lede" data-i18n="warningLede">Your organization's security policy blocks this site. It isn't on one of Moat's own lists.</p>
 
       <div class="actions">
         <button id="go-back" data-i18n="warningGoBack">Go back</button>
@@ -111,10 +108,7 @@
       </div>
 
       <div id="override-form" hidden>
-        <p class="muted" data-i18n="warningOverrideNote">
-          This sends a note to your organization's security team for review — it does not
-          unblock the site.
-        </p>
+        <p class="muted" data-i18n="warningOverrideNote">This sends a note to your organization's security team to review. It doesn't unblock the site.</p>
         <textarea
           id="reason"
           maxlength="500"
@@ -122,7 +116,7 @@
           data-i18n-placeholder="warningReasonPlaceholder"
         ></textarea>
         <div class="submit-row">
-          <button id="submit-override" class="primary" data-i18n="warningSubmit">Submit</button>
+          <button id="submit-override" class="primary" data-i18n="warningSubmit">Send to your security team</button>
           <span class="muted" data-i18n="warningGoesToIT">Goes to your IT team, not to Moat.</span>
         </div>
         <p id="override-status" hidden></p>

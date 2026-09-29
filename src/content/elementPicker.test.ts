@@ -78,15 +78,15 @@ describe("picking", () => {
     expect(sendMessage).not.toHaveBeenCalled();
   });
 
-  it("Bigger and Smaller step through the element's ancestors", () => {
+  it("Select more and Select less step through the element's ancestors", () => {
     const { ad, slot } = page();
     picker.startPicking();
     const root = picker.pickForTest(ad)!;
-    expect(buttons(root)["Smaller"]!.disabled).toBe(true);
-    buttons(root)["Bigger"]!.click();
+    expect(buttons(root)["Select less"]!.disabled).toBe(true);
+    buttons(root)["Select more"]!.click();
     expect(slot.style.getPropertyValue("opacity")).toBe("0.2");
     expect(ad.style.getPropertyValue("opacity")).toBe("");
-    buttons(root)["Smaller"]!.click();
+    buttons(root)["Select less"]!.click();
     expect(ad.style.getPropertyValue("opacity")).toBe("0.2");
   });
 
@@ -103,7 +103,7 @@ describe("picking", () => {
   it("hides just this time without saving, or grays out and saves that", () => {
     let { ad } = page();
     picker.startPicking();
-    buttons(picker.pickForTest(ad)!)["Just this time"]!.click();
+    buttons(picker.pickForTest(ad)!)["Hide until reload"]!.click();
     expect(sendMessage).not.toHaveBeenCalled();
 
     ({ ad } = page());

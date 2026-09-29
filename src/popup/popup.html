@@ -376,22 +376,20 @@
 
     <div class="notice" id="onboarding-card" hidden>
       <span data-i18n="popupOnboardingCard"
-        >Moat blocks ads and trackers automatically. Use the switch below to pause it on a
-        site, or Settings to fine-tune.</span
+        >Moat blocks ads and trackers on every site. If a site breaks, pause Moat there with this site's switch.</span
       >
     </div>
 
     <div class="notice" id="update-notice" hidden>
       <span
-        ><span data-i18n="popupUpdatePrefix">Updated to v</span><span id="update-version"></span
-        ><span data-i18n="popupUpdateSeparator"> -- </span>
+        ><span id="update-text"></span>
         <a
           href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md"
           target="_blank"
           rel="noopener"
           id="update-changelog-link"
           data-i18n="popupUpdateLinkText"
-          >see what's new</a
+          >See what's new</a
         ></span
       >
     </div>
@@ -399,7 +397,7 @@
     <div class="notice" id="budget-notice" hidden>
       <span
         ><span data-i18n="popupBudgetNotice"
-          >Some filter lists are off. The browser's shared rule limit is full. </span
+          >Some blocking is off. Your browser's limit for blocking extensions is full. </span
         ><a href="#" id="budget-open-options" data-i18n="popupBudgetNoticeLink">Open Settings</a></span
       >
     </div>
@@ -414,7 +412,7 @@
       <div class="breakdown">
         <div class="seg"><span class="n" id="count-ads">0</span><span class="l"><i class="dot ads"></i><span data-i18n="popupAds">Ads</span></span></div>
         <div class="seg"><span class="n" id="count-trackers">0</span><span class="l"><i class="dot trackers"></i><span data-i18n="popupTrackers">Trackers</span></span></div>
-        <div class="seg"><span class="n" id="count-popups">0</span><span class="l"><i class="dot popups"></i><span data-i18n="popupPopups">Popups</span></span></div>
+        <div class="seg"><span class="n" id="count-popups">0</span><span class="l"><i class="dot popups"></i><span data-i18n="popupPopups">Pop-ups</span></span></div>
       </div>
       <p class="unsorted" id="unsorted" hidden></p>
 
@@ -425,15 +423,14 @@
     </div>
 
     <div class="paused-banner" id="paused-banner" hidden>
-      <span data-i18n="popupPausedPrefix">Paused on </span><span id="paused-hostname"></span
-      ><span data-i18n="popupPausedSuffix">. Reload the page to see it unblocked.</span>
+      <span id="paused-text"></span>
     </div>
 
     <div class="card" id="site-card">
       <div class="row">
         <div>
           <div class="host" id="hostname"></div>
-          <div class="site-state" id="site-state"><i></i><span id="site-state-text" data-i18n="popupProtected">protected</span></div>
+          <div class="site-state" id="site-state"><i></i><span id="site-state-text" data-i18n="popupProtected">Protected</span></div>
         </div>
         <label class="switch">
           <input type="checkbox" id="site-toggle" aria-labelledby="hostname" />
@@ -448,7 +445,7 @@
     </div>
 
     <div class="notice" id="permission-guard-notice" hidden>
-      <span data-i18n="popupPermissionGuardIntro">Moat's permission guard is blocking prompts on this site:</span>
+      <span data-i18n="popupPermissionGuardIntro">This site asked for your camera, microphone or location. Moat stopped it.</span>
       <a href="#" id="permission-guard-allow-camera" hidden data-i18n="popupAllowCameraHere">Allow camera here</a>
       <a href="#" id="permission-guard-allow-microphone" hidden data-i18n="popupAllowMicrophoneHere"
         >Allow microphone here</a
@@ -458,7 +455,7 @@
 
     <div class="actions">
       <button id="reload-page" class="secondary" hidden data-i18n="popupReloadPage">Reload page</button>
-      <button id="start-picker" class="secondary" data-i18n="popupBlockElement">Block an element…</button>
+      <button id="start-picker" class="secondary" data-i18n="popupBlockElement">Hide something on this page…</button>
       <!-- Hidden by default; popup.ts only shows it for a real http(s) tab
            (see freshStart.ts's own guard against internal/extension pages).
            The caution-colored triangle (same glyph as the Backup tab's own

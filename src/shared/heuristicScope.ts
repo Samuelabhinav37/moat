@@ -37,7 +37,7 @@ export const HEURISTIC_DEFS: readonly HeuristicScopeDef[] = [
   {
     id: "cookieBannerReject",
     settingKey: "cookieBannerAutoReject",
-    titleKey: ["optionsConsentRejectToggleLabel", "Auto-reject cookie banners"],
+    titleKey: ["optionsConsentRejectToggleLabel", "Reject cookie banners"],
   },
   {
     id: "searchSlop",

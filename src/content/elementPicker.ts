@@ -271,12 +271,12 @@ function renderCard(): void {
   outline?.classList.add("picked");
 
   const site = location.hostname.replace(/^www\./, "") || location.host;
-  const bigger = el("button", undefined, t("pickerBigger", "Bigger"));
+  const bigger = el("button", undefined, t("pickerBigger", "Select more"));
   bigger.type = "button";
   bigger.disabled = step >= path.length - 1;
   bigger.setAttribute("aria-keyshortcuts", "ArrowUp");
   bigger.addEventListener("click", () => resize(1));
-  const smaller = el("button", undefined, t("pickerSmaller", "Smaller"));
+  const smaller = el("button", undefined, t("pickerSmaller", "Select less"));
   smaller.type = "button";
   smaller.disabled = step === 0;
   smaller.setAttribute("aria-keyshortcuts", "ArrowDown");
@@ -285,7 +285,7 @@ function renderCard(): void {
   const primary = el("button", "primary", t("pickerHideOnSite", `Hide on ${site}`, site));
   primary.type = "button";
   primary.addEventListener("click", () => finish("save"));
-  const once = el("button", undefined, t("pickerJustOnce", "Just this time"));
+  const once = el("button", undefined, t("pickerJustOnce", "Hide until reload"));
   once.type = "button";
   once.addEventListener("click", () => finish("temporary"));
 
@@ -350,7 +350,7 @@ export function startPicking(): void {
   const style = document.createElement("style");
   style.textContent = CSS;
   outline = el("div", "outline");
-  pill = el("div", "pill", t("pickerHint", "Click anything to hide it. Esc to cancel."));
+  pill = el("div", "pill", t("pickerHint", "Click anything to hide it. Press Esc to cancel."));
   root.append(style, outline, pill);
   document.documentElement.append(host);
   document.addEventListener("mouseover", onMouseOver, true);

@@ -2453,7 +2453,7 @@
             <div class="ov-week-head">
               <div>
                 <div class="ov-big" id="ov-week-total">—</div>
-                <div class="ov-sub" data-i18n="ovWeekLabel">ads and trackers stopped this week</div>
+                <div class="ov-sub" data-i18n="ovWeekLabel">ads, trackers and pop-ups stopped this week</div>
                 <div class="ov-kinds" id="ov-kinds" hidden>
                   <span><b id="ov-kind-ads">0</b> <span data-i18n="ovKindAds">ads</span></span>
                   <span><b id="ov-kind-trackers">0</b> <span data-i18n="ovKindTrackers">trackers</span></span>
@@ -2480,7 +2480,7 @@
             </ul>
           </div>
           <div class="ov-actions">
-            <button type="button" class="ov-action" id="ov-pick-element"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4l7 17 2-7 7-2z" /></svg><span data-i18n="ovBlockElement">Block an element</span></button>
+            <button type="button" class="ov-action" id="ov-pick-element"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4l7 17 2-7 7-2z" /></svg><span data-i18n="ovBlockElement">Hide something on a page</span></button>
             <button type="button" class="ov-action" id="ov-save-backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span data-i18n="optionsExportTitle">Save a backup</span></button>
             <button type="button" class="ov-action" id="ov-check-fixes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0114-5M20 12a8 8 0 01-14 5M18 3v4h-4M6 21v-4h4" /></svg><span data-i18n="aboutCheckFixes">Check for filter fixes</span></button>
           </div>
@@ -2493,7 +2493,7 @@
           <section class="sec" data-page="blocking">
             <div>
               <h2 data-i18n="levelTitle">How much to block</h2>
-              <p class="lead" data-i18n="levelLead">This applies to every site you visit. Balanced suits almost everyone. Choose Strict for the most privacy, or Light if a site you use keeps breaking.</p>
+              <p class="lead" data-i18n="levelLead">Balanced suits most people. Pick Strict for more privacy, or Light if sites keep breaking.</p>
             </div>
             <div>
               <div class="levels" id="level-cards" data-explain="levels" role="radiogroup" aria-labelledby="level-title-sr">
@@ -2501,17 +2501,17 @@
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="lite">
                   <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetLite">Light</span></span>
                   <span class="level-meter" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
-                  <span class="level-desc" data-i18n="levelLightDesc">Blocks ads, pop-ups, and scam and malware sites. Trackers still load, so sites that depend on them keep working.</span>
+                  <span class="level-desc" data-i18n="levelLightDesc">Blocks ads, pop-ups, and dangerous sites like scams and malware. Trackers still load, so sites that depend on them keep working.</span>
                 </button>
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="standard">
                   <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetStandard">Balanced</span></span>
                   <span class="level-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
-                  <span class="level-desc" data-i18n="levelBalancedDesc">Everything in Light, plus trackers, tracking added to links, and phishing sites. Recommended.</span>
+                  <span class="level-desc" data-i18n="levelBalancedDesc">Everything in Light, plus trackers, tracking added to links, and fake login sites. Recommended.</span>
                 </button>
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="strict">
                   <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetStrict">Strict</span></span>
                   <span class="level-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>
-                  <span class="level-desc" data-i18n="levelStrictDesc">Everything in Balanced, plus cookie notices, social buttons, fingerprinting and third-party cookies. A few sites may not work right.</span>
+                  <span class="level-desc" data-i18n="levelStrictDesc">Everything in Balanced, plus cookie banners and social media buttons. It also stops sites recognizing your device, following you between sites, or seeing your IP address. A few sites may break.</span>
                 </button>
               </div>
               <p class="level-note" id="level-note" hidden><span data-i18n="levelCustomNote">You're using your own mix of filter lists.</span> <a href="#filters" class="to-filters" data-i18n="levelCustomNoteLink">See Filter lists</a></p>
@@ -2537,7 +2537,7 @@
                 <span class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 5v14M15 5v14" /></svg></span>
                 <div>
                   <b data-i18n="pausedEmptyTitle">No sites are paused</b>
-                  <span data-i18n="pausedEmptyHint">Pause a site you trust to let its ads and trackers load. Known dangerous sites stay blocked.</span>
+                  <span data-i18n="pausedEmptyHint">Pause a site you trust to let its ads and trackers load.</span>
                 </div>
               </div>
               <div class="field rule-card pause-card">
@@ -2570,7 +2570,7 @@
           <section class="sec" data-page="hidden">
             <div>
               <h2 data-i18n="navHidden">Hidden on pages</h2>
-              <p class="lead" data-i18n="optionsHiddenElementsHint">Parts of pages you removed with Block an element. Remove one to bring it back.</p>
+              <p class="lead" data-i18n="optionsHiddenElementsHint">Parts of pages you hid. Remove one to bring it back.</p>
             </div>
             <div>
               <div class="box" id="hidden-element-box"><div class="rule-rows" id="hidden-element-rows"></div></div>
@@ -2578,17 +2578,17 @@
                 <span class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg></span>
                 <div>
                   <b data-i18n="hiddenEmptyTitle">Nothing hidden yet</b>
-                  <span data-i18n="hiddenEmptyHint">Click Moat's icon, choose Block an element, then click what you want gone.</span>
+                  <span data-i18n="hiddenEmptyHint">Click Moat's icon, choose Hide something on this page, then click what you want gone.</span>
                 </div>
               </div>
               <div class="pick-row">
-                <button type="button" id="pick-element-button" data-i18n="optionsPickElementButton">Pick an element</button>
+                <button type="button" id="pick-element-button" data-i18n="optionsPickElementButton">Hide something on a page</button>
                 <p class="hint muted" id="pick-element-status" hidden></p>
               </div>
               <div id="grayscale-element-block" hidden>
                 <p class="sub-h" style="margin-top: 22px" data-i18n="optionsDimmedElementsTitle">Grayed out</p>
                 <div class="box"><div class="rule-rows" id="grayscale-element-rows"></div></div>
-                <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing selected yet.</p>
+                <p class="empty-state" id="grayscale-element-empty" data-i18n="optionsNothingSelected">Nothing grayed out yet.</p>
               </div>
             </div>
           </section>
@@ -2625,7 +2625,7 @@
               </div>
               <div>
                 <div class="budget-warning" id="filter-budget-warning" hidden>
-                  <p data-i18n="optionsFilterBudgetWarning">Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules extensions can use in total, and that limit is easy to hit if you have another ad blocker or privacy extension running too. Try turning one of them off, or switch off a list below.</p>
+                  <p data-i18n="optionsFilterBudgetWarning">Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules all extensions can use together. Another ad blocker or privacy extension can use up that limit. Turn one of them off, or turn off a list here.</p>
                   <p id="filter-budget-detail" hidden></p>
                 </div>
                 <p class="level-line" id="level-line">
@@ -2664,7 +2664,7 @@
                   <span class="field-label" data-i18n="optionsBlockedSitesTitle">Always block</span>
                   <span class="field-hint" data-i18n="optionsBlockedSitesHint">Always block these sites, whatever the filter lists say.</span>
                   <ul class="site-list box" id="custom-block-list" style="margin-top: 10px"></ul>
-                  <p class="empty-state" id="custom-block-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
+                  <p class="empty-state" id="custom-block-empty" data-i18n="optionsNoSitesAdded">No sites yet.</p>
                   <div class="add-row">
                     <input type="text" id="custom-block-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="custom-block-add" />
                     <button type="button" id="custom-block-add" data-i18n="commonBlock">Block</button>
@@ -2673,12 +2673,12 @@
                 </div>
                 <div class="field rule-card">
                   <span class="field-label" data-i18n="optionsAllowedSitesTitle">Never block</span>
-                  <span class="field-hint" data-i18n="optionsAllowedSitesHint">Never block these sites, even when a filter list matches. Known dangerous sites stay blocked.</span>
+                  <span class="field-hint" data-i18n="optionsAllowedSitesHint">Lets this address load on every site, even if a filter list blocks it. Other ads on the page stay blocked.</span>
                   <ul class="site-list box" id="custom-allow-list" style="margin-top: 10px"></ul>
-                  <p class="empty-state" id="custom-allow-empty" data-i18n="optionsNoSitesAdded">No sites added.</p>
+                  <p class="empty-state" id="custom-allow-empty" data-i18n="optionsNoSitesAdded">No sites yet.</p>
                   <div class="add-row">
                     <input type="text" id="custom-allow-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="custom-allow-add" />
-                    <button type="button" id="custom-allow-add" data-i18n="commonAllow">Allow</button>
+                    <button type="button" id="custom-allow-add" data-i18n="optionsAllowedSitesTitle">Never block</button>
                   </div>
                   <p class="hint muted" id="custom-allow-add-status" hidden></p>
                 </div>
@@ -2752,7 +2752,7 @@
                 <p class="hint" id="sync-status" hidden></p>
                 <details id="migration-import" class="more">
                   <summary data-i18n="optionsMigrationImportSummary">Import from another blocker…</summary>
-                  <p class="hint muted" data-i18n="optionsMigrationImportHint">Paste rules exported from uBlock Origin, AdGuard, or similar — blocked/allowed domains and per-site element-hiding rules. Other filter syntax isn't supported and will be skipped.</p>
+                  <p class="hint muted" data-i18n="optionsMigrationImportHint">Paste rules exported from uBlock Origin, AdGuard or a similar blocker. Moat imports blocked and allowed sites, and rules that hide parts of a site. Other rule types are skipped.</p>
                   <textarea id="migration-import-textarea" class="migration-import-textarea" rows="5" placeholder="||ads.example.com^&#10;example.com##.ad-banner"></textarea>
                   <div class="actions" style="margin-top: 10px">
                     <button type="button" id="migration-import-file-button" data-i18n="commonChooseFile">Choose file</button>
@@ -2811,7 +2811,7 @@
                     <li class="flow-row" data-flow="updates">
                       <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg></span>
                       <span class="flow-text"><b data-i18n="optionsDisclosureUpdatesName">Daily updates</b><span data-i18n="optionsDisclosureUpdatesSent">Filter fixes and today's phishing and scam lists, downloaded once a day as signed files. Nothing about you is sent.</span></span>
-                      <span class="flow-to" data-i18n="optionsDisclosureUpdatesRecipient">GitHub Pages (file hosting)</span>
+                      <span class="flow-to" data-i18n="optionsDisclosureUpdatesRecipient">GitHub Pages, a file host</span>
                       <span class="pill on" data-i18n="commonOn">on</span>
                     </li>
                     <li class="flow-row" data-flow="breach">
@@ -2882,7 +2882,7 @@
               <h4 data-i18n="footerProject">Project</h4>
               <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="footerGithub">GitHub</a>
               <a href="https://github.com/Samuelabhinav37/moat/blob/master/LICENSE" target="_blank" rel="noopener" data-i18n="footerLicense">GPL-3.0 license</a>
-              <a href="report.html" target="_blank" rel="noopener" data-i18n="footerReportIssue">Report an issue</a>
+              <a href="report.html" target="_blank" rel="noopener" data-i18n="footerReportIssue">Report a problem</a>
             </div>
           </nav>
         </div>

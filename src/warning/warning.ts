@@ -56,7 +56,7 @@ document.getElementById("submit-override")!.addEventListener("click", () => {
       status.textContent = getMessageOrFallback(
         (key) => browser.i18n.getMessage(key),
         "warningReportedError",
-        "Couldn't send the report -- try again in a moment."
+        "Couldn't send the report. Try again in a moment."
       );
       submitButton.disabled = false;
     }

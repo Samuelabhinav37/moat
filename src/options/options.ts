@@ -278,13 +278,13 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsFingerprintToggleLabel", "Stop sites recognizing your device"],
     descKey: [
       "optionsFingerprintDrawerDesc",
-      "Randomly tweaks details about your device that sites use to recognize you across visits.",
+      "Makes it harder for sites to recognize your device.",
     ],
     cautionKey: [
       "optionsFingerprintCaution",
       "Can occasionally break a CAPTCHA or a bank's device check. If a site misbehaves, pause this first.",
     ],
-    metricLabelKey: ["optionsFingerprintMetricLabel", "sites randomised this week"],
+    metricLabelKey: ["optionsFingerprintMetricLabel", "sites that saw a disguised device this week"],
   },
   {
     id: "cname",
@@ -339,7 +339,7 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsGrayscaleToggleLabel", "Gray out unblockable video ads"],
     descKey: [
       "optionsGrayscaleToggleHint",
-      "Fades in-stream video ads, like YouTube's, to grayscale while they play.",
+      "Video ads Moat can't block are dimmed while they play.",
     ],
     metricLabelKey: ["optionsGrayscaleMetricLabel", "ads dimmed today"],
   },
@@ -363,8 +363,8 @@ const PROTECTIONS: ProtectionDef[] = [
     group: "annoyances",
     signal: "cookieBannerReject",
     evidenceUnit: "week",
-    titleKey: ["optionsConsentRejectToggleLabel", "Auto-reject cookie banners"],
-    descKey: ["optionsConsentRejectToggleHint", "Clicks “reject” or “decline” on common consent banners for you."],
+    titleKey: ["optionsConsentRejectToggleLabel", "Reject cookie banners"],
+    descKey: ["optionsConsentRejectToggleHint", "Picks the option that shares the least, so you don't have to."],
     metricLabelKey: ["optionsConsentRejectMetricLabel", "banners rejected this week"],
   },
   {
@@ -528,7 +528,7 @@ const protectionGroupsEl = document.getElementById("protection-groups") as HTMLE
 const cnameUnsupportedHint = tFallback("optionsCnameUnsupportedHint", "Not available in this browser.");
 const cnameChromeDohHint = tFallback(
   "optionsCnameChromeDohHint",
-  "On Chrome, this checks disguised trackers using Cloudflare's public lookup service. It may miss the very first one it finds, then catches every one after that. Firefox does this itself, more privately, and catches every one from the start."
+  "On Chrome, Moat asks Cloudflare where hidden trackers really point. It can miss the first one on a site. Firefox does this privately by itself."
 );
 
 const liveStatus = document.getElementById("live-status") as HTMLElement | null;
@@ -552,8 +552,8 @@ function renderSyncStatus(syncEnabled: boolean, status: Awaited<ReturnType<typeo
   syncStatus.hidden = false;
   syncStatus.textContent = tFallback(
     "optionsSyncStatusFailed",
-    `Couldn't sync your settings (${when}). You may have too many custom rules or sites for your ` +
-      `browser's sync storage. They're still saved on this device.`,
+    `Couldn't sync your settings on ${when}. You may have more rules or sites than your browser's ` +
+      `sync storage can hold. They're still saved on this device.`,
     [when]
   );
 }
@@ -745,7 +745,7 @@ function renderSiteOverrides(settings: Settings): void {
 }
 
 const undoResume: UndoRemoval<string> = {
-  message: (hostname) => tFallback("toastResumed", `Resumed ${hostname}`, hostname),
+  message: (hostname) => tFallback("toastResumed", `Moat is back on for ${hostname}`, hostname),
   restore: (hostname) => setSiteDisabled(hostname, true),
 };
 
@@ -941,29 +941,29 @@ function renderLiveStatus(
   if (!status.ok) {
     liveStatus.textContent = tFallback(
       "optionsLiveStatusFailed",
-      `Last attempt failed (${when}). Still using the built-in list until the next try.`,
+      `The last update failed on ${when}. Moat keeps using the lists it has until the next try.`,
       [when]
     );
     return;
   }
-  let text = tFallback("optionsLiveStatusOk", `Last updated ${when} (${status.domainCount} domains).`, [
+  let text = tFallback("optionsLiveStatusOk", `Last updated ${when}. Covers ${status.domainCount} sites.`, [
     when,
     String(status.domainCount),
   ]);
   if (status.quickFixCount) {
-    text += tFallback("optionsLiveStatusQuickFixes", ` ${status.quickFixCount} extra fix(es) applied.`, [
+    text += tFallback("optionsLiveStatusQuickFixes", ` Extra fixes: ${status.quickFixCount}.`, [
       String(status.quickFixCount),
     ]);
   }
   if (status.cosmeticFixCount) {
-    text += tFallback("optionsLiveStatusCosmeticFixes", ` ${status.cosmeticFixCount} layout fix(es) applied.`, [
+    text += tFallback("optionsLiveStatusCosmeticFixes", ` Layout fixes: ${status.cosmeticFixCount}.`, [
       String(status.cosmeticFixCount),
     ]);
   }
   if (youtubeStatus?.ok && youtubeStatus.selectorCount) {
     text += tFallback(
       "optionsLiveStatusYoutubeFixes",
-      ` ${youtubeStatus.selectorCount} YouTube fix(es) applied.`,
+      ` YouTube fixes: ${youtubeStatus.selectorCount}.`,
       [String(youtubeStatus.selectorCount)]
     );
   }
@@ -1095,7 +1095,7 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
   renderLevelLine(preset);
   const manifest = await loadRulesetManifest();
   if (!manifest) {
-    const loadError = tFallback("optionsLoadListsError", "Couldn't load filter lists.");
+    const loadError = tFallback("optionsLoadListsError", "Couldn't load filter lists. Reload this page to try again.");
     presetHint.textContent = loadError;
     const error = document.createElement("p");
     error.className = "empty-state";
@@ -1131,7 +1131,7 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
         // (see applyFilterGroupState's drop-priority retry in
         // background/filterGroups.ts).
         if (droppedGroups.has(list.group)) {
-          extra.push(buildLine("locked-badge budget-badge", tFallback("optionsFilterBudgetDroppedBadge", "Not active (browser limit reached)")));
+          extra.push(buildLine("locked-badge budget-badge", tFallback("optionsFilterBudgetDroppedBadge", "Off to stay within the browser limit")));
         }
         const on = settings.filterGroups[list.group] ?? true;
         const control = buildSwitch(on, titleId, (checked) => {
@@ -1195,7 +1195,7 @@ async function addCustomDomain(field: CustomDomainListField, input: HTMLInputEle
   const hostname = normalizeHostname(input.value);
   if (!hostname) {
     status.hidden = false;
-    status.textContent = tFallback("optionsAddDomainInvalid", "That doesn't look like a valid domain.");
+    status.textContent = tFallback("optionsAddDomainInvalid", "Enter a site address like example.com.");
     return;
   }
   const ok = await sendAddCustomDomain(field, hostname);
@@ -1357,7 +1357,7 @@ pickElementButton.addEventListener("click", async () => {
   const result = (await browser.runtime.sendMessage(message)) as StartElementPickerResponse;
   if (!result.ok) {
     pickElementStatus.hidden = false;
-    pickElementStatus.textContent = tFallback("optionsPickElementFailed", "Couldn't start the picker there.");
+    pickElementStatus.textContent = tFallback("optionsPickElementFailed", "Couldn't start there. Moat can't run on browser pages or extension stores. Open a website and try again.");
   }
 });
 
@@ -1653,7 +1653,7 @@ async function render(): Promise<void> {
     filterBudgetDetail.hidden = false;
     filterBudgetDetail.textContent = tFallback(
       "optionsFilterBudgetDropped",
-      `Turned off for now to stay within your browser's rule limit: ${names}.`,
+      `${names} are off for now to stay within your browser's limit.`,
       [names]
     );
   } else if (filterGroupStatus?.availableStaticRuleCount !== undefined) {
@@ -1661,7 +1661,7 @@ async function render(): Promise<void> {
     filterBudgetDetail.hidden = false;
     filterBudgetDetail.textContent = tFallback(
       "optionsFilterBudgetDetail",
-      `Your browser says ${availableCount} rule slots are left for all your extensions combined. Still low after turning off other extensions and reloading Moat? Try turning off a list below, Annoyances or Cookie Notices first.`,
+      `Your browser says ${availableCount} rules are left for all your extensions together. Still low after turning off other extensions and reloading Moat? Turn off a list here. Annoyances and Cookie Notices are good ones to try first.`,
       [String(availableCount)]
     );
   } else {
@@ -1898,7 +1898,7 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   const unsortedEl = document.getElementById("ov-kind-unsorted")!;
   const unsorted = week - sorted;
   unsortedEl.hidden = unsorted <= 0;
-  unsortedEl.textContent = tFallback("ovKindUnsorted", `${unsorted.toLocaleString()} not sorted`, unsorted.toLocaleString());
+  unsortedEl.textContent = tFallback("ovKindUnsorted", `${unsorted.toLocaleString()} other`, unsorted.toLocaleString());
 
   const chart = document.getElementById("ov-chart") as HTMLElement;
   chart.classList.toggle("is-empty", week === 0);
@@ -2074,7 +2074,7 @@ importSettingsInput.addEventListener("change", async () => {
     importSettingsConfirm.hidden = false;
   } catch {
     importSettingsStatus.hidden = false;
-    importSettingsStatus.textContent = tFallback("optionsImportReadError", "Couldn't read that file.");
+    importSettingsStatus.textContent = tFallback("optionsImportReadError", "Couldn't read that file. Choose a backup file saved by Moat.");
   } finally {
     importSettingsInput.value = "";
   }

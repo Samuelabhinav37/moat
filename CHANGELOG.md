@@ -3,6 +3,34 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.171
+
+### Changed
+- **Wording pass across the popup, Settings, picker, welcome tour and warning page** (from
+  `docs/research/ui-copy-audit-2026-09.md`). Updated in English, Spanish, French and German.
+  - **One name for each idea.** Hiding part of a page is "Hide something on this page"
+    everywhere (it was "Block an element" in some places and "Pick an element" in others). Cookie
+    banners are "cookie banners", not also "cookie notices" or "consent pop-ups". The
+    cookie-banner and device settings have the same names in the popup and in Settings ("Reject
+    cookie banners", "Stop sites recognizing your device"). "Pop-ups" is spelled the way Chrome
+    spells it.
+  - **Pause and Never block read differently.** Never block now says it lets one address load on
+    every site while other ads stay blocked, and its button says "Never block" instead of
+    "Allow".
+  - **The Strict description says everything Strict does**, including hiding your IP address,
+    in plain words instead of "fingerprinting" and "third-party cookies". Light and Balanced
+    call harmful sites "dangerous sites" and "fake login sites".
+  - **Popup:** the paused banner and the update notice are single sentences that translators
+    can reorder. The "Light tracking blocked" line no longer reuses a level name ("A few ads and
+    trackers blocked"). Clear site data warns that you'll be signed out. Status labels start
+    with a capital letter.
+  - **Errors say what to do next:** an invalid site address, a file that can't be read, filter
+    lists that can't load, and the picker on a page where extensions can't run.
+  - **No dash, "--" or "fix(es)" crutches** in any string the extension uses, and US spelling
+    throughout.
+  - **The picker's buttons are verbs:** "Select more", "Select less", "Hide until reload".
+  - The translations were written without a native-speaker review.
+
 ## 0.11.170
 
 ### Added

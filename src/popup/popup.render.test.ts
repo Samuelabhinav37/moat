@@ -66,7 +66,7 @@ describe("popup.html render", () => {
     await renderPopup();
     const line = document.getElementById("unsorted");
     expect(line?.hidden).toBe(false);
-    expect(line?.textContent).toBe("4 not sorted yet");
+    expect(line?.textContent).toBe("Plus 4 more blocked");
     expect(document.getElementById("count")?.textContent).toBe("12");
   });
 });

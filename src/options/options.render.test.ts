@@ -125,7 +125,7 @@ describe("Previously-orphaned i18n keys that turned out to be real content gaps"
     await renderOptions();
 
     expect(document.querySelector('section[data-page="hidden"] h2')?.textContent).toBe("Hidden on pages");
-    expect(document.body.textContent).toContain("Block an element");
+    expect(document.body.textContent).toContain("Hide something on a page");
   });
 
   it("Filter lists: the individual lists have a hint saying what changing one does", async () => {
@@ -187,7 +187,7 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
     const rows = () => Array.from(document.querySelectorAll("#override-list li"));
     expect(rows()).toHaveLength(1);
     expect(rows()[0]!.textContent).toContain("example.com");
-    expect(rows()[0]!.textContent).toContain("Hide low-quality results: Off");
+    expect(rows()[0]!.textContent).toContain("Hide low-quality search results: Off");
     expect(document.getElementById("override-empty")!.style.display).toBe("none");
 
     rows()[0]!.querySelector("button")!.click();
