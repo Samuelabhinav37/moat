@@ -13,6 +13,8 @@ const MANIFEST = [
 ];
 
 let updateCalls: { enableRulesetIds: string[]; disableRulesetIds: string[] }[] = [];
+// The calls the mock accepted; the last one is what the browser ends up on.
+let acceptedCalls: { enableRulesetIds: string[]; disableRulesetIds: string[] }[] = [];
 let maxFittableRulesets = 3;
 let alwaysFail = false;
 const store: Record<string, unknown> = {};
@@ -53,6 +55,7 @@ vi.mock("webextension-polyfill", () => ({
         if (alwaysFail || options.enableRulesetIds.length > maxFittableRulesets) {
           return Promise.reject(new Error("exceeds static rule budget"));
         }
+        acceptedCalls.push(options);
         return Promise.resolve();
       },
       getAvailableStaticRuleCount: () => Promise.resolve(0),
@@ -66,8 +69,9 @@ const { applyFilterGroupState, getFilterGroupStatus } = await import("./filterGr
 const { DEFAULT_SETTINGS } = await import("../types");
 
 describe("applyFilterGroupState under a tight rule budget", () => {
-  it("drops the annoyance list first, never the security list, when only 2 of 3 lists fit", async () => {
+  it("leaves out the annoyance list when only 2 of 3 lists fit", async () => {
     updateCalls = [];
+    acceptedCalls = [];
     sessionStore = {};
     maxFittableRulesets = 2;
     await applyFilterGroupState(DEFAULT_SETTINGS);
@@ -76,22 +80,35 @@ describe("applyFilterGroupState under a tight rule budget", () => {
     expect(status?.droppedGroups).toEqual(["annoyances"]);
     expect(status?.ok).toBe(false);
 
-    // The call that finally succeeded must never have tried to drop the
-    // security-category list while a less-essential one was still enabled.
-    const succeeded = updateCalls.at(-1)!;
-    expect(succeeded.enableRulesetIds).toContain("ruleset_malicious-urls");
-    expect(succeeded.enableRulesetIds).toContain("ruleset_ads");
-    expect(succeeded.disableRulesetIds).toContain("ruleset_annoyances");
+    // The browser ends on the last accepted call: ads and security on.
+    const final = acceptedCalls.at(-1)!;
+    expect(final.enableRulesetIds).toEqual(expect.arrayContaining(["ruleset_ads", "ruleset_malicious-urls"]));
+    expect(final.disableRulesetIds).toContain("ruleset_annoyances");
   });
 
-  it("keeps only the security list when just 1 of 3 fits", async () => {
+  it("keeps the ads list when just 1 of 3 fits", async () => {
+    // Ads first: it's an ad blocker. The security list's domains still apply
+    // through the daily lists, which are dynamic rules and use no budget.
     updateCalls = [];
+    acceptedCalls = [];
     sessionStore = {};
     maxFittableRulesets = 1;
     await applyFilterGroupState(DEFAULT_SETTINGS);
 
     const status = await getFilterGroupStatus();
-    expect(status?.droppedGroups).toEqual(["annoyances", "ads"]);
+    expect(status?.droppedGroups).toEqual(["malicious-urls", "annoyances"]);
+    expect(acceptedCalls.at(-1)!.enableRulesetIds).toEqual(["ruleset_ads"]);
+  });
+
+  it("fills around a list that doesn't fit instead of stopping at it", async () => {
+    // Only 2 fit: ads is kept, security fits next, annoyances is skipped.
+    // The old front-drop loop would have stopped at the first set that fit.
+    updateCalls = [];
+    acceptedCalls = [];
+    sessionStore = {};
+    maxFittableRulesets = 2;
+    await applyFilterGroupState(DEFAULT_SETTINGS);
+    expect(acceptedCalls.at(-1)!.enableRulesetIds).toHaveLength(2);
   });
 
   it("enables everything with no drops when the full set fits", async () => {
@@ -146,10 +163,10 @@ describe("applyFilterGroupState's fast path (skip re-applying an unchanged, full
     sessionStore = {};
     maxFittableRulesets = 2; // annoyances gets dropped
     await applyFilterGroupState(DEFAULT_SETTINGS);
-    expect(updateCalls.length).toBe(2); // full attempt, then the successful reduced one
+    const first = updateCalls.length; // the full attempt, then the fill
 
     await applyFilterGroupState(DEFAULT_SETTINGS);
-    expect(updateCalls.length).toBeGreaterThan(2); // retried, not skipped
+    expect(updateCalls.length).toBeGreaterThan(first); // retried, not skipped
   });
 
   it("re-applies once the desired settings actually change, even with a cached fingerprint", async () => {

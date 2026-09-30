@@ -62,10 +62,23 @@ export function buildLiveSecurityRules(
 
 /** Security lists whose bundled rulesets are on right now (so turning a
  * list off in Settings turns its live refresh off too). */
+/** The lists the user has on: every enabled ruleset's group, plus any
+ * group filterGroups.ts left out because the browser had no room for its
+ * bundled ruleset (Firefox allows 30,000 static rules). The daily lists are
+ * dynamic rules, which don't use that budget, so they still apply. */
 async function activeGroups(): Promise<Set<string>> {
-  const [enabled, manifest] = await Promise.all([browser.declarativeNetRequest.getEnabledRulesets(), loadRulesetManifest()]);
+  const [enabled, manifest, stored] = await Promise.all([
+    browser.declarativeNetRequest.getEnabledRulesets(),
+    loadRulesetManifest(),
+    browser.storage.local.get("filterGroupStatus"),
+  ]);
   const on = new Set(enabled);
-  return new Set((manifest ?? []).filter((entry) => on.has(entry.id)).map((entry) => entry.group));
+  const groups = new Set((manifest ?? []).filter((entry) => on.has(entry.id)).map((entry) => entry.group));
+  const status = stored.filterGroupStatus as { droppedGroups?: unknown } | undefined;
+  if (Array.isArray(status?.droppedGroups)) {
+    for (const group of status.droppedGroups) if (typeof group === "string") groups.add(group);
+  }
+  return groups;
 }
 
 /** Store a verified payload and apply it. Returns how many domains it holds. */

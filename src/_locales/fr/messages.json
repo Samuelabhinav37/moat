@@ -1958,5 +1958,19 @@
   },
   "pickerHintTouch": {
     "message": "Touche n’importe quoi pour le masquer."
+  },
+  "advBudgetLineFirefox": {
+    "message": "Firefox autorise chaque extension à utiliser $LIMIT$ règles de blocage. Moat regroupe $ENTRIES$ entrées de filtre dans $USED$ d’entre elles et active les listes les plus importantes qui tiennent.",
+    "placeholders": {
+      "limit": {
+        "content": "$1"
+      },
+      "used": {
+        "content": "$2"
+      },
+      "entries": {
+        "content": "$3"
+      }
+    }
   }
 }

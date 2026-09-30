@@ -3,6 +3,45 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.183
+
+### Fixed
+- **Firefox was blocking almost no ads or trackers.** Firefox gives each extension 30,000
+  static rules of its own; Chrome shares a much larger pool between extensions. Moat's default
+  lists need about 68,000. When the browser refused them all, Moat's fallback dropped lists in
+  a fixed order and stopped at the first set that fit. On Firefox that switched off ads,
+  trackers, pop-ups, link tracking, oisd and even the phishing lists, leaving five small
+  security lists using a third of the space. Measured in Firefox 157: it blocked 12 of 28 test
+  hosts Chrome blocks, and none of AdSense, Google's ad tag, Tag Manager, Analytics, Hotjar,
+  Taboola or Amazon's ads. Nothing ran the Firefox build before this, so CI stayed green.
+  - **Moat now fills the space by importance** (`fillByImportance` in
+    `src/background/filterGroupState.ts`). It tries every list first, which is what happens on
+    Chrome. If they don't all fit, it adds lists most important first and skips any that don't
+    fit, so one big list can't push out several smaller ones. The order is ads first (it's an
+    ad blocker), then scam and badware (small, and no daily list covers them), then trackers,
+    pop-ups, link tracking and oisd, then the bundled malware and phishing lists, and annoyance
+    lists last. On Firefox the default now uses 29,375 of 30,000 rules. Only link tracking and
+    the bundled malware and phishing lists are left out.
+  - **The daily security lists stay on for lists that didn't fit.** They're dynamic rules,
+    which Firefox counts separately. They come from the same sources as the bundled malware
+    and phishing lists, so Firefox keeps that protection by domain. They used to switch off
+    along with their bundled list.
+  - **Firefox now blocks 27 of the 28 test hosts.** The 28th isn't blocked on Chrome either:
+    the lists only block specific Facebook script paths, not the whole host.
+  - **On Firefox, Settings > Filter lists states Firefox's limit** ("Firefox lets each
+    extension use 30,000 blocking rules…") instead of Chrome's shared figure. Lists left out
+    for space show "Off to stay within the browser limit". The popup's limit warning now
+    appears only if ads or trackers had to go, not on every Firefox page.
+
+### Added
+- **`npm run smoke:firefox`, run in CI, release and publish.** It loads the Firefox package in
+  headless Firefox with web-ext and checks that 9 ad and tracker hosts are blocked, plus a
+  control host that must load. It needs no internet: Firefox's `network.dns.forceResolve`
+  sends every hostname to a local server. It fails on 0.11.182 (3 of 10) and passes on this
+  version (10 of 10).
+- **`validate:rules` simulates Firefox's 30,000-rule limit** and fails the build if the
+  default preset would leave out ads or trackers there.
+
 ## 0.11.182
 
 ### Fixed

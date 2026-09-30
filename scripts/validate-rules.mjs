@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { LIVE_MANIFEST_PUBLIC_KEY } from "../src/shared/liveSigningKey.ts";
 import { PRESETS } from "../src/shared/filterPresets.ts";
-import { enabledRuleCount } from "../src/background/filterGroupState.ts";
+import { effectiveFilterGroupState, enabledRuleCount, fillByImportance } from "../src/background/filterGroupState.ts";
 import { BUNDLED_NON_SECURITY_MAX_PRIORITY, ENTERPRISE_PRIORITY, NEVER_BLOCK_PRIORITY, PAUSE_PRIORITY } from "../src/shared/rulePriorities.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -115,6 +115,33 @@ if (freshInstallRules > FRESH_INSTALL_RULE_CEILING) {
       "Chrome would drop filter lists on every new install. Trim a list or change the preset."
   );
   ok = false;
+}
+
+// Firefox allows 30,000 static rules per extension (Chrome shares a much
+// larger pool across extensions), so there the fresh-install preset only
+// partly fits and filterGroups.ts keeps the most important lists. Nothing
+// ran Firefox before 0.11.183, and for weeks it was blocking only the
+// security lists. Fail the build if the Firefox default would lose ads or
+// trackers.
+const FIREFOX_STATIC_RULE_LIMIT = 30_000;
+{
+  const groupRules = new Map();
+  for (const entry of manifest) {
+    const g = groupRules.get(entry.group) ?? { group: entry.group, category: entry.category, ruleCount: 0 };
+    g.ruleCount += entry.ruleCount;
+    groupRules.set(entry.group, g);
+  }
+  const state = effectiveFilterGroupState(true, PRESETS.standard.filterGroups, [...groupRules.keys()]);
+  const wantOn = [...groupRules.values()].filter((g) => state[g.group]);
+  const { kept, dropped } = fillByImportance(wantOn, FIREFOX_STATIC_RULE_LIMIT);
+  const used = wantOn.filter((g) => kept.includes(g.group)).reduce((sum, g) => sum + g.ruleCount, 0);
+  console.log(`Firefox default (${FIREFOX_STATIC_RULE_LIMIT} rules): ${used} rules; kept ${kept.join(", ")}; left out ${dropped.join(", ") || "nothing"}`);
+  for (const essential of ["ads", "trackers"]) {
+    if (!kept.includes(essential)) {
+      console.error(`On Firefox the default preset would leave out "${essential}": it doesn't fit in ${FIREFOX_STATIC_RULE_LIMIT} rules. Trim or pack the lists.`);
+      ok = false;
+    }
+  }
 }
 
 const cosmeticsManifest = JSON.parse(readFileSync(join(rulesDir, "cosmetics-manifest.json"), "utf8"));

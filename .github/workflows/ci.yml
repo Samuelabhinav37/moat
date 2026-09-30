@@ -33,3 +33,8 @@ jobs:
       # pause, "Never block", the cookie rejector switch, a worker cold start.
       - run: npm run smoke
       - run: npm run lint:firefox
+      # web-ext lint only checks the Firefox package; this runs it in headless
+      # Firefox (preinstalled on the runner) and checks ads and trackers are
+      # blocked. Firefox allows 30,000 static rules per extension, and for
+      # weeks before 0.11.183 Moat blocked almost no ads there with CI green.
+      - run: npm run smoke:firefox

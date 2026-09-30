@@ -2119,5 +2119,20 @@
   "pickerHintTouch": {
     "message": "Tap anything to hide it.",
     "description": "Picker hint on touch screens (phones), shown instead of the Esc hint. Followed by a Cancel button."
+  },
+  "advBudgetLineFirefox": {
+    "message": "Firefox lets each extension use $LIMIT$ blocking rules. Moat packs $ENTRIES$ filter entries into $USED$ of them and turns on the most important lists that fit.",
+    "placeholders": {
+      "limit": {
+        "content": "$1"
+      },
+      "used": {
+        "content": "$2"
+      },
+      "entries": {
+        "content": "$3"
+      }
+    },
+    "description": "Settings > Filter lists on Firefox: its per-extension rule limit and how much Moat uses."
   }
 }

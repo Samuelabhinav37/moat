@@ -38,6 +38,7 @@ jobs:
       # for Testing and fails if Chrome rejects it (the 0.11.31-0.11.37 outage).
       - run: npm run check:chrome-load
       - run: npm run lint:firefox
+      - run: npm run smoke:firefox
 
       - name: Package store zips
         run: npm run zip

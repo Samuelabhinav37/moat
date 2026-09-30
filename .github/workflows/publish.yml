@@ -53,6 +53,7 @@ jobs:
       # for Testing and fails if Chrome rejects it (the 0.11.31-0.11.37 outage).
       - run: npm run check:chrome-load
       - run: npm run lint:firefox
+      - run: npm run smoke:firefox
       - run: npm run zip
 
       # ---- Chrome Web Store (API v2 -- v1 is EOL 2026-10-15) --------------

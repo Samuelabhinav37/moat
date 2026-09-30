@@ -7,7 +7,7 @@
 import browser from "webextension-polyfill";
 import { applyLiveSecurityRules } from "./liveSecurityRules";
 import { groupChunkIds, summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
-import { effectiveFilterGroupState, orderGroupsByDropPriority } from "./filterGroupState";
+import { effectiveFilterGroupState, orderGroupsByImportance } from "./filterGroupState";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import type { Settings } from "../types";
 
@@ -92,50 +92,60 @@ export async function applyFilterGroupState(settings: Settings, options: ApplyFi
   }
 
   const wantOff = lists.filter((list) => !state[list.group]).map((list) => list.group);
-  // Ordered least-essential-first (annoyance/cosmetic, then ads/trackers,
-  // security last) -- see orderGroupsByDropPriority. The retry loop below
-  // drops from the front of this list one group at a time.
-  const wantOn = orderGroupsByDropPriority(lists.filter((list) => state[list.group]));
+  const wantOn = orderGroupsByImportance(lists.filter((list) => state[list.group]));
   const idsFor = (groups: string[]): string[] => groups.flatMap((group) => groupChunkIds(manifest, group));
 
-  // Try the full desired set first; if the browser's shared static-rule
-  // budget can't hold it all (declarativeNetRequest.updateEnabledRulesets is
-  // atomic -- it either fully succeeds or fully rejects), progressively
-  // drop the least-essential groups and retry, rather than an all-or-
-  // nothing failure that could leave *every* group disabled even though
-  // most of them would easily fit alone.
-  for (let drop = 0; drop <= wantOn.length; drop++) {
-    // wantOn is ordered least-essential-first, so dropping from the FRONT
-    // drops the least-essential groups first -- security-category groups
-    // sit at the end and are the last to go.
-    const enabling = wantOn.slice(drop);
-    const droppedGroups = wantOn.slice(0, drop);
+  // updateEnabledRulesets is atomic: it applies the whole request or none
+  // of it. Try everything first (always fits on Chrome, whose static-rule
+  // pool is shared by all extensions). If it doesn't fit (Firefox allows
+  // 30,000 per extension), add the lists most important first and skip any
+  // that doesn't fit, so a big list can't push out several smaller ones.
+  // Each successful call leaves the browser on the lists kept so far.
+  const tryLists = async (groups: string[]): Promise<boolean> => {
     try {
       await browser.declarativeNetRequest.updateEnabledRulesets({
-        enableRulesetIds: idsFor(enabling),
-        disableRulesetIds: idsFor([...wantOff, ...droppedGroups]),
+        enableRulesetIds: idsFor(groups),
+        disableRulesetIds: idsFor([...wantOff, ...wantOn.filter((group) => !groups.includes(group))]),
       });
-      // The daily security lists follow their bundled lists on or off.
-      await applyLiveSecurityRules().catch(() => {});
-      await browser.storage.local.set({
-        [STATUS_KEY]: {
-          ok: droppedGroups.length === 0,
-          timestamp: Date.now(),
-          droppedGroups: droppedGroups.length > 0 ? droppedGroups : undefined,
-        } satisfies FilterGroupStatus,
-      });
-      if (droppedGroups.length === 0) {
-        await browser.storage.session.set({ [APPLIED_FINGERPRINT_KEY]: fingerprint });
-      } else {
-        // Degraded state -- never cache this as "done" so the next call
-        // (next SW wake, or the daily reconciliation retry) keeps trying,
-        // in case budget frees up for reasons outside Moat's own settings.
-        await browser.storage.session.remove(APPLIED_FINGERPRINT_KEY);
-      }
-      return;
+      return true;
     } catch {
-      // Didn't fit even after dropping `drop` group(s) -- drop one more and retry.
+      return false;
     }
+  };
+
+  let kept: string[] = [];
+  if (wantOn.length === 0) {
+    // Everything off (Moat switched off, or every list turned off).
+    await tryLists([]);
+  } else if (await tryLists(wantOn)) {
+    kept = wantOn;
+  } else {
+    for (const group of wantOn) {
+      if (await tryLists([...kept, group])) kept = [...kept, group];
+    }
+  }
+
+  if (kept.length > 0 || wantOn.length === 0) {
+    const droppedGroups = wantOn.filter((group) => !kept.includes(group));
+    await browser.storage.local.set({
+      [STATUS_KEY]: {
+        ok: droppedGroups.length === 0,
+        timestamp: Date.now(),
+        droppedGroups: droppedGroups.length > 0 ? droppedGroups : undefined,
+      } satisfies FilterGroupStatus,
+    });
+    // After the status, which it reads: the daily security lists stay on
+    // for every list the user wants, including one dropped for space.
+    await applyLiveSecurityRules().catch(() => {});
+    if (droppedGroups.length === 0) {
+      await browser.storage.session.set({ [APPLIED_FINGERPRINT_KEY]: fingerprint });
+    } else {
+      // Degraded state -- never cache this as "done" so the next call
+      // (next SW wake, or the daily reconciliation retry) keeps trying,
+      // in case budget frees up for reasons outside Moat's own settings.
+      await browser.storage.session.remove(APPLIED_FINGERPRINT_KEY);
+    }
+    return;
   }
 
   // Nothing fit at all, not even the single highest-priority group alone.

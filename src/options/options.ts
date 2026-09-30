@@ -1035,13 +1035,19 @@ async function loadRulesetManifest(): Promise<RulesetManifestEntry[] | null> {
 // count says how much it blocks.
 let activeRuleCountText = "—";
 
-function renderFilterBudget(settings: Settings, lists: ReturnType<typeof summarizeFilterLists>): void {
+// Firefox gives each extension 30,000 static rules of its own instead of a
+// share of a larger pool, so Moat turns on the most important lists that
+// fit (background/filterGroups.ts).
+const FIREFOX_STATIC_RULE_LIMIT = 30_000;
+
+function renderFilterBudget(settings: Settings, lists: ReturnType<typeof summarizeFilterLists>, droppedGroups: Set<string>): void {
   const state = effectiveFilterGroupState(
     settings.enabled,
     settings.filterGroups,
     lists.map((list) => list.group)
   );
-  const active = lists.filter((list) => state[list.group]);
+  // What's really on: the lists the user wants, minus any left out for space.
+  const active = lists.filter((list) => state[list.group] && !droppedGroups.has(list.group));
   const activeRuleCount = active.reduce((sum, list) => sum + list.ruleCount, 0);
   const budgetText = activeRuleCount.toLocaleString();
   activeRuleCountText = active.reduce((sum, list) => sum + list.entryCount, 0).toLocaleString();
@@ -1049,12 +1055,19 @@ function renderFilterBudget(settings: Settings, lists: ReturnType<typeof summari
   // Entries (what the lists contain, and what About shows) vs rules (what
   // they're packed into for Chrome), said together so the two numbers never
   // look like they disagree.
-  document.getElementById("filters-budget-line")!.textContent = tFallback(
-    "advBudgetLine",
-    `Chrome lets all your extensions use ${CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString()} blocking rules in total. Moat packs its ${activeRuleCountText} filter entries into ${budgetText} of them.`,
-    [CHROME_GLOBAL_STATIC_RULE_LIMIT.toLocaleString(), budgetText, activeRuleCountText]
-  );
-  const percent = Math.min(100, Math.round((activeRuleCount / CHROME_GLOBAL_STATIC_RULE_LIMIT) * 100));
+  const limit = isFirefoxPrivacyWebsitesSupported ? FIREFOX_STATIC_RULE_LIMIT : CHROME_GLOBAL_STATIC_RULE_LIMIT;
+  document.getElementById("filters-budget-line")!.textContent = isFirefoxPrivacyWebsitesSupported
+    ? tFallback(
+        "advBudgetLineFirefox",
+        `Firefox lets each extension use ${limit.toLocaleString()} blocking rules. Moat packs ${activeRuleCountText} filter entries into ${budgetText} of them and turns on the most important lists that fit.`,
+        [limit.toLocaleString(), budgetText, activeRuleCountText]
+      )
+    : tFallback(
+        "advBudgetLine",
+        `Chrome lets all your extensions use ${limit.toLocaleString()} blocking rules in total. Moat packs its ${activeRuleCountText} filter entries into ${budgetText} of them.`,
+        [limit.toLocaleString(), budgetText, activeRuleCountText]
+      );
+  const percent = Math.min(100, Math.round((activeRuleCount / limit) * 100));
   const fill = document.getElementById("filters-budget-fill") as HTMLElement;
   fill.style.width = `${percent}%`;
   fill.className = percent >= 90 ? "budget-bar-fill caution" : "budget-bar-fill";
@@ -1114,7 +1127,7 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
   // The level line already says "Your own mix of lists."
   presetHint.hidden = preset === "custom";
 
-  renderFilterBudget(settings, lists);
+  renderFilterBudget(settings, lists, droppedGroups);
 
   const matchesMessage: GetFilterListMatchesMessage = { type: "get-filter-list-matches" };
   const matches = (await browser.runtime.sendMessage(matchesMessage)) as FilterListMatchesResponse;

@@ -1,6 +1,6 @@
 {
   "name": "moat",
-  "version": "0.11.182",
+  "version": "0.11.183",
   "private": true,
   "license": "GPL-3.0",
   "description": "A quiet ad blocker and popup/redirect firewall for Chrome and Firefox.",
@@ -31,7 +31,8 @@
     "store:capture": "node scripts/store-images/capture.mjs",
     "store:build": "node scripts/store-images/build.mjs",
     "smoke": "node scripts/live-smoke.mjs",
-    "release:check": "node scripts/release-check.mjs"
+    "release:check": "node scripts/release-check.mjs",
+    "smoke:firefox": "node scripts/firefox-smoke.mjs"
   },
   "dependencies": {
     "webextension-polyfill": "^0.12.0"

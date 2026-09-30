@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { effectiveFilterGroupState, enabledRuleCount, orderGroupsByDropPriority, type FilterListInfo } from "./filterGroupState";
+import { effectiveFilterGroupState, enabledRuleCount, fillByImportance, orderGroupsByImportance, type FilterListInfo } from "./filterGroupState";
 
 describe("effectiveFilterGroupState", () => {
   it("defaults every group to on when there are no overrides and the master switch is on", () => {
@@ -25,90 +25,62 @@ describe("effectiveFilterGroupState", () => {
   });
 });
 
-describe("orderGroupsByDropPriority", () => {
-  const list = (group: string, category: string, ruleCount: number): FilterListInfo => ({
-    group,
-    category,
-    ruleCount,
-  });
+describe("orderGroupsByImportance and fillByImportance", () => {
+  const list = (group: string, category: string, ruleCount: number): FilterListInfo => ({ group, category, ruleCount });
 
-  it("orders annoyance before ads before security, regardless of input order", () => {
-    const input = [list("malicious-urls", "security", 9415), list("annoyances", "annoyance", 545), list("ads", "ads", 72806)];
-    expect(orderGroupsByDropPriority(input)).toEqual(["annoyances", "ads", "malicious-urls"]);
-  });
-
-  it("within the same category, orders the biggest rule count first", () => {
-    const input = [list("cookie-notices", "annoyance", 2762), list("social-widgets", "annoyance", 628), list("annoyances", "annoyance", 545)];
-    expect(orderGroupsByDropPriority(input)).toEqual(["cookie-notices", "social-widgets", "annoyances"]);
-  });
-
-  it("returns an empty array for an empty input", () => {
-    expect(orderGroupsByDropPriority([])).toEqual([]);
-  });
-
-  it("does not mutate the input array", () => {
-    const input = [list("ads", "ads", 1), list("annoyances", "annoyance", 2)];
-    const copy = [...input];
-    orderGroupsByDropPriority(input);
-    expect(input).toEqual(copy);
-  });
-
-  // Moat's real 11 toggleable groups and their actual bundled rule counts
-  // (as of the ClearURLs/AdGuard sync this session) -- a full-scale,
-  // real-shape stress test rather than a 2-3-item toy example, specifically
-  // because a toy example is exactly what let the front/back drop-direction
-  // bug through review the first time.
-  const REAL_GROUPS: FilterListInfo[] = [
-    list("ads", "ads", 72806),
-    list("trackers", "ads", 115554),
+  // Moat's real groups with their packed rule counts (0.11.182), the ones
+  // the Firefox bug was measured with.
+  const REAL: FilterListInfo[] = [
+    list("social-widgets", "annoyance", 601),
+    list("phishing-urls", "security", 27238),
+    list("malicious-urls", "security", 8940),
+    list("trackers", "ads", 10999),
+    list("ads", "ads", 15308),
     list("url-tracking", "ads", 2467),
-    list("popups", "ads", 2164),
-    list("malicious-urls", "security", 9415),
-    list("phishing-urls", "security", 64584),
-    list("scam", "security", 971),
-    list("badware", "security", 4091),
-    list("social-widgets", "annoyance", 628),
-    list("cookie-notices", "annoyance", 2762),
-    list("annoyances", "annoyance", 545),
+    list("popups", "ads", 1779),
+    list("scam", "security", 13),
+    list("badware", "security", 1272),
+    list("oisd", "ads", 2),
+    list("privacy-headers", "core", 2),
+    list("cookie-notices", "annoyance", 2613),
+    list("annoyances", "annoyance", 537),
   ];
 
-  it("orders every real annoyance group before every real ads group before every real security group", () => {
-    const order = orderGroupsByDropPriority(REAL_GROUPS);
-    const rank = (group: string) => order.indexOf(group);
-    const annoyance = ["social-widgets", "cookie-notices", "annoyances"];
-    const ads = ["ads", "trackers", "url-tracking", "popups"];
-    const security = ["malicious-urls", "phishing-urls", "scam", "badware"];
-    const maxRank = (groups: string[]) => Math.max(...groups.map(rank));
-    const minRank = (groups: string[]) => Math.min(...groups.map(rank));
-    expect(maxRank(annoyance)).toBeLessThan(minRank(ads));
-    expect(maxRank(ads)).toBeLessThan(minRank(security));
+  it("puts ads first and annoyance lists last, whatever the input order", () => {
+    const order = orderGroupsByImportance(REAL);
+    expect(order.slice(0, 3)).toEqual(["privacy-headers", "ads", "scam"]);
+    expect(order.slice(-3)).toEqual(["cookie-notices", "annoyances", "social-widgets"]);
   });
 
-  it("simulates a real retry loop under a tight budget and never drops a security group before every non-security group is gone", () => {
-    const order = orderGroupsByDropPriority(REAL_GROUPS);
-    const totalRuleCount = new Map(REAL_GROUPS.map((g) => [g.group, g.ruleCount]));
+  it("places an unknown group by its category, security before ads before annoyance", () => {
+    const order = orderGroupsByImportance([list("new-annoyance", "annoyance", 1), list("new-security", "security", 1), list("new-ads", "ads", 1)]);
+    expect(order).toEqual(["new-security", "new-ads", "new-annoyance"]);
+  });
 
-    // Mirrors filterGroups.ts's actual retry loop: drop from the front
-    // (least essential first) until the remaining set's total rule count
-    // fits under a simulated budget.
-    const BUDGET = 80_000; // fits at most a couple of the smaller groups
-    let drop = 0;
-    let remaining = order;
-    while (
-      drop <= order.length &&
-      remaining.reduce((sum, group) => sum + totalRuleCount.get(group)!, 0) > BUDGET
-    ) {
-      drop += 1;
-      remaining = order.slice(drop);
-    }
-    const dropped = order.slice(0, drop);
+  it("does not mutate the input", () => {
+    const copy = [...REAL];
+    orderGroupsByImportance(REAL);
+    expect(REAL).toEqual(copy);
+  });
 
-    // Every dropped group must be annoyance or ads category -- security
-    // groups only start getting dropped once nothing else is left.
-    const securityGroups = new Set(["malicious-urls", "phishing-urls", "scam", "badware"]);
-    const droppedSecurity = dropped.filter((g) => securityGroups.has(g));
-    const remainingNonSecurity = remaining.filter((g) => !securityGroups.has(g));
-    expect(droppedSecurity.length === 0 || remainingNonSecurity.length === 0).toBe(true);
+  it("keeps everything when it all fits", () => {
+    expect(fillByImportance(REAL, 330_000).dropped).toEqual([]);
+  });
+
+  it("on Firefox's 30,000 rules keeps ads and trackers and skips only what doesn't fit", () => {
+    // The Balanced preset (no annoyance lists).
+    const balanced = REAL.filter((l) => l.category !== "annoyance");
+    const { kept, dropped } = fillByImportance(balanced, 30_000);
+    expect(kept).toEqual(expect.arrayContaining(["ads", "trackers", "popups", "scam", "badware", "oisd", "privacy-headers"]));
+    expect(dropped).toEqual(["url-tracking", "malicious-urls", "phishing-urls"]);
+    const used = balanced.filter((l) => kept.includes(l.group)).reduce((sum, l) => sum + l.ruleCount, 0);
+    expect(used).toBeLessThanOrEqual(30_000);
+  });
+
+  it("lets a small list in after a big one didn't fit", () => {
+    const { kept, dropped } = fillByImportance([list("ads", "ads", 90), list("trackers", "ads", 50), list("popups", "ads", 5)], 100);
+    expect(kept).toEqual(["ads", "popups"]);
+    expect(dropped).toEqual(["trackers"]);
   });
 });
 

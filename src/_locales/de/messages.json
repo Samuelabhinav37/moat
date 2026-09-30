@@ -1958,5 +1958,19 @@
   },
   "pickerHintTouch": {
     "message": "Tippe auf etwas, um es auszublenden."
+  },
+  "advBudgetLineFirefox": {
+    "message": "Firefox erlaubt jeder Erweiterung $LIMIT$ Blockierregeln. Moat packt $ENTRIES$ Filtereinträge in $USED$ davon und schaltet die wichtigsten Listen ein, die hineinpassen.",
+    "placeholders": {
+      "limit": {
+        "content": "$1"
+      },
+      "used": {
+        "content": "$2"
+      },
+      "entries": {
+        "content": "$3"
+      }
+    }
   }
 }

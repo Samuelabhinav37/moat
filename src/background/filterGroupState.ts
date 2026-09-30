@@ -18,28 +18,63 @@ export interface FilterListInfo {
   ruleCount: number;
 }
 
-// Lower number = kept longest when the shared static-rule budget can't hold
-// everything the user wants enabled. Annoyance/cosmetic lists are the least
-// essential (missing them means an occasional un-hidden cookie banner);
-// security (known-malicious/phishing domains) is the last thing worth
-// losing. Any category not listed here (shouldn't happen -- "core" isn't
-// user-toggleable) sorts with "ads".
-const CATEGORY_DROP_PRIORITY: Record<string, number> = { annoyance: 0, ads: 1, security: 2 };
+/** Which lists matter most when the browser can't hold every list the
+ * user turned on (Firefox allows 30,000 static rules per extension; Moat's
+ * default lists need about 68,000). Most important first:
+ *  - Ads first: it's an ad blocker.
+ *  - Scam and badware: small, and no daily list covers them.
+ *  - Trackers, pop-ups, link tracking, oisd.
+ *  - The bundled malware and phishing lists next. Their domains are also
+ *    delivered by the daily security lists as dynamic rules, which don't use
+ *    this budget (liveSecurityRules.ts keeps those on for any list the user
+ *    turned on, even when its bundled ruleset doesn't fit).
+ *  - Annoyance lists last.
+ * Groups not named here follow, security before ads before annoyance. */
+const IMPORTANCE = [
+  "privacy-headers",
+  "ads",
+  "scam",
+  "badware",
+  "trackers",
+  "popups",
+  "url-tracking",
+  "oisd",
+  "malicious-urls",
+  "phishing-urls",
+  "cookie-notices",
+  "annoyances",
+  "social-widgets",
+];
+const CATEGORY_RANK: Record<string, number> = { security: 0, ads: 1, annoyance: 2 };
 
-/** Orders the groups a user wants enabled by how expendable they are if
- * `declarativeNetRequest.updateEnabledRulesets` can't fit all of them at
- * once -- see filterGroups.ts's retry loop, which drops from the front of
- * this list one group at a time until something fits. Within the same
- * priority tier, the biggest rule count is ordered first, since dropping it
- * frees the most budget per retry. Only reorders; never adds or removes a
- * group from `wantOn`. */
-export function orderGroupsByDropPriority(wantOn: FilterListInfo[]): string[] {
-  return [...wantOn]
-    .sort((a, b) => {
-      const priorityDiff = (CATEGORY_DROP_PRIORITY[a.category] ?? 1) - (CATEGORY_DROP_PRIORITY[b.category] ?? 1);
-      return priorityDiff !== 0 ? priorityDiff : b.ruleCount - a.ruleCount;
-    })
-    .map((list) => list.group);
+/** The groups a user wants on, most important first. Only reorders. */
+export function orderGroupsByImportance(wantOn: FilterListInfo[]): string[] {
+  const rank = (list: FilterListInfo): number => {
+    const i = IMPORTANCE.indexOf(list.group);
+    return i !== -1 ? i : IMPORTANCE.length + (CATEGORY_RANK[list.category] ?? 1);
+  };
+  return [...wantOn].sort((a, b) => rank(a) - rank(b)).map((list) => list.group);
+}
+
+/** What fits in `limit` rules: take the lists most important first and skip
+ * any that doesn't fit, so one big list can't push out several smaller
+ * ones. The same choice filterGroups.ts makes against the real browser;
+ * scripts/validate-rules.mjs uses this to check the Firefox default. */
+export function fillByImportance(wantOn: FilterListInfo[], limit: number): { kept: string[]; dropped: string[] } {
+  const byGroup = new Map(wantOn.map((list) => [list.group, list]));
+  const kept: string[] = [];
+  const dropped: string[] = [];
+  let used = 0;
+  for (const group of orderGroupsByImportance(wantOn)) {
+    const rules = byGroup.get(group)!.ruleCount;
+    if (used + rules <= limit) {
+      kept.push(group);
+      used += rules;
+    } else {
+      dropped.push(group);
+    }
+  }
+  return { kept, dropped };
 }
 
 /** How many static rules a set of filter-group choices really turns on,

@@ -268,7 +268,10 @@ async function render(): Promise<void> {
   // heavy extension is usually the cause) -- the options page already shows
   // the full detail + per-list badges; this is the one-line heads-up so it's
   // visible without opening Settings.
-  if (status.droppedFilterGroups.length > 0) {
+  // Only when ads or trackers had to go. On Firefox some lists never fit
+  // its 30,000-rule limit by design (Settings > Filter lists says which),
+  // and a notice on every page would be noise.
+  if (status.droppedFilterGroups.some((group) => group === "ads" || group === "trackers")) {
     document.getElementById("budget-notice")!.hidden = false;
   }
 
