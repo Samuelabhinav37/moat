@@ -9,10 +9,10 @@ import { readFileSync } from "node:fs";
  * calling test file (pass `new URL("../options/options.html", import.meta.url)`
  * -style paths, or plain fs paths -- readFileSync takes either). */
 export function loadPageFixture(htmlPath: string, cssPaths: string[]): void {
-  const html = readFileSync(htmlPath, "utf8");
-  const bodyMatch = /<body[^>]*>([\s\S]*)<\/body>/i.exec(html);
-  const body = bodyMatch?.[1] ?? "";
-  const inlineStyleMatches = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1] ?? "");
+  // Parsed, not regex-matched: DOMParser never runs scripts, and the
+  // browser's own parser gets <script>/<style> edge cases right.
+  const page = new DOMParser().parseFromString(readFileSync(htmlPath, "utf8"), "text/html");
+  const inlineStyleMatches = [...page.querySelectorAll("style")].map((style) => style.textContent ?? "");
   const externalCss = cssPaths.map((p) => readFileSync(p, "utf8"));
 
   document.head.innerHTML = "";
@@ -21,9 +21,10 @@ export function loadPageFixture(htmlPath: string, cssPaths: string[]): void {
     style.textContent = css;
     document.head.append(style);
   }
-  // Strip <script> tags from the body markup -- this fixture is for real
+  // Drop <script> elements from the body -- this fixture is for real
   // options.ts/popup.ts source to run against via a dynamic import, not for
   // the page's own <script src="..."> tags (which point at a built bundle
-  // that doesn't exist in this context) to execute.
-  document.body.innerHTML = body.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
+  // that doesn't exist in this context).
+  page.body.querySelectorAll("script").forEach((script) => script.remove());
+  document.body.innerHTML = page.body.innerHTML;
 }

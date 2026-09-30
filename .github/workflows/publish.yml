@@ -22,6 +22,11 @@ on:
         options: [stable, beta]
         default: stable
 
+# Read-only token: the store uploads use their own secrets, not the
+# GitHub token.
+permissions:
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest

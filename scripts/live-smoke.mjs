@@ -218,7 +218,7 @@ try {
   const FEATURES = ["private-state-token-redemption", "private-state-token-issuance", "identity-credentials-get"];
   const allowed = (target) => target.evaluate((fs) => fs.filter((f) => !document.featurePolicy?.allowsFeature(f)), FEATURES);
   const pageBlocked = await allowed(news);
-  const widgetFrame = news.frames().find((f) => f.url().startsWith("http://widget.moat-smoke.test"));
+  const widgetFrame = news.frames().find((f) => URL.parse(f.url())?.hostname === "widget.moat-smoke.test");
   // FedCM is off in cross-origin frames by Chrome's own default (the page has
   // to grant it), so frames are checked for the token features only.
   const frameBlocked = widgetFrame

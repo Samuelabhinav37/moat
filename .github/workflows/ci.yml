@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+# Read-only token: nothing here writes to the repo or calls the GitHub API.
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
