@@ -1,0 +1,4 @@
+# live/ files are signed (manifest.json) or hashed (every payload) byte for
+# byte. Keep them LF on every checkout: core.autocrlf on Windows otherwise
+# rewrites manifest.json to CRLF and its signature stops verifying locally.
+live/** text eol=lf
