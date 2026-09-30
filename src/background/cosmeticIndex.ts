@@ -14,7 +14,10 @@
 //    get-cosmetic-generics messages as new class/id tokens appear.
 //
 // No cache invalidation: this data only changes when the extension itself is
-// updated, which is a fresh worker anyway.
+// updated, which is a fresh worker anyway. The meta file stays in memory; the
+// domain buckets are kept for the most recently used sites only
+// (MAX_CACHED_BUCKETS). Keeping every bucket ever touched grew the worker
+// from 3.9 MB to 13 MB over 60 sites (docs/research/test-audit-2026-09.md).
 import browser from "webextension-polyfill";
 import {
   domainInjectionRulesForHostname,
@@ -54,6 +57,16 @@ let manifestPromise: Promise<CosmeticManifest> | undefined;
 let metaPromise: Promise<CosmeticMeta> | undefined;
 const bucketPromises = new Map<number, Promise<Record<string, DomainShardEntry>>>();
 
+/** How many parsed domain buckets stay in memory, most recently used first.
+ * A hostname needs 1-3 buckets, so this covers the last few sites; an older
+ * one is fetched and parsed again (a ~110 KB local file) when next needed. */
+export const MAX_CACHED_BUCKETS = 6;
+
+/** Number of buckets currently kept, for tests. */
+export function cachedBucketCount(): number {
+  return bucketPromises.size;
+}
+
 function loadManifest(): Promise<CosmeticManifest> {
   return (manifestPromise ??= fetchJson<CosmeticManifest>("rules/cosmetics-manifest.json").catch((err: unknown) => {
     manifestPromise = undefined;
@@ -73,12 +86,20 @@ function loadMeta(): Promise<CosmeticMeta> {
 
 function loadBucket(index: number): Promise<Record<string, DomainShardEntry>> {
   let promise = bucketPromises.get(index);
-  if (!promise) {
+  if (promise) {
+    // Map keeps insertion order: moving it to the end marks it most recent.
+    bucketPromises.delete(index);
+  } else {
     promise = fetchJson<Record<string, DomainShardEntry>>(`rules/cosmetics-bucket-${index}.json`).catch((err: unknown) => {
       bucketPromises.delete(index);
       throw err;
     });
-    bucketPromises.set(index, promise);
+  }
+  bucketPromises.set(index, promise);
+  // Drop the least recently used. Anyone already awaiting it keeps their
+  // own reference, so this never cancels a lookup in progress.
+  while (bucketPromises.size > MAX_CACHED_BUCKETS) {
+    bucketPromises.delete(bucketPromises.keys().next().value!);
   }
   return promise;
 }

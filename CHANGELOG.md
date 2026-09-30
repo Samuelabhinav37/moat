@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.182
+
+### Fixed
+- **The background worker's memory grew with every new site you visited.** A heap snapshot
+  showed almost all of it was the element-hiding data. The rules for specific sites are split
+  into 42 "bucket" files, and every bucket a visited site touched was parsed and kept for the
+  life of the worker. Measured after garbage collection, the worker went from 3.9 MB to 13.2 MB
+  over 60 different sites, and would keep growing until all 42 were loaded. Now only the 6 most
+  recently used buckets stay in memory. Memory stays at about 5.3 MB from 10 sites on (5.38 MB
+  at 60). A dropped bucket is a ~110 KB local file, parsed again the next time one of its sites
+  loads. The element-hiding smoke checks all pass.
+
 ## 0.11.181
 
 ### Fixed

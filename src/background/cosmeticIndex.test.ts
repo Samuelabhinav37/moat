@@ -140,3 +140,31 @@ describe("proceduralRulesFor", () => {
     expect(fetchMock.mock.calls.some(([u]) => /bucket/.test(u))).toBe(false);
   });
 });
+
+describe("bucket cache", () => {
+  const useManyBuckets = () => {
+    const base = fetchMock.getMockImplementation() as (url: string) => Promise<unknown>;
+    fetchMock.mockImplementation((url: string) =>
+      url === "rules/cosmetics-manifest.json"
+        ? Promise.resolve({ json: () => Promise.resolve({ meta: "cosmetics-meta.json", bucketCount: 40 }) })
+        : base(url)
+    );
+  };
+  const bucketFetches = () => fetchMock.mock.calls.filter(([u]) => /cosmetics-bucket-/.test(u)).map(([u]) => u as string);
+
+  it("keeps only the most recently used buckets, however many sites are visited", async () => {
+    useManyBuckets();
+    const { cosmeticSliceFor, cachedBucketCount, MAX_CACHED_BUCKETS } = await load();
+    for (let i = 0; i < 60; i++) await cosmeticSliceFor(`site${i}.example${i}.com`);
+    expect(cachedBucketCount()).toBeLessThanOrEqual(MAX_CACHED_BUCKETS);
+  });
+
+  it("doesn't fetch a recently used bucket again", async () => {
+    useManyBuckets();
+    const { cosmeticSliceFor } = await load();
+    await cosmeticSliceFor("news.example.com");
+    const first = bucketFetches().length;
+    await cosmeticSliceFor("news.example.com");
+    expect(bucketFetches().length).toBe(first);
+  });
+});
