@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.184
+
+### Fixed
+- **The bundled filter lists were stuck on one August build.** Most of them come from the
+  `@adguard/dnr-rulesets` package, and the lists only change when it does. Nothing updated it:
+  the weekly refresh rebuilt from the same installed version every time, and the daily
+  Dependabot job failed with npm 429 errors (the registry rate-limits this package's very large
+  metadata). Upstream has since stopped publishing the 4.x line, so staying on it would have
+  frozen the lists for good.
+  - **Moved to v5** (`5.0.20260907123943`, from `4.2.20260826030101`). Same file layout, no
+    code changes needed. 72,281 rules in total (was about 71,500). Checked on v5: 1,298 unit
+    tests, `validate:rules` (Firefox default keeps ads and trackers, 29,525 of 30,000 rules),
+    Chrome smoke 31/31, Firefox smoke 10/10.
+  - **The weekly refresh now updates the package first.** It installs the newest release in the
+    current major line, retrying through 429s, then rebuilds, and its PR includes
+    `package.json` and the lockfile. When a new major is out it leaves a warning on the run, so
+    the next move is a deliberate PR of its own.
+  - **Dependabot config removed.** It only covered this package and never managed a PR.
+
 ## 0.11.183
 
 ### Fixed

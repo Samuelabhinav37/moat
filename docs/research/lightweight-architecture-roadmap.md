@@ -128,6 +128,8 @@ actually used, not a still-open TODO list.
 
 1. **Add Dependabot/Renovate for `@adguard/dnr-rulesets`** (from the dead-rule-pruning spike). ✅
    Done: `.github/dependabot.yml`, daily schedule, scoped to just this one package.
+   Replaced in 0.11.184: Dependabot's runs failed with npm 429s, so the weekly
+   filter-refresh workflow now bumps the package itself.
 2. **Automate Finding 1 from the consolidation spike** (drop already-redundant rules). ✅ Done:
    `scripts/lib/pruneRedundantRules.mjs`, wired into `scripts/update-filters.mjs`, with a
    semantic-equivalence regression test (v0.11.26). 4,726 rules pruned on the day it landed.
