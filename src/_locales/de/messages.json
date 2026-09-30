@@ -1955,5 +1955,8 @@
   },
   "commonChrome": {
     "message": "Chrome"
+  },
+  "pickerHintTouch": {
+    "message": "Tippe auf etwas, um es auszublenden."
   }
 }

@@ -1955,5 +1955,8 @@
   },
   "commonChrome": {
     "message": "Chrome"
+  },
+  "pickerHintTouch": {
+    "message": "Touche n’importe quoi pour le masquer."
   }
 }

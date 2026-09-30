@@ -97,6 +97,28 @@ describe("starting one level up", () => {
   });
 });
 
+describe("the hint", () => {
+  it("has a Cancel button, so phones without an Esc key can stop picking", () => {
+    page();
+    const root = picker.startPicking()!;
+    expect(root.querySelector(".pill")!.textContent).toContain("Press Esc to cancel");
+    root.querySelector<HTMLButtonElement>(".pill-cancel")!.click();
+    expect(document.querySelector("[data-moat-picker]")).toBeNull();
+  });
+
+  it("says tap, not click and Esc, on a touch screen", () => {
+    page();
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({ matches: query === "(hover: none)", media: query })) as unknown as typeof window.matchMedia;
+    try {
+      const root = picker.startPicking()!;
+      expect(root.querySelector(".pill span")!.textContent).toBe("Tap anything to hide it.");
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+});
+
 describe("picking", () => {
   it("previews without saving, and Cancel puts the page back", () => {
     const { ad } = page();

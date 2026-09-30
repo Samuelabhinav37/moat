@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.181
+
+### Fixed
+- **The picker couldn't be cancelled on a phone.** Its hint said "Press Esc to cancel", and
+  touch screens have no Esc key. The only way out was to tap something and then press Cancel on
+  the card. The hint now has its own Cancel button. On touch screens (checked with
+  `(hover: none)`) it says "Tap anything to hide it." Checked at 390px with touch emulation; the
+  card also fits the screen and picks the ad's box on a tap.
+- **The picker drew a small dot in the page's top-left corner** before anything was under the
+  pointer (an outline box with no size). It stays hidden until there's something to outline.
+
 ## 0.11.180
 
 ### Fixed

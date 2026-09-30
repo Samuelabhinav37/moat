@@ -2115,5 +2115,9 @@
   "commonChrome": {
     "message": "Chrome",
     "description": "Browser name. Don't translate."
+  },
+  "pickerHintTouch": {
+    "message": "Tap anything to hide it.",
+    "description": "Picker hint on touch screens (phones), shown instead of the Esc hint. Followed by a Cancel button."
   }
 }

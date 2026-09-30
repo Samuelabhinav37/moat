@@ -127,6 +127,8 @@ const CSS = `
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35); white-space: nowrap;
 }
 .pill kbd { font: inherit; color: #a7a1ac; }
+.pill { display: flex; align-items: center; gap: 12px; }
+.pill-cancel { pointer-events: auto; padding: 4px 10px; font-size: 12.5px; }
 .card {
   position: fixed; z-index: 3; width: 320px; pointer-events: auto;
   padding: 14px; border-radius: 14px; background: #1b191d; color: #eceef0;
@@ -193,7 +195,7 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, t
 function placeOutline(element: Element): void {
   if (!outline) return;
   const rect = element.getBoundingClientRect();
-  Object.assign(outline.style, { top: `${rect.top}px`, left: `${rect.left}px`, width: `${rect.width}px`, height: `${rect.height}px` });
+  Object.assign(outline.style, { display: "", top: `${rect.top}px`, left: `${rect.left}px`, width: `${rect.width}px`, height: `${rect.height}px` });
 }
 
 function isOurs(target: EventTarget | null): boolean {
@@ -369,8 +371,9 @@ function pick(element: Element): void {
   renderCard();
 }
 
-export function startPicking(): void {
-  if (host) return;
+/** Starts picking. Returns the picker's (closed) shadow root, for tests. */
+export function startPicking(): ShadowRoot | null {
+  if (host) return root;
   host = document.createElement("div");
   host.setAttribute(HOST_ATTR, "");
   Object.assign(host.style, { position: "fixed", inset: "0", zIndex: Z_INDEX, pointerEvents: "none" });
@@ -378,12 +381,26 @@ export function startPicking(): void {
   const style = document.createElement("style");
   style.textContent = CSS;
   outline = el("div", "outline");
-  pill = el("div", "pill", t("pickerHint", "Click anything to hide it. Press Esc to cancel."));
+  // Nothing to outline until the pointer is over something (it drew a dot
+  // in the top-left corner before).
+  outline.style.display = "none";
+  // Touch screens have no Esc key and no hover, so the hint says "tap" and
+  // carries its own Cancel button (useful with a mouse too).
+  const touch = window.matchMedia?.("(hover: none)").matches ?? false;
+  pill = el("div", "pill");
+  const stop = el("button", "pill-cancel", t("commonCancel", "Cancel"));
+  stop.type = "button";
+  stop.addEventListener("click", teardown);
+  pill.append(
+    el("span", undefined, touch ? t("pickerHintTouch", "Tap anything to hide it.") : t("pickerHint", "Click anything to hide it. Press Esc to cancel.")),
+    stop
+  );
   root.append(style, outline, pill);
   document.documentElement.append(host);
   document.addEventListener("mouseover", onMouseOver, true);
   document.addEventListener("click", onClick, true);
   document.addEventListener("keydown", onKeyDown, true);
+  return root;
 }
 
 /** Test hook: the same as clicking `element` while picking. */
