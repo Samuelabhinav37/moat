@@ -35,14 +35,14 @@ Everything happens on your computer, and nothing about you is sent anywhere, unl
 
 ## What it does
 
-- **Blocks ads and trackers** on every site, using about 310,000 filter rules that run inside the
+- **Blocks ads and trackers** on every site, using about 310,000 filter entries that run inside the
   browser's own blocking engine, so pages stay fast.
 - **Closes hijacked pop-ups.** Fake prize and fake virus tabs are shut the moment they open.
 - **Tidies up the page.** The empty boxes a blocked ad leaves behind collapse, so pages don't look
   broken.
 - **Says no to cookie banners** for you, if you switch it on in Settings.
 - **Lets you stay in control.** Pause Moat on a site you trust with one switch, or click
-  **Block an element…** to hide anything a filter list missed.
+  **Hide something on this page…** to hide anything a filter list missed.
 - **Optional extras**, all off until you want them: fingerprinting protection, warnings when a
   password you type has leaked in a breach, and uncloaking trackers that hide behind a site's own
   domain.
@@ -111,7 +111,8 @@ is in [`docs/design-notes.md`](docs/design-notes.md).
 <details>
 <summary><strong>Everything Moat does, in technical detail</strong></summary>
 
-- **Network blocking.** ~314,000 `declarativeNetRequest` rules from 11 bundled AdGuard filter lists
+- **Network blocking.** ~314,000 filter entries, packed into ~72,000 `declarativeNetRequest`
+  rules, from 11 bundled AdGuard filter lists
   (ads, trackers, malicious/phishing/scam domains, cookie notices, annoyances), plus three
   independent third-party sources for redundant coverage (a daily-updated scam-domain list, a
   community ad/tracker/malware aggregate, and a longstanding ad-server list), plus a few
@@ -120,8 +121,9 @@ is in [`docs/design-notes.md`](docs/design-notes.md).
   background tab safety net for anything that slips past.
 - **Cosmetic filtering.** Hides leftover ad boxes and cookie banners network blocking can't reach,
   including procedural (`:has-text` / `:xpath` / `:upward`) rules a plain stylesheet can't express.
-- **Block-count breakdown.** Ads / Trackers / Popups split (Chrome only), a "Light / Moderate /
-  Heavy" read, and an optional by-company list, expanded in Settings → Trackers.
+- **Block-count breakdown.** Ads / Trackers / Pop-ups split (Chrome only), a plain-language read
+  ("A few" / "Quite a few" / "Lots of ads and trackers blocked"), and an optional by-company
+  list, expanded in Settings → Trackers.
 - **Element picker.** Hides anything the lists miss, permanently or just once, or grays it out if
   hiding breaks the layout.
 - **Grayed-out video ads.** Dims YouTube in-stream ads that can't be blocked outright.
@@ -137,8 +139,8 @@ is in [`docs/design-notes.md`](docs/design-notes.md).
 - **Global Privacy Control.** Sends `Sec-GPC`, a legally binding opt-out signal in a dozen US states.
 - **Leaked-password check** (opt-in). HaveIBeenPwned k-anonymity: only a 5-character hash prefix
   leaves the device.
-- **Filtering levels and custom rules.** Off / Lite / Essential / Standard / Strict presets,
-  per-list toggles, and your own block/allow lists.
+- **Blocking levels and custom rules.** Light / Balanced / Strict (Balanced by default), per-list
+  toggles under Settings → Filter lists, and your own block/allow lists.
 - **Per-site pause, a keyboard shortcut, settings export/import with opt-in sync, and a "Report a
   problem" button.**
 - **Enterprise-managed policy** via Chrome's `ExtensionSettings` or Firefox's `policies.json`. See
@@ -166,7 +168,7 @@ One codebase builds for Chrome and Firefox. The Firefox build also targets **Fir
 | `dns` (Firefox only) | CNAME resolution for "Uncloak disguised trackers"; inert unless that toggle is on. |
 | `webRequest` + `webRequestBlocking` (Firefox only) | Cancel a request once its resolved CNAME target matches a known tracker. |
 | `webRequest` (Chrome only, non-blocking) | Observes candidate requests for "Uncloak disguised trackers". Inert unless that toggle is on. |
-| `scripting` | Registers the optional content scripts only for the sites each applies to; injects cosmetic CSS; runs the element picker only when you click "Block an element…". |
+| `scripting` | Registers the optional content scripts only for the sites each applies to; injects cosmetic CSS; runs the element picker only when you click "Hide something on this page…". |
 | `contentSettings` | Sets the camera/mic/location permission default to "block" for the opt-in ambush-prompt guard. Chrome only. Inert unless that toggle is on. |
 | `browsingData` | Backs the popup's manual "Clear site data…" button, scoped to the current site. Never called automatically. |
 | `favicon` (Chrome only) | Shows each site's icon beside it in Settings lists, read from Chrome's own local icon cache. No network request. |
@@ -183,11 +185,15 @@ One codebase builds for Chrome and Firefox. The Firefox build also targets **Fir
   cloaked tracker in a session. Firefox's path blocks every request with no third party involved.
 - **The YouTube dimmer and feed scanner are DOM heuristics** and can stop matching when a site
   changes its markup. Both are switchable; the feed scanner is off by default and English-only.
-- **Chrome's static-rule budget is shared across every installed extension** (~30,000 guaranteed;
-  Moat ships ~314,000; the fresh-install preset uses ~310,000 and fits on its own). With other
-  rule-heavy extensions present, some lists may not enable: `filterGroups.ts` drops the least
-  essential first, and Advanced settings → Filter lists shows which. Fresh installs start on
-  Balanced; Light or Essential use the smallest footprint.
+- **Browsers cap how many blocking rules an extension can use.** Moat's lists pack ~314,000
+  filter entries into ~72,000 rules; the default level (Balanced) needs ~68,000. When they don't
+  all fit, `filterGroups.ts` turns on the most important lists that do (ads first, annoyance
+  lists last), and Settings → Filter lists shows which were left out.
+  - **Chrome** shares a pool of about 330,000 rules between all extensions (~30,000 guaranteed
+    each). Balanced fits on its own; other rule-heavy extensions can crowd it.
+  - **Firefox** gives each extension 30,000. On Balanced, Moat keeps the ads, trackers, pop-up,
+    scam and badware lists and leaves out link tracking and the bundled malware and phishing
+    lists. The daily malware and phishing lists stay on, since they don't count toward the limit.
 - **`web-ext lint` reports 4 expected warnings, 0 errors**: a false-positive coinminer hit on a
   blocked domain name, plus feature-detected references to Chrome-only debug APIs.
 

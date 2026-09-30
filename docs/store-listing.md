@@ -36,18 +36,21 @@ day one — not a stripped-down port of an older extension.
 - Shuts hijacked popups and redirect tabs silently, with a baseline domain list
   plus a small daily-refreshed slice.
 - Hides leftover ad boxes and empty containers with cosmetic filtering.
-- Auto-rejects cookie-consent banners.
-- Optional, all off by default: fingerprint resistance, a YouTube ad dimmer, a
-  feed ad scanner, a leaked-password check (via Have I Been Pwned's
+- Auto-rejects cookie-consent banners, and grays out YouTube video ads it
+  can't block.
+- Optional, all off by default: fingerprint resistance, a feed ad scanner, a
+  leaked-password check (via Have I Been Pwned's
   k-anonymity API — a 5-character hash prefix, never the password), and tracker
   CNAME-uncloaking.
 
 **What leaves your device**
 
-Roughly once a day Moat downloads a few small static filter-fix files from a
-public GitHub Pages URL — a plain file fetch that carries nothing about you.
-The two opt-in features above talk to third parties (Have I Been Pwned; a
-public DNS resolver), never to Moat. There is nothing else. Full disclosure:
+Roughly once a day Moat downloads a few small signed files from a public
+GitHub Pages URL: filter fixes and today's phishing, malware and scam domain
+lists. It's a plain file fetch that carries nothing about you. Two opt-in
+features talk to third parties (Have I Been Pwned; a public DNS resolver),
+never to Moat. A problem report goes to Moat only when you choose to send
+one. There is nothing else. Full disclosure:
 https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md
 
 **Why `<all_urls>`**
@@ -112,7 +115,7 @@ Source (GPL-3.0): https://github.com/Samuelabhinav37/moat
 | `storage` | Store the user's own settings and per-site pause list locally on-device. Never transmitted. |
 | `privacy` | Backs the opt-in privacy toggles (third-party cookie blocking, WebRTC leak protection); inert unless the user turns one on. |
 | `alarms` | Schedule the daily check for a refreshed popup/redirect domain list and cosmetic-fix file. |
-| `scripting` | Register the optional content scripts (feed ad removal, YouTube dimmer) scoped only to the sites each applies to; inject cosmetic CSS from the background service worker; run the element picker only when the user clicks "Block an element…". |
+| `scripting` | Register the optional content scripts (feed ad removal, YouTube dimmer) scoped only to the sites each applies to; inject cosmetic CSS from the background service worker; run the element picker only when the user clicks "Hide something on this page…". |
 | `webRequest` (non-blocking) | Observe candidate requests for the opt-in "Uncloak disguised trackers" feature; inert unless that toggle is on. Chrome's MV3 `webRequest` can no longer block, so this is observation-only feeding `declarativeNetRequest` dynamic rules. |
 | `contentSettings` | Set the browser-level camera/microphone/location permission default to "block" for the opt-in ambush-prompt guard (a site requesting one with no user gesture). Inert unless that toggle is on. |
 | `browsingData` | Backs the popup's manual "Clear site data…" button: on click, clears the active tab's own cookies, IndexedDB, local storage and service workers for that one site. Never called automatically and never touches other sites. |
