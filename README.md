@@ -23,7 +23,7 @@ A free, open-source ad blocker for Chrome and Firefox. No server, no account, no
 <p align="center">
   <picture>
     <source media="(prefers-reduced-motion: reduce)" srcset="docs/images/readme-demo-still.webp">
-    <img src="docs/images/readme-demo.webp" width="800" alt="A WIRED article without Moat: a large ad above the headline takes up 29% of the screen. A divider wipes across to the same page with Moat: it starts at the headline, and Moat's popup shows 18 things blocked on this page.">
+    <img src="docs/images/readme-demo.webp" width="800" alt="A WIRED article without Moat: a large ad above the headline takes up 29% of the screen. A divider wipes across to the same page with Moat: it starts at the headline, and Moat's popup shows 14 things blocked on this page.">
   </picture>
 </p>
 
@@ -230,5 +230,3 @@ are in [`NOTICE.md`](NOTICE.md), which ships inside the extension package itself
 - [`PRIVACY.md`](PRIVACY.md), [`NOTICE.md`](NOTICE.md), [`CHANGELOG.md`](CHANGELOG.md).
 - [`CONTRIBUTING.md`](CONTRIBUTING.md), [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) and
   [`SECURITY.md`](SECURITY.md).
-- [`docs/design/handoff/`](docs/design/handoff/): the design handoff behind the current popup and
-  Settings UI.

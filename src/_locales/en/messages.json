@@ -1871,6 +1871,16 @@
     },
     "description": "Popup banner on a paused site. $HOST$ is the site's address."
   },
+  "popupPausedHere": {
+    "message": "Moat is paused on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    },
+    "description": "Popup banner on a site that was already paused when the popup opened. $HOST$ is the site's address."
+  },
   "popupUpdated": {
     "message": "Moat updated to version $VERSION$.",
     "placeholders": {

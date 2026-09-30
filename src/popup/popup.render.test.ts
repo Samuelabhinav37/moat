@@ -35,8 +35,8 @@ afterEach(() => {
   vi.doUnmock("webextension-polyfill");
 });
 
-async function renderPopup(hostname = "nytimes.com"): Promise<void> {
-  const { browser } = createMockBrowser({ hostname });
+async function renderPopup(hostname = "nytimes.com", siteDisabled = false): Promise<void> {
+  const { browser } = createMockBrowser({ hostname, siteDisabled });
   vi.doMock("webextension-polyfill", () => ({ default: browser }));
   loadPageFixture(POPUP_HTML, [THEME_CSS]);
   await import("./popup");
@@ -57,6 +57,22 @@ describe("popup.html render", () => {
       expect((document.getElementById(id) as HTMLElement).hidden, id).toBe(true);
     }
     expect(caughtErrors).toEqual([]);
+  });
+
+  it("on an already-paused site, says so without asking for a reload", async () => {
+    await renderPopup("www.nytimes.com", true);
+    expect(document.getElementById("paused-banner")!.hidden).toBe(false);
+    expect(document.getElementById("paused-text")!.textContent).toBe("Moat is paused on nytimes.com.");
+    expect(document.getElementById("reload-page")!.hidden).toBe(true);
+  });
+
+  it("right after pausing, asks for a reload and offers the button", async () => {
+    await renderPopup("www.nytimes.com");
+    const toggle = document.getElementById("site-toggle") as HTMLInputElement;
+    toggle.checked = false;
+    toggle.dispatchEvent(new Event("change"));
+    expect(document.getElementById("paused-text")!.textContent).toBe("Moat is paused on nytimes.com. Reload the page to apply it.");
+    expect(document.getElementById("reload-page")!.hidden).toBe(false);
   });
 
   it("renders without throwing or an unhandled rejection", async () => {

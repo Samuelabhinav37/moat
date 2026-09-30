@@ -243,17 +243,20 @@ function renderPermissionGuardNotice(
   notice.hidden = !anyVisible;
 }
 
-/** "Moat is paused on example.com. Reload the page to apply it." as one
- * message, with the site dropped in where the translation puts $HOST$ and
- * still breakable at its dots. */
-function renderPausedSentence(el: HTMLElement, hostname: string): void {
+/** "Moat is paused on example.com." as one message, with the site dropped
+ * in where the translation puts $HOST$ and still breakable at its dots.
+ * Right after the switch is flipped the page still runs as it loaded, so
+ * that sentence also asks for a reload. */
+function renderPausedSentence(el: HTMLElement, hostname: string, justPaused: boolean): void {
   const MARK = "\u0001";
-  const sentence = getMessageOrFallback(
-    (key, subs) => browser.i18n.getMessage(key, subs),
-    "popupPausedOn",
-    `Moat is paused on ${MARK}. Reload the page to apply it.`,
-    MARK
-  );
+  const sentence = justPaused
+    ? getMessageOrFallback(
+        (key, subs) => browser.i18n.getMessage(key, subs),
+        "popupPausedOn",
+        `Moat is paused on ${MARK}. Reload the page to apply it.`,
+        MARK
+      )
+    : getMessageOrFallback((key, subs) => browser.i18n.getMessage(key, subs), "popupPausedHere", `Moat is paused on ${MARK}.`, MARK);
   const [before = "", after = ""] = sentence.split(MARK);
   const host = document.createElement("span");
   host.className = "paused-host";
@@ -339,7 +342,6 @@ async function render(): Promise<void> {
   icon.classList.add("site-favicon");
   icon.id = "site-favicon";
   document.getElementById("site-favicon")?.replaceWith(icon);
-  renderPausedSentence(pausedText, status.hostname);
   renderPermissionGuardNotice(status.hostname, status.permissionGuard);
   void renderSiteOverrides(status.hostname).catch(() => {
     // Best-effort -- the core pause/protect toggle above still works fine
@@ -348,10 +350,14 @@ async function render(): Promise<void> {
   toggle.checked = !status.siteDisabled;
   toggle.disabled = !status.enabled;
 
-  function setPaused(paused: boolean): void {
+  // justPaused: paused from this popup just now, so the open page still has
+  // Moat running until it reloads. Opened on an already-paused site, the
+  // page loaded without Moat and there's nothing to reload.
+  function setPaused(paused: boolean, justPaused = false): void {
     stats.hidden = paused;
     pausedBanner.hidden = !paused;
-    reloadButton.hidden = !paused;
+    reloadButton.hidden = !justPaused;
+    if (paused) renderPausedSentence(pausedText, shownHost, justPaused);
     siteState.classList.toggle("paused", paused);
     siteStateText.textContent = getMessageOrFallback(
       (key) => browser.i18n.getMessage(key),
@@ -366,7 +372,7 @@ async function render(): Promise<void> {
     const disabled = !toggle.checked;
     const message: ToggleSiteMessage = { type: "toggle-site", hostname: status.hostname, disabled };
     void browser.runtime.sendMessage(message);
-    setPaused(disabled || !status.enabled);
+    setPaused(disabled || !status.enabled, disabled);
   });
 
   reloadButton.addEventListener("click", async () => {

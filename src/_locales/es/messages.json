@@ -1744,6 +1744,15 @@
       }
     }
   },
+  "popupPausedHere": {
+    "message": "Moat está en pausa en $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
   "popupUpdated": {
     "message": "Moat se actualizó a la versión $VERSION$.",
     "placeholders": {

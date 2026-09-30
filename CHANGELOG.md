@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.186
+
+### Fixed
+- **The popup asked for a reload on every paused site.** "Moat is paused on www.example.com.
+  Reload the page to apply it." and a **Reload page** button showed whenever the site was
+  paused, long after the reload. Now the reload hint and button appear only right after you
+  flip the switch; opening the popup on a site that's already paused just says "Moat is paused
+  on example.com." (without the "www."). New string `popupPausedHere` in en/es/fr/de.
+
+### Changed
+- **Website and README images show the current popup.** The landing page's popup shots and the
+  README's before/after animation still showed the old one ("Block an element…", "Popups",
+  white site card). Recaptured on the same WIRED article; the animation keeps its original
+  frames with the popup and final count swapped in.
+
+### Removed
+- `docs/design/handoff/` (the design tool export behind a redesign that has since been
+  replaced) and `docs/how-cosmetic-filtering-works.html` (unlinked, and described the
+  0.11.63 cosmetic filtering that has since been rebuilt; `docs/design-notes.md` covers the
+  current design).
+
 ## 0.11.185
 
 ### Fixed

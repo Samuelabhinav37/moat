@@ -21,6 +21,8 @@ export interface MockBrowserOptions {
    * render their fuller, more representative states, not an empty one. */
   settings?: Partial<Settings>;
   hostname?: string;
+  /** Whether Moat is paused on `hostname` when the popup opens. */
+  siteDisabled?: boolean;
 }
 
 /** A realistic, non-empty settings/usage fixture -- rendering an empty state
@@ -75,7 +77,7 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
     "check-for-live-updates": () => undefined,
     "get-status": () => ({
       hostname,
-      siteDisabled: false,
+      siteDisabled: options.siteDisabled ?? false,
       enabled: true,
       blockedOnTab: 12,
       unsorted: 4,
