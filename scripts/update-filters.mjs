@@ -719,22 +719,50 @@ const oisdUniqueDomains = oisdDomains.filter((domain) => !isBlockedByDomainChain
 console.log(
   `oisd: ${oisdDomains.length - oisdUniqueDomains.length} of ${oisdDomains.length} domains already blocked by the ads group, pruned`
 );
-const { kept: oisdRules, consolidatedCount: oisdConsolidated } = consolidateSiblingRules(buildOisdRules(oisdUniqueDomains));
-if (oisdConsolidated > 0) {
-  console.log(`oisd: ${oisdConsolidated} sibling rule(s) consolidated to an apex rule`);
+// oisd mixes ad servers with analytics and other trackers, and packing
+// merges its domains into rules that each list thousands of hosts, so the
+// popup can't tell per match which kind it stopped. It counted every oisd
+// block as an ad: GitHub's own analytics (collector.github.com) showed as
+// 130 ads. Domains TrackerDB files as trackers (analytics, social,
+// customer interaction...) go in their own ruleset, counted as trackers;
+// the rest (ad servers, and the unknown domains that are mostly ad junk)
+// stay counted as ads. Same "oisd" group, so one switch still covers both.
+const OISD_AD_CATEGORIES = new Set(["advertising", "pornvertising", "hosting"]);
+function trackerDbCategory(domain) {
+  if (!trackerDb) return null;
+  const labels = domain.split(".");
+  for (let i = 0; i < labels.length - 1; i++) {
+    const pattern = trackerDb.domains[labels.slice(i).join(".")];
+    if (pattern) return trackerDb.patterns[pattern]?.category ?? null;
+  }
+  return null;
 }
-const oisdChunks = chunkBySize(oisdRules, 4.5 * 1024 * 1024);
-oisdChunks.forEach((chunkRules, index) => {
-  const suffix = oisdChunks.length > 1 ? `-${index + 1}` : "";
+const isOisdTracker = (domain) => {
+  const category = trackerDbCategory(domain);
+  return category !== null && !OISD_AD_CATEGORIES.has(category);
+};
+const oisdParts = [
+  { suffix: "", countAs: "ads", domains: oisdUniqueDomains.filter((domain) => !isOisdTracker(domain)) },
+  { suffix: "-trackers", countAs: "trackers", domains: oisdUniqueDomains.filter(isOisdTracker) },
+];
+console.log(`oisd: ${oisdParts[1].domains.length} domains counted as trackers (TrackerDB), the rest as ads`);
+const oisdChunkList = oisdParts.flatMap(({ suffix, countAs, domains }) => {
+  const { kept, consolidatedCount } = consolidateSiblingRules(buildOisdRules(domains));
+  if (consolidatedCount > 0) console.log(`oisd${suffix}: ${consolidatedCount} sibling rule(s) consolidated to an apex rule`);
+  const chunks = chunkBySize(kept, 4.5 * 1024 * 1024);
+  return chunks.map((rules, index) => ({ rules, countAs, suffix: `${suffix}${chunks.length > 1 ? `-${index + 1}` : ""}` }));
+});
+oisdChunkList.forEach(({ rules: chunkRules, countAs, suffix }, index) => {
   const file = `ruleset_oisd${suffix}.json`;
   manifestEntries.push({
     id: `ruleset_oisd${suffix}`,
     group: "oisd",
     category: "ads",
-    name: oisdChunks.length > 1 ? `Community blocklist (oisd) (${index + 1}/${oisdChunks.length})` : "Community blocklist (oisd)",
+    name: `Community blocklist (oisd) (${index + 1}/${oisdChunkList.length})`,
     enabled: true,
     file,
     ruleCount: chunkRules.length,
+    ...(countAs === "trackers" ? { countAs } : {}),
   });
   writeFileSync(join(outDir, file), JSON.stringify(chunkRules));
 });

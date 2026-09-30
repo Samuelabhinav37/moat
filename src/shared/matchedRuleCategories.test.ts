@@ -64,6 +64,22 @@ describe("summarizeMatchedRules", () => {
     );
     expect(result).toEqual({ ads: 2, trackers: 1, popups: 0 });
   });
+
+  it("counts oisd's tracker ruleset as trackers (GitHub's analytics showed as 130 ads)", () => {
+    const withOisd: RulesetManifestEntry[] = [
+      ...manifest,
+      { ...entry("ruleset_oisd-1", "oisd"), category: "ads" },
+      { ...entry("ruleset_oisd-trackers", "oisd"), category: "ads", countAs: "trackers" },
+    ];
+    const result = summarizeMatchedRules(withOisd, [
+      { rulesetId: "ruleset_oisd-1", ruleId: 1 },
+      { rulesetId: "ruleset_oisd-trackers", ruleId: 1 },
+      { rulesetId: "ruleset_oisd-trackers", ruleId: 1 },
+    ]);
+    expect(result).toEqual({ ads: 1, trackers: 2, popups: 0 });
+    // Still one list in Settings.
+    expect(summarizeMatchesByGroup(withOisd, [{ rulesetId: "ruleset_oisd-trackers" }])).toEqual({ oisd: 1 });
+  });
 });
 
 describe("summarizeMatchesByGroup", () => {

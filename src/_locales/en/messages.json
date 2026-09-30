@@ -821,51 +821,6 @@
   "advLastBackup": {
     "message": "Last backup:"
   },
-  "footerProduct": {
-    "message": "Product"
-  },
-  "footerResources": {
-    "message": "Resources"
-  },
-  "footerProject": {
-    "message": "Project"
-  },
-  "footerFeatures": {
-    "message": "Features"
-  },
-  "footerPrivacy": {
-    "message": "Privacy"
-  },
-  "footerFaq": {
-    "message": "FAQ"
-  },
-  "footerChangelog": {
-    "message": "Changelog"
-  },
-  "footerPrivacyPolicy": {
-    "message": "Privacy policy"
-  },
-  "footerBuildStatus": {
-    "message": "Build status"
-  },
-  "footerInstallFromSource": {
-    "message": "Install from source"
-  },
-  "footerGithub": {
-    "message": "GitHub"
-  },
-  "footerLicense": {
-    "message": "GPL-3.0 license"
-  },
-  "footerReportIssue": {
-    "message": "Report a problem"
-  },
-  "footerCopyright": {
-    "message": "© 2026 Moat"
-  },
-  "footerFreeOpenSource": {
-    "message": "Free and open source."
-  },
   "tourPageTitle": {
     "message": "Welcome to Moat"
   },

@@ -16,6 +16,9 @@ export interface RulesetManifestEntry {
   /** Filter entries before packing, one per domain or pattern. Absent in
    * manifests written before packing existed. */
   entryCount?: number;
+  /** Which popup tile this ruleset's blocks count toward, when it isn't its
+   * group's (matchedRuleCategories.ts). Set on oisd's tracker part. */
+  countAs?: "ads" | "trackers" | "popups";
 }
 
 /** Every static ruleset id belonging to a given group (chunked lists share one group, e.g. "ads-1"/"ads-2" -> "ads"). */

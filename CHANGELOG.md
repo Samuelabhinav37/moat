@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.185
+
+### Fixed
+- **GitHub showed 130 "ads" blocked.** They were GitHub's own analytics (`collector.github.com`),
+  blocked by the oisd list. oisd mixes ad servers with trackers, and its domains are packed into
+  rules that each cover thousands of hosts, so the popup counted every oisd block as an ad. The
+  828 oisd domains Ghostery's TrackerDB files as trackers (analytics, social, customer
+  interaction and the like) now build into their own ruleset, counted as trackers
+  (`countAs` in the ruleset manifest). Same oisd switch in Settings, one extra rule. GitHub now
+  shows 0 ads and 4 trackers.
+- **Popup numbers were in a monospace font** (Consolas on Windows), unlike the rest of the popup.
+  They now use the popup's own font with fixed-width digits.
+- **The popup's scrollbar was a light one on a dark panel.** Chrome caps the popup at 600px, and
+  with "Customize for this site" open it's taller, so it scrolls. It now uses a thin dark
+  scrollbar.
+
+### Removed
+- **The website-style footer at the bottom of Settings** (Product / Resources / Project links).
+  About Moat already links the privacy policy, changelog and source code. 15 strings removed
+  from each language.
+
 ## 0.11.184
 
 ### Fixed

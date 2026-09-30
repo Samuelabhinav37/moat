@@ -817,51 +817,6 @@
   "advLastBackup": {
     "message": "Letzte Sicherung:"
   },
-  "footerProduct": {
-    "message": "Produkt"
-  },
-  "footerResources": {
-    "message": "Ressourcen"
-  },
-  "footerProject": {
-    "message": "Projekt"
-  },
-  "footerFeatures": {
-    "message": "Funktionen"
-  },
-  "footerPrivacy": {
-    "message": "Datenschutz"
-  },
-  "footerFaq": {
-    "message": "FAQ"
-  },
-  "footerChangelog": {
-    "message": "Änderungsprotokoll"
-  },
-  "footerPrivacyPolicy": {
-    "message": "Datenschutzerklärung"
-  },
-  "footerBuildStatus": {
-    "message": "Build-Status"
-  },
-  "footerInstallFromSource": {
-    "message": "Aus dem Quellcode installieren"
-  },
-  "footerGithub": {
-    "message": "GitHub"
-  },
-  "footerLicense": {
-    "message": "GPL-3.0-Lizenz"
-  },
-  "footerReportIssue": {
-    "message": "Problem melden"
-  },
-  "footerCopyright": {
-    "message": "© 2026 Moat"
-  },
-  "footerFreeOpenSource": {
-    "message": "Kostenlos und quelloffen."
-  },
   "tourPageTitle": {
     "message": "Willkommen bei Moat"
   },

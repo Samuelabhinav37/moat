@@ -25,6 +25,7 @@ const GROUP_TO_BUCKET: Partial<Record<string, BreakdownBucket>> = {
   badware: "trackers",
   // A community list built mostly from ad servers (its manifest category is
   // "ads"). Without a bucket, everything it blocked showed as "not sorted".
+  // Its tracker domains are a separate ruleset with countAs: "trackers".
   oisd: "ads",
 };
 
@@ -64,7 +65,7 @@ export function summarizeMatchedRules(
   matches: MatchedRuleRef[],
   adRules: AdRules = {}
 ): Breakdown {
-  const idToGroup = new Map(manifest.map((entry) => [entry.id, entry.group]));
+  const idToBucket = new Map(manifest.map((entry) => [entry.id, entry.countAs ?? GROUP_TO_BUCKET[entry.group]]));
   const adRuleIds = new Map(Object.entries(adRules).map(([id, ruleIds]) => [id, new Set(ruleIds)]));
   const counts: Breakdown = { ads: 0, trackers: 0, popups: 0 };
   for (const match of matches) {
@@ -72,8 +73,7 @@ export function summarizeMatchedRules(
       counts.ads += 1;
       continue;
     }
-    const group = idToGroup.get(match.rulesetId);
-    const bucket = group ? GROUP_TO_BUCKET[group] : undefined;
+    const bucket = idToBucket.get(match.rulesetId);
     if (bucket) counts[bucket] += 1;
   }
   return counts;

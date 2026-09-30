@@ -1370,53 +1370,6 @@
         }
       }
 
-      /* ---------- Footer (same as the website) ---------- */
-      .site-foot {
-        border-top: 1px solid var(--line);
-        margin-top: 64px;
-        padding: 56px 48px 32px;
-      }
-      .foot-top {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 48px;
-        flex-wrap: wrap;
-        padding-bottom: 44px;
-        border-bottom: 1px solid var(--line);
-      }
-      .foot-cols {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(150px, auto));
-        gap: 28px 80px;
-      }
-      .foot-cols h4 {
-        margin: 0 0 16px;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--muted);
-      }
-      .foot-cols a {
-        display: block;
-        margin-bottom: 12px;
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--fg);
-      }
-      .foot-cols a:hover {
-        color: var(--blue-lt);
-        text-decoration: none;
-      }
-      .foot-bottom {
-        display: flex;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 12px;
-        padding-top: 22px;
-        font-size: 14px;
-        color: var(--muted);
-      }
-
       /* ---------- Search settings (settingsSearch.ts) ---------- */
       .search {
         position: relative;
@@ -1733,14 +1686,6 @@
           grid-column: 1;
           min-width: 0;
         }
-        .site-foot {
-          margin-left: var(--side);
-        }
-        /* The footer's content lines up with the centred column above. */
-        .site-foot > * {
-          max-width: 880px;
-          margin-inline: auto;
-        }
         .head {
           display: none;
         }
@@ -1969,16 +1914,10 @@
         main.wrap {
           grid-template-columns: minmax(0, 1120px);
         }
-        .site-foot > * {
-          max-width: 1120px;
-        }
       }
       @media (min-width: 1680px) {
         main.wrap {
           grid-template-columns: minmax(0, 1240px);
-        }
-        .site-foot > * {
-          max-width: 1240px;
         }
       }
       /* The drawer: closed by default, so nothing is kept for it. It opens
@@ -2009,12 +1948,10 @@
         }
       }
       @media (min-width: 1280px) {
-        main.wrap,
-        .site-foot {
+        main.wrap {
           transition: margin-right 0.22s var(--ease);
         }
-        body.ex-open main.wrap,
-        body.ex-open .site-foot {
+        body.ex-open main.wrap {
           margin-right: var(--drawer);
         }
         .explainer:not([hidden]) {
@@ -2367,16 +2304,12 @@
           grid-column: 1 / 3;
           padding-left: 28px;
         }
-        .topbar,
-        .site-foot {
+        .topbar {
           padding-left: 20px;
           padding-right: 20px;
         }
         .wrap {
           padding: 28px 18px 20px;
-        }
-        .foot-cols {
-          grid-template-columns: 1fr 1fr;
         }
       }
     </style>
@@ -2870,34 +2803,6 @@
           </div>
         </div>
       </main>
-
-      <footer class="site-foot">
-        <div class="foot-top">
-          <span class="brand"><img src="icons/icon48.png" alt="" /><span>Moat</span></span>
-          <nav class="foot-cols" aria-label="Moat">
-            <div>
-              <h4 data-i18n="footerProduct">Product</h4>
-              <a href="https://samuelabhinav37.github.io/moat/#features" target="_blank" rel="noopener" data-i18n="footerFeatures">Features</a>
-              <a href="https://samuelabhinav37.github.io/moat/#privacy" target="_blank" rel="noopener" data-i18n="footerPrivacy">Privacy</a>
-              <a href="https://samuelabhinav37.github.io/moat/#faq" target="_blank" rel="noopener" data-i18n="footerFaq">FAQ</a>
-            </div>
-            <div>
-              <h4 data-i18n="footerResources">Resources</h4>
-              <a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="footerChangelog">Changelog</a>
-              <a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener" data-i18n="footerPrivacyPolicy">Privacy policy</a>
-              <a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml" target="_blank" rel="noopener" data-i18n="footerBuildStatus">Build status</a>
-              <a href="https://github.com/Samuelabhinav37/moat#install-it-today" target="_blank" rel="noopener" data-i18n="footerInstallFromSource">Install from source</a>
-            </div>
-            <div>
-              <h4 data-i18n="footerProject">Project</h4>
-              <a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener" data-i18n="footerGithub">GitHub</a>
-              <a href="https://github.com/Samuelabhinav37/moat/blob/master/LICENSE" target="_blank" rel="noopener" data-i18n="footerLicense">GPL-3.0 license</a>
-              <a href="report.html" target="_blank" rel="noopener" data-i18n="footerReportIssue">Report a problem</a>
-            </div>
-          </nav>
-        </div>
-        <div class="foot-bottom"><span data-i18n="footerCopyright">© 2026 Moat</span><span data-i18n="footerFreeOpenSource">Free and open source.</span></div>
-      </footer>
     </div>
 
     <script src="options.js"></script>
