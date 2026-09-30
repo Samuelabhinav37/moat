@@ -15,7 +15,8 @@ const { generateSelector } = await import("./generateSelector");
 function page(): { ad: HTMLElement; slot: HTMLElement } {
   document.body.innerHTML = `
     <main id="content">
-      <section class="sidebar-ad-slot"><img class="ad-creative" src="x.png" /></section>
+      <p>Story text.</p>
+      <section class="sidebar-ad-slot"><span>Advertisement</span><img class="ad-creative" src="x.png" /></section>
     </main>`;
   return { ad: document.querySelector<HTMLElement>(".ad-creative")!, slot: document.querySelector<HTMLElement>(".sidebar-ad-slot")! };
 }
@@ -58,6 +59,41 @@ describe("card position", () => {
   });
   it("stays inside the screen horizontally", () => {
     expect(picker.cardPosition({ top: 100, bottom: 300, left: 1100 }, card, viewport).left).toBe(1200 - 320 - 12);
+  });
+});
+
+describe("starting one level up", () => {
+  const sized = (el: Element, width: number, height: number) => {
+    el.getBoundingClientRect = () => ({ width, height, top: 0, left: 0, right: width, bottom: height, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+  };
+
+  it("starts at a wrapper that holds nothing but the clicked element", () => {
+    document.body.innerHTML = `<main><p>Story</p><div class="box"><div class="ad"></div></div></main>`;
+    const ad = document.querySelector(".ad")!;
+    const box = document.querySelector(".box")!;
+    sized(ad, 290, 252);
+    sized(box, 320, 282);
+    sized(document.querySelector("main")!, 1100, 900);
+    const path = picker.selectionPath(ad);
+    expect(path[picker.startingStep(path)]).toBe(box);
+  });
+
+  it("stays on the clicked element when the wrapper has other things in it or is much bigger", () => {
+    document.body.innerHTML = `<div class="a"><span>Label</span><div class="ad"></div></div><div class="b"><div class="ad2"></div></div>`;
+    const ad = document.querySelector(".ad")!;
+    expect(picker.startingStep(picker.selectionPath(ad))).toBe(0);
+    const ad2 = document.querySelector(".ad2")!;
+    sized(ad2, 100, 100);
+    sized(document.querySelector(".b")!, 400, 400);
+    expect(picker.startingStep(picker.selectionPath(ad2))).toBe(0);
+  });
+
+  it("keeps Gray out folded under Details", () => {
+    const { ad } = page();
+    picker.startPicking();
+    const root = picker.pickForTest(ad)!;
+    expect(root.querySelector("details button")!.textContent).toBe("Gray out instead");
+    expect(root.querySelector(".links")!.textContent).not.toContain("Gray out");
   });
 });
 

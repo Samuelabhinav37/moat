@@ -66,6 +66,32 @@ export function selectionPath(element: Element): Element[] {
   return path;
 }
 
+/** True when `parent` holds nothing but `child`: no other visible element
+ * and no text of its own. When the browser can measure both, the parent must
+ * also be at most twice the child's area, so a lone ad in a big page
+ * section doesn't pull the whole section in. */
+export function wrapsOnly(parent: Element, child: Element): boolean {
+  if (parent.children.length !== 1 || parent.firstElementChild !== child) return false;
+  for (const node of parent.childNodes) {
+    if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) return false;
+  }
+  const outer = parent.getBoundingClientRect();
+  const inner = child.getBoundingClientRect();
+  const innerArea = inner.width * inner.height;
+  if (innerArea > 0 && outer.width * outer.height > innerArea * 2) return false;
+  return true;
+}
+
+/** Where on the path to start: the clicked element, or up to three wrappers
+ * above it that hold nothing else (an ad inside its own bordered box).
+ * Hiding just the ad would leave the empty box behind. Select less still
+ * steps back down. */
+export function startingStep(path: Element[]): number {
+  let step = 0;
+  while (step < Math.min(3, path.length - 1) && wrapsOnly(path[step + 1]!, path[step]!)) step++;
+  return step;
+}
+
 /** Places the card beside the picked element: below it if it fits, else
  * above, else pinned to the bottom of the screen; always inside the viewport
  * and never on top of the element when there's room elsewhere. */
@@ -130,6 +156,7 @@ button:disabled { opacity: .45; cursor: default; }
 .muted { color: #a7a1ac; }
 details { margin-top: 10px; color: #a7a1ac; font-size: 12.5px; }
 summary { cursor: pointer; }
+details .link { display: block; margin-top: 6px; }
 code {
   display: block; margin-top: 6px; padding: 6px 8px; border-radius: 6px; background: #111015;
   color: #eceef0; font: 12px/1.4 ui-monospace, Consolas, monospace; word-break: break-all;
@@ -296,14 +323,15 @@ function renderCard(): void {
   cancel.type = "button";
   cancel.addEventListener("click", teardown);
 
+  // The less common choice and the technical detail stay folded away.
   const details = el("details");
-  details.append(el("summary", undefined, t("pickerDetails", "Details")), el("code", undefined, generateSelector(element)));
+  details.append(el("summary", undefined, t("pickerDetails", "Details")), gray, el("code", undefined, generateSelector(element)));
 
   primary.title = primary.textContent ?? "";
   const size = el("div", "size");
   size.append(bigger, smaller);
   const links = el("div", "links");
-  links.append(once, gray, cancel);
+  links.append(once, cancel);
   card.replaceChildren(
     el("div", "title", t("pickerTitle", "Hide this?")),
     el("div", "what", describeElement(element)),
@@ -330,7 +358,7 @@ function reposition(): void {
 function pick(element: Element): void {
   if (!root) return;
   path = selectionPath(element);
-  step = 0;
+  step = startingStep(path);
   pill?.remove();
   pill = null;
   card = el("div", "card");

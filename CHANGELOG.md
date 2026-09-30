@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.178
+
+### Changed
+- **Hiding an ad no longer leaves its empty frame behind.** Clicking an ad picked the innermost
+  element, so the bordered box around it stayed on the page as an empty strip unless you knew to
+  press Select more. The picker now starts at up to three wrappers above what you clicked, as
+  long as each holds nothing else (no other element, no text of its own) and is at most twice
+  the size of what it wraps. That size limit keeps a lone ad from pulling in a whole page
+  section. Select less still steps back down.
+- **A simpler picker card.** "Gray out instead" moved under Details. The card now has one main
+  button, then Hide until reload and Cancel, instead of four choices in three styles.
+
 ## 0.11.177
 
 ### Changed
