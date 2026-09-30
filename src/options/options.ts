@@ -1408,26 +1408,26 @@ function summarizeImportResult(response: ImportCustomRulesResponse, skippedLines
   const parts: string[] = [];
   if (response.addedBlockedDomains > 0) {
     parts.push(
-      tFallback("optionsMigrationImportBlocked", `${response.addedBlockedDomains} blocked domain(s)`, String(response.addedBlockedDomains))
+      tFallback("optionsMigrationImportBlocked", `Always block: ${response.addedBlockedDomains}`, String(response.addedBlockedDomains))
     );
   }
   if (response.addedAllowedDomains > 0) {
     parts.push(
-      tFallback("optionsMigrationImportAllowed", `${response.addedAllowedDomains} allowed domain(s)`, String(response.addedAllowedDomains))
+      tFallback("optionsMigrationImportAllowed", `Never block: ${response.addedAllowedDomains}`, String(response.addedAllowedDomains))
     );
   }
   if (response.addedCosmeticRules > 0) {
     parts.push(
-      tFallback("optionsMigrationImportCosmetic", `${response.addedCosmeticRules} element-hiding rule(s)`, String(response.addedCosmeticRules))
+      tFallback("optionsMigrationImportCosmetic", `Hidden items: ${response.addedCosmeticRules}`, String(response.addedCosmeticRules))
     );
   }
   const added =
     parts.length > 0
-      ? tFallback("optionsMigrationImportAdded", `Added ${parts.join(", ")}.`, parts.join(", "))
-      : tFallback("optionsMigrationImportNothingNew", "Nothing new to add -- every recognized rule was already saved.");
+      ? tFallback("optionsMigrationImportAdded", `Imported. ${parts.join(" · ")}.`, parts.join(" · "))
+      : tFallback("optionsMigrationImportNothingNew", "Nothing new to add. Every rule Moat recognized was already saved.");
   const skipped =
     skippedLines > 0
-      ? " " + tFallback("optionsMigrationImportSkipped", `${skippedLines} line(s) skipped (unsupported syntax).`, String(skippedLines))
+      ? " " + tFallback("optionsMigrationImportSkipped", `Lines Moat couldn't use: ${skippedLines}.`, String(skippedLines))
       : "";
   return added + skipped;
 }
@@ -1436,7 +1436,7 @@ migrationImportButton.addEventListener("click", async () => {
   const parsed = parseFilterListImport(migrationImportTextarea.value);
   migrationImportStatus.hidden = false;
   if (parsed.blockedDomains.length === 0 && parsed.allowedDomains.length === 0 && Object.keys(parsed.cosmeticRules).length === 0) {
-    migrationImportStatus.textContent = tFallback("optionsMigrationImportNothingFound", "Nothing recognized in that text.");
+    migrationImportStatus.textContent = tFallback("optionsMigrationImportNothingFound", "Moat didn't recognize any rules in that text. Paste rules exported from uBlock Origin or AdGuard.");
     return;
   }
   const message: ImportCustomRulesMessage = {

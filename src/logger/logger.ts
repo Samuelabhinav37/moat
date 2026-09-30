@@ -69,7 +69,7 @@ function silentDetailFor(id: DiagnosticsHeuristicRow["id"]): string {
         "Nothing sponsored has shown up in the feed yet. Could also mean the site's markup changed."
       );
     case "cookieBannerReject":
-      return tFallback("diagnosticsSilentConsent", "This page probably didn't show a consent banner.");
+      return tFallback("diagnosticsSilentConsent", "This page probably didn't show a cookie banner.");
     case "searchSlop":
       return tFallback("diagnosticsSilentSearchSlop", "None of this search's results matched the filter.");
     case "leakedPasswordCheck":
@@ -78,7 +78,7 @@ function silentDetailFor(id: DiagnosticsHeuristicRow["id"]): string {
         "Only runs once you actually type a password into a field on this page."
       );
     case "fingerprint":
-      return tFallback("diagnosticsSilentFingerprint", "Nothing needed randomising on this page load.");
+      return tFallback("diagnosticsSilentFingerprint", "Nothing needed disguising on this page load.");
     case "cnameUncloak":
       return tFallback("diagnosticsSilentCname", "This page probably has no disguised trackers to catch.");
   }
@@ -102,7 +102,7 @@ function buildHeuristicRow(def: (typeof HEURISTIC_DEFS)[number], row: Diagnostic
     name.className = "h-name off";
     const offTag = document.createElement("span");
     offTag.className = "off-tag";
-    offTag.textContent = " " + tFallback("diagnosticsOffTag", "— off");
+    offTag.textContent = tFallback("diagnosticsOffTag", "Off");
     name.append(offTag);
     body.append(name);
   } else if (row.fired) {
@@ -113,8 +113,10 @@ function buildHeuristicRow(def: (typeof HEURISTIC_DEFS)[number], row: Diagnostic
     body.append(name);
     const detail = document.createElement("div");
     detail.className = "h-detail";
-    const times = tFallback("diagnosticsFiredTimes", `Fired ${row.fired.count}x this page load`, String(row.fired.count));
-    detail.textContent = `${times} · ${tFallback("diagnosticsLastAt", `last at ${formatTime(row.fired.lastFiredAt).split(".")[0]}`, formatTime(row.fired.lastFiredAt))}`;
+    // Label and number, so no language needs a plural form.
+    const times = tFallback("diagnosticsFiredTimes", `Times it acted on this page: ${row.fired.count}`, String(row.fired.count));
+    const at = formatTime(row.fired.lastFiredAt).split(".")[0]!;
+    detail.textContent = `${times} · ${tFallback("diagnosticsLastAt", `Last: ${at}`, at)}`;
     body.append(detail);
   } else {
     wrap.append(buildSilentIcon());
@@ -174,12 +176,10 @@ async function render(): Promise<void> {
 
   if (outOfScope.length > 0) {
     scopeNote.hidden = false;
-    const names = outOfScope.map((def) => tFallback(...def.titleKey)).join(" and ");
-    scopeNote.textContent = tFallback(
-      "diagnosticsScopeNote",
-      `${names} ${outOfScope.length === 1 ? "doesn't" : "don't"} apply to this page and ${outOfScope.length === 1 ? "isn't" : "aren't"} listed.`,
-      names
-    );
+    // A plain list after the sentence, so no language has to agree a verb
+    // with how many there are.
+    const names = outOfScope.map((def) => tFallback(...def.titleKey)).join(", ");
+    scopeNote.textContent = tFallback("diagnosticsScopeNote", `Not listed because they don't apply to this page: ${names}.`, names);
   } else {
     scopeNote.hidden = true;
   }

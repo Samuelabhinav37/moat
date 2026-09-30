@@ -1837,5 +1837,123 @@
         "example": "200"
       }
     }
+  },
+  "diagnosticsSilentGrayscale": {
+    "message": "Noch keine Werbung zum Abdunkeln. Falls das falsch wirkt, hat YouTube vielleicht seinen Player geändert."
+  },
+  "diagnosticsSilentFeed": {
+    "message": "Im Feed ist noch nichts Gesponsertes aufgetaucht. Vielleicht hat sich auch die Website geändert."
+  },
+  "diagnosticsSilentConsent": {
+    "message": "Diese Seite hat wahrscheinlich kein Cookie-Banner gezeigt."
+  },
+  "diagnosticsSilentSearchSlop": {
+    "message": "Keines der Ergebnisse dieser Suche passte zum Filter."
+  },
+  "diagnosticsSilentLeakedPassword": {
+    "message": "Läuft erst, wenn du auf dieser Seite ein Passwort in ein Feld eingibst."
+  },
+  "diagnosticsSilentFingerprint": {
+    "message": "Beim Laden dieser Seite musste nichts getarnt werden."
+  },
+  "diagnosticsSilentCname": {
+    "message": "Diese Seite hat wahrscheinlich keine getarnten Tracker."
+  },
+  "diagnosticsOffTag": {
+    "message": "Aus"
+  },
+  "diagnosticsFiredTimes": {
+    "message": "So oft auf dieser Seite aktiv: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "diagnosticsLastAt": {
+    "message": "Zuletzt: $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "diagnosticsScopeNote": {
+    "message": "Nicht aufgeführt, weil sie für diese Seite nicht gelten: $NAMES$.",
+    "placeholders": {
+      "names": {
+        "content": "$1"
+      }
+    }
+  },
+  "diagnosticsPageTitle": {
+    "message": "Moat-Diagnose"
+  },
+  "settingsPageTitle": {
+    "message": "Moat-Einstellungen"
+  },
+  "warningPageTitle": {
+    "message": "Website von Moat blockiert"
+  },
+  "optionsMigrationImportBlocked": {
+    "message": "Immer blockieren: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsMigrationImportAllowed": {
+    "message": "Nie blockieren: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsMigrationImportCosmetic": {
+    "message": "Ausgeblendete Elemente: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsMigrationImportAdded": {
+    "message": "Importiert. $PARTS$.",
+    "placeholders": {
+      "parts": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsMigrationImportNothingNew": {
+    "message": "Nichts Neues hinzuzufügen. Alle Regeln, die Moat erkannt hat, waren schon gespeichert."
+  },
+  "optionsMigrationImportSkipped": {
+    "message": "Zeilen, die Moat nicht nutzen konnte: $COUNT$.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsMigrationImportNothingFound": {
+    "message": "Moat hat in diesem Text keine Regeln erkannt. Füge Regeln ein, die aus uBlock Origin oder AdGuard exportiert wurden."
+  },
+  "commonNever": {
+    "message": "Nie"
+  },
+  "commonMozilla": {
+    "message": "Mozilla"
+  },
+  "commonGoogle": {
+    "message": "Google"
+  },
+  "commonFirefox": {
+    "message": "Firefox"
+  },
+  "commonChrome": {
+    "message": "Chrome"
   }
 }

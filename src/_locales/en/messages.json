@@ -1971,5 +1971,149 @@
       }
     },
     "description": "Diagnostics: button under the log that shows the next rows."
+  },
+  "diagnosticsSilentGrayscale": {
+    "message": "No ad to dim yet. If that seems wrong, YouTube's player markup may have changed.",
+    "description": "Diagnostics: why Dim YouTube ads hasn't acted yet."
+  },
+  "diagnosticsSilentFeed": {
+    "message": "Nothing sponsored has shown up in the feed yet. Could also mean the site's markup changed.",
+    "description": "Diagnostics: why Hide sponsored posts hasn't acted yet."
+  },
+  "diagnosticsSilentConsent": {
+    "message": "This page probably didn't show a cookie banner.",
+    "description": "Diagnostics: why Reject cookie banners hasn't acted."
+  },
+  "diagnosticsSilentSearchSlop": {
+    "message": "None of this search's results matched the filter.",
+    "description": "Diagnostics: why the low-quality results filter hasn't acted."
+  },
+  "diagnosticsSilentLeakedPassword": {
+    "message": "Only runs once you actually type a password into a field on this page.",
+    "description": "Diagnostics: why the leaked-password check hasn't acted."
+  },
+  "diagnosticsSilentFingerprint": {
+    "message": "Nothing needed disguising on this page load.",
+    "description": "Diagnostics: why device protection hasn't acted."
+  },
+  "diagnosticsSilentCname": {
+    "message": "This page probably has no disguised trackers to catch.",
+    "description": "Diagnostics: why Catch hidden trackers hasn't acted."
+  },
+  "diagnosticsOffTag": {
+    "message": "Off",
+    "description": "Diagnostics: tag after a check that's turned off."
+  },
+  "diagnosticsFiredTimes": {
+    "message": "Times it acted on this page: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    },
+    "description": "Diagnostics: how often a check acted on this page load."
+  },
+  "diagnosticsLastAt": {
+    "message": "Last: $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    },
+    "description": "Diagnostics: time a check last acted."
+  },
+  "diagnosticsScopeNote": {
+    "message": "Not listed because they don't apply to this page: $NAMES$.",
+    "placeholders": {
+      "names": {
+        "content": "$1"
+      }
+    },
+    "description": "Diagnostics: the checks that don't apply to this page, as a comma-separated list."
+  },
+  "diagnosticsPageTitle": {
+    "message": "Moat Diagnostics",
+    "description": "Browser tab title of the Diagnostics page."
+  },
+  "settingsPageTitle": {
+    "message": "Moat Settings",
+    "description": "Browser tab title of the Settings page."
+  },
+  "warningPageTitle": {
+    "message": "Site blocked by Moat",
+    "description": "Browser tab title of the page shown instead of a site your organization blocks."
+  },
+  "optionsMigrationImportBlocked": {
+    "message": "Always block: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    },
+    "description": "Settings > Backup > Import from another blocker: how many sites were added to Always block."
+  },
+  "optionsMigrationImportAllowed": {
+    "message": "Never block: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    },
+    "description": "Import result: how many sites were added to Never block."
+  },
+  "optionsMigrationImportCosmetic": {
+    "message": "Hidden items: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    },
+    "description": "Import result: how many hidden-item rules were added."
+  },
+  "optionsMigrationImportAdded": {
+    "message": "Imported. $PARTS$.",
+    "placeholders": {
+      "parts": {
+        "content": "$1"
+      }
+    },
+    "description": "Import result. $PARTS$ is the counts above joined with ' · '."
+  },
+  "optionsMigrationImportNothingNew": {
+    "message": "Nothing new to add. Every rule Moat recognized was already saved.",
+    "description": "Import result when everything was already there."
+  },
+  "optionsMigrationImportSkipped": {
+    "message": "Lines Moat couldn't use: $COUNT$.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    },
+    "description": "Import result: lines in a format Moat doesn't support."
+  },
+  "optionsMigrationImportNothingFound": {
+    "message": "Moat didn't recognize any rules in that text. Paste rules exported from uBlock Origin or AdGuard.",
+    "description": "Import result when nothing usable was pasted."
+  },
+  "commonNever": {
+    "message": "Never",
+    "description": "Settings > Backup: 'Last backup: Never'."
+  },
+  "commonMozilla": {
+    "message": "Mozilla",
+    "description": "Company name. Don't translate."
+  },
+  "commonGoogle": {
+    "message": "Google",
+    "description": "Company name. Don't translate."
+  },
+  "commonFirefox": {
+    "message": "Firefox",
+    "description": "Browser name. Don't translate."
+  },
+  "commonChrome": {
+    "message": "Chrome",
+    "description": "Browser name. Don't translate."
   }
 }

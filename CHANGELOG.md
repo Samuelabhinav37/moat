@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.180
+
+### Fixed
+- **23 strings existed only as English in the code.** The Diagnostics page's explanations,
+  the results of importing from another blocker, "Never", and the browser and company names had
+  no entry in the language files, so every language showed English. They are now translated into
+  Spanish, French and German, and so are the browser tab titles of Settings, Diagnostics and the
+  blocked-site page.
+  - Some had grammar that can't be translated. The Diagnostics note built "doesn't"/"don't" and
+    "and" in code, and the import results said "3 blocked domain(s)". They now use a label and a
+    number or a list ("Always block: 3", "Not listed because they don't apply to this page:
+    …"), which works in every language without plural forms.
+  - "— off" is an "Off" tag, and "randomising" and "consent banner" follow the glossary.
+
 ## 0.11.179
 
 ### Changed

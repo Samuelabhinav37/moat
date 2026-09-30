@@ -22,7 +22,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Moat Diagnostics</title>
+    <title data-i18n="diagnosticsPageTitle">Moat Diagnostics</title>
     <link rel="stylesheet" href="theme.css" />
     <style>
       body {
@@ -173,7 +173,13 @@
         color: var(--muted);
         font-weight: 600;
       }
+      /* A small tag after the name, spaced by CSS rather than a dash. */
       .heuristic-row .h-name .off-tag {
+        margin-left: 8px;
+        padding: 1px 7px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 11.5px;
         font-weight: 400;
       }
       .heuristic-row .h-detail {
