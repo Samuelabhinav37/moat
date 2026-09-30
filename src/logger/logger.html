@@ -244,6 +244,20 @@
       .unavailable-note code {
         font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
       }
+      .log-filter {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 4px 0 12px;
+        font-size: 13.5px;
+        cursor: pointer;
+      }
+      .log-filter[hidden] {
+        display: none;
+      }
+      #diag-more {
+        margin-top: 12px;
+      }
       table.matches {
         width: 100%;
         border-collapse: collapse;
@@ -364,6 +378,10 @@
         </div>
       </div>
 
+      <label class="log-filter" id="diag-filter" hidden>
+        <input type="checkbox" id="diag-blocked-only" checked />
+        <span data-i18n="diagnosticsBlockedOnly">Blocked requests only</span>
+      </label>
       <table class="matches" id="diag-matches-table" hidden>
         <thead>
           <tr>
@@ -375,6 +393,7 @@
         </thead>
         <tbody id="diag-matches-body"></tbody>
       </table>
+      <button type="button" id="diag-more" hidden></button>
       <p class="metric-label" id="diag-matches-empty" hidden data-i18n="diagnosticsMatchesEmpty">
         No matches recorded yet for this tab. Reload the page and refresh.
       </p>

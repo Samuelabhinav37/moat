@@ -134,6 +134,28 @@ function buildHeuristicRow(def: (typeof HEURISTIC_DEFS)[number], row: Diagnostic
   return wrap;
 }
 
+// Rules that match without stopping anything (allow exceptions, header
+// edits, URL cleaning): the same list the popup leaves out of its count.
+// With "Blocked requests only" on (the default) the log leaves them out
+// too, so it shows what was actually stopped.
+let uncounted: Map<string, Set<number>> | null = null;
+
+async function loadUncounted(): Promise<Map<string, Set<number>>> {
+  if (uncounted) return uncounted;
+  try {
+    const data = (await (await fetch(browser.runtime.getURL("rules/uncounted-rules.json"))).json()) as Record<string, number[]>;
+    uncounted = new Map(Object.entries(data).map(([id, ruleIds]) => [id, new Set(ruleIds)]));
+  } catch {
+    uncounted = new Map();
+  }
+  return uncounted;
+}
+
+/** The newest rows first, a page at a time, so a long session doesn't
+ * build a page thousands of rows tall. */
+const PAGE_SIZE = 200;
+let shown = PAGE_SIZE;
+
 async function render(): Promise<void> {
   const response = await getDiagnostics();
 
@@ -180,15 +202,27 @@ async function render(): Promise<void> {
     return;
   }
 
-  const hasEntries = response.entries.length > 0;
+  const blockedOnly = (document.getElementById("diag-blocked-only") as HTMLInputElement).checked;
+  const skip = blockedOnly ? await loadUncounted() : new Map<string, Set<number>>();
+  const entries = response.entries.filter((entry) => !skip.get(entry.rulesetId)?.has(entry.ruleId)).reverse();
+
+  const hasEntries = entries.length > 0;
+  (document.getElementById("diag-filter") as HTMLElement).hidden = response.entries.length === 0;
   table.hidden = !hasEntries;
   empty.hidden = hasEntries;
 
+  const more = document.getElementById("diag-more") as HTMLButtonElement;
+  const remaining = entries.length - shown;
+  more.hidden = remaining <= 0;
+  if (remaining > 0) {
+    const next = String(Math.min(PAGE_SIZE, remaining));
+    more.textContent = tFallback("diagnosticsShowMore", `Show ${next} more`, next);
+  }
+
   const body = document.getElementById("diag-matches-body")!;
   body.replaceChildren(
-    ...response.entries
-      .slice()
-      .reverse()
+    ...entries
+      .slice(0, shown)
       .map((entry) => {
         const row = document.createElement("tr");
 
@@ -215,6 +249,17 @@ async function render(): Promise<void> {
   );
 }
 
-document.getElementById("diag-refresh")!.addEventListener("click", () => void render());
+document.getElementById("diag-refresh")!.addEventListener("click", () => {
+  shown = PAGE_SIZE;
+  void render();
+});
+document.getElementById("diag-blocked-only")!.addEventListener("change", () => {
+  shown = PAGE_SIZE;
+  void render();
+});
+document.getElementById("diag-more")!.addEventListener("click", () => {
+  shown += PAGE_SIZE;
+  void render();
+});
 
 void render();

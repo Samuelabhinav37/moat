@@ -30,10 +30,31 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.doUnmock("webextension-polyfill");
+  vi.unstubAllGlobals();
 });
 
-async function renderLogger(): Promise<void> {
+async function renderLogger(entryCount?: number): Promise<void> {
   const { browser } = createMockBrowser({ hostname: "example.com" });
+  if (entryCount !== undefined) {
+    // A long session: blocks from the ads list, plus header-edit matches
+    // from ruleset_privacy-headers that stop nothing.
+    const real = browser.runtime.sendMessage;
+    browser.runtime.sendMessage = (async (msg: { type: string }) => {
+      const response = (await real(msg)) as Record<string, unknown>;
+      if (msg.type !== "get-log-entries") return response;
+      const entries = Array.from({ length: entryCount }, (_, i) => ({
+        timestamp: Date.now() - i,
+        url: `https://ads.example/${i}.js`,
+        method: "GET",
+        type: "script",
+        ruleId: i % 2 ? 7 : 100,
+        rulesetId: i % 2 ? "ruleset_privacy-headers" : "ads",
+      }));
+      return { ...response, entries };
+    }) as typeof browser.runtime.sendMessage;
+    // What rules/uncounted-rules.json says: rule 7 of privacy-headers stops nothing.
+    vi.stubGlobal("fetch", async () => ({ json: async () => ({ "ruleset_privacy-headers": [7] }) }));
+  }
   vi.doMock("webextension-polyfill", () => ({ default: browser }));
   loadPageFixture(LOGGER_HTML, [THEME_CSS]);
   await import("./logger");
@@ -42,6 +63,29 @@ async function renderLogger(): Promise<void> {
 }
 
 describe("logger.html (Diagnostics) render", () => {
+  it("shows blocked requests only by default, 200 at a time", async () => {
+    await renderLogger(600);
+    const rows = () => document.querySelectorAll("#diag-matches-body tr").length;
+    // 300 of the 600 are header edits that block nothing.
+    expect(rows()).toBe(200);
+    const more = document.getElementById("diag-more") as HTMLButtonElement;
+    expect(more.hidden).toBe(false);
+    expect(more.textContent).toBe("Show 100 more");
+    more.click();
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(rows()).toBe(300);
+    expect(more.hidden).toBe(true);
+
+    const blockedOnly = document.getElementById("diag-blocked-only") as HTMLInputElement;
+    blockedOnly.checked = false;
+    blockedOnly.dispatchEvent(new Event("change"));
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(rows()).toBe(200);
+    expect(more.textContent).toBe("Show 200 more");
+  });
+
   it("actually finishes populating the page (catches a crash partway through render())", async () => {
     await renderLogger();
     expect(caughtErrors).toEqual([]);

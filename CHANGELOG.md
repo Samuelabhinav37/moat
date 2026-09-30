@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.179
+
+### Changed
+- **The Diagnostics log shows what was blocked, a page at a time.** It listed every rule match
+  in one table, including the ones that stop nothing: allow exceptions, header edits and URL
+  cleaning. After browsing CNN and the New York Times, 100 of 101 rows were header edits, and
+  the page was 6,400px tall.
+  - A "Blocked requests only" filter, on by default, leaves those out. It uses the same list
+    (`rules/uncounted-rules.json`) the popup already leaves out of its count.
+  - The newest 200 rows show first, with "Show 200 more" for the rest.
+
 ## 0.11.178
 
 ### Changed

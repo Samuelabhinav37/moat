@@ -1825,5 +1825,17 @@
         "example": "sponsor box"
       }
     }
+  },
+  "diagnosticsBlockedOnly": {
+    "message": "Nur blockierte Anfragen"
+  },
+  "diagnosticsShowMore": {
+    "message": "$COUNT$ weitere anzeigen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
   }
 }

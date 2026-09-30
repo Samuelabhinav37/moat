@@ -1957,5 +1957,19 @@
       }
     },
     "description": "Settings > Hidden on pages: what a hidden item is. $KIND$ is Image, Link, Box and so on; $NAME$ is the name the page gave it."
+  },
+  "diagnosticsBlockedOnly": {
+    "message": "Blocked requests only",
+    "description": "Diagnostics: filter above the rule-match log, on by default. Off also shows allow exceptions, header edits and URL cleaning."
+  },
+  "diagnosticsShowMore": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "200"
+      }
+    },
+    "description": "Diagnostics: button under the log that shows the next rows."
   }
 }
