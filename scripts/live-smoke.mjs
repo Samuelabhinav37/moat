@@ -211,6 +211,11 @@ try {
   else note("repeat visit (cached page): ad slot visible briefly before hiding", `${flash} of the first 30 frames`);
 
   check("no script errors from Moat on a plain-http page", pageErrors.length === 0, pageErrors[0] ?? "");
+  // Admiral's anti-adblock bootstrap starts by writing window.admiral
+  // (content/admiralGuard.ts makes that throw, so none of it loads).
+  check("Admiral's anti-adblock bootstrap can't start", await news.evaluate(() => {
+    try { window.admiral = () => {}; return false; } catch { return true; }
+  }));
 
   // Bot checks (Cloudflare's frame) and "Sign in with Google" (FedCM) need
   // these; AdGuard's header rules used to switch them off for the page and,

@@ -127,6 +127,9 @@ is in [`docs/design-notes.md`](docs/design-notes.md).
 - **Element picker.** Hides anything the lists miss, permanently or just once, or grays it out if
   hiding breaks the layout.
 - **Grayed-out video ads.** Dims YouTube in-stream ads that can't be blocked outright.
+- **No "you're using an ad blocker" walls from Admiral.** Its bootstrap is stopped before it
+  loads anything, so there's no detection, no wall and no "recovered" ads. Skipped on paused
+  sites.
 - **Feed ad removal** (opt-in). Removes sponsored posts from Instagram, LinkedIn and YouTube feeds.
 - **Auto-reject cookie banners** (on by default, skipped on sign-in pages). Clicks "reject" on the major consent platforms via a
   declarative rule format, never injected JS.

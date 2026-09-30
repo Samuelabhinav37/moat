@@ -40,14 +40,23 @@ const MUST_BLOCK = [
 const MUST_LOAD = ["moat-smoke-control.example"];
 
 let port = 0;
+// The page reloads once: the Admiral guard is a registered content script
+// (background/optionalContentScripts.ts), so it only reaches pages loaded
+// after Moat's first start-up registers it.
 const page = () => `<!doctype html><title>firefox smoke</title><script>
-setTimeout(async () => {
+if (!sessionStorage.moatReloaded) {
+  sessionStorage.moatReloaded = "1";
+  setTimeout(() => location.reload(), 12000);
+} else setTimeout(async () => {
   const hosts = ${JSON.stringify([...MUST_BLOCK, ...MUST_LOAD])};
   const results = await Promise.all(hosts.map((h) =>
     fetch("http://" + h + ":${port}/script.js", { mode: "no-cors", cache: "no-store" }).then(() => [h, "loaded"], () => [h, "blocked"])
   ));
+  let admiral = "loaded";
+  try { window.admiral = function () {}; } catch { admiral = "blocked"; }
+  results.push(["admiral-guard", admiral]);
   await fetch("/result", { method: "POST", body: JSON.stringify(results) });
-}, 15000);
+}, 3000);
 </script>`;
 
 let report;
@@ -116,6 +125,11 @@ for (const host of MUST_LOAD) {
   const ok = outcome[host] === "loaded";
   if (!ok) failed++;
   console.log(`${ok ? "PASS" : "FAIL"}  loaded (control): ${host}`);
+}
+{
+  const ok = outcome["admiral-guard"] === "blocked";
+  if (!ok) failed++;
+  console.log(`${ok ? "PASS" : "FAIL"}  Admiral's anti-adblock bootstrap can't start (window.admiral)`);
 }
 console.log(`\n${results.length - failed}/${results.length} Firefox checks passed`);
 process.exit(failed ? 1 : 0);

@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.187
+
+### Fixed
+- **weather.com showed "Looks like you're using an ad blocker."** The wall comes from Admiral,
+  an ad-blocker detector and "ad recovery" service. A site starts it with an inline script that
+  creates `window.admiral`, then loads the rest from domains that change often (on weather.com:
+  `axonsite.com`, `hyperfrost.net`, `bighornbasin.net`). It sends bait requests, and Moat
+  blocked two of them (`merequartz.com/aadetect/px.gif` and a `bighornbasin.net` script), so
+  the wall showed on about every second visit while roughly 650 requests of "recovered" ads
+  loaded underneath. uBlock Origin Lite never showed it.
+  - **New `admiral-guard.js`** (page world, document_start): the first write to
+    `window.admiral` throws, so the bootstrap stops on its first line and none of Admiral loads.
+    uBlock Origin does the same. Measured on weather.com over four visits: no wall, 0 Admiral
+    requests (was 658), 524 requests in total (was 1,073; uBOL 546).
+  - **Registered at runtime with paused sites excluded** (`excludeMatches`), and re-registered
+    when the paused list changes, because a script in the manifest only learns a site is paused
+    after the page's inline scripts have run. On a paused weather.com, Admiral runs as it would
+    without Moat.
+  - Optional scripts now register one per call, so a script the browser rejects can't stop
+    the others registering.
+  - Checked in both smoke tests: Chrome 32/32, Firefox 11/11.
+
 ## 0.11.186
 
 ### Fixed

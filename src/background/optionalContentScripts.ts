@@ -5,6 +5,10 @@
 //
 // - consent-rejector.js       ~18 KB, <all_urls>, cookieBannerAutoReject (on by default since 0.11.136)
 // - leaked-password-check.js  ~13 KB, <all_urls>, leakedPasswordCheck (off by default)
+// - admiral-guard.js          <1 KB, MAIN world, whenever Moat is on. Registered
+//   here rather than in the manifest so paused sites can be left out before
+//   the page's first script runs (a static script only learns about a pause
+//   after the page's inline scripts already ran).
 //
 // element-picker.js is handled separately (popup.ts injects it with
 // scripting.executeScript on click -- it has no setting, it's a one-shot
@@ -22,8 +26,25 @@ export interface OptionalScript {
   js: string;
   matches: string[];
   runAt: "document_start" | "document_end" | "document_idle";
+  /** The page's own JavaScript world instead of the extension's isolated one. */
+  world?: "MAIN";
   /** Whether this script should be registered for the given settings. */
   wants: (settings: Settings) => boolean;
+  /** Pages to leave out, e.g. the sites Moat is paused on. */
+  excludeMatches?: (settings: Settings) => string[];
+}
+
+/** Match patterns for the paused sites and their subdomains. Anything that
+ * can't be a valid pattern is skipped: one bad pattern fails the whole
+ * registration. */
+export function pausedSitePatterns(settings: Settings): string[] {
+  const patterns: string[] = [];
+  for (const site of settings.disabledSites) {
+    const host = site.trim().toLowerCase();
+    if (!/^[a-z0-9-]+(\.[a-z0-9-]+)*$/.test(host)) continue;
+    patterns.push(/^[0-9.]+$/.test(host) ? `*://${host}/*` : `*://*.${host}/*`);
+  }
+  return patterns.sort();
 }
 
 export const OPTIONAL_SCRIPTS: OptionalScript[] = [
@@ -41,22 +62,50 @@ export const OPTIONAL_SCRIPTS: OptionalScript[] = [
     runAt: "document_idle",
     wants: (s) => s.leakedPasswordCheck,
   },
+  {
+    id: "moat-admiral-guard",
+    js: "admiral-guard.js",
+    matches: ["<all_urls>"],
+    runAt: "document_start",
+    world: "MAIN",
+    wants: (s) => s.enabled,
+    excludeMatches: pausedSitePatterns,
+  },
 ];
+
+/** What's registered now, as getRegisteredContentScripts reports it. */
+export interface RegisteredScript {
+  id: string;
+  excludeMatches?: string[];
+}
+
+const sameList = (a: readonly string[], b: readonly string[]): boolean =>
+  a.length === b.length && [...a].sort().every((value, i) => value === [...b].sort()[i]);
 
 /** Pure: given the desired settings and the ids currently registered, what
  * to add and what to remove. Split out so it's testable without the
  * scripting API. */
 export function planReconcile(
   settings: Settings,
-  registeredIds: Iterable<string>
+  registeredScripts: Iterable<string | RegisteredScript>
 ): { register: OptionalScript[]; unregisterIds: string[] } {
-  const registered = new Set(registeredIds);
+  const registered = new Map(
+    [...registeredScripts].map((s) => (typeof s === "string" ? [s, { id: s }] : [s.id, s]) as [string, RegisteredScript])
+  );
   const register: OptionalScript[] = [];
   const unregisterIds: string[] = [];
   for (const script of OPTIONAL_SCRIPTS) {
     const want = script.wants(settings);
-    if (want && !registered.has(script.id)) register.push(script);
-    else if (!want && registered.has(script.id)) unregisterIds.push(script.id);
+    const current = registered.get(script.id);
+    if (want && !current) register.push(script);
+    else if (!want && current) unregisterIds.push(script.id);
+    else if (want && current && script.excludeMatches) {
+      // Registered, but for an older list of paused sites: replace it.
+      if (!sameList(script.excludeMatches(settings), current.excludeMatches ?? [])) {
+        unregisterIds.push(script.id);
+        register.push(script);
+      }
+    }
   }
   return { register, unregisterIds };
 }
@@ -68,33 +117,38 @@ export function planReconcile(
  * scripts' own isEnabled() guards still keep behaviour correct. */
 export async function reconcileOptionalContentScripts(settings: Settings): Promise<void> {
   const ids = OPTIONAL_SCRIPTS.map((s) => s.id);
-  let current: Array<{ id: string }>;
+  let current: RegisteredScript[];
   try {
     current = await browser.scripting.getRegisteredContentScripts({ ids });
   } catch {
     return;
   }
 
-  const { register, unregisterIds } = planReconcile(settings, current.map((s) => s.id));
+  const { register, unregisterIds } = planReconcile(settings, current);
 
   if (unregisterIds.length > 0) {
     await browser.scripting.unregisterContentScripts({ ids: unregisterIds }).catch(() => {});
   }
-  if (register.length > 0) {
+  // One call per script, so one the browser rejects can't take the others
+  // down with it.
+  for (const s of register) {
+    const excludeMatches = s.excludeMatches?.(settings) ?? [];
     await browser.scripting
-      .registerContentScripts(
-        register.map((s) => ({
+      .registerContentScripts([
+        {
           id: s.id,
           js: [s.js],
           matches: s.matches,
+          ...(excludeMatches.length > 0 ? { excludeMatches } : {}),
           runAt: s.runAt,
+          ...(s.world ? { world: s.world } : {}),
           allFrames: false,
           // Survive a browser restart so an enabled feature still runs on
           // the first page load after one, without waiting for the worker
           // to wake; reapplySettings reconciles any drift on the next wake.
           persistAcrossSessions: true,
-        }))
-      )
+        },
+      ])
       .catch(() => {});
   }
 }
