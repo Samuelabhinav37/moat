@@ -23,7 +23,13 @@
 
 ## Ship
 
-6. Test the unpacked packages in supported Chrome and Firefox versions. The Firefox package also
+6. Unzip the draft release's `chrome.zip` and run `npm run release:check -- <that folder>`. It
+   installs the package into a fresh Chrome for Testing profile the way a new user meets it:
+   the first-run tour, the Balanced rulesets, d3ward's ad and tracker hosts, weather.com and the
+   popup's count, the signed daily live download, Settings and About, and no console errors. It
+   then repeats the install with the live channel unreachable and on a slow link. Screenshots
+   and `results.json` land in `.cache/release-check/`. Every check must pass.
+   Then test the unpacked packages in supported Chrome and Firefox versions. The Firefox package also
    declares `gecko_android` (min 142), so AMO lists it for Android automatically — spot-check the
    popup and options pages on Firefox for Android (`web-ext run -t firefox-android`) when the UI
    changed.

@@ -30,7 +30,8 @@
     "check:chrome-load": "node scripts/check-chrome-load.mjs",
     "store:capture": "node scripts/store-images/capture.mjs",
     "store:build": "node scripts/store-images/build.mjs",
-    "smoke": "node scripts/live-smoke.mjs"
+    "smoke": "node scripts/live-smoke.mjs",
+    "release:check": "node scripts/release-check.mjs"
   },
   "dependencies": {
     "webextension-polyfill": "^0.12.0"
