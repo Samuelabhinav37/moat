@@ -271,44 +271,15 @@ const ownPrivacyRules = [
       ],
     },
   },
-  // Strips the Referer header on cross-site sub-resource requests --
-  // trackers/ad pixels/analytics beacons embedded on a page otherwise learn
-  // exactly which page you were on when they loaded. `domainType:
-  // "thirdParty"` scopes this to requests whose target domain differs from
-  // the page's own, so a site's own same-origin requests (which some sites'
-  // own navigation/asset logic can reasonably expect a referrer on) are
-  // untouched. Deliberately excludes main_frame/sub_frame (top-level and
-  // iframe *navigations*, not sub-resources): some sites' login/payment/
-  // OAuth-redirect flows check the navigation Referer as a lightweight
-  // integrity signal, and DNR's modifyHeaders has no way to know which of
-  // those a stripped referrer would break -- unlike the sub-resource cases
-  // below, where the referrer serves no purpose a user benefits from.
-  {
-    id: 2,
-    priority: 1,
-    action: {
-      type: "modifyHeaders",
-      requestHeaders: [{ header: "Referer", operation: "remove" }],
-    },
-    condition: {
-      domainType: "thirdParty",
-      resourceTypes: [
-        "stylesheet",
-        "script",
-        "image",
-        "font",
-        "object",
-        "xmlhttprequest",
-        "ping",
-        "csp_report",
-        "media",
-        "websocket",
-        "webtransport",
-        "webbundle",
-        "other",
-      ],
-    },
-  },
+  // There used to be a rule 2 here that removed the Referer header from
+  // every cross-site sub-resource request. It broke more than it protected:
+  // CAPTCHA and sign-in widgets (reCAPTCHA, hCaptcha, Arkose on Microsoft
+  // sign-up, Google Sign-In, Stripe, PayPal) use the embedding site's
+  // Referer to check the site key or allowed origin, so their checks failed
+  // or got harder. Chrome and Firefox already cut cross-site referrers down
+  // to the origin by default (strict-origin-when-cross-origin), so the
+  // removal only hid the site's own domain, which those requests carry in
+  // Origin anyway. Removed in 0.11.189; do not bring it back.
 ];
 writeFileSync(join(outDir, "ruleset_privacy-headers.json"), JSON.stringify(ownPrivacyRules));
 manifestEntries.push({
@@ -317,9 +288,9 @@ manifestEntries.push({
   // Not a user-toggleable filter list -- the Filter Lists UI skips anything
   // in the "core" category, since turning this off has no meaningful
   // "less filtering" effect for the user, it just stops sending GPC/
-  // stripping cross-site referrers.
+  // (earlier versions also stripped cross-site referrers).
   category: "core",
-  name: "Moat: Global Privacy Control + cross-site referrer stripping",
+  name: "Moat: Global Privacy Control",
   enabled: true,
   file: "ruleset_privacy-headers.json",
   ruleCount: ownPrivacyRules.length,

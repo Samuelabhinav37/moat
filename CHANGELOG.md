@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.189
+
+### Fixed
+- **CAPTCHAs and sign-in widgets got harder or failed.** Moat removed the `Referer` header from
+  every cross-site script, image, font and data request. CAPTCHA and sign-in providers use it
+  to check which site the widget is on. That covers reCAPTCHA, hCaptcha, Cloudflare Turnstile,
+  Arkose (Microsoft sign-up), Google Sign-In, Stripe and PayPal. Without it, those checks
+  failed or asked for more proof. The privacy gain was small: Chrome and Firefox already cut
+  cross-site referrers down to the site's origin, and these requests carry the origin anyway.
+  The rule is gone. Moat still sends Global Privacy Control (`Sec-GPC: 1`).
+
 ## 0.11.188
 
 ### Fixed
