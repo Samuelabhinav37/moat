@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { maskAsNative } from "./nativeToString";
+import { maskAsNative, nativeGetter, nativeMethod } from "./nativeToString";
 
 describe("maskAsNative", () => {
   it("makes Function.prototype.toString.call(patched) return the original's toString", () => {
@@ -56,5 +56,58 @@ describe("maskAsNative", () => {
     maskAsNative(patched, native);
     expect(Function.prototype.toString.call(patched)).toBe(native.toString());
     expect(Function.prototype.toString.call(patched)).toContain("[native code]");
+  });
+});
+
+// What bot-detection scripts check on a built-in besides toString.
+function looksBuiltIn(fn: Function, name: string): void {
+  expect(fn.name).toBe(name);
+  expect(Object.prototype.hasOwnProperty.call(fn, "prototype")).toBe(false);
+  expect(() => new (fn as unknown as new () => unknown)()).toThrow(TypeError);
+  expect(Function.prototype.toString.call(fn)).toContain("[native code]");
+}
+
+describe("nativeMethod", () => {
+  it("returns a stand-in that looks like the built-in it replaces", () => {
+    const native = Array.prototype.indexOf;
+    const fn = nativeMethod<typeof native>(native, function (this: unknown[], value: unknown) {
+      return native.call(this, value);
+    });
+    looksBuiltIn(fn, "indexOf");
+    expect(fn.length).toBe(native.length);
+    expect(Function.prototype.toString.call(fn)).toBe(native.toString());
+  });
+
+  it("calls the implementation with the receiver and arguments", () => {
+    const native = Array.prototype.includes;
+    const fn = nativeMethod<(this: unknown[], v: unknown) => boolean>(native, function (this: unknown[], v: unknown) {
+      return this.length === 2 && v === "x";
+    });
+    expect(fn.call(["a", "b"], "x")).toBe(true);
+  });
+});
+
+describe("nativeGetter", () => {
+  it("is named like a built-in accessor and masks as the original", () => {
+    const original = Object.getOwnPropertyDescriptor(Map.prototype, "size")!.get!;
+    const getter = nativeGetter("size", original, function (this: Map<unknown, unknown>) {
+      return 7;
+    });
+    looksBuiltIn(getter, "get size");
+    expect(Function.prototype.toString.call(getter)).toBe(original.toString());
+    expect(getter.call(new Map())).toBe(7);
+  });
+
+  it("masks a getter with no original as native source text", () => {
+    const getter = nativeGetter("globalPrivacyControl", undefined, () => true);
+    expect(Function.prototype.toString.call(getter)).toBe("function get globalPrivacyControl() { [native code] }");
+  });
+});
+
+describe("the Function.prototype.toString patch", () => {
+  it("looks like the built-in toString", () => {
+    maskAsNative(function patched() {}, function original() {});
+    looksBuiltIn(Function.prototype.toString, "toString");
+    expect(Function.prototype.toString.length).toBe(0);
   });
 });

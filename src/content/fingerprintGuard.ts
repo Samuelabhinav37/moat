@@ -26,7 +26,7 @@ import {
   UNMASKED_RENDERER_WEBGL,
   UNMASKED_VENDOR_WEBGL,
 } from "./fingerprintNoise";
-import { maskAsNative } from "./nativeToString";
+import { nativeGetter, nativeMethod } from "./nativeToString";
 import type { BridgeMessage } from "../types";
 
 let seed = "";
@@ -67,15 +67,15 @@ function patchCanvas(): void {
     return clone;
   }
 
-  canvasProto.toDataURL = function guardedToDataURL(
+  canvasProto.toDataURL = nativeMethod<typeof nativeToDataURL>(nativeToDataURL, function guardedToDataURL(
     this: HTMLCanvasElement,
     ...args: Parameters<typeof nativeToDataURL>
   ): string {
     if (!active) return nativeToDataURL.apply(this, args);
     return nativeToDataURL.apply(noisedClone(this), args);
-  };
+  });
 
-  canvasProto.toBlob = function guardedToBlob(
+  canvasProto.toBlob = nativeMethod<typeof nativeToBlob>(nativeToBlob, function guardedToBlob(
     this: HTMLCanvasElement,
     ...args: Parameters<typeof nativeToBlob>
   ): void {
@@ -84,20 +84,16 @@ function patchCanvas(): void {
       return;
     }
     nativeToBlob.apply(noisedClone(this), args);
-  };
+  });
 
-  ctxProto.getImageData = function guardedGetImageData(
+  ctxProto.getImageData = nativeMethod<typeof nativeGetImageData>(nativeGetImageData, function guardedGetImageData(
     this: CanvasRenderingContext2D,
     ...args: Parameters<typeof nativeGetImageData>
   ): ImageData {
     const imageData = nativeGetImageData.apply(this, args);
     if (active) noisifyRGBA(imageData.data, canvasSeed(this.canvas.width, this.canvas.height));
     return imageData;
-  };
-
-  maskAsNative(canvasProto.toDataURL, nativeToDataURL);
-  maskAsNative(canvasProto.toBlob, nativeToBlob);
-  maskAsNative(ctxProto.getImageData, nativeGetImageData);
+  });
 }
 
 function patchAudio(): void {
@@ -105,16 +101,14 @@ function patchAudio(): void {
     const proto = AudioBuffer.prototype;
     const nativeGetChannelData = proto.getChannelData;
 
-    proto.getChannelData = function guardedGetChannelData(
+    proto.getChannelData = nativeMethod<typeof nativeGetChannelData>(nativeGetChannelData, function guardedGetChannelData(
       this: AudioBuffer,
       ...args: Parameters<typeof nativeGetChannelData>
     ): ReturnType<typeof nativeGetChannelData> {
       const data = nativeGetChannelData.apply(this, args);
       if (active) noisifyFloatSamples(data, `${seed}:audio:${args[0]}`);
       return data;
-    };
-
-    maskAsNative(proto.getChannelData, nativeGetChannelData);
+    });
   }
 
   // Separate global, separate guard: AudioBuffer (buffer contents, noised
@@ -138,13 +132,12 @@ function patchAudio(): void {
 function patchFixedGetter(object: object, property: string, compute: () => number): void {
   const native = Object.getOwnPropertyDescriptor(object, property);
   if (!native?.get) return;
-  const nativeGetter = native.get;
-  const guardedGetter = function guardedGetter(this: unknown) {
+  const realGetter = native.get;
+  const guardedGetter = nativeGetter(property, realGetter, function (this: unknown) {
     if (active) return compute();
-    return nativeGetter.call(this);
-  };
+    return realGetter.call(this);
+  });
   Object.defineProperty(object, property, { ...native, get: guardedGetter });
-  maskAsNative(guardedGetter, nativeGetter);
 }
 
 /** Shared by patchDimensions/patchScreen/patchTiming below: replaces a
@@ -156,13 +149,12 @@ function patchFixedGetter(object: object, property: string, compute: () => numbe
 function patchTransformedGetter(object: object, property: string, transform: (actual: number) => number): void {
   const native = Object.getOwnPropertyDescriptor(object, property);
   if (!native?.get) return;
-  const nativeGetter = native.get;
-  const guardedGetter = function guardedGetter(this: unknown) {
-    const actual = nativeGetter.call(this) as number;
+  const realGetter = native.get;
+  const guardedGetter = nativeGetter(property, realGetter, function (this: unknown) {
+    const actual = realGetter.call(this) as number;
     return active ? transform(actual) : actual;
-  };
+  });
   Object.defineProperty(object, property, { ...native, get: guardedGetter });
-  maskAsNative(guardedGetter, nativeGetter);
 }
 
 // window.innerWidth/innerHeight/outerWidth/outerHeight are the page's own
@@ -208,19 +200,17 @@ function patchScreenDimensions(): void {
 function patchTiming(): void {
   if (typeof Performance !== "undefined") {
     const nativeNow = Performance.prototype.now;
-    Performance.prototype.now = function guardedNow(this: Performance): number {
+    Performance.prototype.now = nativeMethod<typeof nativeNow>(nativeNow, function guardedNow(this: Performance): number {
       const actual = nativeNow.call(this);
       return active ? clampTimestamp(actual) : actual;
-    };
-    maskAsNative(Performance.prototype.now, nativeNow);
+    });
   }
 
   const nativeDateNow = Date.now;
-  Date.now = function guardedDateNow(): number {
+  Date.now = nativeMethod<typeof nativeDateNow>(nativeDateNow, function guardedDateNow(): number {
     const actual = nativeDateNow();
     return active ? clampTimestamp(actual) : actual;
-  };
-  maskAsNative(Date.now, nativeDateNow);
+  });
 
   if (typeof Event !== "undefined") {
     patchTransformedGetter(Event.prototype, "timeStamp", clampTimestamp);
@@ -235,7 +225,7 @@ function patchWebGL(): void {
   for (const ctor of contexts) {
     if (!ctor) continue;
     const nativeGetParameter = ctor.prototype.getParameter;
-    ctor.prototype.getParameter = function guardedGetParameter(
+    ctor.prototype.getParameter = nativeMethod<typeof nativeGetParameter>(nativeGetParameter, function guardedGetParameter(
       this: WebGLRenderingContext,
       pname: number
     ): ReturnType<typeof nativeGetParameter> {
@@ -244,8 +234,7 @@ function patchWebGL(): void {
         if (pname === UNMASKED_RENDERER_WEBGL) return SPOOFED_WEBGL_RENDERER;
       }
       return nativeGetParameter.call(this, pname);
-    };
-    maskAsNative(ctor.prototype.getParameter, nativeGetParameter);
+    });
   }
 }
 
@@ -257,33 +246,31 @@ function patchNavigatorHints(): void {
   );
 
   if (nativeConcurrency?.get) {
-    const guardedGetter = function guardedHardwareConcurrency(this: Navigator) {
+    const guardedGetter = nativeGetter("hardwareConcurrency", nativeConcurrency.get, function (this: Navigator) {
       const actual = nativeConcurrency.get!.call(this) as number;
       return active ? bucketHardwareConcurrency(actual) : actual;
-    };
+    });
     Object.defineProperty(Navigator.prototype, "hardwareConcurrency", {
       ...nativeConcurrency,
       get: guardedGetter,
     });
-    maskAsNative(guardedGetter, nativeConcurrency.get);
   }
 
   if (nativeMemory?.get) {
-    const guardedGetter = function guardedDeviceMemory(this: Navigator) {
+    const guardedGetter = nativeGetter("deviceMemory", nativeMemory.get, function (this: Navigator) {
       const actual = nativeMemory.get!.call(this) as number;
       return active ? bucketDeviceMemory(actual) : actual;
-    };
+    });
     Object.defineProperty(Navigator.prototype, "deviceMemory", {
       ...nativeMemory,
       get: guardedGetter,
     });
-    maskAsNative(guardedGetter, nativeMemory.get);
   }
 }
 
 // Patching every one of these prototypes has a real per-call cost (an extra
 // function-call indirection, plus a Function.prototype.toString side-table
-// registration via maskAsNative) that every page pays whether or not
+// registration via nativeMethod/nativeGetter) that every page pays whether or not
 // fingerprint resistance is actually on -- and it's off by default, so most
 // visitors were paying it for nothing. Deferred to the first config message
 // that actually reports the feature on, instead of running unconditionally

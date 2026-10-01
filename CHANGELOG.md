@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.191
+
+### Fixed
+- **Sites could tell Moat had edited the page, and made "prove you're human" checks harder.**
+  On every page and in every frame, Moat replaces `window.open` (the popup guard) and
+  `Function.prototype.toString` (so its replacements report as built-ins). Bot-detection and
+  CAPTCHA scripts run cheap checks on built-ins, and Moat's replacements failed them. With Moat
+  installed, `window.open.name` was `""`, `toString.name` was `"t"`, both had a `prototype`
+  and could be called with `new`, and `navigator` had `globalPrivacyControl` as its own
+  property. Plain Chrome and uBlock Origin Lite show none of that. A browser that fails these
+  checks gets scored as likely automated.
+  - Replacements are now method-shorthand functions with the built-in's name and length. They
+    have no `prototype` and throw under `new`, as built-ins do (`nativeMethod`/`nativeGetter`
+    in `content/nativeToString.ts`). This also covers every surface the opt-in fingerprint
+    protection patches.
+  - `navigator.globalPrivacyControl` is now a getter on `Navigator.prototype`, the way Firefox
+    and Brave define it.
+  - Checked in Chrome on example.com, with Moat's defaults and with fingerprint protection on.
+    Every check now matches plain Chrome except `globalPrivacyControl`, which Moat sets on
+    purpose.
+
 ## 0.11.190
 
 ### Fixed

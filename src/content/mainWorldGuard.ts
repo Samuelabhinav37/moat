@@ -5,7 +5,7 @@ import type { BridgeMessage, GuardBlockKind } from "../types";
 import { isAuthPopupUrl } from "./authPopup";
 import { isPlausibleTrigger } from "./isPlausibleTrigger";
 import { createPopupRateLimiter } from "./popupRateLimit";
-import { maskAsNative } from "./nativeToString";
+import { nativeGetter, nativeMethod } from "./nativeToString";
 
 declare global {
   interface Navigator {
@@ -20,10 +20,15 @@ declare global {
 // signal that JS-based consent tools read. Always on, independent of the
 // per-site pause toggle below -- it's purely declarative and can't break a
 // page the way the popup guard sometimes needs pausing for.
+//
+// Defined the way a browser that supports GPC defines it (Firefox, Brave):
+// an accessor on Navigator.prototype. An own data property on the navigator
+// object is something no browser has, and bot-detection scripts list
+// navigator's own properties to spot exactly that kind of edit.
 if (navigator.globalPrivacyControl !== true) {
   try {
-    Object.defineProperty(navigator, "globalPrivacyControl", {
-      value: true,
+    Object.defineProperty(Navigator.prototype, "globalPrivacyControl", {
+      get: nativeGetter("globalPrivacyControl", undefined, () => true),
       configurable: true,
       enumerable: true,
     });
@@ -99,7 +104,11 @@ document.addEventListener(
   true
 );
 
-window.open = function guardedOpen(...args: Parameters<typeof window.open>): ReturnType<typeof window.open> {
+// nativeMethod: same name/length as the real window.open, no prototype,
+// not constructible, toString masked -- see nativeToString.ts.
+window.open = nativeMethod<typeof window.open>(nativeWindowOpen, function guardedOpen(
+  ...args: Parameters<typeof window.open>
+): ReturnType<typeof window.open> {
   if (siteDisabled) return nativeOpen(...args);
 
   const active = navigator.userActivation?.isActive ?? false;
@@ -127,9 +136,7 @@ window.open = function guardedOpen(...args: Parameters<typeof window.open>): Ret
   const url = args[0];
   report("window-open", typeof url === "string" ? url : url instanceof URL ? url.href : null);
   return null;
-};
-
-maskAsNative(window.open, nativeWindowOpen);
+});
 
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;

@@ -17,9 +17,15 @@ function installGlobalPatch(): void {
   installed = true;
   const nativeToString = Function.prototype.toString;
 
-  function patchedToString(this: Function): string {
-    return spoofed.get(this) ?? nativeToString.call(this);
-  }
+  // Method shorthand, not a function declaration: like the real one it is
+  // named "toString", has no own `prototype` and throws under `new`.
+  // Bot-detection scripts check exactly those; a declared function failed
+  // all three (name "t" after minifying, prototype present, constructible).
+  const patchedToString = {
+    toString(this: Function): string {
+      return spoofed.get(this) ?? nativeToString.call(this);
+    },
+  }.toString;
 
   Function.prototype.toString = patchedToString;
   // The patch function itself must also look native, or checking
@@ -32,7 +38,45 @@ function installGlobalPatch(): void {
  * (and `patchedFn.toString()`) returns exactly what `originalFn.toString()`
  * returned before it was replaced.
  */
-export function maskAsNative(patchedFn: Function, originalFn: Function): void {
+export function maskAsNative(patchedFn: Function, originalFn: Function | string): void {
   installGlobalPatch();
-  spoofed.set(patchedFn, originalFn.toString());
+  spoofed.set(patchedFn, typeof originalFn === "string" ? originalFn : originalFn.toString());
+}
+
+/**
+ * A stand-in for the built-in method `original` that runs `impl` and also
+ * passes the cheap checks bot-detection and CAPTCHA scripts run on built-ins
+ * besides toString: same `name` and `length`, no own `prototype`, and
+ * `new` throws. Method-shorthand functions have those last two properties,
+ * as built-ins do; `function` expressions don't. A page that can tell a
+ * built-in was swapped scores the visitor as a likely bot and makes the
+ * CAPTCHA harder.
+ */
+export function nativeMethod<T extends Function>(original: Function, impl: (this: any, ...args: any[]) => unknown): T {
+  const name = original.name;
+  const fn = {
+    [name](this: unknown, ...args: unknown[]): unknown {
+      return impl.apply(this, args);
+    },
+  }[name]!;
+  Object.defineProperty(fn, "length", { value: original.length });
+  maskAsNative(fn, original);
+  return fn as unknown as T;
+}
+
+/** Getter version of nativeMethod: named "get <property>" like a built-in
+ * accessor, no prototype, not constructible, toString masked as
+ * `original` (or, for a property the browser doesn't have, as the source
+ * text a built-in getter of that name would show). */
+export function nativeGetter(property: string, original: Function | undefined, impl: (this: any) => unknown): () => unknown {
+  const getter = Object.getOwnPropertyDescriptor(
+    {
+      get [property]() {
+        return impl.call(this);
+      },
+    },
+    property
+  )!.get!;
+  maskAsNative(getter, original ?? `function get ${property}() { [native code] }`);
+  return getter;
 }
