@@ -200,16 +200,13 @@ ul.site-list li {
   height: 28px;
 }
 
-/* The track and thumb were absolutely positioned against the old box, which
-   is now 8px larger in both axes. Inset them by the padding so the switch
-   looks identical to before. */
+/* The track was absolutely positioned against the old box, which is now 8px
+   larger in both axes. Inset it by the padding so the switch looks identical
+   to before. The thumb is a child of the track, so it already moves with it
+   and keeps its own 2px offset (an extra 4px here pushed it 4px down and
+   right, off the end of the track). */
 .switch .track {
   inset: 4px;
-}
-
-.switch .thumb {
-  top: 6px;
-  left: 6px;
 }
 
 /* DR-12, second half: the permission chips in the Protection list are also

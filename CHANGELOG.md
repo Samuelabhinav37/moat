@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.188
+
+### Fixed
+- **Popup switches: the knob sat off the end of the track.** The bigger tap area added for
+  WCAG target size (4px of padding round each switch) also moved the knob 4px down and right.
+  The knob sits inside the track, which had already moved, so it moved twice. When on, it hung
+  2px past the right and bottom edges of the track. When off, it sat 6px from the left edge.
+  It now keeps its 2px gap on every side, measured in the popup on and off. Settings draws its
+  own switches and wasn't affected.
+
 ## 0.11.187
 
 ### Fixed
