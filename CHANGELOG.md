@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.192
+
+### Fixed
+- **"Prove you're human" checks kept coming back, or never loaded.** On many sites the
+  bot-defense script is the check itself. When it's blocked, the site never gets a passing
+  score and keeps showing "Press & Hold" or a puzzle. The bundled lists blocked several:
+  HUMAN/PerimeterX (Microsoft sign-up, Zillow), DataDome (Reddit and others), and ThreatMetrix
+  (bank and payment sign-ins). The always-on core ruleset now allows HUMAN/PerimeterX,
+  DataDome, Arkose Labs, ThreatMetrix, GeeTest and AWS WAF, plus the reCAPTCHA, hCaptcha,
+  Turnstile, Friendly Captcha and MTCaptcha widgets (`scripts/lib/compatAllowRules.mjs`). The
+  allowances sit above every ad and tracker rule but below "Never block", paused sites and the
+  malware/phishing lists, so a known-bad host stays blocked. Fingerprinting and fraud-scoring
+  vendors that don't run a challenge (FingerprintJS, Sift) stay blocked.
+- **"Sign in with Google" didn't work on Stack Overflow, Notion, Medium, Perplexity, NYTimes
+  and others.** AdGuard's Popups filter blocks Google's sign-in script (`accounts.google.com/
+  gsi/client`) on a long list of sites to hide the One Tap prompt. That script also draws the
+  sign-in button. It is allowed again, so the One Tap prompt can show on those sites too.
+- Checked in Chrome: `gsi/client` loads on Stack Overflow, and nothing from PerimeterX is
+  blocked on Zillow or Microsoft sign-up. Ads and trackers on those pages are still blocked.
+
 ## 0.11.191
 
 ### Fixed

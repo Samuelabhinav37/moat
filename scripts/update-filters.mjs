@@ -16,6 +16,7 @@ import { dropSiteBreakingHeaderRules } from "./lib/siteBreakingHeaderRules.mjs";
 import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
 import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
 import { buildOisdRules } from "./lib/oisdRules.mjs";
+import { buildCompatAllowRules } from "./lib/compatAllowRules.mjs";
 import { plainBlockedDomains, isBlockedByDomainChain } from "./lib/blockedDomains.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
 import { SECURITY_PRIORITY_OFFSET } from "../src/shared/rulePriorities.ts";
@@ -280,6 +281,9 @@ const ownPrivacyRules = [
   // to the origin by default (strict-origin-when-cross-origin), so the
   // removal only hid the site's own domain, which those requests carry in
   // Origin anyway. Removed in 0.11.189; do not bring it back.
+  // Allow rules for bot-defense sensors, CAPTCHA widgets and Google Sign-In
+  // that bundled lists block -- see scripts/lib/compatAllowRules.mjs.
+  ...buildCompatAllowRules(100),
 ];
 writeFileSync(join(outDir, "ruleset_privacy-headers.json"), JSON.stringify(ownPrivacyRules));
 manifestEntries.push({
@@ -290,7 +294,7 @@ manifestEntries.push({
   // "less filtering" effect for the user, it just stops sending GPC/
   // (earlier versions also stripped cross-site referrers).
   category: "core",
-  name: "Moat: Global Privacy Control",
+  name: "Moat: Global Privacy Control + sign-in and CAPTCHA allowances",
   enabled: true,
   file: "ruleset_privacy-headers.json",
   ruleCount: ownPrivacyRules.length,
