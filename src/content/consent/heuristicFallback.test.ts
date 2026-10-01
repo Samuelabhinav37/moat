@@ -75,6 +75,30 @@ describe("findBannerContainer", () => {
     const container = findBannerContainer();
     expect(container?.className).toBe("inner");
   });
+
+  it("finds the banner when the reject button sits inside a non-container wrapper", () => {
+    document.body.innerHTML = `
+      <section class="banner">
+        <p>We use cookies.</p>
+        <span><span><button>Decline</button></span></span>
+      </section>
+    `;
+    expect(findBannerContainer()?.className).toBe("banner");
+  });
+
+  it("ignores reject-pattern buttons outside any cookie banner on a large page", () => {
+    const rows = Array.from({ length: 400 }, (_, i) => `<div><div><p>Story ${i}</p><a href="#">Decline</a></div></div>`).join("");
+    document.body.innerHTML = `<main>${rows}</main>
+      <div class="banner"><p>Cookie settings</p><button>Reject all</button></div>`;
+    expect(findBannerContainer()?.className).toBe("banner");
+  });
+
+  it("stays inside the root it was given", () => {
+    document.body.innerHTML = `
+      <div class="banner"><p>We use cookies.</p><div id="root"><button>Reject all</button></div></div>
+    `;
+    expect(findBannerContainer(document.getElementById("root")!)).toBeNull();
+  });
 });
 
 describe("findConfidentRejectButton", () => {

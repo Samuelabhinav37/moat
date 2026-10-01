@@ -84,33 +84,34 @@ function isClickable(el: Element): el is HTMLElement {
 
 const CLICKABLE_SELECTOR = "button, a, [role='button'], input[type='button'], input[type='submit']";
 
-/** A container's own text is checked, not its full subtree serialization --
- * querySelectorAll over `div, section, aside, dialog, [role=dialog],
- * [role=alertdialog]` naturally nests (an outer wrapper and its inner banner
- * both match), so callers should expect multiple candidates and this
- * function returns the first bounded-size match containing an unambiguous
- * reject-pattern button, smallest-first, favoring the tightest banner
- * container over an outer page wrapper that happens to also mention
- * "cookie" somewhere in unrelated copy. */
+const CONTAINER_SELECTOR = "div, section, aside, dialog, [role='dialog'], [role='alertdialog']";
+
+/** The smallest banner-shaped container (div/section/aside/dialog) whose
+ * own text mentions cookies/consent and is short enough to be a banner
+ * (1500 chars), holding a clickable reject-pattern button.
+ *
+ * Works up from the reject-pattern buttons, which are few, instead of
+ * reading the text of every div on the page. That scan read each
+ * container's whole subtree text, so its cost grew with the square of the
+ * page size, and consentRejector.ts runs this repeatedly while a page
+ * loads. A button's first qualifying ancestor is its tightest banner;
+ * ancestors only get longer, so the climb stops past 1500 chars. */
 export function findBannerContainer(root: ParentNode = document): HTMLElement | null {
-  const candidates = Array.from(
-    root.querySelectorAll<HTMLElement>("div, section, aside, dialog, [role='dialog'], [role='alertdialog']"),
+  const rejectButtons = Array.from(root.querySelectorAll<HTMLElement>(CLICKABLE_SELECTOR)).filter(
+    (b) => isClickable(b) && matchesAny(textOf(b), REJECT_PATTERNS)
   );
 
   let best: { el: HTMLElement; textLength: number } | null = null;
-  for (const el of candidates) {
-    const text = textOf(el);
-    // Skip empty containers and implausibly large ones (a whole-page
-    // wrapper that happens to mention "cookie" in a footer link, say) --
-    // a real banner's own text is short.
-    if (text.length === 0 || text.length > 1500) continue;
-    if (!BANNER_TEXT_RE.test(text)) continue;
-
-    const buttons = Array.from(el.querySelectorAll<HTMLElement>(CLICKABLE_SELECTOR));
-    const hasReject = buttons.some((b) => isClickable(b) && matchesAny(textOf(b), REJECT_PATTERNS));
-    if (!hasReject) continue;
-
-    if (best === null || text.length < best.textLength) best = { el, textLength: text.length };
+  for (const button of rejectButtons) {
+    for (let el = button.parentElement; el; el = el.parentElement) {
+      if (root !== document && !root.contains(el)) break;
+      if (!el.matches(CONTAINER_SELECTOR)) continue;
+      const text = textOf(el);
+      if (text.length > 1500) break;
+      if (text.length === 0 || !BANNER_TEXT_RE.test(text)) continue;
+      if (best === null || text.length < best.textLength) best = { el, textLength: text.length };
+      break;
+    }
   }
   return best?.el ?? null;
 }

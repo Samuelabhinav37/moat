@@ -3,6 +3,29 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.193
+
+### Fixed
+- **Pages loaded slower with "Auto-reject cookie banners" on (the default).** For 8 seconds
+  after each page loaded, the rejector ran a full pass on every batch of DOM changes. A pass
+  checks every Consent-O-Matic rule, then the fallback, which read the full text of every
+  `div`, `section` and `aside` on the page. That cost grows with the square of the page
+  size. Busy pages change thousands of times while loading, so the main thread stayed busy.
+  Measured in Chrome over 3 visits each: Amazon took 8.4 s to load with it on and 4.7 s with
+  it off. Over Amazon, CNN, BBC, Wikipedia, NYTimes, GitHub and Reddit it added 5.3 s of
+  main-thread time in total.
+  - DOM changes now trigger an immediate pass only when an added node looks like a consent
+    banner: an iframe, or an id, class or text mentioning cookies, consent or GDPR. The pass
+    has to be immediate, because Moat's own cosmetic filter hides many banners within a few
+    hundred ms and a hidden reject button can't be clicked. Everything else waits for the
+    existing 300 ms poll.
+  - The fallback starts from the few reject-type buttons ("Reject all", "Decline", ...) and
+    walks up to the nearest banner, instead of reading every container on the page.
+  - After the change, over Amazon, CNN, GitHub and Reddit, page load is the same with the
+    setting on or off (11.55 s against 11.57 s in total). Amazon loads in 4.5 s. A banner
+    added 1 s after load, on a page still changing every 10 ms, is still rejected 10 to 30 ms
+    after it appears.
+
 ## 0.11.192
 
 ### Fixed

@@ -1,6 +1,7 @@
-// Isolated-world content script, top frame only, opt-in and off by default
-// (Settings -> "Auto-reject cookie banners"). Cosmetic filtering already
-// hides banners that match a plain selector, but AdGuard's own Cookie
+// Isolated-world content script, top frame only, on by default (Settings ->
+// "Auto-reject cookie banners"; registered at runtime by
+// background/optionalContentScripts.ts only while that setting is on).
+// Cosmetic filtering already hides banners that match a plain selector, but AdGuard's own Cookie
 // Notices list mostly handles the "click reject for me" half via scriptlets
 // -- arbitrary injected JS Moat deliberately never executes (see README).
 // This is the alternative that keeps that boundary intact: a small,
@@ -26,6 +27,7 @@ import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { effectiveValue } from "../shared/perSiteOverrides";
 import { buildCmps, runConsentRejection } from "./consent/engine";
 import { runHeuristicFallback } from "./consent/heuristicFallback";
+import { looksLikeConsentNode } from "./consent/consentNode";
 import type { RuleSet } from "./consent/types";
 import { STORAGE_KEY, type RecordUsageSignalMessage } from "../types";
 
@@ -99,7 +101,17 @@ function watchAndReject(ruleSet: RuleSet): void {
     }
   }
 
-  observer = new MutationObserver(() => void attempt());
+  // A full pass on every mutation batch kept a busy page's main thread
+  // occupied for the whole 8 s while it was still building itself. The
+  // poll below already re-checks every 300 ms; a DOM change only triggers
+  // an immediate pass when what was added looks like a consent banner. That
+  // pass has to be immediate: Moat's own cosmetic CSS hides many banners
+  // within a few hundred ms, leaving a zero-size reject button nothing can
+  // click.
+  observer = new MutationObserver((records) => {
+    if (stopped) return;
+    if (records.some((record) => Array.from(record.addedNodes).some(looksLikeConsentNode))) void attempt();
+  });
   observer.observe(document.body, { childList: true, subtree: true });
   intervalId = setInterval(() => void attempt(), POLL_INTERVAL_MS);
   timeoutId = setTimeout(cleanup, MAX_WAIT_MS);
