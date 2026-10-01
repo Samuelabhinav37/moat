@@ -88,4 +88,59 @@ describe("isPlausibleTrigger", () => {
     mockRect(overlay, 1000, 800);
     expect(isPlausibleTrigger(overlay)).toBe(false);
   });
+
+  it("accepts a div account tile with a role (Microsoft's account picker)", () => {
+    const tile = document.createElement("div");
+    tile.setAttribute("role", "listitem");
+    tile.tabIndex = 0;
+    const name = document.createElement("span");
+    tile.append(name);
+    document.body.append(tile);
+    mockRect(tile, 300, 60);
+    expect(isPlausibleTrigger(name)).toBe(true);
+  });
+
+  it("accepts a focusable div (tabindex=0)", () => {
+    const div = document.createElement("div");
+    div.tabIndex = 0;
+    document.body.append(div);
+    mockRect(div, 200, 40);
+    expect(isPlausibleTrigger(div)).toBe(true);
+  });
+
+  it("does not count tabindex=-1 as interactive", () => {
+    const div = document.createElement("div");
+    div.tabIndex = -1;
+    document.body.append(div);
+    mockRect(div, 200, 40);
+    expect(isPlausibleTrigger(div)).toBe(false);
+  });
+
+  it("accepts a plain div styled as a button (pointer cursor on an ancestor)", () => {
+    const button = document.createElement("div");
+    button.style.cursor = "pointer";
+    const label = document.createElement("span");
+    button.append(label);
+    document.body.append(button);
+    mockRect(button, 160, 40);
+    expect(isPlausibleTrigger(label)).toBe(true);
+  });
+
+  it("still rejects an invisible full-viewport overlay with a pointer cursor", () => {
+    const overlay = document.createElement("div");
+    overlay.style.cursor = "pointer";
+    overlay.style.opacity = "0";
+    document.body.append(overlay);
+    mockRect(overlay, 1000, 800);
+    expect(isPlausibleTrigger(overlay)).toBe(false);
+  });
+
+  it("ignores a pointer cursor set on body (a page-wide click catcher)", () => {
+    document.body.style.cursor = "pointer";
+    const text = document.createElement("p");
+    document.body.append(text);
+    mockRect(text, 600, 20);
+    expect(isPlausibleTrigger(text)).toBe(false);
+    document.body.style.cursor = "";
+  });
 });

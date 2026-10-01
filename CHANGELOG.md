@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.190
+
+### Fixed
+- **Sign-in popups were blocked (Microsoft Teams, "Sign in with Google", and others).** The
+  popup guard was tuned against popunders and turned away real sign-in windows in three ways:
+  - **It only trusted native links and buttons.** Microsoft's account picker tiles are divs
+    with a role, and many "Sign in" and "Pay" buttons are divs with a pointer cursor. Elements
+    with a button-like role, a `tabindex`, or their own pointer cursor now count too. A
+    pointer cursor inherited from `body` doesn't count, so page-wide click catchers are
+    still blocked.
+  - **It forgot the click after 1.2 seconds.** Microsoft's sign-in library fetches settings
+    before it opens the window. The guard now waits 5 seconds, the same time Chrome keeps a
+    click's permission to open a window.
+  - **Popups to known sign-in pages skip the click checks.** That covers Microsoft, Google,
+    Apple, GitHub, Facebook, Discord, Okta, Auth0, Azure AD B2C and similar. They still need a
+    real user click, as the browser tracks it.
+  - Checked in Chrome on a test page. A div tile, a role=listitem tile, a pointer-cursor div,
+    a button that opens after 1.5 s, and a Microsoft sign-in window opened 2 s after the click
+    now all open. A popunder fired by a page-wide click on plain text is still blocked, and so
+    is a second non-sign-in popup from one click.
+
 ## 0.11.189
 
 ### Fixed

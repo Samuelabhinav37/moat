@@ -2,6 +2,7 @@
 // No extension APIs exist here (that's what bridge.ts is for) -- this file
 // only ever talks back to the extension via window.postMessage.
 import type { BridgeMessage, GuardBlockKind } from "../types";
+import { isAuthPopupUrl } from "./authPopup";
 import { isPlausibleTrigger } from "./isPlausibleTrigger";
 import { createPopupRateLimiter } from "./popupRateLimit";
 import { maskAsNative } from "./nativeToString";
@@ -45,7 +46,10 @@ const popupRateLimiter = createPopupRateLimiter();
 // only raises the cost from a zero-effort spoof to "must observe first".
 let lockedGuardToken: string | null = null;
 
-const TRUST_WINDOW_MS = 1200;
+// Chrome keeps a click's user activation for 5 s, and sign-in code often
+// awaits a network round trip before it opens the popup (MSAL fetches the
+// tenant's metadata first). 1.2 s was shorter than that and blocked them.
+const TRUST_WINDOW_MS = 5000;
 
 function report(kind: GuardBlockKind, url: string | null): void {
   // Echo the guardToken bridge.ts locked in via the first config message so
@@ -99,6 +103,10 @@ window.open = function guardedOpen(...args: Parameters<typeof window.open>): Ret
   if (siteDisabled) return nativeOpen(...args);
 
   const active = navigator.userActivation?.isActive ?? false;
+  // A sign-in page the user asked for: no click-shape checks, no one-per-
+  // click limit (some flows open a second window after an error), no rate
+  // limit. Still needs the browser's own live user gesture.
+  if (active && isAuthPopupUrl(args[0], location.href)) return nativeOpen(...args);
   const recentTrusted = lastTrustedClick !== null && performance.now() - lastTrustedClick.time < TRUST_WINDOW_MS;
   const plausible = recentTrusted && isPlausibleTrigger(lastTrustedClick!.target);
   const freshClick = recentTrusted && !lastTrustedClick!.consumed;
