@@ -660,7 +660,7 @@
     "message": "heuristics that apply here fired on this page load"
   },
   "diagnosticsSilentLabel": {
-    "message": "silent, likely broken"
+    "message": "silent on this page"
   },
   "diagnosticsMatchesLabel": {
     "message": "rule matches"
@@ -814,6 +814,15 @@
       }
     },
     "description": "Settings > Overview > Trackers: how much of the week's total came from companies Moat can name. A part of the headline number, not a separate total."
+  },
+  "advTrackersSummaryOne": {
+    "message": "Of this week's blocks, $ATTEMPTS$ came from one company Moat can name.",
+    "placeholders": {
+      "attempts": {
+        "content": "$1"
+      }
+    },
+    "description": "Settings > Overview > Trackers: the same line as advTrackersSummary when exactly one company was named."
   },
   "advTrackersOnTab": {
     "message": "On the tab you last used"

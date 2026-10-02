@@ -3,6 +3,32 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.198
+
+### Fixed (design)
+- **"came from 1 companies"** on Overview's Trackers card. There is now a singular message for
+  one company, in all four languages.
+- **Diagnostics' Refresh button was green.** The shared primary-button style in `theme.css`
+  still used the green that elsewhere means "on" or "protected". Settings and the report page
+  overrode it to blue, but Diagnostics and the warning page didn't. Primary buttons are now
+  blue everywhere (`--primary`).
+- **Diagnostics said "silent, likely broken"** for a check that just had nothing to do, such as
+  no cookie banner on that page, while that check's own row said the page probably had no
+  banner. The count now reads "silent on this page", without the warning colour, in all
+  languages.
+- **Long sidebar labels wrapped onto two lines** in German, French and Spanish ("Sicherung und
+  Synchronisierung", "Toujours et jamais bloquer", "Copia de seguridad y sincronización").
+  They are shorter now ("Sicherung & Sync", "Règles perso", "Copia y sincronía", ...). These
+  are still waiting for the native-speaker review.
+- **French: Overview scrolled sideways at 1024px.** The quick-action label "Chercher des
+  correctifs de filtres" couldn't wrap. Quick actions now wrap inside their button.
+- **French: the tour's last button broke into two lines** ("Commencer à naviguer") next to a
+  one-line button. Tour buttons stay on one line, and the second moves down when there isn't
+  room.
+- Checked with the layout capture in English, German, French and Spanish (light, dark, 390,
+  1024 and 1440 px): no clipping, overlap, sideways scroll or uneven button pairs. Only the
+  blocking-level cards remain flagged, and they wrap by design.
+
 ## 0.11.197
 
 ### Security (development tools only; nothing here ships in the extension)

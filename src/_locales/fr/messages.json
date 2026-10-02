@@ -583,7 +583,7 @@
     "message": "Actualiser"
   },
   "tabBackup": {
-    "message": "Sauvegarde et synchronisation"
+    "message": "Sauvegarde et sync"
   },
   "optionsMigrationImportSummary": {
     "message": "Importer depuis un autre bloqueur…"
@@ -658,7 +658,7 @@
     "message": "heuristiques applicables ici qui se sont déclenchées lors de ce chargement de page"
   },
   "diagnosticsSilentLabel": {
-    "message": "silencieuse, probablement défaillante"
+    "message": "inactives sur cette page"
   },
   "diagnosticsMatchesLabel": {
     "message": "correspondances de règles"
@@ -808,6 +808,14 @@
       },
       "attempts": {
         "content": "$2"
+      }
+    }
+  },
+  "advTrackersSummaryOne": {
+    "message": "Parmi les blocages de cette semaine, $ATTEMPTS$ venaient d'une entreprise que Moat peut identifier.",
+    "placeholders": {
+      "attempts": {
+        "content": "$1"
       }
     }
   },
@@ -1136,7 +1144,7 @@
     "message": "Sites en pause"
   },
   "navHidden": {
-    "message": "Masqué sur les pages"
+    "message": "Masqué"
   },
   "pageLeadBlocking": {
     "message": "Le niveau de blocage et les options en plus"
@@ -1204,7 +1212,7 @@
     "message": "Confidentialité"
   },
   "navRules": {
-    "message": "Toujours et jamais bloquer"
+    "message": "Règles perso"
   },
   "navGroupExceptions": {
     "message": "Vos exceptions"

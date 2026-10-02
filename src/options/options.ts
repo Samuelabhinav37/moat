@@ -1863,7 +1863,9 @@ function renderWeeklyTrackers(usage: UsageSummaryResponse): void {
   document.getElementById("weekly-tracker-summary")!.textContent =
     usage.companiesThisWeek.length === 0
       ? tFallback("advTrackersEmptyWeek", "None yet this week. Companies show up here as Moat stops their trackers while you browse.")
-      : tFallback("advTrackersSummary", `Of this week's blocks, ${attempts} came from ${companies} companies Moat can name.`, [companies, attempts]);
+      : usage.companiesThisWeek.length === 1
+        ? tFallback("advTrackersSummaryOne", `Of this week's blocks, ${attempts} came from one company Moat can name.`, [attempts])
+        : tFallback("advTrackersSummary", `Of this week's blocks, ${attempts} came from ${companies} companies Moat can name.`, [companies, attempts]);
 
   const container = document.getElementById("weekly-tracker-rows") as HTMLElement;
   const top = usage.companiesThisWeek.slice(0, 20);

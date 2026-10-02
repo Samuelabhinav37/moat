@@ -1869,6 +1869,10 @@
           font-weight: 600;
           cursor: pointer;
           text-align: left;
+          /* Long labels (French "Chercher des correctifs de filtres") wrap
+             inside the button instead of pushing the page 2px wide at 1024. */
+          min-width: 0;
+          white-space: normal;
         }
         .ov-action:hover {
           border-color: #4a4650;

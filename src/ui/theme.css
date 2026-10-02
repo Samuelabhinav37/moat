@@ -9,9 +9,11 @@
      text. Matches the blue the popup already uses for the "protected"
      state. */
   --accent: #6f9be0;
-  /* Toggle-on / primary. Toned down from the previous acid #4ae03f, which
+  /* Toggle-on (switches, "protected"). Toned down from the previous acid #4ae03f, which
      read as neon against the dark surfaces. */
   --on: #43c13a;
+  --primary: #3f6fd1;
+  --primary-hover: #2f57ad;
   --on-fg: #0e2b0c;
   --danger: #fa6d6d;
   --danger-fg: #2c2c2f;
@@ -72,11 +74,19 @@ button:hover {
   border-color: var(--accent);
 }
 
+/* Primary actions are Moat blue on every page (Settings and the report page
+   used to override this; Diagnostics and the warning page didn't, so their
+   main buttons were the green kept for "on" and "protected"). */
 button.primary {
-  background: var(--on);
-  border-color: var(--on);
-  color: var(--on-fg);
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
   font-weight: 600;
+}
+
+button.primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 
 a {

@@ -583,7 +583,7 @@
     "message": "Actualizar"
   },
   "tabBackup": {
-    "message": "Copia de seguridad y sincronización"
+    "message": "Copia y sincronía"
   },
   "optionsMigrationImportSummary": {
     "message": "Importar desde otro bloqueador…"
@@ -658,7 +658,7 @@
     "message": "heurísticas aplicables aquí que se activaron en esta carga de página"
   },
   "diagnosticsSilentLabel": {
-    "message": "silenciosa, probablemente rota"
+    "message": "sin actuar en esta página"
   },
   "diagnosticsMatchesLabel": {
     "message": "coincidencias de reglas"
@@ -808,6 +808,14 @@
       },
       "attempts": {
         "content": "$2"
+      }
+    }
+  },
+  "advTrackersSummaryOne": {
+    "message": "De los bloqueos de esta semana, $ATTEMPTS$ vinieron de una empresa que Moat puede identificar.",
+    "placeholders": {
+      "attempts": {
+        "content": "$1"
       }
     }
   },
@@ -1136,7 +1144,7 @@
     "message": "Sitios en pausa"
   },
   "navHidden": {
-    "message": "Ocultado en páginas"
+    "message": "Ocultado"
   },
   "pageLeadBlocking": {
     "message": "Cuánto bloquear y las funciones extra"
@@ -1204,7 +1212,7 @@
     "message": "Privacidad"
   },
   "navRules": {
-    "message": "Bloquear siempre y nunca"
+    "message": "Reglas propias"
   },
   "navGroupExceptions": {
     "message": "Tus excepciones"

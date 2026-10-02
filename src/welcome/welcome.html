@@ -92,6 +92,9 @@
       }
       .actions .primary:hover { background: #fff; }
       .actions .ghost { padding: 13px 16px; border-radius: 10px; color: var(--muted); font-size: 14.5px; }
+      /* One line each: a long label (French "Commencer à naviguer") moves the
+         other button to the next line instead of breaking in two. */
+      .actions .primary, .actions .ghost { white-space: nowrap; }
       .actions .ghost:hover { color: var(--fg); border-color: var(--muted); }
 
       /* ---------- Stage ---------- */
