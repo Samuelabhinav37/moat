@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.197
+
+### Security (development tools only; nothing here ships in the extension)
+- web-ext 10.6.0 → 10.7.0.
+- axios (pulled in by `@adguard/dnr-rulesets`, used only when building the filter lists) pinned to
+  ^1.20.0 through `overrides`. That fixes two prototype-pollution advisories.
+- **Accepted:** node-forge (GHSA-86w9-cpqp-85rv) has no fixed release. It reaches the project
+  only through `@devicefarmer/adbkit`, which web-ext uses to talk to Android devices. Moat never
+  runs web-ext against Android (only `lint` and desktop `run`), so that code never executes.
+  `npm audit` reports these 3 entries until node-forge ships a fix. `npm audit fix --force` would
+  downgrade web-ext to 5.1.0, so don't run it.
+- Checked: `lint:firefox` 0 errors, Firefox smoke 11/11, tests 1374/1374.
+
 ## 0.11.196
 
 ### Security
