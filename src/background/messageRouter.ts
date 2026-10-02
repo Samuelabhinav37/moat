@@ -110,6 +110,28 @@ export function hostnameOf(url: string | undefined): string {
   }
 }
 
+/** The only messages a content script (code running inside a web page) may
+ * send. Chrome's security model treats a content-script sender as a page
+ * that may be compromised, so everything else -- changing settings,
+ * pausing sites, importing rules, granting permissions -- is only accepted
+ * from Moat's own pages (popup, Settings, report, diagnostics, welcome). */
+const CONTENT_SCRIPT_MESSAGES: ReadonlySet<string> = new Set([
+  "blocked",
+  "get-cosmetic-generics",
+  "get-procedural-rules",
+  "get-fingerprint-seed",
+  "record-custom-rule-match",
+  "record-usage-signal",
+  "save-cosmetic-rule",
+  "save-grayscale-rule",
+]);
+
+/** True for Moat's own extension pages, false for content scripts. */
+export function isExtensionPageSender(sender: Runtime.MessageSender): boolean {
+  const base = browser.runtime.getURL("");
+  return sender.id === browser.runtime.id && typeof sender.url === "string" && sender.url.startsWith(base);
+}
+
 function isRuntimeMessage(value: unknown): value is RuntimeMessage {
   return typeof value === "object" && value !== null && "type" in value;
 }
@@ -117,6 +139,8 @@ function isRuntimeMessage(value: unknown): value is RuntimeMessage {
 export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Promise<unknown> | undefined {
   if (!isRuntimeMessage(raw)) return undefined;
   const message = raw;
+  const fromExtensionPage = isExtensionPageSender(sender);
+  if (!fromExtensionPage && !CONTENT_SCRIPT_MESSAGES.has(message.type)) return undefined;
 
   switch (message.type) {
     case "blocked": {
@@ -198,14 +222,18 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
       return allowPermissionGuardOrigin(message.kind, message.hostname).then(() => undefined);
     }
 
+    // From the element picker (a content script) the rule is filed under the
+    // tab's own site, never a hostname the page could have chosen.
     case "save-cosmetic-rule": {
-      if (!isValidMessageString(message.hostname) || !isValidMessageString(message.selector)) return undefined;
-      return addCustomCosmeticRule(message.hostname, message.selector).then(() => undefined);
+      const hostname = fromExtensionPage ? message.hostname : hostnameOf(sender.tab?.url);
+      if (!isValidMessageString(hostname) || !isValidMessageString(message.selector)) return undefined;
+      return addCustomCosmeticRule(hostname, message.selector).then(() => undefined);
     }
 
     case "save-grayscale-rule": {
-      if (!isValidMessageString(message.hostname) || !isValidMessageString(message.selector)) return undefined;
-      return addGrayscaleRule(message.hostname, message.selector).then(() => undefined);
+      const hostname = fromExtensionPage ? message.hostname : hostnameOf(sender.tab?.url);
+      if (!isValidMessageString(hostname) || !isValidMessageString(message.selector)) return undefined;
+      return addGrayscaleRule(hostname, message.selector).then(() => undefined);
     }
 
     case "remove-cosmetic-rule": {

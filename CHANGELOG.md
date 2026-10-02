@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.195
+
+### Security
+- **Web pages' content scripts could send Moat's settings commands.** The background accepted
+  every message type from any sender. That included changing settings, pausing a site,
+  importing settings or rules, and granting a site camera, microphone or location access.
+  Content scripts run inside web pages, and Chrome's security model treats their messages as
+  possibly coming from a compromised page. Content scripts can now send only the eight
+  messages they actually use: block reports, cosmetic lookups, the fingerprint seed, usage
+  signals, rule-match reports, and saving a rule from the element picker. Everything else is
+  accepted only from Moat's own pages (popup, Settings, report, diagnostics, welcome).
+- **The element picker filed rules under whatever site the page named.** A rule saved from the
+  picker now always goes under the tab's own site.
+- **Settings changes weren't type-checked.** Only the setting names were checked, so a
+  wrong-typed value (`enabled: "yes"`, a non-object `filterGroups`) was saved and could break
+  settings until a reset. Changes now go through the same per-field checks as an imported
+  settings file.
+- Checked: popup, Settings and report flows (smoke 32/32), and the element picker still saves a
+  rule and hides the element in Chrome.
+
 ## 0.11.194
 
 ### Security

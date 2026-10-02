@@ -10,6 +10,7 @@ const browserMock = vi.hoisted(() => ({
   },
   windows: { update: vi.fn(async () => ({})) },
   scripting: { executeScript: vi.fn(async () => []) },
+  runtime: { id: "moat-id", getURL: (path: string) => `chrome-extension://moat-id/${path}` },
 }));
 vi.mock("webextension-polyfill", () => ({ default: browserMock }));
 
@@ -78,10 +79,12 @@ const usageStats = await import("./usageStats");
 const liveHeuristics = await import("./liveHeuristics");
 
 const contentSender = (frameId = 0): Runtime.MessageSender => ({
+  id: "moat-id",
+  url: "https://news.example/story",
   tab: { id: 7, url: "https://news.example/story" } as Runtime.MessageSender["tab"],
   frameId,
 });
-const pageSender: Runtime.MessageSender = {};
+const pageSender: Runtime.MessageSender = { id: "moat-id", url: "chrome-extension://moat-id/options.html" };
 const send = (message: unknown, sender: Runtime.MessageSender = pageSender) => handleMessage(message, sender);
 
 beforeEach(() => {
@@ -165,8 +168,8 @@ describe("handleMessage: get-status", () => {
     });
   });
 
-  it("uses the sender's own tab when a content script asks", async () => {
-    await send({ type: "get-status" }, contentSender());
+  it("doesn't answer a content script (no page reads its own block counts)", () => {
+    expect(send({ type: "get-status" }, contentSender())).toBeUndefined();
     expect(browserMock.tabs.query).not.toHaveBeenCalled();
   });
 
@@ -263,5 +266,43 @@ describe("handleMessage: start-element-picker", () => {
   it("reports failure on a page scripts can't run on", async () => {
     browserMock.tabs.sendMessage.mockRejectedValueOnce(new Error("restricted")).mockRejectedValueOnce(new Error("restricted"));
     await expect(send({ type: "start-element-picker" })).resolves.toEqual({ ok: false });
+  });
+});
+
+describe("who may send what", () => {
+  const privileged = [
+    { type: "set-settings-patch", patch: { enabled: false } },
+    { type: "import-settings", payload: { enabled: false } },
+    { type: "toggle-site", hostname: "a.example", disabled: true },
+    { type: "allow-permission-guard-origin", hostname: "a.example", kind: "camera" },
+    { type: "add-custom-domain", hostname: "a.example", field: "customAllowedDomains" },
+    { type: "import-custom-rules", text: "a.example" },
+    { type: "remove-cosmetic-rule", hostname: "a.example", selector: ".x" },
+    { type: "set-per-site-override", hostname: "a.example", key: "cookieBannerAutoReject", value: false },
+    { type: "export-settings" },
+    { type: "start-element-picker" },
+  ];
+
+  it.each(privileged)("ignores $type from a content script", async (message) => {
+    expect(send(message, contentSender())).toBeUndefined();
+    expect(settingsModule.setSettings).not.toHaveBeenCalled();
+    expect(settingsModule.setSiteDisabled).not.toHaveBeenCalled();
+  });
+
+  it("ignores a sender from another extension", () => {
+    expect(send({ type: "toggle-site", hostname: "a.example", disabled: true }, { id: "other", url: "chrome-extension://other/x.html" })).toBeUndefined();
+    expect(settingsModule.setSiteDisabled).not.toHaveBeenCalled();
+  });
+
+  it("still accepts privileged messages from Moat's own pages", async () => {
+    await send({ type: "toggle-site", hostname: "a.example", disabled: true }, pageSender);
+    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true);
+  });
+
+  it("files a picker rule under the tab's site, not the hostname the page sent", async () => {
+    await send({ type: "save-cosmetic-rule", hostname: "victim.example", selector: ".ad" }, contentSender());
+    expect(settingsModule.addCustomCosmeticRule).toHaveBeenCalledWith("news.example", ".ad");
+    await send({ type: "save-grayscale-rule", hostname: "victim.example", selector: ".feed" }, contentSender());
+    expect(settingsModule.addGrayscaleRule).toHaveBeenCalledWith("news.example", ".feed");
   });
 });

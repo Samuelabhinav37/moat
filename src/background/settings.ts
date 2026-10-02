@@ -15,7 +15,7 @@ import { applyPermissionGuard } from "./permissionGuard";
 import { applyCnameUncloak } from "./cnameUncloak";
 import { applyCnameUncloakChrome } from "./cnameUncloakChrome";
 import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
-import { exportSettings } from "./settingsPortability";
+import { exportSettings, validateImportedSettings } from "./settingsPortability";
 import { isSafeCosmeticSelector } from "../shared/selectorSafety";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
 import { recordRuleCreated, recordRuleRemoved } from "./customRuleStats";
@@ -206,7 +206,10 @@ export function pickAllowedSettingsPatch(patch: unknown): Partial<Settings> {
   for (const field of SETTINGS_PATCH_ALLOWED_FIELDS) {
     if (field in patch) safe[field] = (patch as Record<string, unknown>)[field];
   }
-  return safe;
+  // Same per-field type and size checks as an imported settings file: a
+  // wrong-typed value (enabled: "yes", a non-object filterGroups) would be
+  // saved as-is and break settings until a reset.
+  return validateImportedSettings(safe) ?? {};
 }
 
 /** Re-applies everything against current settings -- call at startup, and

@@ -226,6 +226,18 @@ describe("pickAllowedSettingsPatch", () => {
     ).toEqual({});
   });
 
+  it("rejects a patch with a wrong-typed value instead of saving it", () => {
+    expect(pickAllowedSettingsPatch({ enabled: "yes" })).toEqual({});
+    expect(pickAllowedSettingsPatch({ enabled: false, filterGroups: "all" })).toEqual({});
+    expect(pickAllowedSettingsPatch({ filterGroups: { ads: "on" } })).toEqual({});
+  });
+
+  it("keeps a well-typed record field", () => {
+    expect(pickAllowedSettingsPatch({ filterGroups: { ads: true, annoyances: false } })).toEqual({
+      filterGroups: { ads: true, annoyances: false },
+    });
+  });
+
   it("returns an empty object for non-object input", () => {
     expect(pickAllowedSettingsPatch(null)).toEqual({});
     expect(pickAllowedSettingsPatch("not an object")).toEqual({});
