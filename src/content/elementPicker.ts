@@ -135,9 +135,18 @@ const CSS = `
   border: 1px solid #37343b; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   font: 13.5px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
+.head { display: flex; align-items: flex-start; gap: 8px; }
+.head > div { flex: 1; min-width: 0; }
 .title { font-weight: 650; font-size: 14.5px; }
-.what { color: #a7a1ac; margin-top: 2px; }
-.size { display: flex; gap: 6px; margin-top: 12px; }
+.what { color: #a7a1ac; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.close {
+  flex: none; display: grid; place-items: center; width: 28px; height: 28px; margin: -4px -4px 0 0;
+  padding: 0; border: 0; border-radius: 8px; background: none; color: #a7a1ac;
+}
+.close:hover { background: #2b2830; color: #eceef0; }
+.close svg { width: 14px; height: 14px; }
+/* Two equal halves, like one control. */
+.size { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
 button {
   font: inherit; font-weight: 600; cursor: pointer; border-radius: 9px;
   padding: 8px 12px; border: 1px solid #37343b; background: #242229; color: #eceef0;
@@ -145,14 +154,13 @@ button {
 button:hover { background: #2b2830; }
 button:focus-visible { outline: 2px solid #6f9be0; outline-offset: 2px; }
 button:disabled { opacity: .45; cursor: default; }
-.size button { padding: 5px 10px; font-size: 12.5px; }
-.primary {
-  display: block; width: 100%; margin-top: 12px; background: #3f6fd1; border-color: #3f6fd1; color: #fff;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.primary:hover { background: #2f57ad; }
-.links { display: flex; gap: 14px; align-items: center; margin-top: 10px; }
-.links .muted { margin-left: auto; }
+.size button { padding: 6px 10px; font-size: 12.5px; }
+.size button:disabled { opacity: 1; color: #6e6873; background: #1f1d22; }
+/* Full-width actions, stacked: the main one blue, the other plain. */
+.actions { display: grid; gap: 8px; margin-top: 12px; }
+.actions button { width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.primary { background: #3f6fd1; border-color: #3f6fd1; color: #fff; }
+.primary:hover { background: #2f57ad; border-color: #2f57ad; }
 .link { border: 0; background: none; padding: 4px 0; color: #6f9be0; font-weight: 600; }
 .link:hover { background: none; text-decoration: underline; }
 .muted { color: #a7a1ac; }
@@ -163,8 +171,23 @@ code {
   display: block; margin-top: 6px; padding: 6px 8px; border-radius: 6px; background: #111015;
   color: #eceef0; font: 12px/1.4 ui-monospace, Consolas, monospace; word-break: break-all;
 }
+@media (max-width: 360px) { .card { width: calc(100vw - 24px); } }
 @media (prefers-reduced-motion: reduce) { .outline { transition: none; } }
 `;
+
+function closeIcon(): SVGSVGElement {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  svg.setAttribute("aria-hidden", "true");
+  const path = document.createElementNS(ns, "path");
+  path.setAttribute("d", "M3.5 3.5l9 9m0-9l-9 9");
+  path.setAttribute("stroke", "currentColor");
+  path.setAttribute("stroke-width", "1.8");
+  path.setAttribute("stroke-linecap", "round");
+  svg.append(path);
+  return svg;
+}
 
 let host: HTMLElement | null = null;
 let root: ShadowRoot | null = null;
@@ -317,12 +340,16 @@ function renderCard(): void {
   const once = el("button", undefined, t("pickerJustOnce", "Hide until reload"));
   once.type = "button";
   once.addEventListener("click", () => finish("temporary"));
+  once.title = once.textContent ?? "";
 
   const gray = el("button", "link", t("pickerGrayOut", "Gray out instead"));
   gray.type = "button";
   gray.addEventListener("click", () => finish("gray"));
-  const cancel = el("button", "link muted", t("commonCancel", "Cancel"));
+  const cancel = el("button", "close");
   cancel.type = "button";
+  cancel.setAttribute("aria-label", t("commonCancel", "Cancel"));
+  cancel.title = t("commonCancel", "Cancel");
+  cancel.append(closeIcon());
   cancel.addEventListener("click", teardown);
 
   // The less common choice and the technical detail stay folded away.
@@ -331,20 +358,19 @@ function renderCard(): void {
 
   primary.title = primary.textContent ?? "";
   const size = el("div", "size");
-  size.append(bigger, smaller);
-  const links = el("div", "links");
-  links.append(once, cancel);
-  card.replaceChildren(
-    el("div", "title", t("pickerTitle", "Hide this?")),
-    el("div", "what", describeElement(element)),
-    size,
-    primary,
-    links,
-    details
-  );
+  size.append(smaller, bigger);
+  const heading = el("div");
+  heading.append(el("div", "title", t("pickerTitle", "Hide this?")), el("div", "what", describeElement(element)));
+  const head = el("div", "head");
+  head.append(heading, cancel);
+  const actions = el("div", "actions");
+  actions.append(primary, once);
+  card.replaceChildren(head, size, actions, details);
 
   reposition();
-  primary.focus({ preventScroll: true });
+  // Enter still hides (onKeyDown). focusVisible: false keeps the browser from
+  // drawing a keyboard focus ring around a button the person didn't tab to.
+  primary.focus({ preventScroll: true, focusVisible: false } as FocusOptions);
 }
 
 /** Keeps the outline and card on the picked element as the page scrolls. */
@@ -353,7 +379,10 @@ function reposition(): void {
   if (!element || !card) return;
   placeOutline(element);
   const rect = element.getBoundingClientRect();
-  const { top, left } = cardPosition(rect, { width: 320, height: card.offsetHeight || 200 }, { width: innerWidth, height: innerHeight });
+  // clientWidth/clientHeight, not innerWidth/innerHeight: those include the
+  // scrollbar, and the card slid under it, cut off on the right.
+  const viewport = { width: document.documentElement.clientWidth || innerWidth, height: document.documentElement.clientHeight || innerHeight };
+  const { top, left } = cardPosition(rect, { width: card.offsetWidth || 320, height: card.offsetHeight || 200 }, viewport);
   Object.assign(card.style, { top: `${top}px`, left: `${left}px` });
 }
 

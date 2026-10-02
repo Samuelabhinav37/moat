@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.199
+
+### Fixed
+- **The "Hide this?" card looked broken.** Reported on trailhead.salesforce.com.
+  - **Cut off on the right:** the card was placed using the window width including the
+    scrollbar, so near the right edge part of it slid under the scrollbar. It now uses the
+    visible page width.
+  - **A heavy blue ring around "Hide on <site>":** the card focuses that button so Enter
+    works, and Chrome drew its keyboard focus ring even though nobody had tabbed to it. It now
+    focuses without the ring. Enter still hides.
+  - **Uneven layout:** a boxed "Hide until reload" sat next to a plain "Cancel" link, and the
+    two size buttons were different widths. Now there's a × close button in the header,
+    "Select less" and "Select more" as two equal halves, and the two actions stacked at full
+    width. On a narrow window the card fits the screen.
+  - Checked in Chrome on a Trailhead-like page at 1280 and 420 px, before and after. The picker
+    still saves a rule and hides the element.
+
 ## 0.11.198
 
 ### Fixed (design)

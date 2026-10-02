@@ -93,7 +93,7 @@ describe("starting one level up", () => {
     picker.startPicking();
     const root = picker.pickForTest(ad)!;
     expect(root.querySelector("details button")!.textContent).toBe("Gray out instead");
-    expect(root.querySelector(".links")!.textContent).not.toContain("Gray out");
+    expect(root.querySelector(".actions")!.textContent).not.toContain("Gray out");
   });
 });
 
@@ -130,7 +130,9 @@ describe("picking", () => {
     expect(root.querySelector(".what")!.textContent).toMatch(/^Image/);
     expect(root.querySelector("details")!.open).toBe(false);
 
-    buttons(root)["Cancel"]!.click();
+    const close = root.querySelector<HTMLButtonElement>(".close")!;
+    expect(close.getAttribute("aria-label")).toBe("Cancel");
+    close.click();
     expect(ad.style.getPropertyValue("opacity")).toBe("");
     expect(document.querySelector("[data-moat-picker]")).toBeNull();
     expect(sendMessage).not.toHaveBeenCalled();
