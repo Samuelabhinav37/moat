@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.196
+
+### Security
+- **Pages could read the fingerprint-protection seed.** Moat's isolated content script sent its
+  settings to the page-world guards with `window.postMessage`. Any script on the page listening
+  for messages could read them, including the seed that drives the canvas and audio noise.
+  With the seed, a site could undo the noise and get the real fingerprint. This only mattered
+  with the opt-in "Stop sites recognizing your device" turned on.
+  - At document start, before any page script exists, the content script now hands each guard
+    its own private `MessagePort` in one synchronous event. Settings, the seed and block
+    reports travel only over those ports. The popup guard is never sent the seed at all.
+  - The page-visible token scheme it replaces is gone, along with `shared/randomToken.ts`.
+  - Checked in Chrome: a page's own `<head>` script listening for messages sees nothing, and its
+    attempt to hand the guards its own ports gets no reply. Fingerprint protection still applies
+    when on. Blocked pop-ups still reach the badge (3 of 3). Firefox passes the ports between
+    worlds the same way. Smoke: Chrome 33/33, Firefox 11/11.
+
 ## 0.11.195
 
 ### Security

@@ -27,17 +27,15 @@ import {
   UNMASKED_VENDOR_WEBGL,
 } from "./fingerprintNoise";
 import { nativeGetter, nativeMethod } from "./nativeToString";
-import type { BridgeMessage } from "../types";
+import { GUARD_CONNECT_EVENT, type FingerprintGuardConfig } from "../types";
 
 let seed = "";
 let active = false;
 
-// Trust-on-first-use: the first "config" message this page load sees locks
-// in its guardToken, and later messages are only applied if they carry the
-// same one. Same-window postMessage has no real origin check available, so
-// a page can still eavesdrop the real message and learn the token -- this
-// only raises the cost from a zero-effort spoof to "must observe first".
-let lockedGuardToken: string | null = null;
+// Private channel to bridge.ts (the second port of GUARD_CONNECT_EVENT, see
+// types.ts). The seed only ever travels over it, so page scripts can't read
+// it and undo the noise.
+let bridgePort: MessagePort | null = null;
 
 function canvasSeed(width: number, height: number): string {
   return `${seed}:canvas:${width}x${height}`;
@@ -296,12 +294,8 @@ function ensurePatched(): void {
   }
 }
 
-window.addEventListener("message", (event) => {
-  if (event.source !== window) return;
-  const data = event.data as BridgeMessage | undefined;
-  if (!data || data.source !== "moat" || data.type !== "config") return;
-  if (lockedGuardToken === null) lockedGuardToken = data.guardToken;
-  if (data.guardToken !== lockedGuardToken) return;
+function applyConfig(data: FingerprintGuardConfig | undefined): void {
+  if (typeof data?.fingerprintResistance !== "boolean" || typeof data.fingerprintSeed !== "string") return;
   active = data.fingerprintResistance;
   seed = data.fingerprintSeed;
   // Patch as soon as the feature is ever turned on for this page load --
@@ -311,4 +305,11 @@ window.addEventListener("message", (event) => {
   // message correctly leaves the (now-dormant) patches in place rather than
   // trying to unpatch, same as before this change.
   if (active) ensurePatched();
+}
+
+document.addEventListener(GUARD_CONNECT_EVENT, (event) => {
+  const port = (event as MessageEvent).ports?.[1];
+  if (bridgePort || !port) return;
+  bridgePort = port;
+  port.onmessage = (message: MessageEvent<FingerprintGuardConfig>) => applyConfig(message.data);
 });

@@ -16,29 +16,32 @@
 // ensurePatched()'s try/catch isolation is meant to survive without stopping
 // the other patches, hardwareConcurrency included.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { BridgeMessage } from "../types";
+import { GUARD_CONNECT_EVENT } from "../types";
+
+// The guard takes its config from a private port handed over in one
+// GUARD_CONNECT_EVENT (see types.ts). A stand-in port that delivers
+// synchronously keeps these tests deterministic (some use fake timers). Each
+// test connects once; module instances from earlier tests already hold a
+// port and ignore later connects, and the newest instance sets onmessage last.
+type StandInPort = { onmessage: ((event: { data: unknown }) => void) | null; postMessage(): void };
+let port: StandInPort | null = null;
+
+beforeEach(() => {
+  port = null;
+});
+
+function postConfig(fingerprintResistance: boolean, _label: string): void {
+  if (!port) {
+    port = { onmessage: null, postMessage() {} };
+    document.dispatchEvent(Object.assign(new Event(GUARD_CONNECT_EVENT), { ports: [{}, port] }));
+  }
+  port.onmessage?.({ data: { fingerprintResistance, fingerprintSeed: "test-seed" } });
+}
 
 const nativeHardwareConcurrencyDescriptor = Object.getOwnPropertyDescriptor(
   Navigator.prototype,
   "hardwareConcurrency"
 )!;
-
-function postConfig(fingerprintResistance: boolean, guardToken: string): void {
-  const message: BridgeMessage = {
-    source: "moat",
-    type: "config",
-    disabled: false,
-    fingerprintResistance,
-    fingerprintSeed: "test-seed",
-    guardToken,
-  };
-  // Not window.postMessage(): jsdom's implementation doesn't set the
-  // delivered MessageEvent's `source` to `window` for a same-window post
-  // (real browsers do), which fingerprintGuard.ts's `event.source !== window`
-  // check depends on. Dispatching the event directly with an explicit
-  // `source` reproduces what a real browser actually delivers.
-  window.dispatchEvent(new MessageEvent("message", { data: message, source: window as unknown as MessageEventSource }));
-}
 
 function isPatched(): boolean {
   return Object.getOwnPropertyDescriptor(Navigator.prototype, "hardwareConcurrency")?.get !== nativeHardwareConcurrencyDescriptor.get;

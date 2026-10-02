@@ -4,9 +4,12 @@
 // relays their block reports back to the background worker.
 import browser from "webextension-polyfill";
 import {
+  GUARD_CONNECT_EVENT,
   STORAGE_KEY,
-  type BridgeMessage,
   type BlockedMessage,
+  type FingerprintGuardConfig,
+  type GuardBlockReport,
+  type PopupGuardConfig,
   type FingerprintSeedResponse,
   type GetFingerprintSeedMessage,
   type RecordUsageSignalMessage,
@@ -14,7 +17,6 @@ import {
 import { getEffectiveSettings } from "../background/settings";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
 import { effectiveValue } from "../shared/perSiteOverrides";
-import { randomToken } from "../shared/randomToken";
 
 // Routed through the background worker rather than calling
 // getOrCreateFingerprintSeed/getOrCreateSessionFingerprintSeed directly the
@@ -31,33 +33,19 @@ async function fetchFingerprintSeed(session: boolean): Promise<string> {
   return response.seed;
 }
 
-// One token per page load, sent with every config message so the MAIN-world
-// guards can tell a real update from a later message spoofed by the page
-// itself (same-window postMessage has no other origin check available).
-// Not crypto.randomUUID(): it's missing on plain-http pages, and throwing
-// here killed this whole script there (guards never configured, blocks
-// never reported).
-const guardToken = randomToken();
+// One private channel per MAIN-world guard, handed over synchronously below.
+const popupGuardChannel = new MessageChannel();
+const fingerprintChannel = new MessageChannel();
 
-// Claim the guards' trust-on-first-use slot *synchronously*, before any page
-// script runs. This content script executes ahead of the page's first
-// <script>, so this postMessage task is enqueued first; the real values in
-// sendConfig() only go out after an async storage read, which a page script
-// could otherwise beat -- locking the guards to a token the page chose and
-// pinning e.g. disabled:true (popup guard off) or a known fingerprint seed.
-// The placeholder values here match the guards' own pre-config defaults
-// (siteDisabled / active both start false), so this changes nothing
-// functionally; sendConfig() delivers the real values under the same token.
-function claimGuardToken(): void {
-  const message: BridgeMessage = {
-    source: "moat",
-    type: "config",
-    disabled: false,
-    fingerprintResistance: false,
-    fingerprintSeed: "",
-    guardToken,
-  };
-  window.postMessage(message, "*");
+// This content script runs at document_start, after the MAIN-world guards
+// (earlier in the manifest) and before any page script. dispatchEvent is
+// synchronous, so the guards take their ports right here, and no page
+// script exists yet to see the event or the ports. Ports cross from this
+// isolated world into the page's world (checked in Chrome).
+function connectGuards(): void {
+  document.dispatchEvent(
+    new MessageEvent(GUARD_CONNECT_EVENT, { ports: [popupGuardChannel.port2, fingerprintChannel.port2] })
+  );
 }
 
 async function sendConfig(): Promise<void> {
@@ -82,38 +70,26 @@ async function sendConfig(): Promise<void> {
       : await fetchFingerprintSeed(false)
     : "";
 
-  const message: BridgeMessage = {
-    source: "moat",
-    type: "config",
-    disabled,
-    fingerprintResistance,
-    fingerprintSeed,
-    guardToken,
-  };
-  window.postMessage(message, "*");
+  // Each guard gets only what it needs: the popup guard never sees the seed.
+  popupGuardChannel.port1.postMessage({ disabled } satisfies PopupGuardConfig);
+  fingerprintChannel.port1.postMessage({ fingerprintResistance, fingerprintSeed } satisfies FingerprintGuardConfig);
 }
 
-claimGuardToken();
+connectGuards();
 void sendConfig();
 
 browser.storage.onChanged.addListener((changes, area) => {
   if (area === "managed" || (area === "local" && STORAGE_KEY in changes)) void sendConfig();
 });
 
-window.addEventListener("message", (event) => {
-  if (event.source !== window) return;
-  const data = event.data as BridgeMessage | undefined;
-  if (!data || data.source !== "moat" || data.type !== "blocked") return;
-  // Only the MAIN-world guards know the token from the config message above;
-  // a "blocked" message the page posted itself won't carry it. Without this
-  // check a page could inflate the badge or, on an Athena-connected install,
-  // feed the org a fabricated popup-redirect security event (see
-  // background/index.ts's "blocked" handler).
-  if (data.guardToken !== guardToken) return;
-
-  const message: BlockedMessage = { type: "blocked", kind: data.kind, url: data.url };
+popupGuardChannel.port1.onmessage = (event: MessageEvent<GuardBlockReport>) => {
+  const report = event.data;
+  if (typeof report !== "object" || report === null) return;
+  if (report.kind !== "window-open" && report.kind !== "synthetic-click") return;
+  const url = typeof report.url === "string" ? report.url : null;
+  const message: BlockedMessage = { type: "blocked", kind: report.kind, url };
   browser.runtime.sendMessage(message).catch(() => {
     // Background worker may be restarting; the block already happened
     // client-side, so a missed badge tick isn't worth retrying.
   });
-});
+};

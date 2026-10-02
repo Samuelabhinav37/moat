@@ -1,7 +1,8 @@
 // Runs in the page's MAIN world at document_start, before any page script.
 // No extension APIs exist here (that's what bridge.ts is for) -- this file
-// only ever talks back to the extension via window.postMessage.
-import type { BridgeMessage, GuardBlockKind } from "../types";
+// only ever talks back to the extension over a private MessagePort from
+// bridge.ts (see GUARD_CONNECT_EVENT in types.ts).
+import { GUARD_CONNECT_EVENT, type GuardBlockKind, type GuardBlockReport, type PopupGuardConfig } from "../types";
 import { isAuthPopupUrl } from "./authPopup";
 import { isPlausibleTrigger } from "./isPlausibleTrigger";
 import { createPopupRateLimiter } from "./popupRateLimit";
@@ -44,12 +45,11 @@ let siteDisabled = false;
 let lastTrustedClick: { time: number; target: EventTarget | null; consumed: boolean } | null = null;
 const popupRateLimiter = createPopupRateLimiter();
 
-// Trust-on-first-use: the first "config" message this page load sees locks
-// in its guardToken, and later messages are only applied if they carry the
-// same one. Same-window postMessage has no real origin check available, so
-// a page can still eavesdrop the real message and learn the token -- this
-// only raises the cost from a zero-effort spoof to "must observe first".
-let lockedGuardToken: string | null = null;
+// Private channel to bridge.ts, handed over at document_start before any
+// page script runs (see GUARD_CONNECT_EVENT in types.ts). The first port
+// wins; a page can't hand over a port of its own because it has no script
+// running yet when the real one arrives.
+let bridgePort: MessagePort | null = null;
 
 // Chrome keeps a click's user activation for 5 s, and sign-in code often
 // awaits a network round trip before it opens the popup (MSAL fetches the
@@ -57,19 +57,9 @@ let lockedGuardToken: string | null = null;
 const TRUST_WINDOW_MS = 5000;
 
 function report(kind: GuardBlockKind, url: string | null): void {
-  // Echo the guardToken bridge.ts locked in via the first config message so
-  // bridge.ts can tell a real guard report from one the page posted itself.
-  // Empty until that first config lands -- a report that early is dropped by
-  // bridge.ts rather than trusted, which costs at most one uncounted block,
-  // never a missed block (the block itself already happened above).
-  const message: BridgeMessage = {
-    source: "moat",
-    type: "blocked",
-    kind,
-    url,
-    guardToken: lockedGuardToken ?? "",
-  };
-  window.postMessage(message, "*");
+  // Before the port arrives the report is dropped: at most one uncounted
+  // block, never a missed one (the block itself already happened).
+  bridgePort?.postMessage({ kind, url } satisfies GuardBlockReport);
 }
 
 document.addEventListener(
@@ -138,11 +128,11 @@ window.open = nativeMethod<typeof window.open>(nativeWindowOpen, function guarde
   return null;
 });
 
-window.addEventListener("message", (event) => {
-  if (event.source !== window) return;
-  const data = event.data as BridgeMessage | undefined;
-  if (!data || data.source !== "moat" || data.type !== "config") return;
-  if (lockedGuardToken === null) lockedGuardToken = data.guardToken;
-  if (data.guardToken !== lockedGuardToken) return;
-  siteDisabled = data.disabled;
+document.addEventListener(GUARD_CONNECT_EVENT, (event) => {
+  const port = (event as MessageEvent).ports?.[0];
+  if (bridgePort || !port) return;
+  bridgePort = port;
+  port.onmessage = (message: MessageEvent<PopupGuardConfig>) => {
+    if (typeof message.data?.disabled === "boolean") siteDisabled = message.data.disabled;
+  };
 });

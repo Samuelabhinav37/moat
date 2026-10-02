@@ -778,19 +778,32 @@ export type RuntimeMessage =
   | StartElementPickerMessage
   | CheckForLiveUpdatesMessage;
 
-/** Message shape used on the window.postMessage bridge between the MAIN
- * world guard(s) and the isolated-world content script (postMessage is the
- * only channel a MAIN-world script has, since it has no extension APIs). */
-export type BridgeMessage =
-  | {
-      source: "moat";
-      type: "config";
-      disabled: boolean;
-      fingerprintResistance: boolean;
-      fingerprintSeed: string;
-      guardToken: string;
-    }
-  | { source: "moat"; type: "blocked"; kind: GuardBlockKind; url: string | null; guardToken: string };
+/** How bridge.ts (isolated world) reaches the MAIN-world guards, which have
+ * no extension APIs. At document_start, before any page script exists,
+ * bridge.ts dispatches one synchronous MessageEvent of this type on
+ * `document` carrying two MessagePorts: [popup guard, fingerprint guard].
+ * Each guard keeps the first port it sees. Everything after that goes over
+ * the private ports, so page scripts never see a config (or the
+ * fingerprint seed in it). A window.postMessage was readable by any page
+ * script listening for "message". */
+export const GUARD_CONNECT_EVENT = "moat-guard-connect";
+
+/** bridge.ts -> mainWorldGuard.ts. */
+export interface PopupGuardConfig {
+  disabled: boolean;
+}
+
+/** bridge.ts -> fingerprintGuard.ts. */
+export interface FingerprintGuardConfig {
+  fingerprintResistance: boolean;
+  fingerprintSeed: string;
+}
+
+/** mainWorldGuard.ts -> bridge.ts: a pop-up or synthetic click it stopped. */
+export interface GuardBlockReport {
+  kind: GuardBlockKind;
+  url: string | null;
+}
 
 /**
  * Read-only policy an org can push via Chrome's ExtensionSettings policy or
