@@ -1,18 +1,26 @@
 // Ed25519 signature check for the live-update manifest. Pure + side-effect-free
 // so it's unit-testable; the fetch/apply flow lives in liveUpdates.ts.
 //
-// Three outcomes rather than a boolean:
-//   "ok"          -- a public key is configured, a signature was supplied, and
-//                    it verifies. Trust the manifest.
-//   "bad"         -- a key is configured and a signature was supplied, but it
-//                    does NOT verify. Reject the manifest (keep the baseline).
-//   "unverified"  -- no key configured, no signature supplied, or this engine
-//                    has no WebCrypto Ed25519 (Chrome < 137 / old Gecko).
-//                    Fall back to the SHA-256-per-payload check, which is the
-//                    behaviour that shipped before signing existed.
+// Outcomes rather than a boolean:
+//   "ok"         -- a public key is configured, a signature was supplied, and
+//                   it verifies. Trust the manifest.
+//   "bad"        -- a key is configured and a signature was supplied, but it
+//                   does NOT verify. Reject the manifest (keep the baseline).
+//   "no-sig"     -- a key is configured but no signature was served. Reject:
+//                   the per-file hashes live in the same unsigned manifest, so
+//                   whoever can delete the .sig can also rewrite the payloads.
+//   "no-key"     -- this build has no public key (signing not set up).
+//   "no-engine"  -- this engine has no WebCrypto Ed25519 (Chrome < 137 / old
+//                   Gecko). Fall back to the SHA-256-per-payload check rather
+//                   than cut those browsers off from updates.
 import { LIVE_MANIFEST_PUBLIC_KEY } from "../shared/liveSigningKey";
 
-export type ManifestSigResult = "ok" | "bad" | "unverified";
+export type ManifestSigResult = "ok" | "bad" | "no-sig" | "no-key" | "no-engine";
+
+/** Whether a manifest with this result may be applied. */
+export function isManifestTrusted(result: ManifestSigResult): boolean {
+  return result === "ok" || result === "no-key" || result === "no-engine";
+}
 
 function base64ToBytes(b64: string): Uint8Array {
   const bin = atob(b64);
@@ -40,7 +48,8 @@ export async function verifyLiveManifest(
   signatureB64: string | null,
   publicKeyB64: string = LIVE_MANIFEST_PUBLIC_KEY,
 ): Promise<ManifestSigResult> {
-  if (!publicKeyB64 || !signatureB64) return "unverified";
+  if (!publicKeyB64) return "no-key";
+  if (!signatureB64) return "no-sig";
 
   let key: CryptoKey;
   try {
@@ -54,7 +63,7 @@ export async function verifyLiveManifest(
   } catch {
     // No Ed25519 in this engine's WebCrypto -- don't punish the user, just
     // fall through to the hash check.
-    return "unverified";
+    return "no-engine";
   }
 
   try {

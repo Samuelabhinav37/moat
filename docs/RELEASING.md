@@ -69,6 +69,10 @@ identifies exactly the source used for submitted packages.
   committed `.sig` while it still verifies, and fails loudly if a live file changed without the
   key. To re-sign after a hand edit to `live/`:
   `LIVE_SIGNING_PRIVATE_KEY="$(cat key.pem)" node scripts/update-live-manifest.mjs`.
+- **From 0.11.194 the extension rejects a live update with no `.sig`** (a build with a public key
+  only falls back to the per-file hashes when the browser has no Ed25519). Never publish
+  `live/manifest.json` without its matching `manifest.json.sig`, or every install keeps its last
+  good copy until a signed one appears.
 - The weekly refresh opens its PR with the Actions token, which needs *Settings → Actions →
   General → Allow GitHub Actions to create and approve pull requests* switched on.
 

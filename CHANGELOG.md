@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.194
+
+### Security
+- **A live update with its signature removed was still applied.** Moat signs its daily
+  live-update manifest (Ed25519) and checks each file against a SHA-256 hash listed in that
+  manifest. When the signature file was missing, Moat only noted it and applied the update
+  anyway, trusting the hashes. Those hashes sit in the same unsigned manifest, so anyone able to
+  change files on the update host could delete `manifest.json.sig` and push their own quick-fix
+  allow rules, cosmetic rules and block lists. Malware and phishing blocks couldn't be
+  overridden, because quick fixes sit below that priority band. A missing signature now rejects
+  the update and keeps the last good copy, the same as a bad signature. Only a browser without
+  Ed25519 support (Chrome before 137, older Firefox) still falls back to the hashes. The
+  signature has been published since 0.11.126, so current installs keep updating; the release
+  check confirms the live manifest still verifies.
+
 ## 0.11.193
 
 ### Fixed

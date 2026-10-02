@@ -77,7 +77,6 @@ describe("fetchAndApply with the committed live files", () => {
     const domains = JSON.parse(text(liveFile("redirect-domains.json"))) as string[];
 
     expect(status?.ok).toBe(true);
-    expect(status?.signatureExpectedButMissing).toBe(false);
     expect(status?.domainCount).toBe(domains.length);
     expect(status?.securityDomainCount).toBe(42);
     expect(addLiveRedirectDomains).toHaveBeenCalledTimes(1);
@@ -116,6 +115,23 @@ describe("fetchAndApply rejects what it can't trust", () => {
     await expectNothingApplied();
   });
 
+  it("a missing signature (the .sig deleted from the host)", async () => {
+    delete served["manifest.json.sig"];
+    await expectNothingApplied();
+  });
+
+  it("a missing signature with the payloads and their hashes rewritten to match", async () => {
+    const manifest = JSON.parse(text(liveFile("manifest.json"))) as { files: Record<string, string> };
+    const evil = bytesOf('["evil.example"]');
+    manifest.files["redirect-domains.json"] = [...new Uint8Array(await crypto.subtle.digest("SHA-256", evil.slice().buffer as ArrayBuffer))]
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    served["manifest.json"] = bytesOf(JSON.stringify(manifest));
+    served["redirect-domains.json"] = evil;
+    delete served["manifest.json.sig"];
+    await expectNothingApplied();
+  });
+
   it("a signature that isn't valid base64 Ed25519 for this manifest", async () => {
     served["manifest.json.sig"] = bytesOf(btoa("x".repeat(64)));
     await expectNothingApplied();
@@ -132,16 +148,6 @@ describe("fetchAndApply rejects what it can't trust", () => {
   });
 });
 
-describe("fetchAndApply without a published signature", () => {
-  it("falls back to the hash check and says the signature was missing", async () => {
-    delete served["manifest.json.sig"];
-    await fetchAndApply({ force: true });
-    const status = await getLiveUpdateStatus();
-    expect(status?.ok).toBe(true);
-    expect(status?.signatureExpectedButMissing).toBe(true);
-    expect(addLiveRedirectDomains).toHaveBeenCalledTimes(1);
-  });
-});
 
 describe("fetchAndApply's secondary channels fail on their own", () => {
   it("a bad security list keeps the rest and the last good security list", async () => {

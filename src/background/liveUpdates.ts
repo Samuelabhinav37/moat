@@ -39,11 +39,10 @@ import { addLiveRedirectDomains } from "./popupGuard";
 import { allLiveDynamicRuleIds, buildDynamicRedirectRules, filterValidRedirectDomains } from "./liveRedirectRules";
 import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from "./quickFixRules";
 import { countCosmeticFixSelectors, filterValidCosmeticFixes } from "./liveCosmeticFixes";
-import { verifyLiveManifest } from "./liveSignature";
+import { isManifestTrusted, verifyLiveManifest } from "./liveSignature";
 import { storeLiveSecurityPayload } from "./liveSecurityRules";
 import { reapplySettings } from "./settings";
 import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY, LIVE_YOUTUBE_QUICK_FIXES_KEY } from "../types";
-import { LIVE_MANIFEST_PUBLIC_KEY } from "../shared/liveSigningKey";
 
 const LIVE_BASE_URL = "https://samuelabhinav37.github.io/moat/live";
 
@@ -102,21 +101,6 @@ interface LiveUpdateStatus {
   cosmeticFixCount?: number;
   /** Domains in the daily security lists last applied (liveSecurityRules.ts). */
   securityDomainCount?: number;
-  // True only when a public signing key IS baked into this build
-  // (src/shared/liveSigningKey.ts) but the manifest was still accepted
-  // without ever getting a signature to check it against -- i.e. the SHA-256
-  // fallback alone decided trust, which is checkable by the same untrusted
-  // host serving the manifest. Not itself a sign of an attack (as of writing
-  // this, live/manifest.json.sig simply isn't published yet -- confirmed via
-  // a direct fetch returning 404 -- so this is expected to be true on every
-  // fetch today), but it makes an otherwise fully silent trust downgrade
-  // diagnosable via getLiveUpdateStatus() instead of invisible. Deliberately
-  // NOT wired into accept/reject: rejecting whenever this is true would
-  // currently break the live-update channel for every install, since
-  // signing isn't actually live yet -- flip that separately, once the
-  // signing pipeline (see docs/RELEASING.md's "Live-update channel"
-  // section) is actually turned on in production.
-  signatureExpectedButMissing?: boolean;
 }
 
 export async function getLiveUpdateStatus(): Promise<LiveUpdateStatus | null> {
@@ -130,13 +114,6 @@ async function setStatus(status: LiveUpdateStatus): Promise<void> {
 
 interface LiveManifestFetch {
   files: Record<string, string>;
-  signatureExpectedButMissing: boolean;
-}
-
-/** Pure, exported for tests -- see LiveUpdateStatus.signatureExpectedButMissing's
- * own comment for what this does and doesn't mean. */
-export function computeSignatureExpectedButMissing(publicKeyB64: string, signatureB64: string | null): boolean {
-  return Boolean(publicKeyB64) && signatureB64 === null;
 }
 
 async function fetchLiveManifest(): Promise<LiveManifestFetch> {
@@ -147,17 +124,18 @@ async function fetchLiveManifest(): Promise<LiveManifestFetch> {
   if (!response.ok) throw new Error(`manifest: ${response.status} ${response.statusText}`);
   const bytes = await response.arrayBuffer();
 
-  // Ed25519 check first, when signing is configured. "bad" -> reject outright.
-  // "ok" / "unverified" -> fall through to the per-payload SHA-256 check.
+  // Ed25519 check first. A bad or missing signature rejects the whole update
+  // (see liveSignature.ts for why a missing one can't fall back to the
+  // hashes). Only a build with no key, or an engine without Ed25519, falls
+  // through to the per-payload SHA-256 check alone.
   const signatureB64 = await fetchManifestSignature();
   const sigResult = await verifyLiveManifest(bytes, signatureB64);
-  if (sigResult === "bad") throw new Error("live manifest signature did not verify");
-  const signatureExpectedButMissing = computeSignatureExpectedButMissing(LIVE_MANIFEST_PUBLIC_KEY, signatureB64);
+  if (!isManifestTrusted(sigResult)) throw new Error(`live manifest signature: ${sigResult}`);
 
   const parsed = JSON.parse(new TextDecoder().decode(bytes)) as { files?: unknown };
   const files = parsed.files;
   if (typeof files !== "object" || files === null) throw new Error("live manifest has no files map");
-  return { files: files as Record<string, string>, signatureExpectedButMissing };
+  return { files: files as Record<string, string> };
 }
 
 async function fetchManifestSignature(): Promise<string | null> {
@@ -217,7 +195,7 @@ export async function fetchAndApply(options: { force?: boolean } = {}): Promise<
   if (!options.force && shouldSkipRefetch(await getLiveUpdateStatus(), Date.now())) return;
 
   try {
-    const { files: hashes, signatureExpectedButMissing } = await fetchLiveManifest();
+    const { files: hashes } = await fetchLiveManifest();
     const domainCount = await refreshRedirectDomains(hashes["redirect-domains.json"]);
 
     // A failure in either secondary channel shouldn't fail the whole refresh
@@ -259,7 +237,6 @@ export async function fetchAndApply(options: { force?: boolean } = {}): Promise<
       quickFixCount,
       cosmeticFixCount,
       securityDomainCount,
-      signatureExpectedButMissing,
     });
   } catch {
     // Offline, CDN unreachable, or a hash that didn't match the shipped
@@ -325,9 +302,6 @@ interface YoutubeQuickFixesStatus {
   ok: boolean;
   timestamp: number;
   selectorCount?: number;
-  // See LiveUpdateStatus.signatureExpectedButMissing's own comment -- same
-  // manifest.json fetch, same diagnostic.
-  signatureExpectedButMissing?: boolean;
 }
 
 export async function getYoutubeQuickFixesStatus(): Promise<YoutubeQuickFixesStatus | null> {
@@ -352,13 +326,12 @@ async function fetchAndApplyYoutubeQuickFixes(): Promise<void> {
   if (shouldSkipRefetch(await getYoutubeQuickFixesStatus(), Date.now(), YT_MIN_REFETCH_INTERVAL_MS)) return;
 
   try {
-    const { files: hashes, signatureExpectedButMissing } = await fetchLiveManifest();
+    const { files: hashes } = await fetchLiveManifest();
     const selectorCount = await refreshYoutubeQuickFixes(hashes["youtube-quick-fixes.json"]);
     await setYoutubeStatus({
       ok: true,
       timestamp: Date.now(),
       selectorCount: selectorCount > 0 ? selectorCount : undefined,
-      signatureExpectedButMissing,
     });
   } catch {
     // Offline, CDN unreachable, or a hash mismatch -- keep whatever YouTube

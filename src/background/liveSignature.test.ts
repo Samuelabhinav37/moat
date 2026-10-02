@@ -1,6 +1,6 @@
 import { generateKeyPairSync, sign as edSign, createPrivateKey } from "node:crypto";
-import { describe, expect, it } from "vitest";
-import { verifyLiveManifest } from "./liveSignature";
+import { describe, expect, it, vi } from "vitest";
+import { isManifestTrusted, verifyLiveManifest } from "./liveSignature";
 
 // A fresh Ed25519 keypair per run; raw 32-byte public key as base64, matching
 // what scripts/gen-live-signing-key.mjs emits and liveSigningKey.ts holds.
@@ -39,13 +39,33 @@ describe("verifyLiveManifest", () => {
     expect(await verifyLiveManifest(manifest, "not base64 !!!", rawPubB64)).toBe("bad");
   });
 
-  it("returns 'unverified' when no key is configured", async () => {
+  it("returns 'no-key' when no key is configured", async () => {
     const { privateKey } = keypair();
-    expect(await verifyLiveManifest(manifest, signB64(manifest, privateKey), "")).toBe("unverified");
+    expect(await verifyLiveManifest(manifest, signB64(manifest, privateKey), "")).toBe("no-key");
   });
 
-  it("returns 'unverified' when no signature was supplied", async () => {
+  it("returns 'no-sig' when a key is configured but no signature was supplied", async () => {
     const { rawPubB64 } = keypair();
-    expect(await verifyLiveManifest(manifest, null, rawPubB64)).toBe("unverified");
+    expect(await verifyLiveManifest(manifest, null, rawPubB64)).toBe("no-sig");
+  });
+
+  it("returns 'no-engine' when this engine can't import an Ed25519 key", async () => {
+    const { privateKey, rawPubB64 } = keypair();
+    const importKey = vi.spyOn(crypto.subtle, "importKey").mockRejectedValueOnce(new Error("unsupported"));
+    expect(await verifyLiveManifest(manifest, signB64(manifest, privateKey), rawPubB64)).toBe("no-engine");
+    importKey.mockRestore();
+  });
+});
+
+describe("isManifestTrusted", () => {
+  it("trusts a verified signature, a build with no key, and an engine without Ed25519", () => {
+    expect(isManifestTrusted("ok")).toBe(true);
+    expect(isManifestTrusted("no-key")).toBe(true);
+    expect(isManifestTrusted("no-engine")).toBe(true);
+  });
+
+  it("rejects a bad or missing signature", () => {
+    expect(isManifestTrusted("bad")).toBe(false);
+    expect(isManifestTrusted("no-sig")).toBe(false);
   });
 });
