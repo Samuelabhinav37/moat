@@ -1216,24 +1216,47 @@
       .flow-to.none {
         color: var(--muted);
       }
-      .pill {
-        display: inline-block;
+      /* Plain status, not a button: a dot and a word. Optional rows add a
+         Change link that jumps to the setting. */
+      .flow-end {
         justify-self: end;
-        padding: 3px 10px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        font-size: 12.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .flow-state {
+        position: relative;
+        justify-self: end;
+        padding-left: 14px;
+        font-size: 13px;
         font-weight: 600;
         color: var(--muted);
         white-space: nowrap;
       }
-      .pill::first-letter {
+      .flow-state::first-letter {
         text-transform: uppercase;
       }
-      .pill.on {
-        border-color: rgba(111, 155, 224, 0.45);
-        background: var(--tint);
-        color: var(--blue-lt);
+      /* Positioned, so the word's first letter can still be capitalised. */
+      .flow-state::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        margin-top: -3.5px;
+        border-radius: 50%;
+        background: var(--muted);
+      }
+      .flow-state.on {
+        color: var(--fg);
+      }
+      .flow-state.on::before {
+        background: var(--blue-lt);
+      }
+      .flow-change {
+        min-height: 24px;
+        font-size: 13px;
       }
       .ab-two {
         display: grid;
@@ -1300,18 +1323,22 @@
           margin-left: 0;
           text-align: left;
         }
-        /* Recipient drops under the text; the state stays on the right. */
+        /* Recipient and state drop under the text. */
         .flow-row {
-          grid-template-columns: 36px minmax(0, 1fr) auto;
+          grid-template-columns: 36px minmax(0, 1fr);
+          row-gap: 10px;
         }
         .flow-to {
           grid-column: 2;
           grid-row: 2;
           margin-top: -8px;
         }
-        .flow-row .pill {
-          grid-column: 3;
-          grid-row: 1;
+        /* The state goes under the recipient, so the text keeps its width. */
+        .flow-row .flow-state,
+        .flow-row .flow-end {
+          grid-column: 2;
+          grid-row: 3;
+          justify-self: start;
         }
       }
 
@@ -4170,52 +4197,52 @@
                       <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg></span>
                       <span class="flow-text"><b data-i18n="optionsDisclosureBlockingName">Blocking &amp; filtering</b><span data-i18n="optionsDisclosureBlockingSent">Nothing. Runs entirely on your device.</span></span>
                       <span class="flow-to none" data-i18n="commonNobody">Nobody</span>
-                      <span class="pill on" data-i18n="commonAlwaysOn">always on</span>
+                      <span class="flow-state on" data-i18n="commonAlwaysOn">always on</span>
                     </li>
                     <li class="flow-row" data-flow="stats">
                       <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6 4 4 6-8" /></svg></span>
                       <span class="flow-text"><b data-i18n="optionsDisclosureStatsName">Statistics</b><span data-i18n="optionsDisclosureStatsSent">Nothing leaves your device. Counts stay stored locally.</span></span>
                       <span class="flow-to none" data-i18n="commonNobody">Nobody</span>
-                      <span class="pill on" data-i18n="commonAlwaysOn">always on</span>
+                      <span class="flow-state on" data-i18n="commonAlwaysOn">always on</span>
                     </li>
                     <li class="flow-row" data-flow="updates">
                       <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg></span>
                       <span class="flow-text"><b data-i18n="optionsDisclosureUpdatesName">Daily list updates</b><span data-i18n="optionsDisclosureUpdatesSent">Filter fixes and today's phishing and scam lists, downloaded once a day as signed files. Nothing about you is sent.</span></span>
                       <span class="flow-to" data-i18n="optionsDisclosureUpdatesRecipient">GitHub Pages, a file host</span>
-                      <span class="pill on" data-i18n="commonOn">on</span>
+                      <span class="flow-state on" data-i18n="commonOn">on</span>
                     </li>
                     <!-- Chrome only: Firefox looks these up with its own DNS (options.ts). -->
                     <li class="flow-row" data-flow="hidden" id="flow-hidden">
                       <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></svg></span>
                       <span class="flow-text"><b data-i18n="optionsDisclosureCnameName">Catch hidden trackers</b><span data-i18n="optionsDisclosureCnameSent">Web addresses that might be a tracker in disguise, just before they load. Chrome only.</span></span>
                       <span class="flow-to" id="disclosure-cname-recipient" data-i18n="optionsDisclosureCnameRecipient">Cloudflare</span>
-                      <span class="pill" id="flow-state-hidden" data-i18n="commonOff">off</span>
+                      <span class="flow-end"><span class="flow-state" id="flow-state-hidden" data-i18n="commonOff">off</span><button type="button" class="linklike flow-change" data-reveal="protection-cname-label" data-i18n="aboutFlowChange">Change</button></span>
                     </li>
                     <li class="flow-row" data-flow="breach">
                       <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z" /></svg></span>
                       <span class="flow-text"><b data-i18n="optionsDisclosureBreachName">Warn about leaked passwords</b><span data-i18n="optionsDisclosureBreachSent">A short scrambled fragment of a password, never the password itself</span></span>
                       <span class="flow-to" data-i18n="optionsDisclosureBreachRecipient">Have I Been Pwned</span>
-                      <span class="pill" id="flow-state-breach" data-i18n="commonOff">off</span>
+                      <span class="flow-end"><span class="flow-state" id="flow-state-breach" data-i18n="commonOff">off</span><button type="button" class="linklike flow-change" data-reveal="protection-leakedPassword-label" data-i18n="aboutFlowChange">Change</button></span>
                     </li>
                     <li class="flow-row" data-flow="sync">
                       <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0114-5M20 12a8 8 0 01-14 5M18 3v4h-4M6 21v-4h4" /></svg></span>
                       <span class="flow-text"><b data-i18n="optionsDisclosureSyncName">Settings sync</b><span data-i18n="optionsDisclosureSyncSent">Your Moat settings. No browsing data.</span></span>
                       <span class="flow-to" id="disclosure-sync-recipient">Your browser vendor</span>
-                      <span class="pill" id="flow-state-sync" data-i18n="commonOff">off</span>
+                      <span class="flow-end"><span class="flow-state" id="flow-state-sync" data-i18n="commonOff">off</span><button type="button" class="linklike flow-change" data-reveal="sync-toggle-label" data-i18n="aboutFlowChange">Change</button></span>
                     </li>
                     <!-- Shown only when this build has the report service (options.ts). -->
                     <li class="flow-row" data-flow="reports" id="flow-reports" hidden>
                       <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-1.5 4L16 12H5" /></svg></span>
                       <span class="flow-text"><b data-i18n="optionsDisclosureReportsName">Problem reports</b><span data-i18n="optionsDisclosureReportsSent">Only when you press Send: the site, what went wrong, your note, and Moat's version and settings. You see all of it first.</span></span>
                       <span class="flow-to" data-i18n="optionsDisclosureReportsRecipient">Moat's developer, privately</span>
-                      <span class="pill" data-i18n="optionsDisclosureReportsWhen">when you send</span>
+                      <span class="flow-state" data-i18n="optionsDisclosureReportsWhen">when you send</span>
                     </li>
                     <!-- Shown only when an organization's policy set up Athena (options.ts). -->
                     <li class="flow-row" data-flow="org" id="flow-org" hidden>
                       <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5l8-2v18M12 9h8v12M7 8h2M7 12h2M7 16h2M15 13h2M15 17h2M2 21h20" /></svg></span>
                       <span class="flow-text"><b data-i18n="optionsDisclosureOrgName">Organization security events</b><span data-i18n="optionsDisclosureOrgSent">For threats Moat blocked: a category, risk level, time and domain. Never the full address or the page.</span></span>
                       <span class="flow-to" data-i18n="optionsDisclosureOrgRecipient">Your organization's own server</span>
-                      <span class="pill on" data-i18n="optionsDisclosureOrgWhen">set by your IT team</span>
+                      <span class="flow-state on" data-i18n="optionsDisclosureOrgWhen">set by your IT team</span>
                     </li>
                   </ul>
                 </div>

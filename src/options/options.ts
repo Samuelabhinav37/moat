@@ -17,7 +17,7 @@ import { buildExplainer, helpSceneFor, initExplainerPanel } from "./explainerPan
 import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { optionalFlowsOn } from "../shared/networkFlows";
-import { initSettingsSearch } from "./settingsSearch";
+import { initSettingsSearch, revealSetting } from "./settingsSearch";
 import { initNavMode } from "./navMode";
 import { TOPICS, initHelpPanel } from "./helpPanel";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
@@ -1655,6 +1655,11 @@ async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy
       ? tFallback("aboutFlowsSome", "A feature you turned on sends a little data. Each one is listed below.")
       : tFallback("aboutFlowsNothing", "With your current settings, nothing about your browsing leaves your device.");
 
+  // "Change: Settings sync", read after the page's text is translated.
+  for (const button of document.querySelectorAll<HTMLButtonElement>("#about-flows .flow-change")) {
+    const name = button.closest(".flow-row")?.querySelector(".flow-text b")?.textContent ?? "";
+    button.setAttribute("aria-label", `${button.textContent}: ${name}`);
+  }
   disclosureSyncRecipientEl.textContent = SYNC_VENDOR_NAME;
   prependBrand(disclosureSyncRecipientEl, SYNC_VENDOR_BRAND);
   managedNotice.hidden = Object.keys(policy).length === 0;
@@ -1662,6 +1667,18 @@ async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy
 }
 
 aboutCheckFixesButton.addEventListener("click", () => void checkForFixes(aboutCheckFixesButton));
+
+// "Change" on an optional connection jumps to the switch that controls it.
+for (const button of document.querySelectorAll<HTMLButtonElement>("#about-flows .flow-change")) {
+  button.addEventListener("click", () => {
+    const title = document.getElementById(button.dataset.reveal ?? "");
+    const row = title?.closest<HTMLElement>(".setting-row");
+    const page = row?.closest<HTMLElement>("[data-page]")?.dataset.page;
+    if (!row || !page) return;
+    revealSetting(row, pageFromHash(page));
+    window.setTimeout(() => row.querySelector<HTMLElement>("input, [role=switch]")?.focus({ preventScroll: true }), 120);
+  });
+}
 
 // Firefox opens its own shortcut manager; Chrome's lives on an internal page
 // an extension may open in a tab but a plain link can't reach. An older

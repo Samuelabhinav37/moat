@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.212
+
+### Changed
+- **About shows each connection's state as plain text.** "On", "Off" and "Always on" were drawn as
+  rounded pills that looked like buttons but did nothing. They are now a dot and a word.
+- **Change links.** The three connections you can turn on or off (Catch hidden trackers, Warn
+  about leaked passwords, Settings sync) have a Change link. It opens the right screen, scrolls
+  to the switch, highlights it and puts focus on it.
+- New text in English, Spanish, French and German.
+
 ## 0.11.211
 
 ### Changed

@@ -393,3 +393,15 @@ describe("Hand-picked mix of lists", () => {
     expect(document.querySelector("#level-note span")?.textContent).toBe("Your mix: Balanced + Social buttons.");
   });
 });
+
+describe("About: connection states are plain text, with a way to change them", () => {
+  it("shows a Change link only on optional connections, named for its row", async () => {
+    await renderOptions();
+
+    expect(document.querySelectorAll("#about-flows .pill").length).toBe(0);
+    const links = [...document.querySelectorAll<HTMLButtonElement>("#about-flows .flow-change")];
+    expect(links.map((b) => b.dataset.reveal)).toEqual(["protection-cname-label", "protection-leakedPassword-label", "sync-toggle-label"]);
+    expect(links[2]?.getAttribute("aria-label")).toBe("Change: Settings sync");
+    for (const link of links) expect(document.getElementById(link.dataset.reveal!), link.dataset.reveal).not.toBeNull();
+  });
+});

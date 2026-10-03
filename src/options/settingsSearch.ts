@@ -20,6 +20,24 @@ export interface SearchItem {
 
 export const MAX_RESULTS = 8;
 
+/** Opens the screen a setting is on, scrolls to it and briefly highlights it.
+ * Shared by search results and About's "Change" links. */
+export function revealSetting(target: HTMLElement, page: PageKey, doc: Document = document, win: Window = window): void {
+  if (pageFromHash(win.location.hash) !== page) win.location.hash = page;
+  // A closed "Show all" disclosure would keep the row out of sight.
+  for (let el: HTMLElement | null = target; el; el = el.parentElement) {
+    if (el instanceof HTMLDetailsElement) el.open = true;
+  }
+  win.setTimeout(() => {
+    revealTab(target, doc);
+    target.scrollIntoView?.({ block: "center" });
+    target.classList.remove("search-hit");
+    void target.offsetWidth;
+    target.classList.add("search-hit");
+    win.setTimeout(() => target.classList.remove("search-hit"), 1800);
+  }, 60);
+}
+
 const text = (el: Element | null | undefined) => (el?.textContent ?? "").replace(/\s+/g, " ").trim();
 
 function pageName(doc: Document, page: string): string {
@@ -161,19 +179,7 @@ export function initSettingsSearch(input: HTMLInputElement, list: HTMLUListEleme
       item.open();
       return;
     }
-    if (pageFromHash(win.location.hash) !== item.page) win.location.hash = item.page;
-    // A closed "Show all" disclosure would keep the row out of sight.
-    for (let el: HTMLElement | null = item.target; el; el = el.parentElement) {
-      if (el instanceof HTMLDetailsElement) el.open = true;
-    }
-    win.setTimeout(() => {
-      revealTab(item.target, doc);
-      item.target.scrollIntoView?.({ block: "center" });
-      item.target.classList.remove("search-hit");
-      void item.target.offsetWidth;
-      item.target.classList.add("search-hit");
-      win.setTimeout(() => item.target.classList.remove("search-hit"), 1800);
-    }, 60);
+    revealSetting(item.target, item.page, doc, win);
   };
 
   const renderResults = () => {

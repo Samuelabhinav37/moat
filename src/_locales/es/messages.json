@@ -1181,6 +1181,10 @@
   "aboutFlowsNothing": {
     "message": "Con tus ajustes actuales, nada de tu navegación sale de tu dispositivo."
   },
+  "aboutFlowChange": {
+    "message": "Cambiar",
+    "description": "Settings > About, 'What Moat connects to': link after an optional connection's state. Jumps to the switch that turns it on or off."
+  },
   "aboutFlowsSome": {
     "message": "Una función que activaste envía algunos datos. Cada una aparece abajo."
   },
