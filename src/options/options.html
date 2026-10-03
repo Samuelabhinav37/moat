@@ -2194,6 +2194,44 @@
       .ov-kpi:not(:has(.ov-spark)) {
         padding-bottom: 18px;
       }
+      /* Phones: the numbers share one compact row instead of three tall cards. */
+      @media (max-width: 600px) {
+        .ov-kpis {
+          grid-template-columns: none;
+          grid-auto-flow: column;
+          grid-auto-columns: minmax(0, 1fr);
+          gap: 8px;
+        }
+        .ov-kpi {
+          padding: 12px 12px 0;
+          border-radius: 12px;
+        }
+        .ov-kpi:not(:has(.ov-spark)) {
+          padding-bottom: 12px;
+        }
+        .ov-kpi-label {
+          min-height: 2.5em;
+          font-size: 12px;
+          line-height: 1.25;
+        }
+        .ov-kpi-row {
+          gap: 2px 6px;
+        }
+        .ov-kpi-value {
+          font-size: 22px;
+        }
+        .ov-kpi-delta {
+          font-size: 12px;
+        }
+        .ov-kpi-vs {
+          display: none;
+        }
+        .ov-spark {
+          width: calc(100% + 24px);
+          height: 26px;
+          margin: 4px -12px 0;
+        }
+      }
       /* Top-5 cards. */
       .ov-tops {
         display: grid;

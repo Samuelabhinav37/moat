@@ -189,7 +189,7 @@ export function buildKpi(doc: Document, label: string, value: number, change: nu
   if (change !== null) {
     const text = change >= 0 ? t("ovChangeUp", `↑ ${change}%`, String(change)) : t("ovChangeDown", `↓ ${Math.abs(change)}%`, String(Math.abs(change)));
     const delta = el(doc, "span", "ov-kpi-delta");
-    delta.append(el(doc, "b", "", text), doc.createTextNode(` ${t("ovVsLastWeek", "vs last week")}`));
+    delta.append(el(doc, "b", "", text), el(doc, "span", "ov-kpi-vs", ` ${t("ovVsLastWeek", "vs last week")}`));
     row.append(delta);
   }
   card.append(row);

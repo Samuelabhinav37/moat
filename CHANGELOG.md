@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.223
+
+### Changed
+- **On a phone, the weekly numbers fit in one row.** Overview's three stat cards (ads, trackers,
+  pop-ups) used to stack into about 400 pixels of scrolling. Under 600 pixels wide they now sit
+  side by side, smaller, with "vs last week" left out. Trackers and Security do the same.
+
 ## 0.11.222
 
 ### Changed
