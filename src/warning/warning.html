@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title data-i18n="warningPageTitle">Site blocked by Moat</title>
     <link rel="stylesheet" href="theme.css" />
+    <link rel="stylesheet" href="components.css" />
     <script src="theme-boot.js"></script>
     <style>
       body {
@@ -14,13 +15,9 @@
         min-height: 100vh;
         padding: 24px;
       }
-      .card {
+      .moat-card {
         max-width: 440px;
         width: 100%;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 28px;
-        background: var(--card);
       }
       .badge {
         display: inline-block;
@@ -97,7 +94,7 @@
     </style>
   </head>
   <body>
-    <div class="card">
+    <div class="moat-card">
       <span class="badge" data-i18n="warningBadge">Blocked by organization policy</span>
       <h1 data-i18n="warningTitle">This site was blocked</h1>
       <span id="hostname">—</span>

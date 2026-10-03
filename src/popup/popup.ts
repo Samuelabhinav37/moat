@@ -183,7 +183,7 @@ async function renderSiteOverrides(hostname: string): Promise<void> {
       labelWrap.append(labelText, subtitleText, resetButton);
 
       const switchLabel = document.createElement("label");
-      switchLabel.className = "switch";
+      switchLabel.className = "switch switch--sm";
       const input = document.createElement("input");
       input.type = "checkbox";
       input.checked = effectiveValue(settings, hostname, key);

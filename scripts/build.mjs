@@ -170,6 +170,7 @@ function copyStaticAssets() {
     filter: (src) => !src.endsWith(".test.ts"),
   });
   cpSync(resolve(root, "src/ui/theme.css"), resolve(outDir, "theme.css"));
+  cpSync(resolve(root, "src/ui/components.css"), resolve(outDir, "components.css"));
   cpSync(resolve(root, "src/popup/popup.html"), resolve(outDir, "popup.html"));
   cpSync(resolve(root, "src/options/options.html"), resolve(outDir, "options.html"));
   cpSync(resolve(root, "src/logger/logger.html"), resolve(outDir, "logger.html"));

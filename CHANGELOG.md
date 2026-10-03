@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.234
+
+### Changed
+- **One set of building blocks for every page.** A new shared stylesheet holds the only copy of
+  Moat's switch, its brand header and its card. The popup, Settings, Report a problem,
+  Diagnostics, the welcome tour and the document pages all use it.
+- **One switch.** It's blue when on and looks the same everywhere. The popup uses a smaller
+  size of the same switch. There were three copies before, with two different colours.
+- **One header.** Moat's mark and name are the same size and weight on every page. Diagnostics
+  gets the header too.
+- A new test fails if a page grows its own switch or brand styles again.
+
 ## 0.11.233
 
 ### Changed

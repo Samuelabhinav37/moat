@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title data-i18n="settingsPageTitle">Moat Settings</title>
     <link rel="stylesheet" href="theme.css" />
+    <link rel="stylesheet" href="components.css" />
     <script src="theme-boot.js"></script>
     <style>
       /* One page, laid out like a settings page people actually read: one
@@ -110,19 +111,6 @@
         padding: 0 32px;
         border-bottom: 1px solid var(--line);
       }
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 20px;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        color: var(--fg);
-      }
-      .brand img {
-        width: 28px;
-        height: 28px;
-      }
       .topbar .help {
         margin-left: auto;
         color: var(--muted);
@@ -182,58 +170,6 @@
         margin-top: 10px;
       }
 
-      /* ---------- Switch (Moat blue) ---------- */
-      .switch {
-        position: relative;
-        display: inline-block;
-        width: 48px;
-        height: 28px;
-        padding: 0;
-        flex: none;
-        cursor: pointer;
-      }
-      .switch input {
-        position: absolute;
-        inset: 0;
-        margin: 0;
-        opacity: 0;
-        cursor: pointer;
-      }
-      .switch .track {
-        position: absolute;
-        inset: 0;
-        border-radius: 14px;
-        background: var(--sw-off);
-        transition: background 0.25s;
-      }
-      .switch .thumb {
-        position: absolute;
-        top: 3px;
-        left: 3px;
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        background: #fff;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-        transition: left 0.35s var(--spring);
-      }
-      .switch input:checked + .track {
-        background: var(--blue);
-      }
-      /* theme.css (shared with the popup) moves the thumb with a transform
-         and pads the label; this page positions it with left instead. */
-      .switch input:checked + .track .thumb {
-        left: 23px;
-        transform: none;
-      }
-      .switch input:focus-visible + .track {
-        outline: 2px solid var(--blue-lt);
-        outline-offset: 3px;
-      }
-      .switch input:disabled + .track {
-        opacity: 0.45;
-        cursor: not-allowed;
-      }
 
       /* ---------- Setting rows: icon, text, switch ---------- */
       .setting-rows {
@@ -3725,7 +3661,7 @@
           padding-left: 8px;
           padding-right: 12px;
         }
-        .topbar .brand > span,
+        .topbar .moat-brand > span,
         .topbar .search-key {
           display: none;
         }
@@ -4154,8 +4090,8 @@
   <body>
     <a class="skip-link" href="#main" data-i18n="skipToContent">Skip to content</a>
     <div id="shell">
-      <header class="topbar">
-        <div class="brand">
+      <header class="topbar moat-header">
+        <div class="moat-brand">
           <button type="button" class="nav-toggle" id="nav-toggle" aria-controls="dash-nav" aria-expanded="true" aria-label="Collapse menu" data-i18n-aria-label="navCollapse">
             <svg viewBox="0 0 24 24" aria-hidden="true"><line class="b1" x1="4" y1="7" x2="20" y2="7" /><line class="b2" x1="4" y1="12" x2="20" y2="12" /><line class="b3" x1="4" y1="17" x2="20" y2="17" /></svg>
           </button>
