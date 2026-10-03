@@ -34,6 +34,13 @@ const MAX_TIMES_PER_TAB = 10000;
 const hostsByTab = new Map<number, Map<string, number>>();
 const MAX_HOSTS_PER_TAB = 500;
 
+/** A refused page load: which tab, which page, and when. */
+export interface PageBlocked {
+  tabId: number;
+  url: string;
+  timeStamp: number;
+}
+
 /** A whole page (top-level navigation) Moat refused to load. */
 export function isBlockedPage(details: ErrorDetails): boolean {
   return details.error === BLOCKED_BY_EXTENSION && details.tabId >= 0 && details.type === "main_frame";
@@ -88,9 +95,9 @@ export function forgetLive(tabId: number): void {
 }
 
 /** Exported for tests; the listener below is the only other caller. */
-export function recordError(details: ErrorDetails, onCounted: (tabId: number) => void, onPageBlocked?: (url: string) => void): void {
+export function recordError(details: ErrorDetails, onCounted: (tabId: number) => void, onPageBlocked?: (block: PageBlocked) => void): void {
   if (isBlockedPage(details)) {
-    if (details.url) onPageBlocked?.(details.url);
+    if (details.url) onPageBlocked?.({ tabId: details.tabId, url: details.url, timeStamp: details.timeStamp });
     return;
   }
   if (!isCountableBlock(details, pageStartByTab.get(details.tabId))) return;
@@ -113,7 +120,7 @@ export function isStandInRedirect(redirectUrl: string): boolean {
 
 /** Registers the listeners. Must run at the service worker's top level so
  * the events can wake it. No-ops where webRequest isn't available. */
-export function startLiveBlockCounting(onCounted: (tabId: number) => void, onPageBlocked?: (url: string) => void): void {
+export function startLiveBlockCounting(onCounted: (tabId: number) => void, onPageBlocked?: (block: PageBlocked) => void): void {
   const webRequest = browser.webRequest;
   if (!webRequest?.onErrorOccurred) return;
   webRequest.onErrorOccurred.addListener((details) => recordError(details as unknown as ErrorDetails, onCounted, onPageBlocked), { urls: ["<all_urls>"] });

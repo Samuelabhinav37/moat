@@ -3336,5 +3336,107 @@
   "skipToContent": {
     "message": "Skip to content",
     "description": "Settings: first link on the page for keyboard users; jumps past the top bar and menu to the content."
+  },
+  "blockedPageTitle": {
+    "message": "Page blocked by Moat",
+    "description": "Block page: tab title before the page fills in."
+  },
+  "blockedBy": {
+    "message": "Blocked by Moat",
+    "description": "Block page: small line above the heading."
+  },
+  "blockedTitleDanger": {
+    "message": "This site may be dangerous",
+    "description": "Block page heading for phishing, malware and scam lists."
+  },
+  "blockedTitleAds": {
+    "message": "Moat stopped this page",
+    "description": "Block page heading for ad and tracker lists."
+  },
+  "blockedTitleCustom": {
+    "message": "You blocked this site",
+    "description": "Block page heading for a site on the user's own block list."
+  },
+  "blockedTitlePolicy": {
+    "message": "Your organization blocked this site",
+    "description": "Block page heading for a site blocked by an organization's policy."
+  },
+  "blockedWhyPhishing": {
+    "message": "Moat's Phishing list says this is a fake sign-in page. It may try to steal your passwords or card details."
+  },
+  "blockedWhyScam": {
+    "message": "Moat's Scams list says this is a scam site, like a fake shop or giveaway."
+  },
+  "blockedWhyMalware": {
+    "message": "Moat's Malware list says this site spreads viruses."
+  },
+  "blockedWhyBadware": {
+    "message": "Moat's Risky downloads list says this site offers bundled or fake software."
+  },
+  "blockedWhyDanger": {
+    "message": "It's on one of Moat's lists of dangerous sites."
+  },
+  "blockedWhyAds": {
+    "message": "It's on $LIST$. Whole pages from these sites usually show only ads, or send you somewhere else.",
+    "placeholders": {
+      "list": {
+        "content": "$1",
+        "example": "Moat's Pop-up ads list"
+      }
+    },
+    "description": "Block page reason for an ad or tracker list. LIST is like \"Moat's Pop-up ads list\"."
+  },
+  "blockedWhyAdsUnknown": {
+    "message": "It's on one of Moat's lists of ad and tracker sites. Whole pages from these usually show only ads, or send you somewhere else."
+  },
+  "blockedWhyCustom": {
+    "message": "It's on your own block list in Moat's settings."
+  },
+  "blockedWhyPolicy": {
+    "message": "Your organization's policy blocks it. Ask your IT team if you need it."
+  },
+  "blockedListCustom": {
+    "message": "Your block list"
+  },
+  "blockedListPolicy": {
+    "message": "Your organization's policy"
+  },
+  "blockedListNamed": {
+    "message": "Moat's $NAME$ list",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Pop-up ads"
+      }
+    },
+    "description": "A list's name in a sentence. NAME is like 'Pop-up ads'."
+  },
+  "blockedListUnknown": {
+    "message": "One of Moat's lists"
+  },
+  "blockedGoBack": {
+    "message": "Go back"
+  },
+  "blockedCloseTab": {
+    "message": "Close tab",
+    "description": "Block page: the main button when the tab has no earlier page."
+  },
+  "blockedDetails": {
+    "message": "Details"
+  },
+  "blockedAddress": {
+    "message": "Address"
+  },
+  "blockedStoppedBy": {
+    "message": "Stopped by"
+  },
+  "blockedReport": {
+    "message": "Report a mistake"
+  },
+  "blockedEditBlockList": {
+    "message": "Edit your block list"
+  },
+  "blockedSeeLists": {
+    "message": "See Moat's lists"
   }
 }

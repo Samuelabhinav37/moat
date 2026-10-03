@@ -3175,5 +3175,107 @@
   "skipToContent": {
     "message": "Zum Inhalt springen",
     "description": "Settings: first link on the page for keyboard users; jumps past the top bar and menu to the content."
+  },
+  "blockedPageTitle": {
+    "message": "Seite von Moat blockiert",
+    "description": "Block page: tab title before the page fills in."
+  },
+  "blockedBy": {
+    "message": "Von Moat blockiert",
+    "description": "Block page: small line above the heading."
+  },
+  "blockedTitleDanger": {
+    "message": "Diese Website ist möglicherweise gefährlich",
+    "description": "Block page heading for phishing, malware and scam lists."
+  },
+  "blockedTitleAds": {
+    "message": "Moat hat diese Seite gestoppt",
+    "description": "Block page heading for ad and tracker lists."
+  },
+  "blockedTitleCustom": {
+    "message": "Du hast diese Website blockiert",
+    "description": "Block page heading for a site on the user's own block list."
+  },
+  "blockedTitlePolicy": {
+    "message": "Deine Organisation hat diese Website blockiert",
+    "description": "Block page heading for a site blocked by an organization's policy."
+  },
+  "blockedWhyPhishing": {
+    "message": "Laut Moats Phishing-Liste ist das eine gefälschte Anmeldeseite. Sie könnte versuchen, deine Passwörter oder Kartendaten zu stehlen."
+  },
+  "blockedWhyScam": {
+    "message": "Laut Moats Betrugs-Liste ist das eine Betrugsseite, etwa ein falscher Shop oder ein falsches Gewinnspiel."
+  },
+  "blockedWhyMalware": {
+    "message": "Laut Moats Malware-Liste verbreitet diese Website Viren."
+  },
+  "blockedWhyBadware": {
+    "message": "Laut Moats Liste für riskante Downloads bietet diese Website gebündelte oder gefälschte Software an."
+  },
+  "blockedWhyDanger": {
+    "message": "Sie steht auf einer von Moats Listen gefährlicher Websites."
+  },
+  "blockedWhyAds": {
+    "message": "Sie steht auf $LIST$. Seiten dieser Websites zeigen meist nur Werbung oder leiten dich woandershin.",
+    "placeholders": {
+      "list": {
+        "content": "$1",
+        "example": "Moat's Pop-up ads list"
+      }
+    },
+    "description": "Block page reason for an ad or tracker list. LIST is like \"Moat's Pop-up ads list\"."
+  },
+  "blockedWhyAdsUnknown": {
+    "message": "Sie steht auf einer von Moats Listen für Werbe- und Tracker-Websites. Seiten dieser Websites zeigen meist nur Werbung oder leiten dich woandershin."
+  },
+  "blockedWhyCustom": {
+    "message": "Sie steht auf deiner eigenen Sperrliste in Moats Einstellungen."
+  },
+  "blockedWhyPolicy": {
+    "message": "Die Richtlinie deiner Organisation blockiert sie. Frag dein IT-Team, wenn du sie brauchst."
+  },
+  "blockedListCustom": {
+    "message": "Deine Sperrliste"
+  },
+  "blockedListPolicy": {
+    "message": "Die Richtlinie deiner Organisation"
+  },
+  "blockedListNamed": {
+    "message": "Moats Liste „$NAME$“",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Pop-up ads"
+      }
+    },
+    "description": "A list's name in a sentence. NAME is like 'Pop-up ads'."
+  },
+  "blockedListUnknown": {
+    "message": "Eine von Moats Listen"
+  },
+  "blockedGoBack": {
+    "message": "Zurück"
+  },
+  "blockedCloseTab": {
+    "message": "Tab schließen",
+    "description": "Block page: the main button when the tab has no earlier page."
+  },
+  "blockedDetails": {
+    "message": "Details"
+  },
+  "blockedAddress": {
+    "message": "Adresse"
+  },
+  "blockedStoppedBy": {
+    "message": "Gestoppt von"
+  },
+  "blockedReport": {
+    "message": "Fehler melden"
+  },
+  "blockedEditBlockList": {
+    "message": "Sperrliste bearbeiten"
+  },
+  "blockedSeeLists": {
+    "message": "Moats Listen ansehen"
   }
 }

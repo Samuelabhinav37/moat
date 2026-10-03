@@ -78,8 +78,8 @@ describe("blocked hosts and pages", () => {
 
   it("reports a whole blocked page separately and doesn't count it as a block on the page", () => {
     const pages: string[] = [];
-    recordError(blocked({ tabId: 7, type: "main_frame", url: "https://paypa1-secure.top/" }), () => {}, (url) => pages.push(url));
-    expect(pages).toEqual(["https://paypa1-secure.top/"]);
+    recordError(blocked({ tabId: 7, type: "main_frame", url: "https://paypa1-secure.top/" }), () => {}, (block) => pages.push(`${block.tabId} ${block.url}`));
+    expect(pages).toEqual(["7 https://paypa1-secure.top/"]);
     expect(getLiveCount(7)).toBe(0);
   });
 });

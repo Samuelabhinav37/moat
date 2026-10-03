@@ -14,10 +14,11 @@ import {
   resetBreakdown,
   type Breakdown,
 } from "./matchStats";
-import { recordBlockKinds, recordBlockedTotal, recordCompanyMatches, recordPageStop, recordPurposes } from "./usageStats";
+import { recordBlockKinds, recordBlockedTotal, recordCompanyMatches, recordPurposes } from "./usageStats";
 import { NOTHING_RECORDED, unrecorded, type Recorded } from "../shared/statsDelta";
-import { forgetLive, getBlockedHosts, getLiveCount, resetLive } from "./liveBlocks";
-import { hostnameOf, splitKinds, tallyHosts } from "../shared/trackerDomains";
+import { forgetLive, getBlockedHosts, getLiveCount, resetLive, type PageBlocked } from "./liveBlocks";
+import { explainBlockedPage } from "./blockedPage";
+import { splitKinds, tallyHosts } from "../shared/trackerDomains";
 import { loadTrackerTable, trackerTableNow } from "./trackerTable";
 
 export type { Breakdown };
@@ -48,9 +49,9 @@ export function combinedCompanyBreakdown(tabId: number): Record<string, number> 
 }
 
 /** A whole page Moat refused to load (Security's "Pages Moat stopped"). */
-export function onPageBlocked(url: string): void {
-  const hostname = hostnameOf(url);
-  if (hostname) void recordPageStop(hostname);
+/** A whole page was refused: record it and show Moat's block page. */
+export function onPageBlocked(block: PageBlocked): void {
+  void explainBlockedPage(block);
 }
 
 /** Network blocks on the current page: the live count, or the rule-based

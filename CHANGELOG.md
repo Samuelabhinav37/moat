@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.231
+
+### Added
+- **Moat's own page when it stops a whole site.** Chrome used to show its grey "blocked by an
+  extension" error, which named no list and offered no way back. Now the tab says what
+  happened in plain words: "This site may be dangerous. Moat's Phishing list says this is a
+  fake sign-in page." "Go back" comes first, the way Chrome's Safe Browsing page does it.
+  Details shows the address and the list, with "Report a mistake".
+- **Go back really goes back.** It skips Chrome's error entry, so it doesn't land on the
+  blocked address again. A tab with nowhere to go back to offers "Close tab".
+- **Each stop remembers its list.** Settings will use this to split dangerous pages from
+  ad pages.
+- Chrome only for now. Firefox keeps its own error page, and so do incognito tabs.
+
 ## 0.11.230
 
 ### Changed

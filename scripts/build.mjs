@@ -46,6 +46,7 @@ const ENTRIES = [
   ["options", "src/options/options.ts"],
   ["logger", "src/logger/logger.ts"],
   ["warning", "src/warning/warning.ts"],
+  ["blocked", "src/blocked/blocked.ts"],
   ["welcome", "src/welcome/welcome.ts"],
   ["report", "src/report/report.ts"],
   ["theme-boot", "src/ui/themeBoot.ts"],
@@ -173,6 +174,7 @@ function copyStaticAssets() {
   cpSync(resolve(root, "src/options/options.html"), resolve(outDir, "options.html"));
   cpSync(resolve(root, "src/logger/logger.html"), resolve(outDir, "logger.html"));
   cpSync(resolve(root, "src/warning/warning.html"), resolve(outDir, "warning.html"));
+  cpSync(resolve(root, "src/blocked/blocked.html"), resolve(outDir, "blocked.html"));
   cpSync(resolve(root, "src/welcome/welcome.html"), resolve(outDir, "welcome.html"));
   cpSync(resolve(root, "src/report/report.html"), resolve(outDir, "report.html"));
   cpSync(resolve(root, "src/welcome/img"), resolve(outDir, "welcome", "img"), { recursive: true });

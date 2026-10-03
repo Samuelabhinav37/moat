@@ -79,6 +79,29 @@ function matchedRulesApi(): typeof chrome.declarativeNetRequest.getMatchedRules 
   return chrome.declarativeNetRequest?.getMatchedRules;
 }
 
+/** One read of a tab's matches since `minTimeStamp`, for the block page
+ * (blockedPage.ts), counted against the same quota. Chrome files a refused
+ * page load under no tab (tabId -1), so those come back too. Null where
+ * the API is missing (Firefox), the quota is nearly spent (`budget`), or
+ * it fails. */
+export async function readMatchedRules(
+  tabId: number,
+  minTimeStamp: number,
+  budget: number
+): Promise<{ rulesetId: string; ruleId: number; timeStamp: number }[] | null> {
+  const getMatchedRules = matchedRulesApi();
+  if (!getMatchedRules || recentMatchedRulesCalls() >= budget) return null;
+  callTimes.push(Date.now());
+  try {
+    const { rulesMatchedInfo } = await getMatchedRules({ minTimeStamp });
+    return rulesMatchedInfo
+      .filter((info) => info.tabId === tabId || info.tabId === -1)
+      .map((info) => ({ rulesetId: info.rule.rulesetId, ruleId: info.rule.ruleId, timeStamp: info.timeStamp }));
+  } catch {
+    return null;
+  }
+}
+
 const breakdownByTab = new Map<number, Breakdown>();
 const companiesByTab = new Map<number, Record<string, number>>();
 const groupsByTab = new Map<number, Record<string, number>>();

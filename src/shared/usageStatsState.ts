@@ -5,6 +5,7 @@
 // bucketing and retention-pruning edge cases are testable without a browser
 // extension context.
 import type { BlockKinds, UsageSignal, UsageSignalSummary, UsageSummaryResponse } from "../types";
+import type { BlockKind } from "./blockedPage";
 
 export const SIGNAL_KEYS: readonly UsageSignal[] = [
   "fingerprint",
@@ -52,7 +53,14 @@ export interface UsageDay {
   purposes?: Record<string, number>;
 }
 
-export interface PageStop {
+/** Which list stopped a page, and what kind of stop it was (from 0.11.231;
+ * older stops have neither). */
+export interface PageStopReason {
+  list: string;
+  kind: BlockKind;
+}
+
+export interface PageStop extends Partial<PageStopReason> {
   hostname: string;
   time: number;
 }
@@ -140,12 +148,12 @@ export function recordPurposes(state: UsageStatsState, purposes: Record<string, 
 }
 
 /** A whole page Moat refused to load. The same site twice in a minute is one stop. */
-export function recordPageStop(state: UsageStatsState, hostname: string, when: number): UsageStatsState {
+export function recordPageStop(state: UsageStatsState, hostname: string, when: number, reason?: PageStopReason): UsageStatsState {
   if (!hostname) return state;
   const stops = state.pageStops ?? [];
   const last = stops[stops.length - 1];
   if (last && last.hostname === hostname && when - last.time < 60_000) return state;
-  return { ...state, pageStops: [...stops, { hostname, time: when }].slice(-MAX_PAGE_STOPS) };
+  return { ...state, pageStops: [...stops, { hostname, time: when, ...(reason ? { list: reason.list, kind: reason.kind } : {}) }].slice(-MAX_PAGE_STOPS) };
 }
 
 export function recordCompanyMatches(

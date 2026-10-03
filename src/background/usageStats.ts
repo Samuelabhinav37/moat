@@ -17,6 +17,7 @@ import {
   type UsageStatsState,
 } from "../shared/usageStatsState";
 import type { BlockKinds, UsageSignal, UsageSummaryResponse } from "../types";
+import type { PageStopReason } from "../shared/usageStatsState";
 
 const USAGE_STATS_KEY = "usageStats";
 
@@ -60,8 +61,8 @@ export function recordPurposes(purposes: Record<string, number>): Promise<void> 
   return mutate((state, when) => recordPurposesPure(state, purposes, when));
 }
 
-export function recordPageStop(hostname: string): Promise<void> {
-  return mutate((state, when) => recordPageStopPure(state, hostname, when));
+export function recordPageStop(hostname: string, reason?: PageStopReason): Promise<void> {
+  return mutate((state, when) => recordPageStopPure(state, hostname, when, reason));
 }
 
 export function recordSignalEvent(signal: UsageSignal, hostname: string, count = 1): Promise<void> {
