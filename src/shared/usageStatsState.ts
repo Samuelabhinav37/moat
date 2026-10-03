@@ -341,6 +341,8 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
     .slice(0, 20);
   const companySites: Record<string, string[]> = {};
   for (const [company, { hostnames }] of companyTotals) companySites[company] = [...hostnames].slice(0, 5);
+  const trackerSites = new Set<string>();
+  for (const { hostnames } of companyTotals.values()) for (const hostname of hostnames) trackerSites.add(hostname);
 
   return {
     today: { total: today.total, hostnameCount: today.hostnames.length },
@@ -358,5 +360,6 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
     purposes,
     pageStops,
     companySites,
+    trackerSiteCount: trackerSites.size,
   };
 }

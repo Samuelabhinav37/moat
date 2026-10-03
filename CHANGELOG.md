@@ -3,6 +3,24 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.206
+
+### Added
+- **Insights in Settings: Trackers, Sites and Security**, a new menu group between Settings and
+  About. Everything is read from the weekly summary kept on your device.
+  - **Trackers:** three number cards (trackers blocked, companies, sites with trackers), then
+    **Who tracks you** (each company with the share of your sites it was on; pick one to see what
+    it is, which sites it was on and how many requests were blocked), **What they wanted** (one
+    bar split by purpose: advertising, analytics, social and so on, with a line on what each
+    does), **When they were busiest** (a day by hour grid, "Weekday evenings"), and the full
+    company list with search that used to sit on Overview.
+  - **Sites:** blocks for each site this week, with a Moat switch on every row. Switching one off
+    pauses the site, and it shows up under Exceptions › Paused straight away.
+  - **Security:** pages Moat refused to load this week, and how many dangerous-site lists are on.
+- New text in English, Spanish, French and German.
+- Checked after browsing ten real sites in Chrome at 1440, 1000, 600 and 390 px, including
+  pausing a site from Sites.
+
 ## 0.11.205
 
 ### Changed

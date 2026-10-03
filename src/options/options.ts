@@ -20,6 +20,7 @@ import { initSettingsSearch } from "./settingsSearch";
 import { initNavMode } from "./navMode";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
 import { buildKpi, buildTopCard, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
+import { buildHeatmap, buildPurposes, buildReachRows, busiestPhrase, purposeLabel, purposeShares } from "./insightsView";
 import { createSavedToast } from "./savedToast";
 import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
@@ -1691,6 +1692,7 @@ async function render(): Promise<void> {
   if (lastUsage) {
     renderWeeklyTrackers(lastUsage);
     renderOverview(settings, lastUsage);
+    void renderInsights(settings, lastUsage);
   }
 
   renderSyncStatus(settings.syncEnabled, await getSyncStatus());
@@ -2068,6 +2070,195 @@ async function renderOverviewTops(usage: UsageSummaryResponse): Promise<void> {
     )
   );
 }
+
+// ---------- Insights: Trackers, Sites, Security ----------
+
+function companyHost(info: Record<string, CompanyInfo>, company: string): string {
+  try {
+    return info[company]?.url ? new URL(info[company]!.url!).hostname : "";
+  } catch {
+    return "";
+  }
+}
+
+function setTakeaway(id: string, parts: (string | { bold: string })[]): void {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.replaceChildren(
+    ...parts.map((part) => {
+      if (typeof part === "string") return document.createTextNode(part);
+      const b = document.createElement("b");
+      b.textContent = part.bold;
+      return b;
+    })
+  );
+}
+
+async function renderInsights(settings: Settings, usage: UsageSummaryResponse): Promise<void> {
+  const info = await loadCompanyInfo();
+  const prev = usage.previousWeek;
+  const sitesThisWeek = Math.max(usage.weekSiteCount, 1);
+  const companies = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count);
+
+  // Trackers
+  document.getElementById("t-kpis")?.replaceChildren(
+    buildKpi(document, tFallback("ovKpiTrackers", "Trackers blocked"), usage.weekKinds.trackers, changePercent(usage.weekKinds.trackers, prev?.kinds.trackers), usage.dailyKinds.slice(0, 6).map((d) => d.trackers), tFallback),
+    buildKpi(document, tFallback("insKpiCompanies", "Companies"), companies.length, changePercent(companies.length, prev?.companies), usage.companiesTrend.slice(0, 6), tFallback),
+    buildKpi(document, tFallback("insKpiTrackerSites", "Sites with trackers"), usage.trackerSiteCount, null, [], tFallback)
+  );
+  const top = companies[0];
+  setTakeaway(
+    "t-who-take",
+    top
+      ? [{ bold: top.company }, ` ${tFallback("insWhoTake", `was on ${Math.round((top.hostnameCount / sitesThisWeek) * 100)}% of the sites you visited. Pick a company to see where.`, String(Math.round((top.hostnameCount / sitesThisWeek) * 100)))}`]
+      : [tFallback("ovTopTrackersEmpty", "No tracker companies this week yet.")]
+  );
+  document.getElementById("t-who")?.replaceChildren(
+    buildReachRows(
+      document,
+      companies.slice(0, 8).map((c) => {
+        const host = companyHost(info, c.company);
+        return {
+          company: c.company,
+          icon: host ? siteIcon(host) : buildSiteIcon(document, c.company, null),
+          sites: c.hostnameCount,
+          ofSites: sitesThisWeek,
+          blocks: c.count,
+          description: info[c.company]?.description ?? "",
+          seenOn: (usage.companySites[c.company] ?? []).map((hostname) => ({ hostname, icon: siteIcon(hostname) })),
+        };
+      }),
+      tFallback
+    )
+  );
+  const shares = purposeShares(usage.purposes);
+  setTakeaway(
+    "t-what-take",
+    shares[0]
+      ? [{ bold: `${Math.round(shares[0].share * 100)}%` }, ` ${tFallback("insWhatTake", `were for ${purposeLabel(shares[0].category, tFallback).name.toLowerCase()}.`, purposeLabel(shares[0].category, tFallback).name.toLowerCase())}`]
+      : [tFallback("insWhatEmpty", "Fills in as Moat blocks trackers.")]
+  );
+  document.getElementById("t-what")?.replaceChildren(...(shares.length ? [buildPurposes(document, usage.purposes, tFallback)] : []));
+  const dayLabels: string[] = [];
+  const weekend: boolean[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dayLabels.push(i === 0 ? tFallback("ovToday", "Today") : d.toLocaleDateString(undefined, { weekday: "short" }));
+    weekend.push(d.getDay() === 0 || d.getDay() === 6);
+  }
+  setTakeaway("t-when-take", [busiestPhrase(usage.hours, weekend, tFallback)]);
+  document.getElementById("t-when")?.replaceChildren(buildHeatmap(document, usage.hours, dayLabels, tFallback));
+
+  // Sites: blocks per site, with Moat's switch for each.
+  const table = document.createElement("table");
+  table.className = "ins-table";
+  const headRow = document.createElement("tr");
+  for (const [key, fallback, cls] of [
+    ["insColSite", "Site", ""],
+    ["insColBlocked", "Blocked", "hide-sm"],
+    ["insColTotal", "Total", ""],
+    ["insColMoat", "Moat", ""],
+  ] as const) {
+    const th = document.createElement("th");
+    th.textContent = tFallback(key, fallback);
+    if (cls) th.className = cls;
+    headRow.append(th);
+  }
+  const thead = document.createElement("thead");
+  thead.append(headRow);
+  const tbody = document.createElement("tbody");
+  const maxSite = Math.max(...usage.topSites.map((x) => x.count), 1);
+  for (const site of usage.topSites) {
+    const row = document.createElement("tr");
+    const paused = settings.disabledSites.includes(site.hostname);
+    row.classList.toggle("off", paused);
+    const name = document.createElement("td");
+    const wrap = document.createElement("div");
+    wrap.className = "site";
+    const label = document.createElement("span");
+    label.id = `site-row-${site.hostname}`;
+    label.textContent = site.hostname.replace(/^www\./, "");
+    wrap.append(siteIcon(site.hostname), label);
+    name.append(wrap);
+    const barCell = document.createElement("td");
+    barCell.className = "hide-sm";
+    barCell.style.width = "40%";
+    const bar = document.createElement("span");
+    bar.className = "ins-bar";
+    const fill = document.createElement("i");
+    fill.style.width = `${Math.max(2, (site.count / maxSite) * 100)}%`;
+    bar.append(fill);
+    barCell.append(bar);
+    const total = document.createElement("td");
+    total.className = "num";
+    total.textContent = site.count.toLocaleString();
+    const control = document.createElement("td");
+    control.append(
+      buildSwitch(!paused, label.id, (on) => {
+        row.classList.toggle("off", !on);
+        void setSiteDisabled(site.hostname, !on).then(() => rerenderSiteList());
+      })
+    );
+    row.append(name, barCell, total, control);
+    tbody.append(row);
+  }
+  table.append(thead, tbody);
+  const sitesHost = document.getElementById("s-table");
+  if (sitesHost) {
+    if (usage.topSites.length) {
+      const note = document.createElement("p");
+      note.className = "ins-note";
+      note.textContent = tFallback("insSitesNote", "Switching Moat off for a site pauses it. It then shows under Exceptions › Paused.");
+      sitesHost.replaceChildren(table, note);
+    } else {
+      sitesHost.replaceChildren(Object.assign(document.createElement("p"), { className: "ov-top-empty", textContent: tFallback("ovTopSitesEmpty", "Browse a few sites and they show up here.") }));
+    }
+  }
+  const topSite = usage.topSites[0];
+  setTakeaway(
+    "s-take",
+    topSite
+      ? [{ bold: topSite.hostname.replace(/^www\./, "") }, ` ${tFallback("insSitesTake", `had the most blocks this week: ${topSite.count.toLocaleString()}.`, topSite.count.toLocaleString())}`]
+      : []
+  );
+
+  // Security: pages stopped before they loaded.
+  const stops = usage.pageStops;
+  document.getElementById("sec-kpis")?.replaceChildren(
+    buildKpi(document, tFallback("insKpiStopped", "Pages stopped"), stops.length, null, [], tFallback),
+    buildKpi(document, tFallback("insKpiSecurityLists", "Dangerous-site lists on"), SECURITY_GROUPS.filter((g) => settings.filterGroups[g] ?? true).length, null, [], tFallback)
+  );
+  const list = document.getElementById("sec-list");
+  if (list) {
+    if (!stops.length) {
+      list.replaceChildren(Object.assign(document.createElement("p"), { className: "ov-top-empty", textContent: tFallback("ovTopStopsEmpty", "None this week.") }));
+    } else {
+      const t2 = document.createElement("table");
+      t2.className = "ins-table";
+      const body = document.createElement("tbody");
+      for (const stop of stops) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        const wrap = document.createElement("div");
+        wrap.className = "site gray";
+        const name = document.createElement("span");
+        name.textContent = stop.hostname;
+        wrap.append(siteIcon(stop.hostname), name);
+        td.append(wrap);
+        const when = document.createElement("td");
+        when.className = "muted";
+        when.textContent = new Date(stop.time).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" });
+        tr.append(td, when);
+        body.append(tr);
+      }
+      t2.append(body);
+      list.replaceChildren(t2);
+    }
+  }
+}
+
+const SECURITY_GROUPS = ["phishing-urls", "scam", "malicious-urls", "badware"];
 
 // company name -> { description, url }, fetched once on first view. Lazy on
 // purpose: it's ~450KB of text nobody needs unless they open this tab.

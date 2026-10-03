@@ -2428,5 +2428,301 @@
         "example": "3 hours ago"
       }
     }
+  },
+  "navGroupInsights": {
+    "message": "Insights",
+    "description": "Settings menu group: Trackers, Sites, Security."
+  },
+  "navTrackers": {
+    "message": "Trackers",
+    "description": "Settings menu item."
+  },
+  "navInsightSites": {
+    "message": "Sites",
+    "description": "Settings menu item: blocks by site."
+  },
+  "navSecurity": {
+    "message": "Security",
+    "description": "Settings menu item."
+  },
+  "pageLeadTrackers": {
+    "message": "Who tried to follow you this week, and why",
+    "description": "Trackers page subtitle."
+  },
+  "pageLeadInsightSites": {
+    "message": "Where Moat blocked the most this week",
+    "description": "Sites page subtitle."
+  },
+  "pageLeadSecurity": {
+    "message": "Pages Moat stopped before they loaded",
+    "description": "Security page subtitle."
+  },
+  "insAllCompanies": {
+    "message": "All companies",
+    "description": "Trackers page: full company list card."
+  },
+  "insWhoTitle": {
+    "message": "Who tracks you",
+    "description": "Trackers page card title."
+  },
+  "insWhatTitle": {
+    "message": "What they wanted",
+    "description": "Trackers page card title."
+  },
+  "insWhenTitle": {
+    "message": "When they were busiest",
+    "description": "Trackers page card title."
+  },
+  "insSitesTitle": {
+    "message": "Blocks by site",
+    "description": "Sites page card title."
+  },
+  "insStoppedTitle": {
+    "message": "Pages Moat stopped",
+    "description": "Security page card title."
+  },
+  "insStoppedTake": {
+    "message": "Whole pages Moat refused to load: dangerous sites and known ad or tracker addresses.",
+    "description": "Security page card subtitle."
+  },
+  "insKpiCompanies": {
+    "message": "Companies",
+    "description": "Number card label."
+  },
+  "insKpiTrackerSites": {
+    "message": "Sites with trackers",
+    "description": "Number card label."
+  },
+  "insKpiStopped": {
+    "message": "Pages stopped",
+    "description": "Number card label."
+  },
+  "insKpiSecurityLists": {
+    "message": "Dangerous-site lists on",
+    "description": "Number card label."
+  },
+  "insWhoTake": {
+    "message": "was on $PCT$% of the sites you visited. Pick a company to see where.",
+    "description": "After a company name.",
+    "placeholders": {
+      "pct": {
+        "content": "$1",
+        "example": "71"
+      }
+    }
+  },
+  "insWhatTake": {
+    "message": "were for $WHAT$.",
+    "description": "After a percentage, e.g. '59% were for advertising.'",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    }
+  },
+  "insWhatEmpty": {
+    "message": "Fills in as Moat blocks trackers.",
+    "description": "Empty purposes card."
+  },
+  "insSitesTake": {
+    "message": "had the most blocks this week: $N$.",
+    "description": "After a site name.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "316"
+      }
+    }
+  },
+  "insSitesNote": {
+    "message": "Switching Moat off for a site pauses it. It then shows under Exceptions › Paused.",
+    "description": "Sites page note."
+  },
+  "insColSite": {
+    "message": "Site",
+    "description": "Table column."
+  },
+  "insColBlocked": {
+    "message": "Blocked",
+    "description": "Table column."
+  },
+  "insColTotal": {
+    "message": "Total",
+    "description": "Table column."
+  },
+  "insColMoat": {
+    "message": "Moat",
+    "description": "Table column: Moat on/off switch."
+  },
+  "insSitesOf": {
+    "message": "$A$ of $B$ sites",
+    "description": "Under a company's percentage.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "41"
+      },
+      "b": {
+        "content": "$2",
+        "example": "58"
+      }
+    }
+  },
+  "insSeenOn": {
+    "message": "Seen on",
+    "description": "Before a list of sites."
+  },
+  "insBlockedRequests": {
+    "message": "$N$ requests blocked this week",
+    "description": "Company detail.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "1,268"
+      }
+    }
+  },
+  "insBusiestAria": {
+    "message": "Busiest: $DAY$ at $HOUR$:00, $N$ blocks",
+    "description": "Screen reader text for the heatmap.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Wed"
+      },
+      "hour": {
+        "content": "$2",
+        "example": "21"
+      },
+      "n": {
+        "content": "$3",
+        "example": "9"
+      }
+    }
+  },
+  "insHeatEmpty": {
+    "message": "No blocks yet this week",
+    "description": "Heatmap empty."
+  },
+  "insLess": {
+    "message": "Less",
+    "description": "Heatmap key."
+  },
+  "insMore": {
+    "message": "More",
+    "description": "Heatmap key."
+  },
+  "insMorningsWeekday": {
+    "message": "Weekday mornings",
+    "description": "When trackers were busiest."
+  },
+  "insAfternoonsWeekday": {
+    "message": "Weekday afternoons",
+    "description": "When trackers were busiest."
+  },
+  "insEveningsWeekday": {
+    "message": "Weekday evenings",
+    "description": "When trackers were busiest."
+  },
+  "insNightsWeekday": {
+    "message": "Weekday nights",
+    "description": "When trackers were busiest."
+  },
+  "insMorningsWeekend": {
+    "message": "Weekend mornings",
+    "description": "When trackers were busiest."
+  },
+  "insAfternoonsWeekend": {
+    "message": "Weekend afternoons",
+    "description": "When trackers were busiest."
+  },
+  "insEveningsWeekend": {
+    "message": "Weekend evenings",
+    "description": "When trackers were busiest."
+  },
+  "insNightsWeekend": {
+    "message": "Weekend nights",
+    "description": "When trackers were busiest."
+  },
+  "purposeAdvertising": {
+    "message": "Advertising",
+    "description": "Tracker purpose."
+  },
+  "purposeAdvertisingDesc": {
+    "message": "Builds a profile so ads follow you",
+    "description": "Tracker purpose."
+  },
+  "purposeAnalytics": {
+    "message": "Analytics",
+    "description": "Tracker purpose."
+  },
+  "purposeAnalyticsDesc": {
+    "message": "Counts visits, clicks and scrolling",
+    "description": "Tracker purpose."
+  },
+  "purposeSocial": {
+    "message": "Social",
+    "description": "Tracker purpose."
+  },
+  "purposeSocialDesc": {
+    "message": "Tells social networks what you read",
+    "description": "Tracker purpose."
+  },
+  "purposeChat": {
+    "message": "Chat and support",
+    "description": "Tracker purpose."
+  },
+  "purposeChatDesc": {
+    "message": "Logs what you look at",
+    "description": "Tracker purpose."
+  },
+  "purposeVideo": {
+    "message": "Video players",
+    "description": "Tracker purpose."
+  },
+  "purposeVideoDesc": {
+    "message": "Reports what you watch",
+    "description": "Tracker purpose."
+  },
+  "purposeConsent": {
+    "message": "Consent tools",
+    "description": "Tracker purpose."
+  },
+  "purposeConsentDesc": {
+    "message": "Cookie banners that also track",
+    "description": "Tracker purpose."
+  },
+  "purposeHosting": {
+    "message": "Hosting",
+    "description": "Tracker purpose."
+  },
+  "purposeHostingDesc": {
+    "message": "Servers that carry tracking scripts",
+    "description": "Tracker purpose."
+  },
+  "purposeUtilities": {
+    "message": "Utilities",
+    "description": "Tracker purpose."
+  },
+  "purposeUtilitiesDesc": {
+    "message": "Add-ons that also collect data",
+    "description": "Tracker purpose."
+  },
+  "purposeAdult": {
+    "message": "Adult advertising",
+    "description": "Tracker purpose."
+  },
+  "purposeAdultDesc": {
+    "message": "Adult ad networks",
+    "description": "Tracker purpose."
+  },
+  "purposeMisc": {
+    "message": "Other",
+    "description": "Tracker purpose."
+  },
+  "purposeMiscDesc": {
+    "message": "Trackers with no single purpose",
+    "description": "Tracker purpose."
   }
 }

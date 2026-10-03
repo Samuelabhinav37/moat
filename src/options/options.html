@@ -1571,6 +1571,9 @@
       .dash-nav a[data-page="protection"] { --tile: #4f46e5; }
       .dash-nav a[data-page="exceptions"] { --tile: #b45309; }
       .dash-nav a[data-page="about"] { --tile: #475569; }
+      .dash-nav a[data-page="trackers"] { --tile: #c2410c; }
+      .dash-nav a[data-page="sites"] { --tile: #0f766e; }
+      .dash-nav a[data-page="security"] { --tile: #b91c1c; }
       .dash-nav a svg,
       .dash-nav a[aria-current="page"] svg {
         box-sizing: border-box;
@@ -1644,7 +1647,7 @@
       }
       /* A screen with one section uses that section's sentence as its
          subtitle, so the section's own heading block would repeat it. */
-      .sec.dash-solo > div:first-child {
+      .sec.dash-solo:not(.ins-sec) > div:first-child {
         display: none;
       }
 
@@ -2042,6 +2045,362 @@
         .ov-kpi {
           background: var(--panel);
         }
+      }
+
+
+      /* ---------- Insights pages ---------- */
+      .ins-sec:not(.dash-off) {
+        display: grid;
+        gap: 16px;
+        margin-top: 20px;
+        padding: 0 !important;
+        border: 0 !important;
+      }
+      .ttl {
+        margin-bottom: 14px;
+      }
+      .ttl h3 {
+        font-size: 17px;
+      }
+      .ttl p {
+        margin: 3px 0 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .ttl p b {
+        color: var(--fg);
+      }
+      .ins-two {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+      .reach {
+        display: grid;
+      }
+      .rr + .rr {
+        border-top: 1px solid var(--line);
+      }
+      .rr-btn {
+        display: grid;
+        grid-template-columns: 40px minmax(120px, 220px) minmax(0, 1fr) 112px 18px;
+        gap: 20px;
+        align-items: center;
+        width: 100%;
+        padding: 16px 12px;
+        border: 0;
+        border-radius: 12px;
+        background: none;
+        color: var(--fg);
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        transition: background 0.16s;
+      }
+      .rr-btn:hover,
+      .rr[data-open="true"] .rr-btn {
+        background: rgba(111, 155, 224, 0.06);
+      }
+      .rr-btn .site-icon {
+        width: 40px;
+        height: 40px;
+      }
+      .rr-name {
+        font-weight: 650;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .rr-track {
+        display: block;
+        height: 10px;
+        overflow: hidden;
+        border-radius: 5px;
+        background: #252a36;
+      }
+      .rr-track i {
+        display: block;
+        height: 100%;
+        border-radius: 5px;
+        background: var(--blue-lt);
+        transform-origin: left;
+        animation: ov-growx 0.64s var(--ease) both;
+        animation-delay: var(--dl, 0ms);
+      }
+      .rr-pct {
+        font-size: 17px;
+        font-weight: 750;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .rr-pct small {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .rr-chev {
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid var(--muted);
+        border-bottom: 2px solid var(--muted);
+        transform: rotate(-45deg);
+        transition: transform 0.24s var(--ease);
+      }
+      .rr[data-open="true"] .rr-chev {
+        transform: rotate(45deg);
+      }
+      .rr-more {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.24s var(--ease);
+      }
+      .rr[data-open="true"] .rr-more {
+        grid-template-rows: 1fr;
+      }
+      .rr-inner {
+        display: grid;
+        gap: 10px;
+        min-height: 0;
+        overflow: hidden;
+        padding: 0 12px 0 72px;
+      }
+      .rr[data-open="true"] .rr-inner {
+        padding-bottom: 16px;
+      }
+      .rr-desc,
+      .rr-blocks {
+        margin: 0;
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      .rr-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+      .rr-chips-label {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .rr-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px 3px 4px;
+        border-radius: 999px;
+        background: var(--panel-2);
+        font-size: 13px;
+      }
+      .rr-chip .site-icon {
+        width: 18px;
+        height: 18px;
+      }
+      .purp-bar {
+        display: flex;
+        gap: 3px;
+        height: 16px;
+        margin-bottom: 12px;
+        overflow: hidden;
+        border-radius: 8px;
+      }
+      .purp-bar span,
+      .purp-sw {
+        background: color-mix(in srgb, var(--blue-lt) calc(100% - var(--s) * 16%), #252a36);
+      }
+      .purp-row {
+        display: grid;
+        grid-template-columns: 10px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 9px 0;
+        border-top: 1px solid var(--line);
+      }
+      .purp-row:first-child {
+        border-top: 0;
+      }
+      .purp-sw {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+      }
+      .purp-row small,
+      .purp-val small {
+        display: block;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      .purp-val {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .heat {
+        display: grid;
+        grid-template-columns: 34px repeat(24, minmax(0, 1fr));
+        gap: 3px;
+        align-items: center;
+      }
+      .heat-day,
+      .heat-hour {
+        font-size: 12px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .heat i {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: 3px;
+      }
+      .heat i:hover {
+        outline: 1.5px solid var(--fg);
+        outline-offset: 1px;
+        z-index: 2;
+      }
+      .heat i:hover::after {
+        content: attr(data-tip);
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 5px 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #0d0c10;
+        color: var(--fg);
+        font-size: 12px;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+      .l0 { background: #23252d; }
+      .l1 { background: #26365a; }
+      .l2 { background: #2f4f8f; }
+      .l3 { background: #4a77c9; }
+      .l4 { background: #8fb3ee; }
+      .heat-key {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .heat-key i {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+      }
+      .heat-key span {
+        margin: 0 4px;
+      }
+      .ins-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14.5px;
+      }
+      .ins-table th {
+        padding: 0 10px 10px;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 12.5px;
+        font-weight: 600;
+        text-align: left;
+      }
+      .ins-table td {
+        padding: 10px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+      }
+      .ins-table tr:last-child td {
+        border-bottom: 0;
+      }
+      .ins-table th:first-child,
+      .ins-table td:first-child {
+        padding-left: 0;
+      }
+      .ins-table th:last-child,
+      .ins-table td:last-child {
+        padding-right: 0;
+        text-align: right;
+      }
+      .ins-table .site {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        font-weight: 600;
+      }
+      .ins-table .site span:last-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .ins-table .num {
+        font-weight: 700;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .ins-table tr.off td:not(:last-child) {
+        opacity: 0.5;
+      }
+      .ins-table .site-icon {
+        width: 28px;
+        height: 28px;
+      }
+      .ins-table .gray img {
+        filter: grayscale(1);
+        opacity: 0.8;
+      }
+      .ins-bar {
+        display: block;
+        height: 8px;
+        overflow: hidden;
+        border-radius: 4px;
+        background: #252a36;
+      }
+      .ins-bar i {
+        display: block;
+        height: 100%;
+        border-radius: 4px;
+        background: var(--blue-lt);
+      }
+      .ins-note {
+        margin: 12px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      @media (max-width: 719px) {
+        .rr-btn {
+          grid-template-columns: 40px minmax(0, 1fr) 80px 14px;
+          gap: 12px;
+        }
+        .rr-track {
+          grid-column: 2 / 4;
+          grid-row: 2;
+        }
+        .rr-inner {
+          padding-left: 12px;
+        }
+        .ins-table .hide-sm {
+          display: none;
+        }
+      }
+      @media (prefers-color-scheme: light) {
+        .heat i:hover::after {
+          background: #fff;
+        }
+        .rr-track,
+        .ins-bar,
+        .ov-rank-bar {
+          background: #e3e7ef;
+        }
+        .l0 { background: #eceef2; }
+        .l1 { background: #cddcf6; }
+        .l2 { background: #9dbcef; }
+        .l3 { background: #5b8ae0; }
+        .l4 { background: #2f57ad; }
       }
 
       /* ---------- Protection page: jump chips, inset groups ---------- */
@@ -2831,6 +3190,10 @@
         <p class="nav-group" data-i18n="navGroupSettings">Settings</p>
         <a href="#protection" data-page="protection" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /></svg><span class="nav-name" data-i18n="navGroupProtection">Protection</span><span class="nav-lead" hidden data-i18n="pageLeadProtection">How much Moat blocks, and the extras on top</span></a>
         <a href="#exceptions" data-page="exceptions" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10M11 9.5V4a1.5 1.5 0 0 1 3 0v6M14 9.5V5.5a1.5 1.5 0 0 1 3 0v7.5c0 4-2.5 7-6.5 7-2.5 0-4-1.5-5.5-4l-2-3.5a1.5 1.5 0 0 1 2.6-1.5L8 13" /></svg><span class="nav-name" data-i18n="navExceptions">Exceptions</span><span class="nav-lead" hidden data-i18n="pageLeadExceptions">Sites, parts of pages and rules where you made your own choice</span><span class="count" id="nav-count-exceptions" hidden></span></a>
+        <p class="nav-group" data-i18n="navGroupInsights">Insights</p>
+        <a href="#trackers" data-page="trackers" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.5" /><path d="m12 12 5.5-5.5" /></svg><span class="nav-name" data-i18n="navTrackers">Trackers</span><span class="nav-lead" hidden data-i18n="pageLeadTrackers">Who tried to follow you this week, and why</span></a>
+        <a href="#sites" data-page="sites" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M3.5 12h17M12 3.5c2.6 2.6 2.6 14.4 0 17M12 3.5c-2.6 2.6-2.6 14.4 0 17" /></svg><span class="nav-name" data-i18n="navInsightSites">Sites</span><span class="nav-lead" hidden data-i18n="pageLeadInsightSites">Where Moat blocked the most this week</span></a>
+        <a href="#security" data-page="security" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.7-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.8-7.5-9.5V6z" /></svg><span class="nav-name" data-i18n="navSecurity">Security</span><span class="nav-lead" hidden data-i18n="pageLeadSecurity">Pages Moat stopped before they loaded</span></a>
         <div class="nav-sep" aria-hidden="true"></div>
         <a href="#about" data-page="about" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About</span><span class="nav-lead" hidden data-i18n="optionsAboutDesc">What this version is, and everything that ever leaves your device.</span></a>
       </nav>
@@ -2892,6 +3255,38 @@
           </div>
           <div class="ov-kpis" id="ov-kpis"></div>
           <div class="ov-tops" id="ov-tops"></div>
+        </section>
+
+        <!-- Insights (insightsView.ts) -->
+        <section class="sec ins-sec" data-page="trackers">
+          <div class="ov-kpis" id="t-kpis"></div>
+          <div class="ov-card">
+            <div class="ttl"><h3 data-i18n="insWhoTitle">Who tracks you</h3><p id="t-who-take"></p></div>
+            <div id="t-who"></div>
+          </div>
+          <div class="ins-two">
+            <div class="ov-card">
+              <div class="ttl"><h3 data-i18n="insWhatTitle">What they wanted</h3><p id="t-what-take"></p></div>
+              <div id="t-what"></div>
+            </div>
+            <div class="ov-card">
+              <div class="ttl"><h3 data-i18n="insWhenTitle">When they were busiest</h3><p id="t-when-take"></p></div>
+              <div id="t-when"></div>
+            </div>
+          </div>
+        </section>
+        <section class="sec ins-sec" data-page="sites">
+          <div class="ov-card">
+            <div class="ttl"><h3 data-i18n="insSitesTitle">Blocks by site</h3><p id="s-take"></p></div>
+            <div id="s-table"></div>
+          </div>
+        </section>
+        <section class="sec ins-sec" data-page="security">
+          <div class="ov-kpis" id="sec-kpis"></div>
+          <div class="ov-card">
+            <div class="ttl"><h3 data-i18n="insStoppedTitle">Pages Moat stopped</h3><p data-i18n="insStoppedTake">Whole pages Moat refused to load: dangerous sites and known ad or tracker addresses.</p></div>
+            <div id="sec-list"></div>
+          </div>
         </section>
 
         <section class="sec jump-sec" data-page="protection">
@@ -3108,9 +3503,9 @@
 
           <!-- Trackers -->
           <div class="panel">
-            <section class="sec" data-page="overview">
+            <section class="sec" data-page="trackers" id="t-all">
               <div>
-                <h2 data-i18n="tabTrackers">Trackers</h2>
+                <h2 data-i18n="insAllCompanies">All companies</h2>
                 <p class="lead" data-i18n="optionsTrackersDesc">Companies Moat stopped this week. Counted on your device and never uploaded.</p>
               </div>
               <div>

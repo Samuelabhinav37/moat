@@ -33,8 +33,8 @@ describe("pageFromHash", () => {
     expect(DEFAULT_PAGE).toBe("overview");
   });
 
-  it("sends the old Trackers link to the Overview it was folded into", () => {
-    expect(pageFromHash("#trackers")).toBe("overview");
+  it("has Trackers as its own Insights screen again", () => {
+    expect(pageFromHash("#trackers")).toBe("trackers");
   });
 
   it("sends the old Blocking, Privacy and Filter lists links to their card on Protection", () => {

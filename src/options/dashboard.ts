@@ -4,14 +4,13 @@
 // screen, and the CSS hides the rest. Same at every width: navMode.ts only
 // changes how the sidebar itself is shown.
 
-export const PAGE_KEYS = ["overview", "protection", "exceptions", "about"] as const;
+export const PAGE_KEYS = ["overview", "protection", "exceptions", "trackers", "sites", "security", "about"] as const;
 export type PageKey = (typeof PAGE_KEYS)[number];
 export const DEFAULT_PAGE: PageKey = "overview";
 
 /** Screens that were folded into another, so old links and bookmarks still
  * land, on the right card where there is one. */
 const MOVED: Record<string, { page: PageKey; anchor?: string; tab?: string }> = {
-  trackers: { page: "overview" },
   paused: { page: "exceptions", tab: "paused" },
   hidden: { page: "exceptions", tab: "hidden" },
   rules: { page: "exceptions", tab: "rules" },

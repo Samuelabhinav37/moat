@@ -2264,5 +2264,301 @@
         "example": "3 hours ago"
       }
     }
+  },
+  "navGroupInsights": {
+    "message": "Estadísticas",
+    "description": "Settings menu group: Trackers, Sites, Security."
+  },
+  "navTrackers": {
+    "message": "Rastreadores",
+    "description": "Settings menu item."
+  },
+  "navInsightSites": {
+    "message": "Sitios",
+    "description": "Settings menu item: blocks by site."
+  },
+  "navSecurity": {
+    "message": "Seguridad",
+    "description": "Settings menu item."
+  },
+  "pageLeadTrackers": {
+    "message": "Quién intentó seguirte esta semana y por qué",
+    "description": "Trackers page subtitle."
+  },
+  "pageLeadInsightSites": {
+    "message": "Dónde bloqueó más Moat esta semana",
+    "description": "Sites page subtitle."
+  },
+  "pageLeadSecurity": {
+    "message": "Páginas que Moat detuvo antes de cargarse",
+    "description": "Security page subtitle."
+  },
+  "insAllCompanies": {
+    "message": "Todas las empresas",
+    "description": "Trackers page: full company list card."
+  },
+  "insWhoTitle": {
+    "message": "Quién te rastrea",
+    "description": "Trackers page card title."
+  },
+  "insWhatTitle": {
+    "message": "Qué buscaban",
+    "description": "Trackers page card title."
+  },
+  "insWhenTitle": {
+    "message": "Cuándo estuvieron más activos",
+    "description": "Trackers page card title."
+  },
+  "insSitesTitle": {
+    "message": "Bloqueos por sitio",
+    "description": "Sites page card title."
+  },
+  "insStoppedTitle": {
+    "message": "Páginas que Moat detuvo",
+    "description": "Security page card title."
+  },
+  "insStoppedTake": {
+    "message": "Páginas enteras que Moat no dejó cargar: sitios peligrosos y direcciones conocidas de anuncios o rastreo.",
+    "description": "Security page card subtitle."
+  },
+  "insKpiCompanies": {
+    "message": "Empresas",
+    "description": "Number card label."
+  },
+  "insKpiTrackerSites": {
+    "message": "Sitios con rastreadores",
+    "description": "Number card label."
+  },
+  "insKpiStopped": {
+    "message": "Páginas detenidas",
+    "description": "Number card label."
+  },
+  "insKpiSecurityLists": {
+    "message": "Listas de sitios peligrosos activas",
+    "description": "Number card label."
+  },
+  "insWhoTake": {
+    "message": "estaba en el $PCT$% de los sitios que visitaste. Elige una empresa para ver dónde.",
+    "description": "After a company name.",
+    "placeholders": {
+      "pct": {
+        "content": "$1",
+        "example": "71"
+      }
+    }
+  },
+  "insWhatTake": {
+    "message": "eran de $WHAT$.",
+    "description": "After a percentage, e.g. '59% were for advertising.'",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    }
+  },
+  "insWhatEmpty": {
+    "message": "Se completa a medida que Moat bloquea rastreadores.",
+    "description": "Empty purposes card."
+  },
+  "insSitesTake": {
+    "message": "tuvo más bloqueos esta semana: $N$.",
+    "description": "After a site name.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "316"
+      }
+    }
+  },
+  "insSitesNote": {
+    "message": "Desactivar Moat en un sitio lo pone en pausa. Aparecerá en Excepciones › En pausa.",
+    "description": "Sites page note."
+  },
+  "insColSite": {
+    "message": "Sitio",
+    "description": "Table column."
+  },
+  "insColBlocked": {
+    "message": "Bloqueado",
+    "description": "Table column."
+  },
+  "insColTotal": {
+    "message": "Total",
+    "description": "Table column."
+  },
+  "insColMoat": {
+    "message": "Moat",
+    "description": "Table column: Moat on/off switch."
+  },
+  "insSitesOf": {
+    "message": "$A$ de $B$ sitios",
+    "description": "Under a company's percentage.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "41"
+      },
+      "b": {
+        "content": "$2",
+        "example": "58"
+      }
+    }
+  },
+  "insSeenOn": {
+    "message": "Visto en",
+    "description": "Before a list of sites."
+  },
+  "insBlockedRequests": {
+    "message": "$N$ solicitudes bloqueadas esta semana",
+    "description": "Company detail.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "1,268"
+      }
+    }
+  },
+  "insBusiestAria": {
+    "message": "Más activo: $DAY$ a las $HOUR$:00, $N$ bloqueos",
+    "description": "Screen reader text for the heatmap.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Wed"
+      },
+      "hour": {
+        "content": "$2",
+        "example": "21"
+      },
+      "n": {
+        "content": "$3",
+        "example": "9"
+      }
+    }
+  },
+  "insHeatEmpty": {
+    "message": "Aún no hay bloqueos esta semana",
+    "description": "Heatmap empty."
+  },
+  "insLess": {
+    "message": "Menos",
+    "description": "Heatmap key."
+  },
+  "insMore": {
+    "message": "Más",
+    "description": "Heatmap key."
+  },
+  "insMorningsWeekday": {
+    "message": "Mañanas entre semana",
+    "description": "When trackers were busiest."
+  },
+  "insAfternoonsWeekday": {
+    "message": "Tardes entre semana",
+    "description": "When trackers were busiest."
+  },
+  "insEveningsWeekday": {
+    "message": "Noches entre semana",
+    "description": "When trackers were busiest."
+  },
+  "insNightsWeekday": {
+    "message": "Madrugadas entre semana",
+    "description": "When trackers were busiest."
+  },
+  "insMorningsWeekend": {
+    "message": "Mañanas del fin de semana",
+    "description": "When trackers were busiest."
+  },
+  "insAfternoonsWeekend": {
+    "message": "Tardes del fin de semana",
+    "description": "When trackers were busiest."
+  },
+  "insEveningsWeekend": {
+    "message": "Noches del fin de semana",
+    "description": "When trackers were busiest."
+  },
+  "insNightsWeekend": {
+    "message": "Madrugadas del fin de semana",
+    "description": "When trackers were busiest."
+  },
+  "purposeAdvertising": {
+    "message": "Publicidad",
+    "description": "Tracker purpose."
+  },
+  "purposeAdvertisingDesc": {
+    "message": "Crea un perfil para que los anuncios te sigan",
+    "description": "Tracker purpose."
+  },
+  "purposeAnalytics": {
+    "message": "Analítica",
+    "description": "Tracker purpose."
+  },
+  "purposeAnalyticsDesc": {
+    "message": "Cuenta visitas, clics y desplazamiento",
+    "description": "Tracker purpose."
+  },
+  "purposeSocial": {
+    "message": "Redes sociales",
+    "description": "Tracker purpose."
+  },
+  "purposeSocialDesc": {
+    "message": "Cuenta a las redes sociales lo que lees",
+    "description": "Tracker purpose."
+  },
+  "purposeChat": {
+    "message": "Chat y soporte",
+    "description": "Tracker purpose."
+  },
+  "purposeChatDesc": {
+    "message": "Registra lo que miras",
+    "description": "Tracker purpose."
+  },
+  "purposeVideo": {
+    "message": "Reproductores de vídeo",
+    "description": "Tracker purpose."
+  },
+  "purposeVideoDesc": {
+    "message": "Informa de lo que ves",
+    "description": "Tracker purpose."
+  },
+  "purposeConsent": {
+    "message": "Herramientas de consentimiento",
+    "description": "Tracker purpose."
+  },
+  "purposeConsentDesc": {
+    "message": "Banners de cookies que también rastrean",
+    "description": "Tracker purpose."
+  },
+  "purposeHosting": {
+    "message": "Alojamiento",
+    "description": "Tracker purpose."
+  },
+  "purposeHostingDesc": {
+    "message": "Servidores que llevan scripts de rastreo",
+    "description": "Tracker purpose."
+  },
+  "purposeUtilities": {
+    "message": "Utilidades",
+    "description": "Tracker purpose."
+  },
+  "purposeUtilitiesDesc": {
+    "message": "Complementos que también recogen datos",
+    "description": "Tracker purpose."
+  },
+  "purposeAdult": {
+    "message": "Publicidad para adultos",
+    "description": "Tracker purpose."
+  },
+  "purposeAdultDesc": {
+    "message": "Redes publicitarias para adultos",
+    "description": "Tracker purpose."
+  },
+  "purposeMisc": {
+    "message": "Otros",
+    "description": "Tracker purpose."
+  },
+  "purposeMiscDesc": {
+    "message": "Rastreadores sin un propósito único",
+    "description": "Tracker purpose."
   }
 }

@@ -701,6 +701,8 @@ export interface UsageSummaryResponse {
   pageStops: Array<{ hostname: string; time: number }>;
   /** Up to 5 sites each company was blocked on this week. */
   companySites: Record<string, string[]>;
+  /** Distinct sites where at least one tracker company was blocked this week. */
+  trackerSiteCount: number;
 }
 
 /** Sent by options.ts's Filter Lists tab -- same "no page of its own, ask
