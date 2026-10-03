@@ -626,6 +626,18 @@
   "optionsDisclosureUpdatesRecipient": {
     "message": "GitHub Pages, a file host"
   },
+  "optionsDisclosureCnameName": {
+    "message": "Catch hidden trackers",
+    "description": "Settings > About, 'What Moat connects to': name of the hidden-tracker row. Same words as the setting."
+  },
+  "optionsDisclosureCnameSent": {
+    "message": "Web addresses that might be a tracker in disguise, just before they load. Chrome only.",
+    "description": "Settings > About: what the hidden-tracker check sends. Chrome only."
+  },
+  "optionsDisclosureCnameRecipient": {
+    "message": "Cloudflare",
+    "description": "Settings > About: who receives hidden-tracker lookups. Company name, do not translate."
+  },
   "optionsDisclosureBreachName": {
     "message": "Breach checking"
   },
@@ -1647,6 +1659,22 @@
   "optionsDisclosureReportsWhen": {
     "message": "when you send",
     "description": "Settings > About, 'What leaves your device': the problem-report row."
+  },
+  "optionsDisclosureOrgName": {
+    "message": "Organization security events",
+    "description": "Settings > About: row shown only when an organization manages Moat and set up security reporting."
+  },
+  "optionsDisclosureOrgSent": {
+    "message": "For threats Moat blocked: a category, risk level, time and domain. Never the full address or the page.",
+    "description": "Settings > About: what the organization row sends."
+  },
+  "optionsDisclosureOrgRecipient": {
+    "message": "Your organization's own server",
+    "description": "Settings > About: who receives organization security events."
+  },
+  "optionsDisclosureOrgWhen": {
+    "message": "set by your IT team",
+    "description": "Settings > About: state of the organization row. Lower case like the other states."
   },
   "explainStepLevels1": {
     "message": "A page with an ad, trackers and a cookie banner",

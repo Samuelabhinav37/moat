@@ -4184,6 +4184,13 @@
                       <span class="flow-to" data-i18n="optionsDisclosureUpdatesRecipient">GitHub Pages, a file host</span>
                       <span class="pill on" data-i18n="commonOn">on</span>
                     </li>
+                    <!-- Chrome only: Firefox looks these up with its own DNS (options.ts). -->
+                    <li class="flow-row" data-flow="hidden" id="flow-hidden">
+                      <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></svg></span>
+                      <span class="flow-text"><b data-i18n="optionsDisclosureCnameName">Catch hidden trackers</b><span data-i18n="optionsDisclosureCnameSent">Web addresses that might be a tracker in disguise, just before they load. Chrome only.</span></span>
+                      <span class="flow-to" id="disclosure-cname-recipient" data-i18n="optionsDisclosureCnameRecipient">Cloudflare</span>
+                      <span class="pill" id="flow-state-hidden" data-i18n="commonOff">off</span>
+                    </li>
                     <li class="flow-row" data-flow="breach">
                       <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z" /></svg></span>
                       <span class="flow-text"><b data-i18n="optionsDisclosureBreachName">Breach checking</b><span data-i18n="optionsDisclosureBreachSent">A short scrambled fragment of a password, never the password itself</span></span>
@@ -4202,6 +4209,13 @@
                       <span class="flow-text"><b data-i18n="optionsDisclosureReportsName">Problem reports</b><span data-i18n="optionsDisclosureReportsSent">Only when you press Send: the site, what went wrong, your note, and Moat's version and settings. You see all of it first.</span></span>
                       <span class="flow-to" data-i18n="optionsDisclosureReportsRecipient">Moat's developer, privately</span>
                       <span class="pill" data-i18n="optionsDisclosureReportsWhen">when you send</span>
+                    </li>
+                    <!-- Shown only when an organization's policy set up Athena (options.ts). -->
+                    <li class="flow-row" data-flow="org" id="flow-org" hidden>
+                      <span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5l8-2v18M12 9h8v12M7 8h2M7 12h2M7 16h2M15 13h2M15 17h2M2 21h20" /></svg></span>
+                      <span class="flow-text"><b data-i18n="optionsDisclosureOrgName">Organization security events</b><span data-i18n="optionsDisclosureOrgSent">For threats Moat blocked: a category, risk level, time and domain. Never the full address or the page.</span></span>
+                      <span class="flow-to" data-i18n="optionsDisclosureOrgRecipient">Your organization's own server</span>
+                      <span class="pill on" data-i18n="optionsDisclosureOrgWhen">set by your IT team</span>
                     </li>
                   </ul>
                 </div>

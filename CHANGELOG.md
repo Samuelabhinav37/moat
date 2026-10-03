@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.209
+
+### Fixed
+- **About now lists every connection Moat can make.** "What Moat connects to" was missing two:
+  - **Catch hidden trackers** on Chrome, which asks Cloudflare about web addresses that might be
+    a tracker in disguise. Firefox does this with its own DNS, so the row only shows on Chrome.
+  - **Organization security events**, which only shows when an organization manages Moat and
+    set up security reporting.
+- **The summary above that list told the wrong story.** With only Catch hidden trackers on, it
+  still said nothing about your browsing leaves your device. It now counts every optional
+  connection that is on.
+- The list of connections now lives in one place in the code. A test fails if the About page
+  or the privacy policy leaves one out.
+- New text in English, Spanish, French and German.
+
 ## 0.11.208
 
 ### Changed

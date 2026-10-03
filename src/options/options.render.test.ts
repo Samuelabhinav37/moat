@@ -248,12 +248,28 @@ describe("Backup and sync (DR-15)", () => {
 });
 
 describe("About Moat (DR-13)", () => {
-  it("lists the 5 data flows with their current state, and the version", async () => {
+  it("says data leaves the device when only Catch hidden trackers is on (Chrome asks Cloudflare)", async () => {
+    await renderOptions({ cnameUncloaking: true, leakedPasswordCheck: false, syncEnabled: false });
+
+    expect(document.getElementById("flow-state-hidden")?.classList.contains("on")).toBe(true);
+    expect(document.getElementById("about-flows-summary")?.textContent).toMatch(/sends a little data/);
+  });
+
+  it("says nothing leaves the device when every optional flow is off", async () => {
+    await renderOptions({ cnameUncloaking: false, leakedPasswordCheck: false, syncEnabled: false });
+
+    expect(document.getElementById("about-flows-summary")?.textContent).toMatch(/nothing about your browsing leaves/);
+  });
+
+  it("lists the 6 data flows with their current state, and the version", async () => {
     await renderOptions();
 
-    // Problem reports only show as a data flow once the report service is set up.
-    expect(document.querySelectorAll("#about-flows .flow-row:not([hidden])").length).toBe(REPORT_ENDPOINT ? 6 : 5);
+    // Problem reports only show as a data flow once the report service is set up,
+    // and organization events only under an organization's policy.
+    expect(document.querySelectorAll("#about-flows .flow-row:not([hidden])").length).toBe(REPORT_ENDPOINT ? 7 : 6);
     expect(document.getElementById("flow-reports")?.hidden).toBe(!REPORT_ENDPOINT);
+    expect(document.getElementById("flow-org")?.hidden).toBe(true);
+    expect(document.getElementById("flow-hidden")?.hidden).toBe(false);
     // Current state, not the install default: the mock has the breach check
     // on and sync off.
     expect(document.getElementById("flow-state-breach")?.classList.contains("on")).toBe(true);

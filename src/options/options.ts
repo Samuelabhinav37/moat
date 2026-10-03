@@ -16,6 +16,7 @@ import { initDashboard, pageFromHash } from "./dashboard";
 import { buildExplainer, helpSceneFor, initExplainerPanel } from "./explainerPanel";
 import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
+import { optionalFlowsOn } from "../shared/networkFlows";
 import { initSettingsSearch } from "./settingsSearch";
 import { initNavMode } from "./navMode";
 import { TOPICS, initHelpPanel } from "./helpPanel";
@@ -1536,6 +1537,7 @@ const SYNC_VENDOR_BRAND: BrandId = isFirefoxPrivacyWebsitesSupported ? "firefox"
 
 const flowStateBreachEl = document.getElementById("flow-state-breach") as HTMLElement;
 const flowStateSyncEl = document.getElementById("flow-state-sync") as HTMLElement;
+const flowStateHiddenEl = document.getElementById("flow-state-hidden") as HTMLElement;
 const aboutFlowsSummaryEl = document.getElementById("about-flows-summary") as HTMLElement;
 const shortcutKeysEl = document.getElementById("shortcut-keys") as HTMLElement;
 const shortcutChangeButton = document.getElementById("shortcut-change") as HTMLButtonElement;
@@ -1588,8 +1590,13 @@ async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy
   // Current state, not the install default: this is what is being sent now.
   setFlowState(flowStateBreachEl, settings.leakedPasswordCheck);
   setFlowState(flowStateSyncEl, settings.syncEnabled);
+  setFlowState(flowStateHiddenEl, !isFirefoxPrivacyWebsitesSupported && settings.cnameUncloaking);
+  // Firefox resolves hidden trackers with its own DNS, so nobody new receives anything there.
+  (document.getElementById("flow-hidden") as HTMLElement).hidden = isFirefoxPrivacyWebsitesSupported;
+  (document.getElementById("flow-org") as HTMLElement).hidden = !policy.athena;
+  const flowContext = { firefox: isFirefoxPrivacyWebsitesSupported, managed: !!policy.athena, reports: !!REPORT_ENDPOINT };
   aboutFlowsSummaryEl.textContent =
-    settings.leakedPasswordCheck || settings.syncEnabled
+    optionalFlowsOn(settings, flowContext).length > 0
       ? tFallback("aboutFlowsSome", "A feature you turned on sends a little data. Each one is listed below.")
       : tFallback("aboutFlowsNothing", "With your current settings, nothing about your browsing leaves your device.");
 

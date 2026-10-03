@@ -624,6 +624,18 @@
   "optionsDisclosureUpdatesRecipient": {
     "message": "GitHub Pages, un alojamiento de archivos"
   },
+  "optionsDisclosureCnameName": {
+    "message": "Detectar rastreadores ocultos",
+    "description": "Settings > About, 'What Moat connects to': name of the hidden-tracker row. Same words as the setting."
+  },
+  "optionsDisclosureCnameSent": {
+    "message": "Direcciones web que podrían ser un rastreador disfrazado, justo antes de cargar. Solo en Chrome.",
+    "description": "Settings > About: what the hidden-tracker check sends. Chrome only."
+  },
+  "optionsDisclosureCnameRecipient": {
+    "message": "Cloudflare",
+    "description": "Settings > About: who receives hidden-tracker lookups. Company name, do not translate."
+  },
   "optionsDisclosureBreachName": {
     "message": "Verificación de filtraciones"
   },
@@ -1569,6 +1581,22 @@
   },
   "optionsDisclosureReportsWhen": {
     "message": "al enviar"
+  },
+  "optionsDisclosureOrgName": {
+    "message": "Eventos de seguridad de la organización",
+    "description": "Settings > About: row shown only when an organization manages Moat and set up security reporting."
+  },
+  "optionsDisclosureOrgSent": {
+    "message": "Para las amenazas que Moat bloqueó: una categoría, el nivel de riesgo, la hora y el dominio. Nunca la dirección completa ni la página.",
+    "description": "Settings > About: what the organization row sends."
+  },
+  "optionsDisclosureOrgRecipient": {
+    "message": "El servidor de tu organización",
+    "description": "Settings > About: who receives organization security events."
+  },
+  "optionsDisclosureOrgWhen": {
+    "message": "lo configura tu equipo de TI",
+    "description": "Settings > About: state of the organization row. Lower case like the other states."
   },
   "explainStepLevels1": {
     "message": "Una página con un anuncio, rastreadores y un aviso de cookies"
