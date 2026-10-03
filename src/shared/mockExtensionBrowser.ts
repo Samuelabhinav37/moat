@@ -31,6 +31,8 @@ export interface MockBrowserOptions {
  * would hide most of the DOM this check needs to walk (empty lists render no
  * text at all, so they can't be invisible). */
 export function createMockBrowser(options: MockBrowserOptions = {}) {
+  /** URLs opened with tabs.create, oldest first. */
+  const createdTabs: string[] = [];
   const hostname = options.hostname ?? "example.com";
   const settings: Settings = {
     ...DEFAULT_SETTINGS,
@@ -203,6 +205,10 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
     },
     tabs: {
       query: () => Promise.resolve([{ id: 1, url: `https://${hostname}/`, active: true }]),
+      create: (opts: { url: string }) => {
+        createdTabs.push(opts.url);
+        return Promise.resolve({ id: 2, url: opts.url });
+      },
     },
     alarms: {
       create() {},
@@ -241,5 +247,5 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
     i18n: { getMessage: () => "", getUILanguage: () => "en" },
   };
 
-  return { browser, storageLocalData };
+  return { browser, storageLocalData, createdTabs };
 }

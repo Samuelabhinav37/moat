@@ -186,3 +186,14 @@ describe("sending", () => {
     expect(url.searchParams.get("body")).toContain("example.com");
   });
 });
+
+describe("opened from Settings › Security for a page Moat stopped", () => {
+  it("fills in the site, picks 'Site broken or won't load' and writes the note", async () => {
+    await openPage("?site=surveymonkey.com&reason=false-alarm");
+    expect(tabsGet).not.toHaveBeenCalled();
+    expect($<HTMLInputElement>("site-input").value).toBe("surveymonkey.com");
+    expect(document.querySelector<HTMLInputElement>('input[name="category"][value="broken"]')!.checked).toBe(true);
+    expect($<HTMLTextAreaElement>("note").value).toBe("Moat stopped this page from loading, but I think it's safe.");
+    expect($("preview-text").textContent).toContain("surveymonkey.com");
+  });
+});

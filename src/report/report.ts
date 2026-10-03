@@ -38,7 +38,11 @@ const statusEl = $("status");
 const pauseNow = $<HTMLButtonElement>("pause-now");
 const pauseStatus = $("pause-status");
 
-const tabId = Number(new URLSearchParams(location.search).get("tab")) || null;
+const query = new URLSearchParams(location.search);
+const tabId = Number(query.get("tab")) || null;
+// Settings › Security opens this for a page Moat stopped: "?site=<host>&reason=false-alarm".
+const siteParam = query.get("site") ?? "";
+const falseAlarm = query.get("reason") === "false-alarm";
 let tabHostname = "";
 let pageUrl: string | null = null;
 let env: ReportEnvironment = { moatVersion: browser.runtime.getManifest().version, browser: browserLabel(navigator.userAgent), level: "custom", lists: [] };
@@ -113,6 +117,12 @@ async function init(): Promise<void> {
     pauseNow.hidden = false;
   } else {
     siteInput.hidden = false;
+    if (siteParam) siteInput.value = hostnameFromInput(siteParam);
+  }
+  if (falseAlarm) {
+    const broken = form.querySelector<HTMLInputElement>('input[name="category"][value="broken"]');
+    if (broken) broken.checked = true;
+    if (!note.value) note.value = t("reportFalseAlarmNote", "Moat stopped this page from loading, but I think it's safe.");
   }
   if (!REPORT_ENDPOINT) {
     sendButton.hidden = true;

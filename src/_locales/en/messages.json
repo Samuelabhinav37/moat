@@ -2613,6 +2613,20 @@
     "message": "Whole pages Moat refused to load: dangerous sites and known ad or tracker addresses.",
     "description": "Security page card subtitle."
   },
+  "insReportMistake": {
+    "message": "Report a mistake",
+    "description": "Settings > Security: button on a page Moat stopped. Opens a problem report about it."
+  },
+  "insReportMistakeFor": {
+    "message": "Report a mistake: $SITE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    },
+    "description": "Settings > Security: the same button's name for screen readers, with the site."
+  },
   "insKpiCompanies": {
     "message": "Companies",
     "description": "Number card label."
@@ -3106,5 +3120,9 @@
   "searchAnswerAccount": {
     "message": "Moat has no account. Everything stays in this browser.",
     "description": "Settings search: answer when there is no setting for what was typed."
+  },
+  "reportFalseAlarmNote": {
+    "message": "Moat stopped this page from loading, but I think it's safe.",
+    "description": "Report page: note filled in when the report was opened for a page Moat stopped. The person can edit it."
   }
 }

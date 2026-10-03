@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.218
+
+### Added
+- **Report a mistake from Security.** Each page Moat stopped now has a Report a mistake button.
+  It opens the problem report with the site filled in, "Site broken or won't load" picked, and a
+  note saying Moat stopped the page but you think it's safe. You can change any of
+  it before sending.
+  - A site on a danger list still can't be allowed from Settings. Those lists rank above your
+    own "Never block" list on purpose, so a report is how a wrong entry gets fixed.
+- New text in English, Spanish, French and German.
+
 ## 0.11.217
 
 ### Changed

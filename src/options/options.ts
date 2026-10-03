@@ -2404,7 +2404,21 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
         const when = document.createElement("td");
         when.className = "muted";
         when.textContent = new Date(stop.time).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" });
-        tr.append(td, when);
+        // A safe page on a danger list can't be allowed from here (the
+        // security lists outrank "Never block", see rulePriorities.ts), so
+        // the fix is to tell the developer, with the details filled in.
+        const action = document.createElement("td");
+        const report = document.createElement("button");
+        report.type = "button";
+        report.className = "ab-btn ins-report";
+        report.textContent = tFallback("insReportMistake", "Report a mistake");
+        report.setAttribute("aria-label", tFallback("insReportMistakeFor", `Report a mistake: ${stop.hostname}`, stop.hostname));
+        report.addEventListener("click", () => {
+          const params = new URLSearchParams({ site: stop.hostname, reason: "false-alarm" });
+          void browser.tabs.create({ url: browser.runtime.getURL(`report.html?${params}`) });
+        });
+        action.append(report);
+        tr.append(td, when, action);
         body.append(tr);
       }
       t2.append(body);

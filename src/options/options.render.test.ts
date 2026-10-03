@@ -38,8 +38,12 @@ afterEach(() => {
   vi.doUnmock("webextension-polyfill");
 });
 
+let createdTabs: string[] = [];
+
 async function renderOptions(settings?: Partial<Settings>, storage?: Record<string, unknown>): Promise<void> {
-  const { browser } = createMockBrowser({ hostname: "example.com", settings, storage });
+  const mock = createMockBrowser({ hostname: "example.com", settings, storage });
+  const { browser } = mock;
+  createdTabs = mock.createdTabs;
   vi.doMock("webextension-polyfill", () => ({ default: browser }));
   loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
   await import("./options");
@@ -449,5 +453,16 @@ describe("About › Appearance", () => {
     radio("light").click();
     expect(localStorage.getItem("moat-theme")).toBe("light");
     expect(document.documentElement.dataset.theme).toBe("light");
+  });
+});
+
+describe("Security: a stopped page can be reported as a mistake", () => {
+  it("opens the report page with the site and the reason filled in", async () => {
+    await renderOptions(undefined, { usageStats: { days: {}, pageStops: [{ hostname: "surveymonkey.com", time: Date.now() }] } });
+
+    const button = document.querySelector<HTMLButtonElement>("#sec-list .ins-report")!;
+    expect(button.getAttribute("aria-label")).toBe("Report a mistake: surveymonkey.com");
+    button.click();
+    expect(createdTabs.at(-1)).toMatch(/report\.html\?site=surveymonkey\.com&reason=false-alarm$/);
   });
 });

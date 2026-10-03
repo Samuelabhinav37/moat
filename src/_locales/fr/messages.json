@@ -2449,6 +2449,20 @@
     "message": "Pages entières que Moat a refusé de charger : sites dangereux et adresses connues de pub ou de pistage.",
     "description": "Security page card subtitle."
   },
+  "insReportMistake": {
+    "message": "Signaler une erreur",
+    "description": "Settings > Security: button on a page Moat stopped. Opens a problem report about it."
+  },
+  "insReportMistakeFor": {
+    "message": "Signaler une erreur : $SITE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    },
+    "description": "Settings > Security: the same button's name for screen readers, with the site."
+  },
   "insKpiCompanies": {
     "message": "Entreprises",
     "description": "Number card label."
@@ -2942,5 +2956,9 @@
   "searchAnswerAccount": {
     "message": "Moat n'a pas de compte. Tout reste dans ce navigateur.",
     "description": "Settings search: answer when there is no setting for what was typed."
+  },
+  "reportFalseAlarmNote": {
+    "message": "Moat a empêché cette page de se charger, mais je pense qu'elle est sûre.",
+    "description": "Report page: note filled in when the report was opened for a page Moat stopped. The person can edit it."
   }
 }
