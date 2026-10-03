@@ -68,21 +68,20 @@ describe("rankItems", () => {
 });
 
 describe("initSettingsSearch", () => {
-  function setup(isDesktop: boolean) {
+  function setup() {
     const input = document.getElementById("q") as HTMLInputElement;
     const list = document.getElementById("results") as HTMLUListElement;
-    const revealed: HTMLElement[] = [];
-    initSettingsSearch(input, list, { reveal: (t) => revealed.push(t), noResults: "No settings match.", isDesktop: () => isDesktop });
+    initSettingsSearch(input, list, { noResults: "No settings match." });
     const type = (value: string) => {
       input.value = value;
       input.dispatchEvent(new Event("input"));
     };
     const key = (k: string) => input.dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true }));
-    return { input, list, revealed, type, key };
+    return { input, list, type, key };
   }
 
   it("shows results as you type and says when nothing matches", () => {
-    const { list, type } = setup(true);
+    const { list, type } = setup();
     type("cookie");
     expect(list.hidden).toBe(false);
     expect(list.querySelectorAll("li[role=option]")).toHaveLength(3);
@@ -91,25 +90,25 @@ describe("initSettingsSearch", () => {
     expect(list.textContent).toBe("No settings match.");
   });
 
-  it("on desktop, Enter opens the result's screen", () => {
-    const { list, type, key } = setup(true);
+  it("Enter opens the result's screen, at any window width", () => {
+    const { list, type, key } = setup();
     type("never");
     key("Enter");
     expect(window.location.hash).toBe("#rules");
     expect(list.hidden).toBe(true);
   });
 
-  it("on a phone, the arrow keys pick a result and Enter reveals it in place", () => {
-    const { type, key, revealed } = setup(false);
+  it("the arrow keys pick another result", () => {
+    const { type, key } = setup();
+    window.location.hash = "";
     type("cookie");
     key("ArrowDown");
     key("Enter");
-    expect(revealed[0]!.querySelector(".setting-title")!.textContent).toBe("Block cross-site cookies");
-    expect(window.location.hash).toBe("");
+    expect(window.location.hash).toBe("#privacy");
   });
 
   it("Escape clears and closes", () => {
-    const { input, list, type, key } = setup(true);
+    const { input, list, type, key } = setup();
     type("cookie");
     key("Escape");
     expect(input.value).toBe("");
@@ -117,7 +116,7 @@ describe("initSettingsSearch", () => {
   });
 
   it('"/" focuses the search box unless you are typing somewhere', () => {
-    const { input } = setup(true);
+    const { input } = setup();
     document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "/", bubbles: true }));
     expect(document.activeElement).toBe(input);
   });

@@ -17,6 +17,7 @@ import { buildExplainer, helpSceneFor, initExplainerPanel } from "./explainerPan
 import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { initSettingsSearch } from "./settingsSearch";
+import { initNavMode } from "./navMode";
 import { createSavedToast } from "./savedToast";
 import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
@@ -125,10 +126,8 @@ function tFallback(key: string, fallback: string, substitutions?: string | strin
 
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 const explainerPanel = initExplainerPanel(document, tFallback);
-// Desktop has room for the filter list rows, so they start open there.
-if (window.matchMedia?.("(min-width: 900px)").matches) {
-  (document.getElementById("filter-lists-more") as HTMLDetailsElement | null)?.setAttribute("open", "");
-}
+// The filter list rows start open: every width now has the screen to itself.
+(document.getElementById("filter-lists-more") as HTMLDetailsElement | null)?.setAttribute("open", "");
 // Problem reports only appear as a data flow in builds that can send them.
 (document.getElementById("flow-reports") as HTMLElement | null)?.toggleAttribute("hidden", !REPORT_ENDPOINT);
 // Who receives each About data flow, by logo as well as name.
@@ -137,55 +136,19 @@ for (const [flow, brand] of [["updates", "github"], ["breach", "haveibeenpwned"]
   if (to) prependBrand(to, brand);
 }
 initDashboard(window, explainerPanel.showScreen);
-
-// ---------- Advanced settings (expands in place) ----------
-
-// One page: what most people change sits on the main panel, everything
-// else opens in place under this button. A disclosure (aria-expanded +
-// aria-controls), not tabs -- there is only ever one thing to reveal.
-const advancedToggle = document.getElementById("advanced-toggle") as HTMLButtonElement;
-const advancedToggleTitle = document.getElementById("advanced-toggle-title") as HTMLElement;
-const advancedSection = document.getElementById("advanced") as HTMLElement;
-const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-
-function setAdvancedOpen(open: boolean): void {
-  advancedToggle.setAttribute("aria-expanded", String(open));
-  advancedToggleTitle.textContent = open
-    ? tFallback("advancedButtonHide", "Hide advanced settings")
-    : tFallback("advancedButton", "Advanced settings");
-  advancedSection.hidden = !open;
-  if (open) {
-    document.getElementById("advanced-title")?.scrollIntoView?.({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
-  }
-}
-
-advancedToggle.addEventListener("click", () => {
-  setAdvancedOpen(advancedToggle.getAttribute("aria-expanded") !== "true");
+initNavMode(window, {
+  collapse: tFallback("navCollapse", "Collapse menu"),
+  expand: tFallback("navExpand", "Expand menu"),
+  open: tFallback("navOpen", "Menu"),
+  close: tFallback("navClose", "Close menu"),
 });
-
-for (const link of document.querySelectorAll<HTMLAnchorElement>("a.to-filters")) {
-  link.addEventListener("click", (event) => {
-    if (window.matchMedia?.("(min-width: 900px)").matches ?? true) return;
-    event.preventDefault();
-    if (advancedToggle.getAttribute("aria-expanded") !== "true") setAdvancedOpen(true);
-    document.querySelector('section[data-page="filters"]')?.scrollIntoView?.({ block: "start" });
-  });
-}
 
 // ---------- Search settings and the "Saved" toast ----------
 
 initSettingsSearch(
   document.getElementById("settings-search") as HTMLInputElement,
   document.getElementById("search-results") as HTMLUListElement,
-  {
-    // On the single-page (phone) layout, Advanced settings has to be open
-    // for anything inside it to be seen.
-    reveal: (target) => {
-      if (advancedSection.contains(target) && advancedSection.hidden) setAdvancedOpen(true);
-    },
-    noResults: tFallback("searchNoResults", "No settings match."),
-    isDesktop: () => window.matchMedia?.("(min-width: 900px)").matches ?? false,
-  }
+  { noResults: tFallback("searchNoResults", "No settings match.") }
 );
 
 const savedToast = createSavedToast(

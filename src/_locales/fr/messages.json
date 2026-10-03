@@ -762,15 +762,6 @@
   "hiddenEmptyHint": {
     "message": "Clique sur l’icône de Moat, choisis Masquer un élément de cette page, puis clique sur ce que tu veux faire disparaître."
   },
-  "advancedButton": {
-    "message": "Paramètres avancés"
-  },
-  "advancedButtonHide": {
-    "message": "Masquer les paramètres avancés"
-  },
-  "advancedButtonHint": {
-    "message": "Confidentialité, listes de filtres, tes règles, traceurs, sauvegarde et version"
-  },
   "advShowAllLists": {
     "message": "Afficher toutes les listes"
   },
@@ -1944,5 +1935,21 @@
         "content": "$3"
       }
     }
+  },
+  "navCollapse": {
+    "message": "Réduire le menu",
+    "description": "Settings menu button: folds the sidebar to icons."
+  },
+  "navExpand": {
+    "message": "Développer le menu",
+    "description": "Settings menu button: unfolds the icon rail to the full sidebar."
+  },
+  "navOpen": {
+    "message": "Menu",
+    "description": "Settings menu button on narrow windows: opens the menu drawer."
+  },
+  "navClose": {
+    "message": "Fermer le menu",
+    "description": "Settings menu button while the menu drawer is open."
   }
 }

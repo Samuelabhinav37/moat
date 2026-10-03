@@ -762,15 +762,6 @@
   "hiddenEmptyHint": {
     "message": "Haz clic en el icono de Moat, elige Ocultar algo de esta página y haz clic en lo que quieras quitar."
   },
-  "advancedButton": {
-    "message": "Configuración avanzada"
-  },
-  "advancedButtonHide": {
-    "message": "Ocultar configuración avanzada"
-  },
-  "advancedButtonHint": {
-    "message": "Privacidad, listas de filtros, tus reglas, rastreadores, copia de seguridad y versión"
-  },
   "advShowAllLists": {
     "message": "Mostrar todas las listas"
   },
@@ -1944,5 +1935,21 @@
         "content": "$3"
       }
     }
+  },
+  "navCollapse": {
+    "message": "Contraer menú",
+    "description": "Settings menu button: folds the sidebar to icons."
+  },
+  "navExpand": {
+    "message": "Expandir menú",
+    "description": "Settings menu button: unfolds the icon rail to the full sidebar."
+  },
+  "navOpen": {
+    "message": "Menú",
+    "description": "Settings menu button on narrow windows: opens the menu drawer."
+  },
+  "navClose": {
+    "message": "Cerrar menú",
+    "description": "Settings menu button while the menu drawer is open."
   }
 }

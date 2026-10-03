@@ -709,12 +709,14 @@
       }
       .rule-cards {
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
         gap: 12px;
       }
       .rule-cards .field + .field {
         margin-top: 0;
       }
       .rule-card {
+        min-width: 0;
         padding: 16px 18px;
         background: var(--panel-2);
         border: 1px solid var(--line);
@@ -883,66 +885,9 @@
         margin-top: 0;
       }
 
-      /* ---------- Advanced ---------- */
-      .advbtn {
-        margin-top: 24px;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        text-align: left;
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 20px 28px;
-        white-space: normal;
-        transition: border-color 0.2s, background 0.2s;
-      }
-      .advbtn:hover {
-        border-color: var(--blue-lt);
-        background: #1e1c22;
-      }
-      .advbtn-title {
-        display: block;
-        font-size: 17px;
-        font-weight: 600;
-      }
-      .advbtn-hint {
-        display: block;
-        margin-top: 2px;
-        font-size: 14.5px;
-        color: var(--muted);
-      }
-      .advbtn-chev {
-        margin-left: auto;
-        width: 12px;
-        height: 12px;
-        flex: none;
-        border-right: 2px solid var(--muted);
-        border-bottom: 2px solid var(--muted);
-        transform: rotate(45deg) translate(-3px, -3px);
-        transition: transform 0.3s var(--ease);
-      }
-      .advbtn[aria-expanded="true"] .advbtn-chev {
-        transform: rotate(-135deg) translate(-3px, -3px);
-      }
-      .adv-title {
-        margin: 44px 0 0;
-        font-size: 26px;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        scroll-margin-top: 20px;
-      }
       #advanced .panel {
         margin-top: 20px;
-        animation: rise 0.45s var(--ease) both;
       }
-      #advanced .panel:nth-of-type(2) { animation-delay: 0.06s; }
-      #advanced .panel:nth-of-type(3) { animation-delay: 0.12s; }
-      #advanced .panel:nth-of-type(4) { animation-delay: 0.18s; }
-      #advanced .panel:nth-of-type(5) { animation-delay: 0.24s; }
-      #advanced .panel:nth-of-type(6) { animation-delay: 0.3s; }
-      #advanced .panel:nth-of-type(7) { animation-delay: 0.36s; }
       @keyframes rise {
         from { opacity: 0; transform: translateY(12px); }
         to { opacity: 1; transform: none; }
@@ -1529,382 +1474,542 @@
         }
       }
 
-      /* ---------- Desktop dashboard (dashboard.ts) ---------- */
-      .dash-nav,
+      /* ---------- Dashboard (dashboard.ts) ---------- */
       .page-head,
       .overview {
         display: none;
       }
-      @media (min-width: 900px) {
-        body {
-          --side: 248px;
-        }
-        /* Logo, search, Help: the search sits in the middle of the window,
-           the way people expect a page's one search box to. */
+      /* Dashboard layout at every width; the nav itself changes mode (navMode.ts). */
+      body {
+        --side: 248px;
+      }
+      /* Logo, search, Help: the search sits in the middle of the window,
+         the way people expect a page's one search box to. */
+      .topbar {
+        display: grid;
+        grid-template-columns: 1fr minmax(0, 600px) 1fr;
+        column-gap: 24px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: var(--page);
+      }
+      .topbar .search {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+      .topbar .help {
+        justify-self: end;
+        margin-left: 0;
+      }
+      .dash-nav {
+        display: block;
+        position: fixed;
+        top: 65px;
+        left: 0;
+        bottom: 0;
+        width: var(--side);
+        box-sizing: border-box;
+        padding: 20px 14px;
+        border-right: 1px solid var(--line);
+        overflow-y: auto;
+      }
+      .nav-group {
+        margin: 18px 12px 6px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .nav-group:first-child {
+        margin-top: 0;
+      }
+      .dash-nav a {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        color: var(--fg);
+        font-size: 14.5px;
+      }
+      .dash-nav a:hover {
+        background: var(--panel);
+        text-decoration: none;
+      }
+      .dash-nav a[aria-current="page"] {
+        background: var(--panel-2);
+        font-weight: 600;
+      }
+      .dash-nav a[aria-current="page"]::before {
+        content: "";
+        position: absolute;
+        left: -14px;
+        top: 8px;
+        bottom: 8px;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background: var(--blue-lt);
+      }
+      .dash-nav svg {
+        flex: none;
+        width: 18px;
+        height: 18px;
+        color: var(--muted);
+      }
+      .dash-nav a[aria-current="page"] svg {
+        color: var(--blue-lt);
+      }
+      /* Colour tiles: one flat colour per screen with a white glyph, the
+         way Android and Apple Settings draw theirs (see
+         docs/research/settings-icons-and-help-2026-09.md). The same colour
+         marks that screen wherever it appears: the sidebar, Overview's
+         links and Overview's actions. Every shade keeps white at 5:1 or
+         more (navTiles.test.ts), and red and green stay out, because Moat
+         uses them for blocked and allowed. */
+      .dash-nav a[data-page="overview"] { --tile: #2563eb; }
+      .dash-nav a[data-page="blocking"],
+      .ov-links a[href="#blocking"] { --tile: #4f46e5; }
+      .dash-nav a[data-page="privacy"] { --tile: #0f766e; }
+      .dash-nav a[data-page="filters"],
+      #ov-check-fixes { --tile: #0369a1; }
+      .dash-nav a[data-page="paused"],
+      .ov-links a[href="#paused"] { --tile: #b45309; }
+      .dash-nav a[data-page="hidden"],
+      .ov-links a[href="#hidden"],
+      #ov-pick-element { --tile: #be185d; }
+      .dash-nav a[data-page="rules"] { --tile: #7e22ce; }
+      .dash-nav a[data-page="backup"],
+      #ov-save-backup { --tile: #c2410c; }
+      .dash-nav a[data-page="about"] { --tile: #475569; }
+      .dash-nav a svg,
+      .dash-nav a[aria-current="page"] svg,
+      .ov-links li a svg,
+      .ov-actions .ov-action svg {
+        box-sizing: border-box;
+        width: 28px;
+        height: 28px;
+        padding: 5px;
+        border-radius: 8px;
+        background: var(--tile);
+        color: #fff;
+        stroke-width: 2;
+      }
+      .dash-nav a {
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+      /* The tile already marks the screen; the side bar would double it. */
+      .dash-nav a[aria-current="page"]::before {
+        display: none;
+      }
+      .dash-nav .count {
+        margin-left: auto;
+        font-size: 12.5px;
+        font-weight: 400;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      /* One centred column in the space right of the sidebar. From
+         1280px, screens with a "How it works" picture get a second,
+         column for it (see the explainer block below). */
+      main.wrap {
+        box-sizing: border-box;
+        display: grid;
+        grid-template-columns: minmax(0, 880px);
+        justify-content: center;
+        align-content: start;
+        column-gap: 40px;
+        max-width: none;
+        min-height: calc(100vh - 65px);
+        margin: 0 0 0 var(--side);
+        padding: 36px 48px 40px;
+      }
+      main.wrap > * {
+        grid-column: 1;
+        min-width: 0;
+      }
+      .head {
+        display: none;
+      }
+      /* Title, then its one-line subtitle underneath, on every screen. */
+      .page-head {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .page-head h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+      }
+      .page-head p {
+        margin: 0;
+        color: var(--muted);
+      }
+      /* ---------- Overview ---------- */
+      .overview:not(.dash-off) {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+        gap: 20px;
+        margin-top: 24px;
+        padding: 0;
+      }
+      .ov-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 22px 24px;
+      }
+      .ov-card h3 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .ov-sub {
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      .ov-week-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+      }
+      .ov-big {
+        font-size: 44px;
+        font-weight: 700;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+      }
+      .ov-kinds {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+        margin-top: 10px;
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      .ov-kinds b {
+        color: var(--fg);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+      .ov-today {
+        text-align: right;
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      .ov-today b {
+        display: block;
+        font-size: 20px;
+        color: var(--fg);
+        font-variant-numeric: tabular-nums;
+      }
+      .ov-chart {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 10px;
+        align-items: end;
+        height: 150px;
+        margin-top: 20px;
+      }
+      .ov-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        height: 100%;
+      }
+      .ov-bar {
+        width: 100%;
+        max-width: 38px;
+        min-height: 2px;
+        border-radius: 6px 6px 2px 2px;
+        background: #3a5a9e;
+      }
+      .ov-col.today .ov-bar {
+        background: var(--blue-lt);
+      }
+      .ov-chart.is-empty .ov-bar {
+        height: 56px !important;
+        background: none;
+        border: 1.5px dashed var(--line);
+        box-sizing: border-box;
+      }
+      .ov-day {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .ov-col.today .ov-day {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .ov-empty {
+        margin: 12px 0 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .ov-level {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .ov-level-name {
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .ov-level .level-meter i {
+        height: 5px;
+      }
+      .ov-links {
+        list-style: none;
+        margin: auto 0 0;
+        padding: 0;
+      }
+      .ov-links a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-top: 1px solid var(--line);
+        color: var(--fg);
+        font-size: 14.5px;
+      }
+      .ov-links a:hover {
+        color: var(--blue-lt);
+        text-decoration: none;
+      }
+      .ov-links svg {
+        width: 17px;
+        height: 17px;
+        color: var(--muted);
+      }
+      .ov-links b {
+        margin-left: auto;
+        font-variant-numeric: tabular-nums;
+      }
+      .ov-actions {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .ov-action {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 16px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        color: var(--fg);
+        font: inherit;
+        font-size: 14.5px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: left;
+        /* Long labels (French "Chercher des correctifs de filtres") wrap
+           inside the button instead of pushing the page 2px wide at 1024. */
+        min-width: 0;
+        white-space: normal;
+      }
+      .ov-action:hover {
+        border-color: #4a4650;
+        background: var(--panel-2);
+      }
+      .ov-action svg {
+        width: 18px;
+        height: 18px;
+        color: var(--blue-lt);
+        flex: none;
+      }
+      /* Every screen's sections are in the page; show only this one's. */
+      .dash-off {
+        display: none !important;
+      }
+      .sec.dash-first {
+        border-top: 0;
+      }
+      /* A screen with one section uses that section's sentence as its
+         subtitle, so the section's own heading block would repeat it. */
+      .sec.dash-solo > div:first-child {
+        display: none;
+      }
+
+
+
+      /* ---------- Nav modes (navMode.ts): full sidebar, icon rail, drawer ---------- */
+      .nav-toggle {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        margin-right: 4px;
+        padding: 0;
+        border: 0;
+        border-radius: 10px;
+        background: none;
+        color: var(--muted);
+        cursor: pointer;
+        transition: background 0.16s, color 0.16s, transform 0.16s var(--ease);
+      }
+      .nav-toggle:hover {
+        background: var(--panel-2);
+        color: var(--fg);
+      }
+      .nav-toggle:active {
+        transform: scale(0.92);
+      }
+      .nav-toggle svg {
+        width: 22px;
+        height: 22px;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+      }
+      .nav-toggle line {
+        transform-origin: 12px 12px;
+        transition: transform 0.24s var(--ease);
+      }
+      body.nav-folded .nav-toggle .b1 {
+        transform: translate(-2px, 2.6px) rotate(-38deg) scaleX(0.55);
+      }
+      body.nav-folded .nav-toggle .b3 {
+        transform: translate(-2px, -2.6px) rotate(38deg) scaleX(0.55);
+      }
+      .nav-sep {
+        height: 1px;
+        margin: 16px 12px 10px;
+        background: var(--line);
+      }
+      .dash-nav {
+        transition: width 0.24s var(--ease), transform 0.26s var(--ease);
+      }
+      main.wrap {
+        transition: margin-left 0.24s var(--ease);
+      }
+      /* Icon rail: labels become hover tips, group names become thin lines. */
+      body[data-nav="icons"] {
+        --side: 72px;
+      }
+      body[data-nav="icons"] .dash-nav {
+        padding: 20px 12px;
+        overflow: visible;
+      }
+      body[data-nav="icons"] .dash-nav .nav-name,
+      body[data-nav="icons"] .dash-nav .count {
+        display: none;
+      }
+      body[data-nav="icons"] .nav-group {
+        height: 1px;
+        margin: 12px 8px;
+        overflow: hidden;
+        font-size: 0;
+        background: var(--line);
+      }
+      body[data-nav="icons"] .nav-sep {
+        margin: 12px 8px;
+      }
+      body[data-nav="icons"] .dash-nav a {
+        justify-content: center;
+        padding: 6px 0;
+      }
+      body[data-nav="icons"] .dash-nav a:hover::after,
+      body[data-nav="icons"] .dash-nav a:focus-visible::after {
+        content: attr(data-tip);
+        position: absolute;
+        z-index: 7;
+        left: calc(100% + 10px);
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 6px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #0d0c10;
+        color: var(--fg);
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+      /* Drawer: the full sidebar slides over the page from the menu button. */
+      body[data-nav="drawer"] {
+        --side: 0px;
+      }
+      body[data-nav="drawer"] .dash-nav {
+        z-index: 8;
+        width: min(300px, 86vw);
+        background: var(--page);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+        transform: translateX(-102%);
+        visibility: hidden;
+        transition: transform 0.26s var(--ease), visibility 0s linear 0.26s;
+      }
+      body[data-nav="drawer"].nav-open .dash-nav {
+        transform: none;
+        visibility: visible;
+        transition: transform 0.26s var(--ease);
+      }
+      /* The icon rail opened over the page on a medium window. */
+      body[data-nav="icons"].nav-open .dash-nav {
+        z-index: 8;
+        width: 280px;
+        padding: 20px 14px;
+        background: var(--page);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+      }
+      body[data-nav="icons"].nav-open .dash-nav .nav-name,
+      body[data-nav="icons"].nav-open .dash-nav .count {
+        display: revert;
+      }
+      body[data-nav="icons"].nav-open .dash-nav a {
+        justify-content: flex-start;
+        padding: 6px 12px;
+      }
+      body[data-nav="icons"].nav-open .nav-group {
+        height: auto;
+        margin: 18px 12px 6px;
+        font-size: 12.5px;
+        background: none;
+      }
+      body[data-nav="icons"].nav-open .dash-nav a:hover::after {
+        content: none;
+      }
+      .nav-scrim {
+        position: fixed;
+        inset: 65px 0 0 0;
+        z-index: 7;
+        background: rgba(0, 0, 0, 0.55);
+      }
+      @media (max-width: 719px) {
         .topbar {
-          display: grid;
-          grid-template-columns: 1fr minmax(0, 600px) 1fr;
-          column-gap: 24px;
-          position: sticky;
-          top: 0;
-          z-index: 5;
-          background: var(--page);
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          column-gap: 8px;
+          padding-left: 8px;
+          padding-right: 12px;
         }
-        .topbar .search {
-          width: 100%;
-          max-width: none;
-          margin: 0;
-        }
-        .topbar .help {
-          justify-self: end;
-          margin-left: 0;
-        }
-        .dash-nav {
-          display: block;
-          position: fixed;
-          top: 65px;
-          left: 0;
-          bottom: 0;
-          width: var(--side);
-          box-sizing: border-box;
-          padding: 20px 14px;
-          border-right: 1px solid var(--line);
-          overflow-y: auto;
-        }
-        .nav-group {
-          margin: 18px 12px 6px;
-          font-size: 12.5px;
-          font-weight: 600;
-          color: var(--muted);
-        }
-        .nav-group:first-child {
-          margin-top: 0;
-        }
-        .dash-nav a {
-          position: relative;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 8px 12px;
-          border-radius: 8px;
-          color: var(--fg);
-          font-size: 14.5px;
-        }
-        .dash-nav a:hover {
-          background: var(--panel);
-          text-decoration: none;
-        }
-        .dash-nav a[aria-current="page"] {
-          background: var(--panel-2);
-          font-weight: 600;
-        }
-        .dash-nav a[aria-current="page"]::before {
-          content: "";
-          position: absolute;
-          left: -14px;
-          top: 8px;
-          bottom: 8px;
-          width: 3px;
-          border-radius: 0 3px 3px 0;
-          background: var(--blue-lt);
-        }
-        .dash-nav svg {
-          flex: none;
-          width: 18px;
-          height: 18px;
-          color: var(--muted);
-        }
-        .dash-nav a[aria-current="page"] svg {
-          color: var(--blue-lt);
-        }
-        /* Colour tiles: one flat colour per screen with a white glyph, the
-           way Android and Apple Settings draw theirs (see
-           docs/research/settings-icons-and-help-2026-09.md). The same colour
-           marks that screen wherever it appears: the sidebar, Overview's
-           links and Overview's actions. Every shade keeps white at 5:1 or
-           more (navTiles.test.ts), and red and green stay out, because Moat
-           uses them for blocked and allowed. */
-        .dash-nav a[data-page="overview"] { --tile: #2563eb; }
-        .dash-nav a[data-page="blocking"],
-        .ov-links a[href="#blocking"] { --tile: #4f46e5; }
-        .dash-nav a[data-page="privacy"] { --tile: #0f766e; }
-        .dash-nav a[data-page="filters"],
-        #ov-check-fixes { --tile: #0369a1; }
-        .dash-nav a[data-page="paused"],
-        .ov-links a[href="#paused"] { --tile: #b45309; }
-        .dash-nav a[data-page="hidden"],
-        .ov-links a[href="#hidden"],
-        #ov-pick-element { --tile: #be185d; }
-        .dash-nav a[data-page="rules"] { --tile: #7e22ce; }
-        .dash-nav a[data-page="backup"],
-        #ov-save-backup { --tile: #c2410c; }
-        .dash-nav a[data-page="about"] { --tile: #475569; }
-        .dash-nav a svg,
-        .dash-nav a[aria-current="page"] svg,
-        .ov-links li a svg,
-        .ov-actions .ov-action svg {
-          box-sizing: border-box;
-          width: 28px;
-          height: 28px;
-          padding: 5px;
-          border-radius: 8px;
-          background: var(--tile);
-          color: #fff;
-          stroke-width: 2;
-        }
-        .dash-nav a {
-          padding-top: 6px;
-          padding-bottom: 6px;
-        }
-        /* The tile already marks the screen; the side bar would double it. */
-        .dash-nav a[aria-current="page"]::before {
+        .topbar .brand > span,
+        .topbar .search-key {
           display: none;
         }
-        .dash-nav .count {
-          margin-left: auto;
-          font-size: 12.5px;
-          font-weight: 400;
-          color: var(--muted);
-          font-variant-numeric: tabular-nums;
-        }
-        /* One centred column in the space right of the sidebar. From
-           1280px, screens with a "How it works" picture get a second,
-           column for it (see the explainer block below). */
         main.wrap {
-          box-sizing: border-box;
-          display: grid;
-          grid-template-columns: minmax(0, 880px);
-          justify-content: center;
-          align-content: start;
-          column-gap: 40px;
-          max-width: none;
-          min-height: calc(100vh - 65px);
-          margin: 0 0 0 var(--side);
-          padding: 36px 48px 40px;
+          padding: 20px 16px 48px;
         }
-        main.wrap > * {
-          grid-column: 1;
-          min-width: 0;
-        }
-        .head {
-          display: none;
-        }
-        /* Title, then its one-line subtitle underneath, on every screen. */
-        .page-head {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .page-head h1 {
-          margin: 0;
-          font-size: 28px;
-          font-weight: 700;
-          letter-spacing: -0.025em;
-        }
-        .page-head p {
-          margin: 0;
-          color: var(--muted);
-        }
-        /* ---------- Overview ---------- */
-        .overview:not(.dash-off) {
-          display: grid;
-          grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-          gap: 20px;
-          margin-top: 24px;
-          padding: 0;
-        }
-        .ov-card {
-          background: var(--panel);
-          border: 1px solid var(--line);
-          border-radius: 16px;
-          padding: 22px 24px;
-        }
-        .ov-card h3 {
-          margin: 0;
-          font-size: 15px;
-          font-weight: 600;
-        }
-        .ov-sub {
-          font-size: 13.5px;
-          color: var(--muted);
-        }
-        .ov-week-head {
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          gap: 24px;
-        }
-        .ov-big {
-          font-size: 44px;
-          font-weight: 700;
-          line-height: 1.05;
-          letter-spacing: -0.03em;
-          font-variant-numeric: tabular-nums;
-        }
-        .ov-kinds {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 4px 16px;
-          margin-top: 10px;
-          font-size: 13.5px;
-          color: var(--muted);
-        }
-        .ov-kinds b {
-          color: var(--fg);
-          font-weight: 600;
-          font-variant-numeric: tabular-nums;
-        }
-        .ov-today {
-          text-align: right;
-          font-size: 13.5px;
-          color: var(--muted);
-        }
-        .ov-today b {
-          display: block;
-          font-size: 20px;
-          color: var(--fg);
-          font-variant-numeric: tabular-nums;
-        }
-        .ov-chart {
-          display: grid;
-          grid-template-columns: repeat(7, minmax(0, 1fr));
-          gap: 10px;
-          align-items: end;
-          height: 150px;
-          margin-top: 20px;
-        }
-        .ov-col {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-end;
-          gap: 8px;
-          height: 100%;
-        }
-        .ov-bar {
-          width: 100%;
-          max-width: 38px;
-          min-height: 2px;
-          border-radius: 6px 6px 2px 2px;
-          background: #3a5a9e;
-        }
-        .ov-col.today .ov-bar {
-          background: var(--blue-lt);
-        }
-        .ov-chart.is-empty .ov-bar {
-          height: 56px !important;
-          background: none;
-          border: 1.5px dashed var(--line);
-          box-sizing: border-box;
-        }
-        .ov-day {
-          font-size: 12px;
-          color: var(--muted);
-        }
-        .ov-col.today .ov-day {
-          color: var(--fg);
-          font-weight: 600;
-        }
-        .ov-empty {
-          margin: 12px 0 0;
-          font-size: 14px;
-          color: var(--muted);
-        }
-        .ov-level {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .ov-level-name {
-          font-size: 20px;
-          font-weight: 700;
-        }
-        .ov-level .level-meter i {
-          height: 5px;
-        }
-        .ov-links {
-          list-style: none;
-          margin: auto 0 0;
-          padding: 0;
-        }
-        .ov-links a {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 9px 0;
-          border-top: 1px solid var(--line);
-          color: var(--fg);
-          font-size: 14.5px;
-        }
-        .ov-links a:hover {
-          color: var(--blue-lt);
-          text-decoration: none;
-        }
-        .ov-links svg {
-          width: 17px;
-          height: 17px;
-          color: var(--muted);
-        }
-        .ov-links b {
-          margin-left: auto;
-          font-variant-numeric: tabular-nums;
-        }
+        .overview:not(.dash-off),
         .ov-actions {
-          grid-column: 1 / -1;
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 12px;
+          grid-template-columns: minmax(0, 1fr);
         }
-        .ov-action {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 13px 16px;
-          border: 1px solid var(--line);
-          border-radius: 12px;
-          background: var(--panel);
-          color: var(--fg);
-          font: inherit;
-          font-size: 14.5px;
-          font-weight: 600;
-          cursor: pointer;
-          text-align: left;
-          /* Long labels (French "Chercher des correctifs de filtres") wrap
-             inside the button instead of pushing the page 2px wide at 1024. */
-          min-width: 0;
-          white-space: normal;
-        }
-        .ov-action:hover {
-          border-color: #4a4650;
-          background: var(--panel-2);
-        }
-        .ov-action svg {
-          width: 18px;
-          height: 18px;
-          color: var(--blue-lt);
-          flex: none;
-        }
-        /* Every screen's sections are in the page; show only this one's. */
-        .advbtn,
-        .adv-title,
-        .dash-off {
-          display: none !important;
-        }
-        #advanced {
-          display: block !important;
-        }
-        /* A sidebar click shows its screen at once: the staggered rise is
-           for opening Advanced settings on the single-page layout. */
-        #advanced .panel {
-          animation: none;
-        }
-        .sec.dash-first {
-          border-top: 0;
-        }
-        /* A screen with one section uses that section's sentence as its
-           subtitle, so the section's own heading block would repeat it. */
-        .sec.dash-solo > div:first-child {
-          display: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .dash-nav,
+        main.wrap,
+        .nav-toggle line {
+          transition: none !important;
         }
       }
 
@@ -2321,7 +2426,12 @@
   <body>
     <div id="shell">
       <header class="topbar">
-        <span class="brand"><img src="icons/icon48.png" alt="" /><span>Moat</span></span>
+        <div class="brand">
+          <button type="button" class="nav-toggle" id="nav-toggle" aria-controls="dash-nav" aria-expanded="true" aria-label="Collapse menu" data-i18n-aria-label="navCollapse">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line class="b1" x1="4" y1="7" x2="20" y2="7" /><line class="b2" x1="4" y1="12" x2="20" y2="12" /><line class="b3" x1="4" y1="17" x2="20" y2="17" /></svg>
+          </button>
+          <img src="icons/icon48.png" alt="" /><span>Moat</span>
+        </div>
         <div class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4" /></svg>
           <input
@@ -2343,21 +2453,23 @@
         <a class="help" href="https://samuelabhinav37.github.io/moat/#faq" target="_blank" rel="noopener" data-i18n="settingsHelp">Help</a>
       </header>
 
-      <!-- Desktop only: one screen per task (see dashboard.ts). Phones keep
-           the single scrolling page below. -->
-      <nav class="dash-nav" aria-label="Settings" data-i18n-aria-label="settingsTitle">
-        <a href="#overview" data-page="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4h6v4h-6zM4 20h6v-3H4z" /></svg><span class="nav-name" data-i18n="navOverview">Overview</span><span class="nav-lead" hidden data-i18n="pageLeadOverview">What Moat did for you this week</span></a>
+      <!-- One screen per task (see dashboard.ts). The nav is a full sidebar,
+           an icon rail, or a drawer depending on the window (navMode.ts). -->
+      <div class="nav-scrim" id="nav-scrim" hidden></div>
+      <nav class="dash-nav" id="dash-nav" aria-label="Settings" data-i18n-aria-label="settingsTitle">
+        <a href="#overview" data-page="overview" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4h6v4h-6zM4 20h6v-3H4z" /></svg><span class="nav-name" data-i18n="navOverview">Overview</span><span class="nav-lead" hidden data-i18n="pageLeadOverview">What Moat did for you this week</span></a>
         <p class="nav-group" data-i18n="navGroupProtection">Protection</p>
-        <a href="#blocking" data-page="blocking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg><span class="nav-name" data-i18n="navBlockingLevel">Blocking level</span><span class="nav-lead" hidden data-i18n="pageLeadBlocking">How much to block, and the extras on top</span></a>
-        <a href="#privacy" data-page="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a3 3 0 100-6 3 3 0 000 6zM5 20a7 7 0 0114 0" /></svg><span class="nav-name" data-i18n="navPrivacy">Privacy</span></a>
-        <a href="#filters" data-page="filters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg><span class="nav-name" data-i18n="tabFilters">Filter lists</span></a>
+        <a href="#blocking" data-page="blocking" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg><span class="nav-name" data-i18n="navBlockingLevel">Blocking level</span><span class="nav-lead" hidden data-i18n="pageLeadBlocking">How much to block, and the extras on top</span></a>
+        <a href="#privacy" data-page="privacy" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a3 3 0 100-6 3 3 0 000 6zM5 20a7 7 0 0114 0" /></svg><span class="nav-name" data-i18n="navPrivacy">Privacy</span></a>
+        <a href="#filters" data-page="filters" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg><span class="nav-name" data-i18n="tabFilters">Filter lists</span></a>
         <p class="nav-group" data-i18n="navGroupExceptions">Your exceptions</p>
-        <a href="#paused" data-page="paused"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span class="nav-name" data-i18n="navSites">Sites</span><span class="nav-lead" hidden data-i18n="pageLeadSites">Sites where Moat is paused, and settings you changed for one site</span><span class="count" id="nav-count-paused" hidden></span></a>
-        <a href="#hidden" data-page="hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span class="nav-name" data-i18n="navHidden">Hidden on pages</span><span class="count" id="nav-count-hidden" hidden></span></a>
-        <a href="#rules" data-page="rules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg><span class="nav-name" data-i18n="navRules">Always and never block</span></a>
+        <a href="#paused" data-page="paused" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span class="nav-name" data-i18n="navSites">Sites</span><span class="nav-lead" hidden data-i18n="pageLeadSites">Sites where Moat is paused, and settings you changed for one site</span><span class="count" id="nav-count-paused" hidden></span></a>
+        <a href="#hidden" data-page="hidden" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span class="nav-name" data-i18n="navHidden">Hidden on pages</span><span class="count" id="nav-count-hidden" hidden></span></a>
+        <a href="#rules" data-page="rules" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg><span class="nav-name" data-i18n="navRules">Always and never block</span></a>
         <p class="nav-group" data-i18n="navGroupSettings">Settings</p>
-        <a href="#backup" data-page="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span></a>
-        <a href="#about" data-page="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About Moat</span></a>
+        <a href="#backup" data-page="backup" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span></a>
+        <div class="nav-sep" aria-hidden="true"></div>
+        <a href="#about" data-page="about" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About Moat</span></a>
       </nav>
 
       <div class="toast" id="saved-toast" role="status" aria-live="polite" hidden>
@@ -2542,16 +2654,7 @@
           </section>
         </div>
 
-        <button type="button" class="advbtn" id="advanced-toggle" aria-expanded="false" aria-controls="advanced">
-          <span>
-            <span class="advbtn-title" id="advanced-toggle-title" data-i18n="advancedButton">Advanced settings</span>
-            <span class="advbtn-hint" data-i18n="advancedButtonHint">Privacy, filter lists, your own rules, trackers, backup and version</span>
-          </span>
-          <span class="advbtn-chev" aria-hidden="true"></span>
-        </button>
-
-        <div id="advanced" hidden>
-          <h2 class="adv-title" id="advanced-title" data-i18n="advancedButton">Advanced settings</h2>
+        <div id="advanced">
 
           <!-- Privacy extras -->
           <div class="panel">

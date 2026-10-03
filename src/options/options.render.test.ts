@@ -47,11 +47,9 @@ async function renderOptions(settings?: Partial<Settings>): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 20));
 }
 
-/** Opens Advanced settings and every disclosure inside it, so each
- * section is actually on screen -- the Trackers breakdown, for one, is only
- * fetched once its own <details> opens. */
+/** Opens every disclosure, so each section is actually on screen -- the
+ * Trackers breakdown, for one, is only fetched once its own <details> opens. */
 async function openEverything(): Promise<void> {
-  (document.getElementById("advanced-toggle") as HTMLButtonElement).click();
   for (const details of document.querySelectorAll("details")) (details as HTMLDetailsElement).open = true;
   for (let i = 0; i < 10; i++) await Promise.resolve();
 }
@@ -80,7 +78,7 @@ describe("options.html render", () => {
     expect(caughtErrors).toEqual([]);
   });
 
-  it("has no practically-invisible text with Advanced settings open (the v0.11.89 bug class)", async () => {
+  it("has no practically-invisible text with every section open (the v0.11.89 bug class)", async () => {
     await renderOptions();
     await openEverything();
     const findings = findInvisibleText(document.body);
@@ -335,25 +333,8 @@ describe("Block and allow: migration import", () => {
   });
 });
 
-describe("One-page layout", () => {
-  it("keeps Advanced settings collapsed until its button is pressed", async () => {
-    await renderOptions();
-    const toggle = document.getElementById("advanced-toggle") as HTMLButtonElement;
-    const advanced = document.getElementById("advanced") as HTMLElement;
-    expect(toggle.getAttribute("aria-expanded")).toBe("false");
-    expect(advanced.hidden).toBe(true);
-
-    toggle.click();
-    expect(toggle.getAttribute("aria-expanded")).toBe("true");
-    expect(advanced.hidden).toBe(false);
-    expect(document.getElementById("advanced-toggle-title")?.textContent).toBe("Hide advanced settings");
-
-    toggle.click();
-    expect(advanced.hidden).toBe(true);
-    expect(document.getElementById("advanced-toggle-title")?.textContent).toBe("Advanced settings");
-  });
-
-  it("selects no level card for a hand-picked mix, and points to Advanced settings", async () => {
+describe("Level cards", () => {
+  it("selects no level card for a hand-picked mix, and points to Filter lists", async () => {
     // The shared mock is deliberately a custom mix (fingerprinting on, etc.).
     await renderOptions();
     const checkedCards = document.querySelectorAll("#level-cards .level[aria-checked='true']");

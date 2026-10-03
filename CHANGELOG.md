@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.200
+
+### Fixed
+- **Settings lost its menu on a narrow window.** Below 900px the sidebar disappeared and the
+  page became one long list with an "Advanced settings" button, so there was no way to jump to
+  a screen. Settings now keeps its screens at every width and the menu changes size instead:
+  - **Wide (1100px and up):** the full sidebar. The new ☰ button beside the logo folds it to
+    icons, the way Google Cloud and Azure do, and Moat remembers the choice.
+  - **Medium (720 to 1100px):** an icon rail. Hovering an icon shows its name, and ☰ opens the
+    full menu over the page.
+  - **Narrow (under 720px):** ☰ opens the menu as a drawer. Esc, a tap outside or picking a
+    screen closes it, keyboard focus stays inside while it's open, and focus returns to ☰.
+- About Moat now sits on its own at the bottom of the menu.
+- Search opens the result's own screen at every width (it used to open Advanced settings on a
+  phone). "Always and never block" no longer scrolls sideways at 390px.
+- Checked in Chrome at 1440, 1000, 600 and 390 px, light and dark, English and German: menu
+  modes, folding and remembering, the drawer with the keyboard, search landing on its result,
+  and no sideways scroll on any screen.
+
 ## 0.11.199
 
 ### Fixed

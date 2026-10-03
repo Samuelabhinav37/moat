@@ -762,15 +762,6 @@
   "hiddenEmptyHint": {
     "message": "Klicke auf das Moat-Symbol, wähle Etwas auf dieser Seite ausblenden und klicke auf das, was weg soll."
   },
-  "advancedButton": {
-    "message": "Erweiterte Einstellungen"
-  },
-  "advancedButtonHide": {
-    "message": "Erweiterte Einstellungen ausblenden"
-  },
-  "advancedButtonHint": {
-    "message": "Datenschutz, Filterlisten, eigene Regeln, Tracker, Sicherung und Version"
-  },
   "advShowAllLists": {
     "message": "Alle Listen anzeigen"
   },
@@ -1944,5 +1935,21 @@
         "content": "$3"
       }
     }
+  },
+  "navCollapse": {
+    "message": "Menü einklappen",
+    "description": "Settings menu button: folds the sidebar to icons."
+  },
+  "navExpand": {
+    "message": "Menü ausklappen",
+    "description": "Settings menu button: unfolds the icon rail to the full sidebar."
+  },
+  "navOpen": {
+    "message": "Menü",
+    "description": "Settings menu button on narrow windows: opens the menu drawer."
+  },
+  "navClose": {
+    "message": "Menü schließen",
+    "description": "Settings menu button while the menu drawer is open."
   }
 }

@@ -765,15 +765,6 @@
   "hiddenEmptyHint": {
     "message": "Click Moat's icon, choose Hide something on this page, then click what you want gone."
   },
-  "advancedButton": {
-    "message": "Advanced settings"
-  },
-  "advancedButtonHide": {
-    "message": "Hide advanced settings"
-  },
-  "advancedButtonHint": {
-    "message": "Privacy, filter lists, your own rules, trackers, backup and version"
-  },
   "advShowAllLists": {
     "message": "Show all lists"
   },
@@ -2108,5 +2099,21 @@
       }
     },
     "description": "Settings > Filter lists on Firefox: its per-extension rule limit and how much Moat uses."
+  },
+  "navCollapse": {
+    "message": "Collapse menu",
+    "description": "Settings menu button: folds the sidebar to icons."
+  },
+  "navExpand": {
+    "message": "Expand menu",
+    "description": "Settings menu button: unfolds the icon rail to the full sidebar."
+  },
+  "navOpen": {
+    "message": "Menu",
+    "description": "Settings menu button on narrow windows: opens the menu drawer."
+  },
+  "navClose": {
+    "message": "Close menu",
+    "description": "Settings menu button while the menu drawer is open."
   }
 }

@@ -1,8 +1,8 @@
 // "Search settings" in the Settings top bar. The index is read from the page
 // itself each time (sections, setting rows, levels, rule fields), so it
 // always matches what's rendered, including rows options.ts builds later and
-// whatever language the page is in. Picking a result opens its screen (or,
-// on a phone, the Advanced area), scrolls to it and briefly highlights it.
+// whatever language the page is in. Picking a result opens its screen,
+// scrolls to it and briefly highlights it.
 
 import { pageFromHash, type PageKey } from "./dashboard";
 
@@ -69,11 +69,7 @@ export function rankItems(items: readonly SearchItem[], query: string): SearchIt
 }
 
 export interface SearchOptions {
-  /** Makes a target reachable on the single-page (phone) layout, e.g. by
-   * opening Advanced settings. */
-  reveal: (target: HTMLElement) => void;
   noResults: string;
-  isDesktop: () => boolean;
 }
 
 export function initSettingsSearch(input: HTMLInputElement, list: HTMLUListElement, options: SearchOptions): void {
@@ -100,11 +96,7 @@ export function initSettingsSearch(input: HTMLInputElement, list: HTMLUListEleme
     close();
     input.value = "";
     input.blur();
-    if (options.isDesktop()) {
-      if (pageFromHash(win.location.hash) !== item.page) win.location.hash = item.page;
-    } else {
-      options.reveal(item.target);
-    }
+    if (pageFromHash(win.location.hash) !== item.page) win.location.hash = item.page;
     // A closed "Show all" disclosure would keep the row out of sight.
     for (let el: HTMLElement | null = item.target; el; el = el.parentElement) {
       if (el instanceof HTMLDetailsElement) el.open = true;

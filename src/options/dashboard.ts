@@ -1,8 +1,8 @@
-// Desktop dashboard for the Settings page: a sidebar with one screen per
-// task, picked by the URL hash (#paused, #filters, ...) so Back and
-// bookmarks work. Every section stays in the page; this only marks which
-// ones belong to the current screen, and the CSS hides the rest at desktop
-// widths (min-width: 900px). Phones keep the single scrolling page.
+// The Settings dashboard: a sidebar with one screen per task, picked by the
+// URL hash (#paused, #filters, ...) so Back and bookmarks work. Every section
+// stays in the page; this only marks which ones belong to the current
+// screen, and the CSS hides the rest. Same at every width: navMode.ts only
+// changes how the sidebar itself is shown.
 
 export const PAGE_KEYS = ["overview", "blocking", "privacy", "filters", "paused", "hidden", "rules", "backup", "about"] as const;
 export type PageKey = (typeof PAGE_KEYS)[number];
