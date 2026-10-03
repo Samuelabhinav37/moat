@@ -3573,5 +3573,70 @@
   },
   "docSummaryLicenses": {
     "message": "The open-source lists and code Moat is built on, and the license each one uses."
+  },
+  "checkupCardTitle": {
+    "message": "Review your protection",
+    "description": "Overview card that opens the guided protection checkup."
+  },
+  "checkupCardLead": {
+    "message": "Three quick questions about how much Moat blocks. Nothing changes until you say Done."
+  },
+  "checkupStart": {
+    "message": "Start"
+  },
+  "checkupStepLevel": {
+    "message": "How much to block"
+  },
+  "checkupStepPrivacy": {
+    "message": "Privacy extras"
+  },
+  "checkupStepAnnoyances": {
+    "message": "Annoyances"
+  },
+  "checkupStepOf": {
+    "message": "Step $N$ of $OF$",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "1"
+      },
+      "of": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "checkupKeepMix": {
+    "message": "Keep my own mix"
+  },
+  "checkupKeepMixDesc": {
+    "message": "The lists and extras you picked yourself stay as they are."
+  },
+  "checkupSummaryTitle": {
+    "message": "Here's what changes"
+  },
+  "checkupWillChange": {
+    "message": "Done will make these changes:"
+  },
+  "checkupNoChanges": {
+    "message": "Nothing to change. Your protection stays as it is."
+  },
+  "checkupLevelChange": {
+    "message": "Level: $LEVEL$",
+    "placeholders": {
+      "level": {
+        "content": "$1",
+        "example": "Strict"
+      }
+    }
+  },
+  "checkupCancel": {
+    "message": "Cancel"
+  },
+  "checkupDone": {
+    "message": "Done"
+  },
+  "checkupApplied": {
+    "message": "Protection updated. It applies to pages you open or reload."
   }
 }

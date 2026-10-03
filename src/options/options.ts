@@ -23,6 +23,7 @@ import { openPauseMenu } from "./pauseMenu";
 import { pauseEnd, pauseEndLabel, type PauseLength } from "../shared/pauseDuration";
 import { initNavMode } from "./navMode";
 import { TOPICS, initHelpPanel } from "./helpPanel";
+import { LEVELS, openCheckup, type Level } from "./checkup";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
 import { buildKpi, buildTopCard, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
 import { buildHeatmap, buildPurposes, buildReachRows, busiestPhrase, purposeLabel, purposeShares } from "./insightsView";
@@ -2601,6 +2602,44 @@ function buildStopGroup(key: string, title: string, stops: UsageSummaryResponse[
 }
 
 const SECURITY_GROUPS = ["phishing-urls", "scam", "malicious-urls", "badware"];
+
+// ---------- Review your protection (checkup.ts) ----------
+
+const LEVEL_DESC: Record<Level, [string, string]> = {
+  lite: ["levelLightDesc", "Blocks ads, pop-ups, and dangerous sites like scams and malware. Trackers still load, so sites that depend on them keep working."],
+  standard: ["levelBalancedDesc", "Everything in Light, plus trackers, tracking added to links, and fake login sites. Recommended."],
+  strict: ["levelStrictDesc", "Everything in Balanced, plus cookie banners and social media buttons. It also stops sites recognizing your device, following you between sites, or seeing your IP address. A few sites may break."],
+};
+const CHECKUP_PRIVACY = ["cookies", "webrtc"];
+const CHECKUP_ANNOYANCES = ["consentReject", "grayscale", "feedScan", "searchSlop"];
+
+document.getElementById("checkup-start")?.addEventListener("click", () => {
+  void getEffectiveSettings().then((settings) => {
+    const preset = detectPreset(settings);
+    const asSwitch = (id: string) => {
+      const def = PROTECTIONS.find((p) => p.id === id)!;
+      return { key: def.settingKey, title: tFallback(...def.titleKey), desc: tFallback(...def.descKey) };
+    };
+    openCheckup(document, {
+      t: tFallback,
+      settings,
+      currentLevel: (LEVELS as readonly string[]).includes(preset) ? (preset as Level) : null,
+      levelPatch: (level) => presetPatch(level),
+      levelName: (level) => levelLabel(level),
+      levelDesc: (level) => tFallback(...LEVEL_DESC[level]),
+      privacy: CHECKUP_PRIVACY.map(asSwitch),
+      annoyances: CHECKUP_ANNOYANCES.map(asSwitch),
+      apply: (patch, before) => {
+        void setSettings(patch).then(() => {
+          void render();
+          savedToast.offerUndo(tFallback("checkupApplied", "Protection updated. It applies to pages you open or reload."), tFallback("toastUndo", "Undo"), () => {
+            void setSettings(before).then(() => render());
+          });
+        });
+      },
+    });
+  });
+});
 
 function chevron(): SVGSVGElement {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");

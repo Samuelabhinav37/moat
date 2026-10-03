@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.241
+
+### Added
+- **Review your protection.** A card on Overview opens a short checkup, the way Google's
+  Privacy Checkup and Apple's Safety Check work. Three steps: how much to block, two privacy
+  extras (cross-site cookies and your IP address), then annoyances. It ends with a list of
+  exactly what will change. Nothing is saved until Done, and Undo puts everything back.
+- If you've picked your own mix of lists, the checkup offers to keep it.
+
 ## 0.11.240
 
 ### Changed

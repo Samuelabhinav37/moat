@@ -3412,5 +3412,70 @@
   },
   "docSummaryLicenses": {
     "message": "Las listas y el código de código abierto en los que se basa Moat, y la licencia de cada uno."
+  },
+  "checkupCardTitle": {
+    "message": "Revisa tu protección",
+    "description": "Overview card that opens the guided protection checkup."
+  },
+  "checkupCardLead": {
+    "message": "Tres preguntas rápidas sobre cuánto bloquea Moat. Nada cambia hasta que pulses Listo."
+  },
+  "checkupStart": {
+    "message": "Empezar"
+  },
+  "checkupStepLevel": {
+    "message": "Cuánto bloquear"
+  },
+  "checkupStepPrivacy": {
+    "message": "Privacidad extra"
+  },
+  "checkupStepAnnoyances": {
+    "message": "Molestias"
+  },
+  "checkupStepOf": {
+    "message": "Paso $N$ de $OF$",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "1"
+      },
+      "of": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "checkupKeepMix": {
+    "message": "Mantener mi combinación"
+  },
+  "checkupKeepMixDesc": {
+    "message": "Las listas y extras que elegiste se quedan como están."
+  },
+  "checkupSummaryTitle": {
+    "message": "Esto es lo que cambia"
+  },
+  "checkupWillChange": {
+    "message": "Al pulsar Listo se harán estos cambios:"
+  },
+  "checkupNoChanges": {
+    "message": "No hay nada que cambiar. Tu protección se queda como está."
+  },
+  "checkupLevelChange": {
+    "message": "Nivel: $LEVEL$",
+    "placeholders": {
+      "level": {
+        "content": "$1",
+        "example": "Strict"
+      }
+    }
+  },
+  "checkupCancel": {
+    "message": "Cancelar"
+  },
+  "checkupDone": {
+    "message": "Listo"
+  },
+  "checkupApplied": {
+    "message": "Protección actualizada. Se aplica a las páginas que abras o recargues."
   }
 }
