@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.240
+
+### Changed
+- **Report a problem no longer answers for you.** "Does pausing Moat on this site fix it?" used
+  to start on "Haven't tried". Now nothing is picked until you pick it, like a GitHub issue form.
+  The reference number after sending stays.
+
+### Added
+- **The welcome tour ends with a choice: pick your level.** Light, Balanced or Strict, on the
+  one you're using (Balanced on a new install). Picking one saves it right away. Skipping
+  changes nothing.
+
 ## 0.11.239
 
 ### Added

@@ -969,6 +969,16 @@
   "tourPopupLede": {
     "message": "Klicke auf einer beliebigen Seite auf das Moat-Symbol. Das hat es auf weather.com gezeigt."
   },
+  "tourLevelTitle": {
+    "message": "Wähle deine Stufe",
+    "description": "Welcome tour, last step: choose how much Moat blocks."
+  },
+  "tourLevelLede": {
+    "message": "Ausgewogen passt für die meisten. Wähle Streng für mehr Privatsphäre oder Leicht, wenn Websites oft nicht funktionieren. Du kannst es jederzeit in den Einstellungen ändern."
+  },
+  "tourLevelSaved": {
+    "message": "Gespeichert. Gilt für Seiten, die du ab jetzt öffnest."
+  },
   "tourLegend1Title": {
     "message": "Was diese Seite laden wollte"
   },

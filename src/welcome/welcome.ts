@@ -1,11 +1,15 @@
-// First-run tour: four steps shown once, in a tab background/firstRunTour.ts
-// opens on a fresh install. Nothing here changes protection; Moat is already
-// blocking before this page loads. The before/after screenshots and numbers
+// First-run tour: five steps shown once, in a tab background/firstRunTour.ts
+// opens on a fresh install. Moat is already blocking before this page loads;
+// the last step offers the one real choice, the blocking level, and changes
+// nothing unless a level is picked. The before/after screenshots and numbers
 // are real captures (docs/research/first-run-tour-2026-09.md).
 import browser from "webextension-polyfill";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { dismissOnboarding } from "../background/updateNotice";
 import { watchPinState, type ActionLike, type PinState } from "./pinState";
+import { getEffectiveSettings } from "../background/settings";
+import { detectPreset, presetPatch, type PresetName } from "../shared/filterPresets";
+import type { SetSettingsPatchMessage } from "../types";
 
 const getMessage = (key: string, subs?: string | string[]) => browser.i18n.getMessage(key, subs);
 const t = (key: string, fallback: string, subs?: string | string[]) => getMessageOrFallback(getMessage, key, fallback, subs);
@@ -14,7 +18,7 @@ applyStaticI18n(document, getMessage);
 document.documentElement.lang = browser.i18n.getUILanguage();
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const STEPS = 4;
+const STEPS = 5;
 
 interface Site {
   name: string;
@@ -118,6 +122,40 @@ async function finish(openSettings: boolean): Promise<void> {
 $("next").addEventListener("click", () => (step < STEPS ? show(step + 1) : void finish(false)));
 $("back").addEventListener("click", () => show(step - 1));
 $("skip").addEventListener("click", () => (step < STEPS ? show(STEPS) : void finish(true)));
+
+// ---------- Step 5: pick your level ----------
+
+const levelCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".level-card"));
+const markLevel = (level: string) => {
+  for (const card of levelCards) {
+    const on = card.dataset.level === level;
+    card.setAttribute("aria-checked", String(on));
+    card.tabIndex = on ? 0 : -1;
+  }
+};
+// Shows the level Moat is on (Balanced on a fresh install).
+void getEffectiveSettings()
+  .then((settings) => {
+    const preset = detectPreset(settings);
+    markLevel(levelCards.some((card) => card.dataset.level === preset) ? preset : "standard");
+  })
+  .catch(() => markLevel("standard"));
+for (const card of levelCards) {
+  card.addEventListener("click", () => {
+    markLevel(card.dataset.level!);
+    const message: SetSettingsPatchMessage = { type: "set-settings-patch", patch: presetPatch(card.dataset.level as PresetName) };
+    void browser.runtime.sendMessage(message).then(() => ($("level-saved").hidden = false));
+  });
+  // Arrow keys move between the cards, as in any radio group.
+  card.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft" && event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    const i = levelCards.indexOf(card);
+    const next = levelCards[(i + (event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : levelCards.length - 1)) % levelCards.length]!;
+    next.focus();
+    next.click();
+  });
+}
 
 // ---------- Step 1: real before/after ----------
 

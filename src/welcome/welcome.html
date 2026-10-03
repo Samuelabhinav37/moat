@@ -87,12 +87,27 @@
       .status .icon-ok, .status.pinned .icon-warn { display: none; }
       .status.pinned .icon-ok { display: block; }
 
+      .levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+      .level-card {
+        display: grid; align-content: start; gap: 10px; padding: 20px; text-align: left; font: inherit; color: var(--fg);
+        background: var(--card); border: 1px solid var(--border); border-radius: 16px; cursor: pointer;
+      }
+      .level-card b { font-size: 17px; }
+      .level-card > span:last-child { color: var(--muted); font-size: 14px; line-height: 1.5; }
+      .level-card[aria-checked="true"] { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+      .level-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .lc-meter { display: flex; gap: 4px; }
+      .lc-meter i { flex: 1; height: 4px; border-radius: 2px; background: var(--border); }
+      .lc-meter i.on { background: var(--primary); }
+      .level-saved { margin: 16px 0 0; color: var(--on); font-weight: 600; }
+      .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      @media (max-width: 860px) { .levels { grid-template-columns: minmax(0, 1fr); } }
       .legend { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 14px; }
       .legend li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; font-size: 14.5px; }
       .num { width: 22px; height: 22px; border-radius: 50%; background-color: var(--accent); color: #10131a; font: 700 12px/22px var(--mono); text-align: center; }
 
       .spacer { height: 32px; flex: none; }
-      .progress { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
+      .progress { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px; }
       .progress span { height: 4px; border-radius: 2px; background: var(--border); transition: background .3s; }
       .progress span.on { background: var(--accent); }
       .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -233,7 +248,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
           <span data-i18n="tourBack">Back</span>
         </button>
-        <div class="step-label" id="step-label">Step 1 of 4</div>
+        <div class="step-label" id="step-label">Step 1 of 5</div>
 
         <div data-step="1" class="active">
           <h1 data-i18n="tourSeeTitle">Moat is already on</h1>
@@ -294,9 +309,18 @@
           </ul>
         </div>
 
+        <!-- Optional last step: the one real choice, how much to block
+             (Google's Privacy Checkup also ends with a choice). Nothing is
+             changed unless a card is picked. -->
+        <div data-step="5">
+          <h1 data-i18n="tourLevelTitle">Pick your level</h1>
+          <p class="lede" data-i18n="tourLevelLede">Balanced suits most people. Pick Strict for more privacy, or Light if sites keep breaking. You can change it any time in Settings.</p>
+          <p class="level-saved" id="level-saved" role="status" hidden data-i18n="tourLevelSaved">Saved. It applies to pages you open from now on.</p>
+        </div>
+
         <div class="spacer"></div>
         <div class="rail-actions">
-          <div class="progress" aria-hidden="true"><span class="on"></span><span></span><span></span><span></span></div>
+          <div class="progress" aria-hidden="true"><span class="on"></span><span></span><span></span><span></span><span></span></div>
           <div class="actions">
             <button class="primary" id="next" data-i18n="tourContinue">Continue</button>
             <button class="ghost" id="skip" data-i18n="tourSkip">Skip tour</button>
@@ -417,6 +441,27 @@
                 <div class="pick"><span class="num callout">3</span><span data-i18n="popupBlockElement">Hide something on this page…</span></div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div data-step="5">
+          <div class="levels" role="radiogroup" aria-labelledby="level-group-label">
+            <span class="sr-only" id="level-group-label" data-i18n="tourLevelTitle">Pick your level</span>
+            <button type="button" class="level-card" role="radio" aria-checked="false" data-level="lite">
+              <span class="lc-meter" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
+              <b data-i18n="presetLite">Light</b>
+              <span data-i18n="levelLightDesc">Blocks ads, pop-ups, and dangerous sites like scams and malware. Trackers still load, so sites that depend on them keep working.</span>
+            </button>
+            <button type="button" class="level-card" role="radio" aria-checked="false" data-level="standard">
+              <span class="lc-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
+              <b data-i18n="presetStandard">Balanced</b>
+              <span data-i18n="levelBalancedDesc">Everything in Light, plus trackers, tracking added to links, and fake login sites. Recommended.</span>
+            </button>
+            <button type="button" class="level-card" role="radio" aria-checked="false" data-level="strict">
+              <span class="lc-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+              <b data-i18n="presetStrict">Strict</b>
+              <span data-i18n="levelStrictDesc">Everything in Balanced, plus cookie banners and social media buttons. It also stops sites recognizing your device, following you between sites, or seeing your IP address. A few sites may break.</span>
+            </button>
           </div>
         </div>
       </section>

@@ -972,6 +972,16 @@
   "tourPopupLede": {
     "message": "Click Moat's icon on any page. This is what it showed on weather.com."
   },
+  "tourLevelTitle": {
+    "message": "Pick your level",
+    "description": "Welcome tour, last step: choose how much Moat blocks."
+  },
+  "tourLevelLede": {
+    "message": "Balanced suits most people. Pick Strict for more privacy, or Light if sites keep breaking. You can change it any time in Settings."
+  },
+  "tourLevelSaved": {
+    "message": "Saved. It applies to pages you open from now on."
+  },
   "tourLegend1Title": {
     "message": "What this page tried to load"
   },

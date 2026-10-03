@@ -69,7 +69,7 @@ describe("welcome.html (first-run tour)", () => {
     await renderTour();
     expect(caughtErrors).toEqual([]);
     expect(findInvisibleText(document.body)).toEqual([]);
-    expect(document.getElementById("step-label")?.textContent).toBe("Step 1 of 4");
+    expect(document.getElementById("step-label")?.textContent).toBe("Step 1 of 5");
   });
 
   it("swaps between the two real sites", async () => {
@@ -83,7 +83,7 @@ describe("welcome.html (first-run tour)", () => {
     expect(document.getElementById("shot")?.classList.contains("moat")).toBe(true);
   });
 
-  it("walks through all four steps", async () => {
+  it("walks through all five steps", async () => {
     await renderTour();
     next();
     expect(visibleStep()).toBe("2");
@@ -93,7 +93,22 @@ describe("welcome.html (first-run tour)", () => {
     expect(visibleStep()).toBe("3");
     next();
     expect(visibleStep()).toBe("4");
+    next();
+    expect(visibleStep()).toBe("5");
     expect(document.getElementById("next")?.textContent).toBe("Start browsing");
+  });
+
+  it("offers the level last, on the current one, and saves a pick", async () => {
+    await renderTour();
+    for (let i = 0; i < 4; i++) next();
+    await settle();
+    const checkedLevel = () => document.querySelector<HTMLElement>('.level-card[aria-checked="true"]')?.dataset.level;
+    expect(checkedLevel()).toBe("standard");
+    expect(document.getElementById("level-saved")?.hidden).toBe(true);
+    document.querySelector<HTMLButtonElement>('.level-card[data-level="strict"]')!.click();
+    await settle();
+    expect(checkedLevel()).toBe("strict");
+    expect(document.getElementById("level-saved")?.hidden).toBe(false);
   });
 
   it("the pin step follows the browser: unpinned, then pinned", async () => {
@@ -131,10 +146,7 @@ describe("welcome.html (first-run tour)", () => {
 
   it("finishing marks onboarding seen and closes its own tab", async () => {
     const storage = await renderTour();
-    next();
-    next();
-    next();
-    next();
+    for (let i = 0; i < 5; i++) next();
     await settle();
     expect((storage.uiState as { hasSeenOnboarding?: boolean }).hasSeenOnboarding).toBe(true);
     expect(removeTab).toHaveBeenCalledWith(7);

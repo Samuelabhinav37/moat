@@ -132,6 +132,15 @@ describe("sending", () => {
     expect(sentBody().hostname).toBe("example.org");
   });
 
+  it("doesn't pick an answer to 'Does pausing fix it?' for you", async () => {
+    await openPage("?tab=5");
+    expect(document.querySelector('input[name="pause"]:checked')).toBeNull();
+    choose("category", "cookie");
+    submit();
+    await vi.waitFor(() => expect($("done").hidden).toBe(false));
+    expect(sentBody().pausingFixes).toBe("untried");
+  });
+
   it("posts JSON to the report service and shows the reference", async () => {
     await openPage("?tab=5");
     choose("category", "cookie");
