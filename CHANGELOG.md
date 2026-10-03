@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.232
+
+### Added
+- **"Open anyway" on the block page, for one visit.** For ad and tracker lists, and for your
+  own block list, it's a plain button next to Go back. For a dangerous site it sits under
+  Details, with "not recommended", the way Chrome's Safe Browsing page does it. An
+  organization's block has no way through.
+- It lets that site's own pages, scripts and images load. Ads and trackers from other sites
+  stay blocked. It ends when the tab moves to another site or closes, and with the browser.
+  Your lists don't change.
+
 ## 0.11.231
 
 ### Added

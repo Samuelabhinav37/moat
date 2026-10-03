@@ -443,6 +443,13 @@ export interface AthenaBlockReasonResponse {
   hostname: string | null;
 }
 
+/** Sent by Moat's block page: "Open anyway" for the site this tab was
+ * stopped on (see background/proceedRules.ts). Carries no address: the
+ * worker uses the one it recorded. */
+export interface OpenBlockedPageMessage {
+  type: "open-blocked-page";
+}
+
 export interface ReportAthenaOverrideMessage {
   type: "report-athena-override";
   reason: string;
@@ -815,6 +822,7 @@ export type RuntimeMessage =
   | DismissOnboardingMessage
   | GetAthenaBlockReasonMessage
   | ReportAthenaOverrideMessage
+  | OpenBlockedPageMessage
   | GetCosmeticGenericsMessage
   | GetProceduralRulesMessage
   | GetFingerprintSeedMessage

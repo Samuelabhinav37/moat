@@ -3260,6 +3260,20 @@
     "message": "Cerrar pestaña",
     "description": "Block page: the main button when the tab has no earlier page."
   },
+  "blockedOpenAnyway": {
+    "message": "Abrir de todos modos",
+    "description": "Block page: opens an ad or tracker site for this visit only."
+  },
+  "blockedRiskNote": {
+    "message": "Si entiendes el riesgo, puedes abrir este sitio solo esta vez.",
+    "description": "Block page Details, for a dangerous site."
+  },
+  "blockedOpenDangerous": {
+    "message": "Abrirlo (no recomendado)"
+  },
+  "blockedOpenFailed": {
+    "message": "Moat no pudo abrir este sitio. Vuelve a intentarlo desde la barra de direcciones."
+  },
   "blockedDetails": {
     "message": "Detalles"
   },

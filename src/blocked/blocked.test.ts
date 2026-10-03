@@ -6,10 +6,11 @@ import { describe, expect, it, vi } from "vitest";
 // What Moat's block page says for each kind of stop, and where its links go.
 
 const tabsRemove = vi.fn(async (_: number) => {});
+const sendMessage = vi.fn(async (_: unknown) => true as unknown);
 vi.mock("webextension-polyfill", () => ({
   default: {
     i18n: { getMessage: () => "" },
-    runtime: { getURL: (path: string) => `chrome-extension://moat/${path}` },
+    runtime: { getURL: (path: string) => `chrome-extension://moat/${path}`, sendMessage: (m: unknown) => sendMessage(m) },
     tabs: { getCurrent: async () => ({ id: 9 }), remove: (id: number) => tabsRemove(id) },
   },
 }));
@@ -67,6 +68,32 @@ describe("blocked.html", () => {
     expect(text("go-back")).toBe("Close tab");
     document.getElementById("go-back")!.click();
     await vi.waitFor(() => expect(tabsRemove).toHaveBeenCalledWith(9));
+  });
+
+  it("offers Open anyway plainly for ads, only under Details for danger, and never for a policy block", async () => {
+    await openPage(q("https://pop.example/", "popups", "ads"));
+    expect(document.getElementById("open-anyway")!.hidden).toBe(false);
+    expect(document.getElementById("danger-proceed")!.hidden).toBe(true);
+
+    await openPage(q("https://bad.example/", "scam", "danger"));
+    expect(document.getElementById("open-anyway")!.hidden).toBe(true);
+    expect(document.getElementById("danger-proceed")!.hidden).toBe(false);
+    expect(document.getElementById("details")!.contains(document.getElementById("open-dangerous"))).toBe(true);
+
+    await openPage(q("https://work.example/", "policy", "policy"));
+    expect(document.getElementById("open-anyway")!.hidden).toBe(true);
+    expect(document.getElementById("danger-proceed")!.hidden).toBe(true);
+  });
+
+  it("asks the worker to open the site, and says so if it can't", async () => {
+    await openPage(q("https://pop.example/", "popups", "ads"));
+    document.getElementById("open-anyway")!.click();
+    await vi.waitFor(() => expect(sendMessage).toHaveBeenCalledWith({ type: "open-blocked-page" }));
+    expect(document.getElementById("open-failed")!.hidden).toBe(true);
+
+    sendMessage.mockResolvedValueOnce(false);
+    document.getElementById("open-anyway")!.click();
+    await vi.waitFor(() => expect(document.getElementById("open-failed")!.hidden).toBe(false));
   });
 
   it("shows a safe default for a query it doesn't trust", async () => {

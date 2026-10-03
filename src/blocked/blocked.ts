@@ -4,6 +4,7 @@ import browser from "webextension-polyfill";
 import { applyStaticI18n } from "../shared/i18n";
 import { CUSTOM_LIST, POLICY_LIST, UNKNOWN_LIST, parseBlockedPageQuery, type BlockKind } from "../shared/blockedPage";
 import { LIST_LABELS } from "../options/filterListLabels";
+import type { OpenBlockedPageMessage } from "../types";
 
 const msg = (key: string, fallback: string, subs?: string | string[]): string => browser.i18n.getMessage(key, subs) || fallback;
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
@@ -77,7 +78,25 @@ function render(): void {
   settingsLink.hidden = kind === "policy";
   settingsLink.textContent = kind === "custom" ? msg("blockedEditBlockList", "Edit your block list") : msg("blockedSeeLists", "See Moat's lists");
   settingsLink.href = browser.runtime.getURL(kind === "custom" ? "options.html#rules" : "options.html#filters");
+
+  // "Open anyway": plain for ads and your own blocks, behind Details for a
+  // dangerous site, and not at all for an organization's block.
+  document.getElementById("open-anyway")!.hidden = !params || (kind !== "ads" && kind !== "custom");
+  document.getElementById("danger-proceed")!.hidden = !params || kind !== "danger";
 }
+
+/** Asks the worker to let this tab's blocked site through for one visit.
+ * It loads the site itself; this page only hears back if it couldn't. */
+async function openAnyway(): Promise<void> {
+  const message: OpenBlockedPageMessage = { type: "open-blocked-page" };
+  const opened = await browser.runtime.sendMessage(message).catch(() => false);
+  if (opened !== true) {
+    document.getElementById("details")!.hidden = false;
+    document.getElementById("open-failed")!.hidden = false;
+  }
+}
+document.getElementById("open-anyway")!.addEventListener("click", () => void openAnyway());
+document.getElementById("open-dangerous")!.addEventListener("click", () => void openAnyway());
 
 // The tab's history is [the page before, Chrome's error page for the
 // blocked address, this page]. Going back one step would land on the error

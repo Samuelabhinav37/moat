@@ -64,6 +64,7 @@ vi.mock("./customRuleStats", () => ({ recordRuleMatches: vi.fn(async () => undef
 vi.mock("./usageStats", () => ({ recordSignalEvent: vi.fn(async () => undefined) }));
 vi.mock("./liveHeuristics", () => ({ getFired: vi.fn(() => ({})), recordFired: vi.fn() }));
 vi.mock("./liveUpdates", () => ({ fetchAndApply: vi.fn(async () => undefined) }));
+vi.mock("./proceedRules", () => ({ openBlockedPage: vi.fn(async () => true) }));
 vi.mock("./lastNormalTab", () => ({
   getLastNormalTabId: vi.fn(() => 7),
   isNormalPageUrl: vi.fn((url?: string) => typeof url === "string" && url.startsWith("http")),
@@ -77,6 +78,7 @@ const cosmeticInject = await import("./cosmeticInject");
 const genericSelectorCache = await import("./genericSelectorCache");
 const usageStats = await import("./usageStats");
 const liveHeuristics = await import("./liveHeuristics");
+const proceedRules = await import("./proceedRules");
 
 const contentSender = (frameId = 0): Runtime.MessageSender => ({
   id: "moat-id",
@@ -302,6 +304,20 @@ describe("who may send what", () => {
   it("ignores a sender from another extension", () => {
     expect(send({ type: "toggle-site", hostname: "a.example", disabled: true }, { id: "other", url: "chrome-extension://other/x.html" })).toBeUndefined();
     expect(settingsModule.setSiteDisabled).not.toHaveBeenCalled();
+  });
+
+  it("lets only the block page, in its own tab, open a blocked site", async () => {
+    const blockedSender = (url: string, tabId?: number): Runtime.MessageSender => ({
+      id: "moat-id",
+      url,
+      ...(tabId !== undefined ? { tab: { id: tabId, url } as Runtime.MessageSender["tab"] } : {}),
+    });
+    expect(send({ type: "open-blocked-page" }, blockedSender("chrome-extension://moat-id/options.html", 3))).toBeUndefined();
+    expect(send({ type: "open-blocked-page" }, blockedSender("chrome-extension://moat-id/blocked.html?u=x"))).toBeUndefined();
+    expect(send({ type: "open-blocked-page" }, contentSender())).toBeUndefined();
+    expect(proceedRules.openBlockedPage).not.toHaveBeenCalled();
+    expect(await send({ type: "open-blocked-page" }, blockedSender("chrome-extension://moat-id/blocked.html?u=x", 3))).toBe(true);
+    expect(proceedRules.openBlockedPage).toHaveBeenCalledWith(3);
   });
 
   it("still accepts privileged messages from Moat's own pages", async () => {

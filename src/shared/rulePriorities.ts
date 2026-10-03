@@ -8,6 +8,7 @@
 //   user "Never block" (allow)               1,200,000
 //   paused site (allowAllRequests)           1,300,000
 //   bundled security lists                   original + 2,000,000
+//   "Open anyway" on the block page          3,500,000
 //   enterprise managed blocks / Athena       4,000,000
 //
 // Pausing a site or adding it to "Never block" beats every ad and tracker
@@ -27,4 +28,8 @@ export const NEVER_BLOCK_PRIORITY = 1_200_000;
 export const PAUSE_PRIORITY = 1_300_000;
 /** Added to every rule in a "security" category ruleset at build time. */
 export const SECURITY_PRIORITY_OFFSET = 2_000_000;
+/** "Open anyway" on Moat's block page (proceedRules.ts): one site, one tab,
+ * one visit. Above every list, including the security lists you chose to
+ * step past, and below an organization's policy, which still wins. */
+export const USER_PROCEED_PRIORITY = 3_500_000;
 export const ENTERPRISE_PRIORITY = 4_000_000;

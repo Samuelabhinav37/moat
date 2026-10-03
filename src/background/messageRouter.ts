@@ -69,6 +69,7 @@ import { recordRuleMatches } from "./customRuleStats";
 import { cosmeticGenericsFor, proceduralRulesFor } from "./cosmeticIndex";
 import { allowPermissionGuardOrigin } from "./permissionGuard";
 import { injectGenericSelectors } from "./cosmeticInject";
+import { openBlockedPage } from "./proceedRules";
 import {
   MAX_OVERRIDE_REASON_LENGTH,
   clampUsageSignalCount,
@@ -401,6 +402,13 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
       return (async (): Promise<AthenaBlockReasonResponse> => ({
         hostname: sender.tab?.id !== undefined ? getBlockedHostname(sender.tab.id) : null,
       }))();
+    }
+
+    case "open-blocked-page": {
+      // Only Moat's block page, open in that tab, can ask (and only for the
+      // address the worker itself sent the tab there for).
+      if (sender.tab?.id === undefined || !sender.url?.startsWith(browser.runtime.getURL("blocked.html"))) return undefined;
+      return openBlockedPage(sender.tab.id);
     }
 
     case "report-athena-override": {

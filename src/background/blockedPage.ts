@@ -15,6 +15,7 @@ import browser from "webextension-polyfill";
 import { LIVE_SECURITY_ID_START, LIVE_SECURITY_KEY, MAX_LIVE_SECURITY_RULES } from "./liveSecurityRules";
 import type { PageBlocked } from "./liveBlocks";
 import { readMatchedRules } from "./matchStats";
+import { rememberBlockedTab } from "./proceedRules";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import { recordPageStop } from "./usageStats";
 import { UNKNOWN_LIST, blockedPageQuery, hostOnList, kindForList, listForRule, pageMatch, type BlockKind, type MatchedRule } from "../shared/blockedPage";
@@ -84,5 +85,6 @@ export async function explainBlockedPage(block: PageBlocked): Promise<void> {
   // and a tab that has moved on to another page keeps it.
   if (tab.incognito) return;
   if (tab.url && tab.url !== block.url && tab.pendingUrl !== block.url) return;
+  await rememberBlockedTab(block.tabId, block.url, kind);
   await browser.tabs.update(block.tabId, { url: browser.runtime.getURL(`blocked.html?${blockedPageQuery({ url: block.url, list, kind })}`) }).catch(() => {});
 }

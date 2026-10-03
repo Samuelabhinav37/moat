@@ -99,6 +99,14 @@
       #details a {
         color: var(--accent);
       }
+      .risk {
+        margin: 0 0 14px;
+        color: var(--fg);
+      }
+      .risk .link {
+        padding: 0;
+        font-size: inherit;
+      }
       .detail-links {
         display: flex;
         flex-wrap: wrap;
@@ -132,6 +140,8 @@
       <p class="why" id="why"></p>
       <div class="actions">
         <button type="button" class="primary" id="go-back" data-i18n="blockedGoBack">Go back</button>
+        <!-- Ad, tracker and your own blocks: a plain way through, for this visit. -->
+        <button type="button" id="open-anyway" hidden data-i18n="blockedOpenAnyway">Open anyway</button>
         <button type="button" class="link" id="show-details" aria-expanded="false" aria-controls="details" data-i18n="blockedDetails">Details</button>
       </div>
       <section id="details" hidden>
@@ -141,6 +151,13 @@
           <dt data-i18n="blockedStoppedBy">Stopped by</dt>
           <dd id="list-name"></dd>
         </dl>
+        <!-- Dangerous sites: the way through sits here, behind Details, with
+             Chrome's "not recommended" wording (Safe Browsing does the same). -->
+        <p class="risk" id="danger-proceed" hidden>
+          <span data-i18n="blockedRiskNote">If you understand the risk, you can open this site for this visit.</span>
+          <button type="button" class="link" id="open-dangerous" data-i18n="blockedOpenDangerous">Open it (not recommended)</button>
+        </p>
+        <p class="risk" id="open-failed" role="status" hidden data-i18n="blockedOpenFailed">Moat couldn't open this site. Try again from the address bar.</p>
         <div class="detail-links">
           <a href="#" id="report" target="_blank" rel="noopener" data-i18n="blockedReport">Report a mistake</a>
           <a href="#" id="settings-link" target="_blank" rel="noopener"></a>

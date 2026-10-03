@@ -3421,6 +3421,20 @@
     "message": "Close tab",
     "description": "Block page: the main button when the tab has no earlier page."
   },
+  "blockedOpenAnyway": {
+    "message": "Open anyway",
+    "description": "Block page: opens an ad or tracker site for this visit only."
+  },
+  "blockedRiskNote": {
+    "message": "If you understand the risk, you can open this site for this visit.",
+    "description": "Block page Details, for a dangerous site."
+  },
+  "blockedOpenDangerous": {
+    "message": "Open it (not recommended)"
+  },
+  "blockedOpenFailed": {
+    "message": "Moat couldn't open this site. Try again from the address bar."
+  },
   "blockedDetails": {
     "message": "Details"
   },

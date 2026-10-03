@@ -31,6 +31,7 @@ import { handleMessage, hostnameOf } from "./messageRouter";
 import { forgetTab as forgetHeuristicTab, resetForNavigation as resetHeuristicFiring } from "./liveHeuristics";
 import { reconcileCustomRuleStats } from "./customRuleStats";
 import { injectCosmeticsForCommit } from "./cosmeticInject";
+import { endProceed } from "./proceedRules";
 
 initPopupGuard();
 initLiveUpdates();
@@ -103,6 +104,7 @@ browser.tabs.onRemoved.addListener((tabId) => {
   forgetBlockReasonTab(tabId);
   forgetLastNormalTab(tabId);
   forgetHeuristicTab(tabId);
+  void endProceed(tabId);
 });
 
 // Track which normal web page the user last had focused, so the Settings
@@ -131,6 +133,7 @@ browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0) return;
   resetForNavigation(details.tabId, details.timeStamp);
   resetHeuristicFiring(details.tabId);
+  void endProceed(details.tabId, details.url);
   // Inject the bundled + user cosmetic CSS as a user-origin stylesheet from
   // here, instead of the content script building a <style> on the page
   // thread. Fires early enough to be roughly document_start-class; no-ops
