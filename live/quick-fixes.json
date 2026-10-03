@@ -1,0 +1,7 @@
+[
+  {
+    "urlFilter": "||unlimitedadblocker.pro^",
+    "resourceTypes": ["main_frame", "sub_frame"],
+    "action": "block"
+  }
+]
