@@ -86,6 +86,14 @@ const SELECTOR_MAP_FIELDS = new Set(["customCosmeticRules", "customGrayscaleRule
 const PER_SITE_OVERRIDE_FIELDS = new Set(["perSiteOverrides"]);
 const THEME_CHOICES = new Set(["system", "light", "dark"]);
 
+/** Hostname -> epoch-ms end time (Settings.pausedUntil). */
+function isPauseEndMap(value: unknown): value is Record<string, number> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const entries = Object.entries(value);
+  if (entries.length > MAX_RECORD_KEYS) return false;
+  return entries.every(([host, until]) => host.length > 0 && host.length <= MAX_STRING_LENGTH && typeof until === "number" && Number.isFinite(until) && until > 0);
+}
+
 /** Rejects the whole payload (returns null) rather than partially applying
  * anything malformed -- checks every DEFAULT_SETTINGS key present in the
  * payload against its expected shape; a field simply missing from an older
@@ -119,6 +127,8 @@ export function validateImportedSettings(value: unknown): Partial<Settings> | nu
       if (!isSelectorMap(actual)) return null;
     } else if (PER_SITE_OVERRIDE_FIELDS.has(key)) {
       if (!isPerSiteOverrideMap(actual)) return null;
+    } else if (key === "pausedUntil") {
+      if (!isPauseEndMap(actual)) return null;
     } else if (key === "theme") {
       if (typeof actual !== "string" || !THEME_CHOICES.has(actual)) return null;
     } else if (typeof actual !== "boolean") {

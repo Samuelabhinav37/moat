@@ -768,8 +768,66 @@
       }
       .add-row {
         display: flex;
+        flex-wrap: wrap;
         gap: 8px;
         margin-top: 10px;
+      }
+      .add-row select {
+        font: inherit;
+        color: var(--fg);
+        background: var(--page);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 0 10px;
+        min-height: 40px;
+      }
+      @media (max-width: 600px) {
+        .add-row input {
+          flex-basis: 100%;
+        }
+      }
+      .row-note {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      /* "For 1 hour / For 1 day / Until I turn it back on", under a site's switch (pauseMenu.ts). */
+      .pause-menu {
+        position: absolute;
+        z-index: 20;
+        right: 0;
+        top: calc(100% + 6px);
+        display: grid;
+        min-width: 220px;
+        padding: 6px;
+        border: 1px solid var(--line-2);
+        border-radius: 12px;
+        background: var(--tip-bg);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        text-align: left;
+      }
+      .pause-menu-title {
+        padding: 6px 10px 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .pause-menu button {
+        padding: 8px 10px;
+        border: 0;
+        border-radius: 8px;
+        background: none;
+        color: var(--fg);
+        font: inherit;
+        font-size: 14px;
+        text-align: left;
+        cursor: pointer;
+      }
+      .pause-menu button:hover,
+      .pause-menu button:focus-visible {
+        background: var(--panel-3);
+        outline: none;
       }
       .add-row input,
       .migration-import-textarea {
@@ -2483,6 +2541,10 @@
         padding-right: 0;
         text-align: right;
       }
+      /* Holds the "how long" menu that opens under a site's switch. */
+      .ins-table td:has(> .switch) {
+        position: relative;
+      }
       .ins-report {
         padding: 6px 12px;
         font-size: 13px;
@@ -4133,9 +4195,14 @@
                 </div>
               </div>
               <div class="field rule-card pause-card">
-                <span class="field-label" data-i18n="advPauseSite">Pause Moat on a site</span>
+                <label class="field-label" for="add-input" data-i18n="advPauseSite">Pause Moat on a site</label>
                 <div class="add-row">
-                  <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" aria-labelledby="add-button" />
+                  <input type="text" id="add-input" placeholder="example.com" data-i18n-placeholder="commonHostnamePlaceholder" />
+                  <select id="add-length" aria-label="For how long" data-i18n-aria-label="pauseHowLong">
+                    <option value="hour" data-i18n="pauseForHour">For 1 hour</option>
+                    <option value="day" data-i18n="pauseForDay">For 1 day</option>
+                    <option value="always" selected data-i18n="pauseUntilResumed">Until I turn it back on</option>
+                  </select>
                   <button type="button" id="add-button" data-i18n="commonPause">Pause</button>
                 </div>
               </div>

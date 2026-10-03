@@ -17,6 +17,7 @@ import { recordUpdateSeen } from "./updateNotice";
 import { maybeOpenFirstRunTour } from "./firstRunTour";
 import { initPopupGuard } from "./popupGuard";
 import { initLiveUpdates } from "./liveUpdates";
+import { initPauseExpiry } from "./pauseExpiry";
 import { getManagedPolicy } from "./managedPolicy";
 import { initAthenaIntegration, reconcileAthenaAlarm } from "./athenaIntegration";
 import { isPolicyBlockedHostname } from "./athenaPolicySync";
@@ -33,6 +34,7 @@ import { injectCosmeticsForCommit } from "./cosmeticInject";
 
 initPopupGuard();
 initLiveUpdates();
+initPauseExpiry();
 initRuleLogger();
 // No-op on every normal install -- see athenaIntegration.ts. Only does
 // anything once an org's own managed policy provisions ManagedPolicy.athena.

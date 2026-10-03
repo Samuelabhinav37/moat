@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.219
+
+### Added
+- **Pause a site for an hour or a day.** A pause used to last until you turned Moat back on.
+  Now you can choose:
+  - On Settings › Sites, switching a site off asks: For 1 hour, For 1 day, or Until I turn it
+    back on. Esc or a click elsewhere cancels and leaves the switch on.
+  - On Settings › Exceptions, "Pause Moat on a site" has the same choice next to the field.
+  - In the popup, after you pause a site, "Turn back on by itself in: 1 hour, 1 day".
+- Timed pauses end on their own, even if the browser was closed at the time. Paused lists show
+  when each one ends.
+
+### Fixed
+- The "Pause Moat on a site" field was named "Pause" for screen readers. It now uses its
+  visible label.
+- New text in English, Spanish, French and German.
+
 ## 0.11.218
 
 ### Added

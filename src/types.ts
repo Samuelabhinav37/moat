@@ -1,6 +1,10 @@
 export interface Settings {
   /** Hostnames where protection is fully paused. */
   disabledSites: string[];
+  /** When a timed pause ends, as epoch milliseconds, keyed by a hostname in
+   * disabledSites. A paused site with no entry here stays paused until
+   * resumed. background/pauseExpiry.ts ends each one on time. */
+  pausedUntil: Record<string, number>;
   /** Master on/off switch. */
   enabled: boolean;
   /**
@@ -173,6 +177,7 @@ export type OverridableSettingKey =
 
 export const DEFAULT_SETTINGS: Settings = {
   disabledSites: [],
+  pausedUntil: {},
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,
@@ -268,6 +273,8 @@ export interface ToggleSiteMessage {
   type: "toggle-site";
   hostname: string;
   disabled: boolean;
+  /** Pause only until this time (epoch ms). Omitted: until resumed. */
+  until?: number;
 }
 
 /** Sent by the popup's per-site "Customize for this site" panel -- see

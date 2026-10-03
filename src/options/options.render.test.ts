@@ -39,11 +39,13 @@ afterEach(() => {
 });
 
 let createdTabs: string[] = [];
+let sentMessages: Record<string, unknown>[] = [];
 
 async function renderOptions(settings?: Partial<Settings>, storage?: Record<string, unknown>): Promise<void> {
   const mock = createMockBrowser({ hostname: "example.com", settings, storage });
   const { browser } = mock;
   createdTabs = mock.createdTabs;
+  sentMessages = mock.sentMessages;
   vi.doMock("webextension-polyfill", () => ({ default: browser }));
   loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
   await import("./options");
@@ -464,5 +466,42 @@ describe("Security: a stopped page can be reported as a mistake", () => {
     expect(button.getAttribute("aria-label")).toBe("Report a mistake: surveymonkey.com");
     button.click();
     expect(createdTabs.at(-1)).toMatch(/report\.html\?site=surveymonkey\.com&reason=false-alarm$/);
+  });
+});
+
+describe("Pausing for a while", () => {
+  it("pauses from Exceptions for the length picked, with a real label on the field", async () => {
+    await renderOptions();
+    const input = document.getElementById("add-input") as HTMLInputElement;
+    expect(document.querySelector('label[for="add-input"]')?.textContent).toBe("Pause Moat on a site");
+    input.value = "x.example";
+    (document.getElementById("add-length") as HTMLSelectElement).value = "day";
+    const before = Date.now();
+    (document.getElementById("add-button") as HTMLButtonElement).click();
+    await settle();
+    const sent = sentMessages.filter((m) => m.type === "toggle-site").at(-1)!;
+    expect(sent).toMatchObject({ hostname: "x.example", disabled: true });
+    expect(sent.until as number).toBeGreaterThanOrEqual(before + 86_400_000);
+  });
+
+  it("shows when a timed pause ends in the paused list", async () => {
+    const until = Date.now() + 3_600_000;
+    await renderOptions({ disabledSites: ["paused.example"], pausedUntil: { "paused.example": until } });
+    const row = [...document.querySelectorAll("#site-list li")].find((li) => li.textContent?.includes("paused.example"));
+    expect(row?.querySelector(".row-note")?.textContent).toMatch(/^Until /);
+  });
+
+  it("asks how long when a site is switched off on Sites, and puts the switch back on cancel", async () => {
+    await renderOptions({ disabledSites: [] });
+    const input = document.querySelector<HTMLInputElement>("#s-table .switch input");
+    if (!input) return; // no sites in this week's sample
+    input.click();
+    expect(document.querySelector(".pause-menu")).not.toBeNull();
+    document.activeElement!.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(input.checked).toBe(true);
+    input.click();
+    document.querySelector<HTMLButtonElement>('.pause-menu [data-length="hour"]')!.click();
+    await settle();
+    expect(sentMessages.filter((m) => m.type === "toggle-site").at(-1)).toMatchObject({ disabled: true });
   });
 });

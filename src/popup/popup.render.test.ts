@@ -35,8 +35,12 @@ afterEach(() => {
   vi.doUnmock("webextension-polyfill");
 });
 
+let sentMessages: Record<string, unknown>[] = [];
+
 async function renderPopup(hostname = "nytimes.com", siteDisabled = false): Promise<void> {
-  const { browser } = createMockBrowser({ hostname, siteDisabled });
+  const mock = createMockBrowser({ hostname, siteDisabled });
+  const { browser } = mock;
+  sentMessages = mock.sentMessages;
   vi.doMock("webextension-polyfill", () => ({ default: browser }));
   loadPageFixture(POPUP_HTML, [THEME_CSS]);
   await import("./popup");
@@ -73,6 +77,26 @@ describe("popup.html render", () => {
     toggle.dispatchEvent(new Event("change"));
     expect(document.getElementById("paused-text")!.textContent).toBe("Moat is paused on nytimes.com. Reload the page to apply it.");
     expect(document.getElementById("reload-page")!.hidden).toBe(false);
+  });
+
+  it("after pausing, offers to turn back on by itself in an hour or a day", async () => {
+    await renderPopup("www.nytimes.com");
+    const toggle = document.getElementById("site-toggle") as HTMLInputElement;
+    toggle.checked = false;
+    toggle.dispatchEvent(new Event("change"));
+    expect(document.getElementById("pause-length")!.hidden).toBe(false);
+    expect(document.getElementById("pause-length-text")!.textContent).toBe("Turn back on by itself in:");
+
+    const before = Date.now();
+    document.querySelector<HTMLButtonElement>('#pause-length button[data-length="hour"]')!.click();
+    const last = sentMessages.at(-1)!;
+    expect(last).toMatchObject({ type: "toggle-site", hostname: "www.nytimes.com", disabled: true });
+    expect(last.until as number).toBeGreaterThanOrEqual(before + 3_600_000);
+    expect(document.getElementById("pause-length-text")!.textContent).toMatch(/^Back on: .+\. Change to:$/);
+
+    toggle.checked = true;
+    toggle.dispatchEvent(new Event("change"));
+    expect(document.getElementById("pause-length")!.hidden).toBe(true);
   });
 
   it("renders without throwing or an unhandled rejection", async () => {

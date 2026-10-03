@@ -2960,5 +2960,67 @@
   "reportFalseAlarmNote": {
     "message": "Moat hat das Laden dieser Seite verhindert, aber ich glaube, sie ist sicher.",
     "description": "Report page: note filled in when the report was opened for a page Moat stopped. The person can edit it."
+  },
+  "pauseForHour": {
+    "message": "Für 1 Stunde",
+    "description": "How long to pause Moat on a site: one hour. Settings menu and dropdown."
+  },
+  "pauseForDay": {
+    "message": "Für 1 Tag",
+    "description": "How long to pause Moat on a site: one day (24 hours)."
+  },
+  "pauseUntilResumed": {
+    "message": "Bis ich es wieder einschalte",
+    "description": "How long to pause Moat on a site: until the person switches it back on."
+  },
+  "pauseHowLong": {
+    "message": "Wie lange",
+    "description": "Settings > Exceptions: name of the 'how long' dropdown next to the pause field, for screen readers."
+  },
+  "pauseMenuTitle": {
+    "message": "Moat auf $SITE$ pausieren",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    },
+    "description": "Settings > Sites: heading of the menu that asks how long to pause a site."
+  },
+  "pauseUntil": {
+    "message": "Bis $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "3:40 PM"
+      }
+    },
+    "description": "Settings: when a timed pause ends, under the site. WHEN is a time, 'tomorrow 9:00 AM' or 'Mon 9:00 AM'."
+  },
+  "pauseTomorrow": {
+    "message": "morgen",
+    "description": "The word put before a time when a pause ends tomorrow, as in 'tomorrow 9:00 AM'. Lower case."
+  },
+  "popupPauseLasts": {
+    "message": "Von selbst wieder einschalten in:",
+    "description": "Popup, after pausing a site: label before the '1 hour' and '1 day' buttons."
+  },
+  "popupPauseEnds": {
+    "message": "Wieder an: $WHEN$. Ändern auf:",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "3:40 PM"
+      }
+    },
+    "description": "Popup, on a site paused for a while: when it ends, then the buttons to change it."
+  },
+  "popupPauseHour": {
+    "message": "1 Stunde",
+    "description": "Popup: button, pause this site for one hour."
+  },
+  "popupPauseDay": {
+    "message": "1 Tag",
+    "description": "Popup: button, pause this site for one day."
   }
 }

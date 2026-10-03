@@ -19,6 +19,8 @@ import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { optionalFlowsOn } from "../shared/networkFlows";
 import { initSettingsSearch, revealSetting } from "./settingsSearch";
 import { readCachedChoice, rememberTheme } from "../ui/theme";
+import { openPauseMenu } from "./pauseMenu";
+import { pauseEnd, pauseEndLabel, type PauseLength } from "../shared/pauseDuration";
 import { initNavMode } from "./navMode";
 import { TOPICS, initHelpPanel } from "./helpPanel";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
@@ -83,8 +85,8 @@ async function setSettings(patch: Partial<Settings>): Promise<void> {
   await browser.runtime.sendMessage(message);
 }
 
-async function setSiteDisabled(hostname: string, disabled: boolean): Promise<void> {
-  const message: ToggleSiteMessage = { type: "toggle-site", hostname, disabled };
+async function setSiteDisabled(hostname: string, disabled: boolean, until?: number): Promise<void> {
+  const message: ToggleSiteMessage = { type: "toggle-site", hostname, disabled, ...(until !== undefined ? { until } : {}) };
   await browser.runtime.sendMessage(message);
 }
 
@@ -624,7 +626,8 @@ function renderRows<T>(
   rerenderSelf: () => Promise<void>,
   undo?: UndoRemoval<T>,
   bulk?: BulkRemoval,
-  withIcons = false
+  withIcons = false,
+  describe?: (item: T) => string | null
 ): void {
   emptyState.style.display = items.length ? "none" : "";
   const rows = items.map((item) => {
@@ -632,6 +635,8 @@ function renderRows<T>(
     const label = document.createElement("span");
     label.textContent = formatLabel(item);
     li.dataset.search = label.textContent;
+    const note = describe?.(item);
+    if (note) label.append(Object.assign(document.createElement("small"), { className: "row-note", textContent: note }));
 
     const remove = document.createElement("button");
     remove.textContent = removeLabel;
@@ -671,12 +676,13 @@ function renderDomainList(
   onRemove: (domain: string) => Promise<void>,
   rerenderSelf: () => Promise<void>,
   undo?: UndoRemoval<string>,
-  bulk?: BulkRemoval
+  bulk?: BulkRemoval,
+  describe?: (domain: string) => string | null
 ): void {
   // By name, ignoring a leading "www.", so www.amazon.com sits with the a's.
   const bare = (domain: string) => domain.replace(/^www\./i, "");
   const sorted = [...domains].sort((a, b) => bare(a).localeCompare(bare(b)));
-  renderRows(list, emptyState, sorted, (domain) => domain, removeLabel, onRemove, rerenderSelf, undo, bulk, true);
+  renderRows(list, emptyState, sorted, (domain) => domain, removeLabel, onRemove, rerenderSelf, undo, bulk, true, describe);
 }
 
 const bulkLabelsFor = (action: (count: number) => string): BulkLabels => ({
@@ -1775,8 +1781,25 @@ async function rerenderSiteList(): Promise<void> {
     (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
     rerenderSiteList,
     undoResume,
-    bulkResume
+    bulkResume,
+    (hostname) => pausedUntilNote(settings.pausedUntil[hostname])
   );
+}
+
+/** "Until 3:40 PM" for a timed pause; nothing for one that lasts. */
+function pausedUntilNote(until: number | undefined): string | null {
+  if (until === undefined) return null;
+  const when = pauseEndLabel(until, Date.now(), tFallback("pauseTomorrow", "tomorrow"));
+  return tFallback("pauseUntil", `Until ${when}`, when);
+}
+
+function pauseMenuLabels(hostname: string) {
+  return {
+    title: tFallback("pauseMenuTitle", `Pause Moat on ${hostname}`, hostname),
+    hour: tFallback("pauseForHour", "For 1 hour"),
+    day: tFallback("pauseForDay", "For 1 day"),
+    always: tFallback("pauseUntilResumed", "Until I turn it back on"),
+  };
 }
 
 async function rerenderCustomBlockList(): Promise<void> {
@@ -1859,7 +1882,8 @@ async function render(): Promise<void> {
     (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
     rerenderSiteList,
     undoResume,
-    bulkResume
+    bulkResume,
+    (hostname) => pausedUntilNote(settings.pausedUntil[hostname])
   );
 
   renderSiteOverrides(settings);
@@ -1949,7 +1973,8 @@ async function render(): Promise<void> {
 addButton.addEventListener("click", async () => {
   const hostname = normalizeHostname(addInput.value);
   if (!hostname) return;
-  await setSiteDisabled(hostname, true);
+  const length = (document.getElementById("add-length") as HTMLSelectElement).value as PauseLength;
+  await setSiteDisabled(hostname, true, pauseEnd(length, Date.now()));
   addInput.value = "";
   await rerenderSiteList();
 });
@@ -2352,9 +2377,25 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
     control.append(
       buildSwitch(!paused, label.id, (on) => {
         row.classList.toggle("off", !on);
-        void setSiteDisabled(site.hostname, !on).then(() => rerenderSiteList());
+        if (on) {
+          void setSiteDisabled(site.hostname, false).then(() => render());
+          return;
+        }
+        // Switching off asks for how long; cancelling puts the switch back.
+        const input = control.querySelector<HTMLInputElement>("input")!;
+        openPauseMenu(document, input.closest("label")!, pauseMenuLabels(site.hostname.replace(/^www\./, "")), (choice) => {
+          if (choice === null) {
+            input.checked = true;
+            row.classList.remove("off");
+            input.focus();
+            return;
+          }
+          void setSiteDisabled(site.hostname, true, pauseEnd(choice, Date.now())).then(() => render());
+        });
       })
     );
+    const until = paused ? pausedUntilNote(settings.pausedUntil[site.hostname]) : null;
+    if (until) control.append(Object.assign(document.createElement("small"), { className: "row-note", textContent: until }));
     row.append(name, barCell, total, control);
     tbody.append(row);
   }

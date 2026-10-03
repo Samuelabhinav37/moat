@@ -16,6 +16,7 @@ import { effectiveValue, OVERRIDABLE_KEYS, type OverridableSettingKey } from "..
 import { setBreakableHostname } from "./hostnameBreaks";
 import { buildSiteIcon, faviconUrl } from "../options/siteIcon";
 import { readCachedChoice, rememberTheme } from "../ui/theme";
+import { pauseEnd, pauseEndLabel, type PauseLength } from "../shared/pauseDuration";
 
 // Firefox for Android opens the action popup as a full-width panel with no
 // toolbar anchor, so Moat's fixed 260px column reads as a narrow strip. Give
@@ -369,11 +370,38 @@ async function render(): Promise<void> {
 
   setPaused(status.siteDisabled || !status.enabled);
 
+  // A paused site can turn itself back on in an hour or a day.
+  const pauseLength = document.getElementById("pause-length")!;
+  const pauseLengthText = document.getElementById("pause-length-text")!;
+  const msg = (key: string, fallback: string, sub?: string) => getMessageOrFallback((k, s) => browser.i18n.getMessage(k, s), key, fallback, sub);
+  function showPauseLength(until: number | undefined): void {
+    pauseLength.hidden = false;
+    if (until === undefined) {
+      pauseLengthText.textContent = msg("popupPauseLasts", "Turn back on by itself in:");
+    } else {
+      const when = pauseEndLabel(until, Date.now(), msg("pauseTomorrow", "tomorrow"));
+      pauseLengthText.textContent = msg("popupPauseEnds", `Back on: ${when}. Change to:`, when);
+    }
+  }
+  if (status.siteDisabled && status.enabled) {
+    void getEffectiveSettings().then((settings) => showPauseLength(settings.pausedUntil[status.hostname]));
+  }
+  for (const button of pauseLength.querySelectorAll<HTMLButtonElement>("button[data-length]")) {
+    button.addEventListener("click", () => {
+      const until = pauseEnd(button.dataset.length as PauseLength, Date.now());
+      const message: ToggleSiteMessage = { type: "toggle-site", hostname: status.hostname, disabled: true, ...(until !== undefined ? { until } : {}) };
+      void browser.runtime.sendMessage(message);
+      showPauseLength(until);
+    });
+  }
+
   toggle.addEventListener("change", () => {
     const disabled = !toggle.checked;
     const message: ToggleSiteMessage = { type: "toggle-site", hostname: status.hostname, disabled };
     void browser.runtime.sendMessage(message);
     setPaused(disabled || !status.enabled, disabled);
+    if (disabled && status.enabled) showPauseLength(undefined);
+    else pauseLength.hidden = true;
   });
 
   reloadButton.addEventListener("click", async () => {

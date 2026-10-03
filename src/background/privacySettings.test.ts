@@ -10,6 +10,7 @@ const { applyPrivacySettings } = await import("./privacySettings");
 
 const baseSettings: Settings = {
   disabledSites: [],
+  pausedUntil: {},
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,

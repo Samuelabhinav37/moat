@@ -33,6 +33,8 @@ export interface MockBrowserOptions {
 export function createMockBrowser(options: MockBrowserOptions = {}) {
   /** URLs opened with tabs.create, oldest first. */
   const createdTabs: string[] = [];
+  /** Every runtime.sendMessage, oldest first. */
+  const sentMessages: Record<string, unknown>[] = [];
   const hostname = options.hostname ?? "example.com";
   const settings: Settings = {
     ...DEFAULT_SETTINGS,
@@ -178,7 +180,10 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
       id: "mock-extension-id",
       getManifest: () => ({ version: "0.0.0-test" }),
       getURL: (path: string) => path,
-      sendMessage: (msg: Record<string, unknown>) => Promise.resolve(sendMessageHandlers[msg.type as string]?.(msg)),
+      sendMessage: (msg: Record<string, unknown>) => {
+        sentMessages.push(msg);
+        return Promise.resolve(sendMessageHandlers[msg.type as string]?.(msg));
+      },
       onMessage: { addListener() {}, removeListener() {} },
       onInstalled: { addListener() {} },
       openOptionsPage: () => {},
@@ -247,5 +252,5 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
     i18n: { getMessage: () => "", getUILanguage: () => "en" },
   };
 
-  return { browser, storageLocalData, createdTabs };
+  return { browser, storageLocalData, createdTabs, sentMessages };
 }

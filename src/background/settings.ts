@@ -14,6 +14,7 @@ import { reconcileOptionalContentScripts } from "./optionalContentScripts";
 import { applyPermissionGuard } from "./permissionGuard";
 import { applyCnameUncloak } from "./cnameUncloak";
 import { applyCnameUncloakChrome } from "./cnameUncloakChrome";
+import { schedulePauseExpiry } from "./pauseExpiry";
 import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
 import { exportSettings, validateImportedSettings } from "./settingsPortability";
 import { isSafeCosmeticSelector } from "../shared/selectorSafety";
@@ -71,6 +72,7 @@ async function applyEffectiveSettings(options: { forceFilterGroups?: boolean } =
   // on every browser, exactly one ever actually registers a listener.
   applyCnameUncloak(effective);
   applyCnameUncloakChrome(effective);
+  await schedulePauseExpiry(effective);
 }
 
 // Every mutation below reads the current settings, merges a patch, and
@@ -227,13 +229,32 @@ export async function isSiteDisabled(hostname: string): Promise<boolean> {
   return !settings.enabled || matchesDomainOrSubdomain(hostname, settings.disabledSites);
 }
 
-export function setSiteDisabled(hostname: string, disabled: boolean): Promise<Settings> {
+/** Pauses or resumes a site. `until` (epoch ms) makes the pause end by
+ * itself; without it the pause lasts until resumed. */
+export function setSiteDisabled(hostname: string, disabled: boolean, until?: number): Promise<Settings> {
   return mutateSettings((current) => {
     const set = new Set(current.disabledSites);
+    const pausedUntil = { ...current.pausedUntil };
     if (disabled) set.add(hostname);
     else set.delete(hostname);
-    return { disabledSites: [...set] };
+    if (disabled && until !== undefined) pausedUntil[hostname] = until;
+    else delete pausedUntil[hostname];
+    return { disabledSites: [...set], pausedUntil };
   });
+}
+
+/** Resumes every timed pause that has ended. Returns how many ended. */
+export async function endExpiredPauses(now: number): Promise<number> {
+  let ended = 0;
+  await mutateSettings((current) => {
+    const expired = Object.entries(current.pausedUntil).filter(([, until]) => until <= now).map(([host]) => host);
+    ended = expired.length;
+    if (!expired.length) return null;
+    const pausedUntil = { ...current.pausedUntil };
+    for (const host of expired) delete pausedUntil[host];
+    return { disabledSites: current.disabledSites.filter((host) => !expired.includes(host)), pausedUntil };
+  });
+  return ended;
 }
 
 type SelectorMapField = "customCosmeticRules" | "customGrayscaleRules";

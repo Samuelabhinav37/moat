@@ -5,6 +5,7 @@ import type { Settings } from "../types";
 
 const baseSettings: Settings = {
   disabledSites: [],
+  pausedUntil: {},
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,

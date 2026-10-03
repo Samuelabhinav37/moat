@@ -204,7 +204,10 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
 
     case "toggle-site": {
       if (!isValidMessageString(message.hostname)) return undefined;
-      return setSiteDisabled(message.hostname, message.disabled).then(() => undefined);
+      // A timed pause must end in the future, and within a year.
+      const until = message.until;
+      if (until !== undefined && (typeof until !== "number" || !Number.isFinite(until) || until <= Date.now() || until > Date.now() + 366 * 864e5)) return undefined;
+      return setSiteDisabled(message.hostname, message.disabled === true, until).then(() => undefined);
     }
 
     case "set-per-site-override": {

@@ -22,6 +22,33 @@
         --hover-2: rgba(255, 255, 255, 0.16);
         scrollbar-color: var(--s2) transparent;
       }
+      .pause-length {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 8px;
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--t2);
+      }
+      .pause-length-buttons {
+        display: inline-flex;
+        gap: 6px;
+        margin-left: auto;
+      }
+      .pause-length button {
+        padding: 4px 10px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--s2);
+        color: var(--t1);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .pause-length button:hover {
+        background: var(--hover-2);
+      }
       /* Light theme (theme-boot.js): the same tiers, drawn in ink. */
       :root[data-theme="light"] {
         color-scheme: light;
@@ -475,6 +502,14 @@
 
     <div class="paused-banner" id="paused-banner" hidden>
       <span id="paused-text"></span>
+      <!-- How long the pause lasts (shared/pauseDuration.ts). -->
+      <div class="pause-length" id="pause-length" hidden>
+        <span id="pause-length-text"></span>
+        <span class="pause-length-buttons">
+          <button type="button" data-length="hour" data-i18n="popupPauseHour">1 hour</button>
+          <button type="button" data-length="day" data-i18n="popupPauseDay">1 day</button>
+        </span>
+      </div>
     </div>
 
     <div class="card" id="site-card">

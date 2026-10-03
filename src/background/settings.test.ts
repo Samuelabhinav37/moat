@@ -75,6 +75,7 @@ const {
   setSettings,
   isSiteDisabled,
   setSiteDisabled,
+  endExpiredPauses,
   getOrCreateFingerprintSeed,
   getOrCreateSessionFingerprintSeed,
   scopeFingerprintSeedToSite,
@@ -103,6 +104,7 @@ describe("getSettings", () => {
   it("returns defaults when nothing is stored", async () => {
     expect(await getSettings()).toEqual({
       disabledSites: [],
+      pausedUntil: {},
       enabled: true,
       webrtcLeakProtection: false,
       blockThirdPartyCookies: false,
@@ -136,6 +138,27 @@ describe("getSettings", () => {
     const settings = await getSettings();
     expect(settings.enabled).toBe(false);
     expect(settings.disabledSites).toEqual([]); // untouched field still defaulted
+  });
+});
+
+describe("timed pauses", () => {
+  it("records when a timed pause ends, and forgets it on resume or a lasting pause", async () => {
+    await setSiteDisabled("a.example", true, 5_000);
+    expect((await getSettings()).pausedUntil).toEqual({ "a.example": 5_000 });
+    await setSiteDisabled("a.example", true);
+    expect((await getSettings()).pausedUntil).toEqual({});
+    await setSiteDisabled("a.example", true, 5_000);
+    await setSiteDisabled("a.example", false);
+    expect(await getSettings()).toMatchObject({ disabledSites: [], pausedUntil: {} });
+  });
+
+  it("resumes only the pauses that have ended", async () => {
+    await setSiteDisabled("soon.example", true, 1_000);
+    await setSiteDisabled("later.example", true, 9_000);
+    await setSiteDisabled("always.example", true);
+    expect(await endExpiredPauses(2_000)).toBe(1);
+    expect(await getSettings()).toMatchObject({ disabledSites: ["later.example", "always.example"], pausedUntil: { "later.example": 9_000 } });
+    expect(await endExpiredPauses(2_000)).toBe(0);
   });
 });
 

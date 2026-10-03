@@ -185,7 +185,14 @@ describe("handleMessage: get-status", () => {
 describe("handleMessage: settings writes", () => {
   it("routes valid writes to the matching settings function", async () => {
     await send({ type: "toggle-site", hostname: "a.example", disabled: true });
-    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true);
+    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true, undefined);
+    const inAnHour = Date.now() + 3600_000;
+    await send({ type: "toggle-site", hostname: "a.example", disabled: true, until: inAnHour });
+    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true, inAnHour);
+    // A pause that would already be over, or last more than a year, is refused.
+    expect(send({ type: "toggle-site", hostname: "a.example", disabled: true, until: Date.now() - 1 })).toBeUndefined();
+    expect(send({ type: "toggle-site", hostname: "a.example", disabled: true, until: Date.now() + 400 * 864e5 })).toBeUndefined();
+    expect(send({ type: "toggle-site", hostname: "a.example", disabled: true, until: "soon" })).toBeUndefined();
 
     await expect(send({ type: "add-custom-domain", field: "customAllowedDomains", hostname: "a.example" })).resolves.toEqual({ ok: true });
     expect(settingsModule.addCustomAllowedDomain).toHaveBeenCalledWith("a.example");
@@ -296,7 +303,7 @@ describe("who may send what", () => {
 
   it("still accepts privileged messages from Moat's own pages", async () => {
     await send({ type: "toggle-site", hostname: "a.example", disabled: true }, pageSender);
-    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true);
+    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true, undefined);
   });
 
   it("files a picker rule under the tab's site, not the hostname the page sent", async () => {
