@@ -2399,6 +2399,46 @@
     "message": "Blocked this week",
     "description": "Overview: title of the week chart card."
   },
+  "ovUpFrom": {
+    "message": "Up from $COUNT$ last week",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2,190"
+      }
+    },
+    "description": "Overview, under this week's total: last week's total, shown in bold where the number goes."
+  },
+  "ovDownFrom": {
+    "message": "Down from $COUNT$ last week",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2,190"
+      }
+    },
+    "description": "Overview, under this week's total, when it is lower than last week."
+  },
+  "ovWeekTitleLast": {
+    "message": "Blocked last week",
+    "description": "Overview: title of the week card when Last week is picked."
+  },
+  "ovLastWeekNote": {
+    "message": "The 7 days before this week.",
+    "description": "Overview, under last week's total: which days these are."
+  },
+  "ovPeriodGroup": {
+    "message": "Week",
+    "description": "Overview: name of the This week / Last week switch, for screen readers."
+  },
+  "ovPeriodThis": {
+    "message": "This week",
+    "description": "Overview: show this week."
+  },
+  "ovPeriodLast": {
+    "message": "Last week",
+    "description": "Overview: show last week."
+  },
   "ovHoverHint": {
     "message": "Select a day for details",
     "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
@@ -2454,30 +2494,6 @@
         "example": "12"
       }
     }
-  },
-  "ovMoreThanLastWeek": {
-    "message": "$N$% more",
-    "description": "Overview headline, followed by 'than last week'.",
-    "placeholders": {
-      "n": {
-        "content": "$1",
-        "example": "85"
-      }
-    }
-  },
-  "ovLessThanLastWeek": {
-    "message": "$N$% less",
-    "description": "Overview headline, followed by 'than last week'.",
-    "placeholders": {
-      "n": {
-        "content": "$1",
-        "example": "12"
-      }
-    }
-  },
-  "ovThanLastWeek": {
-    "message": "than last week",
-    "description": "Overview headline end."
   },
   "ovAcrossSites": {
     "message": "across $N$ sites",

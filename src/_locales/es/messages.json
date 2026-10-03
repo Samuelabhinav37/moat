@@ -2235,6 +2235,46 @@
     "message": "Bloqueado esta semana",
     "description": "Overview: title of the week chart card."
   },
+  "ovUpFrom": {
+    "message": "Más que los $COUNT$ de la semana pasada",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2,190"
+      }
+    },
+    "description": "Overview, under this week's total: last week's total, shown in bold where the number goes."
+  },
+  "ovDownFrom": {
+    "message": "Menos que los $COUNT$ de la semana pasada",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2,190"
+      }
+    },
+    "description": "Overview, under this week's total, when it is lower than last week."
+  },
+  "ovWeekTitleLast": {
+    "message": "Bloqueado la semana pasada",
+    "description": "Overview: title of the week card when Last week is picked."
+  },
+  "ovLastWeekNote": {
+    "message": "Los 7 días anteriores a esta semana.",
+    "description": "Overview, under last week's total: which days these are."
+  },
+  "ovPeriodGroup": {
+    "message": "Semana",
+    "description": "Overview: name of the This week / Last week switch, for screen readers."
+  },
+  "ovPeriodThis": {
+    "message": "Esta semana",
+    "description": "Overview: show this week."
+  },
+  "ovPeriodLast": {
+    "message": "Semana pasada",
+    "description": "Overview: show last week."
+  },
   "ovHoverHint": {
     "message": "Elige un día para ver detalles",
     "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
@@ -2290,30 +2330,6 @@
         "example": "12"
       }
     }
-  },
-  "ovMoreThanLastWeek": {
-    "message": "un $N$% más",
-    "description": "Overview headline, followed by 'than last week'.",
-    "placeholders": {
-      "n": {
-        "content": "$1",
-        "example": "85"
-      }
-    }
-  },
-  "ovLessThanLastWeek": {
-    "message": "un $N$% menos",
-    "description": "Overview headline, followed by 'than last week'.",
-    "placeholders": {
-      "n": {
-        "content": "$1",
-        "example": "12"
-      }
-    }
-  },
-  "ovThanLastWeek": {
-    "message": "que la semana pasada",
-    "description": "Overview headline end."
   },
   "ovAcrossSites": {
     "message": "en $N$ sitios",

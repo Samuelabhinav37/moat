@@ -314,7 +314,13 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
       }
       for (const company of Object.keys(day.companies)) companies.add(company);
     }
-    previousWeek = { total, kinds, companies: companies.size };
+    previousWeek = {
+      total,
+      kinds,
+      companies: companies.size,
+      daily: prev7.map((date) => dayOrEmpty(state, date).total),
+      dailyKinds: prev7.map((date) => ({ ...NO_KINDS, ...dayOrEmpty(state, date).kinds })),
+    };
   }
 
   const sites = new Set<string>();

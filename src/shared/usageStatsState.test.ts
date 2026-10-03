@@ -249,7 +249,11 @@ describe("Insights counters (0.11.204)", () => {
     expect(summarize(state, at(11)).previousWeek).toBeNull();
     state = recordBlockedTotal(state, "old.example", 9, at(10, -8));
     state = recordBlockedTotal(state, "x.example", 1, at(10, -7));
-    expect(summarize(state, at(11)).previousWeek).toEqual({ total: 10, kinds: { ads: 0, trackers: 0, popups: 0 }, companies: 0 });
+    const prev = summarize(state, at(11)).previousWeek!;
+    expect(prev).toMatchObject({ total: 10, kinds: { ads: 0, trackers: 0, popups: 0 }, companies: 0 });
+    // Last week day by day, oldest first, for the Last week chart.
+    expect(prev.daily).toEqual([0, 0, 0, 0, 0, 9, 1]);
+    expect(prev.dailyKinds).toHaveLength(7);
   });
 
   it("lists up to five sites for each company", () => {

@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.220
+
+### Added
+- **This week or last week on Overview.** Once Moat has a week of history, the "Blocked this
+  week" card has a This week / Last week switch. Last week shows that week's chart and total.
+  Moat keeps 14 days, so there is no further back to show.
+
+### Changed
+- **The weekly total compares in plain numbers.** "85% more than last week" read like good or
+  bad news when it mostly means you browsed more. It now says "Up from 2,190 last week".
+- New text in English, Spanish, French and German.
+
 ## 0.11.219
 
 ### Added

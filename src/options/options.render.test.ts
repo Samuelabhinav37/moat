@@ -505,3 +505,31 @@ describe("Pausing for a while", () => {
     expect(sentMessages.filter((m) => m.type === "toggle-site").at(-1)).toMatchObject({ disabled: true });
   });
 });
+
+describe("Overview: this week or last week", () => {
+  function twoWeeks(): Record<string, unknown> {
+    const days: Record<string, unknown> = {};
+    for (let i = 0; i < 14; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const total = i < 7 ? 30 : 10;
+      days[date] = { date, total, hostnames: ["a.example"], signals: {}, companies: {}, kinds: { ads: total, trackers: 0, popups: 0 } };
+    }
+    return { usageStats: { days } };
+  }
+
+  it("says the number from last week, and can show last week's chart", async () => {
+    await renderOptions(undefined, twoWeeks());
+    expect(document.getElementById("ov-headline")?.textContent).toBe("Up from 70 last week");
+    expect(document.getElementById("ov-period")?.hidden).toBe(false);
+
+    document.querySelector<HTMLButtonElement>('#ov-period [data-period="last"]')!.click();
+    expect(document.getElementById("ov-week-title")?.textContent).toBe("Blocked last week");
+    expect(document.getElementById("ov-week-total")?.textContent).toBe("70");
+    expect(document.querySelectorAll("#ov-chart .ovc-col.today")).toHaveLength(0);
+
+    document.querySelector<HTMLButtonElement>('#ov-period [data-period="this"]')!.click();
+    expect(document.getElementById("ov-week-total")?.textContent).toBe("210");
+  });
+});

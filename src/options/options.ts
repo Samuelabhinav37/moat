@@ -2138,8 +2138,20 @@ function levelLabel(preset: PresetName | "custom"): string {
 
 /** The week at a glance, from the same local counts the Trackers list
  * reads: usage.sparkline is 7 daily totals, oldest first, ending today. */
+let overviewPeriod: "this" | "last" = "this";
+
 function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
-  const days = usage.sparkline.slice(-7);
+  // Last week can only be shown once there is one (14 days are kept).
+  const periodGroup = document.getElementById("ov-period") as HTMLElement;
+  periodGroup.hidden = !usage.previousWeek;
+  if (!usage.previousWeek) overviewPeriod = "this";
+  const last = overviewPeriod === "last" && usage.previousWeek ? usage.previousWeek : null;
+  for (const b of periodGroup.querySelectorAll<HTMLButtonElement>("[data-period]")) b.setAttribute("aria-pressed", String(b.dataset.period === overviewPeriod));
+  document.getElementById("ov-week-title")!.textContent = last
+    ? tFallback("ovWeekTitleLast", "Blocked last week")
+    : tFallback("ovWeekTitle", "Blocked this week");
+  const days = last ? last.daily : usage.sparkline.slice(-7);
+  const dailyKinds = last ? last.dailyKinds : usage.dailyKinds;
   const week = days.reduce((sum, n) => sum + n, 0);
   document.getElementById("ov-week-total")!.textContent = week.toLocaleString();
   document.getElementById("ov-week-empty")!.hidden = week > 0;
@@ -2147,18 +2159,22 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   overviewSettings = settings;
   renderOverviewStatus();
 
-  // "85% more than last week", or how many sites, when there's no last week yet.
+  // "Up from 2,190 last week": the number itself, not a percentage that
+  // sounds like good or bad news. Nothing older than last week is kept.
   const headline = document.getElementById("ov-headline")!;
-  const change = changePercent(week, usage.previousWeek?.total);
   headline.replaceChildren();
-  if (week > 0) {
-    if (change !== null) {
-      const b = document.createElement("b");
-      b.textContent =
-        change >= 0
-          ? tFallback("ovMoreThanLastWeek", `${change}% more`, String(change))
-          : tFallback("ovLessThanLastWeek", `${Math.abs(change)}% less`, String(Math.abs(change)));
-      headline.append(b, document.createTextNode(` ${tFallback("ovThanLastWeek", "than last week")}`));
+  if (last) {
+    headline.textContent = tFallback("ovLastWeekNote", "The 7 days before this week.");
+  } else if (week > 0) {
+    const before = usage.previousWeek?.total;
+    if (before) {
+      const n = document.createElement("b");
+      n.textContent = before.toLocaleString();
+      // The number goes in bold, so the sentence is split around a marker.
+      const MARK = "{n}";
+      const sentence = week >= before ? tFallback("ovUpFrom", `Up from ${MARK} last week`, MARK) : tFallback("ovDownFrom", `Down from ${MARK} last week`, MARK);
+      const [lead, tail] = sentence.split(MARK);
+      headline.append(document.createTextNode(lead ?? ""), n, document.createTextNode(tail ?? ""));
     } else {
       headline.textContent = tFallback("ovAcrossSites", `across ${usage.weekSiteCount} sites`, String(usage.weekSiteCount));
     }
@@ -2167,10 +2183,10 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   const todayLabel = tFallback("ovToday", "Today");
   const columns: DayColumn[] = days.map((total, i) => {
     const date = new Date();
-    date.setDate(date.getDate() - (days.length - 1 - i));
-    const kinds = usage.dailyKinds[i] ?? { ads: 0, trackers: 0, popups: 0 };
+    date.setDate(date.getDate() - (days.length - 1 - i) - (last ? 7 : 0));
+    const kinds = dailyKinds[i] ?? { ads: 0, trackers: 0, popups: 0 };
     const sorted = kinds.ads + kinds.trackers + kinds.popups;
-    const today = i === days.length - 1;
+    const today = !last && i === days.length - 1;
     return {
       label: today ? todayLabel : date.toLocaleDateString(undefined, { weekday: "short" }),
       date: date.toLocaleDateString(),
@@ -2192,6 +2208,13 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
       buildKpi(document, tFallback("ovKpiPopups", "Pop-ups stopped"), kinds.popups, changePercent(kinds.popups, prev?.kinds.popups), usage.dailyKinds.slice(0, 6).map((d) => d.popups), tFallback)
     );
   void renderOverviewTops(usage);
+}
+
+for (const button of document.querySelectorAll<HTMLButtonElement>("#ov-period [data-period]")) {
+  button.addEventListener("click", () => {
+    overviewPeriod = button.dataset.period === "last" ? "last" : "this";
+    if (lastSettings && lastUsage) renderOverview(lastSettings, lastUsage);
+  });
 }
 
 /** Who tracks you most, Most blocked sites, Pages Moat stopped. */

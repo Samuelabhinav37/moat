@@ -1849,6 +1849,36 @@
       .ov-status .sep {
         color: var(--muted);
       }
+      .ov-period {
+        display: inline-grid;
+        grid-auto-flow: column;
+        gap: 2px;
+        padding: 3px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel-2);
+      }
+      .ov-period button {
+        min-height: 28px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 7px;
+        background: none;
+        color: var(--muted);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .ov-period button[aria-pressed="true"] {
+        background: var(--panel);
+        color: var(--fg);
+        box-shadow: inset 0 0 0 1px var(--line-2);
+      }
+      .ov-hint {
+        display: block;
+        margin-top: 4px;
+      }
       .ov-status-on {
         display: contents;
       }
@@ -4086,9 +4116,14 @@
           </p>
           <div class="ov-card ov-week">
             <div class="ov-week-head">
-              <h3 data-i18n="ovWeekTitle">Blocked this week</h3>
-              <span class="ov-sub" data-i18n="ovHoverHint">Select a day for details</span>
+              <h3 id="ov-week-title" data-i18n="ovWeekTitle">Blocked this week</h3>
+              <!-- Only offered once there is a last week to show (14 days are kept). -->
+              <div class="ov-period" id="ov-period" role="group" aria-label="Week" data-i18n-aria-label="ovPeriodGroup" hidden>
+                <button type="button" data-period="this" aria-pressed="true" data-i18n="ovPeriodThis">This week</button>
+                <button type="button" data-period="last" aria-pressed="false" data-i18n="ovPeriodLast">Last week</button>
+              </div>
             </div>
+            <span class="ov-sub ov-hint" data-i18n="ovHoverHint">Select a day for details</span>
             <div class="ov-big" id="ov-week-total">—</div>
             <p class="ov-headline" id="ov-headline"></p>
             <div id="ov-chart"></div>

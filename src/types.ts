@@ -699,9 +699,10 @@ export interface UsageSummaryResponse {
   /** Blocks by kind per day, oldest to today -- 7 entries (zeros before
    * kinds were recorded). */
   dailyKinds: BlockKinds[];
-  /** The 7 days before this week, for "vs last week". Null until 8 days of
-   * history exist. */
-  previousWeek: { total: number; kinds: BlockKinds; companies: number } | null;
+  /** The 7 days before this week, for "vs last week" and the Last week
+   * chart. Null until 8 days of history exist. `daily` and `dailyKinds`
+   * run oldest first, like sparkline and dailyKinds above. */
+  previousWeek: { total: number; kinds: BlockKinds; companies: number; daily: number[]; dailyKinds: BlockKinds[] } | null;
   /** Distinct sites with a block this week. */
   weekSiteCount: number;
   /** Sites with the most blocks this week (from 0.11.204 on), most first. */
