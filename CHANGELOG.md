@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.203
+
+### Changed
+- **About holds Backup and sync.** Backup and sync was a screen of its own; it is now a card at
+  the bottom of About, under the version, "What Moat connects to" (was "What leaves your
+  device") and **Documents** (was "Help and details"). The menu item is just **About**, alone at
+  the bottom. Old #backup links open About on the backup card.
+- The menu is now Overview, then Settings (Protection, Exceptions), then About.
+- Checked in Chrome at 1440, 1000, 600 and 390 px, with the backup, restore, sync and import
+  controls in their new place (the existing render tests cover them).
+
 ## 0.11.202
 
 ### Changed

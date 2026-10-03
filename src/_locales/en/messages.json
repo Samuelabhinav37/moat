@@ -116,7 +116,7 @@
     "message": "Trackers"
   },
   "tabAbout": {
-    "message": "About Moat"
+    "message": "About"
   },
   "optionsManagedBadge": {
     "message": "Managed by your organization"
@@ -1167,7 +1167,7 @@
     "message": "Checking…"
   },
   "aboutFlowsTitle": {
-    "message": "What leaves your device"
+    "message": "What Moat connects to"
   },
   "aboutFlowsNothing": {
     "message": "With your current settings, nothing about your browsing leaves your device."
@@ -1188,7 +1188,7 @@
     "message": "No shortcut set"
   },
   "aboutHelpTitle": {
-    "message": "Help and details"
+    "message": "Documents"
   },
   "searchPlaceholder": {
     "message": "Search settings"

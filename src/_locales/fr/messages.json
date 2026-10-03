@@ -114,7 +114,7 @@
     "message": "Traqueurs"
   },
   "tabAbout": {
-    "message": "À propos de Moat"
+    "message": "À propos"
   },
   "optionsManagedBadge": {
     "message": "Géré par votre organisation"
@@ -1162,7 +1162,7 @@
     "message": "Vérification…"
   },
   "aboutFlowsTitle": {
-    "message": "Ce qui quitte votre appareil"
+    "message": "Ce à quoi Moat se connecte"
   },
   "aboutFlowsNothing": {
     "message": "Avec vos réglages actuels, rien de votre navigation ne quitte votre appareil."
@@ -1183,7 +1183,7 @@
     "message": "Aucun raccourci"
   },
   "aboutHelpTitle": {
-    "message": "Aide et détails"
+    "message": "Documents"
   },
   "searchPlaceholder": {
     "message": "Rechercher un réglage"

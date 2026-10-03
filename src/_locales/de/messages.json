@@ -114,7 +114,7 @@
     "message": "Tracker"
   },
   "tabAbout": {
-    "message": "Über Moat"
+    "message": "Über"
   },
   "optionsManagedBadge": {
     "message": "Verwaltet durch deine Organisation"
@@ -1162,7 +1162,7 @@
     "message": "Wird geprüft…"
   },
   "aboutFlowsTitle": {
-    "message": "Was dein Gerät verlässt"
+    "message": "Womit Moat sich verbindet"
   },
   "aboutFlowsNothing": {
     "message": "Mit deinen aktuellen Einstellungen verlässt nichts über dein Surfen dein Gerät."
@@ -1183,7 +1183,7 @@
     "message": "Kein Kürzel festgelegt"
   },
   "aboutHelpTitle": {
-    "message": "Hilfe und Details"
+    "message": "Dokumente"
   },
   "searchPlaceholder": {
     "message": "Einstellungen suchen"

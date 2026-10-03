@@ -144,11 +144,11 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
     Array.from(document.querySelectorAll(`section[data-page="${page}"], section[data-tab="${page}"]`)).some((section) => section.querySelector(selector));
   const rowTitles = (id: string) => Array.from(document.querySelectorAll(`#${id} .setting-title`), (el) => el.textContent);
 
-  it("puts the pause box on Paused sites and the blocker import on Backup", async () => {
+  it("puts the pause box on Paused sites and the blocker import on About, with the backup", async () => {
     await renderOptions();
     expect(inSection("paused", "#add-input")).toBe(true);
     expect(inSection("rules", "#add-input")).toBe(false);
-    expect(inSection("backup", "#migration-import")).toBe(true);
+    expect(inSection("about", "#migration-import")).toBe(true);
     expect(inSection("rules", "#migration-import")).toBe(false);
   });
 

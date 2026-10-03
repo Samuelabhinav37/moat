@@ -114,7 +114,7 @@
     "message": "Rastreadores"
   },
   "tabAbout": {
-    "message": "Acerca de Moat"
+    "message": "Acerca de"
   },
   "optionsManagedBadge": {
     "message": "Administrado por tu organización"
@@ -1162,7 +1162,7 @@
     "message": "Comprobando…"
   },
   "aboutFlowsTitle": {
-    "message": "Lo que sale de tu dispositivo"
+    "message": "Con qué se conecta Moat"
   },
   "aboutFlowsNothing": {
     "message": "Con tus ajustes actuales, nada de tu navegación sale de tu dispositivo."
@@ -1183,7 +1183,7 @@
     "message": "Sin atajo"
   },
   "aboutHelpTitle": {
-    "message": "Ayuda y detalles"
+    "message": "Documentos"
   },
   "searchPlaceholder": {
     "message": "Buscar ajustes"

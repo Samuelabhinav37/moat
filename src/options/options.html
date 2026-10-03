@@ -2007,6 +2007,15 @@
         }
       }
 
+
+      /* About: the page title already says "About", so its card heading would repeat it. */
+      #a-about > div:first-child {
+        display: none;
+      }
+      #a-backup {
+        scroll-margin-top: 90px;
+      }
+
       /* ---------- Nav modes (navMode.ts): full sidebar, icon rail, drawer ---------- */
       .nav-toggle {
         display: grid;
@@ -2626,9 +2635,8 @@
         <p class="nav-group" data-i18n="navGroupSettings">Settings</p>
         <a href="#protection" data-page="protection" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /></svg><span class="nav-name" data-i18n="navGroupProtection">Protection</span><span class="nav-lead" hidden data-i18n="pageLeadProtection">How much Moat blocks, and the extras on top</span></a>
         <a href="#exceptions" data-page="exceptions" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10M11 9.5V4a1.5 1.5 0 0 1 3 0v6M14 9.5V5.5a1.5 1.5 0 0 1 3 0v7.5c0 4-2.5 7-6.5 7-2.5 0-4-1.5-5.5-4l-2-3.5a1.5 1.5 0 0 1 2.6-1.5L8 13" /></svg><span class="nav-name" data-i18n="navExceptions">Exceptions</span><span class="nav-lead" hidden data-i18n="pageLeadExceptions">Sites, parts of pages and rules where you made your own choice</span><span class="count" id="nav-count-exceptions" hidden></span></a>
-        <a href="#backup" data-page="backup" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span></a>
         <div class="nav-sep" aria-hidden="true"></div>
-        <a href="#about" data-page="about" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About Moat</span></a>
+        <a href="#about" data-page="about" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About</span><span class="nav-lead" hidden data-i18n="optionsAboutDesc">What this version is, and everything that ever leaves your device.</span></a>
       </nav>
 
       <div class="toast" id="saved-toast" role="status" aria-live="polite" hidden>
@@ -2941,68 +2949,13 @@
             </section>
           </div>
 
-          <!-- Backup and sync. Grouped by where the data goes: the file stays
-               on this device; sync is the one control that sends anything. -->
-          <div class="panel">
-            <section class="sec" data-page="backup">
-              <div>
-                <h2 data-i18n="tabBackup">Backup and sync</h2>
-                <p class="lead" data-i18n="optionsBackupDesc">Keep your settings, rules and paused sites safe, or carry them to another computer.</p>
-              </div>
-              <div>
-                <div class="actions">
-                  <button type="button" class="primary" id="export-settings-button" data-i18n="optionsExportTitle">Save a backup</button>
-                  <button type="button" id="import-settings-button" data-i18n="optionsImportTitle">Restore from a file</button>
-                </div>
-                <p class="hint muted" id="export-hint">Saves <code id="export-filename">moat-settings.json</code>, a plain text file you can open and read.</p>
-                <p class="backup-line"><span data-i18n="advLastBackup">Last backup:</span> <b class="caution" id="backup-metric-last">Never</b></p>
-                <input type="file" id="import-settings-input" accept="application/json" hidden />
-                <p class="hint muted" id="import-settings-status" hidden></p>
-                <div id="import-settings-confirm" hidden>
-                  <p class="hint" data-i18n="optionsImportWillChange">This file will change:</p>
-                  <ul class="hint" id="import-settings-summary" style="margin: 4px 0 0; padding-left: 18px"></ul>
-                  <div class="actions" style="margin-top: 10px">
-                    <button type="button" id="import-settings-apply-button" class="primary" data-i18n="optionsImportApplyButton">Apply this import</button>
-                    <button type="button" id="import-settings-cancel-button" data-i18n="commonCancel">Cancel</button>
-                  </div>
-                </div>
-                <div class="setting-rows sync-row">
-                  <div class="setting-row" id="sync-row">
-                    <span class="setting-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4" /></svg></span>
-                    <div>
-                      <span class="setting-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">Sync across devices</span>
-                      <span class="setting-desc" data-i18n="optionsSyncToggleHint">Stored by your browser account. No browsing data is included.</span>
-                      <span class="setting-desc"><span data-i18n="optionsDisclosureRecipient">Who receives it</span>: <strong id="sync-recipient">your browser vendor</strong></span>
-                    </div>
-                    <label class="switch">
-                      <input type="checkbox" id="sync-toggle" aria-labelledby="sync-toggle-label" />
-                      <span class="track"><span class="thumb"></span></span>
-                    </label>
-                  </div>
-                </div>
-                <p class="hint" id="sync-status" hidden></p>
-                <details id="migration-import" class="more">
-                  <summary data-i18n="optionsMigrationImportSummary">Import from another blocker…</summary>
-                  <p class="hint muted" data-i18n="optionsMigrationImportHint">Paste rules exported from uBlock Origin, AdGuard or a similar blocker. Moat imports blocked and allowed sites, and rules that hide parts of a site. Other rule types are skipped.</p>
-                  <textarea id="migration-import-textarea" class="migration-import-textarea" rows="5" placeholder="||ads.example.com^&#10;example.com##.ad-banner"></textarea>
-                  <div class="actions" style="margin-top: 10px">
-                    <button type="button" id="migration-import-file-button" data-i18n="commonChooseFile">Choose file</button>
-                    <button type="button" id="migration-import-button" class="primary" data-i18n="optionsMigrationImportButton">Import</button>
-                  </div>
-                  <input type="file" id="migration-import-file-input" accept=".txt,text/plain" hidden />
-                  <p class="hint muted" id="migration-import-status" hidden></p>
-                </details>
-              </div>
-            </section>
-          </div>
-
           <!-- About. WARNING: a wrong row in this table is worse than a vague
                paragraph. Keep it in sync with PRIVACY.md, in the same commit
                as any change to what the product sends. -->
           <div class="panel panel-bare">
-            <section class="sec" data-page="about">
+            <section class="sec" data-page="about" id="a-about">
               <div>
-                <h2 data-i18n="tabAbout">About Moat</h2>
+                <h2 data-i18n="tabAbout">About</h2>
                 <p class="lead" data-i18n="optionsAboutDesc">What this version is, and everything that ever leaves your device.</p>
               </div>
               <div class="about-stack">
@@ -3022,7 +2975,7 @@
                 </p>
                 <div class="ab-card">
                   <div class="ab-head">
-                    <h3 data-i18n="aboutFlowsTitle">What leaves your device</h3>
+                    <h3 data-i18n="aboutFlowsTitle">What Moat connects to</h3>
                     <p id="about-flows-summary"></p>
                   </div>
                   <ul class="flow-rows" id="about-flows">
@@ -3075,7 +3028,7 @@
                     <span class="ab-kb-desc" data-i18n="aboutShortcutDesc">Turns Moat on or off on every site.</span>
                   </div>
                   <div class="ab-card">
-                    <div class="ab-head"><h3 data-i18n="aboutHelpTitle">Help and details</h3></div>
+                    <div class="ab-head"><h3 data-i18n="aboutHelpTitle">Documents</h3></div>
                     <ul class="ab-links">
                     <li><a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg><span data-i18n="optionsPrivacyPolicyLink">Full privacy policy</span><span class="chev" aria-hidden="true">›</span></a></li>
                     <li><a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7" /></svg><span data-i18n="optionsChangelogLink">Changelog</span><span class="chev" aria-hidden="true">›</span></a></li>
@@ -3085,6 +3038,61 @@
                     </ul>
                   </div>
                 </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Backup and sync. Grouped by where the data goes: the file stays
+               on this device; sync is the one control that sends anything. -->
+          <div class="panel">
+            <section class="sec" data-page="about" id="a-backup">
+              <div>
+                <h2 data-i18n="tabBackup">Backup and sync</h2>
+                <p class="lead" data-i18n="optionsBackupDesc">Keep your settings, rules and paused sites safe, or carry them to another computer.</p>
+              </div>
+              <div>
+                <div class="actions">
+                  <button type="button" class="primary" id="export-settings-button" data-i18n="optionsExportTitle">Save a backup</button>
+                  <button type="button" id="import-settings-button" data-i18n="optionsImportTitle">Restore from a file</button>
+                </div>
+                <p class="hint muted" id="export-hint">Saves <code id="export-filename">moat-settings.json</code>, a plain text file you can open and read.</p>
+                <p class="backup-line"><span data-i18n="advLastBackup">Last backup:</span> <b class="caution" id="backup-metric-last">Never</b></p>
+                <input type="file" id="import-settings-input" accept="application/json" hidden />
+                <p class="hint muted" id="import-settings-status" hidden></p>
+                <div id="import-settings-confirm" hidden>
+                  <p class="hint" data-i18n="optionsImportWillChange">This file will change:</p>
+                  <ul class="hint" id="import-settings-summary" style="margin: 4px 0 0; padding-left: 18px"></ul>
+                  <div class="actions" style="margin-top: 10px">
+                    <button type="button" id="import-settings-apply-button" class="primary" data-i18n="optionsImportApplyButton">Apply this import</button>
+                    <button type="button" id="import-settings-cancel-button" data-i18n="commonCancel">Cancel</button>
+                  </div>
+                </div>
+                <div class="setting-rows sync-row">
+                  <div class="setting-row" id="sync-row">
+                    <span class="setting-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4" /></svg></span>
+                    <div>
+                      <span class="setting-title" id="sync-toggle-label" data-i18n="optionsSyncToggleLabel">Sync across devices</span>
+                      <span class="setting-desc" data-i18n="optionsSyncToggleHint">Stored by your browser account. No browsing data is included.</span>
+                      <span class="setting-desc"><span data-i18n="optionsDisclosureRecipient">Who receives it</span>: <strong id="sync-recipient">your browser vendor</strong></span>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" id="sync-toggle" aria-labelledby="sync-toggle-label" />
+                      <span class="track"><span class="thumb"></span></span>
+                    </label>
+                  </div>
+                </div>
+                <p class="hint" id="sync-status" hidden></p>
+                <details id="migration-import" class="more">
+                  <summary data-i18n="optionsMigrationImportSummary">Import from another blocker…</summary>
+                  <p class="hint muted" data-i18n="optionsMigrationImportHint">Paste rules exported from uBlock Origin, AdGuard or a similar blocker. Moat imports blocked and allowed sites, and rules that hide parts of a site. Other rule types are skipped.</p>
+                  <textarea id="migration-import-textarea" class="migration-import-textarea" rows="5" placeholder="||ads.example.com^&#10;example.com##.ad-banner"></textarea>
+                  <div class="actions" style="margin-top: 10px">
+                    <button type="button" id="migration-import-file-button" data-i18n="commonChooseFile">Choose file</button>
+                    <button type="button" id="migration-import-button" class="primary" data-i18n="optionsMigrationImportButton">Import</button>
+                  </div>
+                  <input type="file" id="migration-import-file-input" accept=".txt,text/plain" hidden />
+                  <p class="hint muted" id="migration-import-status" hidden></p>
+                </details>
               </div>
             </section>
           </div>
