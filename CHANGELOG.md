@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.217
+
+### Changed
+- **Store screenshots keep their theme.** `npm run store:capture` pins Moat's own pages to dark,
+  so the captures don't switch to light just because headless Chrome reports a light device.
+  Pass `--theme=light` to capture the light theme instead.
+
 ## 0.11.216
 
 ### Added

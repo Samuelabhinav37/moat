@@ -4,6 +4,7 @@
 // (still real) pictures; review them before replacing the committed ones.
 //
 //   npm run build && npm run store:capture   (then npm run store:build)
+//   npm run store:capture -- --theme=light    (Moat's own pages in the light theme; dark by default)
 //
 // Writes into store-assets/captures/:
 //   weather-none-tall.jpg / weather-moat-tall.jpg   weather.com without / with Moat (1280x1140)
@@ -20,7 +21,15 @@ import { chromePath } from "../chrome-for-testing.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const extension = join(root, "dist", "chrome");
 // An optional folder argument writes somewhere else, to review before replacing.
-const out = resolve(process.argv[2] ?? join(root, "store-assets", "captures"));
+const args = process.argv.slice(2);
+const out = resolve(args.find((a) => !a.startsWith("--")) ?? join(root, "store-assets", "captures"));
+// Headless Chrome reports a light device, so Moat's pages would follow it.
+// Pin the theme instead, so the captures only change when asked to.
+const theme = (args.find((a) => a.startsWith("--theme=")) ?? "--theme=dark").slice("--theme=".length);
+if (theme !== "light" && theme !== "dark") {
+  console.error('--theme must be "light" or "dark".');
+  process.exit(1);
+}
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 mkdirSync(out, { recursive: true });
 if (!existsSync(join(extension, "manifest.json"))) {
@@ -42,10 +51,16 @@ async function launch(withMoat) {
   await sleep(7000); // let the install finish enabling rulesets
   for (const page of await browser.pages()) if (page.url().endsWith("/welcome.html")) await page.close();
   // Picture a returning user: the popup's one-line first-run card is long gone.
-  await worker.evaluate(async () => {
-    const { uiState = {} } = await chrome.storage.local.get("uiState");
-    await chrome.storage.local.set({ uiState: { ...uiState, hasSeenOnboarding: true } });
-  });
+  await worker.evaluate(async (theme) => {
+    const { uiState = {}, settings = {} } = await chrome.storage.local.get(["uiState", "settings"]);
+    await chrome.storage.local.set({ uiState: { ...uiState, hasSeenOnboarding: true }, settings: { ...settings, theme } });
+  }, theme);
+  // Moat's pages read the theme from localStorage before they paint (src/ui/theme.ts).
+  const id = new URL(worker.url()).host;
+  const themePage = await browser.newPage();
+  await themePage.goto(`chrome-extension://${id}/popup.html`);
+  await themePage.evaluate((theme) => localStorage.setItem("moat-theme", theme), theme);
+  await themePage.close();
   return { browser, worker };
 }
 
