@@ -1574,7 +1574,7 @@
       .dash-nav a[data-page="privacy"] { --tile: #0f766e; }
       .dash-nav a[data-page="filters"],
       #ov-check-fixes { --tile: #0369a1; }
-      .dash-nav a[data-page="paused"],
+      .dash-nav a[data-page="exceptions"],
       .ov-links a[href="#paused"] { --tile: #b45309; }
       .dash-nav a[data-page="hidden"],
       .ov-links a[href="#hidden"],
@@ -1924,6 +1924,89 @@
         }
       }
 
+
+      /* ---------- Tabs (Exceptions page) ---------- */
+      .tabs-sec {
+        padding: 4px 0 !important;
+        border: 0 !important;
+      }
+      .seg {
+        position: relative;
+        display: inline-flex;
+        width: fit-content;
+        max-width: 100%;
+        overflow-x: auto;
+        padding: 4px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        scrollbar-width: none;
+      }
+      .seg .pill {
+        position: absolute;
+        top: 4px;
+        bottom: 4px;
+        left: 0;
+        border-radius: 9px;
+        background: #1f2433;
+        box-shadow: inset 0 0 0 1px rgba(111, 155, 224, 0.45);
+        transition: transform 0.3s var(--spring, cubic-bezier(0.34, 1.56, 0.64, 1)), width 0.3s var(--ease);
+      }
+      .seg button {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 36px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 9px;
+        background: none;
+        color: var(--muted);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: color 0.16s;
+      }
+      .seg button:hover,
+      .seg button[aria-selected="true"] {
+        color: var(--fg);
+      }
+      .seg button svg {
+        width: 16px;
+        height: 16px;
+      }
+      .seg button[aria-selected="true"] svg {
+        color: var(--blue-lt);
+      }
+      .seg .n {
+        padding: 0 7px;
+        border-radius: 999px;
+        background: var(--panel-2);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .sec.tab-off {
+        display: none !important;
+      }
+      @media (max-width: 719px) {
+        .seg button {
+          padding: 0 10px;
+        }
+        .seg button svg {
+          display: none;
+        }
+      }
+      @media (prefers-color-scheme: light) {
+        .seg .pill {
+          background: #e8eefb;
+        }
+      }
+
       /* ---------- Nav modes (navMode.ts): full sidebar, icon rail, drawer ---------- */
       .nav-toggle {
         display: grid;
@@ -1968,10 +2051,11 @@
         margin: 16px 12px 10px;
         background: var(--line);
       }
-      .dash-nav {
+      /* Only animate once the page is up, not while it settles on load. */
+      body.nav-ready .dash-nav {
         transition: width 0.24s var(--ease), transform 0.26s var(--ease);
       }
-      main.wrap {
+      body.nav-ready main.wrap {
         transition: margin-left 0.24s var(--ease);
       }
       /* Icon rail: labels become hover tips, group names become thin lines. */
@@ -2541,9 +2625,7 @@
         <a href="#overview" data-page="overview" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4h6v4h-6zM4 20h6v-3H4z" /></svg><span class="nav-name" data-i18n="navOverview">Overview</span><span class="nav-lead" hidden data-i18n="pageLeadOverview">What Moat did for you this week</span></a>
         <p class="nav-group" data-i18n="navGroupSettings">Settings</p>
         <a href="#protection" data-page="protection" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /></svg><span class="nav-name" data-i18n="navGroupProtection">Protection</span><span class="nav-lead" hidden data-i18n="pageLeadProtection">How much Moat blocks, and the extras on top</span></a>
-        <a href="#paused" data-page="paused" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span class="nav-name" data-i18n="navSites">Sites</span><span class="nav-lead" hidden data-i18n="pageLeadSites">Sites where Moat is paused, and settings you changed for one site</span><span class="count" id="nav-count-paused" hidden></span></a>
-        <a href="#hidden" data-page="hidden" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span class="nav-name" data-i18n="navHidden">Hidden on pages</span><span class="count" id="nav-count-hidden" hidden></span></a>
-        <a href="#rules" data-page="rules" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg><span class="nav-name" data-i18n="navRules">Always and never block</span></a>
+        <a href="#exceptions" data-page="exceptions" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10M11 9.5V4a1.5 1.5 0 0 1 3 0v6M14 9.5V5.5a1.5 1.5 0 0 1 3 0v7.5c0 4-2.5 7-6.5 7-2.5 0-4-1.5-5.5-4l-2-3.5a1.5 1.5 0 0 1 2.6-1.5L8 13" /></svg><span class="nav-name" data-i18n="navExceptions">Exceptions</span><span class="nav-lead" hidden data-i18n="pageLeadExceptions">Sites, parts of pages and rules where you made your own choice</span><span class="count" id="nav-count-exceptions" hidden></span></a>
         <a href="#backup" data-page="backup" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span></a>
         <div class="nav-sep" aria-hidden="true"></div>
         <a href="#about" data-page="about" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About Moat</span></a>
@@ -2632,6 +2714,15 @@
           </nav>
         </section>
 
+        <section class="sec tabs-sec" data-page="exceptions">
+          <div class="seg" role="tablist" aria-label="Exceptions" data-i18n-aria-label="navExceptions">
+            <span class="pill" aria-hidden="true"></span>
+            <button type="button" role="tab" id="tab-paused" data-tab-btn="paused" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6v12M15 6v12" /></svg><span data-i18n="tabPaused">Paused</span><span class="n" id="tab-count-paused" hidden></span></button>
+            <button type="button" role="tab" id="tab-hidden" data-tab-btn="hidden" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span data-i18n="tabHidden">Hidden</span><span class="n" id="tab-count-hidden" hidden></span></button>
+            <button type="button" role="tab" id="tab-rules" data-tab-btn="rules" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5a8.5 8.5 0 1 0 0-17 8.5 8.5 0 0 0 0 17Z" /><path d="m8.5 12 2.5 2.5 4.5-5" /></svg><span data-i18n="tabRules">Always and never</span><span class="n" id="tab-count-rules" hidden></span></button>
+          </div>
+        </section>
+
         <div class="panel">
           <!-- How much to block: three presets, each a radio card with a
                three-step meter and what it adds. Essential/Custom live under
@@ -2664,7 +2755,7 @@
             </div>
           </section>
 
-          <section class="sec" data-page="paused">
+          <section class="sec" data-page="exceptions" data-tab="paused">
             <div>
               <h2 data-i18n="navPaused">Paused sites</h2>
               <p class="lead" data-i18n="optionsExceptionsHint">Ads and trackers load normally on these sites. Known dangerous sites stay blocked. Add one here, or pause a site from Moat's icon while you're on it.</p>
@@ -2688,7 +2779,7 @@
             </div>
           </section>
 
-          <section class="sec" data-page="paused">
+          <section class="sec" data-page="exceptions" data-tab="paused">
             <div>
               <h2 data-i18n="overridesTitle">Changed for one site</h2>
               <p class="lead" data-i18n="overridesLead">Settings you turned on or off for a single site from Moat's icon. Reset a site to use your usual settings there again.</p>
@@ -2705,7 +2796,7 @@
             </div>
           </section>
 
-          <section class="sec" data-page="hidden">
+          <section class="sec" data-page="exceptions" data-tab="hidden">
             <div>
               <h2 data-i18n="navHidden">Hidden on pages</h2>
               <p class="lead" data-i18n="optionsHiddenElementsHint">Parts of pages you hid. Remove one to bring it back.</p>
@@ -2794,7 +2885,7 @@
 
           <!-- Block and allow -->
           <div class="panel">
-            <section class="sec" data-page="rules">
+            <section class="sec" data-page="exceptions" data-tab="rules">
               <div>
                 <h2 data-i18n="navRules">Always and never block</h2>
                 <p class="lead" data-i18n="advRulesLead">Your own rules. They always win over the filter lists.</p>

@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.202
+
+### Changed
+- **One Exceptions page with tabs.** Sites (paused), Hidden on pages, and Always and never block
+  were three screens that looked like the same table. They are now one page with three tabs:
+  **Paused** (paused sites and settings changed for one site), **Hidden** and **Always and
+  never**. Each tab shows how many entries it has, and the menu shows the total. A highlight
+  slides to the tab you pick, and the arrow keys move between tabs.
+- Old links (#paused, #hidden, #rules) open their tab, and search opens the tab that holds the
+  result before scrolling to it.
+- Each card no longer draws a stray divider above its first section, and the menu doesn't
+  animate while the page loads.
+- Checked in Chrome at 1440, 1000, 600 and 390 px: tabs, counts, old links, search into each
+  tab ("never block", "hidden on pages", "pause moat"), no sideways scroll.
+
 ## 0.11.201
 
 ### Changed

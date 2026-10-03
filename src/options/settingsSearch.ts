@@ -4,7 +4,7 @@
 // whatever language the page is in. Picking a result opens its screen,
 // scrolls to it and briefly highlights it.
 
-import { pageFromHash, type PageKey } from "./dashboard";
+import { pageFromHash, revealTab, type PageKey } from "./dashboard";
 
 export interface SearchItem {
   title: string;
@@ -102,6 +102,7 @@ export function initSettingsSearch(input: HTMLInputElement, list: HTMLUListEleme
       if (el instanceof HTMLDetailsElement) el.open = true;
     }
     win.setTimeout(() => {
+      revealTab(item.target, doc);
       item.target.scrollIntoView?.({ block: "center" });
       item.target.classList.remove("search-hit");
       void item.target.offsetWidth;

@@ -122,7 +122,7 @@ describe("Previously-orphaned i18n keys that turned out to be real content gaps"
   it("'Hidden on pages' has its own heading and hint", async () => {
     await renderOptions();
 
-    expect(document.querySelector('section[data-page="hidden"] h2')?.textContent).toBe("Hidden on pages");
+    expect(document.querySelector('section[data-tab="hidden"] h2')?.textContent).toBe("Hidden on pages");
     expect(document.body.textContent).toContain("Hide something on a page");
   });
 
@@ -139,8 +139,9 @@ describe("Previously-orphaned i18n keys that turned out to be real content gaps"
 });
 
 describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
+  // A screen, or a tab of the Exceptions screen.
   const inSection = (page: string, selector: string) =>
-    Array.from(document.querySelectorAll(`section[data-page="${page}"]`)).some((section) => section.querySelector(selector));
+    Array.from(document.querySelectorAll(`section[data-page="${page}"], section[data-tab="${page}"]`)).some((section) => section.querySelector(selector));
   const rowTitles = (id: string) => Array.from(document.querySelectorAll(`#${id} .setting-title`), (el) => el.textContent);
 
   it("puts the pause box on Paused sites and the blocker import on Backup", async () => {

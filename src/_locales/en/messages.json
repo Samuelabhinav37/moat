@@ -2254,5 +2254,25 @@
   "listPromoDesc": {
     "message": "Newsletter boxes and no-copy scripts.",
     "description": "Filter list: what it stops."
+  },
+  "navExceptions": {
+    "message": "Exceptions",
+    "description": "Settings menu item: paused sites, hidden parts of pages and your own rules."
+  },
+  "pageLeadExceptions": {
+    "message": "Sites, parts of pages and rules where you made your own choice",
+    "description": "Subtitle of the Exceptions page."
+  },
+  "tabPaused": {
+    "message": "Paused",
+    "description": "Exceptions page tab: sites where Moat is paused."
+  },
+  "tabHidden": {
+    "message": "Hidden",
+    "description": "Exceptions page tab: parts of pages you hid."
+  },
+  "tabRules": {
+    "message": "Always and never",
+    "description": "Exceptions page tab: sites you always block or never block."
   }
 }

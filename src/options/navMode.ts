@@ -155,5 +155,6 @@ export function initNavMode(
   win.addEventListener("resize", apply, { signal });
   body.dataset.nav = mode;
   apply();
+  win.setTimeout(() => body.classList.add("nav-ready"), 300);
   return { mode: () => mode, destroy: () => off.abort() };
 }

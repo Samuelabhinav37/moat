@@ -4,14 +4,17 @@
 // screen, and the CSS hides the rest. Same at every width: navMode.ts only
 // changes how the sidebar itself is shown.
 
-export const PAGE_KEYS = ["overview", "protection", "paused", "hidden", "rules", "backup", "about"] as const;
+export const PAGE_KEYS = ["overview", "protection", "exceptions", "backup", "about"] as const;
 export type PageKey = (typeof PAGE_KEYS)[number];
 export const DEFAULT_PAGE: PageKey = "overview";
 
 /** Screens that were folded into another, so old links and bookmarks still
  * land, on the right card where there is one. */
-const MOVED: Record<string, { page: PageKey; anchor?: string }> = {
+const MOVED: Record<string, { page: PageKey; anchor?: string; tab?: string }> = {
   trackers: { page: "overview" },
+  paused: { page: "exceptions", tab: "paused" },
+  hidden: { page: "exceptions", tab: "hidden" },
+  rules: { page: "exceptions", tab: "rules" },
   blocking: { page: "protection", anchor: "p-level" },
   privacy: { page: "protection", anchor: "p-privacy" },
   filters: { page: "protection", anchor: "p-lists" },
@@ -23,6 +26,47 @@ export function pageFromHash(hash: string): PageKey {
   return (PAGE_KEYS as readonly string[]).includes(key) ? (key as PageKey) : DEFAULT_PAGE;
 }
 
+/** The tab an old screen's link should open, if any. */
+export function tabFromHash(hash: string): string | null {
+  return MOVED[hash.replace(/^#/, "")]?.tab ?? null;
+}
+
+/** Which tab each tabbed screen is on (the first tab until one is picked). */
+const currentTab = new Map<string, string>();
+
+function tabsOf(root: Document, key: string): string[] {
+  return Array.from(root.querySelectorAll<HTMLElement>(`section[data-page="${key}"][data-tab]`))
+    .map((s) => s.dataset.tab!)
+    .filter((t, i, all) => all.indexOf(t) === i);
+}
+
+/** Shows one tab of a tabbed screen: its sections, its button as selected,
+ * and the sliding highlight under it. */
+export function showTab(key: string, tab: string, root: Document = document): void {
+  currentTab.set(key, tab);
+  showPage(key as PageKey, root);
+}
+
+/** Opens whatever tab holds `target` (search results use this). */
+export function revealTab(target: HTMLElement, root: Document = document): void {
+  const section = target.closest<HTMLElement>("section[data-page][data-tab]");
+  if (section && currentTab.get(section.dataset.page!) !== section.dataset.tab) showTab(section.dataset.page!, section.dataset.tab!, root);
+}
+
+function syncTabButtons(root: Document, tab: string | undefined): void {
+  for (const btn of root.querySelectorAll<HTMLElement>("[data-tab-btn]")) {
+    const on = btn.dataset.tabBtn === tab;
+    btn.setAttribute("aria-selected", String(on));
+    btn.tabIndex = on ? 0 : -1;
+    if (!on) continue;
+    const pill = btn.parentElement?.querySelector<HTMLElement>(".pill");
+    if (pill) {
+      pill.style.width = `${btn.offsetWidth}px`;
+      pill.style.transform = `translateX(${btn.offsetLeft}px)`;
+    }
+  }
+}
+
 /** The card an old screen's link should scroll to, if any. */
 export function anchorFromHash(hash: string): string | null {
   return MOVED[hash.replace(/^#/, "")]?.anchor ?? null;
@@ -32,10 +76,19 @@ export function anchorFromHash(hash: string): string | null {
  * off, and points the sidebar and page heading at it. */
 export function showPage(key: PageKey, root: Document = document): void {
   const sections = Array.from(root.querySelectorAll<HTMLElement>("section[data-page]"));
-  for (const section of sections) section.classList.toggle("dash-off", section.dataset.page !== key);
-  const visible = sections.filter((section) => section.dataset.page === key);
+  const tabs = tabsOf(root, key);
+  const tab = tabs.length ? (tabs.includes(currentTab.get(key) ?? "") ? currentTab.get(key)! : tabs[0]!) : undefined;
+  for (const section of sections) {
+    section.classList.toggle("dash-off", section.dataset.page !== key);
+    section.classList.toggle("tab-off", section.dataset.page === key && !!section.dataset.tab && section.dataset.tab !== tab);
+  }
+  const visible = sections.filter((section) => section.dataset.page === key && !section.classList.contains("tab-off"));
+  if (tab) syncTabButtons(root, tab);
   visible.forEach((section, i) => {
-    section.classList.toggle("dash-first", i === 0);
+    // First on the screen, or first inside its card (no divider above it).
+    const panel = section.closest(".panel");
+    const firstInPanel = panel ? visible.find((v) => panel.contains(v)) === section : false;
+    section.classList.toggle("dash-first", i === 0 || firstInPanel);
     // A screen with a single section uses its sentence as the subtitle, so
     // the section's own heading block is hidden (see the CSS).
     section.classList.toggle("dash-solo", visible.length === 1);
@@ -78,6 +131,8 @@ export function initDashboard(win: Window = window, onShow?: (key: PageKey) => v
   const doc = win.document;
   const show = () => {
     const key = pageFromHash(win.location.hash);
+    const tab = tabFromHash(win.location.hash);
+    if (tab) currentTab.set(key, tab);
     showPage(key, doc);
     onShow?.(key);
     const anchor = anchorFromHash(win.location.hash);
@@ -100,15 +155,30 @@ export function initDashboard(win: Window = window, onShow?: (key: PageKey) => v
   show();
   initJumpChips(win);
 
-  const byId = (id: string) => doc.getElementById(id);
-  const pausedCount = byId("nav-count-paused");
-  const hiddenCount = byId("nav-count-hidden");
-  const siteList = byId("site-list");
-  const overrideList = byId("override-list");
-  const hiddenRows = byId("hidden-element-rows");
-  const grayRows = byId("grayscale-element-rows");
-  if (pausedCount && siteList) watchCount(pausedCount, overrideList ? [siteList, overrideList] : [siteList]);
-  if (hiddenCount && hiddenRows) watchCount(hiddenCount, grayRows ? [hiddenRows, grayRows] : [hiddenRows]);
+  for (const btn of doc.querySelectorAll<HTMLElement>("[data-tab-btn]")) {
+    btn.addEventListener("click", () => showTab(pageFromHash(win.location.hash), btn.dataset.tabBtn!, doc));
+    // Arrow keys move between tabs, as in any tab list.
+    btn.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+      const all = Array.from(btn.parentElement!.querySelectorAll<HTMLElement>("[data-tab-btn]"));
+      const next = all[(all.indexOf(btn) + (event.key === "ArrowRight" ? 1 : all.length - 1)) % all.length]!;
+      next.click();
+      next.focus();
+    });
+  }
+  win.addEventListener("resize", () => syncTabButtons(doc, currentTab.get(pageFromHash(win.location.hash))));
+
+  const lists = (...ids: string[]) => ids.map((id) => doc.getElementById(id)).filter((el): el is HTMLElement => el !== null);
+  const counts: [string, HTMLElement[]][] = [
+    ["tab-count-paused", lists("site-list", "override-list")],
+    ["tab-count-hidden", lists("hidden-element-rows", "grayscale-element-rows")],
+    ["tab-count-rules", lists("custom-block-list", "custom-allow-list")],
+    ["nav-count-exceptions", lists("site-list", "override-list", "hidden-element-rows", "grayscale-element-rows", "custom-block-list", "custom-allow-list")],
+  ];
+  for (const [id, els] of counts) {
+    const el = doc.getElementById(id);
+    if (el && els.length) watchCount(el, els);
+  }
 }
 
 /** "On this page" chips: scroll to their card (without changing the hash,

@@ -7,7 +7,7 @@ function page(): void {
   document.body.innerHTML = `
     <nav class="dash-nav">
       <a data-page="protection"><span class="nav-name">Protection</span></a>
-      <a data-page="rules"><span class="nav-name">Block and allow</span></a>
+      <a data-page="exceptions"><span class="nav-name">Exceptions</span></a>
     </nav>
     <input id="q" /><ul id="results" hidden></ul>
     <section data-page="protection">
@@ -19,7 +19,7 @@ function page(): void {
       <div><h2>Privacy extras</h2></div>
       <div class="setting-row"><span class="setting-title">Block cross-site cookies</span><span class="setting-desc">Stops sites following you.</span></div>
     </section>
-    <section data-page="rules">
+    <section data-page="exceptions" data-tab="rules">
       <div><h2>Block and allow</h2></div>
       <div class="field" id="never-field"><span class="field-label">Never block</span><span class="field-hint">Even when a filter list matches.</span></div>
     </section>`;
@@ -44,7 +44,7 @@ describe("collectItems", () => {
     const cookie = items.find((i) => i.title === "Say no to cookie banners")!;
     expect(cookie.page).toBe("protection");
     expect(cookie.where).toBe("Protection › How much to block");
-    expect(items.find((i) => i.title === "Never block")!.where).toBe("Block and allow");
+    expect(items.find((i) => i.title === "Never block")!.where).toBe("Exceptions › Block and allow");
   });
 });
 
@@ -93,7 +93,7 @@ describe("initSettingsSearch", () => {
     const { list, type, key } = setup();
     type("never");
     key("Enter");
-    expect(window.location.hash).toBe("#rules");
+    expect(window.location.hash).toBe("#exceptions");
     expect(list.hidden).toBe(true);
   });
 
