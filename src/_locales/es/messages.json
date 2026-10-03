@@ -280,6 +280,10 @@
   "optionsSourceCodeLink": {
     "message": "Código fuente"
   },
+  "aboutOpensGithub": {
+    "message": "(abre GitHub)",
+    "description": "Settings > About: read by screen readers after 'Source code', which opens a web page."
+  },
   "optionsThirdPartyNoticesLink": {
     "message": "Licencias de terceros"
   },

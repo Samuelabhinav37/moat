@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.224
+
+### Added
+- **The privacy policy, changelog and licenses are pages inside Moat.** Settings › About ›
+  Documents used to send you to GitHub, or open NOTICE.md as raw text. Now they open Moat's own
+  pages, built from the same files on every release, so they can't drift from them:
+  - **Privacy policy:** the short version first (no data collected), then every connection Moat
+    can make with what's sent, who receives it and when, what stays on your device, your choices,
+    and the full text at the bottom. It names each connection the same way Settings does.
+  - **Changelog:** the last 20 versions, with a filter for fixes, additions, changes and security,
+    and a search.
+  - **Licenses:** Moat's own license and every list and library it ships with.
+- The pages follow your Appearance choice, have a menu for each section on phones, and link back
+  to Settings and to Diagnostics.
+
 ## 0.11.223
 
 ### Changed

@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { buildManifest } from "./manifest.ts";
+import { buildDocs } from "./docs/buildDocs.mjs";
 import { buildTrackerDomains } from "./lib/trackerDomains.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -48,6 +49,7 @@ const ENTRIES = [
   ["welcome", "src/welcome/welcome.ts"],
   ["report", "src/report/report.ts"],
   ["theme-boot", "src/ui/themeBoot.ts"],
+  ["docs", "src/docs/docs.ts"],
 ];
 
 const outDir = resolve(root, "dist", target);
@@ -182,6 +184,9 @@ function copyStaticAssets() {
   // live only in the source repository -- see NOTICE.md's own header.
   cpSync(resolve(root, "LICENSE"), resolve(outDir, "LICENSE"));
   cpSync(resolve(root, "NOTICE.md"), resolve(outDir, "NOTICE.md"));
+  // The same files as readable pages: privacy.html, changelog.html, licenses.html.
+  cpSync(resolve(root, "src/docs/doc.css"), resolve(outDir, "doc.css"));
+  buildDocs(root, outDir);
 
   writeFileSync(resolve(outDir, "manifest.json"), JSON.stringify(buildManifest(target), null, 2));
 }
