@@ -49,6 +49,8 @@ describe("heatmap", () => {
     const node = buildHeatmap(document, hours, ["Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu"], t);
     expect(node.querySelectorAll(".heat i")).toHaveLength(168);
     expect(node.querySelector(".heat")!.getAttribute("aria-label")).toBe("Busiest: Wed at 21:00, 9 blocks");
+    const wed = [...node.querySelectorAll("table.sr-only tr")].find((tr) => tr.firstElementChild?.textContent === "Wed");
+    expect([...wed!.children].map((c) => c.textContent)).toEqual(["Wed", "9", "21:00"]);
   });
 
   it("says when blocks happen most, in words", () => {

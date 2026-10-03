@@ -61,7 +61,11 @@ export function buildWeekChart(doc: Document, days: DayColumn[], t: Translate): 
   days.forEach((day, i) => {
     const total = totals[i]!;
     const col = el(doc, "div", day.today ? "ovc-col today" : "ovc-col");
-    col.setAttribute("role", "img");
+    // Each day is a button: Tab reaches the chart once (on today), arrow keys
+    // move between days, and focus, a tap or Enter shows the day's split.
+    col.setAttribute("role", "button");
+    col.setAttribute("aria-pressed", "false");
+    col.tabIndex = i === days.length - 1 ? 0 : -1;
     col.setAttribute(
       "aria-label",
       `${day.label}: ${total.toLocaleString()} (${KINDS.map((k) => `${names[k]} ${day.kinds[k].toLocaleString()}`).join(", ")})`
@@ -81,7 +85,7 @@ export function buildWeekChart(doc: Document, days: DayColumn[], t: Translate): 
     segment(day.other, "k-other");
     stack.style.height = `${(total / top) * 100}%`;
     col.append(stack);
-    // Hover card with the day's split.
+    // The day's split, shown on hover, focus or tap (the label already reads it out).
     const tip = el(doc, "span", "ovc-tip");
     tip.setAttribute("aria-hidden", "true");
     tip.append(el(doc, "b", "", `${day.label} · ${total.toLocaleString()}`));
@@ -108,7 +112,51 @@ export function buildWeekChart(doc: Document, days: DayColumn[], t: Translate): 
     item.append(el(doc, "i", "key k-other"), doc.createTextNode(t("ovKindOtherTitle", "Not sorted")));
     legend.append(item);
   }
-  wrap.append(plot, labels, legend);
+  plot.setAttribute("role", "group");
+  plot.setAttribute("aria-label", t("ovChartGroup", "Blocked per day. Use the arrow keys to move between days."));
+  const cols = () => [...plot.querySelectorAll<HTMLElement>(".ovc-col")];
+  const select = (col: HTMLElement | null) => {
+    for (const c of cols()) {
+      const on = c === col;
+      c.classList.toggle("sel", on);
+      c.setAttribute("aria-pressed", String(on));
+    }
+  };
+  plot.addEventListener("click", (event) => {
+    const col = (event.target as HTMLElement).closest<HTMLElement>(".ovc-col");
+    if (col) select(col.classList.contains("sel") ? null : col);
+  });
+  plot.addEventListener("keydown", (event) => {
+    const col = (event.target as HTMLElement).closest<HTMLElement>(".ovc-col");
+    if (!col) return;
+    const all = cols();
+    const i = all.indexOf(col);
+    const next = { ArrowLeft: i - 1, ArrowRight: i + 1, Home: 0, End: all.length - 1 }[event.key];
+    if (next !== undefined) {
+      event.preventDefault();
+      const target = all[Math.max(0, Math.min(all.length - 1, next))]!;
+      for (const c of all) c.tabIndex = c === target ? 0 : -1;
+      target.focus();
+      if (col.classList.contains("sel")) select(target);
+    } else if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      select(col.classList.contains("sel") ? null : col);
+    } else if (event.key === "Escape") {
+      select(null);
+    }
+  });
+  // The same numbers as a table, for screen readers.
+  const table = el(doc, "table", "sr-only");
+  table.append(el(doc, "caption", "", t("ovChartTable", "Blocked per day")));
+  const head = el(doc, "tr");
+  head.append(el(doc, "th", "", t("ovChartDay", "Day")), ...KINDS.map((k) => el(doc, "th", "", names[k])));
+  table.append(head);
+  for (const day of days) {
+    const tr = el(doc, "tr");
+    tr.append(el(doc, "th", "", day.label), ...KINDS.map((k) => el(doc, "td", "", day.kinds[k].toLocaleString())));
+    table.append(tr);
+  }
+  wrap.append(plot, labels, legend, table);
   return wrap;
 }
 

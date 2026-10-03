@@ -2216,8 +2216,20 @@
     "description": "Overview: title of the week chart card."
   },
   "ovHoverHint": {
-    "message": "Zeig auf einen Tag für Details",
-    "description": "Overview: hint beside the week chart."
+    "message": "Wähle einen Tag für Details",
+    "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
+  },
+  "ovChartGroup": {
+    "message": "Blockiert pro Tag. Mit den Pfeiltasten zwischen den Tagen wechseln.",
+    "description": "Overview week chart, read by screen readers: what the chart is and how to move in it."
+  },
+  "ovChartTable": {
+    "message": "Blockiert pro Tag",
+    "description": "Overview: caption of the week chart's data table, read by screen readers."
+  },
+  "ovChartDay": {
+    "message": "Tag",
+    "description": "Column heading in the screen-reader tables for the charts."
   },
   "ovKindAdsTitle": {
     "message": "Werbung",
@@ -2544,6 +2556,18 @@
   "insMore": {
     "message": "Mehr",
     "description": "Heatmap key."
+  },
+  "insHeatTable": {
+    "message": "Blockierungen pro Tag",
+    "description": "Trackers page: caption of the busiest-hours data table, read by screen readers."
+  },
+  "insHeatTotal": {
+    "message": "Blockiert",
+    "description": "Column heading in the busiest-hours data table: total blocked that day."
+  },
+  "insHeatBusiest": {
+    "message": "Aktivste Stunde",
+    "description": "Column heading in the busiest-hours data table."
   },
   "insMorningsWeekday": {
     "message": "Morgens unter der Woche",

@@ -34,6 +34,37 @@ describe("buildWeekChart", () => {
     expect(chart.querySelector(".ovc-grid span")!.textContent).toBe("200");
   });
 
+  it("is one Tab stop on today; arrow keys move between days and Enter or a tap shows a day", () => {
+    const chart = buildWeekChart(document, [day("Mon", 10, 20, 1), day("Tue", 60, 80, 2), day("Today", 1, 2, 0, 0, true)], t);
+    document.body.replaceChildren(chart);
+    const cols = [...chart.querySelectorAll<HTMLElement>(".ovc-col")];
+    expect(cols.map((c) => c.tabIndex)).toEqual([-1, -1, 0]);
+    expect(cols[0]!.getAttribute("role")).toBe("button");
+
+    cols[2]!.focus();
+    cols[2]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    expect(document.activeElement).toBe(cols[1]);
+    expect(cols.map((c) => c.tabIndex)).toEqual([-1, 0, -1]);
+
+    cols[1]!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    expect(cols[1]!.classList.contains("sel")).toBe(true);
+    expect(cols[1]!.getAttribute("aria-pressed")).toBe("true");
+
+    cols[0]!.click();
+    expect(cols[0]!.classList.contains("sel")).toBe(true);
+    expect(cols[1]!.classList.contains("sel")).toBe(false);
+  });
+
+  it("gives screen readers the numbers as a table", () => {
+    const chart = buildWeekChart(document, [day("Mon", 10, 20, 1), day("Today", 1, 2, 0, 0, true)], t);
+    const rows = [...chart.querySelectorAll("table.sr-only tr")].map((tr) => [...tr.children].map((c) => c.textContent));
+    expect(rows).toEqual([
+      ["Day", "Ads", "Trackers", "Pop-ups"],
+      ["Mon", "10", "20", "1"],
+      ["Today", "1", "2", "0"],
+    ]);
+  });
+
   it("shows older unsorted blocks as their own grey part, with a legend entry", () => {
     const chart = buildWeekChart(document, [day("Mon", 0, 0, 0, 30)], t);
     expect(chart.querySelector(".k-other")).not.toBeNull();

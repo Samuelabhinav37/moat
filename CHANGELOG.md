@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.214
+
+### Changed
+- **The week chart works without a mouse.** Each day's details used to show only on hover, so
+  touch screens and keyboards never saw them.
+  - Tab reaches the chart once. The arrow keys, Home and End move between days, and focus
+    shows that day's split.
+  - A tap or Enter keeps a day open. Tap it again, or press Esc, to close it.
+  - The hint says "Select a day for details" instead of "Hover a day".
+- **Screen readers get the numbers.** The week chart and the busiest-hours grid on Trackers
+  each have a hidden table with every value.
+- The purpose bar on Trackers no longer has hover-only labels. The rows under it already show
+  each value.
+- New text in English, Spanish, French and German.
+
 ## 0.11.213
 
 ### Changed

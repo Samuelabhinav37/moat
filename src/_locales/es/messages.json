@@ -2216,8 +2216,20 @@
     "description": "Overview: title of the week chart card."
   },
   "ovHoverHint": {
-    "message": "Pasa el cursor por un día para ver detalles",
-    "description": "Overview: hint beside the week chart."
+    "message": "Elige un día para ver detalles",
+    "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
+  },
+  "ovChartGroup": {
+    "message": "Bloqueos por día. Usa las flechas para moverte entre días.",
+    "description": "Overview week chart, read by screen readers: what the chart is and how to move in it."
+  },
+  "ovChartTable": {
+    "message": "Bloqueos por día",
+    "description": "Overview: caption of the week chart's data table, read by screen readers."
+  },
+  "ovChartDay": {
+    "message": "Día",
+    "description": "Column heading in the screen-reader tables for the charts."
   },
   "ovKindAdsTitle": {
     "message": "Anuncios",
@@ -2544,6 +2556,18 @@
   "insMore": {
     "message": "Más",
     "description": "Heatmap key."
+  },
+  "insHeatTable": {
+    "message": "Bloqueos por día",
+    "description": "Trackers page: caption of the busiest-hours data table, read by screen readers."
+  },
+  "insHeatTotal": {
+    "message": "Bloqueados",
+    "description": "Column heading in the busiest-hours data table: total blocked that day."
+  },
+  "insHeatBusiest": {
+    "message": "Hora con más actividad",
+    "description": "Column heading in the busiest-hours data table."
   },
   "insMorningsWeekday": {
     "message": "Mañanas entre semana",

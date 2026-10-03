@@ -107,7 +107,6 @@ export function buildPurposes(doc: Document, purposes: Record<string, number>, t
     const seg = el(doc, "span");
     seg.style.flex = String(s.count);
     seg.style.setProperty("--s", String(Math.min(i, 5)));
-    seg.title = `${purposeLabel(s.category, t).name}: ${s.count.toLocaleString()}`;
     bar.append(seg);
   });
   wrap.append(bar);
@@ -162,7 +161,23 @@ export function buildHeatmap(doc: Document, hours: number[][], dayLabels: string
   key.append(el(doc, "span", "", t("insLess", "Less")));
   for (let l = 0; l <= 4; l++) key.append(el(doc, "i", `l${l}`));
   key.append(el(doc, "span", "", t("insMore", "More")));
-  wrap.append(grid, key);
+  // Each day's total and busiest hour as a table, for screen readers.
+  const table = el(doc, "table", "sr-only");
+  table.append(el(doc, "caption", "", t("insHeatTable", "Blocks by day")));
+  const head = el(doc, "tr");
+  head.append(el(doc, "th", "", t("ovChartDay", "Day")), el(doc, "th", "", t("insHeatTotal", "Blocked")), el(doc, "th", "", t("insHeatBusiest", "Busiest hour")));
+  table.append(head);
+  hours.forEach((row, d) => {
+    const top = Math.max(...row, 0);
+    const tr = el(doc, "tr");
+    tr.append(
+      el(doc, "th", "", dayLabels[d] ?? ""),
+      el(doc, "td", "", row.reduce((a, b) => a + b, 0).toLocaleString()),
+      el(doc, "td", "", top > 0 ? `${String(row.indexOf(top)).padStart(2, "0")}:00` : "–")
+    );
+    table.append(tr);
+  });
+  wrap.append(grid, key, table);
   return wrap;
 }
 

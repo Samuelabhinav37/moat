@@ -1887,13 +1887,36 @@
         right: 0;
         transform: translate(0, 4px);
       }
-      .ovc-col:hover .ovc-tip {
+      .ovc-col:hover .ovc-tip,
+      .ovc-col:focus-visible .ovc-tip,
+      .ovc-col.sel .ovc-tip {
         opacity: 1;
         transform: translate(-50%, -6px);
       }
       .ovc-col:nth-child(-n + 3):hover .ovc-tip,
-      .ovc-col:nth-last-child(-n + 2):hover .ovc-tip {
+      .ovc-col:nth-last-child(-n + 2):hover .ovc-tip,
+      .ovc-col:nth-child(-n + 3):focus-visible .ovc-tip,
+      .ovc-col:nth-last-child(-n + 2):focus-visible .ovc-tip,
+      .ovc-col:nth-child(-n + 3).sel .ovc-tip,
+      .ovc-col:nth-last-child(-n + 2).sel .ovc-tip {
         transform: translate(0, -6px);
+      }
+      .ovc-col {
+        cursor: pointer;
+        border-radius: 8px;
+      }
+      .ovc-col:focus-visible {
+        outline: 2px solid var(--blue-lt);
+        outline-offset: 3px;
+      }
+      /* Read by screen readers, not shown. */
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
       }
       .ovc-tip-row {
         display: flex;
@@ -3920,7 +3943,7 @@
           <div class="ov-card ov-week">
             <div class="ov-week-head">
               <h3 data-i18n="ovWeekTitle">Blocked this week</h3>
-              <span class="ov-sub" data-i18n="ovHoverHint">Hover a day for details</span>
+              <span class="ov-sub" data-i18n="ovHoverHint">Select a day for details</span>
             </div>
             <div class="ov-big" id="ov-week-total">—</div>
             <p class="ov-headline" id="ov-headline"></p>
