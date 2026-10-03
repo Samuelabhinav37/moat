@@ -233,3 +233,33 @@ ul.site-list li {
   /* Caution at low alpha, for the inline notice block behind sync. */
   --caution-wash: rgba(224, 177, 111, 0.1);
 }
+
+/* ---------------------------------------------------------------------------
+   Light theme. <html data-theme> is set before the first paint by
+   theme-boot.js (src/ui/theme.ts): the Settings choice, or the device's
+   setting when the choice is System. Pale tinted surfaces rather than stark
+   white; every text colour here keeps at least 4.5:1 on --bg and --card.
+   --------------------------------------------------------------------------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f5f8;
+  --card: #ffffff;
+  --fg: #1c1a20;
+  --muted: #5d5764;
+  --accent: #2f5fc4;
+  --on: #1d7f18;
+  --primary: #3563c7;
+  --primary-hover: #2a4fa3;
+  --on-fg: #ffffff;
+  --danger: #b42e2e;
+  --danger-fg: #ffffff;
+  --border: #dcd8e2;
+  --hairline: #e8e5ed;
+  --caution: #8a5a00;
+  --caution-fg: #ffffff;
+  --selected: #c9c4d0;
+  --caution-wash: rgba(196, 132, 20, 0.12);
+}

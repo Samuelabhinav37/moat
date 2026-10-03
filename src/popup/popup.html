@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="theme.css" />
+    <script src="theme-boot.js"></script>
     <style>
       /* Popup-local surface + text tiers, so the whole panel draws from a
          handful of values instead of a dozen scattered rgba()s. */
@@ -17,7 +18,21 @@
            the popup is taller than its 600px limit (it was a light one). */
         color-scheme: dark;
         scrollbar-width: thin;
+        --track-off: rgba(255, 255, 255, 0.18);
+        --hover-2: rgba(255, 255, 255, 0.16);
         scrollbar-color: var(--s2) transparent;
+      }
+      /* Light theme (theme-boot.js): the same tiers, drawn in ink. */
+      :root[data-theme="light"] {
+        color-scheme: light;
+        --s1: rgba(28, 26, 32, 0.05);
+        --s2: rgba(28, 26, 32, 0.09);
+        --edge: rgba(28, 26, 32, 0.12);
+        --t1: #1c1a20;
+        --t2: rgba(28, 26, 32, 0.82);
+        --t3: rgba(28, 26, 32, 0.68);
+        --track-off: rgba(28, 26, 32, 0.22);
+        --hover-2: rgba(28, 26, 32, 0.12);
       }
       body {
         /* Fixed column -- the browser sizes the toolbar popup to this.
@@ -349,7 +364,7 @@
       }
 
       .switch .track {
-        background: rgba(255, 255, 255, 0.18);
+        background: var(--track-off);
       }
       .switch .thumb {
         background: #fff;
@@ -378,7 +393,7 @@
         color: var(--t2);
       }
       .actions button.secondary:hover {
-        background: rgba(255, 255, 255, 0.16);
+        background: var(--hover-2);
         color: var(--t1);
       }
       /* Confirm state for #fresh-start-button, set by popup.ts after the

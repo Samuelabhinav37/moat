@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title data-i18n="tourPageTitle">Welcome to Moat</title>
     <link rel="stylesheet" href="theme.css" />
+    <script src="theme-boot.js"></script>
     <style>
       /* First-run tour. Opened once, in its own tab, on a fresh install (see
          background/firstRunTour.ts). Layout: steps on the left, a clickable
@@ -17,7 +18,16 @@
         --ok-fg: #7ddc74;
         --caution-bg: #3a2f1f;
         --mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+        --primary-hover-bg: #fff;
       }
+      :root[data-theme="light"] {
+        --raised: #e9e6ee;
+        --ok-bg: #e3f3e0;
+        --ok-fg: #1d6f18;
+        --caution-bg: #f8edd8;
+        --primary-hover-bg: #3d3943;
+      }
+      :root[data-theme="light"] .ad-tag { color: #fff; }
       body { font-size: 15px; line-height: 1.5; }
       :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       [hidden] { display: none !important; }
@@ -90,7 +100,7 @@
         flex: 1; min-width: 180px; padding: 13px 18px; border-radius: 10px; border: 0;
         background: var(--fg); color: var(--bg); font-weight: 650; font-size: 15px;
       }
-      .actions .primary:hover { background: #fff; }
+      .actions .primary:hover { background: var(--primary-hover-bg); }
       .actions .ghost { padding: 13px 16px; border-radius: 10px; color: var(--muted); font-size: 14.5px; }
       /* One line each: a long label (French "Commencer à naviguer") moves the
          other button to the next line instead of breaking in two. */

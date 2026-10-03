@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.215
+
+### Added
+- **A light theme.** Settings, the popup, the report page, Diagnostics, the welcome tour and the
+  block page now follow your device: light when your system is light, dark when it's dark. The
+  light theme uses soft tinted backgrounds rather than stark white, and every page was checked
+  for readable contrast in both themes. A setting to pick one yourself comes next.
+
 ## 0.11.214
 
 ### Changed

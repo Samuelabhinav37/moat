@@ -47,6 +47,7 @@ const ENTRIES = [
   ["warning", "src/warning/warning.ts"],
   ["welcome", "src/welcome/welcome.ts"],
   ["report", "src/report/report.ts"],
+  ["theme-boot", "src/ui/themeBoot.ts"],
 ];
 
 const outDir = resolve(root, "dist", target);

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title data-i18n="reportPageTitle">Report a problem</title>
     <link rel="stylesheet" href="theme.css" />
+    <script src="theme-boot.js"></script>
     <style>
       /* Report a problem (report.ts). Opened from the popup for the site in
          the current tab, or from Settings. Everything a report contains is
@@ -17,6 +18,15 @@
         --blue: #3f6fd1;
         --blue-lt: #6f9be0;
         --tint: rgba(111, 155, 224, 0.15);
+      }
+      :root[data-theme="light"] {
+        --page: #f6f5f8;
+        --panel: #ffffff;
+        --panel-2: #f1eff4;
+        --line: #e2dfe7;
+        --blue: #3563c7;
+        --blue-lt: #2f5fc4;
+        --tint: rgba(53, 99, 199, 0.1);
       }
       body { background: var(--page); font-size: 15px; line-height: 1.5; }
       [hidden] { display: none !important; }
@@ -59,7 +69,7 @@
       .send-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
       button { padding: 10px 16px; border-radius: 10px; font-weight: 600; }
       button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
-      button.primary:hover { background: #2f57ad; border-color: #2f57ad; }
+      button.primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
       button:disabled { opacity: 0.5; cursor: default; }
       .status { margin: 0; font-size: 14px; color: var(--muted); }
       .status.error { color: var(--caution); }
