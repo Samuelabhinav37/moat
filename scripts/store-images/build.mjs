@@ -132,7 +132,7 @@ const screenshots = {
   "2-privacy": privacyFrame(),
   "3-popup": popupFrame({
     h1: "See everything <em>that was blocked.</em>", sub: "One click on the toolbar icon lists the ads, trackers and pop-ups on this page.",
-    page: "weather-moat.jpg", popup: "popup-weather@2x.png", popupHeight: 507,
+    page: "weather-moat.jpg", popup: "popup-weather@2x.png", popupHeight: 505,
   }),
   "4-cookies": compareFrame({
     h1: "Cookie banners, <em>rejected for you.</em>", sub: "The “reject” button is clicked automatically, wherever the site allows it.", url: "gov.uk",
@@ -140,7 +140,7 @@ const screenshots = {
   }),
   "5-pause": popupFrame({
     h1: "Site broken? <em>Pause it there.</em>", sub: "One switch for that site. Everywhere else stays protected.",
-    page: "weather-paused.jpg", popup: "popup-paused@2x.png", popupHeight: 408,
+    page: "weather-paused.jpg", popup: "popup-paused@2x.png", popupHeight: 380,
   }),
 };
 
