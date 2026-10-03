@@ -713,8 +713,50 @@
   "diagnosticsDesc": {
     "message": "Lo que Moat realmente hizo en la pestaña activa, y lo que debía hacer pero no hizo."
   },
+  "diagnosticsDetails": {
+    "message": "Detalles para un informe de error",
+    "description": "Diagnostics: disclosure holding the raw numbers and rule matches."
+  },
+  "diagnosticsSummaryNoSite": {
+    "message": "Abre un sitio web, vuelve aquí y pulsa Actualizar."
+  },
+  "diagnosticsSummaryBlocked": {
+    "message": "En $SITE$, Moat bloqueó $COUNT$ solicitudes.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "count": {
+        "content": "$2",
+        "example": "7"
+      }
+    }
+  },
+  "diagnosticsSummaryNone": {
+    "message": "En $SITE$, Moat aún no ha bloqueado nada.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "diagnosticsSummaryChecks": {
+    "message": "Se ejecutaron $RAN$ de $OF$ comprobaciones de página.",
+    "placeholders": {
+      "ran": {
+        "content": "$1",
+        "example": "2"
+      },
+      "of": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "diagnosticsHeroLabel": {
-    "message": "heurísticas aplicables aquí que se activaron en esta carga de página"
+    "message": "comprobaciones aplicables que se ejecutaron en esta carga"
   },
   "diagnosticsSilentLabel": {
     "message": "sin actuar en esta página"
@@ -723,10 +765,10 @@
     "message": "coincidencias de reglas"
   },
   "diagnosticsHeuristicsHeading": {
-    "message": "Heurísticas"
+    "message": "Comprobaciones de página"
   },
   "diagnosticsHeuristicsNote": {
-    "message": "scripts de contenido que leen la página. Se rompen cuando un sitio cambia su marcado."
+    "message": "Pequeños scripts que actúan en la propia página, como rechazar avisos de cookies. Pueden dejar de funcionar si un sitio cambia su diseño."
   },
   "diagnosticsMatchesHeading": {
     "message": "Coincidencias de reglas"

@@ -713,8 +713,50 @@
   "diagnosticsDesc": {
     "message": "Was Moat tatsächlich auf dem aktiven Tab getan hat, und was es hätte tun sollen, aber nicht getan hat."
   },
+  "diagnosticsDetails": {
+    "message": "Details für einen Fehlerbericht",
+    "description": "Diagnostics: disclosure holding the raw numbers and rule matches."
+  },
+  "diagnosticsSummaryNoSite": {
+    "message": "Öffne eine Website, komm dann hierher zurück und drücke Aktualisieren."
+  },
+  "diagnosticsSummaryBlocked": {
+    "message": "Auf $SITE$ hat Moat $COUNT$ Anfragen blockiert.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "count": {
+        "content": "$2",
+        "example": "7"
+      }
+    }
+  },
+  "diagnosticsSummaryNone": {
+    "message": "Auf $SITE$ hat Moat noch nichts blockiert.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "diagnosticsSummaryChecks": {
+    "message": "$RAN$ von $OF$ Seitenprüfungen liefen.",
+    "placeholders": {
+      "ran": {
+        "content": "$1",
+        "example": "2"
+      },
+      "of": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "diagnosticsHeroLabel": {
-    "message": "Heuristiken, die hier zutreffen, wurden bei diesem Seitenaufruf ausgelöst"
+    "message": "zutreffende Seitenprüfungen liefen bei diesem Laden"
   },
   "diagnosticsSilentLabel": {
     "message": "auf dieser Seite inaktiv"
@@ -723,10 +765,10 @@
     "message": "Regeltreffer"
   },
   "diagnosticsHeuristicsHeading": {
-    "message": "Heuristiken"
+    "message": "Seitenprüfungen"
   },
   "diagnosticsHeuristicsNote": {
-    "message": "Content-Skripte, die die Seite lesen. Sie brechen, wenn eine Website ihr Markup ändert."
+    "message": "Kleine Skripte, die auf der Seite selbst arbeiten, etwa Cookie-Banner ablehnen. Eines kann ausfallen, wenn eine Website ihr Layout ändert."
   },
   "diagnosticsMatchesHeading": {
     "message": "Regeltreffer"

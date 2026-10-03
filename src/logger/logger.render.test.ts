@@ -101,6 +101,15 @@ describe("logger.html (Diagnostics) render", () => {
     expect(document.querySelectorAll("#diag-matches-body tr").length).toBe(1);
   });
 
+  it("says what happened in a sentence, and keeps the raw numbers under Details", async () => {
+    await renderLogger();
+    expect(document.getElementById("diag-summary")?.textContent).toBe("On example.com, Moat hasn't blocked anything yet. 2 of 4 page checks ran.");
+    const details = document.getElementById("diag-details") as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    expect(details.contains(document.getElementById("diag-matches-table"))).toBe(true);
+    expect(details.contains(document.getElementById("diag-fired"))).toBe(true);
+  });
+
   it("has no practically-invisible text (the v0.11.89 bug class)", async () => {
     await renderLogger();
     const findings = findInvisibleText(document.body);

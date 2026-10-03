@@ -425,6 +425,8 @@ export interface LogEntriesResponse {
    * rows below work on every build regardless of this flag. */
   supported: boolean;
   hostname: string;
+  /** Requests blocked on the tab's current page, on every build. */
+  blocked?: number;
   entries: LoggedMatch[];
   heuristics: DiagnosticsHeuristicRow[];
 }

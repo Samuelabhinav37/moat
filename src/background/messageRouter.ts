@@ -392,6 +392,7 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
         return {
           supported: isLoggerSupported(),
           hostname,
+          blocked: tabId === null ? 0 : combinedTotal(tabId),
           entries: tabId === null ? [] : getLoggedEntries(tabId),
           heuristics,
         };

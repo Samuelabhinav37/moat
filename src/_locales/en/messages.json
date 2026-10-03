@@ -715,8 +715,50 @@
   "diagnosticsDesc": {
     "message": "What Moat actually did on the active tab, and what it was supposed to do but didn't."
   },
+  "diagnosticsDetails": {
+    "message": "Details for a bug report",
+    "description": "Diagnostics: disclosure holding the raw numbers and rule matches."
+  },
+  "diagnosticsSummaryNoSite": {
+    "message": "Open a website, then come back here and press Refresh."
+  },
+  "diagnosticsSummaryBlocked": {
+    "message": "On $SITE$, Moat blocked $COUNT$ requests.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "count": {
+        "content": "$2",
+        "example": "7"
+      }
+    }
+  },
+  "diagnosticsSummaryNone": {
+    "message": "On $SITE$, Moat hasn't blocked anything yet.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "diagnosticsSummaryChecks": {
+    "message": "$RAN$ of $OF$ page checks ran.",
+    "placeholders": {
+      "ran": {
+        "content": "$1",
+        "example": "2"
+      },
+      "of": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "diagnosticsHeroLabel": {
-    "message": "heuristics that apply here fired on this page load"
+    "message": "page checks that apply here ran on this page load"
   },
   "diagnosticsSilentLabel": {
     "message": "silent on this page"
@@ -725,10 +767,10 @@
     "message": "rule matches"
   },
   "diagnosticsHeuristicsHeading": {
-    "message": "Heuristics"
+    "message": "Page checks"
   },
   "diagnosticsHeuristicsNote": {
-    "message": "content scripts that read the page. They break when a site changes its markup."
+    "message": "Small scripts that work on the page itself, like rejecting cookie banners. One can stop working when a site changes its layout."
   },
   "diagnosticsMatchesHeading": {
     "message": "Rule matches"

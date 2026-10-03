@@ -38,6 +38,18 @@
       .logger-head {
         margin-bottom: 24px;
       }
+      .diag-summary {
+        margin: 18px 0 0;
+        font-size: 16px;
+        line-height: 1.55;
+        color: var(--fg);
+      }
+      .bug-details > summary {
+        cursor: pointer;
+        color: var(--accent);
+        font-weight: 600;
+        margin-bottom: 16px;
+      }
       .page-head {
         display: flex;
         align-items: baseline;
@@ -325,33 +337,16 @@
         What Moat actually did on the active tab, and what it was supposed to do but didn't.
       </p>
 
-      <div class="metric-row">
-        <div>
-          <div class="hero-value">
-            <span id="diag-fired">—</span><span class="of-muted">/<span id="diag-applicable">—</span></span>
-          </div>
-          <p class="metric-baseline" data-i18n="diagnosticsHeroLabel">
-            heuristics that apply here fired on this page load
-          </p>
-        </div>
-        <div class="metric-right-group">
-          <div>
-            <div class="secondary-value" id="diag-silent">—</div>
-            <p class="metric-label" data-i18n="diagnosticsSilentLabel">silent on this page</p>
-          </div>
-          <div>
-            <div class="secondary-value" id="diag-matches">—</div>
-            <p class="metric-label" data-i18n="diagnosticsMatchesLabel">rule matches</p>
-          </div>
-        </div>
-      </div>
+      <!-- The answer first, in a sentence (Firefox's Troubleshooting
+           Information leads the same way). logger.ts writes it. -->
+      <p class="diag-summary" id="diag-summary" role="status"></p>
 
       <hr class="section-divider" />
 
       <div class="group-heading">
-        <span data-i18n="diagnosticsHeuristicsHeading">Heuristics</span>
+        <span data-i18n="diagnosticsHeuristicsHeading">Page checks</span>
         <span class="group-note" data-i18n="diagnosticsHeuristicsNote">
-          content scripts that read the page. They break when a site changes its markup.
+          Small scripts that work on the page itself, like rejecting cookie banners. One can stop working when a site changes its layout.
         </span>
       </div>
 
@@ -364,51 +359,76 @@
 
       <hr class="section-divider" />
 
-      <div class="group-heading">
-        <span data-i18n="diagnosticsMatchesHeading">Rule matches</span>
-        <!-- DR-17: the caveat lives HERE, on the section it limits -- not on
-             the page title, where it would declare the whole surface dead on
-             a store install. -->
-        <span class="caveat-pill" data-i18n="diagnosticsUnpackedOnly">Unpacked builds only</span>
-      </div>
-
-      <div class="unavailable-note" id="diag-matches-unavailable">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-          <circle cx="8" cy="8" r="6.2" />
-          <path d="M8 5.2v3.4M8 10.9v.2" />
-        </svg>
-        <div>
-          <div class="un-title" data-i18n="diagnosticsUnavailableTitle">Not available on this build</div>
-          <!-- Not data-i18n: applyStaticI18n replaces an element's whole
-               textContent, which would delete the embedded <code>, same
-               convention as options.html's own prose blocks. -->
-          <p>
-            Per-request rule matches come from <code>onRuleMatchedDebug</code>, which Chrome only
-            fires for extensions loaded unpacked, and Firefox doesn't implement. Everything above
-            works on every build.
-          </p>
+      <!-- Numbers and raw rule matches: for a bug report, not for reading. -->
+      <details class="bug-details" id="diag-details">
+        <summary data-i18n="diagnosticsDetails">Details for a bug report</summary>
+        <div class="metric-row">
+          <div>
+            <div class="hero-value">
+              <span id="diag-fired">—</span><span class="of-muted">/<span id="diag-applicable">—</span></span>
+            </div>
+            <p class="metric-baseline" data-i18n="diagnosticsHeroLabel">
+              page checks that apply here ran on this page load
+            </p>
+          </div>
+          <div class="metric-right-group">
+            <div>
+              <div class="secondary-value" id="diag-silent">—</div>
+              <p class="metric-label" data-i18n="diagnosticsSilentLabel">silent on this page</p>
+            </div>
+            <div>
+              <div class="secondary-value" id="diag-matches">—</div>
+              <p class="metric-label" data-i18n="diagnosticsMatchesLabel">rule matches</p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <label class="log-filter" id="diag-filter" hidden>
-        <input type="checkbox" id="diag-blocked-only" checked />
-        <span data-i18n="diagnosticsBlockedOnly">Blocked requests only</span>
-      </label>
-      <table class="matches" id="diag-matches-table" hidden>
-        <thead>
-          <tr>
-            <th data-i18n="diagnosticsColTime">Time</th>
-            <th data-i18n="diagnosticsColRule">Rule</th>
-            <th data-i18n="diagnosticsColType">Type</th>
-            <th data-i18n="diagnosticsColUrl">URL</th>
-          </tr>
-        </thead>
-        <tbody id="diag-matches-body"></tbody>
-      </table>
-      <button type="button" id="diag-more" hidden></button>
-      <p class="metric-label" id="diag-matches-empty" hidden data-i18n="diagnosticsMatchesEmpty">
-        No matches recorded yet for this tab. Reload the page and refresh.
-      </p>
+        <div class="group-heading">
+          <span data-i18n="diagnosticsMatchesHeading">Rule matches</span>
+          <!-- DR-17: the caveat lives HERE, on the section it limits -- not on
+               the page title, where it would declare the whole surface dead on
+               a store install. -->
+          <span class="caveat-pill" data-i18n="diagnosticsUnpackedOnly">Unpacked builds only</span>
+        </div>
+
+        <div class="unavailable-note" id="diag-matches-unavailable">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.2" />
+            <path d="M8 5.2v3.4M8 10.9v.2" />
+          </svg>
+          <div>
+            <div class="un-title" data-i18n="diagnosticsUnavailableTitle">Not available on this build</div>
+            <!-- Not data-i18n: applyStaticI18n replaces an element's whole
+                 textContent, which would delete the embedded <code>, same
+                 convention as options.html's own prose blocks. -->
+            <p>
+              Per-request rule matches come from <code>onRuleMatchedDebug</code>, which Chrome only
+              fires for extensions loaded unpacked, and Firefox doesn't implement. Everything above
+              works on every build.
+            </p>
+          </div>
+        </div>
+
+        <label class="log-filter" id="diag-filter" hidden>
+          <input type="checkbox" id="diag-blocked-only" checked />
+          <span data-i18n="diagnosticsBlockedOnly">Blocked requests only</span>
+        </label>
+        <table class="matches" id="diag-matches-table" hidden>
+          <thead>
+            <tr>
+              <th data-i18n="diagnosticsColTime">Time</th>
+              <th data-i18n="diagnosticsColRule">Rule</th>
+              <th data-i18n="diagnosticsColType">Type</th>
+              <th data-i18n="diagnosticsColUrl">URL</th>
+            </tr>
+          </thead>
+          <tbody id="diag-matches-body"></tbody>
+        </table>
+        <button type="button" id="diag-more" hidden></button>
+        <p class="metric-label" id="diag-matches-empty" hidden data-i18n="diagnosticsMatchesEmpty">
+          No matches recorded yet for this tab. Reload the page and refresh.
+        </p>
+      </details>
     </div>
 
     <script src="logger.js"></script>

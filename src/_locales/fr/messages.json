@@ -713,8 +713,50 @@
   "diagnosticsDesc": {
     "message": "Ce que Moat a réellement fait sur l'onglet actif, et ce qu'il aurait dû faire mais n'a pas fait."
   },
+  "diagnosticsDetails": {
+    "message": "Détails pour un rapport de bug",
+    "description": "Diagnostics: disclosure holding the raw numbers and rule matches."
+  },
+  "diagnosticsSummaryNoSite": {
+    "message": "Ouvrez un site web, revenez ici et appuyez sur Actualiser."
+  },
+  "diagnosticsSummaryBlocked": {
+    "message": "Sur $SITE$, Moat a bloqué $COUNT$ requêtes.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "count": {
+        "content": "$2",
+        "example": "7"
+      }
+    }
+  },
+  "diagnosticsSummaryNone": {
+    "message": "Sur $SITE$, Moat n'a encore rien bloqué.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "diagnosticsSummaryChecks": {
+    "message": "$RAN$ vérifications de page sur $OF$ ont tourné.",
+    "placeholders": {
+      "ran": {
+        "content": "$1",
+        "example": "2"
+      },
+      "of": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "diagnosticsHeroLabel": {
-    "message": "heuristiques applicables ici qui se sont déclenchées lors de ce chargement de page"
+    "message": "vérifications applicables lancées pendant ce chargement"
   },
   "diagnosticsSilentLabel": {
     "message": "inactives sur cette page"
@@ -723,10 +765,10 @@
     "message": "correspondances de règles"
   },
   "diagnosticsHeuristicsHeading": {
-    "message": "Heuristiques"
+    "message": "Vérifications de page"
   },
   "diagnosticsHeuristicsNote": {
-    "message": "scripts de contenu qui lisent la page. Ils se cassent quand un site change son balisage."
+    "message": "De petits scripts qui agissent sur la page elle-même, comme refuser les bannières de cookies. L'un d'eux peut cesser de marcher quand un site change de mise en page."
   },
   "diagnosticsMatchesHeading": {
     "message": "Correspondances de règles"

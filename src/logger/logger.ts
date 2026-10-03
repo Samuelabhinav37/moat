@@ -158,10 +158,34 @@ async function loadUncounted(): Promise<Map<string, Set<number>>> {
 const PAGE_SIZE = 200;
 let shown = PAGE_SIZE;
 
+/** The page in one sentence: "On example.com, Moat blocked 7 requests.
+ * 2 of 3 page checks ran." */
+export function summarize(response: Pick<LogEntriesResponse, "hostname" | "blocked" | "heuristics">): string {
+  if (!response.hostname) return tFallback("diagnosticsSummaryNoSite", "Open a website, then come back here and press Refresh.");
+  const host = response.hostname;
+  const blocked = response.blocked ?? 0;
+  const sentences = [
+    blocked > 0
+      ? tFallback("diagnosticsSummaryBlocked", `On ${host}, Moat blocked ${blocked.toLocaleString()} requests.`, [host, blocked.toLocaleString()])
+      : tFallback("diagnosticsSummaryNone", `On ${host}, Moat hasn't blocked anything yet.`, host),
+  ];
+  const watched = response.heuristics.filter((row) => row.on && row.appliesHere);
+  if (watched.length) {
+    const ran = watched.filter((row) => row.fired !== null).length;
+    sentences.push(tFallback("diagnosticsSummaryChecks", `${ran} of ${watched.length} page checks ran.`, [String(ran), String(watched.length)]));
+  }
+  return sentences.join(" ");
+}
+
+function renderSummary(response: LogEntriesResponse): void {
+  document.getElementById("diag-summary")!.textContent = summarize(response);
+}
+
 async function render(): Promise<void> {
   const response = await getDiagnostics();
 
   document.getElementById("diag-host")!.textContent = response.hostname || "—";
+  renderSummary(response);
 
   const rowsContainer = document.getElementById("diag-heuristic-rows")!;
   const scopeNote = document.getElementById("diag-scope-note") as HTMLElement;

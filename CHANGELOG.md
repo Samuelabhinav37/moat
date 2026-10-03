@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.237
+
+### Changed
+- **Diagnostics answers in a sentence first.** "On example.com, Moat blocked 7 requests. 2 of 3
+  page checks ran." The numbers and the raw rule matches now sit under "Details for a bug
+  report", the way Firefox's Troubleshooting page puts a summary above the raw data.
+- **"Heuristics" are now "Page checks"**, with a plain note on what they are.
+- Diagnostics has the same Moat header as the other pages.
+
 ## 0.11.236
 
 ### Changed
