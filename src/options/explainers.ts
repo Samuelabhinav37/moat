@@ -195,9 +195,7 @@ const SCENES: Record<string, SceneBuilder> = {
 
 /** Which scene each Settings screen shows before a row's "How it works" is pressed. */
 export const SCREEN_SCENES: Record<string, string> = {
-  blocking: "levels",
-  privacy: "cookies",
-  filters: "lists",
+  protection: "levels",
   paused: "paused",
   hidden: "hidden",
   rules: "rules",

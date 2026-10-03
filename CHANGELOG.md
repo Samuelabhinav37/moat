@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.201
+
+### Changed
+- **One Protection page instead of three.** Blocking level, Privacy and Filter lists were three
+  thin screens. They are now four cards on one page, with "On this page" chips that stay at the
+  top and follow you as you scroll: **Level**, **Privacy**, **Annoyances** and **Lists**. Old
+  links and bookmarks (#blocking, #privacy, #filters) open the page on the matching card.
+- **Privacy is grouped**: Tracking, Your device, Permissions and passwords, each in its own box.
+- **Filter lists are named for what they stop**, grouped into Ads, Tracking, Dangerous sites and
+  Annoyances, with "3 of 3 on" per group. Each list keeps its published name as a credit line
+  ("Phishing · Phishing URL Blocklist · 65,995 rules"). Lists no longer look switched off while
+  your level manages them.
+- New text in English, Spanish, French and German (the last three still waiting for the
+  native-speaker review).
+- Checked in Chrome at 1440, 1000, 600 and 390 px: menu modes, search landing on Protection,
+  old links landing on their card, no sideways scroll.
+
 ## 0.11.200
 
 ### Fixed

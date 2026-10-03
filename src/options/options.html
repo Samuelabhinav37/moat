@@ -1569,7 +1569,7 @@
          more (navTiles.test.ts), and red and green stay out, because Moat
          uses them for blocked and allowed. */
       .dash-nav a[data-page="overview"] { --tile: #2563eb; }
-      .dash-nav a[data-page="blocking"],
+      .dash-nav a[data-page="protection"],
       .ov-links a[href="#blocking"] { --tile: #4f46e5; }
       .dash-nav a[data-page="privacy"] { --tile: #0f766e; }
       .dash-nav a[data-page="filters"],
@@ -1842,6 +1842,87 @@
       }
 
 
+
+
+      /* ---------- Protection page: jump chips, inset groups ---------- */
+      .jump-sec {
+        position: sticky;
+        top: 65px;
+        z-index: 4;
+        padding: 10px 0 !important;
+        border: 0 !important;
+        background: linear-gradient(var(--page) 78%, transparent);
+      }
+      .jump {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .jump a {
+        padding: 6px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--panel);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        transition: color 0.16s, border-color 0.16s, background 0.16s;
+      }
+      .jump a:hover {
+        color: var(--fg);
+        text-decoration: none;
+      }
+      .jump a.on {
+        color: var(--fg);
+        border-color: rgba(111, 155, 224, 0.5);
+        background: #1f2433;
+      }
+      section[id^="p-"] {
+        scroll-margin-top: 130px;
+      }
+      .pgroups {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+      .pgroup .sub-h {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin: 0 2px 8px;
+      }
+      .pgroup .sub-h .n {
+        margin-left: auto;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .inset {
+        padding: 0 16px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel-2);
+      }
+      .inset > .setting-row {
+        padding: 14px 0 !important;
+      }
+      .inset .setting-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--panel-3, #2a2730);
+      }
+      .setting-desc .credit {
+        color: var(--muted);
+        opacity: 0.85;
+      }
+      @media (prefers-color-scheme: light) {
+        .jump-sec {
+          background: linear-gradient(var(--page) 78%, transparent);
+        }
+        .jump a.on {
+          background: #e8eefb;
+        }
+      }
 
       /* ---------- Nav modes (navMode.ts): full sidebar, icon rail, drawer ---------- */
       .nav-toggle {
@@ -2458,15 +2539,11 @@
       <div class="nav-scrim" id="nav-scrim" hidden></div>
       <nav class="dash-nav" id="dash-nav" aria-label="Settings" data-i18n-aria-label="settingsTitle">
         <a href="#overview" data-page="overview" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4h6v4h-6zM4 20h6v-3H4z" /></svg><span class="nav-name" data-i18n="navOverview">Overview</span><span class="nav-lead" hidden data-i18n="pageLeadOverview">What Moat did for you this week</span></a>
-        <p class="nav-group" data-i18n="navGroupProtection">Protection</p>
-        <a href="#blocking" data-page="blocking" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg><span class="nav-name" data-i18n="navBlockingLevel">Blocking level</span><span class="nav-lead" hidden data-i18n="pageLeadBlocking">How much to block, and the extras on top</span></a>
-        <a href="#privacy" data-page="privacy" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a3 3 0 100-6 3 3 0 000 6zM5 20a7 7 0 0114 0" /></svg><span class="nav-name" data-i18n="navPrivacy">Privacy</span></a>
-        <a href="#filters" data-page="filters" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg><span class="nav-name" data-i18n="tabFilters">Filter lists</span></a>
-        <p class="nav-group" data-i18n="navGroupExceptions">Your exceptions</p>
+        <p class="nav-group" data-i18n="navGroupSettings">Settings</p>
+        <a href="#protection" data-page="protection" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /></svg><span class="nav-name" data-i18n="navGroupProtection">Protection</span><span class="nav-lead" hidden data-i18n="pageLeadProtection">How much Moat blocks, and the extras on top</span></a>
         <a href="#paused" data-page="paused" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span class="nav-name" data-i18n="navSites">Sites</span><span class="nav-lead" hidden data-i18n="pageLeadSites">Sites where Moat is paused, and settings you changed for one site</span><span class="count" id="nav-count-paused" hidden></span></a>
         <a href="#hidden" data-page="hidden" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span class="nav-name" data-i18n="navHidden">Hidden on pages</span><span class="count" id="nav-count-hidden" hidden></span></a>
         <a href="#rules" data-page="rules" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg><span class="nav-name" data-i18n="navRules">Always and never block</span></a>
-        <p class="nav-group" data-i18n="navGroupSettings">Settings</p>
         <a href="#backup" data-page="backup" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span></a>
         <div class="nav-sep" aria-hidden="true"></div>
         <a href="#about" data-page="about" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About Moat</span></a>
@@ -2546,18 +2623,27 @@
           </div>
         </section>
 
+        <section class="sec jump-sec" data-page="protection">
+          <nav class="jump" aria-label="On this page" data-i18n-aria-label="jumpLabel">
+            <a href="#p-level" data-jump="p-level" data-i18n="levelTitle">Level</a>
+            <a href="#p-privacy" data-jump="p-privacy" data-i18n="navPrivacy">Privacy</a>
+            <a href="#p-annoy" data-jump="p-annoy" data-i18n="featuresTitle">Annoyances</a>
+            <a href="#p-lists" data-jump="p-lists" data-i18n="secLists">Lists</a>
+          </nav>
+        </section>
+
         <div class="panel">
           <!-- How much to block: three presets, each a radio card with a
                three-step meter and what it adds. Essential/Custom live under
                Advanced; a note appears here when one of those is active. -->
-          <section class="sec" data-page="blocking">
+          <section class="sec" data-page="protection" id="p-level">
             <div>
-              <h2 data-i18n="levelTitle">How much to block</h2>
+              <h2 data-i18n="levelTitle">Level</h2>
               <p class="lead" data-i18n="levelLead">Balanced suits most people. Pick Strict for more privacy, or Light if sites keep breaking.</p>
             </div>
             <div>
               <div class="levels" id="level-cards" data-explain="levels" role="radiogroup" aria-labelledby="level-title-sr">
-                <span id="level-title-sr" hidden data-i18n="levelTitle">How much to block</span>
+                <span id="level-title-sr" hidden data-i18n="levelTitle">Level</span>
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="lite">
                   <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetLite">Light</span></span>
                   <span class="level-meter" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
@@ -2576,14 +2662,6 @@
               </div>
               <p class="level-note" id="level-note" hidden><span data-i18n="levelCustomNote">You're using your own mix of filter lists.</span> <a href="#filters" class="to-filters" data-i18n="levelCustomNoteLink">See Filter lists</a></p>
             </div>
-          </section>
-
-          <section class="sec" data-page="blocking">
-            <div>
-              <h2 data-i18n="featuresTitle">Annoyances</h2>
-              <p class="lead" data-i18n="featuresLead">Clear away cookie banners, sponsored posts and other clutter. Turn on the ones you want.</p>
-            </div>
-            <div class="setting-rows" id="feature-rows"></div>
           </section>
 
           <section class="sec" data-page="paused">
@@ -2658,20 +2736,31 @@
 
           <!-- Privacy extras -->
           <div class="panel">
-            <section class="sec" data-page="privacy">
+            <section class="sec" data-page="protection" id="p-privacy">
               <div>
                 <h2 data-i18n="navPrivacy">Privacy</h2>
                 <p class="lead" data-i18n="advPrivacyLead">Extra protection against being followed and identified. Off by default because a few sites can break.</p>
               </div>
-              <div class="setting-rows" id="protection-groups"></div>
+              <div class="pgroups" id="protection-groups"></div>
+            </section>
+          </div>
+
+          <!-- Annoyances -->
+          <div class="panel">
+            <section class="sec" data-page="protection" id="p-annoy">
+              <div>
+                <h2 data-i18n="featuresTitle">Annoyances</h2>
+                <p class="lead" data-i18n="featuresLead">Clear away cookie banners, sponsored posts and other clutter. Turn on the ones you want.</p>
+              </div>
+              <div class="setting-rows inset" id="feature-rows"></div>
             </section>
           </div>
 
           <!-- Filter lists -->
           <div class="panel">
-            <section class="sec" data-page="filters">
+            <section class="sec" data-page="protection" id="p-lists">
               <div>
-                <h2 data-i18n="tabFilters">Filter lists</h2>
+                <h2 data-i18n="secLists">Lists</h2>
                 <p class="lead" data-i18n="optionsIndividualListsHint">The lists behind your blocking level. Turning one on or off here makes it your own mix.</p>
               </div>
               <div>
@@ -2697,7 +2786,7 @@
                     <span></span>
                     <a href="#" id="filter-check-updates" data-i18n="aboutCheckFixes">Check for filter fixes</a>
                   </div>
-                  <div class="setting-rows" id="filter-list-rows"></div>
+                  <div class="pgroups" id="filter-list-rows"></div>
                 </details>
               </div>
             </section>

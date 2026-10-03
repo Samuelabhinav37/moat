@@ -26,10 +26,10 @@ const ROW_IDS = [
 function page(): void {
   document.body.innerHTML = `
     <main>
-      <div class="page-head"><h1 id="page-title">Privacy</h1><button id="page-info" hidden></button></div>
+      <div class="page-head"><h1 id="page-title">Protection</h1><button id="page-info" hidden></button></div>
       <aside id="explainer" hidden><button id="explainer-close"></button><h2 id="explainer-title"></h2><div id="explainer-stage"></div><p id="explainer-caption"></p></aside>
       <section data-page="blocking" class="dash-off"><div data-explain="levels" aria-labelledby="lvl"><span id="lvl" hidden>How much to block</span></div></section>
-      <section data-page="privacy">
+      <section data-page="protection">
         <div class="setting-row" data-explain="cookies"><div><span class="setting-title">Block cross-site cookies</span></div></div>
         <div class="setting-row" data-explain="webrtc"><div><span class="setting-title">Keep your IP address private</span></div><button id="ip-switch"></button></div>
       </section>
@@ -90,17 +90,17 @@ describe("drawer", () => {
 
   it("starts closed, with nothing kept for it", () => {
     const panel = initExplainerPanel(document, t);
-    panel.showScreen("privacy");
+    panel.showScreen("protection");
     expect(drawer().hidden).toBe(true);
     expect(document.body.classList.contains("ex-open")).toBe(false);
     // The screen has its own picture, so its title gets an info button.
     expect(document.getElementById("page-info")!.hidden).toBe(false);
-    expect(document.getElementById("page-info")!.getAttribute("aria-label")).toBe("Privacy: How it works");
+    expect(document.getElementById("page-info")!.getAttribute("aria-label")).toBe("Protection: How it works");
   });
 
   it("opens from a row's info button, marks the row, and closes on a second press, Esc or the close button", () => {
     const panel = initExplainerPanel(document, t);
-    panel.showScreen("privacy");
+    panel.showScreen("protection");
     const row = document.querySelector<HTMLElement>('[data-explain="webrtc"]')!;
     info("webrtc").click();
     expect(drawer().hidden).toBe(false);
@@ -133,16 +133,16 @@ describe("drawer", () => {
 
   it("shows the screen's own picture from the title's info button", () => {
     const panel = initExplainerPanel(document, t);
-    panel.showScreen("privacy");
+    panel.showScreen("protection");
     document.getElementById("page-info")!.click();
     expect(drawer().hidden).toBe(false);
-    expect(title()).toBe("Privacy");
-    expect(document.querySelector("#explainer-stage svg")!.classList.contains(`ex-${SCREEN_SCENES.privacy}`)).toBe(true);
+    expect(title()).toBe("Protection");
+    expect(document.querySelector("#explainer-stage svg")!.classList.contains(`ex-${SCREEN_SCENES.protection}`)).toBe(true);
   });
 
   it("stays on the row when the settings re-render it", () => {
     const panel = initExplainerPanel(document, t);
-    panel.showScreen("privacy");
+    panel.showScreen("protection");
     info("webrtc").click();
     const old = document.querySelector<HTMLElement>('[data-explain="webrtc"]')!;
     const fresh = old.cloneNode(true) as HTMLElement;
@@ -155,7 +155,7 @@ describe("drawer", () => {
 
   it("closes when the screen changes, and has no title button where a screen has no picture", () => {
     const panel = initExplainerPanel(document, t);
-    panel.showScreen("privacy");
+    panel.showScreen("protection");
     info("webrtc").click();
     panel.showScreen("overview");
     expect(drawer().hidden).toBe(true);
@@ -166,7 +166,7 @@ describe("drawer", () => {
   it("leaves phones to the picture inside the row", () => {
     setWidth(false);
     const panel = initExplainerPanel(document, t);
-    panel.showScreen("privacy");
+    panel.showScreen("protection");
     info("webrtc").click();
     expect(drawer().hidden).toBe(true);
     expect(document.querySelector<HTMLElement>('[data-explain="webrtc"] .ex-inline-body')!.hidden).toBe(false);

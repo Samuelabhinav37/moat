@@ -18,6 +18,7 @@ import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { initSettingsSearch } from "./settingsSearch";
 import { initNavMode } from "./navMode";
+import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
 import { createSavedToast } from "./savedToast";
 import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
@@ -402,6 +403,19 @@ const ICON_PATHS: Record<string, string[]> = {
   searchSlop: ["M5 7h14M5 12h9M5 17h6"],
   permissionGuard: ["M5 7h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z", "m15 11 6-3v8l-6-3"],
   list: ["M5 7h14M5 12h14M5 17h14"],
+  // Filter lists (filterListLabels.ts). Prefixed so none picks up a row's "How it works" picture.
+  "list-ad": ["M4 10.5v3a1.5 1.5 0 0 0 1.5 1.5H7l8 4.5V4.5L7 9H5.5A1.5 1.5 0 0 0 4 10.5Z", "M18.5 9.5a3.5 3.5 0 0 1 0 5"],
+  "list-popup": ["M8 4.5h10a2 2 0 0 1 2 2v8", "M5.5 8.5h9a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z", "M3.5 12.5h13"],
+  "list-globe": ["M12 20.5a8.5 8.5 0 1 0 0-17 8.5 8.5 0 0 0 0 17Z", "M3.5 12h17M12 3.5c2.6 2.6 2.6 14.4 0 17M12 3.5c-2.6 2.6-2.6 14.4 0 17"],
+  "list-tracker": ["M12 20.5a8.5 8.5 0 1 0 0-17 8.5 8.5 0 0 0 0 17Z", "M12 16.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z", "m12 12 5.5-5.5"],
+  "list-link": ["M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1", "M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"],
+  "list-phishing": ["M8 15a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z", "M10.5 12.5 19 4M16 7l2 2M13.8 9.2l2 2"],
+  "list-scam": ["M12 4l9 16H3z", "M12 10v4M12 17v.3"],
+  "list-malware": ["M12 3l7.5 3v5.5c0 4.7-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.8-7.5-9.5V6z", "M9.5 9.5l5 5M14.5 9.5l-5 5"],
+  "list-download": ["M12 4v11M7 10l5 5 5-5M5 20h14"],
+  "list-cookie": ["M20.5 12.5A8.5 8.5 0 1 1 11.5 3.5a3 3 0 0 0 4 3.8 3 3 0 0 0 5 5.2Z", "M9 10h.01M13.5 15h.01M8.5 15h.01"],
+  "list-social": ["M7.5 10.5V20h-3v-9.5zM7.5 10.5 11 3.5a2 2 0 0 1 2 2v4h5.2a2 2 0 0 1 2 2.3l-1.1 6.5a2 2 0 0 1-2 1.7H7.5"],
+  "list-promo": ["M4 5h16v11H9l-5 4z"],
 };
 
 function buildIcon(name: string): HTMLElement {
@@ -858,6 +872,26 @@ function buildPermissionGuardRow(settings: Settings): HTMLElement {
   });
 }
 
+/** A labelled group of setting rows in its own inset box (Protection page). */
+function buildInsetGroup(title: string, rows: HTMLElement[], note?: string): HTMLElement {
+  const group = document.createElement("div");
+  group.className = "pgroup";
+  const heading = document.createElement("p");
+  heading.className = "sub-h";
+  heading.textContent = title;
+  if (note) {
+    const n = document.createElement("span");
+    n.className = "n";
+    n.textContent = note;
+    heading.append(n);
+  }
+  const box = document.createElement("div");
+  box.className = "setting-rows inset";
+  box.append(...rows);
+  group.append(heading, box);
+  return group;
+}
+
 function renderProtectionGroups(settings: Settings, usage: UsageSummaryResponse): void {
   featureRowsEl.replaceChildren(
     ...FEATURE_IDS.map((id) => VISIBLE_PROTECTIONS.find((def) => def.id === id))
@@ -879,10 +913,7 @@ function renderProtectionGroups(settings: Settings, usage: UsageSummaryResponse)
       if (def.id === "fingerprint" && settings.fingerprintResistance) rows.push(buildFingerprintRotateRow(settings));
     }
     if (!rows.length) continue;
-    const heading = document.createElement("p");
-    heading.className = "sub-h";
-    heading.textContent = tFallback(group.key, group.fallback);
-    privacyRows.push(heading, ...rows);
+    privacyRows.push(buildInsetGroup(tFallback(group.key, group.fallback), rows));
   }
   protectionGroupsEl.replaceChildren(...privacyRows);
 }
@@ -1095,32 +1126,50 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
   const matchesMessage: GetFilterListMatchesMessage = { type: "get-filter-list-matches" };
   const matches = (await browser.runtime.sendMessage(matchesMessage)) as FilterListMatchesResponse;
 
+  const buildListRow = (list: (typeof lists)[number]): HTMLElement => {
+    const titleId = `filter-list-${list.group}-label`;
+    const label = LIST_LABELS[list.group];
+    const matchCount = matches.matchesByGroup[list.group] ?? 0;
+    const countText = tFallback("optionsRuleCount", `${list.entryCount.toLocaleString()} rules`, list.entryCount.toLocaleString());
+    const matchedSuffix =
+      matchCount > 0 ? tFallback("optionsFilterMatchedOnPage", ` · matched ${matchCount} times on this page`, String(matchCount)) : "";
+    const extra: HTMLElement[] = [];
+    // What the list stops, then its own published name as the credit.
+    if (label) extra.push(buildLine("setting-desc credit", `${list.name} · ${countText}${matchedSuffix}`));
+    // The toggle reflects what the user *asked for* (settings.filterGroups),
+    // which isn't necessarily what's enabled in Chrome right now -- a list
+    // the shared rule budget kept off gets a visible badge on its own row
+    // (see applyFilterGroupState's drop-priority retry in
+    // background/filterGroups.ts).
+    if (droppedGroups.has(list.group)) {
+      extra.push(buildLine("locked-badge budget-badge", tFallback("optionsFilterBudgetDroppedBadge", "Off to stay within the browser limit")));
+    }
+    const on = settings.filterGroups[list.group] ?? true;
+    const control = buildSwitch(on, titleId, (checked) => {
+      const updated = { ...(currentFilterGroups ?? settings.filterGroups), [list.group]: checked };
+      currentFilterGroups = updated;
+      void setSettings({ filterGroups: updated }).then(() => render());
+    });
+    return buildSettingRow({
+      icon: label ? `list-${label.icon}` : "list",
+      titleId,
+      title: label ? tFallback(label.nameKey, label.name) : list.name,
+      desc: label ? tFallback(label.descKey, label.desc) : countText + matchedSuffix,
+      on,
+      extra,
+      control,
+    });
+  };
   filterListRows.replaceChildren(
-    ...lists
-      .sort((a, b) => b.entryCount - a.entryCount)
-      .map((list) => {
-        const titleId = `filter-list-${list.group}-label`;
-        const matchCount = matches.matchesByGroup[list.group] ?? 0;
-        const countText = tFallback("optionsRuleCount", `${list.entryCount.toLocaleString()} rules`, list.entryCount.toLocaleString());
-        const matchedSuffix =
-          matchCount > 0 ? tFallback("optionsFilterMatchedOnPage", ` · matched ${matchCount} times on this page`, String(matchCount)) : "";
-        const extra: HTMLElement[] = [];
-        // The toggle reflects what the user *asked for* (settings.filterGroups),
-        // which isn't necessarily what's enabled in Chrome right now -- a list
-        // the shared rule budget kept off gets a visible badge on its own row
-        // (see applyFilterGroupState's drop-priority retry in
-        // background/filterGroups.ts).
-        if (droppedGroups.has(list.group)) {
-          extra.push(buildLine("locked-badge budget-badge", tFallback("optionsFilterBudgetDroppedBadge", "Off to stay within the browser limit")));
-        }
-        const on = settings.filterGroups[list.group] ?? true;
-        const control = buildSwitch(on, titleId, (checked) => {
-          const updated = { ...(currentFilterGroups ?? settings.filterGroups), [list.group]: checked };
-          currentFilterGroups = updated;
-          void setSettings({ filterGroups: updated }).then(() => render());
-        });
-        return buildSettingRow({ icon: "list", titleId, title: list.name, desc: countText + matchedSuffix, on, extra, control });
-      })
+    ...groupLists(lists).map(({ section, lists: inSection }) => {
+      const onCount = inSection.filter((l) => settings.filterGroups[l.group] ?? true).length;
+      const title = SECTION_TITLES[section];
+      return buildInsetGroup(
+        tFallback(title.key, title.fallback),
+        inSection.map(buildListRow),
+        tFallback("listSectionOnCount", `${onCount} of ${inSection.length} on`, [String(onCount), String(inSection.length)])
+      );
+    })
   );
 }
 

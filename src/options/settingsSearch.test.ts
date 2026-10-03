@@ -6,17 +6,16 @@ function page(): void {
   window.location.hash = "";
   document.body.innerHTML = `
     <nav class="dash-nav">
-      <a data-page="blocking"><span class="nav-name">Blocking</span></a>
-      <a data-page="privacy"><span class="nav-name">Privacy extras</span></a>
+      <a data-page="protection"><span class="nav-name">Protection</span></a>
       <a data-page="rules"><span class="nav-name">Block and allow</span></a>
     </nav>
     <input id="q" /><ul id="results" hidden></ul>
-    <section data-page="blocking">
+    <section data-page="protection">
       <div><h2>How much to block</h2><p class="lead">Applies to every site.</p></div>
       <button class="level"><span class="level-name">Strict</span><span class="level-desc">Also cookie notices and fingerprinting.</span></button>
       <div class="setting-row" id="cookie-row"><span class="setting-title">Say no to cookie banners</span><span class="setting-desc">Answers consent pop-ups for you.</span></div>
     </section>
-    <section data-page="privacy">
+    <section data-page="protection">
       <div><h2>Privacy extras</h2></div>
       <div class="setting-row"><span class="setting-title">Block cross-site cookies</span><span class="setting-desc">Stops sites following you.</span></div>
     </section>
@@ -43,8 +42,8 @@ describe("collectItems", () => {
       "Never block",
     ]);
     const cookie = items.find((i) => i.title === "Say no to cookie banners")!;
-    expect(cookie.page).toBe("blocking");
-    expect(cookie.where).toBe("Blocking › How much to block");
+    expect(cookie.page).toBe("protection");
+    expect(cookie.where).toBe("Protection › How much to block");
     expect(items.find((i) => i.title === "Never block")!.where).toBe("Block and allow");
   });
 });
@@ -62,7 +61,7 @@ describe("rankItems", () => {
   });
 
   it(`returns at most ${MAX_RESULTS}`, () => {
-    const many = Array.from({ length: 20 }, (_, i) => ({ title: `Row ${i}`, detail: "", where: "", page: "blocking" as const, target: document.body }));
+    const many = Array.from({ length: 20 }, (_, i) => ({ title: `Row ${i}`, detail: "", where: "", page: "protection" as const, target: document.body }));
     expect(rankItems(many, "row")).toHaveLength(MAX_RESULTS);
   });
 });
@@ -85,7 +84,7 @@ describe("initSettingsSearch", () => {
     type("cookie");
     expect(list.hidden).toBe(false);
     expect(list.querySelectorAll("li[role=option]")).toHaveLength(3);
-    expect(list.querySelector("li[aria-selected=true] .result-where")!.textContent).toBe("Blocking › How much to block");
+    expect(list.querySelector("li[aria-selected=true] .result-where")!.textContent).toBe("Protection › How much to block");
     type("zebra");
     expect(list.textContent).toBe("No settings match.");
   });
@@ -104,7 +103,7 @@ describe("initSettingsSearch", () => {
     type("cookie");
     key("ArrowDown");
     key("Enter");
-    expect(window.location.hash).toBe("#privacy");
+    expect(window.location.hash).toBe("#protection");
   });
 
   it("Escape clears and closes", () => {

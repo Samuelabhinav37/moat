@@ -1,18 +1,18 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
-import { DEFAULT_PAGE, initDashboard, pageFromHash, showPage } from "./dashboard";
+import { DEFAULT_PAGE, anchorFromHash, initDashboard, pageFromHash, showPage } from "./dashboard";
 
 function page(): void {
   document.body.innerHTML = `
     <nav class="dash-nav">
-      <a href="#blocking" data-page="blocking"><span class="nav-name">Blocking</span><span class="nav-lead" hidden>How much to block</span></a>
+      <a href="#protection" data-page="protection"><span class="nav-name">Protection</span><span class="nav-lead" hidden>How much to block</span></a>
       <a href="#paused" data-page="paused"><span class="nav-name">Paused sites</span><span class="count" id="nav-count-paused" hidden></span><span class="nav-lead" hidden>Sites where ads load</span></a>
       <a href="#hidden" data-page="hidden"><span class="nav-name">Hidden on pages</span><span class="count" id="nav-count-hidden" hidden></span><span class="nav-lead" hidden>Parts you removed</span></a>
     </nav>
     <div class="page-head"><h1 id="page-title"></h1><p id="page-lead"></p></div>
     <div class="panel" id="main-panel">
-      <section class="sec" data-page="blocking" id="level"><h2>How much to block</h2></section>
-      <section class="sec" data-page="blocking" id="features"><h2>Features</h2></section>
+      <section class="sec" data-page="protection" id="level"><h2>Level</h2></section>
+      <section class="sec" data-page="protection" id="features"><h2>Annoyances</h2></section>
       <section class="sec" data-page="paused" id="paused"><h2>Sites you've paused</h2><ul id="site-list"></ul></section>
       <section class="sec" data-page="hidden" id="hidden"><h2>Things you've hidden</h2><div id="hidden-element-rows"></div><div id="grayscale-element-rows"></div></section>
     </div>`;
@@ -25,7 +25,7 @@ beforeEach(page);
 describe("pageFromHash", () => {
   it("reads a known screen and falls back to the first one otherwise", () => {
     expect(pageFromHash("#paused")).toBe("paused");
-    expect(pageFromHash("filters")).toBe("filters");
+    expect(pageFromHash("protection")).toBe("protection");
     expect(pageFromHash("")).toBe(DEFAULT_PAGE);
     expect(pageFromHash("#nope")).toBe(DEFAULT_PAGE);
     expect(DEFAULT_PAGE).toBe("overview");
@@ -34,15 +34,23 @@ describe("pageFromHash", () => {
   it("sends the old Trackers link to the Overview it was folded into", () => {
     expect(pageFromHash("#trackers")).toBe("overview");
   });
+
+  it("sends the old Blocking, Privacy and Filter lists links to their card on Protection", () => {
+    expect(pageFromHash("#blocking")).toBe("protection");
+    expect(pageFromHash("#filters")).toBe("protection");
+    expect(anchorFromHash("#privacy")).toBe("p-privacy");
+    expect(anchorFromHash("#filters")).toBe("p-lists");
+    expect(anchorFromHash("#paused")).toBeNull();
+  });
 });
 
 describe("showPage", () => {
   it("shows only the screen's sections and names it in the heading", () => {
-    showPage("blocking");
+    showPage("protection");
     expect([off("level"), off("features"), off("paused"), off("hidden")]).toEqual([false, false, true, true]);
-    expect(document.getElementById("page-title")!.textContent).toBe("Blocking");
+    expect(document.getElementById("page-title")!.textContent).toBe("Protection");
     expect(document.getElementById("page-lead")!.textContent).toBe("How much to block");
-    expect(document.querySelector('[aria-current="page"]')!.getAttribute("data-page")).toBe("blocking");
+    expect(document.querySelector('[aria-current="page"]')!.getAttribute("data-page")).toBe("protection");
     expect(document.getElementById("level")!.classList.contains("dash-first")).toBe(true);
     expect(document.getElementById("level")!.classList.contains("dash-solo")).toBe(false);
   });

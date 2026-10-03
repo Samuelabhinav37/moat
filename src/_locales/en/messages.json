@@ -729,7 +729,8 @@
     "message": "Help"
   },
   "levelTitle": {
-    "message": "How much to block"
+    "message": "Level",
+    "description": "Protection page: the card where you pick Light, Balanced or Strict."
   },
   "levelLead": {
     "message": "Balanced suits most people. Pick Strict for more privacy, or Light if sites keep breaking."
@@ -2115,5 +2116,143 @@
   "navClose": {
     "message": "Close menu",
     "description": "Settings menu button while the menu drawer is open."
+  },
+  "secLists": {
+    "message": "Lists",
+    "description": "Protection page: the card with the filter lists."
+  },
+  "jumpLabel": {
+    "message": "On this page",
+    "description": "Accessible name for the row of jump links at the top of a Settings page."
+  },
+  "pageLeadProtection": {
+    "message": "How much Moat blocks, and the extras on top",
+    "description": "Subtitle of the Protection page in Settings."
+  },
+  "listSectionAds": {
+    "message": "Ads",
+    "description": "Filter list group heading."
+  },
+  "listSectionTracking": {
+    "message": "Tracking",
+    "description": "Filter list group heading."
+  },
+  "listSectionSecurity": {
+    "message": "Dangerous sites",
+    "description": "Filter list group heading."
+  },
+  "listSectionAnnoyance": {
+    "message": "Annoyances",
+    "description": "Filter list group heading."
+  },
+  "listSectionOnCount": {
+    "message": "$ON$ of $TOTAL$ on",
+    "description": "How many lists in a group are switched on.",
+    "placeholders": {
+      "on": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "listAdsName": {
+    "message": "Ads",
+    "description": "Filter list name: what it stops."
+  },
+  "listAdsDesc": {
+    "message": "Banners, video ads and ad scripts.",
+    "description": "Filter list: what it stops."
+  },
+  "listPopupsName": {
+    "message": "Pop-up ads",
+    "description": "Filter list name."
+  },
+  "listPopupsDesc": {
+    "message": "New tabs and pop-unders.",
+    "description": "Filter list: what it stops."
+  },
+  "listOisdName": {
+    "message": "Extra ad and tracker sites",
+    "description": "Filter list name (oisd)."
+  },
+  "listOisdDesc": {
+    "message": "Catches what the lists above miss.",
+    "description": "Filter list: what it stops."
+  },
+  "listTrackersName": {
+    "message": "Trackers",
+    "description": "Filter list name."
+  },
+  "listTrackersDesc": {
+    "message": "Analytics and ad-tech scripts.",
+    "description": "Filter list: what it stops."
+  },
+  "listUrlTrackingName": {
+    "message": "Tracking in links",
+    "description": "Filter list name."
+  },
+  "listUrlTrackingDesc": {
+    "message": "Strips click IDs from links.",
+    "description": "Filter list: what it does."
+  },
+  "listPhishingName": {
+    "message": "Phishing",
+    "description": "Filter list name."
+  },
+  "listPhishingDesc": {
+    "message": "Fake sign-in pages.",
+    "description": "Filter list: what it stops."
+  },
+  "listScamName": {
+    "message": "Scams",
+    "description": "Filter list name."
+  },
+  "listScamDesc": {
+    "message": "Fake shops and giveaways.",
+    "description": "Filter list: what it stops."
+  },
+  "listMalwareName": {
+    "message": "Malware",
+    "description": "Filter list name."
+  },
+  "listMalwareDesc": {
+    "message": "Sites that spread viruses.",
+    "description": "Filter list: what it stops."
+  },
+  "listBadwareName": {
+    "message": "Risky downloads",
+    "description": "Filter list name."
+  },
+  "listBadwareDesc": {
+    "message": "Bundled and fake software.",
+    "description": "Filter list: what it stops."
+  },
+  "listCookieName": {
+    "message": "Cookie banners",
+    "description": "Filter list name."
+  },
+  "listCookieDesc": {
+    "message": "Hides banners Moat can't reject.",
+    "description": "Filter list: what it does."
+  },
+  "listSocialName": {
+    "message": "Social buttons",
+    "description": "Filter list name."
+  },
+  "listSocialDesc": {
+    "message": "Like and Share widgets.",
+    "description": "Filter list: what it stops."
+  },
+  "listPromoName": {
+    "message": "Promos and copy blockers",
+    "description": "Filter list name."
+  },
+  "listPromoDesc": {
+    "message": "Newsletter boxes and no-copy scripts.",
+    "description": "Filter list: what it stops."
   }
 }

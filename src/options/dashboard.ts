@@ -4,17 +4,28 @@
 // screen, and the CSS hides the rest. Same at every width: navMode.ts only
 // changes how the sidebar itself is shown.
 
-export const PAGE_KEYS = ["overview", "blocking", "privacy", "filters", "paused", "hidden", "rules", "backup", "about"] as const;
+export const PAGE_KEYS = ["overview", "protection", "paused", "hidden", "rules", "backup", "about"] as const;
 export type PageKey = (typeof PAGE_KEYS)[number];
 export const DEFAULT_PAGE: PageKey = "overview";
 
-/** Screens that were folded into another, so old links still land. */
-const MOVED: Record<string, PageKey> = { trackers: "overview" };
+/** Screens that were folded into another, so old links and bookmarks still
+ * land, on the right card where there is one. */
+const MOVED: Record<string, { page: PageKey; anchor?: string }> = {
+  trackers: { page: "overview" },
+  blocking: { page: "protection", anchor: "p-level" },
+  privacy: { page: "protection", anchor: "p-privacy" },
+  filters: { page: "protection", anchor: "p-lists" },
+};
 
 export function pageFromHash(hash: string): PageKey {
   const key = hash.replace(/^#/, "");
-  if (MOVED[key]) return MOVED[key];
+  if (MOVED[key]) return MOVED[key].page;
   return (PAGE_KEYS as readonly string[]).includes(key) ? (key as PageKey) : DEFAULT_PAGE;
+}
+
+/** The card an old screen's link should scroll to, if any. */
+export function anchorFromHash(hash: string): string | null {
+  return MOVED[hash.replace(/^#/, "")]?.anchor ?? null;
 }
 
 /** Marks the sections and panels of one screen as shown and the rest as
@@ -69,12 +80,25 @@ export function initDashboard(win: Window = window, onShow?: (key: PageKey) => v
     const key = pageFromHash(win.location.hash);
     showPage(key, doc);
     onShow?.(key);
-    win.scrollTo?.(0, 0);
+    const anchor = anchorFromHash(win.location.hash);
+    const target = anchor ? doc.getElementById(anchor) : null;
+    if (!target) {
+      win.scrollTo?.(0, 0);
+      return;
+    }
+    // The cards above fill in as their data arrives, which pushes the target
+    // down: land again a moment later unless the reader has scrolled.
+    let moved = false;
+    const stop = () => (moved = true);
+    for (const type of ["wheel", "touchstart", "keydown"]) win.addEventListener(type, stop, { once: true, passive: true });
+    const land = () => !moved && target.scrollIntoView?.({ block: "start" });
+    land();
+    win.setTimeout?.(land, 350);
+    win.setTimeout?.(land, 1000);
   };
   win.addEventListener("hashchange", show);
-  const first = pageFromHash(win.location.hash);
-  showPage(first, doc);
-  onShow?.(first);
+  show();
+  initJumpChips(win);
 
   const byId = (id: string) => doc.getElementById(id);
   const pausedCount = byId("nav-count-paused");
@@ -85,4 +109,32 @@ export function initDashboard(win: Window = window, onShow?: (key: PageKey) => v
   const grayRows = byId("grayscale-element-rows");
   if (pausedCount && siteList) watchCount(pausedCount, overrideList ? [siteList, overrideList] : [siteList]);
   if (hiddenCount && hiddenRows) watchCount(hiddenCount, grayRows ? [hiddenRows, grayRows] : [hiddenRows]);
+}
+
+/** "On this page" chips: scroll to their card (without changing the hash,
+ * which names the screen) and follow the card in view. */
+function initJumpChips(win: Window): void {
+  const doc = win.document;
+  const chips = Array.from(doc.querySelectorAll<HTMLAnchorElement>("a[data-jump]"));
+  if (!chips.length) return;
+  const reduced = win.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  for (const chip of chips) {
+    chip.addEventListener("click", (event) => {
+      event.preventDefault();
+      doc.getElementById(chip.dataset.jump ?? "")?.scrollIntoView?.({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    });
+  }
+  const follow = () => {
+    const visible = chips.filter((chip) => chip.offsetParent !== null);
+    if (!visible.length) return;
+    let current = visible[0]!.dataset.jump;
+    for (const chip of visible) {
+      const card = doc.getElementById(chip.dataset.jump ?? "");
+      if (card && card.getBoundingClientRect().top < 180) current = chip.dataset.jump;
+    }
+    for (const chip of visible) chip.classList.toggle("on", chip.dataset.jump === current);
+  };
+  win.addEventListener("scroll", follow, { passive: true });
+  win.addEventListener("hashchange", () => win.setTimeout(follow, 50));
+  follow();
 }

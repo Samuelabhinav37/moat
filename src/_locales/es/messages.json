@@ -727,7 +727,8 @@
     "message": "Ayuda"
   },
   "levelTitle": {
-    "message": "Cuánto bloquear"
+    "message": "Nivel",
+    "description": "Protection page: the card where you pick Light, Balanced or Strict."
   },
   "levelLead": {
     "message": "Equilibrado sirve para casi todos. Elige Estricto para más privacidad, o Ligero si los sitios fallan a menudo."
@@ -1951,5 +1952,143 @@
   "navClose": {
     "message": "Cerrar menú",
     "description": "Settings menu button while the menu drawer is open."
+  },
+  "secLists": {
+    "message": "Listas",
+    "description": "Protection page: the card with the filter lists."
+  },
+  "jumpLabel": {
+    "message": "En esta página",
+    "description": "Accessible name for the row of jump links at the top of a Settings page."
+  },
+  "pageLeadProtection": {
+    "message": "Cuánto bloquea Moat y los extras",
+    "description": "Subtitle of the Protection page in Settings."
+  },
+  "listSectionAds": {
+    "message": "Anuncios",
+    "description": "Filter list group heading."
+  },
+  "listSectionTracking": {
+    "message": "Rastreo",
+    "description": "Filter list group heading."
+  },
+  "listSectionSecurity": {
+    "message": "Sitios peligrosos",
+    "description": "Filter list group heading."
+  },
+  "listSectionAnnoyance": {
+    "message": "Molestias",
+    "description": "Filter list group heading."
+  },
+  "listSectionOnCount": {
+    "message": "$ON$ de $TOTAL$ activas",
+    "description": "How many lists in a group are switched on.",
+    "placeholders": {
+      "on": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "listAdsName": {
+    "message": "Anuncios",
+    "description": "Filter list name: what it stops."
+  },
+  "listAdsDesc": {
+    "message": "Banners, anuncios en vídeo y scripts publicitarios.",
+    "description": "Filter list: what it stops."
+  },
+  "listPopupsName": {
+    "message": "Anuncios emergentes",
+    "description": "Filter list name."
+  },
+  "listPopupsDesc": {
+    "message": "Pestañas nuevas y pop-unders.",
+    "description": "Filter list: what it stops."
+  },
+  "listOisdName": {
+    "message": "Más sitios de anuncios y rastreo",
+    "description": "Filter list name (oisd)."
+  },
+  "listOisdDesc": {
+    "message": "Atrapa lo que se les escapa a las listas de arriba.",
+    "description": "Filter list: what it stops."
+  },
+  "listTrackersName": {
+    "message": "Rastreadores",
+    "description": "Filter list name."
+  },
+  "listTrackersDesc": {
+    "message": "Scripts de analítica y publicidad.",
+    "description": "Filter list: what it stops."
+  },
+  "listUrlTrackingName": {
+    "message": "Rastreo en enlaces",
+    "description": "Filter list name."
+  },
+  "listUrlTrackingDesc": {
+    "message": "Quita los ID de clic de los enlaces.",
+    "description": "Filter list: what it does."
+  },
+  "listPhishingName": {
+    "message": "Phishing",
+    "description": "Filter list name."
+  },
+  "listPhishingDesc": {
+    "message": "Páginas de inicio de sesión falsas.",
+    "description": "Filter list: what it stops."
+  },
+  "listScamName": {
+    "message": "Estafas",
+    "description": "Filter list name."
+  },
+  "listScamDesc": {
+    "message": "Tiendas y sorteos falsos.",
+    "description": "Filter list: what it stops."
+  },
+  "listMalwareName": {
+    "message": "Malware",
+    "description": "Filter list name."
+  },
+  "listMalwareDesc": {
+    "message": "Sitios que propagan virus.",
+    "description": "Filter list: what it stops."
+  },
+  "listBadwareName": {
+    "message": "Descargas peligrosas",
+    "description": "Filter list name."
+  },
+  "listBadwareDesc": {
+    "message": "Software falso o con extras ocultos.",
+    "description": "Filter list: what it stops."
+  },
+  "listCookieName": {
+    "message": "Banners de cookies",
+    "description": "Filter list name."
+  },
+  "listCookieDesc": {
+    "message": "Oculta los banners que Moat no puede rechazar.",
+    "description": "Filter list: what it does."
+  },
+  "listSocialName": {
+    "message": "Botones sociales",
+    "description": "Filter list name."
+  },
+  "listSocialDesc": {
+    "message": "Botones de Me gusta y Compartir.",
+    "description": "Filter list: what it stops."
+  },
+  "listPromoName": {
+    "message": "Promociones y bloqueo de copia",
+    "description": "Filter list name."
+  },
+  "listPromoDesc": {
+    "message": "Recuadros de boletín y scripts que impiden copiar.",
+    "description": "Filter list: what it stops."
   }
 }
