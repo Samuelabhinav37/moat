@@ -19,6 +19,11 @@ const MOVED: Record<string, { page: PageKey; anchor?: string; tab?: string }> = 
   filters: { page: "protection", anchor: "p-lists" },
 };
 
+/** A link to a Help topic, not a screen. */
+export function isHelpHash(hash: string): boolean {
+  return /^#help\//.test(hash);
+}
+
 export function pageFromHash(hash: string): PageKey {
   const key = hash.replace(/^#/, "");
   if (MOVED[key]) return MOVED[key].page;
@@ -128,7 +133,11 @@ function watchCount(countEl: HTMLElement, lists: HTMLElement[]): void {
 /** `onShow` runs after each screen change (the "How it works" panel follows it). */
 export function initDashboard(win: Window = window, onShow?: (key: PageKey) => void): void {
   const doc = win.document;
+  let shown = false;
   const show = () => {
+    // "#help/<topic>" opens Help (helpPanel.ts) over the screen you're on.
+    if (isHelpHash(win.location.hash) && shown) return;
+    shown = true;
     const key = pageFromHash(win.location.hash);
     const tab = tabFromHash(win.location.hash);
     if (tab) currentTab.set(key, tab);

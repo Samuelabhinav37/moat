@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
-import { DEFAULT_PAGE, anchorFromHash, initDashboard, pageFromHash, revealTab, showPage, showTab, tabFromHash } from "./dashboard";
+import { DEFAULT_PAGE, anchorFromHash, initDashboard, isHelpHash, pageFromHash, revealTab, showPage, showTab, tabFromHash } from "./dashboard";
 
 function page(): void {
   document.body.innerHTML = `
@@ -122,5 +122,13 @@ describe("initDashboard", () => {
     expect(count.textContent).toBe("3");
     expect(document.getElementById("tab-count-paused")!.textContent).toBe("2");
     expect(document.getElementById("tab-count-hidden")!.textContent).toBe("1");
+  });
+});
+
+describe("help links", () => {
+  it("recognizes a link to a Help topic, which isn't a screen", () => {
+    expect(isHelpHash("#help/danger")).toBe(true);
+    expect(isHelpHash("#help")).toBe(false);
+    expect(isHelpHash("#sites")).toBe(false);
   });
 });

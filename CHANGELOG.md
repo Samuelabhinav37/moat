@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.239
+
+### Added
+- **Search in Help.** A box at the top of the Help panel filters every topic by its title and its
+  steps, so "captcha" finds "Can't sign in".
+- **Links straight to a Help topic.** options.html#help/danger opens "Real site blocked" over
+  the screen you're on. The block page uses it: Details on a dangerous site now links to what
+  to do if a real site is blocked.
+
 ## 0.11.238
 
 ### Added

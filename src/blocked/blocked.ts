@@ -78,6 +78,9 @@ function render(): void {
   settingsLink.hidden = kind === "policy";
   settingsLink.textContent = kind === "custom" ? msg("blockedEditBlockList", "Edit your block list") : msg("blockedSeeLists", "See Moat's lists");
   settingsLink.href = browser.runtime.getURL(kind === "custom" ? "options.html#rules" : "options.html#filters");
+  const helpLink = document.getElementById("help-link") as HTMLAnchorElement;
+  helpLink.hidden = kind !== "danger";
+  helpLink.href = browser.runtime.getURL("options.html#help/danger");
 
   // "Open anyway": plain for ads and your own blocks, behind Details for a
   // dangerous site, and not at all for an organization's block.

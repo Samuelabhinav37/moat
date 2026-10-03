@@ -62,4 +62,33 @@ describe("help panel", () => {
   it("has a first topic for every screen", () => {
     for (const id of Object.values(CONTEXT)) expect(TOPICS.some((x) => x.id === id)).toBe(true);
   });
+
+  it("filters every topic by its words, steps included", () => {
+    setup().open();
+    const search = document.querySelector<HTMLInputElement>(".hp-search")!;
+    search.value = "captcha";
+    search.dispatchEvent(new Event("input"));
+    expect(Array.from(document.querySelectorAll(".hp-topic b"), (b) => b.textContent)).toEqual(["Can't sign in"]);
+    search.value = "reload page";
+    search.dispatchEvent(new Event("input"));
+    expect(Array.from(document.querySelectorAll(".hp-topic b"), (b) => b.textContent)).toEqual(["Page won't load", "Video won't play"]);
+    search.value = "zzzz";
+    search.dispatchEvent(new Event("input"));
+    expect(document.querySelector(".hp-none")).not.toBeNull();
+    search.value = "";
+    search.dispatchEvent(new Event("input"));
+    expect(document.querySelector(".hp-topic.here")).not.toBeNull();
+  });
+
+  it("opens a topic from a #help/<topic> link", () => {
+    window.history.replaceState(null, "", "#help/danger");
+    const help = setup();
+    expect(help.isOpen()).toBe(true);
+    expect(document.querySelector(".hp-title")!.textContent).toBe("Real site blocked");
+    window.history.replaceState(null, "", "#help/nonsense");
+    help.close();
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+    expect(help.isOpen()).toBe(false);
+    window.history.replaceState(null, "", "#");
+  });
 });

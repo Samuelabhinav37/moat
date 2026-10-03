@@ -36,6 +36,8 @@ describe("blocked.html", () => {
     expect(text("list-name")).toBe("Moat's Phishing list");
     expect(text("address")).toBe("https://paypa1-secure.top/login");
     expect((document.getElementById("report") as HTMLAnchorElement).href).toBe("chrome-extension://moat/report.html?site=paypa1-secure.top&reason=false-alarm");
+    expect((document.getElementById("help-link") as HTMLAnchorElement).href).toBe("chrome-extension://moat/options.html#help/danger");
+    expect(document.getElementById("help-link")!.hidden).toBe(false);
   });
 
   it("explains an ad list in plain words", async () => {

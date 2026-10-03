@@ -233,6 +233,29 @@ export function initHelpPanel(doc: Document, options: HelpOptions): { open: () =
     };
     const here = el(doc, "div", "hp-group");
     here.append(el(doc, "div", "hp-h", t("helpForThisPage", "For this page")), topicButton(first, true));
+    // A filter over every topic, its steps included (Stripe's and GitHub's
+    // in-product help both lead with one).
+    const search = el(doc, "input", "hp-search");
+    search.type = "search";
+    search.placeholder = t("helpSearch", "Search help");
+    search.setAttribute("aria-label", t("helpSearch", "Search help"));
+    const topics = el(doc, "div", "hp-results");
+    const words = (topic: Topic) =>
+      [t(topic.title[0], topic.title[1]), t(topic.sub[0], topic.sub[1]), ...topic.steps.map(([key, fallback]) => t(key, fallback))].join(" ").toLowerCase();
+    const browse = () => [
+      here,
+      group(t("helpFixGroup", "Fix a problem"), TOPICS.filter((x) => x.fix && x.id !== first.id)),
+      group(t("helpLearnGroup", "Learn"), TOPICS.filter((x) => !x.fix && x.id !== first.id)),
+    ];
+    search.addEventListener("input", () => {
+      const query = search.value.trim().toLowerCase();
+      if (!query) return topics.replaceChildren(...browse());
+      const found = TOPICS.filter((topic) => query.split(/\s+/).every((word) => words(topic).includes(word)));
+      topics.replaceChildren(
+        found.length ? group(t("helpResults", "Results"), found) : el(doc, "p", "hp-none", t("helpNoResults", "No help topic matches. Try other words, or report the problem below."))
+      );
+    });
+    topics.append(...browse());
     const links = el(doc, "div", "hp-links");
     const docs = el(doc, "a", "", t("helpFullDocs", "Full documentation"));
     docs.href = options.docsUrl;
@@ -242,12 +265,7 @@ export function initHelpPanel(doc: Document, options: HelpOptions): { open: () =
     report.type = "button";
     report.addEventListener("click", options.report);
     links.append(docs, report);
-    body.replaceChildren(
-      here,
-      group(t("helpFixGroup", "Fix a problem"), TOPICS.filter((x) => x.fix && x.id !== first.id)),
-      group(t("helpLearnGroup", "Learn"), TOPICS.filter((x) => !x.fix && x.id !== first.id)),
-      links
-    );
+    body.replaceChildren(search, topics, links);
   };
 
   const showTopic = (id: string) => {
@@ -364,5 +382,12 @@ export function initHelpPanel(doc: Document, options: HelpOptions): { open: () =
     if (!isOpen()) open();
     showTopic(id);
   };
+  // Links can open a topic directly: options.html#help/danger.
+  const fromHash = () => {
+    const id = /^#help\/([\w-]+)$/.exec(win.location.hash)?.[1];
+    if (id && TOPICS.some((topic) => topic.id === id)) openTopic(id);
+  };
+  win.addEventListener("hashchange", fromHash);
+  fromHash();
   return { open, close, isOpen, openTopic };
 }

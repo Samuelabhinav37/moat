@@ -2904,6 +2904,15 @@
     "message": "Pour cette page",
     "description": "Settings Help panel."
   },
+  "helpSearch": {
+    "message": "Rechercher dans l'aide"
+  },
+  "helpResults": {
+    "message": "Résultats"
+  },
+  "helpNoResults": {
+    "message": "Aucun sujet d'aide ne correspond. Essayez d'autres mots, ou signalez le problème ci-dessous."
+  },
   "helpFixGroup": {
     "message": "Résoudre un problème",
     "description": "Settings Help panel."
@@ -3377,6 +3386,9 @@
   },
   "blockedSeeLists": {
     "message": "Voir les listes de Moat"
+  },
+  "blockedHelpLink": {
+    "message": "Que faire si un vrai site est bloqué"
   },
   "docInEnglish": {
     "message": "Cette page est en anglais. En bref :",
