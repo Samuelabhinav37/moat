@@ -2320,6 +2320,26 @@
     "message": "Elige un día para ver detalles",
     "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
   },
+  "ovSummaryCompany": {
+    "message": "$COMPANY$ te rastreó en más sitios.",
+    "placeholders": {
+      "company": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Overview subtitle, first sentence: the tracker company seen on the most sites this week."
+  },
+  "ovSummarySite": {
+    "message": "En $SITE$ se bloqueó más.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    },
+    "description": "Overview subtitle, second sentence: the site with the most blocked this week."
+  },
   "ovChartGroup": {
     "message": "Bloqueos por día. Usa las flechas para moverte entre días.",
     "description": "Overview week chart, read by screen readers: what the chart is and how to move in it."
@@ -2382,21 +2402,13 @@
       }
     }
   },
-  "ovKpiAds": {
-    "message": "Anuncios bloqueados",
-    "description": "Number card label."
-  },
   "ovKpiTrackers": {
     "message": "Rastreadores bloqueados",
     "description": "Number card label."
   },
-  "ovKpiPopups": {
-    "message": "Ventanas emergentes detenidas",
-    "description": "Number card label."
-  },
   "ovOfSites": {
-    "message": "de $N$",
-    "description": "Under a company's site count, e.g. '41 of 58'.",
+    "message": "de $N$ sitios",
+    "description": "Under a company's site count, e.g. '41' then 'of 58 sites'.",
     "placeholders": {
       "n": {
         "content": "$1",

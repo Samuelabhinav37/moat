@@ -2481,6 +2481,26 @@
     "message": "Select a day for details",
     "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
   },
+  "ovSummaryCompany": {
+    "message": "$COMPANY$ tracked you on the most sites.",
+    "placeholders": {
+      "company": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Overview subtitle, first sentence: the tracker company seen on the most sites this week."
+  },
+  "ovSummarySite": {
+    "message": "$SITE$ had the most blocked.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    },
+    "description": "Overview subtitle, second sentence: the site with the most blocked this week."
+  },
   "ovChartGroup": {
     "message": "Blocked per day. Use the arrow keys to move between days.",
     "description": "Overview week chart, read by screen readers: what the chart is and how to move in it."
@@ -2543,21 +2563,13 @@
       }
     }
   },
-  "ovKpiAds": {
-    "message": "Ads blocked",
-    "description": "Number card label."
-  },
   "ovKpiTrackers": {
     "message": "Trackers blocked",
     "description": "Number card label."
   },
-  "ovKpiPopups": {
-    "message": "Pop-ups stopped",
-    "description": "Number card label."
-  },
   "ovOfSites": {
-    "message": "of $N$",
-    "description": "Under a company's site count, e.g. '41 of 58'.",
+    "message": "of $N$ sites",
+    "description": "Under a company's site count, e.g. '41' then 'of 58 sites'.",
     "placeholders": {
       "n": {
         "content": "$1",

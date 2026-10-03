@@ -2320,6 +2320,26 @@
     "message": "Choisissez un jour pour voir le détail",
     "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
   },
+  "ovSummaryCompany": {
+    "message": "$COMPANY$ vous a pisté sur le plus de sites.",
+    "placeholders": {
+      "company": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Overview subtitle, first sentence: the tracker company seen on the most sites this week."
+  },
+  "ovSummarySite": {
+    "message": "$SITE$ est le site où Moat a le plus bloqué.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    },
+    "description": "Overview subtitle, second sentence: the site with the most blocked this week."
+  },
   "ovChartGroup": {
     "message": "Blocages par jour. Utilisez les flèches pour passer d'un jour à l'autre.",
     "description": "Overview week chart, read by screen readers: what the chart is and how to move in it."
@@ -2382,21 +2402,13 @@
       }
     }
   },
-  "ovKpiAds": {
-    "message": "Publicités bloquées",
-    "description": "Number card label."
-  },
   "ovKpiTrackers": {
     "message": "Traqueurs bloqués",
     "description": "Number card label."
   },
-  "ovKpiPopups": {
-    "message": "Pop-ups arrêtées",
-    "description": "Number card label."
-  },
   "ovOfSites": {
-    "message": "sur $N$",
-    "description": "Under a company's site count, e.g. '41 of 58'.",
+    "message": "sur $N$ sites",
+    "description": "Under a company's site count, e.g. '41' then 'of 58 sites'.",
     "placeholders": {
       "n": {
         "content": "$1",

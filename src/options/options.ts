@@ -2183,17 +2183,60 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   const chart = document.getElementById("ov-chart") as HTMLElement;
   chart.replaceChildren(...(week > 0 ? [buildWeekChart(document, columns, tFallback)] : []));
 
-  const prev = usage.previousWeek;
-  const kinds = usage.weekKinds;
-  document
-    .getElementById("ov-kpis")!
-    .replaceChildren(
-      buildKpi(document, tFallback("ovKpiAds", "Ads blocked"), kinds.ads, changePercent(kinds.ads, prev?.kinds.ads), usage.dailyKinds.slice(0, 6).map((d) => d.ads), tFallback),
-      buildKpi(document, tFallback("ovKpiTrackers", "Trackers blocked"), kinds.trackers, changePercent(kinds.trackers, prev?.kinds.trackers), usage.dailyKinds.slice(0, 6).map((d) => d.trackers), tFallback),
-      buildKpi(document, tFallback("ovKpiPopups", "Pop-ups stopped"), kinds.popups, changePercent(kinds.popups, prev?.kinds.popups), usage.dailyKinds.slice(0, 6).map((d) => d.popups), tFallback)
-    );
+  renderOverviewSummary(usage);
+  renderSecurityDot(usage);
   void renderOverviewTops(usage);
 }
+
+/** The week in a sentence or two, under the page title, the way Screen
+ * Time's weekly report opens: "Google tracked you on the most sites.
+ * jack-reacher.fandom.com had the most blocked." Nothing to say yet keeps
+ * the usual subtitle. */
+function renderOverviewSummary(usage: UsageSummaryResponse): void {
+  const lead = document.querySelector<HTMLElement>('.dash-nav a[data-page="overview"] .nav-lead');
+  if (!lead) return;
+  lead.dataset.default ??= lead.textContent ?? "";
+  const company = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count)[0];
+  const site = usage.topSites[0];
+  const parts: string[] = [];
+  if (company) parts.push(tFallback("ovSummaryCompany", `${company.company} tracked you on the most sites.`, company.company));
+  if (site) parts.push(tFallback("ovSummarySite", `${site.hostname} had the most blocked.`, site.hostname));
+  lead.textContent = parts.length ? parts.join(" ") : lead.dataset.default;
+  if (pageFromHash(location.hash) === "overview") document.getElementById("page-lead")!.textContent = lead.textContent;
+}
+
+const SECURITY_SEEN_KEY = "moat-security-seen";
+
+/** A red dot on Security when a page was stopped since it was last opened.
+ * The time it was last opened is a per-device nicety, so localStorage. */
+function renderSecurityDot(usage: UsageSummaryResponse): void {
+  const dot = document.getElementById("nav-dot-security");
+  if (!dot) return;
+  let seen = 0;
+  try {
+    seen = Number(localStorage.getItem(SECURITY_SEEN_KEY)) || 0;
+  } catch {
+    // Storage blocked: no dot.
+    seen = Infinity;
+  }
+  const onSecurity = pageFromHash(location.hash) === "security";
+  dot.hidden = onSecurity || !usage.pageStops.some((stop) => stop.time > seen);
+}
+
+function markSecuritySeen(): void {
+  try {
+    localStorage.setItem(SECURITY_SEEN_KEY, String(Date.now()));
+  } catch {
+    // Storage blocked: nothing to remember.
+  }
+  const dot = document.getElementById("nav-dot-security");
+  if (dot) dot.hidden = true;
+}
+
+window.addEventListener("hashchange", () => {
+  if (pageFromHash(location.hash) === "security") markSecuritySeen();
+});
+if (pageFromHash(location.hash) === "security") markSecuritySeen();
 
 for (const button of document.querySelectorAll<HTMLButtonElement>("#ov-period [data-period]")) {
   button.addEventListener("click", () => {
@@ -2232,7 +2275,7 @@ async function renderOverviewTops(usage: UsageSummaryResponse): Promise<void> {
     }
     return host ? siteIcon(host) : buildSiteIcon(document, company, null);
   };
-  const ofSites = tFallback("ovOfSites", `of ${sites}`, String(sites));
+  const ofSites = tFallback("ovOfSites", `of ${sites} sites`, String(sites));
   const topSites = usage.topSites.slice(0, 5);
   const maxSite = Math.max(...topSites.map((s) => s.count), 1);
   const rel = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });

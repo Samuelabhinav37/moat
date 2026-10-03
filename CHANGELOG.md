@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.230
+
+### Changed
+- **Overview opens with the week in plain words.** "Google tracked you on the most sites.
+  jack-reacher.fandom.com had the most blocked." It sits under the title, the way Screen
+  Time's weekly report opens.
+- **The three number cards are gone.** They repeated the chart with percentages that meant
+  little. The chart's legend now carries the totals: Ads 1,982, Trackers 2,011, Pop-ups 53.
+- **"Select a day for details" moved under the chart**, where the days are.
+- **"2 of 7" now reads "2 of 7 sites".**
+- **A calmer sidebar.** Every screen's icon sits on the same plain tile, and only the screen
+  you're on turns blue. Security shows a small red dot when a page was stopped since you last
+  looked, and only then.
+
 ## 0.11.229
 
 ### Changed

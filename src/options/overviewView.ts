@@ -101,10 +101,12 @@ export function buildWeekChart(doc: Document, days: DayColumn[], t: Translate): 
   });
   const labels = el(doc, "div", "ovc-days");
   for (const day of days) labels.append(el(doc, "span", day.today ? "today" : "", day.label));
+  // The legend doubles as the week's totals: "Ads 1,982".
   const legend = el(doc, "div", "ovc-legend");
   for (const k of KINDS) {
     const item = el(doc, "span");
-    item.append(el(doc, "i", `key k-${k}`), doc.createTextNode(names[k]));
+    const total = days.reduce((sum, day) => sum + day.kinds[k], 0);
+    item.append(el(doc, "i", `key k-${k}`), doc.createTextNode(names[k]), el(doc, "b", "", total.toLocaleString()));
     legend.append(item);
   }
   if (days.some((d) => d.other > 0)) {

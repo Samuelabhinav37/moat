@@ -1708,19 +1708,17 @@
       .dash-nav a[aria-current="page"] svg {
         color: var(--blue-lt);
       }
-      /* Colour tiles: one flat colour per screen with a white glyph, the
-         way Android and Apple Settings draw theirs (see
-         docs/research/settings-icons-and-help-2026-09.md). The same colour
-         marks that screen wherever it appears. Every shade keeps white at 5:1 or
-         more (navTiles.test.ts), and red and green stay out, because Moat
-         uses them for blocked and allowed. */
-      .dash-nav a[data-page="overview"] { --tile: #2563eb; }
-      .dash-nav a[data-page="protection"] { --tile: #4f46e5; }
-      .dash-nav a[data-page="exceptions"] { --tile: #b45309; }
-      .dash-nav a[data-page="about"] { --tile: #475569; }
-      .dash-nav a[data-page="trackers"] { --tile: #c2410c; }
-      .dash-nav a[data-page="sites"] { --tile: #0f766e; }
-      .dash-nav a[data-page="security"] { --tile: #b91c1c; }
+      /* Calm tiles: every screen's glyph sits on the same neutral tile, and
+         only the screen you're on turns blue (Apple's and Material's
+         navigation rails do the same). Seven colours competed with the
+         page, and red sat on Security even with nothing to report. Red is
+         kept for the dot that says something new was stopped. White on the
+         blue tile stays at 5:1 or more (navTiles.test.ts). */
+      .dash-nav {
+        --tile: var(--panel-2);
+        --tile-glyph: var(--muted);
+        --tile-current: #2563eb;
+      }
       .dash-nav a svg,
       .dash-nav a[aria-current="page"] svg {
         box-sizing: border-box;
@@ -1729,8 +1727,25 @@
         padding: 5px;
         border-radius: 8px;
         background: var(--tile);
-        color: #fff;
+        color: var(--tile-glyph);
+        box-shadow: inset 0 0 0 1px var(--line);
         stroke-width: 2;
+      }
+      .dash-nav a:hover svg {
+        color: var(--fg);
+      }
+      .dash-nav a[aria-current="page"] svg {
+        background: var(--tile-current);
+        color: #fff;
+        box-shadow: none;
+      }
+      /* Something was stopped since you last opened Security. */
+      .dash-nav .nav-dot {
+        width: 8px;
+        height: 8px;
+        margin-left: auto;
+        border-radius: 50%;
+        background: var(--danger);
       }
       .dash-nav a {
         padding-top: 6px;
@@ -1866,7 +1881,7 @@
       }
       .ov-hint {
         display: block;
-        margin-top: 4px;
+        margin-top: 10px;
       }
       .ov-status-on {
         display: contents;
@@ -2112,10 +2127,16 @@
       .ovc-legend {
         display: flex;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 18px;
         margin-top: 12px;
         font-size: 13px;
         color: var(--muted);
+      }
+      .ovc-legend b {
+        margin-left: 6px;
+        color: var(--fg);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
       }
       /* Number cards: label, value, change, trend line. */
       .ov-kpis {
@@ -4113,7 +4134,7 @@
         <p class="nav-group" data-i18n="navGroupInsights">Insights</p>
         <a href="#trackers" data-page="trackers" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.5" /><path d="m12 12 5.5-5.5" /></svg><span class="nav-name" data-i18n="navTrackers">Trackers</span><span class="nav-lead" hidden data-i18n="pageLeadTrackers">Who tried to follow you this week, and why</span></a>
         <a href="#sites" data-page="sites" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M3.5 12h17M12 3.5c2.6 2.6 2.6 14.4 0 17M12 3.5c-2.6 2.6-2.6 14.4 0 17" /></svg><span class="nav-name" data-i18n="navInsightSites">Sites</span><span class="nav-lead" hidden data-i18n="pageLeadInsightSites">Where Moat blocked the most this week</span></a>
-        <a href="#security" data-page="security" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.7-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.8-7.5-9.5V6z" /></svg><span class="nav-name" data-i18n="navSecurity">Security</span><span class="nav-lead" hidden data-i18n="pageLeadSecurity">Pages Moat stopped before they loaded</span></a>
+        <a href="#security" data-page="security" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.7-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.8-7.5-9.5V6z" /></svg><span class="nav-name" data-i18n="navSecurity">Security</span><span class="nav-dot" id="nav-dot-security" hidden></span><span class="nav-lead" hidden data-i18n="pageLeadSecurity">Pages Moat stopped before they loaded</span></a>
         <div class="nav-sep" aria-hidden="true"></div>
         <a href="#about" data-page="about" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8h.01M11 12h1v5h1M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg><span class="nav-name" data-i18n="tabAbout">About</span><span class="nav-lead" hidden data-i18n="optionsAboutDesc">What this version is, and everything that ever leaves your device.</span></a>
       </nav>
@@ -4181,16 +4202,15 @@
                 <button type="button" data-period="last" aria-pressed="false" data-i18n="ovPeriodLast">Last week</button>
               </div>
             </div>
-            <span class="ov-sub ov-hint" data-i18n="ovHoverHint">Select a day for details</span>
             <div class="ov-big" id="ov-week-total">—</div>
             <p class="ov-headline" id="ov-headline"></p>
             <div id="ov-chart"></div>
+            <span class="ov-sub ov-hint" data-i18n="ovHoverHint">Select a day for details</span>
             <div class="ov-empty-block" id="ov-week-empty" hidden>
               <p class="ov-empty" data-i18n="ovWeekEmpty">Nothing blocked yet this week. Browse a few sites and this fills in.</p>
               <button type="button" class="ab-btn check-moat" data-i18n="ovCheckMoat">Check Moat is working</button>
             </div>
           </div>
-          <div class="ov-kpis" id="ov-kpis"></div>
           <div class="ov-tops" id="ov-tops"></div>
         </section>
 

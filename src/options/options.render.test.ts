@@ -571,6 +571,40 @@ describe("Overview: this week or last week", () => {
   });
 });
 
+describe("Overview: the week in a sentence, and a calm sidebar", () => {
+  function week(stopAt: number): Record<string, unknown> {
+    const d = new Date();
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const day = { date, total: 40, hostnames: ["news.example"], signals: {}, companies: { Google: { count: 30, hostnames: ["news.example"] } }, kinds: { ads: 10, trackers: 30, popups: 0 } };
+    return { usageStats: { days: { [date]: day }, pageStops: [{ hostname: "bad.example", time: stopAt }] } };
+  }
+
+  it("names the company seen most under the title, with the totals in the chart's legend and no percentage cards", async () => {
+    await renderOptions(undefined, week(Date.now()));
+    expect(document.getElementById("page-lead")?.textContent).toMatch(/^Google tracked you on the most sites\./);
+    expect(document.querySelector("#ov-chart .ovc-legend")?.textContent).toContain("Trackers30");
+    expect(document.getElementById("ov-kpis")).toBeNull();
+  });
+
+  it("puts a red dot on Security for a page stopped since it was last opened, and clears it there", async () => {
+    localStorage.setItem("moat-security-seen", String(Date.now() - 60_000));
+    await renderOptions(undefined, week(Date.now()));
+    const dot = document.getElementById("nav-dot-security")!;
+    expect(dot.hidden).toBe(false);
+    location.hash = "#security";
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+    expect(dot.hidden).toBe(true);
+    expect(Number(localStorage.getItem("moat-security-seen"))).toBeGreaterThan(Date.now() - 5_000);
+    location.hash = "";
+  });
+
+  it("shows no dot when nothing new was stopped", async () => {
+    localStorage.setItem("moat-security-seen", String(Date.now()));
+    await renderOptions(undefined, week(Date.now() - 86_400_000));
+    expect(document.getElementById("nav-dot-security")!.hidden).toBe(true);
+  });
+});
+
 describe("Empty cards say why, and offer one thing to do", () => {
   it("offers to check Moat is working, which opens that Help guide", async () => {
     await renderOptions(undefined, { usageStats: { days: {} } });
