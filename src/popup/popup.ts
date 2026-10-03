@@ -17,6 +17,7 @@ import { setBreakableHostname } from "./hostnameBreaks";
 import { buildSiteIcon, faviconUrl } from "../options/siteIcon";
 import { readCachedChoice, rememberTheme } from "../ui/theme";
 import { pauseEnd, pauseEndLabel, type PauseLength } from "../shared/pauseDuration";
+import { getUsageSummary } from "../background/usageStats";
 
 // Firefox for Android opens the action popup as a full-width panel with no
 // toolbar anchor, so Moat's fixed 260px column reads as a narrow strip. Give
@@ -77,6 +78,21 @@ function renderCompanyBreakdown(companyBreakdown: Record<string, number>): void 
   const entries = Object.entries(companyBreakdown).sort((a, b) => b[1] - a[1]);
 
   details.hidden = entries.length === 0;
+  // Name them, like Safari's Privacy Report: names make the protection real.
+  const line = document.getElementById("company-line")!;
+  line.hidden = entries.length === 0;
+  // The names say more than the generic "Lots of ads and trackers blocked".
+  document.getElementById("protection-level")!.hidden = entries.length > 0;
+  const names = entries.map(([company]) => company);
+  const msg = (key: string, fallback: string, subs: string[]) => getMessageOrFallback((k, s) => browser.i18n.getMessage(k, s), key, fallback, subs);
+  line.textContent =
+    names.length === 1
+      ? msg("popupCompaniesOne", `${names[0]} tried to track you here.`, [names[0]!])
+      : names.length === 2
+        ? msg("popupCompaniesTwo", `${names[0]} and ${names[1]} tried to track you here.`, [names[0]!, names[1]!])
+        : names.length > 2
+          ? msg("popupCompaniesMany", `${names[0]}, ${names[1]} and ${names.length - 2} others tried to track you here.`, [names[0]!, names[1]!, String(names.length - 2)])
+          : "";
   list.replaceChildren(
     ...entries.map(([company, count]) => {
       const li = document.createElement("li");
@@ -544,6 +560,25 @@ void render().catch(() => {
     "Couldn't load this page's details. Click Moat's icon again."
   );
 });
+// "This week: 4,046 blocked ›": the doorway from the popup to Overview.
+void getUsageSummary()
+  .then((usage) => {
+    const week = usage.sparkline.slice(-7).reduce((sum, n) => sum + n, 0);
+    if (week <= 0) return;
+    const link = document.getElementById("week-link") as HTMLAnchorElement;
+    const total = week.toLocaleString();
+    link.textContent = getMessageOrFallback((k, s) => browser.i18n.getMessage(k, s), "popupWeekLink", `This week: ${total} blocked ›`, total);
+    link.hidden = false;
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      void browser.tabs.create({ url: browser.runtime.getURL("options.html#overview") });
+      window.close();
+    });
+  })
+  .catch(() => {
+    // No weekly numbers yet: the link just stays hidden.
+  });
+
 // The theme setting may have changed on another device or in a restored
 // backup; keep this browser's fast-start copy (ui/theme.ts) in step.
 void getEffectiveSettings().then((settings) => {

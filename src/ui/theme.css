@@ -132,8 +132,10 @@ a:hover {
   transition: transform 0.15s ease;
 }
 
+/* Blue for "on", the same as every switch in Settings. Green stays for
+   status ("Protected") and checkmarks. */
 .switch input:checked + .track {
-  background: var(--on);
+  background: var(--primary);
 }
 
 /* The real checkbox is zeroed to 0x0 (see .switch input above) so its own

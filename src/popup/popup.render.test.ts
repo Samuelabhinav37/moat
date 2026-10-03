@@ -99,6 +99,15 @@ describe("popup.html render", () => {
     expect(document.getElementById("pause-length")!.hidden).toBe(true);
   });
 
+  it("puts the site and its switch first, names the companies, and keeps Clear site data inside Customize", async () => {
+    await renderPopup("www.nytimes.com");
+    const card = document.getElementById("site-card")!;
+    const stats = document.getElementById("stats")!;
+    expect(card.compareDocumentPosition(stats) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(document.getElementById("company-line")!.textContent).toBe("Google LLC tried to track you here.");
+    expect(document.getElementById("fresh-start-button")!.closest("#site-overrides")).not.toBeNull();
+  });
+
   it("renders without throwing or an unhandled rejection", async () => {
     await renderPopup();
     expect(caughtErrors).toEqual([]);

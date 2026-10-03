@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.228
+
+### Changed
+- **The popup leads with the site.** The site, its switch and its state are now at the top,
+  where Firefox and Brave put them, because when a site breaks that switch is what you came
+  for. The counts follow.
+- **It names who was stopped:** "Amplitude, IBM and 4 others tried to track you here." The
+  full list is still under By company.
+- **One switch colour.** The popup's switch was green, and every switch in Settings is blue.
+  It's blue now. Green stays for the "Protected" dot.
+- **Clear site data moved into "Customize for this site".** It signs you out of the site, so
+  it no longer sits between the everyday buttons.
+- **Pausing stays in the site's card.** The paused message and "Turn back on by itself in"
+  now sit inside the card, not in a separate box above it.
+- **A link to the week:** "This week: 4,067 blocked ›" opens Overview.
+- New text in English, Spanish, French and German.
+
 ## 0.11.227
 
 ### Changed

@@ -47,6 +47,58 @@
   "popupByCompany": {
     "message": "Nach Unternehmen"
   },
+  "popupCompaniesOne": {
+    "message": "$A$ wollte dich hier verfolgen.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Popup, under the counts: the one tracker company stopped on this page."
+  },
+  "popupCompaniesTwo": {
+    "message": "$A$ und $B$ wollten dich hier verfolgen.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Meta"
+      }
+    },
+    "description": "Popup, under the counts: the two tracker companies stopped on this page."
+  },
+  "popupCompaniesMany": {
+    "message": "$A$, $B$ und $N$ weitere wollten dich hier verfolgen.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Meta"
+      },
+      "n": {
+        "content": "$3",
+        "example": "4"
+      }
+    },
+    "description": "Popup, under the counts: the two biggest tracker companies on this page and how many others."
+  },
+  "popupWeekLink": {
+    "message": "Diese Woche: $TOTAL$ blockiert ›",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "4,046"
+      }
+    },
+    "description": "Popup footer link to Settings > Overview, with this week's total."
+  },
   "popupCustomizeSite": {
     "message": "Für diese Seite anpassen"
   },

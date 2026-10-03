@@ -47,6 +47,58 @@
   "popupByCompany": {
     "message": "Par entreprise"
   },
+  "popupCompaniesOne": {
+    "message": "$A$ a essayé de vous pister ici.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Popup, under the counts: the one tracker company stopped on this page."
+  },
+  "popupCompaniesTwo": {
+    "message": "$A$ et $B$ ont essayé de vous pister ici.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Meta"
+      }
+    },
+    "description": "Popup, under the counts: the two tracker companies stopped on this page."
+  },
+  "popupCompaniesMany": {
+    "message": "$A$, $B$ et $N$ autres ont essayé de vous pister ici.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Meta"
+      },
+      "n": {
+        "content": "$3",
+        "example": "4"
+      }
+    },
+    "description": "Popup, under the counts: the two biggest tracker companies on this page and how many others."
+  },
+  "popupWeekLink": {
+    "message": "Cette semaine : $TOTAL$ bloqués ›",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "4,046"
+      }
+    },
+    "description": "Popup footer link to Settings > Overview, with this week's total."
+  },
   "popupCustomizeSite": {
     "message": "Personnaliser pour ce site"
   },
