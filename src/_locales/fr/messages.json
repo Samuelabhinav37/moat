@@ -1714,11 +1714,31 @@
   "filtersLevelCustom": {
     "message": "Ton propre choix de listes."
   },
+  "filtersLevelMix": {
+    "message": "Votre mélange : $MIX$.",
+    "placeholders": {
+      "mix": {
+        "content": "$1",
+        "example": "Balanced + Social buttons"
+      }
+    },
+    "description": "Settings > Filter lists and Blocking level: a hand-picked mix, named as the nearest level plus what was added (+) or removed (−), e.g. 'Your mix: Balanced + Social buttons.'"
+  },
   "filtersLevelChange": {
     "message": "Changer de niveau"
   },
   "filtersLevelReset": {
     "message": "Revenir à Équilibré"
+  },
+  "filtersLevelResetTo": {
+    "message": "Revenir à $LEVEL$",
+    "placeholders": {
+      "level": {
+        "content": "$1",
+        "example": "Balanced"
+      }
+    },
+    "description": "Settings > Filter lists: button that replaces a hand-picked mix with the nearest level."
   },
   "privacyGroupTracking": {
     "message": "Pistage"
@@ -2098,12 +2118,12 @@
     "description": "Filter list: what it stops."
   },
   "listCookieName": {
-    "message": "Bandeaux cookies",
-    "description": "Filter list name."
+    "message": "Masquer les bandeaux cookies",
+    "description": "Settings > Filter lists, Annoyances: the cookie-notice list. It hides banners; the separate 'Reject cookie banners' setting clicks Reject."
   },
   "listCookieDesc": {
-    "message": "Masque les bandeaux que Moat ne peut pas refuser.",
-    "description": "Filter list: what it does."
+    "message": "Pour les bandeaux sans bouton Refuser. Le réglage Refuser les bandeaux cookies s'occupe du reste.",
+    "description": "Settings > Filter lists: what the cookie-notice list does, and which other setting covers the rest."
   },
   "listSocialName": {
     "message": "Boutons sociaux",

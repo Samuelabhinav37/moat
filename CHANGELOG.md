@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.211
+
+### Changed
+- **The two cookie-banner settings say what each one does.** "Reject cookie banners" clicks
+  Reject for you. The filter list that used to be called "Cookie banners" is now **Hide cookie
+  banners**, and it says it only handles banners with no Reject button. They looked like the
+  same setting before, and could disagree.
+- **A hand-picked mix of lists says what changed.** Instead of "Your own mix of lists", Filter
+  lists and Blocking level now say, for example, "Your mix: Balanced + Social buttons." The
+  reset button goes back to the nearest level, not always to Balanced.
+- **Check for filter fixes works the same everywhere.** The link under Filter lists now shows
+  "Checking…" and waits, like the button in About.
+- New text in English, Spanish, French and German.
+
 ## 0.11.210
 
 ### Changed

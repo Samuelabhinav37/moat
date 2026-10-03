@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ALL_TOGGLEABLE_GROUPS, detectPreset, presetPatch, PRESETS } from "./filterPresets";
+import { ALL_TOGGLEABLE_GROUPS, detectPreset, presetDifference, presetPatch, PRESETS } from "./filterPresets";
+import { DEFAULT_SETTINGS } from "../types";
 import type { Settings } from "../types";
 
 const baseSettings: Settings = {
@@ -111,5 +112,25 @@ describe("detectPreset", () => {
       const settings = { ...baseSettings, ...presetPatch(name) };
       expect(detectPreset(settings)).toBe(name);
     }
+  });
+});
+
+describe("presetDifference", () => {
+  const balanced = { ...DEFAULT_SETTINGS, ...presetPatch("standard") } as Settings;
+
+  it("names the extra list on top of Balanced", () => {
+    const mix = { ...balanced, filterGroups: { ...balanced.filterGroups, "social-widgets": true } };
+    expect(presetDifference(mix)).toEqual({ base: "standard", added: ["social-widgets"], removed: [] });
+  });
+
+  it("names a list turned off, and a privacy setting turned on", () => {
+    const mix = { ...balanced, filterGroups: { ...balanced.filterGroups, trackers: false }, webrtcLeakProtection: true };
+    expect(presetDifference(mix)).toEqual({ base: "standard", added: ["webrtcLeakProtection"], removed: ["trackers"] });
+  });
+
+  it("picks the nearest level, not always Balanced", () => {
+    const strict = { ...DEFAULT_SETTINGS, ...presetPatch("strict") } as Settings;
+    const mix = { ...strict, filterGroups: { ...strict.filterGroups, annoyances: false } };
+    expect(presetDifference(mix)).toEqual({ base: "strict", added: [], removed: ["annoyances"] });
   });
 });

@@ -25,7 +25,7 @@ export const LIST_LABELS: Record<string, ListLabel> = {
   scam: { section: "security", nameKey: "listScamName", name: "Scams", descKey: "listScamDesc", desc: "Fake shops and giveaways.", icon: "scam" },
   "malicious-urls": { section: "security", nameKey: "listMalwareName", name: "Malware", descKey: "listMalwareDesc", desc: "Sites that spread viruses.", icon: "malware" },
   badware: { section: "security", nameKey: "listBadwareName", name: "Risky downloads", descKey: "listBadwareDesc", desc: "Bundled and fake software.", icon: "download" },
-  "cookie-notices": { section: "annoyance", nameKey: "listCookieName", name: "Cookie banners", descKey: "listCookieDesc", desc: "Hides banners Moat can't reject.", icon: "cookie" },
+  "cookie-notices": { section: "annoyance", nameKey: "listCookieName", name: "Hide cookie banners", descKey: "listCookieDesc", desc: "For banners with no Reject button. The Reject cookie banners setting handles the rest.", icon: "cookie" },
   "social-widgets": { section: "annoyance", nameKey: "listSocialName", name: "Social buttons", descKey: "listSocialDesc", desc: "Like and Share widgets.", icon: "social" },
   annoyances: { section: "annoyance", nameKey: "listPromoName", name: "Promos and copy blockers", descKey: "listPromoDesc", desc: "Newsletter boxes and no-copy scripts.", icon: "promo" },
 };

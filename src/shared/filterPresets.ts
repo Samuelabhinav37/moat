@@ -107,3 +107,36 @@ export function detectPreset(settings: Settings): PresetName | "custom" {
   }
   return "custom";
 }
+
+const CARD_PRESETS = ["standard", "lite", "strict"] as const;
+const PRIVACY_KEYS = ["blockThirdPartyCookies", "webrtcLeakProtection", "fingerprintResistance"] as const;
+
+export interface PresetDifference {
+  /** The level card the settings are closest to (Balanced wins a tie). */
+  base: (typeof CARD_PRESETS)[number];
+  /** Filter groups and privacy settings turned on beyond that level. */
+  added: string[];
+  /** Filter groups and privacy settings that level has on, but are off here. */
+  removed: string[];
+}
+
+/** For a hand-picked mix: the nearest level, and what differs from it. */
+export function presetDifference(settings: Settings): PresetDifference {
+  const current = normalizedGroups(settings.filterGroups);
+  let best: PresetDifference | null = null;
+  for (const base of CARD_PRESETS) {
+    const preset = PRESETS[base];
+    const added: string[] = [];
+    const removed: string[] = [];
+    for (const group of ALL_TOGGLEABLE_GROUPS) {
+      if (current[group] && !preset.filterGroups[group]) added.push(group);
+      if (!current[group] && preset.filterGroups[group]) removed.push(group);
+    }
+    for (const key of PRIVACY_KEYS) {
+      if (settings[key] && !preset[key]) added.push(key);
+      if (!settings[key] && preset[key]) removed.push(key);
+    }
+    if (!best || added.length + removed.length < best.added.length + best.removed.length) best = { base, added, removed };
+  }
+  return best as PresetDifference;
+}

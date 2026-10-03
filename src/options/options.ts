@@ -6,7 +6,7 @@ import { getFilterGroupStatus } from "../background/filterGroups";
 import { effectiveFilterGroupState } from "../background/filterGroupState";
 import { isSupported as isCnameUncloakFirefoxSupported } from "../background/cnameUncloak";
 import { isSupported as isCnameUncloakChromeSupported } from "../background/cnameUncloakChrome";
-import { detectPreset, presetPatch, type PresetName } from "../shared/filterPresets";
+import { detectPreset, presetDifference, presetPatch, type PresetName } from "../shared/filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
@@ -1123,12 +1123,42 @@ const MAIN_LEVELS = ["lite", "standard", "strict"] as const;
 const levelCards = document.querySelectorAll<HTMLButtonElement>("#level-cards .level");
 const levelNote = document.getElementById("level-note") as HTMLElement;
 
-function renderLevels(preset: PresetName | "custom", locked: boolean): void {
+const levelNoteText = levelNote.querySelector("span") as HTMLElement;
+
+// Names for the parts of a level that a hand-picked mix can change.
+const PRIVACY_NAMES: Record<string, [string, string]> = {
+  blockThirdPartyCookies: ["optionsCookiesToggleLabel", "Block cross-site cookies"],
+  webrtcLeakProtection: ["optionsWebrtcToggleLabel", "Keep your IP address private"],
+  fingerprintResistance: ["optionsFingerprintToggleLabel", "Stop sites recognizing your device"],
+};
+
+function levelName(level: string): string {
+  return document.querySelector(`#level-cards .level[data-level="${level}"] .level-name`)?.textContent ?? level;
+}
+
+/** "Balanced + Social buttons − Trackers": the nearest level and what differs from it. */
+function mixDescription(settings: Settings): { base: PresetName; text: string } {
+  const diff = presetDifference(settings);
+  const name = (key: string): string => {
+    const list = LIST_LABELS[key];
+    if (list) return tFallback(list.nameKey, list.name);
+    const privacy = PRIVACY_NAMES[key];
+    return privacy ? tFallback(privacy[0], privacy[1]) : key;
+  };
+  const parts = [levelName(diff.base), ...diff.added.map((key) => `+ ${name(key)}`), ...diff.removed.map((key) => `− ${name(key)}`)];
+  return { base: diff.base, text: parts.join(" ") };
+}
+
+function renderLevels(preset: PresetName | "custom", locked: boolean, settings: Settings): void {
   for (const card of levelCards) {
     card.setAttribute("aria-checked", String(card.dataset.level === preset));
     card.disabled = locked;
   }
   levelNote.hidden = (MAIN_LEVELS as readonly string[]).includes(preset) || preset === "off";
+  if (!levelNote.hidden && preset === "custom") {
+    const mix = mixDescription(settings).text;
+    levelNoteText.textContent = tFallback("filtersLevelMix", `Your mix: ${mix}.`, mix);
+  }
 }
 
 for (const card of levelCards) {
@@ -1141,7 +1171,7 @@ for (const card of levelCards) {
 async function renderFilterLists(settings: Settings, droppedGroups: Set<string>): Promise<void> {
   // Before the list manifest loads, so the level shows even if it can't.
   const preset = detectPreset(settings);
-  renderLevelLine(preset);
+  renderLevelLine(preset, settings);
   const manifest = await loadRulesetManifest();
   if (!manifest) {
     const loadError = tFallback("optionsLoadListsError", "Couldn't load filter lists. Reload this page to try again.");
@@ -1214,27 +1244,52 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
 /** "Using Balanced · Change level", or for a hand-picked mix (Essential
  * included, which has no card) "Your own mix · Reset to Balanced". The level
  * itself is only chosen on Blocking level. */
-function renderLevelLine(preset: PresetName | "custom"): void {
+function renderLevelLine(preset: PresetName | "custom", settings: Settings): void {
   const onCard = (MAIN_LEVELS as readonly string[]).includes(preset);
   if (onCard) {
-    const name = document.querySelector(`#level-cards .level[data-level="${preset}"] .level-name`)?.textContent ?? preset;
+    const name = levelName(preset);
     levelLineText.textContent = tFallback("filtersLevelUsing", `Using ${name}.`, name);
+  } else if (preset === "custom") {
+    const mix = mixDescription(settings);
+    levelLineText.textContent = tFallback("filtersLevelMix", `Your mix: ${mix.text}.`, mix.text);
+    levelLineReset.dataset.level = mix.base;
+    levelLineReset.textContent = tFallback("filtersLevelResetTo", `Reset to ${levelName(mix.base)}`, levelName(mix.base));
   } else {
     levelLineText.textContent = tFallback("filtersLevelCustom", "Your own mix of lists.");
+    levelLineReset.dataset.level = "standard";
+    levelLineReset.textContent = tFallback("filtersLevelResetTo", `Reset to ${levelName("standard")}`, levelName("standard"));
   }
   levelLineChange.hidden = !onCard;
   levelLineReset.hidden = onCard;
 }
 
 levelLineReset.addEventListener("click", async () => {
-  await setSettings(presetPatch("standard"));
+  await setSettings(presetPatch((levelLineReset.dataset.level as PresetName | undefined) ?? "standard"));
   await render();
 });
 
+/** The one "Check for filter fixes" action, from Filter lists or About. */
+async function checkForFixes(trigger: HTMLElement): Promise<void> {
+  if (trigger.getAttribute("aria-disabled") === "true") return;
+  const label = trigger.textContent;
+  trigger.setAttribute("aria-disabled", "true");
+  aboutCheckFixesButton.disabled = true;
+  trigger.textContent = tFallback("aboutFixesChecking", "Checking…");
+  versionUpdatedEl.textContent = tFallback("aboutFixesChecking", "Checking…");
+  try {
+    const message: CheckForLiveUpdatesMessage = { type: "check-for-live-updates" };
+    await browser.runtime.sendMessage(message);
+  } finally {
+    trigger.textContent = label;
+    trigger.removeAttribute("aria-disabled");
+    aboutCheckFixesButton.disabled = false;
+    await render();
+  }
+}
+
 filterCheckUpdates.addEventListener("click", (event) => {
   event.preventDefault();
-  const message: CheckForLiveUpdatesMessage = { type: "check-for-live-updates" };
-  void browser.runtime.sendMessage(message).then(() => render());
+  void checkForFixes(filterCheckUpdates);
 });
 
 // ---------- Custom Rules tab ----------
@@ -1606,17 +1661,7 @@ async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy
   await renderShortcut();
 }
 
-aboutCheckFixesButton.addEventListener("click", async () => {
-  aboutCheckFixesButton.disabled = true;
-  versionUpdatedEl.textContent = tFallback("aboutFixesChecking", "Checking…");
-  try {
-    const message: CheckForLiveUpdatesMessage = { type: "check-for-live-updates" };
-    await browser.runtime.sendMessage(message);
-  } finally {
-    aboutCheckFixesButton.disabled = false;
-    await render();
-  }
-});
+aboutCheckFixesButton.addEventListener("click", () => void checkForFixes(aboutCheckFixesButton));
 
 // Firefox opens its own shortcut manager; Chrome's lives on an internal page
 // an extension may open in a tab but a plain link can't reach. An older
@@ -1768,7 +1813,7 @@ async function render(): Promise<void> {
   levelLineChange.hidden = levelLineChange.hidden || filtersLocked;
   await renderFilterLists(settings, new Set(filterGroupStatus?.droppedGroups ?? []));
   for (const input of filterListRows.querySelectorAll("input")) input.disabled = filtersLocked;
-  renderLevels(detectPreset(settings), filtersLocked);
+  renderLevels(detectPreset(settings), filtersLocked, settings);
 
   renderDomainList(
     customBlockList,

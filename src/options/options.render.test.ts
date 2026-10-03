@@ -381,3 +381,15 @@ describe("Level cards", () => {
     expect((document.getElementById("grayscale-element-block") as HTMLElement).hidden).toBe(true);
   });
 });
+
+describe("Hand-picked mix of lists", () => {
+  it("names the nearest level and what differs, and resets to that level", async () => {
+    const balanced = presetPatch("standard");
+    await renderOptions({ ...balanced, filterGroups: { ...balanced.filterGroups, "social-widgets": true } });
+
+    expect(document.getElementById("level-line-text")?.textContent).toBe("Your mix: Balanced + Social buttons.");
+    expect(document.getElementById("level-line-reset")?.textContent).toBe("Reset to Balanced");
+    expect(document.getElementById("level-line-reset")?.dataset.level).toBe("standard");
+    expect(document.querySelector("#level-note span")?.textContent).toBe("Your mix: Balanced + Social buttons.");
+  });
+});

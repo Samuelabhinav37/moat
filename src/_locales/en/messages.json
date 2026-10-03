@@ -1828,6 +1828,16 @@
     "message": "Your own mix of lists.",
     "description": "Settings > Filter lists: shown instead of a level name when the lists were picked by hand."
   },
+  "filtersLevelMix": {
+    "message": "Your mix: $MIX$.",
+    "placeholders": {
+      "mix": {
+        "content": "$1",
+        "example": "Balanced + Social buttons"
+      }
+    },
+    "description": "Settings > Filter lists and Blocking level: a hand-picked mix, named as the nearest level plus what was added (+) or removed (−), e.g. 'Your mix: Balanced + Social buttons.'"
+  },
   "filtersLevelChange": {
     "message": "Change level",
     "description": "Settings > Filter lists: link to Blocking level."
@@ -1835,6 +1845,16 @@
   "filtersLevelReset": {
     "message": "Reset to Balanced",
     "description": "Settings > Filter lists: button that replaces a hand-picked mix of lists with the Balanced level."
+  },
+  "filtersLevelResetTo": {
+    "message": "Reset to $LEVEL$",
+    "placeholders": {
+      "level": {
+        "content": "$1",
+        "example": "Balanced"
+      }
+    },
+    "description": "Settings > Filter lists: button that replaces a hand-picked mix with the nearest level."
   },
   "privacyGroupTracking": {
     "message": "Tracking",
@@ -2262,12 +2282,12 @@
     "description": "Filter list: what it stops."
   },
   "listCookieName": {
-    "message": "Cookie banners",
-    "description": "Filter list name."
+    "message": "Hide cookie banners",
+    "description": "Settings > Filter lists, Annoyances: the cookie-notice list. It hides banners; the separate 'Reject cookie banners' setting clicks Reject."
   },
   "listCookieDesc": {
-    "message": "Hides banners Moat can't reject.",
-    "description": "Filter list: what it does."
+    "message": "For banners with no Reject button. The Reject cookie banners setting handles the rest.",
+    "description": "Settings > Filter lists: what the cookie-notice list does, and which other setting covers the rest."
   },
   "listSocialName": {
     "message": "Social buttons",
