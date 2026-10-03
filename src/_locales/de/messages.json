@@ -616,7 +616,8 @@
     "message": "Nichts. Läuft vollständig auf deinem Gerät."
   },
   "optionsDisclosureUpdatesName": {
-    "message": "TÃ¤gliche Updates"
+    "message": "Tägliche Listen-Updates",
+    "description": "Settings > About, 'What Moat connects to': the daily download of filter fixes and security lists."
   },
   "optionsDisclosureUpdatesSent": {
     "message": "Filter-Korrekturen und die aktuellen Phishing- und Betrugslisten, einmal tÃ¤glich als signierte Dateien geladen. Es wird nichts Ã¼ber dich gesendet."
@@ -637,7 +638,8 @@
     "description": "Settings > About: who receives hidden-tracker lookups. Company name, do not translate."
   },
   "optionsDisclosureBreachName": {
-    "message": "Datenleck-Prüfung"
+    "message": "Vor geleakten Passwörtern warnen",
+    "description": "Settings > About, 'What Moat connects to': the leaked-password row. Same words as the setting."
   },
   "optionsDisclosureBreachSent": {
     "message": "Ein kurzes, verschlüsseltes Fragment eines Passworts, niemals das Passwort selbst"

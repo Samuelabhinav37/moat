@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.210
+
+### Changed
+- **One name for each feature.** The same feature had different names in different places. Now
+  Settings, About and the privacy policy use the same words:
+  - **Warn about leaked passwords** (was "Breach checking" in About, and "Leaked-password check"
+    or "Check passwords against known breaches" in the policy).
+  - **Daily list updates** (was "Daily updates" in About).
+  - The policy also used old names for **Catch hidden trackers**, **Sync across devices** and
+    **Report a problem**.
+- The leaked-password warning on web pages says "a known data breach" in every case. It used to
+  say "known data breaches" when no translation loaded.
+- New text in English, Spanish, French and German.
+
 ## 0.11.209
 
 ### Fixed

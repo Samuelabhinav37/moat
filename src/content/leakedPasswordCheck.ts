@@ -75,7 +75,7 @@ function showWarning(input: HTMLInputElement): void {
   input.dataset.moatLeakWarningShown = "true";
 
   const warning = document.createElement("div");
-  warning.textContent = browser.i18n.getMessage("leakedPasswordWarning") || "This password has appeared in known data breaches.";
+  warning.textContent = browser.i18n.getMessage("leakedPasswordWarning") || "This password has appeared in a known data breach.";
   Object.assign(warning.style, {
     position: "absolute",
     zIndex: "2147483647",

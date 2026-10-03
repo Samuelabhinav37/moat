@@ -83,7 +83,7 @@ only to an organization's own infrastructure, never to Moat's developer.
    HTTP request inherently includes (your IP address, to GitHub's CDN, the
    same as loading any web page).
 2. **DNS resolution for CNAME-uncloaking, off by default.** If you turn on
-   "Uncloak disguised trackers" in Settings, Moat looks up the canonical
+   "Catch hidden trackers" in Settings, Moat looks up the canonical
    (CNAME) name of hostnames your browser contacts, so it can tell whether a
    tracker is disguising itself behind a site's own subdomain -- checked only
    for hostnames that already look like a subdomain of the page you're on,
@@ -96,15 +96,15 @@ only to an organization's own infrastructure, never to Moat's developer.
    history or which page you were on. Nothing is looked up for a site
    you have paused. Either way, this never runs at all unless you
    explicitly enable it.
-3. **Leaked-password check, off by default.** If you turn on "Check
-   passwords against known breaches" in Settings, Moat checks a password you
+3. **Warn about leaked passwords, off by default.** If you turn on "Warn
+   about leaked passwords" in Settings, Moat checks a password you
    type into a page against Have I Been Pwned's Pwned Passwords database,
    using HIBP's k-anonymity API: your password is hashed (SHA-1) on your
    device, and only the **first 5 characters of that hash** are ever sent to
    `api.pwnedpasswords.com` -- never the full hash, and never the password
    itself. This is a request to a third party (HIBP), not to Moat -- Moat's
    own developer never sees it. Off unless you explicitly enable it.
-4. **Opt-in settings sync, off by default.** If you turn on "Sync settings"
+4. **Opt-in settings sync, off by default.** If you turn on "Sync across devices"
    in Settings, your settings (excluding the per-install fingerprint-noise
    seed) are mirrored to `browser.storage.sync` -- your browser vendor's own
    sync service (Google's for Chrome, Mozilla's for Firefox), using
@@ -137,7 +137,7 @@ only to an organization's own infrastructure, never to Moat's developer.
    in it is applied; a policy that doesn't verify is discarded.
 
 6. **Problem reports, only when you press Send.** "Report a problem…" in
-   the popup (or "Report an issue" in Settings) opens a page inside Moat.
+   the popup (or "Report a problem" in Settings) opens a page inside Moat.
    Nothing is sent until you press Send, and "What will be sent" shows the
    whole report first. A report contains: the site's name (the full page
    address only if you tick "Include the full page address"), which

@@ -140,7 +140,7 @@ is in [`docs/design-notes.md`](docs/design-notes.md).
 - **Privacy toggles** (opt-in). Fingerprint resistance, third-party cookie blocking, WebRTC leak
   protection.
 - **Global Privacy Control.** Sends `Sec-GPC`, a legally binding opt-out signal in a dozen US states.
-- **Leaked-password check** (opt-in). HaveIBeenPwned k-anonymity: only a 5-character hash prefix
+- **Warn about leaked passwords** (opt-in). HaveIBeenPwned k-anonymity: only a 5-character hash prefix
   leaves the device.
 - **Blocking levels and custom rules.** Light / Balanced / Strict (Balanced by default), per-list
   toggles under Settings → Filter lists, and your own block/allow lists.
