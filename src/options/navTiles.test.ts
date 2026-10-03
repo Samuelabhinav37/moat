@@ -7,7 +7,10 @@ import { describe, expect, it } from "vitest";
 import { contrastRatio, parseColor } from "../shared/colorContrast";
 import { PAGE_KEYS } from "./dashboard";
 
-const html = readFileSync("src/options/options.html", "utf8");
+const page = readFileSync("src/options/options.html", "utf8");
+// Only the stylesheet: scanning the whole page with the pattern below made
+// this test slow enough to time out in a busy full run.
+const html = page.slice(page.indexOf("<style>"), page.indexOf("</style>"));
 
 /** Every `--tile: #xxxxxx` and the selectors it's set on. */
 function tiles(): { selectors: string; color: string }[] {
