@@ -220,3 +220,7 @@ main:focus { outline: none; }
   .toc-m select { height: 42px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); padding: 0 10px; font: 600 15px var(--ui); }
   html { scroll-padding-top: 120px; }
 }
+
+/* Not in English: the page's short version in the browser's language. */
+.lang-note { margin: 0 0 28px; padding: 14px 16px; border: 1px solid var(--tint-line); border-radius: 12px; background: var(--tint-2); color: var(--fg); line-height: 1.55; }
+.lang-note b { margin-right: 4px; }

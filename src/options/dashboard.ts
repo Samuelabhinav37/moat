@@ -4,7 +4,7 @@
 // screen, and the CSS hides the rest. Same at every width: navMode.ts only
 // changes how the sidebar itself is shown.
 
-export const PAGE_KEYS = ["overview", "protection", "exceptions", "trackers", "sites", "security", "about"] as const;
+export const PAGE_KEYS = ["overview", "protection", "exceptions", "backup", "trackers", "sites", "security", "about"] as const;
 export type PageKey = (typeof PAGE_KEYS)[number];
 export const DEFAULT_PAGE: PageKey = "overview";
 
@@ -14,7 +14,6 @@ const MOVED: Record<string, { page: PageKey; anchor?: string; tab?: string }> = 
   paused: { page: "exceptions", tab: "paused" },
   hidden: { page: "exceptions", tab: "hidden" },
   rules: { page: "exceptions", tab: "rules" },
-  backup: { page: "about", anchor: "a-backup" },
   blocking: { page: "protection", anchor: "p-level" },
   privacy: { page: "protection", anchor: "p-privacy" },
   filters: { page: "protection", anchor: "p-lists" },

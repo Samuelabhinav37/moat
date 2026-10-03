@@ -2,6 +2,24 @@
 // built by scripts/docs/buildDocs.mjs). Extension pages can't run inline
 // script, so everything lives here and checks for its own elements.
 
+// Not in English? Say so, and give the page's short version in the
+// browser's language (Mozilla publishes a short summary per language too).
+// The full text stays English, the version that's kept exact.
+const langNote = document.getElementById("lang-note");
+const i18n = globalThis.chrome?.i18n;
+const uiLang = i18n?.getUILanguage?.() ?? "en";
+if (langNote && i18n && !/^en\b/i.test(uiLang)) {
+  const doc = langNote.dataset.doc ?? "";
+  const keys: Record<string, string> = { privacy: "docSummaryPrivacy", changelog: "docSummaryChangelog", licenses: "docSummaryLicenses" };
+  const summary = keys[doc] ? i18n.getMessage(keys[doc]) : "";
+  const intro = i18n.getMessage("docInEnglish");
+  if (intro && summary) {
+    langNote.lang = uiLang;
+    langNote.append(Object.assign(document.createElement("b"), { textContent: intro }), document.createTextNode(` ${summary}`));
+    langNote.hidden = false;
+  }
+}
+
 // "On this page": highlight the section in view.
 const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>("[data-toc]")];
 if (tocLinks.length && "IntersectionObserver" in window) {

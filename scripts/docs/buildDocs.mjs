@@ -73,7 +73,7 @@ function page({ id, title, lead, meta, body, toc = [] }) {
 <header class="bar moat-header"><a class="back" href="options.html#about">${ic("back", 16)}Settings</a><a class="moat-brand" href="options.html#about" aria-label="Moat settings">${LOGO}<span>Moat</span></a><nav class="docnav" aria-label="Documents">${NAV.map(([href, k, l, i]) => `<a href="${href}" ${k === id ? 'aria-current="page"' : ""}>${ic(i, 16)}<span>${l}</span></a>`).join("")}<a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener">${ic("code", 16)}<span>Source code</span>${ic("ext", 13)}<span class="sr">(opens GitHub)</span></a></nav></header>
 <div class="wrap ${toc.length ? "has-toc" : ""}">
 ${toc.length ? `<aside class="toc"><div class="toc-h">On this page</div>${toc.map(([tid, t]) => `<a href="#${tid}" data-toc="${tid}">${t}</a>`).join("")}</aside>` : ""}
-<main id="main" tabindex="-1"><div class="head"><h1>${title}</h1>${lead ? `<p class="lead">${lead}</p>` : ""}${meta ? `<div class="meta">${meta}</div>` : ""}</div>${toc.length ? `<label class="toc-m"><span>On this page</span><select data-tocm>${toc.map(([tid, t]) => `<option value="${tid}">${t}</option>`).join("")}</select></label>` : ""}${body}</main></div>
+<main id="main" tabindex="-1"><div class="head"><h1>${title}</h1>${lead ? `<p class="lead">${lead}</p>` : ""}${meta ? `<div class="meta">${meta}</div>` : ""}</div><div class="lang-note" id="lang-note" data-doc="${id}" role="note" hidden></div>${toc.length ? `<label class="toc-m"><span>On this page</span><select data-tocm>${toc.map(([tid, t]) => `<option value="${tid}">${t}</option>`).join("")}</select></label>` : ""}${body}</main></div>
 <script src="docs.js"></script></body></html>`;
 }
 

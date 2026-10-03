@@ -3313,5 +3313,18 @@
   },
   "blockedSeeLists": {
     "message": "Ver las listas de Moat"
+  },
+  "docInEnglish": {
+    "message": "Esta página está en inglés. En resumen:",
+    "description": "Shown on the English-only document pages when the browser is in another language."
+  },
+  "docSummaryPrivacy": {
+    "message": "Moat funciona en tu dispositivo. No tiene cuenta, ni analíticas, ni informes de fallos, y su desarrollador no recibe nada sobre ti. Una vez al día descarga listas actualizadas, sin enviar nada sobre ti. Un informe de problema solo se envía cuando pulsas Enviar."
+  },
+  "docSummaryChangelog": {
+    "message": "Qué cambió en cada versión de Moat, empezando por la más reciente."
+  },
+  "docSummaryLicenses": {
+    "message": "Las listas y el código de código abierto en los que se basa Moat, y la licencia de cada uno."
   }
 }

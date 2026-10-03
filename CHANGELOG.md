@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.236
+
+### Changed
+- **Backup and sync has its own place in the sidebar.** It used to sit at the bottom of About,
+  where few people looked for it. Bringing settings over from another blocker moves with it.
+  Old links to #backup still land there.
+- **The document pages speak your language at the top.** When your browser isn't in English,
+  the Privacy policy, Changelog and Licenses pages say so and give the short version in your
+  language. The full text stays in English, the version that's kept exact.
+
 ## 0.11.235
 
 ### Changed
