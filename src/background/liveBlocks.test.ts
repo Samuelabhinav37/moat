@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("webextension-polyfill", () => ({ default: {} }));
 
-const { forgetLive, getLiveCount, isCountableBlock, isStandInRedirect, recordError, resetLive } = await import("./liveBlocks");
+const { forgetLive, getBlockedHosts, getLiveCount, isCountableBlock, isStandInRedirect, recordError, resetLive } = await import("./liveBlocks");
 
-const blocked = (over: Partial<{ tabId: number; type: string; error: string; timeStamp: number }> = {}) => ({
+const blocked = (over: Partial<{ tabId: number; type: string; error: string; timeStamp: number; url: string }> = {}) => ({
   tabId: 3,
   type: "script",
   error: "net::ERR_BLOCKED_BY_CLIENT",
@@ -59,5 +59,27 @@ describe("isStandInRedirect", () => {
   it("ignores ordinary redirects and other extension files", () => {
     expect(isStandInRedirect("https://example.com/web-accessible-resources/redirects/x.js")).toBe(false);
     expect(isStandInRedirect("chrome-extension://abc/popup.html")).toBe(false);
+  });
+});
+
+describe("blocked hosts and pages", () => {
+  beforeEach(() => forgetLive(7));
+
+  it("tallies the blocked request hosts of the current page, and starts again on a new page", () => {
+    recordError(blocked({ tabId: 7, url: "https://stats.g.doubleclick.net/x" }), () => {});
+    recordError(blocked({ tabId: 7, url: "https://stats.g.doubleclick.net/y" }), () => {});
+    recordError(blocked({ tabId: 7, url: "https://www.google-analytics.com/collect" }), () => {});
+    recordError(blocked({ tabId: 7, url: "not a url" }), () => {});
+    expect(Object.fromEntries(getBlockedHosts(7))).toEqual({ "stats.g.doubleclick.net": 2, "www.google-analytics.com": 1 });
+    expect(getLiveCount(7)).toBe(4);
+    resetLive(7, 5000);
+    expect(getBlockedHosts(7).size).toBe(0);
+  });
+
+  it("reports a whole blocked page separately and doesn't count it as a block on the page", () => {
+    const pages: string[] = [];
+    recordError(blocked({ tabId: 7, type: "main_frame", url: "https://paypa1-secure.top/" }), () => {}, (url) => pages.push(url));
+    expect(pages).toEqual(["https://paypa1-secure.top/"]);
+    expect(getLiveCount(7)).toBe(0);
   });
 });

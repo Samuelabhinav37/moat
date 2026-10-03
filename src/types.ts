@@ -683,6 +683,24 @@ export interface UsageSummaryResponse {
    * only supports a 7-*day* trend (14-day retention), not the design mock's
    * illustrative "last 7 weeks". */
   companiesTrend: number[];
+  /** Blocks by kind per day, oldest to today -- 7 entries (zeros before
+   * kinds were recorded). */
+  dailyKinds: BlockKinds[];
+  /** The 7 days before this week, for "vs last week". Null until 8 days of
+   * history exist. */
+  previousWeek: { total: number; kinds: BlockKinds; companies: number } | null;
+  /** Distinct sites with a block this week. */
+  weekSiteCount: number;
+  /** Sites with the most blocks this week (from 0.11.204 on), most first. */
+  topSites: Array<{ hostname: string; count: number }>;
+  /** Blocks per hour of day for each of the last 7 days, oldest first: 7 x 24. */
+  hours: number[][];
+  /** Tracker blocks this week by TrackerDB purpose ("advertising", "site_analytics", ...). */
+  purposes: Record<string, number>;
+  /** Whole pages Moat refused to load this week, newest first. */
+  pageStops: Array<{ hostname: string; time: number }>;
+  /** Up to 5 sites each company was blocked on this week. */
+  companySites: Record<string, string[]>;
 }
 
 /** Sent by options.ts's Filter Lists tab -- same "no page of its own, ask

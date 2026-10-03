@@ -48,7 +48,14 @@ only to an organization's own infrastructure, never to Moat's developer.
   browsing history, or any other data off your device.
 - The per-tab block-count breakdown (Ads/Trackers/Popups, and the optional
   by-company detail) is computed and displayed locally from the browser's
-  own `declarativeNetRequest` match data. It is never transmitted.
+  own `declarativeNetRequest` match data and the blocked requests' own
+  domains, looked up in a copy of Ghostery's TrackerDB bundled with Moat.
+  It is never transmitted.
+- Settings' Insights pages read a weekly summary kept in your browser's local
+  storage for 14 days and then deleted: blocks per day, per site you visited
+  and per hour, which tracker companies were blocked and on which sites, what
+  those trackers were for, and the addresses of whole pages Moat refused to
+  load. None of it is synced, exported in a backup, or sent anywhere.
 - The popup's manual "Clear site data…" button deletes the active tab's own
   cookies, IndexedDB, local storage, and service workers, on your device,
   only when you click it twice to confirm. Nothing about this is sent

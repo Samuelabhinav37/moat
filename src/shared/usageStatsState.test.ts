@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  recordPageStop,
+  recordPurposes,
   EMPTY_STATE,
   MAX_HOSTNAMES_PER_BUCKET,
   RETENTION_DAYS,
@@ -206,5 +208,53 @@ describe("recordBlockKinds / weekKinds", () => {
 
   it("is all zeros with no history", () => {
     expect(summarize(EMPTY_STATE, NOW).weekKinds).toEqual({ ads: 0, trackers: 0, popups: 0 });
+  });
+});
+
+describe("Insights counters (0.11.204)", () => {
+  const at = (hour: number, dayOffset = 0) => new Date(2026, 5, 15 + dayOffset, hour, 30, 0).getTime();
+
+  it("counts blocks per site and per hour of the day", () => {
+    let state = recordBlockedTotal(EMPTY_STATE, "news.example", 5, at(9));
+    state = recordBlockedTotal(state, "news.example", 2, at(21));
+    state = recordBlockedTotal(state, "shop.example", 4, at(21));
+    const summary = summarize(state, at(22));
+    expect(summary.topSites).toEqual([
+      { hostname: "news.example", count: 7 },
+      { hostname: "shop.example", count: 4 },
+    ]);
+    expect(summary.hours[6]![9]).toBe(5);
+    expect(summary.hours[6]![21]).toBe(6);
+    expect(summary.weekSiteCount).toBe(2);
+  });
+
+  it("adds up tracker purposes over the week", () => {
+    let state = recordPurposes(EMPTY_STATE, { advertising: 3, site_analytics: 1 }, at(10, -2));
+    state = recordPurposes(state, { site_analytics: 2 }, at(10));
+    expect(summarize(state, at(11)).purposes).toEqual({ advertising: 3, site_analytics: 3 });
+  });
+
+  it("keeps whole pages Moat stopped, newest first, once per minute per site, and prunes them with the days", () => {
+    let state = recordPageStop(EMPTY_STATE, "paypa1-secure.top", at(10));
+    state = recordPageStop(state, "paypa1-secure.top", at(10) + 5_000);
+    state = recordPageStop(state, "free-robux.gift", at(11));
+    expect(summarize(state, at(12)).pageStops.map((s) => s.hostname)).toEqual(["free-robux.gift", "paypa1-secure.top"]);
+    const later = pruneOldDays(state, at(12, 20));
+    expect(later.pageStops).toEqual([]);
+  });
+
+  it("gives each day's kinds for the chart, and last week's totals once there are 8 days", () => {
+    let state = recordBlockKinds(EMPTY_STATE, { ads: 2, trackers: 1 }, at(10));
+    expect(summarize(state, at(11)).dailyKinds[6]).toEqual({ ads: 2, trackers: 1, popups: 0 });
+    expect(summarize(state, at(11)).previousWeek).toBeNull();
+    state = recordBlockedTotal(state, "old.example", 9, at(10, -8));
+    state = recordBlockedTotal(state, "x.example", 1, at(10, -7));
+    expect(summarize(state, at(11)).previousWeek).toEqual({ total: 10, kinds: { ads: 0, trackers: 0, popups: 0 }, companies: 0 });
+  });
+
+  it("lists up to five sites for each company", () => {
+    let state = EMPTY_STATE;
+    for (const site of ["a.example", "b.example", "c.example", "d.example", "e.example", "f.example"]) state = recordCompanyMatches(state, site, { Google: 1 }, at(10));
+    expect(summarize(state, at(11)).companySites.Google).toHaveLength(5);
   });
 });

@@ -1,6 +1,7 @@
 import browser, { type Runtime } from "webextension-polyfill";
 import {
   onLiveBlock,
+  onPageBlocked,
   forgetTab,
   refreshStaticBreakdown,
   resetForNavigation,
@@ -122,7 +123,7 @@ void browser.tabs
 
 // Quota-free count of refused requests per tab (see liveBlocks.ts). Top
 // level, so a blocked request can wake the worker.
-startLiveBlockCounting(onLiveBlock);
+startLiveBlockCounting(onLiveBlock, onPageBlocked);
 
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0) return;

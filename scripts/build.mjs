@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { buildManifest } from "./manifest.ts";
+import { buildTrackerDomains } from "./lib/trackerDomains.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
@@ -142,6 +143,11 @@ function copyStaticAssets() {
   ]) {
     cpSync(resolve(rulesDir, file), resolve(outDir, "rules", file));
   }
+
+  // Who a blocked request belonged to, by its domain (scripts/lib/trackerDomains.mjs).
+  // Built from the vendored TrackerDB here so it never needs a filter update.
+  const trackerDb = JSON.parse(readFileSync(resolve(root, "node_modules/@ghostery/trackerdb/dist/trackerdb.json"), "utf8"));
+  writeFileSync(resolve(outDir, "rules", "tracker-domains.json"), JSON.stringify(buildTrackerDomains(trackerDb)));
 
   // Hand-curated, checked into the repo (not generated into rules/dnr): the
   // ad-network domain list src/content/adCollapse.ts uses to collapse the

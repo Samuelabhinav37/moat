@@ -14,24 +14,43 @@ import {
   resetBreakdown,
   type Breakdown,
 } from "./matchStats";
-import { recordBlockKinds, recordBlockedTotal, recordCompanyMatches } from "./usageStats";
+import { recordBlockKinds, recordBlockedTotal, recordCompanyMatches, recordPageStop, recordPurposes } from "./usageStats";
 import { NOTHING_RECORDED, unrecorded, type Recorded } from "../shared/statsDelta";
-import { forgetLive, getLiveCount, resetLive } from "./liveBlocks";
+import { forgetLive, getBlockedHosts, getLiveCount, resetLive } from "./liveBlocks";
+import { hostnameOf, splitKinds, tallyHosts } from "../shared/trackerDomains";
+import { loadTrackerTable, trackerTableNow } from "./trackerTable";
 
 export type { Breakdown };
+
+/** The page's network blocks split into ads/trackers/pop-ups, every block
+ * included: trackers from the blocked hosts' own domains (quota-free) or the
+ * matched rules, whichever says more (shared/trackerDomains.ts splitKinds). */
+function sortedBreakdown(tabId: number): Breakdown {
+  const tally = tallyHosts(trackerTableNow(), getBlockedHosts(tabId));
+  return splitKinds(staticTotal(tabId), getBreakdown(tabId), tally);
+}
 
 /** The dynamic firewall count folds into "popups": it's real-time catches of
  * the same kind of thing the static AdGuard Popups filter blocks by domain. */
 export function combinedBreakdown(tabId: number): Breakdown {
-  const breakdown = getBreakdown(tabId);
+  const breakdown = sortedBreakdown(tabId);
   return { ...breakdown, popups: breakdown.popups + getCount(tabId) };
 }
 
-/** The dynamic firewall's real-time popup catches have no associated DNR
- * rule, so they carry no company attribution -- this is purely the static
- * breakdown's company detail, passed through unchanged. */
+/** Companies behind the page's blocks: from the blocked hosts' domains and
+ * from the matched rules, the larger count for each. */
 export function combinedCompanyBreakdown(tabId: number): Record<string, number> {
-  return getCompanyBreakdown(tabId);
+  const merged = { ...getCompanyBreakdown(tabId) };
+  for (const [company, count] of Object.entries(tallyHosts(trackerTableNow(), getBlockedHosts(tabId)).companies)) {
+    merged[company] = Math.max(merged[company] ?? 0, count);
+  }
+  return merged;
+}
+
+/** A whole page Moat refused to load (Security's "Pages Moat stopped"). */
+export function onPageBlocked(url: string): void {
+  const hostname = hostnameOf(url);
+  if (hostname) void recordPageStop(hostname);
 }
 
 /** Network blocks on the current page: the live count, or the rule-based
@@ -96,10 +115,13 @@ export async function recordDynamicCatch(tabId: number, hostname: string): Promi
 const recordedByTab = new Map<number, Recorded>();
 // The same, for the ads/trackers/pop-ups split (the Settings Overview).
 const recordedKindsByTab = new Map<number, Recorded>();
+// The same, for tracker purposes (the Settings Trackers page).
+const recordedPurposesByTab = new Map<number, Recorded>();
 
 export function resetForNavigation(tabId: number, pageStart?: number): void {
   recordedByTab.delete(tabId);
   recordedKindsByTab.delete(tabId);
+  recordedPurposesByTab.delete(tabId);
   resetLive(tabId, pageStart);
   resetCount(tabId);
   resetBreakdown(tabId, pageStart);
@@ -111,17 +133,18 @@ export function resetForNavigation(tabId: number, pageStart?: number): void {
  * finishes loading, again a few seconds later (ads often load after the
  * load event), and when the popup opens. */
 export async function refreshStaticBreakdown(tabId: number, hostname: string): Promise<void> {
-  await refreshBreakdown(tabId);
+  await Promise.all([refreshBreakdown(tabId), loadTrackerTable()]);
   await paint(tabId);
   if (!hostname) return;
   const total = staticTotal(tabId);
-  const fresh = unrecorded(recordedByTab.get(tabId) ?? NOTHING_RECORDED, total, getCompanyBreakdown(tabId));
+  const fresh = unrecorded(recordedByTab.get(tabId) ?? NOTHING_RECORDED, total, combinedCompanyBreakdown(tabId));
   recordedByTab.set(tabId, fresh.next);
   if (fresh.total > 0) void recordBlockedTotal(hostname, fresh.total);
   if (Object.keys(fresh.counts).length > 0) void recordCompanyMatches(hostname, fresh.counts);
-  // Only blocks whose rule says what they are; "not sorted yet" ones stay
-  // out of the split rather than being guessed.
-  const b = getBreakdown(tabId);
+  const purposes = unrecorded(recordedPurposesByTab.get(tabId) ?? NOTHING_RECORDED, 0, tallyHosts(trackerTableNow(), getBlockedHosts(tabId)).purposes);
+  recordedPurposesByTab.set(tabId, purposes.next);
+  if (Object.keys(purposes.counts).length > 0) void recordPurposes(purposes.counts);
+  const b = sortedBreakdown(tabId);
   const kinds = unrecorded(recordedKindsByTab.get(tabId) ?? NOTHING_RECORDED, 0, {
     ads: b.ads,
     trackers: b.trackers,
@@ -134,6 +157,7 @@ export async function refreshStaticBreakdown(tabId: number, hostname: string): P
 export function forgetTab(tabId: number): void {
   recordedByTab.delete(tabId);
   recordedKindsByTab.delete(tabId);
+  recordedPurposesByTab.delete(tabId);
   forgetLive(tabId);
   forgetDynamicTab(tabId);
   forgetBreakdownTab(tabId);

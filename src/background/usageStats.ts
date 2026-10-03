@@ -10,6 +10,8 @@ import {
   recordBlockKinds as recordBlockKindsPure,
   recordBlockedTotal as recordBlockedTotalPure,
   recordCompanyMatches as recordCompanyMatchesPure,
+  recordPageStop as recordPageStopPure,
+  recordPurposes as recordPurposesPure,
   recordSignalEvent as recordSignalEventPure,
   summarize,
   type UsageStatsState,
@@ -52,6 +54,14 @@ export function recordBlockKinds(kinds: Partial<BlockKinds>): Promise<void> {
 
 export function recordCompanyMatches(hostname: string, companyBreakdown: Record<string, number>): Promise<void> {
   return mutate((state, when) => recordCompanyMatchesPure(state, hostname, companyBreakdown, when));
+}
+
+export function recordPurposes(purposes: Record<string, number>): Promise<void> {
+  return mutate((state, when) => recordPurposesPure(state, purposes, when));
+}
+
+export function recordPageStop(hostname: string): Promise<void> {
+  return mutate((state, when) => recordPageStopPure(state, hostname, when));
 }
 
 export function recordSignalEvent(signal: UsageSignal, hostname: string, count = 1): Promise<void> {

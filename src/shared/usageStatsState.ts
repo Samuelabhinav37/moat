@@ -44,11 +44,26 @@ export interface UsageDay {
   companies: Record<string, HostnameCounts>;
   /** Blocks by kind. Absent on days recorded before 0.11.154. */
   kinds?: BlockKinds;
+  /** Blocks per site (capped like `hostnames`). From 0.11.204. */
+  hostCounts?: Record<string, number>;
+  /** Blocks per local hour, 24 entries. From 0.11.204. */
+  hours?: number[];
+  /** Tracker blocks by TrackerDB purpose. From 0.11.204. */
+  purposes?: Record<string, number>;
+}
+
+export interface PageStop {
+  hostname: string;
+  time: number;
 }
 
 export interface UsageStatsState {
   days: Record<string, UsageDay>;
+  /** Whole pages Moat refused to load, newest last, capped. */
+  pageStops?: PageStop[];
 }
+
+export const MAX_PAGE_STOPS = 50;
 
 export const EMPTY_STATE: UsageStatsState = { days: {} };
 
@@ -83,7 +98,13 @@ function addHostname(hostnames: string[], hostname: string): string[] {
 
 function withDay(state: UsageStatsState, date: string, update: (day: UsageDay) => UsageDay): UsageStatsState {
   const current = state.days[date] ?? emptyDay(date);
-  return { days: { ...state.days, [date]: update(current) } };
+  return { ...state, days: { ...state.days, [date]: update(current) } };
+}
+
+function addCount(counts: Record<string, number> | undefined, key: string, count: number): Record<string, number> {
+  const next = { ...counts };
+  if (key in next || Object.keys(next).length < MAX_HOSTNAMES_PER_BUCKET) next[key] = (next[key] ?? 0) + count;
+  return next;
 }
 
 export function recordBlockedTotal(
@@ -93,11 +114,38 @@ export function recordBlockedTotal(
   when: number
 ): UsageStatsState {
   if (count <= 0) return state;
-  return withDay(state, dateKey(when), (day) => ({
-    ...day,
-    total: day.total + count,
-    hostnames: addHostname(day.hostnames, hostname),
-  }));
+  const hour = new Date(when).getHours();
+  return withDay(state, dateKey(when), (day) => {
+    const hours = day.hours?.length === 24 ? [...day.hours] : new Array<number>(24).fill(0);
+    hours[hour] = (hours[hour] ?? 0) + count;
+    return {
+      ...day,
+      total: day.total + count,
+      hostnames: addHostname(day.hostnames, hostname),
+      hostCounts: addCount(day.hostCounts, hostname, count),
+      hours,
+    };
+  });
+}
+
+/** Tracker blocks by purpose (TrackerDB category). */
+export function recordPurposes(state: UsageStatsState, purposes: Record<string, number>, when: number): UsageStatsState {
+  const entries = Object.entries(purposes).filter(([, count]) => count > 0);
+  if (entries.length === 0) return state;
+  return withDay(state, dateKey(when), (day) => {
+    let next = day.purposes;
+    for (const [purpose, count] of entries) next = addCount(next, purpose, count);
+    return { ...day, purposes: next };
+  });
+}
+
+/** A whole page Moat refused to load. The same site twice in a minute is one stop. */
+export function recordPageStop(state: UsageStatsState, hostname: string, when: number): UsageStatsState {
+  if (!hostname) return state;
+  const stops = state.pageStops ?? [];
+  const last = stops[stops.length - 1];
+  if (last && last.hostname === hostname && when - last.time < 60_000) return state;
+  return { ...state, pageStops: [...stops, { hostname, time: when }].slice(-MAX_PAGE_STOPS) };
 }
 
 export function recordCompanyMatches(
@@ -160,12 +208,25 @@ export function recordSignalEvent(
 export function pruneOldDays(state: UsageStatsState, when: number): UsageStatsState {
   const cutoff = shiftDateKey(when, -RETENTION_DAYS);
   const entries = Object.entries(state.days);
-  if (entries.every(([date]) => date >= cutoff)) return state;
-  return { days: Object.fromEntries(entries.filter(([date]) => date >= cutoff)) };
+  const stops = state.pageStops ?? [];
+  const keptStops = stops.filter((stop) => dateKey(stop.time) >= cutoff);
+  if (entries.every(([date]) => date >= cutoff) && keptStops.length === stops.length) return state;
+  return {
+    ...state,
+    days: Object.fromEntries(entries.filter(([date]) => date >= cutoff)),
+    ...(state.pageStops ? { pageStops: keptStops } : {}),
+  };
 }
 
 function dayOrEmpty(state: UsageStatsState, date: string): UsageDay {
   return state.days[date] ?? emptyDay(date);
+}
+
+/** `when` moved by whole local days. */
+function shiftTime(when: number, deltaDays: number): number {
+  const d = new Date(when);
+  d.setDate(d.getDate() + deltaDays);
+  return d.getTime();
 }
 
 /** Oldest-to-today date keys for the trailing `count` days, `when`'s own day included. */
@@ -236,6 +297,51 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
   // else here needs.
   const companiesTrend = last7.map((date) => Object.keys(dayOrEmpty(state, date).companies).length);
 
+  const dailyKinds = last7.map((date) => ({ ...NO_KINDS, ...dayOrEmpty(state, date).kinds }));
+  const prev7 = trailingDateKeys(shiftTime(when, -7), 7);
+  let previousWeek: UsageSummaryResponse["previousWeek"] = null;
+  if (haveLastWeek) {
+    const kinds = { ...NO_KINDS };
+    const companies = new Set<string>();
+    let total = 0;
+    for (const date of prev7) {
+      const day = dayOrEmpty(state, date);
+      total += day.total;
+      if (day.kinds) {
+        kinds.ads += day.kinds.ads;
+        kinds.trackers += day.kinds.trackers;
+        kinds.popups += day.kinds.popups;
+      }
+      for (const company of Object.keys(day.companies)) companies.add(company);
+    }
+    previousWeek = { total, kinds, companies: companies.size };
+  }
+
+  const sites = new Set<string>();
+  const siteCounts = new Map<string, number>();
+  const purposes: Record<string, number> = {};
+  for (const date of last7) {
+    const day = dayOrEmpty(state, date);
+    for (const hostname of day.hostnames) sites.add(hostname);
+    for (const [hostname, count] of Object.entries(day.hostCounts ?? {})) siteCounts.set(hostname, (siteCounts.get(hostname) ?? 0) + count);
+    for (const [purpose, count] of Object.entries(day.purposes ?? {})) purposes[purpose] = (purposes[purpose] ?? 0) + count;
+  }
+  const topSites = [...siteCounts.entries()]
+    .map(([hostname, count]) => ({ hostname, count }))
+    .sort((a, b) => b.count - a.count || a.hostname.localeCompare(b.hostname))
+    .slice(0, 20);
+  const hours = last7.map((date) => {
+    const h = dayOrEmpty(state, date).hours;
+    return h?.length === 24 ? [...h] : new Array<number>(24).fill(0);
+  });
+  const weekStart = last7[0]!;
+  const pageStops = (state.pageStops ?? [])
+    .filter((stop) => dateKey(stop.time) >= weekStart)
+    .reverse()
+    .slice(0, 20);
+  const companySites: Record<string, string[]> = {};
+  for (const [company, { hostnames }] of companyTotals) companySites[company] = [...hostnames].slice(0, 5);
+
   return {
     today: { total: today.total, hostnameCount: today.hostnames.length },
     lastWeekSameWeekday,
@@ -244,5 +350,13 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
     bySignal,
     companiesThisWeek,
     companiesTrend,
+    dailyKinds,
+    previousWeek,
+    weekSiteCount: sites.size,
+    topSites,
+    hours,
+    purposes,
+    pageStops,
+    companySites,
   };
 }

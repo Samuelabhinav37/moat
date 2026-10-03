@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.204
+
+### Fixed
+- **Trackers showed 0.** The ads/trackers/pop-ups split came only from Chrome's rule-match
+  feedback, which allows 20 reads per 10 minutes, so after some browsing most blocks were never
+  sorted and Trackers could stay at 0 for days. Each blocked request is now also sorted by its
+  own domain, using a copy of Ghostery's TrackerDB bundled with Moat (rules/tracker-domains.json,
+  built from the vendored package; nothing is fetched). Trackers is the larger of the two counts,
+  pop-ups come from the pop-up rules, and the rest are ads, so the three always add up to the
+  total and the popup no longer says "not sorted yet". Companies are counted the same way.
+  - Measured on 15 news and shopping sites in Chrome: 100 trackers, 56 ads and 3 pop-ups out of
+    159 blocks, and 37 companies (Google on 11 of the sites, Amazon on 6).
+
+### Added
+- Local counters for the coming Insights pages, kept 14 days like the rest: blocks per site and
+  per hour of the day, what the blocked trackers were for (advertising, analytics, social...),
+  the sites each company was blocked on, and whole pages Moat refused to load. PRIVACY.md lists
+  them. None of it is synced, backed up or sent.
+
 ## 0.11.203
 
 ### Changed
