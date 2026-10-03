@@ -2155,6 +2155,7 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   const week = days.reduce((sum, n) => sum + n, 0);
   document.getElementById("ov-week-total")!.textContent = week.toLocaleString();
   document.getElementById("ov-week-empty")!.hidden = week > 0;
+  (document.querySelector(".ov-hint") as HTMLElement).hidden = week === 0;
   document.getElementById("ov-status-level")!.textContent = levelLabel(detectPreset(settings));
   overviewSettings = settings;
   renderOverviewStatus();
@@ -2216,6 +2217,21 @@ for (const button of document.querySelectorAll<HTMLButtonElement>("#ov-period [d
     if (lastSettings && lastUsage) renderOverview(lastSettings, lastUsage);
   });
 }
+
+/** Why a card is empty, plus the one thing to do about it: check Moat is
+ * working (the Help panel's step-through). */
+function emptyWithCheck(text: string): HTMLElement {
+  const block = document.createElement("div");
+  block.className = "ov-empty-block";
+  const p = Object.assign(document.createElement("p"), { className: "ov-top-empty", textContent: text });
+  const button = Object.assign(document.createElement("button"), { type: "button", className: "ab-btn check-moat", textContent: tFallback("ovCheckMoat", "Check Moat is working") });
+  block.append(p, button);
+  return block;
+}
+
+document.addEventListener("click", (event) => {
+  if ((event.target as HTMLElement).closest(".check-moat")) helpPanel.openTopic("verify");
+});
 
 /** Who tracks you most, Most blocked sites, Pages Moat stopped. */
 async function renderOverviewTops(usage: UsageSummaryResponse): Promise<void> {
@@ -2431,7 +2447,7 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
       note.textContent = tFallback("insSitesNote", "Switching Moat off for a site pauses it. It then shows under Exceptions › Paused.");
       sitesHost.replaceChildren(table, note);
     } else {
-      sitesHost.replaceChildren(Object.assign(document.createElement("p"), { className: "ov-top-empty", textContent: tFallback("ovTopSitesEmpty", "Browse a few sites and they show up here.") }));
+      sitesHost.replaceChildren(emptyWithCheck(tFallback("insSitesEmpty", "No site has had anything blocked this week. Open a site you use often, then come back.")));
     }
   }
   const topSite = usage.topSites[0];
@@ -2451,7 +2467,7 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
   const list = document.getElementById("sec-list");
   if (list) {
     if (!stops.length) {
-      list.replaceChildren(Object.assign(document.createElement("p"), { className: "ov-top-empty", textContent: tFallback("ovTopStopsEmpty", "None this week.") }));
+      list.replaceChildren(Object.assign(document.createElement("p"), { className: "ov-top-empty", textContent: tFallback("insStopsEmpty", "Nothing stopped this week. Moat checks every page you open against its danger lists.") }));
     } else {
       const t2 = document.createElement("table");
       t2.className = "ins-table";

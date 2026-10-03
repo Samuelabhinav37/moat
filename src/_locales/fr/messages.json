@@ -1262,6 +1262,18 @@
   "ovWeekEmpty": {
     "message": "Rien de bloqué cette semaine pour l'instant. Visitez quelques sites et ceci se remplira."
   },
+  "ovCheckMoat": {
+    "message": "Vérifier que Moat fonctionne",
+    "description": "Button under an empty Overview or Sites card. Opens Help's step-through for checking that Moat blocks things."
+  },
+  "insSitesEmpty": {
+    "message": "Rien n'a été bloqué sur aucun site cette semaine. Ouvrez un site que vous utilisez souvent, puis revenez.",
+    "description": "Settings > Sites when nothing has been blocked on any site this week."
+  },
+  "insStopsEmpty": {
+    "message": "Rien d'arrêté cette semaine. Moat vérifie chaque page que vous ouvrez avec ses listes de dangers.",
+    "description": "Settings > Security when no page was stopped this week."
+  },
   "ovLevelSub": {
     "message": "S'applique à tous les sites"
   },

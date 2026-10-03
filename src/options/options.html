@@ -1849,6 +1849,15 @@
       .ov-status .sep {
         color: var(--muted);
       }
+      /* An empty card says why it's empty and offers one thing to do (NN/g). */
+      .ov-empty-block {
+        display: grid;
+        justify-items: start;
+        gap: 12px;
+      }
+      .check-moat {
+        padding: 7px 14px;
+      }
       .ov-period {
         display: inline-grid;
         grid-auto-flow: column;
@@ -4127,7 +4136,10 @@
             <div class="ov-big" id="ov-week-total">—</div>
             <p class="ov-headline" id="ov-headline"></p>
             <div id="ov-chart"></div>
-            <p class="ov-empty" id="ov-week-empty" hidden data-i18n="ovWeekEmpty">Nothing blocked yet this week. Browse a few sites and this fills in.</p>
+            <div class="ov-empty-block" id="ov-week-empty" hidden>
+              <p class="ov-empty" data-i18n="ovWeekEmpty">Nothing blocked yet this week. Browse a few sites and this fills in.</p>
+              <button type="button" class="ab-btn check-moat" data-i18n="ovCheckMoat">Check Moat is working</button>
+            </div>
           </div>
           <div class="ov-kpis" id="ov-kpis"></div>
           <div class="ov-tops" id="ov-tops"></div>

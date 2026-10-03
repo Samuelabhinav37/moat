@@ -533,3 +533,14 @@ describe("Overview: this week or last week", () => {
     expect(document.getElementById("ov-week-total")?.textContent).toBe("210");
   });
 });
+
+describe("Empty cards say why, and offer one thing to do", () => {
+  it("offers to check Moat is working, which opens that Help guide", async () => {
+    await renderOptions(undefined, { usageStats: { days: {} } });
+    const empty = document.getElementById("ov-week-empty")!;
+    expect(empty.hidden).toBe(false);
+    empty.querySelector<HTMLButtonElement>(".check-moat")!.click();
+    expect(document.getElementById("help-panel")!.hidden).toBe(false);
+    expect(document.querySelector("#help-panel .hp-body")?.textContent).toContain("Check Moat yourself");
+  });
+});

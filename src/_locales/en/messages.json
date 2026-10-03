@@ -1267,6 +1267,18 @@
   "ovWeekEmpty": {
     "message": "Nothing blocked yet this week. Browse a few sites and this fills in."
   },
+  "ovCheckMoat": {
+    "message": "Check Moat is working",
+    "description": "Button under an empty Overview or Sites card. Opens Help's step-through for checking that Moat blocks things."
+  },
+  "insSitesEmpty": {
+    "message": "No site has had anything blocked this week. Open a site you use often, then come back.",
+    "description": "Settings > Sites when nothing has been blocked on any site this week."
+  },
+  "insStopsEmpty": {
+    "message": "Nothing stopped this week. Moat checks every page you open against its danger lists.",
+    "description": "Settings > Security when no page was stopped this week."
+  },
   "ovLevelSub": {
     "message": "Applies to every site"
   },

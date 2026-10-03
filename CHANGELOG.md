@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.221
+
+### Changed
+- **Empty cards say why they're empty, and what to do.** On a new install, Overview and Sites
+  have nothing to show yet. They now say so, and offer **Check Moat is working**, which opens
+  the Help guide with a test page. Security, when nothing was stopped, says that Moat checks
+  every page you open against its danger lists.
+- New text in English, Spanish, French and German.
+
 ## 0.11.220
 
 ### Added
