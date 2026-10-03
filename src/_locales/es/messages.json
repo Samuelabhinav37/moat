@@ -2560,5 +2560,239 @@
   "purposeMiscDesc": {
     "message": "Rastreadores sin un propósito único",
     "description": "Tracker purpose."
+  },
+  "helpClose": {
+    "message": "Cerrar ayuda",
+    "description": "Settings Help panel."
+  },
+  "helpForThisPage": {
+    "message": "Para esta página",
+    "description": "Settings Help panel."
+  },
+  "helpFixGroup": {
+    "message": "Resolver un problema",
+    "description": "Settings Help panel."
+  },
+  "helpLearnGroup": {
+    "message": "Aprender",
+    "description": "Settings Help panel."
+  },
+  "helpFullDocs": {
+    "message": "Documentación completa",
+    "description": "Settings Help panel."
+  },
+  "helpReportProblem": {
+    "message": "Informar de un problema",
+    "description": "Settings Help panel."
+  },
+  "helpAllHelp": {
+    "message": "Toda la ayuda",
+    "description": "Settings Help panel."
+  },
+  "helpBack": {
+    "message": "Atrás",
+    "description": "Settings Help panel."
+  },
+  "helpNext": {
+    "message": "Siguiente",
+    "description": "Settings Help panel."
+  },
+  "helpReplay": {
+    "message": "Repetir",
+    "description": "Settings Help panel."
+  },
+  "helpStillBroken": {
+    "message": "¿Sigue sin funcionar?",
+    "description": "Settings Help panel."
+  },
+  "helpReportSite": {
+    "message": "Informar de este sitio",
+    "description": "Settings Help panel."
+  },
+  "helpOpenTestPage": {
+    "message": "Abrir la página de prueba",
+    "description": "Settings Help panel."
+  },
+  "helpToggleLabel": {
+    "message": "Moat en este sitio",
+    "description": "Settings Help panel."
+  },
+  "helpTogglePopups": {
+    "message": "Bloquear ventanas aquí",
+    "description": "Settings Help panel."
+  },
+  "helpShowAgainButton": {
+    "message": "Mostrar de nuevo",
+    "description": "Settings Help panel."
+  },
+  "helpLoadTitle": {
+    "message": "La página no carga",
+    "description": "Settings Help panel."
+  },
+  "helpLoadSub": {
+    "message": "O carga muy despacio",
+    "description": "Settings Help panel."
+  },
+  "helpSigninTitle": {
+    "message": "No puedo iniciar sesión",
+    "description": "Settings Help panel."
+  },
+  "helpSigninSub": {
+    "message": "Ventana de acceso o CAPTCHA",
+    "description": "Settings Help panel."
+  },
+  "helpVideoTitle": {
+    "message": "El vídeo no se reproduce",
+    "description": "Settings Help panel."
+  },
+  "helpVideoSub": {
+    "message": "O el reproductor está en blanco",
+    "description": "Settings Help panel."
+  },
+  "helpMissingTitle": {
+    "message": "Falta algo",
+    "description": "Settings Help panel."
+  },
+  "helpMissingSub": {
+    "message": "Ha desaparecido un botón o una sección",
+    "description": "Settings Help panel."
+  },
+  "helpDangerTitle": {
+    "message": "Sitio real bloqueado",
+    "description": "Settings Help panel."
+  },
+  "helpDangerSub": {
+    "message": "Detenido por error",
+    "description": "Settings Help panel."
+  },
+  "helpHowTitle": {
+    "message": "Cómo funciona Moat",
+    "description": "Settings Help panel."
+  },
+  "helpHowSub": {
+    "message": "Cinco pasos cortos",
+    "description": "Settings Help panel."
+  },
+  "helpVerifyTitle": {
+    "message": "Comprueba Moat tú mismo",
+    "description": "Settings Help panel."
+  },
+  "helpVerifySub": {
+    "message": "Página de prueba y DevTools",
+    "description": "Settings Help panel."
+  },
+  "helpStepStuck": {
+    "message": "La página no termina de cargar",
+    "description": "Settings Help panel."
+  },
+  "helpStepOffHere": {
+    "message": "Desactiva Moat aquí",
+    "description": "Settings Help panel."
+  },
+  "helpStepReload": {
+    "message": "Recarga la página",
+    "description": "Settings Help panel."
+  },
+  "helpStepWorksReport": {
+    "message": "¿Funciona? Informa del sitio",
+    "description": "Settings Help panel."
+  },
+  "helpStepNoWindow": {
+    "message": "No se abrió la ventana de acceso",
+    "description": "Settings Help panel."
+  },
+  "helpStepClickIcon": {
+    "message": "Haz clic en el icono de Moat",
+    "description": "Settings Help panel."
+  },
+  "helpStepAllowPopups": {
+    "message": "Permite ventanas aquí",
+    "description": "Settings Help panel."
+  },
+  "helpStepSignInAgain": {
+    "message": "Inicia sesión otra vez",
+    "description": "Settings Help panel."
+  },
+  "helpStepNoVideo": {
+    "message": "El vídeo no se reproduce",
+    "description": "Settings Help panel."
+  },
+  "helpStepGone": {
+    "message": "Falta una parte de la página",
+    "description": "Settings Help panel."
+  },
+  "helpStepOpenHidden": {
+    "message": "Abre Excepciones › Ocultos",
+    "description": "Settings Help panel."
+  },
+  "helpStepShowAgain": {
+    "message": "Pulsa Mostrar de nuevo",
+    "description": "Settings Help panel."
+  },
+  "helpStepBack": {
+    "message": "Ha vuelto",
+    "description": "Settings Help panel."
+  },
+  "helpStepBlocked": {
+    "message": "Un sitio real está bloqueado",
+    "description": "Settings Help panel."
+  },
+  "helpStepCheckAddress": {
+    "message": "Comprueba la dirección",
+    "description": "Settings Help panel."
+  },
+  "helpStepPause": {
+    "message": "Pausa Moat en ese sitio",
+    "description": "Settings Help panel."
+  },
+  "helpStepReportFix": {
+    "message": "Infórmalo para corregirlo",
+    "description": "Settings Help panel."
+  },
+  "helpStepOpenPage": {
+    "message": "Abres una página",
+    "description": "Settings Help panel."
+  },
+  "helpStepCalls": {
+    "message": "Llama a decenas de servidores",
+    "description": "Settings Help panel."
+  },
+  "helpStepStops": {
+    "message": "Moat detiene los rastreadores",
+    "description": "Settings Help panel."
+  },
+  "helpStepGaps": {
+    "message": "Los huecos de anuncios se cierran",
+    "description": "Settings Help panel."
+  },
+  "helpStepDevice": {
+    "message": "Todo en tu dispositivo",
+    "description": "Settings Help panel."
+  },
+  "helpStepTestPage": {
+    "message": "Abre la página de prueba",
+    "description": "Settings Help panel."
+  },
+  "helpStepScore": {
+    "message": "Mira la puntuación",
+    "description": "Settings Help panel."
+  },
+  "helpStepDevtools": {
+    "message": "Pulsa F12 y luego Red",
+    "description": "Settings Help panel."
+  },
+  "helpStepRedRows": {
+    "message": "Las filas bloqueadas lo indican",
+    "description": "Settings Help panel."
+  },
+  "helpStepN": {
+    "message": "Paso $N$",
+    "description": "Help panel: name of a step dot.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
   }
 }

@@ -2403,6 +2403,610 @@
         .l4 { background: #2f57ad; }
       }
 
+
+      /* ---------- Help panel (helpPanel.ts) ---------- */
+      .topbar .help {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 40px;
+        padding: 0 14px 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        color: var(--fg);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.16s, border-color 0.16s, transform 0.16s var(--ease);
+      }
+      .topbar .help:hover {
+        background: var(--panel-2);
+      }
+      .topbar .help:active {
+        transform: scale(0.95);
+      }
+      .topbar .help[aria-expanded="true"] {
+        border-color: rgba(111, 155, 224, 0.5);
+        background: #1f2433;
+      }
+      .topbar .help svg {
+        width: 19px;
+        height: 19px;
+        color: var(--blue-lt);
+      }
+      .help-panel {
+        position: fixed;
+        z-index: 9;
+        top: 65px;
+        right: 0;
+        bottom: 0;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        width: min(420px, 100vw);
+        border-left: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: -20px 0 40px rgba(0, 0, 0, 0.35);
+        animation: hp-in 0.26s var(--ease);
+      }
+      .help-panel[hidden] {
+        display: none;
+      }
+      @keyframes hp-in {
+        from { transform: translateX(40px); opacity: 0; }
+      }
+      .hp-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 12px 12px 20px;
+        border-bottom: 1px solid var(--line);
+      }
+      .hp-head h2 {
+        margin: 0;
+        font-size: 17px;
+      }
+      .hp-close {
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 10px;
+        background: none;
+        color: var(--muted);
+        font-size: 22px;
+        cursor: pointer;
+      }
+      .hp-close:hover {
+        background: var(--panel-2);
+        color: var(--fg);
+      }
+      .hp-body {
+        display: grid;
+        gap: 16px;
+        align-content: start;
+        padding: 16px 20px 40px;
+        overflow-y: auto;
+      }
+      .hp-h {
+        margin-bottom: 8px;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .hp-group {
+        display: grid;
+        gap: 8px;
+      }
+      .hp-group .hp-h {
+        margin-bottom: 0;
+      }
+      .hp-topic {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel-2);
+        color: var(--fg);
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        transition: border-color 0.16s, transform 0.16s var(--ease);
+      }
+      .hp-topic:hover {
+        border-color: #3c3843;
+      }
+      .hp-topic:active {
+        transform: scale(0.985);
+      }
+      .hp-topic.here {
+        border-color: rgba(111, 155, 224, 0.5);
+        background: #1f2433;
+      }
+      .hp-ti {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--panel-3, #2a2730);
+      }
+      .hp-ti svg {
+        width: 19px;
+        height: 19px;
+      }
+      .hp-big svg {
+        width: 44px;
+        height: 44px;
+      }
+      .hp-reload svg {
+        width: 64px;
+        height: 64px;
+      }
+      .hp-topic b {
+        display: block;
+        font-size: 14.5px;
+      }
+      .hp-topic small {
+        color: var(--muted);
+        font-size: 12.5px;
+      }
+      .hp-go {
+        color: var(--muted);
+      }
+      .hp-links {
+        display: grid;
+        justify-items: start;
+        gap: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--line);
+      }
+      .hp-back {
+        justify-self: start;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--blue-lt);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .hp-title {
+        margin: 0;
+        font-size: 17px;
+      }
+      .hp-stage {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: radial-gradient(120% 140% at 50% 0%, #26232c 0%, #1b191d 60%);
+      }
+      .hp-scene {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .hp-scene.on {
+        opacity: 1;
+      }
+      .hp-cap {
+        margin: 0;
+        font-size: 16.5px;
+        font-weight: 700;
+      }
+      .hp-n {
+        margin-right: 8px;
+        color: var(--muted);
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+      .hp-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .hp-pips {
+        display: flex;
+        gap: 6px;
+      }
+      .hp-pip {
+        width: 8px;
+        height: 8px;
+        padding: 0;
+        border: 0;
+        border-radius: 4px;
+        background: #3a3640;
+        cursor: pointer;
+        transition: width 0.26s var(--ease), background 0.26s;
+      }
+      .hp-pip[aria-current="true"] {
+        width: 24px;
+        background: var(--blue-lt);
+      }
+      .hp-buttons {
+        display: flex;
+        gap: 8px;
+      }
+      .hp-nav:disabled {
+        opacity: 0.4;
+      }
+      .hp-steps {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: hp;
+      }
+      .hp-steps li {
+        display: grid;
+        grid-template-columns: 26px minmax(0, 1fr);
+        gap: 10px;
+        align-items: center;
+        font-size: 14px;
+        counter-increment: hp;
+      }
+      .hp-steps li::before {
+        content: counter(hp);
+        display: grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--panel-3, #2a2730);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .hp-steps li.cur::before {
+        background: var(--blue);
+        color: #fff;
+      }
+      .hp-steps li.done::before {
+        content: "✓";
+        background: rgba(67, 193, 58, 0.15);
+        color: #43c13a;
+      }
+      .hp-still {
+        display: grid;
+        justify-items: start;
+        gap: 8px;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+      .hp-btnlink {
+        justify-self: start;
+        font-weight: 600;
+      }
+      /* Scene parts */
+      .hp-win {
+        width: 200px;
+        height: 130px;
+        overflow: hidden;
+        border: 1px solid #3a3640;
+        border-radius: 12px;
+        background: #2a2730;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      }
+      .hp-bar {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        height: 20px;
+        padding: 0 8px;
+        background: #33303a;
+      }
+      .hp-bar i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #4a4650;
+      }
+      .hp-line {
+        height: 8px;
+        margin: 10px 14px 0;
+        border-radius: 4px;
+        background: #4a4650;
+      }
+      .hp-ad {
+        display: grid;
+        place-items: center;
+        height: 30px;
+        margin: 10px 14px 0;
+        border-radius: 7px;
+        background: repeating-linear-gradient(45deg, #3b3424, #3b3424 8px, #453d29 8px, #453d29 16px);
+        color: #f2d9a4;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .hp-scene.on .hp-ad {
+        animation: hp-collapse 0.7s var(--ease) 0.5s both;
+      }
+      @keyframes hp-collapse {
+        to { height: 0; margin-top: 0; opacity: 0; }
+      }
+      .hp-center {
+        display: grid;
+        place-items: center;
+        height: 100px;
+      }
+      .hp-spin {
+        width: 36px;
+        height: 36px;
+        border: 4px solid #3a3640;
+        border-top-color: var(--blue-lt);
+        border-radius: 50%;
+        animation: hp-rot 0.9s linear infinite;
+      }
+      @keyframes hp-rot {
+        to { transform: rotate(360deg); }
+      }
+      .hp-scene.on .hp-pop {
+        animation: hp-pop 0.42s var(--spring, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+      }
+      @keyframes hp-pop {
+        from { opacity: 0; transform: scale(0.7); }
+      }
+      .hp-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 16px;
+      }
+      .hp-toggle {
+        position: relative;
+        width: 64px;
+        height: 36px;
+        border-radius: 18px;
+        background: var(--blue);
+      }
+      .hp-toggle::after {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 32px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #fff;
+      }
+      .hp-scene.on .hp-toggle {
+        animation: hp-tg-bg 0.9s var(--ease) 0.4s both;
+      }
+      .hp-scene.on .hp-toggle::after {
+        animation: hp-tg-knob 0.9s var(--spring, cubic-bezier(0.34, 1.56, 0.64, 1)) 0.4s both;
+      }
+      @keyframes hp-tg-bg {
+        to { background: #4a4650; }
+      }
+      @keyframes hp-tg-knob {
+        to { transform: translateX(-28px); }
+      }
+      .hp-big {
+        display: grid;
+        place-items: center;
+        width: 88px;
+        height: 88px;
+        border-radius: 24px;
+        background: rgba(111, 155, 224, 0.16);
+        color: var(--blue-lt);
+        font-size: 40px;
+      }
+      .hp-big.hp-warn {
+        background: rgba(224, 177, 111, 0.16);
+        color: #e0b16f;
+      }
+      .hp-big.hp-red {
+        background: rgba(240, 128, 128, 0.16);
+        color: #f08080;
+      }
+      .hp-big.hp-pink {
+        background: rgba(232, 121, 169, 0.16);
+        color: #e879a9;
+      }
+      .hp-big.hp-logo {
+        background: #030307 url("icons/icon48.png") center / 56px no-repeat;
+      }
+      .hp-done {
+        display: grid;
+        place-items: center;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: rgba(67, 193, 58, 0.15);
+        color: #43c13a;
+        font-size: 34px;
+        font-weight: 700;
+      }
+      .hp-reload {
+        display: grid;
+        color: var(--blue-lt);
+      }
+      .hp-scene.on .hp-reload {
+        animation: hp-reload 0.8s var(--ease) 0.2s both;
+      }
+      @keyframes hp-reload {
+        from { transform: rotate(-200deg); opacity: 0.3; }
+      }
+      .hp-addr {
+        padding: 12px 16px;
+        border: 1px solid #3a3640;
+        border-radius: 12px;
+        background: #2a2730;
+        font: 15px var(--mono, ui-monospace, monospace);
+      }
+      .hp-addr {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .hp-addr svg {
+        width: 16px;
+        height: 16px;
+        color: #43c13a;
+      }
+      .hp-btn {
+        padding: 10px 18px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel-2);
+        font-weight: 600;
+      }
+      .hp-lane,
+      .hp-fan {
+        position: relative;
+        transform: scale(0.8);
+      }
+      .hp-req {
+        position: absolute;
+        top: calc(40px + var(--i) * 18px);
+        left: 200px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        opacity: 0;
+      }
+      .hp-req.ok {
+        background: #199e70;
+      }
+      .hp-req.no {
+        background: #d95926;
+      }
+      .hp-scene.on .hp-req.ok {
+        animation: hp-go 1.6s var(--ease) calc(var(--i) * 0.3s) both;
+      }
+      .hp-scene.on .hp-req.no {
+        animation: hp-stop 1.6s var(--ease) calc(var(--i) * 0.3s) both;
+      }
+      @keyframes hp-go {
+        10% { opacity: 1; }
+        85% { opacity: 1; transform: translateX(170px); }
+        100% { opacity: 0; transform: translateX(180px); }
+      }
+      @keyframes hp-stop {
+        10% { opacity: 1; }
+        55% { opacity: 1; transform: translateX(70px); }
+        100% { opacity: 0; transform: translateX(60px) scale(0); }
+      }
+      .hp-shield {
+        position: absolute;
+        top: 40px;
+        left: 290px;
+        display: grid;
+        place-items: center;
+        width: 50px;
+        height: 58px;
+        border: 2px solid var(--blue-lt);
+        border-radius: 10px 10px 24px 24px;
+        background: #2a3550;
+        color: #fff;
+        font-weight: 800;
+      }
+      .hp-orbit {
+        position: absolute;
+        top: 60px;
+        left: 95px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #199e70;
+        opacity: 0;
+      }
+      .hp-orbit.no {
+        background: #d95926;
+      }
+      .hp-scene.on .hp-orbit {
+        animation: hp-orbit 1.4s var(--ease) calc(0.2s + var(--i) * 0.06s) both;
+      }
+      @keyframes hp-orbit {
+        20% { opacity: 1; }
+        60% { opacity: 1; transform: rotate(var(--a)) translateX(150px); }
+        100% { opacity: 0.2; transform: none; }
+      }
+      .hp-score {
+        display: grid;
+        justify-items: center;
+        gap: 12px;
+        font-size: 34px;
+      }
+      .hp-meter {
+        display: block;
+        width: 260px;
+        height: 16px;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #2a2730;
+      }
+      .hp-meter i {
+        display: block;
+        width: 99%;
+        height: 100%;
+        border-radius: 8px;
+        background: #199e70;
+        transform-origin: left;
+      }
+      .hp-scene.on .hp-meter i {
+        animation: ov-growx 1.2s var(--ease) 0.2s both;
+      }
+      .hp-net {
+        width: 340px;
+        overflow: hidden;
+        border: 1px solid #3a3640;
+        border-radius: 12px;
+        background: #201e24;
+        font: 12px var(--mono, ui-monospace, monospace);
+      }
+      .hp-net div {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 7px 12px;
+        border-top: 1px solid #2e2b33;
+      }
+      .hp-net .blk {
+        background: rgba(217, 89, 38, 0.08);
+        color: #f08a6a;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .help-panel,
+        .hp-scene *,
+        .hp-scene *::after {
+          animation: none !important;
+        }
+      }
+      @media (max-width: 719px) {
+        .topbar .help {
+          padding: 0 10px;
+        }
+        .topbar .help span {
+          display: none;
+        }
+        .help-panel {
+          top: 0;
+          z-index: 10;
+          width: 100vw;
+          border-left: 0;
+        }
+      }
+      @media (prefers-color-scheme: light) {
+        .topbar .help[aria-expanded="true"],
+        .hp-topic.here {
+          background: #e8eefb;
+        }
+        .hp-stage {
+          background: radial-gradient(120% 140% at 50% 0%, #f3f2f6 0%, #e9e7ee 60%);
+        }
+      }
+
       /* ---------- Protection page: jump chips, inset groups ---------- */
       .jump-sec {
         position: sticky;
@@ -3179,12 +3783,19 @@
           <kbd class="search-key" aria-hidden="true">/</kbd>
           <ul class="search-results" id="search-results" role="listbox" hidden></ul>
         </div>
-        <a class="help" href="https://samuelabhinav37.github.io/moat/#faq" target="_blank" rel="noopener" data-i18n="settingsHelp">Help</a>
+        <button type="button" class="help" id="help-button" aria-expanded="false" aria-controls="help-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M9.6 9.5a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6M12 17v.3" /></svg><span data-i18n="settingsHelp">Help</span></button>
       </header>
 
       <!-- One screen per task (see dashboard.ts). The nav is a full sidebar,
            an icon rail, or a drawer depending on the window (navMode.ts). -->
       <div class="nav-scrim" id="nav-scrim" hidden></div>
+      <aside class="help-panel" id="help-panel" aria-labelledby="help-panel-title" hidden>
+        <div class="hp-head">
+          <h2 id="help-panel-title" data-i18n="settingsHelp">Help</h2>
+          <button type="button" class="hp-close" aria-label="Close help" data-i18n-aria-label="helpClose">×</button>
+        </div>
+        <div class="hp-body"></div>
+      </aside>
       <nav class="dash-nav" id="dash-nav" aria-label="Settings" data-i18n-aria-label="settingsTitle">
         <a href="#overview" data-page="overview" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4h6v4h-6zM4 20h6v-3H4z" /></svg><span class="nav-name" data-i18n="navOverview">Overview</span><span class="nav-lead" hidden data-i18n="pageLeadOverview">What Moat did for you this week</span></a>
         <p class="nav-group" data-i18n="navGroupSettings">Settings</p>

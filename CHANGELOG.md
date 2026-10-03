@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.207
+
+### Added
+- **Help in Settings.** The Help link at the top right used to open the website's FAQ. It now
+  opens a panel at the right edge with the topic for the screen you're on first (Sites shows
+  "Page won't load", Exceptions shows "Something's missing"), then **Fix a problem** (page won't
+  load, can't sign in, video won't play, something's missing, real site blocked) and **Learn**
+  (How Moat works, Check Moat yourself).
+  - Each topic is a short step-through: one idea per step, a few words each, a small animation,
+    Back and Next, and numbered steps that tick off. It plays once by itself, pauses while the
+    pointer is over it, and stays still with reduced motion turned on.
+  - Fix topics end with "Still not working? Report this site", which opens Moat's report page.
+    The full documentation and a problem report are linked at the bottom.
+  - Esc closes it and puts focus back on Help. On a phone it covers the screen.
+- New text in English, Spanish, French and German.
+
 ## 0.11.206
 
 ### Added

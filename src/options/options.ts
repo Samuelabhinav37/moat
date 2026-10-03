@@ -12,12 +12,13 @@ import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
 import { applyBulkSelect, type BulkLabels } from "./bulkSelect";
 import { buildSiteIcon, faviconUrl } from "./siteIcon";
-import { initDashboard } from "./dashboard";
+import { initDashboard, pageFromHash } from "./dashboard";
 import { buildExplainer, helpSceneFor, initExplainerPanel } from "./explainerPanel";
 import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { initSettingsSearch } from "./settingsSearch";
 import { initNavMode } from "./navMode";
+import { initHelpPanel } from "./helpPanel";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
 import { buildKpi, buildTopCard, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
 import { buildHeatmap, buildPurposes, buildReachRows, busiestPhrase, purposeLabel, purposeShares } from "./insightsView";
@@ -139,6 +140,13 @@ for (const [flow, brand] of [["updates", "github"], ["breach", "haveibeenpwned"]
   if (to) prependBrand(to, brand);
 }
 initDashboard(window, explainerPanel.showScreen);
+initHelpPanel(document, {
+  t: tFallback,
+  currentScreen: () => pageFromHash(window.location.hash),
+  report: () => void browser.tabs.create({ url: browser.runtime.getURL("report.html") }),
+  docsUrl: "https://samuelabhinav37.github.io/moat/#faq",
+  testPageUrl: "https://d3ward.github.io/toolz/adblock.html",
+});
 initNavMode(window, {
   collapse: tFallback("navCollapse", "Collapse menu"),
   expand: tFallback("navExpand", "Expand menu"),
