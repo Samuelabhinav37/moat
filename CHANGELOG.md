@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.225
+
+### Added
+- **Skip to content.** Settings starts with a link, shown when you press Tab, that jumps past the
+  top bar and menu to the page itself.
+
+### Fixed
+- Every Moat page now tells the browser which language it's in, so screen readers read it with
+  the right voice and pronunciation. The policy pages, which are in English, say so.
+- New text in English, Spanish, French and German.
+
 ## 0.11.224
 
 ### Added

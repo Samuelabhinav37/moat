@@ -544,3 +544,13 @@ describe("Empty cards say why, and offer one thing to do", () => {
     expect(document.querySelector("#help-panel .hp-body")?.textContent).toContain("Check Moat yourself");
   });
 });
+
+describe("Keyboard and screen-reader basics", () => {
+  it("starts with a skip link to the content", async () => {
+    await renderOptions();
+    const skip = document.body.firstElementChild as HTMLAnchorElement;
+    expect(skip.className).toBe("skip-link");
+    expect(skip.getAttribute("href")).toBe("#main");
+    expect(document.getElementById("main")?.tagName).toBe("MAIN");
+  });
+});

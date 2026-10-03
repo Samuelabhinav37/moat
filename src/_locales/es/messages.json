@@ -3054,5 +3054,9 @@
   "popupPauseDay": {
     "message": "1 día",
     "description": "Popup: button, pause this site for one day."
+  },
+  "skipToContent": {
+    "message": "Saltar al contenido",
+    "description": "Settings: first link on the page for keyboard users; jumps past the top bar and menu to the content."
   }
 }

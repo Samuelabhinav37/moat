@@ -85,6 +85,24 @@
       }
 
       /* ---------- Top bar ---------- */
+      /* Keyboard users can jump past the top bar and menu. */
+      .skip-link {
+        position: absolute;
+        z-index: 100;
+        top: -60px;
+        left: 12px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: var(--blue);
+        color: #fff;
+        font-weight: 650;
+      }
+      .skip-link:focus {
+        top: 10px;
+      }
+      main.wrap:focus {
+        outline: none;
+      }
       .topbar {
         display: flex;
         align-items: center;
@@ -4069,6 +4087,7 @@
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#main" data-i18n="skipToContent">Skip to content</a>
     <div id="shell">
       <header class="topbar">
         <div class="brand">
@@ -4127,7 +4146,7 @@
         <button type="button" class="toast-action" id="saved-toast-action" hidden>Undo</button>
       </div>
 
-      <main class="wrap">
+      <main class="wrap" id="main" tabindex="-1">
         <div class="head">
           <h1 data-i18n="settingsTitle">Settings</h1>
         </div>
