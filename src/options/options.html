@@ -1709,6 +1709,33 @@
       .ov-status .sep {
         color: var(--muted);
       }
+      .ov-status-on {
+        display: contents;
+      }
+      .ov-status a {
+        color: var(--blue-lt);
+        font-weight: 600;
+      }
+      .ov-status-warn,
+      .ov-status:not([data-state="on"]) .ov-status-ok,
+      .ov-status:not([data-state="on"]) .ov-status-on {
+        display: none;
+      }
+      .ov-status:not([data-state="on"]) .ov-status-warn {
+        display: block;
+        color: var(--caution);
+      }
+      .ov-status:not([data-state="on"]) {
+        border-color: rgba(224, 177, 111, 0.35);
+        background: var(--caution-wash, rgba(224, 177, 111, 0.1));
+      }
+      .ov-status-msg {
+        flex: 1 1 260px;
+      }
+      #ov-status-action {
+        margin-left: auto;
+        padding: 6px 12px;
+      }
       .ov-card {
         padding: 22px 24px;
         border: 1px solid var(--line);
@@ -3873,13 +3900,22 @@
         <!-- Overview (desktop only): the week at a glance, from the counts
              Moat already keeps on this device (usageStats.ts). -->
         <section class="sec overview" data-page="overview" aria-labelledby="page-title">
-          <p class="ov-status" id="ov-status">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-            <b data-i18n="ovStatusOn">Protection is on</b>
-            <span class="sep" aria-hidden="true">·</span>
-            <span id="ov-status-level"></span>
-            <span class="sep" id="ov-status-lists-sep" aria-hidden="true" hidden>·</span>
-            <span id="ov-status-lists" hidden></span>
+          <!-- Real state (options.ts renderOverviewStatus): on, off, or lists that failed to update. -->
+          <p class="ov-status" id="ov-status" data-state="on">
+            <svg class="ov-status-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+            <svg class="ov-status-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3zM12 10v4M12 17v.5" /></svg>
+            <b id="ov-status-title" data-i18n="ovStatusOn">Protection is on</b>
+            <span class="ov-status-on">
+              <span class="sep" aria-hidden="true">·</span>
+              <span id="ov-status-level"></span>
+              <a href="#blocking" id="ov-status-change" data-i18n="ovStatusChange">Change</a>
+              <span class="sep" id="ov-status-lists-sep" aria-hidden="true" hidden>·</span>
+              <span id="ov-status-lists" hidden></span>
+              <span class="sep" id="ov-status-paused-sep" aria-hidden="true" hidden>·</span>
+              <a href="#paused" id="ov-status-paused" hidden></a>
+            </span>
+            <span class="ov-status-msg" id="ov-status-msg" hidden></span>
+            <button type="button" class="ab-btn" id="ov-status-action" hidden></button>
           </p>
           <div class="ov-card ov-week">
             <div class="ov-week-head">

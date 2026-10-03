@@ -38,8 +38,8 @@ afterEach(() => {
   vi.doUnmock("webextension-polyfill");
 });
 
-async function renderOptions(settings?: Partial<Settings>): Promise<void> {
-  const { browser } = createMockBrowser({ hostname: "example.com", settings });
+async function renderOptions(settings?: Partial<Settings>, storage?: Record<string, unknown>): Promise<void> {
+  const { browser } = createMockBrowser({ hostname: "example.com", settings, storage });
   vi.doMock("webextension-polyfill", () => ({ default: browser }));
   loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
   await import("./options");
@@ -403,5 +403,34 @@ describe("About: connection states are plain text, with a way to change them", (
     expect(links.map((b) => b.dataset.reveal)).toEqual(["protection-cname-label", "protection-leakedPassword-label", "sync-toggle-label"]);
     expect(links[2]?.getAttribute("aria-label")).toBe("Change: Settings sync");
     for (const link of links) expect(document.getElementById(link.dataset.reveal!), link.dataset.reveal).not.toBeNull();
+  });
+});
+
+describe("Overview status banner tells the truth", () => {
+  const banner = () => document.getElementById("ov-status") as HTMLElement;
+
+  it("shows the level, a Change link and paused sites when on", async () => {
+    await renderOptions({ enabled: true, disabledSites: ["a.example", "b.example"] });
+
+    expect(banner().dataset.state).toBe("on");
+    expect(document.getElementById("ov-status-paused")?.textContent).toBe("Paused on 2 sites");
+    expect(document.getElementById("ov-status-change")?.getAttribute("href")).toBe("#blocking");
+    expect(document.getElementById("ov-status-action")?.hidden).toBe(true);
+  });
+
+  it("says protection is off, with a Turn on button", async () => {
+    await renderOptions({ enabled: false });
+
+    expect(banner().dataset.state).toBe("off");
+    expect(document.getElementById("ov-status-title")?.textContent).toBe("Protection is off.");
+    expect(document.getElementById("ov-status-action")?.textContent).toBe("Turn on");
+  });
+
+  it("says the lists failed to update, with Try again", async () => {
+    await renderOptions({ enabled: true }, { liveUpdateStatus: { ok: false, timestamp: Date.now() } });
+
+    expect(banner().dataset.state).toBe("failed");
+    expect(document.getElementById("ov-status-title")?.textContent).toBe("Lists couldn't update.");
+    expect(document.getElementById("ov-status-action")?.hidden).toBe(false);
   });
 });

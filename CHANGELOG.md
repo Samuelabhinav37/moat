@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.213
+
+### Changed
+- **The Overview banner shows what is true now.** It always said "Protection is on", even when
+  it wasn't. It now has three states:
+  - **On:** the level with a Change link, when the lists last updated, and how many sites are
+    paused (that opens Exceptions › Paused).
+  - **Off:** "Protection is off. Ads and trackers load on every site." with a Turn on button.
+  - **Lists couldn't update:** Moat is still blocking with the lists it has, with a Try again
+    button.
+- New text in English, Spanish, French and German.
+
 ## 0.11.212
 
 ### Changed

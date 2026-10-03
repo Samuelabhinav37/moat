@@ -23,6 +23,8 @@ export interface MockBrowserOptions {
   hostname?: string;
   /** Whether Moat is paused on `hostname` when the popup opens. */
   siteDisabled?: boolean;
+  /** Extra storage.local entries, e.g. a failed liveUpdateStatus. */
+  storage?: Record<string, unknown>;
 }
 
 /** A realistic, non-empty settings/usage fixture -- rendering an empty state
@@ -67,6 +69,7 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
     liveUpdateStatus: { ok: true, timestamp: Date.now(), domainCount: 465 },
     youtubeQuickFixesStatus: { ok: true, timestamp: Date.now(), selectorCount: 2 },
     syncStatus: null,
+    ...options.storage,
   };
 
   const sendMessageHandlers: Record<string, (msg: Record<string, unknown>) => unknown> = {

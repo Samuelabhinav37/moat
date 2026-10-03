@@ -993,7 +993,51 @@ function renderLiveStatus(
 }
 
 /** "Lists updated 3 hours ago" on Overview's status line. */
+let overviewLiveStatus: Awaited<ReturnType<typeof getLiveUpdateStatus>> = null;
+let overviewSettings: Settings | null = null;
+const ovStatus = document.getElementById("ov-status") as HTMLElement;
+const ovStatusAction = document.getElementById("ov-status-action") as HTMLButtonElement;
+
+/** The banner says what is true now: on (with level, list age and paused
+ * sites), off, or on but with lists that failed to update. Each problem
+ * state has one button that fixes it. */
+function renderOverviewStatus(): void {
+  if (!overviewSettings) return;
+  const state = !overviewSettings.enabled ? "off" : overviewLiveStatus && !overviewLiveStatus.ok ? "failed" : "on";
+  ovStatus.dataset.state = state;
+  const title = document.getElementById("ov-status-title") as HTMLElement;
+  const msg = document.getElementById("ov-status-msg") as HTMLElement;
+  msg.hidden = ovStatusAction.hidden = state === "on";
+  if (state === "on") {
+    title.textContent = tFallback("ovStatusOn", "Protection is on");
+    const paused = overviewSettings.disabledSites.length;
+    const pausedEl = document.getElementById("ov-status-paused") as HTMLElement;
+    pausedEl.hidden = (document.getElementById("ov-status-paused-sep") as HTMLElement).hidden = paused === 0;
+    pausedEl.textContent =
+      paused === 1 ? tFallback("ovStatusPausedOne", "Paused on 1 site") : tFallback("ovStatusPausedMany", `Paused on ${paused} sites`, String(paused));
+  } else if (state === "off") {
+    title.textContent = tFallback("ovStatusOff", "Protection is off.");
+    msg.textContent = tFallback("ovStatusOffMsg", "Ads and trackers load on every site.");
+    ovStatusAction.textContent = tFallback("ovStatusTurnOn", "Turn on");
+  } else {
+    title.textContent = tFallback("ovStatusFailed", "Lists couldn't update.");
+    msg.textContent = tFallback("ovStatusFailedMsg", "Moat is still blocking with the lists it has.");
+    ovStatusAction.textContent = tFallback("ovStatusRetry", "Try again");
+  }
+}
+
+ovStatusAction.addEventListener("click", async () => {
+  if (ovStatus.dataset.state === "off") {
+    await setSettings({ enabled: true });
+    await render();
+  } else {
+    await checkForFixes(ovStatusAction);
+  }
+});
+
 function renderOverviewListsAge(status: Awaited<ReturnType<typeof getLiveUpdateStatus>>): void {
+  overviewLiveStatus = status;
+  renderOverviewStatus();
   const el = document.getElementById("ov-status-lists");
   const sep = document.getElementById("ov-status-lists-sep");
   if (!el || !sep) return;
@@ -2055,6 +2099,8 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   document.getElementById("ov-week-total")!.textContent = week.toLocaleString();
   document.getElementById("ov-week-empty")!.hidden = week > 0;
   document.getElementById("ov-status-level")!.textContent = levelLabel(detectPreset(settings));
+  overviewSettings = settings;
+  renderOverviewStatus();
 
   // "85% more than last week", or how many sites, when there's no last week yet.
   const headline = document.getElementById("ov-headline")!;

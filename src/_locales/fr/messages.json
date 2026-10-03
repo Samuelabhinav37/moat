@@ -2169,6 +2169,48 @@
     "message": "La protection est activée",
     "description": "Overview status line."
   },
+  "ovStatusChange": {
+    "message": "Modifier",
+    "description": "Settings > Overview status banner: link after the level name, opens Blocking level."
+  },
+  "ovStatusPausedOne": {
+    "message": "En pause sur 1 site",
+    "description": "Settings > Overview status banner: one site has Moat paused. Opens Exceptions › Paused."
+  },
+  "ovStatusPausedMany": {
+    "message": "En pause sur $COUNT$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    },
+    "description": "Settings > Overview status banner: several sites have Moat paused."
+  },
+  "ovStatusOff": {
+    "message": "La protection est désactivée.",
+    "description": "Settings > Overview status banner when Moat is switched off everywhere."
+  },
+  "ovStatusOffMsg": {
+    "message": "Les pubs et les traqueurs se chargent sur tous les sites.",
+    "description": "Settings > Overview status banner when off: what that means."
+  },
+  "ovStatusTurnOn": {
+    "message": "Activer",
+    "description": "Settings > Overview status banner: button that switches Moat back on."
+  },
+  "ovStatusFailed": {
+    "message": "Les listes n'ont pas pu se mettre à jour.",
+    "description": "Settings > Overview status banner when the daily list download failed."
+  },
+  "ovStatusFailedMsg": {
+    "message": "Moat continue de bloquer avec les listes qu'il a.",
+    "description": "Settings > Overview status banner when the list download failed: reassurance."
+  },
+  "ovStatusRetry": {
+    "message": "Réessayer",
+    "description": "Settings > Overview status banner: button that tries the list download again."
+  },
   "ovWeekTitle": {
     "message": "Bloqué cette semaine",
     "description": "Overview: title of the week chart card."
