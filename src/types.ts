@@ -117,6 +117,10 @@ export interface Settings {
    * live cross-device merge -- not a real-time sync engine.
    */
   syncEnabled: boolean;
+  /** Light or dark pages. "system" follows the device. Each page also keeps
+   * a copy in localStorage so it can paint in the right theme before
+   * storage answers (see ui/theme.ts). */
+  theme: "system" | "light" | "dark";
   /**
    * Checks password field values against HIBP's Pwned Passwords k-anonymity
    * API (only a 5-character SHA-1 prefix ever leaves the device -- see
@@ -187,6 +191,7 @@ export const DEFAULT_SETTINGS: Settings = {
   cookieBannerAutoReject: true,
   cnameUncloaking: false,
   syncEnabled: false,
+  theme: "system",
   leakedPasswordCheck: false,
   permissionGuardCamera: false,
   permissionGuardMicrophone: false,
@@ -541,6 +546,7 @@ export const SETTINGS_PATCH_ALLOWED_FIELDS = [
   "permissionGuardLocation",
   "hideSeoSpamResults",
   "syncEnabled",
+  "theme",
   "filterGroups",
   "customBlockedDomains",
   "customAllowedDomains",

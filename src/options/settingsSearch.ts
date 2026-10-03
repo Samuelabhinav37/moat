@@ -82,6 +82,10 @@ export function collectItems(doc: Document = document): SearchItem[] {
 /** Words people type for things Moat names differently. Each query word
  * also matches any of these. */
 export const SYNONYMS: Record<string, string[]> = {
+  dark: ["appearance"],
+  light: ["appearance"],
+  theme: ["appearance"],
+  mode: ["appearance"],
   fingerprint: ["recogniz"],
   fingerprinting: ["recogniz"],
   whitelist: ["never block", "always and never"],
@@ -106,8 +110,6 @@ export const SYNONYMS: Record<string, string[]> = {
 
 /** Things people look for that Moat has no setting for, with the answer. */
 export const NO_SETTING: Record<string, { key: string; fallback: string }> = {
-  "dark mode": { key: "searchAnswerTheme", fallback: "Moat follows your system's light or dark theme." },
-  theme: { key: "searchAnswerTheme", fallback: "Moat follows your system's light or dark theme." },
   language: { key: "searchAnswerLanguage", fallback: "Moat uses your browser's language." },
   account: { key: "searchAnswerAccount", fallback: "Moat has no account. Everything stays in this browser." },
 };

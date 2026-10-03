@@ -137,14 +137,16 @@ describe("finding what people type", () => {
 
   it("answers questions Moat has no setting for", async () => {
     const { noSettingAnswer } = await import("./settingsSearch");
-    expect(noSettingAnswer("dark")!.fallback).toBe("Moat follows your system's light or dark theme.");
-    expect(noSettingAnswer("da")).toBeNull();
+    expect(noSettingAnswer("language")!.fallback).toBe("Moat uses your browser's language.");
+    expect(noSettingAnswer("la")).toBeNull();
+    // There is a theme setting now, so "dark mode" is no longer one of these.
+    expect(noSettingAnswer("dark mode")).toBeNull();
     const input = document.getElementById("q") as HTMLInputElement;
     const list = document.getElementById("results") as HTMLUListElement;
     initSettingsSearch(input, list, { noResults: "No settings match." });
-    input.value = "dark mode";
+    input.value = "language";
     input.dispatchEvent(new Event("input"));
-    expect(list.textContent).toBe("Moat follows your system's light or dark theme.");
+    expect(list.textContent).toBe("Moat uses your browser's language.");
   });
 
   it("runs an extra result's own action (Help topics)", () => {

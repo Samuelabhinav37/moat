@@ -37,6 +37,13 @@ describe("validateImportedSettings", () => {
     expect(patch).toEqual({ enabled: false });
   });
 
+  it("accepts the three theme choices and rejects anything else", () => {
+    expect(validateImportedSettings({ theme: "light" })).toEqual({ theme: "light" });
+    expect(validateImportedSettings({ theme: "system" })).toEqual({ theme: "system" });
+    expect(validateImportedSettings({ theme: "purple" })).toBeNull();
+    expect(validateImportedSettings({ theme: true })).toBeNull();
+  });
+
   it("ignores unknown extra keys", () => {
     const patch = validateImportedSettings({ enabled: true, someFutureField: "x" });
     expect(patch).toEqual({ enabled: true });

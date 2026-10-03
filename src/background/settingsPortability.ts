@@ -84,6 +84,7 @@ const STRING_ARRAY_FIELDS = new Set(["disabledSites", "customBlockedDomains", "c
 const BOOLEAN_RECORD_FIELDS = new Set(["filterGroups"]);
 const SELECTOR_MAP_FIELDS = new Set(["customCosmeticRules", "customGrayscaleRules"]);
 const PER_SITE_OVERRIDE_FIELDS = new Set(["perSiteOverrides"]);
+const THEME_CHOICES = new Set(["system", "light", "dark"]);
 
 /** Rejects the whole payload (returns null) rather than partially applying
  * anything malformed -- checks every DEFAULT_SETTINGS key present in the
@@ -118,6 +119,8 @@ export function validateImportedSettings(value: unknown): Partial<Settings> | nu
       if (!isSelectorMap(actual)) return null;
     } else if (PER_SITE_OVERRIDE_FIELDS.has(key)) {
       if (!isPerSiteOverrideMap(actual)) return null;
+    } else if (key === "theme") {
+      if (typeof actual !== "string" || !THEME_CHOICES.has(actual)) return null;
     } else if (typeof actual !== "boolean") {
       return null;
     }

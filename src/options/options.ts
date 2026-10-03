@@ -18,6 +18,7 @@ import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { optionalFlowsOn } from "../shared/networkFlows";
 import { initSettingsSearch, revealSetting } from "./settingsSearch";
+import { readCachedChoice, rememberTheme } from "../ui/theme";
 import { initNavMode } from "./navMode";
 import { TOPICS, initHelpPanel } from "./helpPanel";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
@@ -1712,6 +1713,24 @@ async function renderAboutTab(policy: Awaited<ReturnType<typeof getManagedPolicy
 
 aboutCheckFixesButton.addEventListener("click", () => void checkForFixes(aboutCheckFixesButton));
 
+const themeRadios = document.querySelectorAll<HTMLInputElement>('.theme-choice input[name="theme"]');
+
+/** Shows the saved choice, and refreshes this browser's fast-start copy when
+ * the setting changed elsewhere (sync, a restored backup, another device). */
+function renderTheme(choice: Settings["theme"]): void {
+  for (const radio of themeRadios) radio.checked = radio.value === choice;
+  if (readCachedChoice() !== choice) rememberTheme(choice);
+}
+
+for (const radio of themeRadios) {
+  radio.addEventListener("change", () => {
+    if (!radio.checked) return;
+    const choice = radio.value as Settings["theme"];
+    rememberTheme(choice);
+    void setSettings({ theme: choice });
+  });
+}
+
 // "Change" on an optional connection jumps to the switch that controls it.
 for (const button of document.querySelectorAll<HTMLButtonElement>("#about-flows .flow-change")) {
   button.addEventListener("click", () => {
@@ -1829,6 +1848,7 @@ async function render(): Promise<void> {
   }
 
   renderSyncStatus(settings.syncEnabled, await getSyncStatus());
+  renderTheme(settings.theme);
   renderLiveStatus(await getLiveUpdateStatus(), await getYoutubeQuickFixesStatus());
 
   renderDomainList(

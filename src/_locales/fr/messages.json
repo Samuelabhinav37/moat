@@ -1185,6 +1185,26 @@
     "message": "Modifier",
     "description": "Settings > About, 'What Moat connects to': link after an optional connection's state. Jumps to the switch that turns it on or off."
   },
+  "aboutThemeTitle": {
+    "message": "Apparence",
+    "description": "Settings > About: name of the light/dark setting."
+  },
+  "aboutThemeDesc": {
+    "message": "Clair ou sombre. Système suit votre appareil.",
+    "description": "Settings > About: what the Appearance setting does."
+  },
+  "aboutThemeSystem": {
+    "message": "Système",
+    "description": "Settings > About, Appearance: follow the device's light or dark setting."
+  },
+  "aboutThemeLight": {
+    "message": "Clair",
+    "description": "Settings > About, Appearance: always light."
+  },
+  "aboutThemeDark": {
+    "message": "Sombre",
+    "description": "Settings > About, Appearance: always dark."
+  },
   "aboutFlowsSome": {
     "message": "Une fonction que vous avez activée envoie quelques données. Chacune est listée ci-dessous."
   },
@@ -2914,10 +2934,6 @@
         "example": "2"
       }
     }
-  },
-  "searchAnswerTheme": {
-    "message": "Moat suit le thème clair ou sombre de votre système.",
-    "description": "Settings search: answer when there is no setting for what was typed."
   },
   "searchAnswerLanguage": {
     "message": "Moat utilise la langue de votre navigateur.",

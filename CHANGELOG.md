@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.216
+
+### Added
+- **Pick light or dark yourself.** Settings › About › Appearance has System, Light and Dark.
+  System follows your device, as before. The choice applies to every Moat page right away,
+  with no flash of the other theme when a page opens. It's saved with your other settings, so
+  it syncs and is part of a backup.
+- Searching Settings for "dark mode" or "theme" now finds Appearance.
+- New text in English, Spanish, French and German.
+
 ## 0.11.215
 
 ### Added

@@ -23,6 +23,16 @@ export function readCachedChoice(win: Window = window): string | null {
   }
 }
 
+/** Saves the choice where every page can read it before first paint, and applies it here. */
+export function rememberTheme(choice: string, win: Window = window): void {
+  try {
+    win.localStorage.setItem(THEME_CACHE_KEY, choice);
+  } catch {
+    // Storage blocked: this page still switches, others follow on their next load.
+  }
+  applyTheme(choice, win);
+}
+
 export function applyTheme(choice: string | null = readCachedChoice(), win: Window = window): void {
   const prefersLight = typeof win.matchMedia === "function" && win.matchMedia("(prefers-color-scheme: light)").matches;
   win.document.documentElement.dataset.theme = resolveTheme(choice, prefersLight);

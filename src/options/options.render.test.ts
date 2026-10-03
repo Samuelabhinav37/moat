@@ -434,3 +434,20 @@ describe("Overview status banner tells the truth", () => {
     expect(document.getElementById("ov-status-action")?.hidden).toBe(false);
   });
 });
+
+describe("About › Appearance", () => {
+  it("shows the saved choice and switches the page when another is picked", async () => {
+    localStorage.clear();
+    await renderOptions({ theme: "dark" });
+
+    const radio = (v: string) => document.querySelector<HTMLInputElement>(`.theme-choice input[value="${v}"]`)!;
+    expect(radio("dark").checked).toBe(true);
+    // The fast-start copy caught up with the saved setting.
+    expect(localStorage.getItem("moat-theme")).toBe("dark");
+    expect(document.documentElement.dataset.theme).toBe("dark");
+
+    radio("light").click();
+    expect(localStorage.getItem("moat-theme")).toBe("light");
+    expect(document.documentElement.dataset.theme).toBe("light");
+  });
+});

@@ -121,6 +121,7 @@ describe("getSettings", () => {
       cookieBannerAutoReject: true,
       cnameUncloaking: false,
       syncEnabled: false,
+      theme: "system",
       leakedPasswordCheck: false,
       permissionGuardCamera: false,
       permissionGuardMicrophone: false,

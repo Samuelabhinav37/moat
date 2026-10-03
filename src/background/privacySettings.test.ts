@@ -28,6 +28,7 @@ const baseSettings: Settings = {
   cookieBannerAutoReject: false,
   cnameUncloaking: false,
   syncEnabled: false,
+  theme: "system",
   leakedPasswordCheck: false,
   permissionGuardCamera: false,
   permissionGuardMicrophone: false,
