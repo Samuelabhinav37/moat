@@ -752,6 +752,10 @@
   "levelCustomNote": {
     "message": "Tu utilises ton propre choix de listes de filtres."
   },
+  "levelYourMix": {
+    "message": "Votre mélange",
+    "description": "Settings > Protection: small badge on the level card a hand-picked mix of lists is closest to."
+  },
   "featuresTitle": {
     "message": "Nuisances"
   },
@@ -1204,7 +1208,8 @@
     "message": "Aucun réglage ne correspond."
   },
   "toastSaved": {
-    "message": "Enregistré"
+    "message": "Enregistré. S'applique aux pages que vous ouvrez ou rechargez.",
+    "description": "Settings: short notice after any setting changes. Pages already open keep the old setting until reloaded."
   },
   "navOverview": {
     "message": "Vue d'ensemble"

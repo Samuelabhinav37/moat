@@ -752,6 +752,10 @@
   "levelCustomNote": {
     "message": "Du nutzt deine eigene Auswahl an Filterlisten."
   },
+  "levelYourMix": {
+    "message": "Deine Mischung",
+    "description": "Settings > Protection: small badge on the level card a hand-picked mix of lists is closest to."
+  },
   "featuresTitle": {
     "message": "Störfaktoren"
   },
@@ -1204,7 +1208,8 @@
     "message": "Keine Einstellung passt."
   },
   "toastSaved": {
-    "message": "Gespeichert"
+    "message": "Gespeichert. Gilt für Seiten, die du öffnest oder neu lädst.",
+    "description": "Settings: short notice after any setting changes. Pages already open keep the old setting until reloaded."
   },
   "navOverview": {
     "message": "Übersicht"

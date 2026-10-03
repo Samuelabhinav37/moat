@@ -752,6 +752,10 @@
   "levelCustomNote": {
     "message": "Estás usando tu propia combinación de listas de filtros."
   },
+  "levelYourMix": {
+    "message": "Tu combinación",
+    "description": "Settings > Protection: small badge on the level card a hand-picked mix of lists is closest to."
+  },
   "featuresTitle": {
     "message": "Molestias"
   },
@@ -1204,7 +1208,8 @@
     "message": "Ningún ajuste coincide."
   },
   "toastSaved": {
-    "message": "Guardado"
+    "message": "Guardado. Se aplica a las páginas que abras o recargues.",
+    "description": "Settings: short notice after any setting changes. Pages already open keep the old setting until reloaded."
   },
   "navOverview": {
     "message": "Resumen"

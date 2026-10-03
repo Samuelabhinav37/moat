@@ -755,6 +755,10 @@
     "message": "You're using your own mix of filter lists.",
     "description": "Settings > Blocking level: note under the level cards when the filter lists don't match any level. Followed by a link to Filter lists."
   },
+  "levelYourMix": {
+    "message": "Your mix",
+    "description": "Settings > Protection: small badge on the level card a hand-picked mix of lists is closest to."
+  },
   "featuresTitle": {
     "message": "Annoyances"
   },
@@ -1207,7 +1211,8 @@
     "message": "No settings match."
   },
   "toastSaved": {
-    "message": "Saved"
+    "message": "Saved. Applies to pages you open or reload.",
+    "description": "Settings: short notice after any setting changes. Pages already open keep the old setting until reloaded."
   },
   "navOverview": {
     "message": "Overview"

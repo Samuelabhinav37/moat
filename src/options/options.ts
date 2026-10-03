@@ -134,8 +134,6 @@ function tFallback(key: string, fallback: string, substitutions?: string | strin
 
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 const explainerPanel = initExplainerPanel(document, tFallback);
-// The filter list rows start open: every width now has the screen to itself.
-(document.getElementById("filter-lists-more") as HTMLDetailsElement | null)?.setAttribute("open", "");
 // Problem reports only appear as a data flow in builds that can send them.
 (document.getElementById("flow-reports") as HTMLElement | null)?.toggleAttribute("hidden", !REPORT_ENDPOINT);
 // Who receives each About data flow, by logo as well as name.
@@ -184,7 +182,7 @@ const savedToast = createSavedToast(
   document.getElementById("saved-toast-action") as HTMLButtonElement
 );
 browser.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && STORAGE_KEY in changes) savedToast.settingsChanged(tFallback("toastSaved", "Saved"));
+  if (area === "local" && STORAGE_KEY in changes) savedToast.settingsChanged(tFallback("toastSaved", "Saved. Applies to pages you open or reload."));
 });
 
 // The per-tab tracker breakdown is fetched lazily, only once its own
@@ -1206,9 +1204,13 @@ function renderLevels(preset: PresetName | "custom", locked: boolean, settings: 
     card.disabled = locked;
   }
   levelNote.hidden = (MAIN_LEVELS as readonly string[]).includes(preset) || preset === "off";
+  for (const badge of document.querySelectorAll("#level-cards .level-mix")) badge.remove();
   if (!levelNote.hidden && preset === "custom") {
-    const mix = mixDescription(settings).text;
-    levelNoteText.textContent = tFallback("filtersLevelMix", `Your mix: ${mix}.`, mix);
+    const mix = mixDescription(settings);
+    levelNoteText.textContent = tFallback("filtersLevelMix", `Your mix: ${mix.text}.`, mix.text);
+    // Mark the card the mix is closest to, so the page shows where you stand.
+    const nearest = document.querySelector(`#level-cards .level[data-level="${mix.base}"] .level-top`);
+    nearest?.append(Object.assign(document.createElement("span"), { className: "level-mix", textContent: tFallback("levelYourMix", "Your mix") }));
   }
 }
 

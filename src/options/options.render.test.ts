@@ -388,7 +388,24 @@ describe("Level cards", () => {
   });
 });
 
+describe("Protection keeps the expert material one step in", () => {
+  it("starts with the filter lists and the rule budget closed", async () => {
+    await renderOptions();
+    const more = document.getElementById("filter-lists-more") as HTMLDetailsElement;
+    expect(more.open).toBe(false);
+    expect(more.querySelector(".budget")).not.toBeNull();
+  });
+});
+
 describe("Hand-picked mix of lists", () => {
+  it("marks the level card the mix is closest to", async () => {
+    const balanced = presetPatch("standard");
+    await renderOptions({ ...balanced, filterGroups: { ...balanced.filterGroups, "social-widgets": true } });
+    const badges = [...document.querySelectorAll("#level-cards .level-mix")];
+    expect(badges).toHaveLength(1);
+    expect(badges[0]!.closest(".level")?.getAttribute("data-level")).toBe("standard");
+  });
+
   it("names the nearest level and what differs, and resets to that level", async () => {
     const balanced = presetPatch("standard");
     await renderOptions({ ...balanced, filterGroups: { ...balanced.filterGroups, "social-widgets": true } });

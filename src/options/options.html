@@ -3344,6 +3344,21 @@
         gap: 16px;
         align-items: start;
       }
+      /* Settings read top to bottom: Privacy is one column, so its groups
+         don't leave ragged gaps beside each other. */
+      #protection-groups {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      /* "Your mix" on the level card a hand-picked mix is closest to. */
+      .level-mix {
+        margin-left: auto;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--tint);
+        color: var(--blue-lt);
+        font-size: 12px;
+        font-weight: 600;
+      }
       .pgroup .sub-h {
         display: flex;
         align-items: baseline;
@@ -4377,13 +4392,15 @@
                   <span class="locked-badge" id="filters-locked-badge" hidden data-i18n="optionsManagedBadge">Managed by your organization</span>
                 </p>
                 <p class="hint muted" id="preset-hint"></p>
-                <div class="budget">
-                  <span id="filters-budget-line"></span>
-                  <div class="budget-bar"><div class="budget-bar-fill" id="filters-budget-fill"></div></div>
-                  <span class="budget-caption" id="filters-budget-caption"></span>
-                </div>
+                <!-- Closed by default: most people choose a level and never need the
+                     lists or the browser's rule budget (progressive disclosure). -->
                 <details class="more" id="filter-lists-more">
                   <summary data-i18n="advShowAllLists">Show all lists</summary>
+                  <div class="budget">
+                    <span id="filters-budget-line"></span>
+                    <div class="budget-bar"><div class="budget-bar-fill" id="filters-budget-fill"></div></div>
+                    <span class="budget-caption" id="filters-budget-caption"></span>
+                  </div>
                   <div class="list-head">
                     <span></span>
                     <a href="#" id="filter-check-updates" data-i18n="aboutCheckFixes">Check for filter fixes</a>

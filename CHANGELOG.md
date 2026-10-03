@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.227
+
+### Changed
+- **Protection is shorter.** The full set of filter lists, and the line about the browser's
+  rule budget, now start closed under "Show all lists". Most people pick a level and never need
+  them. They're one click away, and search still finds every list.
+- **Privacy reads top to bottom** in one column. The two side-by-side groups left gaps.
+- **A hand-picked mix shows where it stands.** The level card your mix is closest to carries a
+  small "Your mix" badge.
+- **"Saved" says when it takes effect:** "Saved. Applies to pages you open or reload."
+- New text in English, Spanish, French and German.
+
 ## 0.11.226
 
 ### Changed
