@@ -508,6 +508,26 @@ describe("Pausing for a while", () => {
     expect(row?.querySelector(".row-note")?.textContent).toMatch(/^Until /);
   });
 
+  it("says where and when a site was paused", async () => {
+    const at = Date.now() - 3 * 86_400_000;
+    await renderOptions({ disabledSites: ["paused.example", "old.example"], pauseInfo: { "paused.example": { at, from: "popup" } } });
+    const rows = [...document.querySelectorAll("#site-list li")];
+    const note = (host: string) => rows.find((li) => li.textContent?.includes(host))?.querySelector(".row-note")?.textContent ?? null;
+    expect(note("paused.example")).toBe("From Moat's icon, 3 days ago");
+    expect(note("old.example")).toBeNull();
+  });
+
+  it("shows the Per site tab only when something was changed for one site", async () => {
+    await renderOptions({ perSiteOverrides: {} });
+    expect(document.getElementById("tab-persite")!.hidden).toBe(true);
+  });
+
+  it("shows the Per site tab with the sites' changes once there are some", async () => {
+    await renderOptions({ perSiteOverrides: { "a.example": { hideSeoSpamResults: false } } });
+    expect(document.getElementById("tab-persite")!.hidden).toBe(false);
+    expect(document.querySelector('section[data-tab="persite"] #override-list')).not.toBeNull();
+  });
+
   it("asks how long when a site is switched off on Sites, and puts the switch back on cancel", async () => {
     await renderOptions({ disabledSites: [] });
     const input = document.querySelector<HTMLInputElement>("#s-table .switch input");

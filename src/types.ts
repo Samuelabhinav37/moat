@@ -5,6 +5,10 @@ export interface Settings {
    * disabledSites. A paused site with no entry here stays paused until
    * resumed. background/pauseExpiry.ts ends each one on time. */
   pausedUntil: Record<string, number>;
+  /** When and where each site in disabledSites was paused, so Exceptions can
+   * say "From the popup, 3 days ago". Sites paused before this was recorded
+   * simply have no entry. */
+  pauseInfo: Record<string, PauseInfo>;
   /** Master on/off switch. */
   enabled: boolean;
   /**
@@ -175,9 +179,21 @@ export type OverridableSettingKey =
   | "aggressiveFeedAdRemoval"
   | "hideSeoSpamResults";
 
+/** Where a pause came from: Moat's icon, the Sites table, the Exceptions
+ * add box, or the "Report a mistake" page. */
+export type PauseSource = "popup" | "sites" | "exceptions" | "report";
+export const PAUSE_SOURCES: readonly PauseSource[] = ["popup", "sites", "exceptions", "report"];
+
+export interface PauseInfo {
+  /** When the pause started (epoch ms). */
+  at: number;
+  from?: PauseSource;
+}
+
 export const DEFAULT_SETTINGS: Settings = {
   disabledSites: [],
   pausedUntil: {},
+  pauseInfo: {},
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,
@@ -275,6 +291,8 @@ export interface ToggleSiteMessage {
   disabled: boolean;
   /** Pause only until this time (epoch ms). Omitted: until resumed. */
   until?: number;
+  /** Where the pause came from, recorded in Settings.pauseInfo. */
+  from?: PauseSource;
 }
 
 /** Sent by the popup's per-site "Customize for this site" panel -- see

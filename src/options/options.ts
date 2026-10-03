@@ -12,7 +12,7 @@ import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
 import { applyBulkSelect, type BulkLabels } from "./bulkSelect";
 import { buildSiteIcon, faviconUrl } from "./siteIcon";
-import { initDashboard, pageFromHash } from "./dashboard";
+import { initDashboard, pageFromHash, showTab } from "./dashboard";
 import { buildExplainer, helpSceneFor, initExplainerPanel } from "./explainerPanel";
 import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
@@ -33,6 +33,7 @@ import { customRuleStatKey, isStale } from "../shared/customRuleStats";
 import { validateImportedSettings } from "../background/settingsPortability";
 import { summarizeSettingsImport } from "../shared/settingsDiff";
 import type {
+  PauseSource,
   AddCustomDomainMessage,
   AddCustomDomainResponse,
   CheckForLiveUpdatesMessage,
@@ -85,8 +86,8 @@ async function setSettings(patch: Partial<Settings>): Promise<void> {
   await browser.runtime.sendMessage(message);
 }
 
-async function setSiteDisabled(hostname: string, disabled: boolean, until?: number): Promise<void> {
-  const message: ToggleSiteMessage = { type: "toggle-site", hostname, disabled, ...(until !== undefined ? { until } : {}) };
+async function setSiteDisabled(hostname: string, disabled: boolean, until?: number, from?: PauseSource): Promise<void> {
+  const message: ToggleSiteMessage = { type: "toggle-site", hostname, disabled, ...(until !== undefined ? { until } : {}), ...(from ? { from } : {}) };
   await browser.runtime.sendMessage(message);
 }
 
@@ -721,6 +722,13 @@ async function setSiteOverrides(entry: SiteOverrideEntry, restore: boolean): Pro
 function renderSiteOverrides(settings: Settings): void {
   const entries = siteOverrideEntries(settings.perSiteOverrides);
   overrideEmpty.style.display = entries.length ? "none" : "";
+  // The "Per site" tab only appears once something was changed for one site.
+  // Resetting the last one while it's open moves back to Paused.
+  const tabButton = document.getElementById("tab-persite");
+  if (tabButton) {
+    tabButton.hidden = entries.length === 0;
+    if (tabButton.hidden && tabButton.getAttribute("aria-selected") === "true" && pageFromHash(location.hash) === "exceptions") showTab("exceptions", "paused");
+  }
   const on = tFallback("commonOn", "on");
   const off = tFallback("commonOff", "off");
   overrideList.replaceChildren(
@@ -1784,7 +1792,7 @@ async function rerenderSiteList(): Promise<void> {
     rerenderSiteList,
     undoResume,
     bulkResume,
-    (hostname) => pausedUntilNote(settings.pausedUntil[hostname])
+    (hostname) => pausedNote(settings, hostname)
   );
 }
 
@@ -1793,6 +1801,36 @@ function pausedUntilNote(until: number | undefined): string | null {
   if (until === undefined) return null;
   const when = pauseEndLabel(until, Date.now(), tFallback("pauseTomorrow", "tomorrow"));
   return tFallback("pauseUntil", `Until ${when}`, when);
+}
+
+/** "From the popup, 3 days ago", then "Until 3:40 PM" for a timed pause.
+ * Pauses from before Moat recorded this show only the end time. */
+function pausedNote(settings: Settings, hostname: string): string | null {
+  const info = settings.pauseInfo[hostname];
+  const parts: string[] = [];
+  if (info) {
+    const when = timeAgo(info.at, Date.now());
+    const where: Record<PauseSource, string> = {
+      popup: tFallback("pausedFromPopup", `From Moat's icon, ${when}`, when),
+      sites: tFallback("pausedFromSites", `From Sites, ${when}`, when),
+      exceptions: tFallback("pausedFromExceptions", `Added here, ${when}`, when),
+      report: tFallback("pausedFromReport", `While reporting a problem, ${when}`, when),
+    };
+    parts.push(info.from ? where[info.from] : tFallback("pausedAt", `Paused ${when}`, when));
+  }
+  const until = pausedUntilNote(settings.pausedUntil[hostname]);
+  if (until) parts.push(until);
+  return parts.length ? parts.join(" · ") : null;
+}
+
+/** "just now", "5 minutes ago", "yesterday", "3 days ago", in the page's language. */
+function timeAgo(at: number, now: number): string {
+  const minutes = Math.round((at - now) / 60_000);
+  if (minutes > -1) return tFallback("timeJustNow", "just now");
+  const rel = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  if (minutes > -60) return rel.format(minutes, "minute");
+  if (minutes > -1440) return rel.format(Math.round(minutes / 60), "hour");
+  return rel.format(Math.round(minutes / 1440), "day");
 }
 
 function pauseMenuLabels(hostname: string) {
@@ -1884,7 +1922,7 @@ async function render(): Promise<void> {
     rerenderSiteList,
     undoResume,
     bulkResume,
-    (hostname) => pausedUntilNote(settings.pausedUntil[hostname])
+    (hostname) => pausedNote(settings, hostname)
   );
 
   renderSiteOverrides(settings);
@@ -1975,7 +2013,7 @@ addButton.addEventListener("click", async () => {
   const hostname = normalizeHostname(addInput.value);
   if (!hostname) return;
   const length = (document.getElementById("add-length") as HTMLSelectElement).value as PauseLength;
-  await setSiteDisabled(hostname, true, pauseEnd(length, Date.now()));
+  await setSiteDisabled(hostname, true, pauseEnd(length, Date.now()), "exceptions");
   addInput.value = "";
   await rerenderSiteList();
 });
@@ -2390,11 +2428,11 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
             input.focus();
             return;
           }
-          void setSiteDisabled(site.hostname, true, pauseEnd(choice, Date.now())).then(() => render());
+          void setSiteDisabled(site.hostname, true, pauseEnd(choice, Date.now()), "sites").then(() => render());
         });
       })
     );
-    const until = paused ? pausedUntilNote(settings.pausedUntil[site.hostname]) : null;
+    const until = paused ? pausedNote(settings, site.hostname) : null;
     if (until) control.append(Object.assign(document.createElement("small"), { className: "row-note", textContent: until }));
     row.append(name, barCell, total, control);
     tbody.append(row);

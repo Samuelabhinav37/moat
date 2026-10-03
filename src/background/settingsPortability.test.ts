@@ -37,6 +37,16 @@ describe("validateImportedSettings", () => {
     expect(patch).toEqual({ enabled: false });
   });
 
+  it("accepts pause records and rejects malformed ones", () => {
+    expect(validateImportedSettings({ pauseInfo: { "a.example": { at: 5, from: "popup" }, "b.example": { at: 6 } } })).toEqual({
+      pauseInfo: { "a.example": { at: 5, from: "popup" }, "b.example": { at: 6 } },
+    });
+    expect(validateImportedSettings({ pauseInfo: { "a.example": { at: 5, from: "elsewhere" } } })).toBeNull();
+    expect(validateImportedSettings({ pauseInfo: { "a.example": { at: "5" } } })).toBeNull();
+    expect(validateImportedSettings({ pauseInfo: { "a.example": { at: 5, extra: 1 } } })).toBeNull();
+    expect(validateImportedSettings({ pauseInfo: [] })).toBeNull();
+  });
+
   it("accepts the three theme choices and rejects anything else", () => {
     expect(validateImportedSettings({ theme: "light" })).toEqual({ theme: "light" });
     expect(validateImportedSettings({ theme: "system" })).toEqual({ theme: "system" });

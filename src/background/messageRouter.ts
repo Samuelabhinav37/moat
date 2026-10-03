@@ -56,6 +56,7 @@ import type {
   StartElementPickerResponse,
   StatusResponse,
 } from "../types";
+import { PAUSE_SOURCES, type PauseSource } from "../types";
 import type { PopupUiNotices } from "./updateNotice";
 import { getLastNormalTabId, isNormalPageUrl, pickBestNormalTab } from "./lastNormalTab";
 import { getGroupBreakdown, isMatchedRulesSupported } from "./matchStats";
@@ -207,7 +208,8 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
       // A timed pause must end in the future, and within a year.
       const until = message.until;
       if (until !== undefined && (typeof until !== "number" || !Number.isFinite(until) || until <= Date.now() || until > Date.now() + 366 * 864e5)) return undefined;
-      return setSiteDisabled(message.hostname, message.disabled === true, until).then(() => undefined);
+      const from = PAUSE_SOURCES.includes(message.from as PauseSource) ? message.from : undefined;
+      return setSiteDisabled(message.hostname, message.disabled === true, until, from).then(() => undefined);
     }
 
     case "set-per-site-override": {

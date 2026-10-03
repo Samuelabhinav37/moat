@@ -103,7 +103,7 @@ describe("opened from the popup for a tab", () => {
     await openPage("?tab=5");
     $("pause-now").click();
     await vi.waitFor(() => expect(tabsReload).toHaveBeenCalledWith(5));
-    expect(sendMessage).toHaveBeenCalledWith({ type: "toggle-site", hostname: "example.com", disabled: true });
+    expect(sendMessage).toHaveBeenCalledWith({ type: "toggle-site", hostname: "example.com", disabled: true, from: "report" });
     expect($("pause-now").hidden).toBe(true);
   });
 });

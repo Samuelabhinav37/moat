@@ -105,6 +105,7 @@ describe("getSettings", () => {
     expect(await getSettings()).toEqual({
       disabledSites: [],
       pausedUntil: {},
+      pauseInfo: {},
       enabled: true,
       webrtcLeakProtection: false,
       blockThirdPartyCookies: false,
@@ -159,6 +160,24 @@ describe("timed pauses", () => {
     expect(await endExpiredPauses(2_000)).toBe(1);
     expect(await getSettings()).toMatchObject({ disabledSites: ["later.example", "always.example"], pausedUntil: { "later.example": 9_000 } });
     expect(await endExpiredPauses(2_000)).toBe(0);
+  });
+
+  it("records where and when a pause started, keeps it when the length changes, and forgets it on resume", async () => {
+    const before = Date.now();
+    await setSiteDisabled("a.example", true, undefined, "popup");
+    const info = (await getSettings()).pauseInfo["a.example"];
+    expect(info?.from).toBe("popup");
+    expect(info!.at).toBeGreaterThanOrEqual(before);
+    await setSiteDisabled("a.example", true, Date.now() + 60_000, "sites");
+    expect((await getSettings()).pauseInfo["a.example"]).toEqual(info);
+    await setSiteDisabled("a.example", false);
+    expect((await getSettings()).pauseInfo).toEqual({});
+  });
+
+  it("forgets where a pause came from when it ends by itself", async () => {
+    await setSiteDisabled("soon.example", true, 1_000, "exceptions");
+    await endExpiredPauses(2_000);
+    expect((await getSettings()).pauseInfo).toEqual({});
   });
 });
 

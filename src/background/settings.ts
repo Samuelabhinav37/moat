@@ -4,6 +4,7 @@ import {
   SETTINGS_PATCH_ALLOWED_FIELDS,
   STORAGE_KEY,
   type OverridableSettingKey,
+  type PauseSource,
   type Settings,
 } from "../types";
 import { PRESETS } from "../shared/filterPresets";
@@ -230,16 +231,22 @@ export async function isSiteDisabled(hostname: string): Promise<boolean> {
 }
 
 /** Pauses or resumes a site. `until` (epoch ms) makes the pause end by
- * itself; without it the pause lasts until resumed. */
-export function setSiteDisabled(hostname: string, disabled: boolean, until?: number): Promise<Settings> {
+ * itself; without it the pause lasts until resumed. A new pause records
+ * when and where it started (`from`); changing how long an existing pause
+ * lasts keeps the original record. */
+export function setSiteDisabled(hostname: string, disabled: boolean, until?: number, from?: PauseSource): Promise<Settings> {
   return mutateSettings((current) => {
     const set = new Set(current.disabledSites);
     const pausedUntil = { ...current.pausedUntil };
+    const pauseInfo = { ...current.pauseInfo };
+    const wasPaused = set.has(hostname);
     if (disabled) set.add(hostname);
     else set.delete(hostname);
     if (disabled && until !== undefined) pausedUntil[hostname] = until;
     else delete pausedUntil[hostname];
-    return { disabledSites: [...set], pausedUntil };
+    if (!disabled) delete pauseInfo[hostname];
+    else if (!wasPaused || !pauseInfo[hostname]) pauseInfo[hostname] = { at: Date.now(), ...(from ? { from } : {}) };
+    return { disabledSites: [...set], pausedUntil, pauseInfo };
   });
 }
 
@@ -251,8 +258,12 @@ export async function endExpiredPauses(now: number): Promise<number> {
     ended = expired.length;
     if (!expired.length) return null;
     const pausedUntil = { ...current.pausedUntil };
-    for (const host of expired) delete pausedUntil[host];
-    return { disabledSites: current.disabledSites.filter((host) => !expired.includes(host)), pausedUntil };
+    const pauseInfo = { ...current.pauseInfo };
+    for (const host of expired) {
+      delete pausedUntil[host];
+      delete pauseInfo[host];
+    }
+    return { disabledSites: current.disabledSites.filter((host) => !expired.includes(host)), pausedUntil, pauseInfo };
   });
   return ended;
 }

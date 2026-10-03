@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.229
+
+### Changed
+- **"Always and never" is now "Allow and block".** Those are the words Chrome and Firefox use,
+  so they're the words people search for.
+- **Settings changed for one site have their own tab, "Per site".** They used to sit under
+  Paused, which they aren't. The tab only shows up once you've changed something for a site.
+
+### Added
+- **Paused sites say where and when.** "From Moat's icon, 3 days ago" sits under each site
+  you paused from now on, so an old pause you forgot about is easy to spot. Exports and
+  imports carry it too.
+
 ## 0.11.228
 
 ### Changed

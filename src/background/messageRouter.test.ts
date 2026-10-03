@@ -185,10 +185,13 @@ describe("handleMessage: get-status", () => {
 describe("handleMessage: settings writes", () => {
   it("routes valid writes to the matching settings function", async () => {
     await send({ type: "toggle-site", hostname: "a.example", disabled: true });
-    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true, undefined);
+    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true, undefined, undefined);
     const inAnHour = Date.now() + 3600_000;
-    await send({ type: "toggle-site", hostname: "a.example", disabled: true, until: inAnHour });
-    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true, inAnHour);
+    await send({ type: "toggle-site", hostname: "a.example", disabled: true, until: inAnHour, from: "popup" });
+    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true, inAnHour, "popup");
+    // An unknown source is dropped, the pause still goes through.
+    await send({ type: "toggle-site", hostname: "a.example", disabled: true, from: "elsewhere" });
+    expect(settingsModule.setSiteDisabled).toHaveBeenLastCalledWith("a.example", true, undefined, undefined);
     // A pause that would already be over, or last more than a year, is refused.
     expect(send({ type: "toggle-site", hostname: "a.example", disabled: true, until: Date.now() - 1 })).toBeUndefined();
     expect(send({ type: "toggle-site", hostname: "a.example", disabled: true, until: Date.now() + 400 * 864e5 })).toBeUndefined();
@@ -303,7 +306,7 @@ describe("who may send what", () => {
 
   it("still accepts privileged messages from Moat's own pages", async () => {
     await send({ type: "toggle-site", hostname: "a.example", disabled: true }, pageSender);
-    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true, undefined);
+    expect(settingsModule.setSiteDisabled).toHaveBeenCalledWith("a.example", true, undefined, undefined);
   });
 
   it("files a picker rule under the tab's site, not the hostname the page sent", async () => {

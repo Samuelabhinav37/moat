@@ -1273,7 +1273,7 @@
     "message": "Privacidad"
   },
   "navRules": {
-    "message": "Reglas propias"
+    "message": "Permitir y bloquear"
   },
   "navGroupExceptions": {
     "message": "Tus excepciones"
@@ -2219,8 +2219,12 @@
     "description": "Exceptions page tab: parts of pages you hid."
   },
   "tabRules": {
-    "message": "Siempre y nunca",
-    "description": "Exceptions page tab: sites you always block or never block."
+    "message": "Permitir y bloquear",
+    "description": "Exceptions page tab: sites you always allow or always block."
+  },
+  "tabPerSite": {
+    "message": "Por sitio",
+    "description": "Exceptions page tab, shown once a setting was changed for a single site."
   },
   "ovStatusOn": {
     "message": "La protección está activada",
@@ -3075,6 +3079,60 @@
       }
     },
     "description": "Settings: when a timed pause ends, under the site. WHEN is a time, 'tomorrow 9:00 AM' or 'Mon 9:00 AM'."
+  },
+  "pausedFromPopup": {
+    "message": "Desde el icono de Moat, $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    },
+    "description": "Exceptions > Paused: under a site paused from Moat's toolbar icon. WHEN is relative, like '3 days ago'."
+  },
+  "pausedFromSites": {
+    "message": "Desde Sitios, $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    },
+    "description": "Exceptions > Paused: under a site paused from the Sites table."
+  },
+  "pausedFromExceptions": {
+    "message": "Añadido aquí, $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    },
+    "description": "Exceptions > Paused: under a site added with the box on this page."
+  },
+  "pausedFromReport": {
+    "message": "Al informar de un problema, $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    },
+    "description": "Exceptions > Paused: under a site paused while reporting a problem."
+  },
+  "pausedAt": {
+    "message": "En pausa $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    },
+    "description": "Exceptions > Paused: under a paused site when where it was paused isn't known."
+  },
+  "timeJustNow": {
+    "message": "ahora mismo",
+    "description": "A moment ago."
   },
   "pauseTomorrow": {
     "message": "mañana",

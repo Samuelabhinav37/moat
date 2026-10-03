@@ -16,6 +16,7 @@ const { CUSTOM_BLOCK_ID_START, CUSTOM_ALLOW_ID_START } = await import("./customR
 const baseSettings: Settings = {
   disabledSites: [],
   pausedUntil: {},
+  pauseInfo: {},
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,

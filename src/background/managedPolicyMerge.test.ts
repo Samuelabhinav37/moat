@@ -5,6 +5,7 @@ import type { ManagedPolicy, Settings } from "../types";
 const baseSettings: Settings = {
   disabledSites: [],
   pausedUntil: {},
+  pauseInfo: {},
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,

@@ -160,7 +160,7 @@ export function initDashboard(win: Window = window, onShow?: (key: PageKey) => v
     // Arrow keys move between tabs, as in any tab list.
     btn.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
-      const all = Array.from(btn.parentElement!.querySelectorAll<HTMLElement>("[data-tab-btn]"));
+      const all = Array.from(btn.parentElement!.querySelectorAll<HTMLElement>("[data-tab-btn]")).filter((b) => !b.hidden);
       const next = all[(all.indexOf(btn) + (event.key === "ArrowRight" ? 1 : all.length - 1)) % all.length]!;
       next.click();
       next.focus();
@@ -170,7 +170,8 @@ export function initDashboard(win: Window = window, onShow?: (key: PageKey) => v
 
   const lists = (...ids: string[]) => ids.map((id) => doc.getElementById(id)).filter((el): el is HTMLElement => el !== null);
   const counts: [string, HTMLElement[]][] = [
-    ["tab-count-paused", lists("site-list", "override-list")],
+    ["tab-count-paused", lists("site-list")],
+    ["tab-count-persite", lists("override-list")],
     ["tab-count-hidden", lists("hidden-element-rows", "grayscale-element-rows")],
     ["tab-count-rules", lists("custom-block-list", "custom-allow-list")],
     ["nav-count-exceptions", lists("site-list", "override-list", "hidden-element-rows", "grayscale-element-rows", "custom-block-list", "custom-allow-list")],

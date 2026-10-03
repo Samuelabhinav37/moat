@@ -3,7 +3,7 @@
 // testable without a browser extension context. Used by both the export/import
 // message handlers in background/index.ts and the storage.sync mirror in
 // settings.ts.
-import { DEFAULT_SETTINGS, type Settings } from "../types";
+import { DEFAULT_SETTINGS, PAUSE_SOURCES, type PauseInfo, type PauseSource, type Settings } from "../types";
 import { isSafeCosmeticSelector } from "../shared/selectorSafety";
 import { OVERRIDABLE_KEYS } from "../shared/perSiteOverrides";
 import { MAX_ARRAY_LENGTH, MAX_RECORD_KEYS, MAX_STRING_LENGTH } from "../shared/importBounds";
@@ -94,6 +94,21 @@ function isPauseEndMap(value: unknown): value is Record<string, number> {
   return entries.every(([host, until]) => host.length > 0 && host.length <= MAX_STRING_LENGTH && typeof until === "number" && Number.isFinite(until) && until > 0);
 }
 
+/** Hostname -> {at, from?} (Settings.pauseInfo). */
+function isPauseInfoMap(value: unknown): value is Record<string, PauseInfo> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const entries = Object.entries(value);
+  if (entries.length > MAX_RECORD_KEYS) return false;
+  return entries.every(([host, info]) => {
+    if (host.length === 0 || host.length > MAX_STRING_LENGTH) return false;
+    if (typeof info !== "object" || info === null || Array.isArray(info)) return false;
+    const { at, from, ...rest } = info as Record<string, unknown>;
+    if (Object.keys(rest).length) return false;
+    if (typeof at !== "number" || !Number.isFinite(at) || at <= 0) return false;
+    return from === undefined || PAUSE_SOURCES.includes(from as PauseSource);
+  });
+}
+
 /** Rejects the whole payload (returns null) rather than partially applying
  * anything malformed -- checks every DEFAULT_SETTINGS key present in the
  * payload against its expected shape; a field simply missing from an older
@@ -129,6 +144,8 @@ export function validateImportedSettings(value: unknown): Partial<Settings> | nu
       if (!isPerSiteOverrideMap(actual)) return null;
     } else if (key === "pausedUntil") {
       if (!isPauseEndMap(actual)) return null;
+    } else if (key === "pauseInfo") {
+      if (!isPauseInfoMap(actual)) return null;
     } else if (key === "theme") {
       if (typeof actual !== "string" || !THEME_CHOICES.has(actual)) return null;
     } else if (typeof actual !== "boolean") {

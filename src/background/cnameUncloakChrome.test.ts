@@ -23,6 +23,7 @@ const { resetCnameDestinationsForTest } = await import("./cnameDestinations");
 const baseSettings: Settings = {
   disabledSites: [],
   pausedUntil: {},
+  pauseInfo: {},
   enabled: true,
   webrtcLeakProtection: false,
   blockThirdPartyCookies: false,

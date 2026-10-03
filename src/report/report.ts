@@ -143,7 +143,7 @@ form.addEventListener("change", refresh);
 
 pauseNow.addEventListener("click", async () => {
   if (!tabHostname || tabId === null) return;
-  await browser.runtime.sendMessage({ type: "toggle-site", hostname: tabHostname, disabled: true } satisfies ToggleSiteMessage);
+  await browser.runtime.sendMessage({ type: "toggle-site", hostname: tabHostname, disabled: true, from: "report" } satisfies ToggleSiteMessage);
   await browser.tabs.reload(tabId).catch(() => {});
   pauseNow.hidden = true;
   pauseStatus.hidden = false;

@@ -405,7 +405,7 @@ async function render(): Promise<void> {
   for (const button of pauseLength.querySelectorAll<HTMLButtonElement>("button[data-length]")) {
     button.addEventListener("click", () => {
       const until = pauseEnd(button.dataset.length as PauseLength, Date.now());
-      const message: ToggleSiteMessage = { type: "toggle-site", hostname: status.hostname, disabled: true, ...(until !== undefined ? { until } : {}) };
+      const message: ToggleSiteMessage = { type: "toggle-site", hostname: status.hostname, disabled: true, from: "popup", ...(until !== undefined ? { until } : {}) };
       void browser.runtime.sendMessage(message);
       showPauseLength(until);
     });
@@ -413,7 +413,7 @@ async function render(): Promise<void> {
 
   toggle.addEventListener("change", () => {
     const disabled = !toggle.checked;
-    const message: ToggleSiteMessage = { type: "toggle-site", hostname: status.hostname, disabled };
+    const message: ToggleSiteMessage = { type: "toggle-site", hostname: status.hostname, disabled, from: "popup" };
     void browser.runtime.sendMessage(message);
     setPaused(disabled || !status.enabled, disabled);
     if (disabled && status.enabled) showPauseLength(undefined);
