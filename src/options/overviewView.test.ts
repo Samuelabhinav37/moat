@@ -55,6 +55,17 @@ describe("buildWeekChart", () => {
     expect(cols[1]!.classList.contains("sel")).toBe(false);
   });
 
+  it("draws each bar at its true height, split by share", () => {
+    // 57 on a 0-100 scale: the bar is 57% tall and its parts fill it.
+    const chart = buildWeekChart(document, [day("Mon", 0, 0, 0), day("Today", 25, 31, 1, 0, true)], t);
+    const stack = chart.querySelectorAll<HTMLElement>(".ovc-stack")[1]!;
+    expect(parseFloat(stack.style.height)).toBeCloseTo(57, 5);
+    const parts = [...stack.querySelectorAll<HTMLElement>(".ovc-seg")].map((s) => parseFloat(s.style.height));
+    expect(parts[0]).toBeCloseTo((25 / 57) * 100, 5);
+    expect(parts[1]).toBeCloseTo((31 / 57) * 100, 5);
+    expect(parts[2]).toBe(3);
+  });
+
   it("gives screen readers the numbers as a table", () => {
     const chart = buildWeekChart(document, [day("Mon", 10, 20, 1), day("Today", 1, 2, 0, 0, true)], t);
     const rows = [...chart.querySelectorAll("table.sr-only tr")].map((tr) => [...tr.children].map((c) => c.textContent));

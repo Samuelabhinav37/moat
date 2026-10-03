@@ -76,7 +76,8 @@ export function buildWeekChart(doc: Document, days: DayColumn[], t: Translate): 
     const segment = (count: number, cls: string) => {
       if (count <= 0) return;
       const seg = el(doc, "span", `ovc-seg ${cls}`);
-      seg.style.height = `${Math.max(3, (count / top) * 100)}%`;
+      // A share of this day's bar, which is already sized against the scale.
+      seg.style.height = `${Math.max(3, (count / total) * 100)}%`;
       stack.append(seg);
     };
     segment(day.kinds.ads, "k-ads");

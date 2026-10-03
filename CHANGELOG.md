@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.244
+
+### Fixed
+- **Overview's weekly chart draws each day at its real height.** Each day's coloured parts were
+  scaled twice, so every bar fell short of its number: 57 on a 0 to 100 scale drew at about 33,
+  and a busy day of 1,704 drew near 1,450. The bars now reach the numbers above them. This had
+  been the case since the chart arrived in 0.11.205.
+
 ## 0.11.243
 
 ### Fixed
