@@ -521,17 +521,6 @@
   "optionsRuleStaleMeta": {
     "message": "No coincide desde hace 30 días. Probablemente el sitio cambió."
   },
-  "optionsTrackersDesc": {
-    "message": "Empresas que Moat ha frenado esta semana. Se cuentan en tu dispositivo y nunca se suben."
-  },
-  "optionsCompanyReach": {
-    "message": "$COUNT$ sitios",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
   "warningBadge": {
     "message": "Bloqueado por política de la organización"
   },
@@ -809,25 +798,6 @@
   },
   "commonPause": {
     "message": "Pausar"
-  },
-  "advTrackersSummary": {
-    "message": "De los bloqueos de esta semana, $ATTEMPTS$ vinieron de $COMPANIES$ empresas que Moat puede identificar.",
-    "placeholders": {
-      "companies": {
-        "content": "$1"
-      },
-      "attempts": {
-        "content": "$2"
-      }
-    }
-  },
-  "advTrackersSummaryOne": {
-    "message": "De los bloqueos de esta semana, $ATTEMPTS$ vinieron de una empresa que Moat puede identificar.",
-    "placeholders": {
-      "attempts": {
-        "content": "$1"
-      }
-    }
   },
   "advTrackersOnTab": {
     "message": "En la última pestaña que usaste"
@@ -1296,9 +1266,6 @@
   "ovLevelCustom": {
     "message": "Tu propia combinación"
   },
-  "optionsCompanyReachOne": {
-    "message": "1 sitio"
-  },
   "toastUndo": {
     "message": "Deshacer"
   },
@@ -1445,9 +1412,6 @@
   },
   "explainBackup": {
     "message": "Una copia de seguridad es un archivo de texto que puedes abrir y leer. La sincronización mantiene los mismos ajustes en tus otros ordenadores."
-  },
-  "advTrackersEmptyWeek": {
-    "message": "Ninguna todavía esta semana. Las empresas aparecen aquí a medida que Moat detiene sus rastreadores mientras navegas."
   },
   "pickerHint": {
     "message": "Haz clic en cualquier cosa para ocultarla. Pulsa Esc para cancelar."
@@ -2453,10 +2417,6 @@
     "message": "Páginas que Moat detuvo antes de cargarse",
     "description": "Security page subtitle."
   },
-  "insAllCompanies": {
-    "message": "Todas las empresas",
-    "description": "Trackers page: full company list card."
-  },
   "insWhoTitle": {
     "message": "Quién te rastrea",
     "description": "Trackers page card title."
@@ -2499,9 +2459,19 @@
     "message": "Empresas",
     "description": "Number card label."
   },
-  "insKpiTrackerSites": {
-    "message": "Sitios con rastreadores",
-    "description": "Number card label."
+  "insKpiCompaniesNote": {
+    "message": "en $WITH$ de los $ALL$ sitios que visitaste",
+    "placeholders": {
+      "with": {
+        "content": "$1",
+        "example": "4"
+      },
+      "all": {
+        "content": "$2",
+        "example": "7"
+      }
+    },
+    "description": "Trackers page, under the number of tracker companies: on how many of this week's sites they were found."
   },
   "insKpiStopped": {
     "message": "Páginas detenidas",
@@ -2578,6 +2548,26 @@
         "example": "58"
       }
     }
+  },
+  "insBlockedShort": {
+    "message": "$COUNT$ bloqueados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,335"
+      }
+    },
+    "description": "Trackers page, a company row: how many requests from it were blocked this week."
+  },
+  "insLearnMore": {
+    "message": "Más información sobre $COMPANY$",
+    "placeholders": {
+      "company": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Trackers page, an opened company row: link to the company's own website."
   },
   "insSeenOn": {
     "message": "Visto en",

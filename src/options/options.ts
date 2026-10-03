@@ -1865,7 +1865,6 @@ async function render(): Promise<void> {
 
   await renderProtectionTab(settings);
   if (lastUsage) {
-    renderWeeklyTrackers(lastUsage);
     renderOverview(settings, lastUsage);
     void renderInsights(settings, lastUsage);
   }
@@ -2061,61 +2060,6 @@ const trackersSubhead = document.getElementById("trackers-subhead") as HTMLEleme
 const trackersEmpty = document.getElementById("trackers-empty") as HTMLElement;
 const trackersUnsupported = document.getElementById("trackers-unsupported") as HTMLElement;
 const trackersRefresh = document.getElementById("trackers-refresh") as HTMLAnchorElement;
-
-/** The weekly aggregate (fed by usageStats.ts, real local history) sits
- * above the existing live per-tab breakdown below -- unrelated data
- * sources, both real, shown together. */
-function renderWeeklyTrackers(usage: UsageSummaryResponse): void {
-  const companies = usage.companiesThisWeek.length.toLocaleString();
-  const attempts = usage.companiesThisWeek.reduce((sum, company) => sum + company.count, 0).toLocaleString();
-  document.getElementById("weekly-tracker-summary")!.textContent =
-    usage.companiesThisWeek.length === 0
-      ? tFallback("advTrackersEmptyWeek", "None yet this week. Companies show up here as Moat stops their trackers while you browse.")
-      : usage.companiesThisWeek.length === 1
-        ? tFallback("advTrackersSummaryOne", `Of this week's blocks, ${attempts} came from one company Moat can name.`, [attempts])
-        : tFallback("advTrackersSummary", `Of this week's blocks, ${attempts} came from ${companies} companies Moat can name.`, [companies, attempts]);
-
-  const container = document.getElementById("weekly-tracker-rows") as HTMLElement;
-  const top = usage.companiesThisWeek.slice(0, 20);
-  const maxCount = Math.max(...top.map((company) => company.count), 1);
-  container.replaceChildren(
-    ...top.map((company) => {
-      const row = document.createElement("div");
-      row.className = "weekly-tracker-row";
-
-      const nameCell = document.createElement("div");
-      nameCell.className = "wt-name-cell";
-      const name = document.createElement("div");
-      name.className = "wt-name";
-      name.textContent = company.company;
-      const reach = document.createElement("div");
-      reach.className = "wt-reach";
-      reach.textContent =
-        company.hostnameCount === 1
-          ? tFallback("optionsCompanyReachOne", "1 site")
-          : tFallback("optionsCompanyReach", `${company.hostnameCount} sites`, String(company.hostnameCount));
-      nameCell.append(name, reach);
-
-      // Fill is relative to the top company's own count, not a total -- a
-      // share-of-100% chart would imply a completeness this data doesn't
-      // have (only a fraction of trackers carry a known company mapping).
-      const track = document.createElement("div");
-      track.className = "wt-bar-track";
-      const fill = document.createElement("div");
-      fill.className = "wt-bar-fill";
-      fill.style.width = `${Math.max((company.count / maxCount) * 100, 4)}%`;
-      track.append(fill);
-
-      const count = document.createElement("div");
-      count.className = "wt-count";
-      count.textContent = company.count.toLocaleString();
-
-      row.append(nameCell, track, count);
-      return row;
-    })
-  );
-  applyLongList(container, longListLabels);
-}
 
 // ---------- Overview ----------
 
@@ -2322,8 +2266,15 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
   // Trackers
   document.getElementById("t-kpis")?.replaceChildren(
     buildKpi(document, tFallback("ovKpiTrackers", "Trackers blocked"), usage.weekKinds.trackers, changePercent(usage.weekKinds.trackers, prev?.kinds.trackers), usage.dailyKinds.slice(0, 6).map((d) => d.trackers), tFallback),
-    buildKpi(document, tFallback("insKpiCompanies", "Companies"), companies.length, changePercent(companies.length, prev?.companies), usage.companiesTrend.slice(0, 6), tFallback),
-    buildKpi(document, tFallback("insKpiTrackerSites", "Sites with trackers"), usage.trackerSiteCount, null, [], tFallback)
+    buildKpi(
+      document,
+      tFallback("insKpiCompanies", "Companies"),
+      companies.length,
+      null,
+      usage.companiesTrend.slice(0, 6),
+      tFallback,
+      tFallback("insKpiCompaniesNote", `on ${usage.trackerSiteCount} of the ${usage.weekSiteCount} sites you visited`, [String(usage.trackerSiteCount), String(usage.weekSiteCount)])
+    )
   );
   const top = companies[0];
   setTakeaway(
@@ -2332,24 +2283,32 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
       ? [{ bold: top.company }, ` ${tFallback("insWhoTake", `was on ${Math.round((top.hostnameCount / sitesThisWeek) * 100)}% of the sites you visited. Pick a company to see where.`, String(Math.round((top.hostnameCount / sitesThisWeek) * 100)))}`]
       : [tFallback("ovTopTrackersEmpty", "No tracker companies this week yet.")]
   );
-  document.getElementById("t-who")?.replaceChildren(
-    buildReachRows(
-      document,
-      companies.slice(0, 8).map((c) => {
-        const host = companyHost(info, c.company);
-        return {
-          company: c.company,
-          icon: host ? siteIcon(host) : buildSiteIcon(document, c.company, null),
-          sites: c.hostnameCount,
-          ofSites: sitesThisWeek,
-          blocks: c.count,
-          description: info[c.company]?.description ?? "",
-          seenOn: (usage.companySites[c.company] ?? []).map((hostname) => ({ hostname, icon: siteIcon(hostname) })),
-        };
-      }),
-      tFallback
-    )
+  // One list of every company (it used to be two: top 8 by reach here, top
+  // 20 by blocks under "All companies"). Rows go straight into #t-who so the
+  // long-list search and "Show all" attach once, not on every render.
+  const whoList = document.getElementById("t-who");
+  const reach = buildReachRows(
+    document,
+    companies.map((c) => {
+      const host = companyHost(info, c.company);
+      return {
+        company: c.company,
+        icon: host ? siteIcon(host) : buildSiteIcon(document, c.company, null),
+        sites: c.hostnameCount,
+        ofSites: sitesThisWeek,
+        blocks: c.count,
+        description: info[c.company]?.description ?? "",
+        seenOn: (usage.companySites[c.company] ?? []).map((hostname) => ({ hostname, icon: siteIcon(hostname) })),
+        url: info[c.company]?.url ?? null,
+      };
+    }),
+    tFallback
   );
+  if (whoList) {
+    whoList.classList.add("reach");
+    whoList.replaceChildren(...reach.children);
+    applyLongList(whoList, longListLabels);
+  }
   const shares = purposeShares(usage.purposes);
   setTakeaway(
     "t-what-take",

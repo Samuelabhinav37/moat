@@ -26,7 +26,22 @@ describe("purposes", () => {
   });
 });
 
+describe("purposeShares", () => {
+  it("shows Other once: a category with no label of its own joins misc", () => {
+    const shares = purposeShares({ advertising: 5, misc: 2, extensions: 3 });
+    expect(shares.map((s) => [s.category, s.count])).toEqual([["advertising", 5], ["misc", 5]]);
+  });
+});
+
 describe("buildReachRows", () => {
+  it("says how many were blocked in the row, and links to the company when it has a site", () => {
+    const node = buildReachRows(document, [{ company: "Google", icon: span(), sites: 2, ofSites: 7, blocks: 1335, description: "", seenOn: [], url: "https://about.google/" }], t);
+    expect(node.querySelector(".rr-blocked")!.textContent).toBe("1,335 blocked");
+    const learn = node.querySelector<HTMLAnchorElement>(".rr-learn")!;
+    expect(learn.textContent).toBe("Learn more about Google");
+    expect(learn.href).toBe("https://about.google/");
+  });
+
   it("shows the share of your sites and opens to say where it was seen", () => {
     const node = buildReachRows(document, [{ company: "Google", icon: span(), sites: 41, ofSites: 58, blocks: 1268, description: "Ads and analytics.", seenOn: [{ hostname: "www.fandom.com", icon: span() }] }], t);
     expect(node.querySelector(".rr-pct")!.firstChild!.textContent).toBe("71%");

@@ -29,12 +29,19 @@ export function purposeLabel(category: string, t: Translate): { name: string; de
   return { name: t(p.key, p.name), desc: t(p.descKey, p.desc) };
 }
 
-/** Purposes, largest first, with shares that add up to 1. */
+/** Purposes, largest first, with shares that add up to 1. A category with
+ * no label of its own (TrackerDB's "extensions", or a new one) joins
+ * "misc", so "Other" appears once. */
 export function purposeShares(purposes: Record<string, number>): { category: string; count: number; share: number }[] {
-  const total = Object.values(purposes).reduce((a, b) => a + b, 0);
+  const merged: Record<string, number> = {};
+  for (const [category, count] of Object.entries(purposes)) {
+    if (count <= 0) continue;
+    const key = PURPOSES[category] ? category : "misc";
+    merged[key] = (merged[key] ?? 0) + count;
+  }
+  const total = Object.values(merged).reduce((a, b) => a + b, 0);
   if (total <= 0) return [];
-  return Object.entries(purposes)
-    .filter(([, count]) => count > 0)
+  return Object.entries(merged)
     .map(([category, count]) => ({ category, count, share: count / total }))
     .sort((a, b) => b.count - a.count);
 }
@@ -47,6 +54,8 @@ export interface ReachRow {
   blocks: number;
   description: string;
   seenOn: { hostname: string; icon: HTMLElement }[];
+  /** The company's own page, to learn more about it. */
+  url?: string | null;
 }
 
 /** One expandable row per company: share of your sites it was on. */
@@ -66,7 +75,10 @@ export function buildReachRows(doc: Document, rows: ReachRow[], t: Translate): H
     fill.style.setProperty("--dl", `${i * 60}ms`);
     track.append(fill);
     const value = el(doc, "span", "rr-pct", `${pct}%`);
-    value.append(el(doc, "small", "", t("insSitesOf", `${r.sites} of ${r.ofSites} sites`, [String(r.sites), String(r.ofSites)])));
+    value.append(
+      el(doc, "small", "", t("insSitesOf", `${r.sites} of ${r.ofSites} sites`, [String(r.sites), String(r.ofSites)])),
+      el(doc, "small", "rr-blocked", t("insBlockedShort", `${r.blocks.toLocaleString()} blocked`, r.blocks.toLocaleString()))
+    );
     const chev = el(doc, "span", "rr-chev");
     chev.setAttribute("aria-hidden", "true");
     btn.append(r.icon, name, track, value, chev);
@@ -84,6 +96,13 @@ export function buildReachRows(doc: Document, rows: ReachRow[], t: Translate): H
       inner.append(chips);
     }
     inner.append(el(doc, "p", "rr-blocks", t("insBlockedRequests", `${r.blocks.toLocaleString()} requests blocked this week`, r.blocks.toLocaleString())));
+    if (r.url) {
+      const learn = el(doc, "a", "rr-learn", t("insLearnMore", `Learn more about ${r.company}`, r.company));
+      learn.href = r.url;
+      learn.target = "_blank";
+      learn.rel = "noopener";
+      inner.append(learn);
+    }
     more.append(inner);
     btn.addEventListener("click", () => {
       const open = item.dataset.open !== "true";

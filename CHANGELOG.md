@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.226
+
+### Changed
+- **One list of tracker companies.** Trackers showed the same companies twice: the top 8 by
+  how many sites they were on, and again under "All companies" by how much was blocked. Now
+  there is one list of every company. Each row says both: "on 2 of 7 sites", "1,335 blocked".
+  A search and "Show all" appear once the list is long.
+- An opened company has a **Learn more** link to the company's own site, when Moat knows it.
+- The companies count says what it means: "on 4 of the 7 sites you visited", instead of a
+  percentage change.
+
+### Fixed
+- "What they wanted" could show **Other** twice. TrackerDB's "extensions" category had no label
+  of its own, so it got a second "Other" row. It now joins the first.
+- New text in English, Spanish, French and German.
+
 ## 0.11.225
 
 ### Added

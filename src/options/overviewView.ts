@@ -181,7 +181,7 @@ function sparkline(doc: Document, values: number[]): SVGSVGElement {
   return svg;
 }
 
-export function buildKpi(doc: Document, label: string, value: number, change: number | null, series: number[], t: Translate): HTMLElement {
+export function buildKpi(doc: Document, label: string, value: number, change: number | null, series: number[], t: Translate, note?: string): HTMLElement {
   const card = el(doc, "div", "ov-kpi");
   card.append(el(doc, "div", "ov-kpi-label", label));
   const row = el(doc, "div", "ov-kpi-row");
@@ -192,6 +192,8 @@ export function buildKpi(doc: Document, label: string, value: number, change: nu
     delta.append(el(doc, "b", "", text), el(doc, "span", "ov-kpi-vs", ` ${t("ovVsLastWeek", "vs last week")}`));
     row.append(delta);
   }
+  // A plain sentence where a percentage would mean little ("on 4 of 7 sites").
+  if (note) row.append(el(doc, "span", "ov-kpi-delta", note));
   card.append(row);
   if (series.some((v) => v > 0)) card.append(sparkline(doc, series));
   return card;

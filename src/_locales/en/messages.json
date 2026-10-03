@@ -523,17 +523,6 @@
   "optionsRuleStaleMeta": {
     "message": "Hasn't matched in 30 days. The site probably changed."
   },
-  "optionsTrackersDesc": {
-    "message": "Companies Moat stopped this week. Counted on your device and never uploaded."
-  },
-  "optionsCompanyReach": {
-    "message": "$COUNT$ sites",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
   "warningBadge": {
     "message": "Blocked by organization policy"
   },
@@ -812,27 +801,6 @@
   },
   "commonPause": {
     "message": "Pause"
-  },
-  "advTrackersSummary": {
-    "message": "Of this week's blocks, $ATTEMPTS$ came from $COMPANIES$ companies Moat can name.",
-    "placeholders": {
-      "companies": {
-        "content": "$1"
-      },
-      "attempts": {
-        "content": "$2"
-      }
-    },
-    "description": "Settings > Overview > Trackers: how much of the week's total came from companies Moat can name. A part of the headline number, not a separate total."
-  },
-  "advTrackersSummaryOne": {
-    "message": "Of this week's blocks, $ATTEMPTS$ came from one company Moat can name.",
-    "placeholders": {
-      "attempts": {
-        "content": "$1"
-      }
-    },
-    "description": "Settings > Overview > Trackers: the same line as advTrackersSummary when exactly one company was named."
   },
   "advTrackersOnTab": {
     "message": "On the tab you last used"
@@ -1301,9 +1269,6 @@
   "ovLevelCustom": {
     "message": "Your own mix"
   },
-  "optionsCompanyReachOne": {
-    "message": "1 site"
-  },
   "toastUndo": {
     "message": "Undo"
   },
@@ -1467,10 +1432,6 @@
   "explainBackup": {
     "message": "A backup is a plain text file you can open and read. Sync keeps the same settings on your other computers.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
-  },
-  "advTrackersEmptyWeek": {
-    "message": "None yet this week. Companies show up here as Moat stops their trackers while you browse.",
-    "description": "Weekly tracker summary on the Settings Overview when no tracker company has been blocked yet this week."
   },
   "pickerHint": {
     "message": "Click anything to hide it. Press Esc to cancel.",
@@ -2617,10 +2578,6 @@
     "message": "Pages Moat stopped before they loaded",
     "description": "Security page subtitle."
   },
-  "insAllCompanies": {
-    "message": "All companies",
-    "description": "Trackers page: full company list card."
-  },
   "insWhoTitle": {
     "message": "Who tracks you",
     "description": "Trackers page card title."
@@ -2663,9 +2620,19 @@
     "message": "Companies",
     "description": "Number card label."
   },
-  "insKpiTrackerSites": {
-    "message": "Sites with trackers",
-    "description": "Number card label."
+  "insKpiCompaniesNote": {
+    "message": "on $WITH$ of the $ALL$ sites you visited",
+    "placeholders": {
+      "with": {
+        "content": "$1",
+        "example": "4"
+      },
+      "all": {
+        "content": "$2",
+        "example": "7"
+      }
+    },
+    "description": "Trackers page, under the number of tracker companies: on how many of this week's sites they were found."
   },
   "insKpiStopped": {
     "message": "Pages stopped",
@@ -2742,6 +2709,26 @@
         "example": "58"
       }
     }
+  },
+  "insBlockedShort": {
+    "message": "$COUNT$ blocked",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,335"
+      }
+    },
+    "description": "Trackers page, a company row: how many requests from it were blocked this week."
+  },
+  "insLearnMore": {
+    "message": "Learn more about $COMPANY$",
+    "placeholders": {
+      "company": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Trackers page, an opened company row: link to the company's own website."
   },
   "insSeenOn": {
     "message": "Seen on",

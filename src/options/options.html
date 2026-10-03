@@ -1087,53 +1087,6 @@
         margin-top: 8px;
       }
 
-      .tracker-summary {
-        margin: 0 0 12px;
-        font-size: 14px;
-        color: var(--muted);
-      }
-      .weekly-tracker-row {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding: 12px 18px;
-      }
-      .weekly-tracker-row + .weekly-tracker-row {
-        border-top: 1px solid var(--line);
-      }
-      .weekly-tracker-row .wt-name-cell {
-        width: 150px;
-        flex: none;
-      }
-      .weekly-tracker-row .wt-name {
-        font-weight: 600;
-      }
-      .weekly-tracker-row .wt-reach {
-        font-size: 13px;
-        color: var(--muted);
-      }
-      .weekly-tracker-row .wt-bar-track {
-        flex: 1;
-        height: 6px;
-        border-radius: 3px;
-        background: var(--line-2);
-        overflow: hidden;
-      }
-      .weekly-tracker-row .wt-bar-fill {
-        height: 100%;
-        background: var(--blue-lt);
-        border-radius: 3px;
-      }
-      .weekly-tracker-row .wt-count {
-        width: 40px;
-        flex: none;
-        text-align: right;
-        color: var(--muted);
-        font-variant-numeric: tabular-nums;
-      }
-      #weekly-tracker-rows:empty {
-        display: none;
-      }
       #tracker-rows {
         display: flex;
         flex-direction: column;
@@ -2400,6 +2353,16 @@
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
         gap: 16px;
         align-items: start;
+      }
+      .rr-pct small.rr-blocked {
+        color: var(--muted);
+      }
+      .rr-learn {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        font-weight: 600;
+        font-size: 13.5px;
       }
       .reach {
         display: grid;
@@ -4469,12 +4432,6 @@
           <div class="panel">
             <section class="sec" data-page="trackers" id="t-all">
               <div>
-                <h2 data-i18n="insAllCompanies">All companies</h2>
-                <p class="lead" data-i18n="optionsTrackersDesc">Companies Moat stopped this week. Counted on your device and never uploaded.</p>
-              </div>
-              <div>
-                <p class="tracker-summary" id="weekly-tracker-summary"></p>
-                <div class="box"><div id="weekly-tracker-rows"></div></div>
                 <details class="more" id="trackers-current">
                   <summary data-i18n="advTrackersOnTab">On the tab you last used</summary>
                   <div class="list-head">
