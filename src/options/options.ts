@@ -2500,10 +2500,14 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
       : []
   );
 
-  // Security: pages stopped before they loaded.
+  // Security: pages stopped before they loaded, grouped by what stopped
+  // them (Safe Browsing and SmartScreen both name the kind of danger).
   const stops = usage.pageStops;
+  const dangerous = stops.filter((stop) => stop.kind === "danger").length;
+  const adPages = stops.filter((stop) => stop.kind === "ads").length;
   document.getElementById("sec-kpis")?.replaceChildren(
-    buildKpi(document, tFallback("insKpiStopped", "Pages stopped"), stops.length, null, [], tFallback),
+    buildKpi(document, tFallback("insKpiDangerous", "Dangerous pages stopped"), dangerous, null, [], tFallback),
+    buildKpi(document, tFallback("insKpiAdPages", "Ad pages stopped"), adPages, null, [], tFallback),
     buildKpi(document, tFallback("insKpiSecurityLists", "Dangerous-site lists on"), SECURITY_GROUPS.filter((g) => settings.filterGroups[g] ?? true).length, null, [], tFallback)
   );
   const list = document.getElementById("sec-list");
@@ -2511,42 +2515,74 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
     if (!stops.length) {
       list.replaceChildren(Object.assign(document.createElement("p"), { className: "ov-top-empty", textContent: tFallback("insStopsEmpty", "Nothing stopped this week. Moat checks every page you open against its danger lists.") }));
     } else {
-      const t2 = document.createElement("table");
-      t2.className = "ins-table";
-      const body = document.createElement("tbody");
-      for (const stop of stops) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        const wrap = document.createElement("div");
-        wrap.className = "site gray";
-        const name = document.createElement("span");
-        name.textContent = stop.hostname;
-        wrap.append(siteIcon(stop.hostname), name);
-        td.append(wrap);
-        const when = document.createElement("td");
-        when.className = "muted hide-sm";
-        when.textContent = new Date(stop.time).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" });
-        // A safe page on a danger list can't be allowed from here (the
-        // security lists outrank "Never block", see rulePriorities.ts), so
-        // the fix is to tell the developer, with the details filled in.
-        const action = document.createElement("td");
-        const report = document.createElement("button");
-        report.type = "button";
-        report.className = "ab-btn ins-report";
-        report.textContent = tFallback("insReportMistake", "Report a mistake");
-        report.setAttribute("aria-label", tFallback("insReportMistakeFor", `Report a mistake: ${stop.hostname}`, stop.hostname));
-        report.addEventListener("click", () => {
-          const params = new URLSearchParams({ site: stop.hostname, reason: "false-alarm" });
-          void browser.tabs.create({ url: browser.runtime.getURL(`report.html?${params}`) });
-        });
-        action.append(report);
-        tr.append(td, when, action);
-        body.append(tr);
-      }
-      t2.append(body);
-      list.replaceChildren(t2);
+      const groups: { key: string; title: string; stops: typeof stops }[] = [
+        { key: "danger", title: tFallback("secGroupDanger", "Dangerous pages"), stops: stops.filter((s) => s.kind === "danger") },
+        { key: "ads", title: tFallback("secGroupAds", "Ad pages that never loaded"), stops: stops.filter((s) => s.kind === "ads") },
+        { key: "custom", title: tFallback("secGroupCustom", "On your block list"), stops: stops.filter((s) => s.kind === "custom") },
+        { key: "policy", title: tFallback("secGroupPolicy", "Blocked by your organization"), stops: stops.filter((s) => s.kind === "policy") },
+        { key: "earlier", title: tFallback("secGroupEarlier", "Earlier, reason not recorded"), stops: stops.filter((s) => !s.kind) },
+      ];
+      list.replaceChildren(...groups.filter((g) => g.stops.length).map((g) => buildStopGroup(g.key, g.title, g.stops)));
     }
   }
+}
+
+/** A stop's list in a few words: "Phishing", "Pop-up ads", "Your block list". */
+function stopListName(list: string | undefined): string | null {
+  if (!list || list === "unknown") return null;
+  if (list === "custom") return tFallback("blockedListCustom", "Your block list");
+  if (list === "policy") return tFallback("blockedListPolicy", "Your organization's policy");
+  const label = LIST_LABELS[list];
+  return label ? tFallback(label.nameKey, label.name) : null;
+}
+
+/** One heading ("Dangerous pages 2") and its table of stops. */
+function buildStopGroup(key: string, title: string, stops: UsageSummaryResponse["pageStops"]): HTMLElement {
+  const group = document.createElement("div");
+  group.className = "stop-group";
+  group.dataset.group = key;
+  const head = document.createElement("h4");
+  head.append(document.createTextNode(title), Object.assign(document.createElement("span"), { className: "n", textContent: stops.length.toLocaleString() }));
+  const t2 = document.createElement("table");
+  t2.className = "ins-table";
+  const body = document.createElement("tbody");
+  for (const stop of stops) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    const wrap = document.createElement("div");
+    wrap.className = "site gray";
+    // Name and list together, so a phone can stack them.
+    const label = document.createElement("span");
+    label.className = "stop-name";
+    label.append(Object.assign(document.createElement("span"), { className: "stop-host", textContent: stop.hostname }));
+    const listName = stopListName(stop.list);
+    if (listName) label.append(Object.assign(document.createElement("small"), { className: "stop-list", textContent: listName }));
+    wrap.append(siteIcon(stop.hostname), label);
+    td.append(wrap);
+    const when = document.createElement("td");
+    when.className = "muted hide-sm";
+    when.textContent = new Date(stop.time).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" });
+    // A safe page on a danger list can't be allowed from here (the
+    // security lists outrank "Never block", see rulePriorities.ts), so
+    // the fix is to tell the developer, with the details filled in.
+    const action = document.createElement("td");
+    const report = document.createElement("button");
+    report.type = "button";
+    report.className = "ab-btn ins-report";
+    report.textContent = tFallback("insReportMistake", "Report a mistake");
+    report.setAttribute("aria-label", tFallback("insReportMistakeFor", `Report a mistake: ${stop.hostname}`, stop.hostname));
+    report.addEventListener("click", () => {
+      const params = new URLSearchParams({ site: stop.hostname, reason: "false-alarm" });
+      void browser.tabs.create({ url: browser.runtime.getURL(`report.html?${params}`) });
+    });
+    // Your own list and your organization's aren't Moat's to correct.
+    if (stop.kind !== "custom" && stop.kind !== "policy") action.append(report);
+    tr.append(td, when, action);
+    body.append(tr);
+  }
+  t2.append(body);
+  group.append(head, t2);
+  return group;
 }
 
 const SECURITY_GROUPS = ["phishing-urls", "scam", "malicious-urls", "badware"];

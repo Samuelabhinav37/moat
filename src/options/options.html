@@ -2604,6 +2604,72 @@
       .heat-key span {
         margin: 0 4px;
       }
+      /* Security: stops grouped by what stopped them. */
+      .stop-group + .stop-group {
+        margin-top: 22px;
+      }
+      .stop-group h4 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 6px;
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+      .stop-group h4 .n {
+        color: var(--muted);
+        font-weight: 400;
+        font-variant-numeric: tabular-nums;
+      }
+      .stop-group[data-group="danger"] h4::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--danger);
+      }
+      /* Each group is its own table; fixed columns keep the times and
+         buttons lined up from one group to the next. */
+      .stop-group .ins-table {
+        table-layout: fixed;
+        width: 100%;
+      }
+      .stop-group .ins-table td:nth-child(2) {
+        width: 150px;
+      }
+      .stop-group .ins-table td:nth-child(3) {
+        width: 150px;
+        text-align: right;
+      }
+      .stop-group .site {
+        min-width: 0;
+      }
+      .stop-name {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        min-width: 0;
+      }
+      .stop-host {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .stop-list {
+        flex: none;
+        color: var(--muted);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      @media (max-width: 600px) {
+        .stop-name {
+          flex-direction: column;
+          gap: 0;
+        }
+        .stop-group .ins-table td:nth-child(3) {
+          width: 128px;
+        }
+      }
       .ins-table {
         width: 100%;
         border-collapse: collapse;

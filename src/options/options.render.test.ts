@@ -486,6 +486,35 @@ describe("Security: a stopped page can be reported as a mistake", () => {
   });
 });
 
+describe("Security: stops grouped by what stopped them", () => {
+  it("puts dangerous pages first, names each list, and keeps older stops apart", async () => {
+    const now = Date.now();
+    await renderOptions(undefined, {
+      usageStats: {
+        days: {},
+        pageStops: [
+          { hostname: "old.example", time: now - 3000 },
+          { hostname: "pop.example", time: now - 2000, list: "popups", kind: "ads" },
+          { hostname: "mine.example", time: now - 1500, list: "custom", kind: "custom" },
+          { hostname: "paypa1-secure.top", time: now - 1000, list: "phishing-urls", kind: "danger" },
+        ],
+      },
+    });
+    const groups = [...document.querySelectorAll<HTMLElement>("#sec-list .stop-group")];
+    expect(groups.map((g) => g.dataset.group)).toEqual(["danger", "ads", "custom", "earlier"]);
+    expect(groups[0]!.querySelector("h4")?.textContent).toBe("Dangerous pages1");
+    expect(groups[0]!.querySelector(".stop-list")?.textContent).toBe("Phishing");
+    expect(groups[1]!.querySelector(".stop-list")?.textContent).toBe("Pop-up ads");
+    // Your own list isn't Moat's to correct.
+    expect(groups[2]!.querySelector(".ins-report")).toBeNull();
+    expect(groups[3]!.querySelector(".stop-list")).toBeNull();
+    const kpi = (label: string) =>
+      [...document.querySelectorAll("#sec-kpis .ov-kpi")].find((card) => card.querySelector(".ov-kpi-label")?.textContent === label)?.querySelector(".ov-kpi-value")?.textContent;
+    expect(kpi("Dangerous pages stopped")).toBe("1");
+    expect(kpi("Ad pages stopped")).toBe("1");
+  });
+});
+
 describe("Pausing for a while", () => {
   it("pauses from Exceptions for the length picked, with a real label on the field", async () => {
     await renderOptions();

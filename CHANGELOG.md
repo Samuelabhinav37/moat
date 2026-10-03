@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.233
+
+### Changed
+- **Security splits what it stopped by kind.** Dangerous pages come first, then ad pages that
+  never loaded, then sites on your own block list or your organization's. Each row names the
+  list that stopped it, like "Phishing" or "Pop-up ads". Stops from before Moat recorded the
+  list sit under "Earlier, reason not recorded".
+- **The cards count dangerous pages and ad pages separately**, instead of one "Pages stopped"
+  total that mixed a phishing site with a pop-up ad.
+- "Report a mistake" no longer shows for your own block list or your organization's, since
+  those aren't Moat's to correct.
+
 ## 0.11.232
 
 ### Added

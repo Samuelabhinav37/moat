@@ -2546,13 +2546,35 @@
     },
     "description": "Trackers page, under the number of tracker companies: on how many of this week's sites they were found."
   },
-  "insKpiStopped": {
-    "message": "Páginas detenidas",
-    "description": "Number card label."
-  },
   "insKpiSecurityLists": {
     "message": "Listas de sitios peligrosos activas",
     "description": "Number card label."
+  },
+  "insKpiDangerous": {
+    "message": "Páginas peligrosas detenidas",
+    "description": "Security KPI: whole pages stopped by a phishing, malware or scam list this week."
+  },
+  "insKpiAdPages": {
+    "message": "Páginas de anuncios detenidas",
+    "description": "Security KPI: whole pages stopped by an ad or tracker list this week."
+  },
+  "secGroupDanger": {
+    "message": "Páginas peligrosas",
+    "description": "Security: heading over pages stopped by a danger list."
+  },
+  "secGroupAds": {
+    "message": "Páginas de anuncios que no llegaron a cargarse",
+    "description": "Security: heading over whole pages stopped by an ad or tracker list."
+  },
+  "secGroupCustom": {
+    "message": "En tu lista de bloqueo"
+  },
+  "secGroupPolicy": {
+    "message": "Bloqueadas por tu organización"
+  },
+  "secGroupEarlier": {
+    "message": "Anteriores, sin motivo registrado",
+    "description": "Security: heading over stops from before Moat recorded which list stopped them."
   },
   "insWhoTake": {
     "message": "estaba en el $PCT$% de los sitios que visitaste. Elige una empresa para ver dónde.",
