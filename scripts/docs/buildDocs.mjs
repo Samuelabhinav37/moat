@@ -64,7 +64,7 @@ const ICON = {
   back: '<path d="M15 6l-6 6 6 6"/>',
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>',
 };
-const ic = (k, s = 18) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
+const ic = (k, s = 18) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 const NAV = [["privacy.html", "privacy", "Privacy policy", "shield"], ["changelog.html", "changelog", "Changelog", "doc"], ["licenses.html", "licenses", "Licenses", "scale"], ["logger.html", "diagnostics", "Diagnostics", "pulse"]];
 
 function page({ id, title, lead, meta, body, toc = [] }) {

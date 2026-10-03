@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { buildSiteIcon, faviconUrl, isLightIcon, samePixels, siteInitial } from "./siteIcon";
+import { buildSiteIcon, faviconUrl, isLightIcon, monogramHue, samePixels, siteInitial } from "./siteIcon";
 
 const getURL = (path: string) => `chrome-extension://abc${path}`;
 
@@ -63,5 +63,20 @@ describe("samePixels", () => {
     expect(samePixels(globe, pixels([120, 120, 120, 255], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]))).toBe(true);
     expect(samePixels(globe, pixels([121, 120, 120, 255], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]))).toBe(false);
     expect(samePixels(null, globe)).toBe(false);
+  });
+});
+
+describe("monogramHue", () => {
+  it("picks one of six hues, the same for a name every time, ignoring www.", () => {
+    expect(monogramHue("example.com")).toBe(monogramHue("www.example.com"));
+    expect(monogramHue("Example.com")).toBe(monogramHue("example.com"));
+    const hues = new Set(["a.com", "b.org", "news.example", "shop.test", "zeta.io", "maps.app", "mail.net", "docs.dev"].map(monogramHue));
+    for (const hue of hues) expect([0, 1, 2, 3, 4, 5]).toContain(hue);
+    expect(hues.size).toBeGreaterThan(2);
+  });
+
+  it("colours the letter tile until a real icon arrives", () => {
+    const tile = buildSiteIcon(document, "example.com", null);
+    expect(tile.dataset.hue).toBe(String(monogramHue("example.com")));
   });
 });

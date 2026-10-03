@@ -51,6 +51,15 @@ describe("shared components stay shared", () => {
     expect(docs).toContain('class="moat-brand"');
   });
 
+  it("draws every 24px UI icon at one stroke width (2.4 is kept for checkmarks)", () => {
+    for (const file of [...PAGES, "scripts/docs/buildDocs.mjs"]) {
+      const odd = Array.from(read(file).matchAll(/<svg\b[^>]*viewBox="0 0 24 24"[^>]*>/g), (m) => m[0])
+        .map((tag) => /stroke-width="([\d.]+)"/.exec(tag)?.[1])
+        .filter((width) => width !== undefined && width !== "1.75" && width !== "2.4");
+      expect(odd, file).toEqual([]);
+    }
+  });
+
   it("leaves no page with its own .brand rules", () => {
     for (const [file, css] of ownStyles) {
       expect(css, file).not.toMatch(/(^|[\s,}])\.brand\s*[{>:]|(^|[\s,}])\.brand\s+(img|svg|span|a|\.mark)\b/m);

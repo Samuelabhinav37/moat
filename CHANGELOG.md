@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.235
+
+### Changed
+- **Icons share one line weight.** Every small icon in Settings and the document pages is now
+  drawn at the same stroke width. Checkmarks stay a little bolder.
+- **Sites without an icon get a coloured letter.** Instead of one grey letter, each gets one of
+  six calm colours picked from its name, so a long list is easier to scan.
+- **Grey placeholders while Overview and Trackers load**, in the shape of what's coming, so the
+  page doesn't jump. They stay still if you've asked for less motion.
+- **The "How it works" pictures follow the light theme.** Their colours were fixed for dark mode.
+
 ## 0.11.234
 
 ### Changed

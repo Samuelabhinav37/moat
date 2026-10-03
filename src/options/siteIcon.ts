@@ -90,11 +90,19 @@ function defaultIconPixels(doc: Document, src: string): Promise<Uint8ClampedArra
   return defaultIcon;
 }
 
+/** One of six tile hues for a name, the same every time. */
+export function monogramHue(name: string): number {
+  let hash = 0;
+  for (const ch of name.replace(/^www\./i, "").toLowerCase()) hash = (hash * 31 + ch.codePointAt(0)!) >>> 0;
+  return hash % 6;
+}
+
 export function buildSiteIcon(doc: Document, hostname: string, src: string | null): HTMLElement {
   const tile = doc.createElement("span");
   tile.className = "site-icon";
   tile.setAttribute("aria-hidden", "true");
   tile.textContent = siteInitial(hostname);
+  tile.dataset.hue = String(monogramHue(hostname));
   if (src) {
     const img = doc.createElement("img");
     img.alt = "";
@@ -109,6 +117,7 @@ export function buildSiteIcon(doc: Document, hostname: string, src: string | nul
         const pixels = readPixels(doc, img);
         if (samePixels(pixels, globe)) return;
         tile.textContent = "";
+        delete tile.dataset.hue;
         tile.classList.add("has-img");
         if (pixels && isLightIcon(pixels)) tile.classList.add("light-img");
         tile.append(img);
