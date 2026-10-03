@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.242
+
+### Changed
+- **The privacy policy covers what 0.11.229 to 0.11.241 keep on your device.** It now lists
+  when and from where you paused each site (part of your settings, so it's in backups and in
+  sync if you turn sync on), the per-site split of blocks into ads, trackers and pop-ups, the
+  list that stopped each whole page, and the block page's one-visit "Open anyway" record.
+  All of it stays on your device. Nothing new is sent anywhere.
+- The privacy page now points to Settings › Backup and sync, where sync moved to.
+
 ## 0.11.241
 
 ### Added

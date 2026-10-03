@@ -49,15 +49,15 @@ const CONNECTIONS = [
 ];
 
 const LOCAL = [
-  ["sliders", "Your settings", "Lists, paused sites, your rules and hidden parts of pages."],
-  ["bars", "This week's numbers", "What was blocked, on which sites and when. Deleted after 14 days."],
+  ["sliders", "Your settings", "Lists, paused sites and when you paused them, your rules and hidden parts of pages."],
+  ["bars", "This week's numbers", "What was blocked, on which sites and when, and which list stopped a whole page. Deleted after 14 days."],
   ["eye", "Everything Moat does on a page", "Blocking, hiding ads, rejecting cookie banners and the rest all happen in your browser."],
   ["trash", "Clear site data", "Deletes a site's cookies and storage on your device, only when you confirm twice."],
 ];
 
 const CHOICES = [
   ["off", "Turn features off", "Every optional connection above is off by default and has a switch in Settings."],
-  ["sync", "Keep settings on this device", "Leave Settings › About › Sync off, and nothing leaves your browser."],
+  ["sync", "Keep settings on this device", "Leave Settings › Backup and sync › Sync off, and nothing leaves your browser."],
   ["trash", "Remove everything", "Removing Moat from your browser deletes its settings and numbers with it."],
 ];
 

@@ -36,8 +36,9 @@ only to an organization's own infrastructure, never to Moat's developer.
 
 ## What stays on your device
 
-- All settings (which filter lists are on, paused sites, custom block/allow
-  rules, custom cosmetic rules) are stored in `browser.storage.local` --
+- All settings (which filter lists are on, paused sites with when and from
+  where each was paused, custom block/allow rules, custom cosmetic rules)
+  are stored in `browser.storage.local` --
   local to your browser profile, never transmitted anywhere by default, and
   never read by anyone but the extension itself. (See "Opt-in sync" below
   for the one setting that changes this, and only if you turn it on.)
@@ -53,9 +54,16 @@ only to an organization's own infrastructure, never to Moat's developer.
   It is never transmitted.
 - Settings' Insights pages read a weekly summary kept in your browser's local
   storage for 14 days and then deleted: blocks per day, per site you visited
-  and per hour, which tracker companies were blocked and on which sites, what
-  those trackers were for, and the addresses of whole pages Moat refused to
-  load. None of it is synced, exported in a backup, or sent anywhere.
+  (split into ads, trackers and pop-ups) and per hour, which tracker
+  companies were blocked and on which sites, what those trackers were for,
+  and the addresses of whole pages Moat refused to load, with the list that
+  stopped each one. None of it is synced, exported in a backup, or sent
+  anywhere.
+- When a list stops a whole page, Moat shows its own block page in that tab
+  and remembers, for that browser session only, which address the tab was
+  sent there for. "Open anyway" uses that to let the site through for one
+  visit; the exception ends when you leave the site, close the tab, or close
+  the browser.
 - The popup's manual "Clear site data…" button deletes the active tab's own
   cookies, IndexedDB, local storage, and service workers, on your device,
   only when you click it twice to confirm. Nothing about this is sent
