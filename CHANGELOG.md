@@ -3,6 +3,24 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.205
+
+### Changed
+- **New Overview.** It now opens with a status line ("Protection is on · Balanced · Lists
+  updated 3 hours ago"), then:
+  - **Blocked this week:** the total, how it compares with last week (or how many sites, before
+    there is a last week), and a column per day split into ads, trackers and pop-ups in one blue
+    family, with a light grid and a hover card for each day. Blocks from before Moat sorted them
+    show as "Not sorted".
+  - **Three number cards:** ads, trackers and pop-ups, each with its change against last week
+    and a small trend line.
+  - **Three top-5 lists:** Who tracks you most (sites each company was on), Most blocked sites,
+    and Pages Moat stopped (whole pages that never loaded).
+- The level card and the three quick-action buttons are gone from Overview: the level is on the
+  status line and Protection, and the actions live on Exceptions and About.
+- New text in English, Spanish, French and German.
+- Checked after browsing ten real sites in Chrome, at 1440 and 390 px.
+
 ## 0.11.204
 
 ### Fixed

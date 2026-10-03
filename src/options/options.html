@@ -1564,29 +1564,15 @@
       /* Colour tiles: one flat colour per screen with a white glyph, the
          way Android and Apple Settings draw theirs (see
          docs/research/settings-icons-and-help-2026-09.md). The same colour
-         marks that screen wherever it appears: the sidebar, Overview's
-         links and Overview's actions. Every shade keeps white at 5:1 or
+         marks that screen wherever it appears. Every shade keeps white at 5:1 or
          more (navTiles.test.ts), and red and green stay out, because Moat
          uses them for blocked and allowed. */
       .dash-nav a[data-page="overview"] { --tile: #2563eb; }
-      .dash-nav a[data-page="protection"],
-      .ov-links a[href="#blocking"] { --tile: #4f46e5; }
-      .dash-nav a[data-page="privacy"] { --tile: #0f766e; }
-      .dash-nav a[data-page="filters"],
-      #ov-check-fixes { --tile: #0369a1; }
-      .dash-nav a[data-page="exceptions"],
-      .ov-links a[href="#paused"] { --tile: #b45309; }
-      .dash-nav a[data-page="hidden"],
-      .ov-links a[href="#hidden"],
-      #ov-pick-element { --tile: #be185d; }
-      .dash-nav a[data-page="rules"] { --tile: #7e22ce; }
-      .dash-nav a[data-page="backup"],
-      #ov-save-backup { --tile: #c2410c; }
+      .dash-nav a[data-page="protection"] { --tile: #4f46e5; }
+      .dash-nav a[data-page="exceptions"] { --tile: #b45309; }
       .dash-nav a[data-page="about"] { --tile: #475569; }
       .dash-nav a svg,
-      .dash-nav a[aria-current="page"] svg,
-      .ov-links li a svg,
-      .ov-actions .ov-action svg {
+      .dash-nav a[aria-current="page"] svg {
         box-sizing: border-box;
         width: 28px;
         height: 28px;
@@ -1649,185 +1635,6 @@
         margin: 0;
         color: var(--muted);
       }
-      /* ---------- Overview ---------- */
-      .overview:not(.dash-off) {
-        display: grid;
-        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-        gap: 20px;
-        margin-top: 24px;
-        padding: 0;
-      }
-      .ov-card {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 22px 24px;
-      }
-      .ov-card h3 {
-        margin: 0;
-        font-size: 15px;
-        font-weight: 600;
-      }
-      .ov-sub {
-        font-size: 13.5px;
-        color: var(--muted);
-      }
-      .ov-week-head {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 24px;
-      }
-      .ov-big {
-        font-size: 44px;
-        font-weight: 700;
-        line-height: 1.05;
-        letter-spacing: -0.03em;
-        font-variant-numeric: tabular-nums;
-      }
-      .ov-kinds {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px 16px;
-        margin-top: 10px;
-        font-size: 13.5px;
-        color: var(--muted);
-      }
-      .ov-kinds b {
-        color: var(--fg);
-        font-weight: 600;
-        font-variant-numeric: tabular-nums;
-      }
-      .ov-today {
-        text-align: right;
-        font-size: 13.5px;
-        color: var(--muted);
-      }
-      .ov-today b {
-        display: block;
-        font-size: 20px;
-        color: var(--fg);
-        font-variant-numeric: tabular-nums;
-      }
-      .ov-chart {
-        display: grid;
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-        gap: 10px;
-        align-items: end;
-        height: 150px;
-        margin-top: 20px;
-      }
-      .ov-col {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 8px;
-        height: 100%;
-      }
-      .ov-bar {
-        width: 100%;
-        max-width: 38px;
-        min-height: 2px;
-        border-radius: 6px 6px 2px 2px;
-        background: #3a5a9e;
-      }
-      .ov-col.today .ov-bar {
-        background: var(--blue-lt);
-      }
-      .ov-chart.is-empty .ov-bar {
-        height: 56px !important;
-        background: none;
-        border: 1.5px dashed var(--line);
-        box-sizing: border-box;
-      }
-      .ov-day {
-        font-size: 12px;
-        color: var(--muted);
-      }
-      .ov-col.today .ov-day {
-        color: var(--fg);
-        font-weight: 600;
-      }
-      .ov-empty {
-        margin: 12px 0 0;
-        font-size: 14px;
-        color: var(--muted);
-      }
-      .ov-level {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .ov-level-name {
-        font-size: 20px;
-        font-weight: 700;
-      }
-      .ov-level .level-meter i {
-        height: 5px;
-      }
-      .ov-links {
-        list-style: none;
-        margin: auto 0 0;
-        padding: 0;
-      }
-      .ov-links a {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 9px 0;
-        border-top: 1px solid var(--line);
-        color: var(--fg);
-        font-size: 14.5px;
-      }
-      .ov-links a:hover {
-        color: var(--blue-lt);
-        text-decoration: none;
-      }
-      .ov-links svg {
-        width: 17px;
-        height: 17px;
-        color: var(--muted);
-      }
-      .ov-links b {
-        margin-left: auto;
-        font-variant-numeric: tabular-nums;
-      }
-      .ov-actions {
-        grid-column: 1 / -1;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-      }
-      .ov-action {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 13px 16px;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: var(--panel);
-        color: var(--fg);
-        font: inherit;
-        font-size: 14.5px;
-        font-weight: 600;
-        cursor: pointer;
-        text-align: left;
-        /* Long labels (French "Chercher des correctifs de filtres") wrap
-           inside the button instead of pushing the page 2px wide at 1024. */
-        min-width: 0;
-        white-space: normal;
-      }
-      .ov-action:hover {
-        border-color: #4a4650;
-        background: var(--panel-2);
-      }
-      .ov-action svg {
-        width: 18px;
-        height: 18px;
-        color: var(--blue-lt);
-        flex: none;
-      }
       /* Every screen's sections are in the page; show only this one's. */
       .dash-off {
         display: none !important;
@@ -1843,6 +1650,399 @@
 
 
 
+
+
+      /* ---------- Overview (overviewView.ts) ---------- */
+      .overview:not(.dash-off) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+        margin-top: 20px;
+      }
+      .ov-status {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        padding: 11px 16px;
+        border: 1px solid #2c4a2a;
+        border-radius: 12px;
+        background: #1a2619;
+        font-size: 14.5px;
+      }
+      .ov-status svg {
+        width: 18px;
+        height: 18px;
+        color: var(--on, #43c13a);
+      }
+      .ov-status .sep {
+        color: var(--muted);
+      }
+      .ov-card {
+        padding: 22px 24px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--panel);
+      }
+      .ov-sub {
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      .ov-empty {
+        margin: 12px 0 0;
+        color: var(--muted);
+      }
+      .ov-week-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .ov-week-head h3 {
+        font-size: 17px;
+      }
+      .ov-big {
+        margin-top: 10px;
+        font-size: 48px;
+        font-weight: 750;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+      .ov-headline {
+        margin: 8px 0 0;
+        color: var(--muted);
+      }
+      .ov-headline b {
+        color: var(--fg);
+      }
+      /* Week chart: one blue family, 2px gaps, faint grid with values. */
+      .k-ads { --k: #a9c4f0; }
+      .k-trackers { --k: #5b8ae0; }
+      .k-popups { --k: #2f57ad; }
+      .k-other { --k: #4a4650; }
+      .ovc {
+        margin-top: 18px;
+      }
+      .ovc-plot {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 10px;
+        align-items: end;
+        height: 170px;
+        margin-left: 40px;
+        border-bottom: 1px solid var(--line);
+      }
+      .ovc-grid {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .ovc-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        border-top: 1px dashed #2a2d38;
+      }
+      .ovc-line span {
+        position: absolute;
+        left: -40px;
+        top: -8px;
+        width: 32px;
+        text-align: right;
+        font-size: 12px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .ovc-col {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        height: 100%;
+      }
+      .ovc-cap {
+        margin-bottom: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+      .ovc-stack {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 2px;
+        width: min(44px, 64%);
+        min-height: 0;
+        transform-origin: bottom;
+        animation: ovc-grow 0.52s var(--ease) both;
+        animation-delay: var(--dl, 0ms);
+        transition: opacity 0.16s, filter 0.16s;
+      }
+      .ovc-seg {
+        display: block;
+        min-height: 3px;
+        background: var(--k);
+      }
+      .ovc-stack .ovc-seg:last-child {
+        border-radius: 6px 6px 0 0;
+      }
+      .ovc-col.today .ovc-stack {
+        outline: 1px dashed #44527a;
+        outline-offset: 3px;
+        border-radius: 6px 6px 0 0;
+      }
+      .ovc-plot:hover .ovc-col:not(:hover) .ovc-stack {
+        opacity: 0.4;
+      }
+      .ovc-col:hover .ovc-stack {
+        filter: brightness(1.15);
+      }
+      @keyframes ovc-grow {
+        from { transform: scaleY(0); }
+      }
+      .ovc-tip {
+        position: absolute;
+        z-index: 3;
+        bottom: calc(100% - 8px);
+        left: 50%;
+        display: grid;
+        gap: 2px;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #0d0c10;
+        font-size: 12.5px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, 4px);
+        transition: opacity 0.16s, transform 0.16s var(--ease);
+      }
+      .ovc-col:nth-child(-n + 3) .ovc-tip {
+        left: 0;
+        transform: translate(0, 4px);
+      }
+      .ovc-col:nth-last-child(-n + 2) .ovc-tip {
+        left: auto;
+        right: 0;
+        transform: translate(0, 4px);
+      }
+      .ovc-col:hover .ovc-tip {
+        opacity: 1;
+        transform: translate(-50%, -6px);
+      }
+      .ovc-col:nth-child(-n + 3):hover .ovc-tip,
+      .ovc-col:nth-last-child(-n + 2):hover .ovc-tip {
+        transform: translate(0, -6px);
+      }
+      .ovc-tip-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+      }
+      .key {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        margin-right: 6px;
+        border-radius: 3px;
+        background: var(--k);
+        vertical-align: -1px;
+      }
+      .ovc-days {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 10px;
+        margin: 8px 0 0 40px;
+        text-align: center;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .ovc-days .today {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .ovc-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      /* Number cards: label, value, change, trend line. */
+      .ov-kpis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+        gap: 16px;
+      }
+      .ov-kpi {
+        overflow: hidden;
+        padding: 18px 22px 0;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: linear-gradient(180deg, var(--panel) 55%, rgba(31, 36, 51, 0.55));
+      }
+      .ov-kpi-label {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .ov-kpi-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .ov-kpi-value {
+        font-size: 30px;
+        font-weight: 750;
+        font-variant-numeric: tabular-nums;
+      }
+      .ov-kpi-delta {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .ov-kpi-delta b {
+        color: var(--fg);
+      }
+      .ov-spark {
+        display: block;
+        width: calc(100% + 44px);
+        height: 44px;
+        margin: 8px -22px 0;
+      }
+      .ov-spark-line {
+        fill: none;
+        stroke: var(--blue-lt);
+        stroke-width: 1.6;
+      }
+      .ov-spark-area {
+        fill: rgba(111, 155, 224, 0.12);
+      }
+      .ov-kpi:not(:has(.ov-spark)) {
+        padding-bottom: 18px;
+      }
+      /* Top-5 cards. */
+      .ov-tops {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+      .ov-top {
+        display: grid;
+        padding: 20px 22px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--panel);
+      }
+      .ov-top-head h3 {
+        font-size: 16px;
+      }
+      .ov-top-head p {
+        margin: 2px 0 12px;
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      .ov-rank {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .ov-rank li {
+        display: grid;
+        grid-template-columns: 16px 28px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        padding: 9px 0;
+        border-top: 1px solid var(--line);
+      }
+      .ov-rank li:first-child {
+        border-top: 0;
+      }
+      .ov-rank-pos {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--muted);
+        text-align: center;
+      }
+      .ov-rank .site-icon {
+        width: 28px;
+        height: 28px;
+      }
+      .ov-rank-name {
+        display: block;
+        overflow: hidden;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .ov-rank-bar {
+        display: block;
+        height: 6px;
+        margin-top: 5px;
+        overflow: hidden;
+        border-radius: 3px;
+        background: #252a36;
+      }
+      .ov-rank-bar i {
+        display: block;
+        height: 100%;
+        border-radius: 3px;
+        background: var(--blue-lt);
+        transform-origin: left;
+        animation: ov-growx 0.6s var(--ease) both;
+        animation-delay: var(--dl, 0ms);
+      }
+      @keyframes ov-growx {
+        from { transform: scaleX(0); }
+      }
+      .ov-rank-value {
+        font-weight: 700;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .ov-rank-value small {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .ov-top-empty {
+        margin: 0;
+        color: var(--muted);
+      }
+      .ov-top-link {
+        justify-self: start;
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        margin-top: 6px;
+        font-weight: 600;
+        font-size: 13.5px;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .ovc-stack,
+        .ov-rank-bar i {
+          animation: none;
+        }
+      }
+      @media (prefers-color-scheme: light) {
+        .ov-status {
+          border-color: #b9dfb3;
+          background: #edf8eb;
+        }
+        .ovc-tip {
+          background: #fff;
+        }
+        .ov-kpi {
+          background: var(--panel);
+        }
+      }
 
       /* ---------- Protection page: jump chips, inset groups ---------- */
       .jump-sec {
@@ -2173,10 +2373,6 @@
         }
         main.wrap {
           padding: 20px 16px 48px;
-        }
-        .overview:not(.dash-off),
-        .ov-actions {
-          grid-template-columns: minmax(0, 1fr);
         }
       }
       @media (prefers-reduced-motion: reduce) {
@@ -2676,41 +2872,26 @@
         <!-- Overview (desktop only): the week at a glance, from the counts
              Moat already keeps on this device (usageStats.ts). -->
         <section class="sec overview" data-page="overview" aria-labelledby="page-title">
+          <p class="ov-status" id="ov-status">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+            <b data-i18n="ovStatusOn">Protection is on</b>
+            <span class="sep" aria-hidden="true">·</span>
+            <span id="ov-status-level"></span>
+            <span class="sep" id="ov-status-lists-sep" aria-hidden="true" hidden>·</span>
+            <span id="ov-status-lists" hidden></span>
+          </p>
           <div class="ov-card ov-week">
             <div class="ov-week-head">
-              <div>
-                <div class="ov-big" id="ov-week-total">—</div>
-                <div class="ov-sub" data-i18n="ovWeekLabel">ads, trackers and pop-ups stopped this week</div>
-                <div class="ov-kinds" id="ov-kinds" hidden>
-                  <span><b id="ov-kind-ads">0</b> <span data-i18n="ovKindAds">ads</span></span>
-                  <span><b id="ov-kind-trackers">0</b> <span data-i18n="ovKindTrackers">trackers</span></span>
-                  <span><b id="ov-kind-popups">0</b> <span data-i18n="ovKindPopups">pop-ups</span></span>
-                  <span class="ov-unsorted" id="ov-kind-unsorted" hidden></span>
-                </div>
-              </div>
-              <div class="ov-today"><b id="ov-today-total">—</b><span data-i18n="ovTodayLabel">today</span></div>
+              <h3 data-i18n="ovWeekTitle">Blocked this week</h3>
+              <span class="ov-sub" data-i18n="ovHoverHint">Hover a day for details</span>
             </div>
-            <div class="ov-chart" id="ov-chart"></div>
+            <div class="ov-big" id="ov-week-total">—</div>
+            <p class="ov-headline" id="ov-headline"></p>
+            <div id="ov-chart"></div>
             <p class="ov-empty" id="ov-week-empty" hidden data-i18n="ovWeekEmpty">Nothing blocked yet this week. Browse a few sites and this fills in.</p>
           </div>
-          <div class="ov-card ov-level">
-            <div>
-              <h3 data-i18n="navBlockingLevel">Blocking level</h3>
-              <span class="ov-sub" data-i18n="ovLevelSub">Applies to every site</span>
-            </div>
-            <div class="ov-level-name" id="ov-level-name">—</div>
-            <div class="level-meter" id="ov-level-meter" aria-hidden="true"><i></i><i></i><i></i></div>
-            <ul class="ov-links">
-              <li><a href="#paused"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14" /></svg><span data-i18n="navPaused">Paused sites</span><b id="ov-paused-count">0</b></a></li>
-              <li><a href="#hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM4 4l16 16" /></svg><span data-i18n="navHidden">Hidden on pages</span><b id="ov-hidden-count">0</b></a></li>
-              <li><a href="#blocking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 9.5C8 19.3 5 15.5 5 11V6z" /></svg><span data-i18n="ovChangeLevel">Change level</span><b aria-hidden="true">›</b></a></li>
-            </ul>
-          </div>
-          <div class="ov-actions">
-            <button type="button" class="ov-action" id="ov-pick-element"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4l7 17 2-7 7-2z" /></svg><span data-i18n="ovBlockElement">Hide something on a page</span></button>
-            <button type="button" class="ov-action" id="ov-save-backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14" /></svg><span data-i18n="optionsExportTitle">Save a backup</span></button>
-            <button type="button" class="ov-action" id="ov-check-fixes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0114-5M20 12a8 8 0 01-14 5M18 3v4h-4M6 21v-4h4" /></svg><span data-i18n="aboutCheckFixes">Check for filter fixes</span></button>
-          </div>
+          <div class="ov-kpis" id="ov-kpis"></div>
+          <div class="ov-tops" id="ov-tops"></div>
         </section>
 
         <section class="sec jump-sec" data-page="protection">

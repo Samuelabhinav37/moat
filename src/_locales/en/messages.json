@@ -2274,5 +2274,159 @@
   "tabRules": {
     "message": "Always and never",
     "description": "Exceptions page tab: sites you always block or never block."
+  },
+  "ovStatusOn": {
+    "message": "Protection is on",
+    "description": "Overview status line."
+  },
+  "ovWeekTitle": {
+    "message": "Blocked this week",
+    "description": "Overview: title of the week chart card."
+  },
+  "ovHoverHint": {
+    "message": "Hover a day for details",
+    "description": "Overview: hint beside the week chart."
+  },
+  "ovKindAdsTitle": {
+    "message": "Ads",
+    "description": "Chart legend."
+  },
+  "ovKindTrackersTitle": {
+    "message": "Trackers",
+    "description": "Chart legend."
+  },
+  "ovKindPopupsTitle": {
+    "message": "Pop-ups",
+    "description": "Chart legend."
+  },
+  "ovKindOtherTitle": {
+    "message": "Not sorted",
+    "description": "Chart legend: blocks from before Moat sorted them by kind."
+  },
+  "ovVsLastWeek": {
+    "message": "vs last week",
+    "description": "Number card: after the change, e.g. '↑ 82% vs last week'."
+  },
+  "ovChangeUp": {
+    "message": "↑ $N$%",
+    "description": "Number card change up.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "82"
+      }
+    }
+  },
+  "ovChangeDown": {
+    "message": "↓ $N$%",
+    "description": "Number card change down.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "ovMoreThanLastWeek": {
+    "message": "$N$% more",
+    "description": "Overview headline, followed by 'than last week'.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "85"
+      }
+    }
+  },
+  "ovLessThanLastWeek": {
+    "message": "$N$% less",
+    "description": "Overview headline, followed by 'than last week'.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "ovThanLastWeek": {
+    "message": "than last week",
+    "description": "Overview headline end."
+  },
+  "ovAcrossSites": {
+    "message": "across $N$ sites",
+    "description": "Overview headline before there is a last week.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "58"
+      }
+    }
+  },
+  "ovKpiAds": {
+    "message": "Ads blocked",
+    "description": "Number card label."
+  },
+  "ovKpiTrackers": {
+    "message": "Trackers blocked",
+    "description": "Number card label."
+  },
+  "ovKpiPopups": {
+    "message": "Pop-ups stopped",
+    "description": "Number card label."
+  },
+  "ovOfSites": {
+    "message": "of $N$",
+    "description": "Under a company's site count, e.g. '41 of 58'.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "58"
+      }
+    }
+  },
+  "ovTopTrackersTitle": {
+    "message": "Who tracks you most",
+    "description": "Overview card title."
+  },
+  "ovTopTrackersSub": {
+    "message": "Sites each company was on",
+    "description": "Overview card subtitle."
+  },
+  "ovTopTrackersEmpty": {
+    "message": "No tracker companies this week yet.",
+    "description": "Overview card empty."
+  },
+  "ovTopSitesTitle": {
+    "message": "Most blocked sites",
+    "description": "Overview card title."
+  },
+  "ovTopSitesSub": {
+    "message": "Ads, trackers and pop-ups stopped",
+    "description": "Overview card subtitle."
+  },
+  "ovTopSitesEmpty": {
+    "message": "Browse a few sites and they show up here.",
+    "description": "Overview card empty."
+  },
+  "ovTopStopsTitle": {
+    "message": "Pages Moat stopped",
+    "description": "Overview card title."
+  },
+  "ovTopStopsSub": {
+    "message": "Whole pages that never loaded",
+    "description": "Overview card subtitle."
+  },
+  "ovTopStopsEmpty": {
+    "message": "None this week.",
+    "description": "Overview card empty."
+  },
+  "ovListsUpdated": {
+    "message": "Lists updated $WHEN$",
+    "description": "Overview status line; WHEN is a relative time like '3 hours ago'.",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "3 hours ago"
+      }
+    }
   }
 }

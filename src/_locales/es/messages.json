@@ -2110,5 +2110,159 @@
   "tabRules": {
     "message": "Siempre y nunca",
     "description": "Exceptions page tab: sites you always block or never block."
+  },
+  "ovStatusOn": {
+    "message": "La protección está activada",
+    "description": "Overview status line."
+  },
+  "ovWeekTitle": {
+    "message": "Bloqueado esta semana",
+    "description": "Overview: title of the week chart card."
+  },
+  "ovHoverHint": {
+    "message": "Pasa el cursor por un día para ver detalles",
+    "description": "Overview: hint beside the week chart."
+  },
+  "ovKindAdsTitle": {
+    "message": "Anuncios",
+    "description": "Chart legend."
+  },
+  "ovKindTrackersTitle": {
+    "message": "Rastreadores",
+    "description": "Chart legend."
+  },
+  "ovKindPopupsTitle": {
+    "message": "Ventanas emergentes",
+    "description": "Chart legend."
+  },
+  "ovKindOtherTitle": {
+    "message": "Sin clasificar",
+    "description": "Chart legend: blocks from before Moat sorted them by kind."
+  },
+  "ovVsLastWeek": {
+    "message": "frente a la semana pasada",
+    "description": "Number card: after the change, e.g. '↑ 82% vs last week'."
+  },
+  "ovChangeUp": {
+    "message": "↑ $N$%",
+    "description": "Number card change up.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "82"
+      }
+    }
+  },
+  "ovChangeDown": {
+    "message": "↓ $N$%",
+    "description": "Number card change down.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "ovMoreThanLastWeek": {
+    "message": "un $N$% más",
+    "description": "Overview headline, followed by 'than last week'.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "85"
+      }
+    }
+  },
+  "ovLessThanLastWeek": {
+    "message": "un $N$% menos",
+    "description": "Overview headline, followed by 'than last week'.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "ovThanLastWeek": {
+    "message": "que la semana pasada",
+    "description": "Overview headline end."
+  },
+  "ovAcrossSites": {
+    "message": "en $N$ sitios",
+    "description": "Overview headline before there is a last week.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "58"
+      }
+    }
+  },
+  "ovKpiAds": {
+    "message": "Anuncios bloqueados",
+    "description": "Number card label."
+  },
+  "ovKpiTrackers": {
+    "message": "Rastreadores bloqueados",
+    "description": "Number card label."
+  },
+  "ovKpiPopups": {
+    "message": "Ventanas emergentes detenidas",
+    "description": "Number card label."
+  },
+  "ovOfSites": {
+    "message": "de $N$",
+    "description": "Under a company's site count, e.g. '41 of 58'.",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "58"
+      }
+    }
+  },
+  "ovTopTrackersTitle": {
+    "message": "Quién te rastrea más",
+    "description": "Overview card title."
+  },
+  "ovTopTrackersSub": {
+    "message": "En cuántos sitios estaba cada empresa",
+    "description": "Overview card subtitle."
+  },
+  "ovTopTrackersEmpty": {
+    "message": "Aún no hay empresas de rastreo esta semana.",
+    "description": "Overview card empty."
+  },
+  "ovTopSitesTitle": {
+    "message": "Sitios con más bloqueos",
+    "description": "Overview card title."
+  },
+  "ovTopSitesSub": {
+    "message": "Anuncios, rastreadores y ventanas detenidos",
+    "description": "Overview card subtitle."
+  },
+  "ovTopSitesEmpty": {
+    "message": "Navega por algunos sitios y aparecerán aquí.",
+    "description": "Overview card empty."
+  },
+  "ovTopStopsTitle": {
+    "message": "Páginas que Moat detuvo",
+    "description": "Overview card title."
+  },
+  "ovTopStopsSub": {
+    "message": "Páginas enteras que no se cargaron",
+    "description": "Overview card subtitle."
+  },
+  "ovTopStopsEmpty": {
+    "message": "Ninguna esta semana.",
+    "description": "Overview card empty."
+  },
+  "ovListsUpdated": {
+    "message": "Listas actualizadas $WHEN$",
+    "description": "Overview status line; WHEN is a relative time like '3 hours ago'.",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "3 hours ago"
+      }
+    }
   }
 }

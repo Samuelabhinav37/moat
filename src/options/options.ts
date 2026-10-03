@@ -19,6 +19,7 @@ import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { initSettingsSearch } from "./settingsSearch";
 import { initNavMode } from "./navMode";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
+import { buildKpi, buildTopCard, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
 import { createSavedToast } from "./savedToast";
 import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
@@ -930,6 +931,7 @@ function renderLiveStatus(
   status: Awaited<ReturnType<typeof getLiveUpdateStatus>>,
   youtubeStatus?: Awaited<ReturnType<typeof getYoutubeQuickFixesStatus>>
 ): void {
+  renderOverviewListsAge(status);
   if (!liveStatus) return;
   if (!status) {
     liveStatus.textContent = tFallback("optionsLiveStatusNotChecked", "Not checked yet.");
@@ -966,6 +968,20 @@ function renderLiveStatus(
     );
   }
   liveStatus.textContent = text;
+}
+
+/** "Lists updated 3 hours ago" on Overview's status line. */
+function renderOverviewListsAge(status: Awaited<ReturnType<typeof getLiveUpdateStatus>>): void {
+  const el = document.getElementById("ov-status-lists");
+  const sep = document.getElementById("ov-status-lists-sep");
+  if (!el || !sep) return;
+  const show = !!status?.ok;
+  el.hidden = sep.hidden = !show;
+  if (!show) return;
+  const minutes = Math.round((status!.timestamp - Date.now()) / 60_000);
+  const rel = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  const when = Math.abs(minutes) < 60 ? rel.format(minutes, "minute") : Math.abs(minutes) < 1440 ? rel.format(Math.round(minutes / 60), "hour") : rel.format(Math.round(minutes / 1440), "day");
+  el.textContent = tFallback("ovListsUpdated", `Lists updated ${when}`, when);
 }
 
 // ---------- Filter Lists tab ----------
@@ -1921,9 +1937,7 @@ function renderWeeklyTrackers(usage: UsageSummaryResponse): void {
   applyLongList(container, longListLabels);
 }
 
-// ---------- Overview (desktop) ----------
-
-const LEVEL_STEPS: Partial<Record<PresetName | "custom", number>> = { lite: 1, essential: 1, standard: 2, strict: 3 };
+// ---------- Overview ----------
 
 function levelLabel(preset: PresetName | "custom"): string {
   switch (preset) {
@@ -1948,67 +1962,112 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   const days = usage.sparkline.slice(-7);
   const week = days.reduce((sum, n) => sum + n, 0);
   document.getElementById("ov-week-total")!.textContent = week.toLocaleString();
-  document.getElementById("ov-today-total")!.textContent = usage.today.total.toLocaleString();
   document.getElementById("ov-week-empty")!.hidden = week > 0;
+  document.getElementById("ov-status-level")!.textContent = levelLabel(detectPreset(settings));
 
-  // The split only covers blocks whose kind is known (recorded from
-  // 0.11.154 on), so whatever is left of the total is said plainly.
-  const kinds = usage.weekKinds;
-  const sorted = kinds.ads + kinds.trackers + kinds.popups;
-  document.getElementById("ov-kinds")!.hidden = sorted === 0;
-  document.getElementById("ov-kind-ads")!.textContent = kinds.ads.toLocaleString();
-  document.getElementById("ov-kind-trackers")!.textContent = kinds.trackers.toLocaleString();
-  document.getElementById("ov-kind-popups")!.textContent = kinds.popups.toLocaleString();
-  const unsortedEl = document.getElementById("ov-kind-unsorted")!;
-  const unsorted = week - sorted;
-  unsortedEl.hidden = unsorted <= 0;
-  unsortedEl.textContent = tFallback("ovKindUnsorted", `${unsorted.toLocaleString()} other`, unsorted.toLocaleString());
+  // "85% more than last week", or how many sites, when there's no last week yet.
+  const headline = document.getElementById("ov-headline")!;
+  const change = changePercent(week, usage.previousWeek?.total);
+  headline.replaceChildren();
+  if (week > 0) {
+    if (change !== null) {
+      const b = document.createElement("b");
+      b.textContent =
+        change >= 0
+          ? tFallback("ovMoreThanLastWeek", `${change}% more`, String(change))
+          : tFallback("ovLessThanLastWeek", `${Math.abs(change)}% less`, String(Math.abs(change)));
+      headline.append(b, document.createTextNode(` ${tFallback("ovThanLastWeek", "than last week")}`));
+    } else {
+      headline.textContent = tFallback("ovAcrossSites", `across ${usage.weekSiteCount} sites`, String(usage.weekSiteCount));
+    }
+  }
 
-  const chart = document.getElementById("ov-chart") as HTMLElement;
-  chart.classList.toggle("is-empty", week === 0);
-  const max = Math.max(...days, 1);
   const todayLabel = tFallback("ovToday", "Today");
-  chart.replaceChildren(
-    ...days.map((count, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (days.length - 1 - i));
-      const isToday = i === days.length - 1;
-      const dayName = isToday ? todayLabel : date.toLocaleDateString(undefined, { weekday: "short" });
-      const col = document.createElement("div");
-      col.className = isToday ? "ov-col today" : "ov-col";
-      col.setAttribute("role", "img");
-      col.setAttribute("aria-label", `${dayName}: ${count.toLocaleString()}`);
-      col.title = `${count.toLocaleString()} · ${date.toLocaleDateString()}`;
-      const bar = document.createElement("div");
-      bar.className = "ov-bar";
-      bar.style.height = `${Math.round((count / max) * 118)}px`;
-      const label = document.createElement("span");
-      label.className = "ov-day";
-      label.textContent = dayName;
-      col.append(bar, label);
-      return col;
-    })
-  );
+  const columns: DayColumn[] = days.map((total, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (days.length - 1 - i));
+    const kinds = usage.dailyKinds[i] ?? { ads: 0, trackers: 0, popups: 0 };
+    const sorted = kinds.ads + kinds.trackers + kinds.popups;
+    const today = i === days.length - 1;
+    return {
+      label: today ? todayLabel : date.toLocaleDateString(undefined, { weekday: "short" }),
+      date: date.toLocaleDateString(),
+      today,
+      kinds,
+      other: Math.max(0, total - sorted),
+    };
+  });
+  const chart = document.getElementById("ov-chart") as HTMLElement;
+  chart.replaceChildren(...(week > 0 ? [buildWeekChart(document, columns, tFallback)] : []));
 
-  const preset = detectPreset(settings);
-  document.getElementById("ov-level-name")!.textContent = levelLabel(preset);
-  const steps = LEVEL_STEPS[preset];
-  const meter = document.getElementById("ov-level-meter") as HTMLElement;
-  meter.hidden = steps === undefined;
-  meter.querySelectorAll("i").forEach((step, i) => step.classList.toggle("on", steps !== undefined && i < steps));
-
-  document.getElementById("ov-paused-count")!.textContent = settings.disabledSites.length.toLocaleString();
-  const hidden = [settings.customCosmeticRules, settings.customGrayscaleRules].reduce(
-    (sum, rules) => sum + Object.values(rules).reduce((n, selectors) => n + selectors.length, 0),
-    0
-  );
-  document.getElementById("ov-hidden-count")!.textContent = hidden.toLocaleString();
+  const prev = usage.previousWeek;
+  const kinds = usage.weekKinds;
+  document
+    .getElementById("ov-kpis")!
+    .replaceChildren(
+      buildKpi(document, tFallback("ovKpiAds", "Ads blocked"), kinds.ads, changePercent(kinds.ads, prev?.kinds.ads), usage.dailyKinds.slice(0, 6).map((d) => d.ads), tFallback),
+      buildKpi(document, tFallback("ovKpiTrackers", "Trackers blocked"), kinds.trackers, changePercent(kinds.trackers, prev?.kinds.trackers), usage.dailyKinds.slice(0, 6).map((d) => d.trackers), tFallback),
+      buildKpi(document, tFallback("ovKpiPopups", "Pop-ups stopped"), kinds.popups, changePercent(kinds.popups, prev?.kinds.popups), usage.dailyKinds.slice(0, 6).map((d) => d.popups), tFallback)
+    );
+  void renderOverviewTops(usage);
 }
 
-// Quick actions reuse the real buttons, so they behave exactly the same.
-document.getElementById("ov-pick-element")!.addEventListener("click", () => pickElementButton.click());
-document.getElementById("ov-save-backup")!.addEventListener("click", () => exportSettingsButton.click());
-document.getElementById("ov-check-fixes")!.addEventListener("click", () => aboutCheckFixesButton.click());
+/** Who tracks you most, Most blocked sites, Pages Moat stopped. */
+async function renderOverviewTops(usage: UsageSummaryResponse): Promise<void> {
+  const info = await loadCompanyInfo();
+  const sites = Math.max(usage.weekSiteCount, 1);
+  const companies = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count).slice(0, 5);
+  const companyIcon = (company: string) => {
+    const url = info[company]?.url;
+    let host = "";
+    try {
+      host = url ? new URL(url).hostname : "";
+    } catch {
+      host = "";
+    }
+    return host ? siteIcon(host) : buildSiteIcon(document, company, null);
+  };
+  const ofSites = tFallback("ovOfSites", `of ${sites}`, String(sites));
+  const topSites = usage.topSites.slice(0, 5);
+  const maxSite = Math.max(...topSites.map((s) => s.count), 1);
+  const rel = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  const ago = (time: number) => {
+    const days = Math.round((time - Date.now()) / 86_400_000);
+    if (days !== 0) return rel.format(days, "day");
+    const hours = Math.round((time - Date.now()) / 3_600_000);
+    return hours !== 0 ? rel.format(hours, "hour") : rel.format(Math.round((time - Date.now()) / 60_000), "minute");
+  };
+  document.getElementById("ov-tops")!.replaceChildren(
+    buildTopCard(
+      document,
+      tFallback("ovTopTrackersTitle", "Who tracks you most"),
+      tFallback("ovTopTrackersSub", "Sites each company was on"),
+      companies.map((c) => ({
+        icon: companyIcon(c.company),
+        name: c.company,
+        value: c.hostnameCount.toLocaleString(),
+        sub: ofSites,
+        share: c.hostnameCount / sites,
+        title: (usage.companySites[c.company] ?? []).join(", "),
+      })),
+      tFallback("ovTopTrackersEmpty", "No tracker companies this week yet.")
+    ),
+    buildTopCard(
+      document,
+      tFallback("ovTopSitesTitle", "Most blocked sites"),
+      tFallback("ovTopSitesSub", "Ads, trackers and pop-ups stopped"),
+      topSites.map((s) => ({ icon: siteIcon(s.hostname), name: s.hostname.replace(/^www\./, ""), value: s.count.toLocaleString(), share: s.count / maxSite })),
+      tFallback("ovTopSitesEmpty", "Browse a few sites and they show up here.")
+    ),
+    buildTopCard(
+      document,
+      tFallback("ovTopStopsTitle", "Pages Moat stopped"),
+      tFallback("ovTopStopsSub", "Whole pages that never loaded"),
+      usage.pageStops.slice(0, 5).map((stop) => ({ icon: siteIcon(stop.hostname), name: stop.hostname, value: ago(stop.time), share: null })),
+      tFallback("ovTopStopsEmpty", "None this week.")
+    )
+  );
+}
 
 // company name -> { description, url }, fetched once on first view. Lazy on
 // purpose: it's ~450KB of text nobody needs unless they open this tab.
