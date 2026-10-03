@@ -47,6 +47,9 @@ export interface UsageDay {
   kinds?: BlockKinds;
   /** Blocks per site (capped like `hostnames`). From 0.11.204. */
   hostCounts?: Record<string, number>;
+  /** Blocks per site by kind (capped like `hostnames`), for a site's own
+   * panel on Sites. From 0.11.238. */
+  hostKinds?: Record<string, BlockKinds>;
   /** Blocks per local hour, 24 entries. From 0.11.204. */
   hours?: number[];
   /** Tracker blocks by TrackerDB purpose. From 0.11.204. */
@@ -180,13 +183,20 @@ export function recordCompanyMatches(
 
 export const NO_KINDS: BlockKinds = { ads: 0, trackers: 0, popups: 0 };
 
-export function recordBlockKinds(state: UsageStatsState, kinds: Partial<BlockKinds>, when: number): UsageStatsState {
+export function recordBlockKinds(state: UsageStatsState, kinds: Partial<BlockKinds>, when: number, hostname?: string): UsageStatsState {
   const entries = (Object.entries(kinds) as [keyof BlockKinds, number][]).filter(([, count]) => count > 0);
   if (entries.length === 0) return state;
   return withDay(state, dateKey(when), (day) => {
     const next = { ...NO_KINDS, ...day.kinds };
     for (const [kind, count] of entries) next[kind] += count;
-    return { ...day, kinds: next };
+    if (!hostname) return { ...day, kinds: next };
+    const hostKinds = { ...day.hostKinds };
+    if (hostname in hostKinds || Object.keys(hostKinds).length < MAX_HOSTNAMES_PER_BUCKET) {
+      const site = { ...NO_KINDS, ...hostKinds[hostname] };
+      for (const [kind, count] of entries) site[kind] += count;
+      hostKinds[hostname] = site;
+    }
+    return { ...day, kinds: next, hostKinds };
   });
 }
 
@@ -340,10 +350,26 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
     for (const [hostname, count] of Object.entries(day.hostCounts ?? {})) siteCounts.set(hostname, (siteCounts.get(hostname) ?? 0) + count);
     for (const [purpose, count] of Object.entries(day.purposes ?? {})) purposes[purpose] = (purposes[purpose] ?? 0) + count;
   }
+  const siteKinds = new Map<string, BlockKinds>();
+  for (const date of last7) {
+    for (const [hostname, k] of Object.entries(dayOrEmpty(state, date).hostKinds ?? {})) {
+      const sum = siteKinds.get(hostname) ?? { ...NO_KINDS };
+      sum.ads += k.ads;
+      sum.trackers += k.trackers;
+      sum.popups += k.popups;
+      siteKinds.set(hostname, sum);
+    }
+  }
+  // Each site's panel lists the tracker companies seen there, most blocked first.
+  const companiesBySite = new Map<string, string[]>();
+  for (const [company, { hostnames }] of [...companyTotals.entries()].sort((a, b) => b[1].count - a[1].count)) {
+    for (const hostname of hostnames) companiesBySite.set(hostname, [...(companiesBySite.get(hostname) ?? []), company]);
+  }
   const topSites = [...siteCounts.entries()]
     .map(([hostname, count]) => ({ hostname, count }))
     .sort((a, b) => b.count - a.count || a.hostname.localeCompare(b.hostname))
-    .slice(0, 20);
+    .slice(0, 20)
+    .map((site) => ({ ...site, kinds: siteKinds.get(site.hostname) ?? null, companies: companiesBySite.get(site.hostname) ?? [] }));
   const hours = last7.map((date) => {
     const h = dayOrEmpty(state, date).hours;
     return h?.length === 24 ? [...h] : new Array<number>(24).fill(0);

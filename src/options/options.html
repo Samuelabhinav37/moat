@@ -2690,6 +2690,98 @@
         font-weight: 600;
         text-align: left;
       }
+      /* Sites: a site's name opens its panel. */
+      .site-open {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+      .site-open:hover span {
+        text-decoration: underline;
+      }
+      .site-chev {
+        flex: none;
+        width: 14px;
+        height: 14px;
+        color: var(--muted);
+        transition: transform 0.2s var(--ease);
+      }
+      tr.open .site-chev {
+        transform: rotate(90deg);
+      }
+      tr.open td {
+        border-bottom-color: transparent;
+      }
+      .site-panel {
+        display: grid;
+        gap: 12px;
+        justify-items: start;
+        text-align: left;
+        margin: -4px 0 4px 34px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: var(--panel-2);
+      }
+      .sp-kinds {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin: 0;
+        color: var(--muted);
+      }
+      .sp-kinds b {
+        margin-left: 6px;
+        color: var(--fg);
+        font-variant-numeric: tabular-nums;
+      }
+      .sp-label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .sp-who ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .sp-who li {
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        font-size: 13px;
+      }
+      .sp-who li.more {
+        border-style: dashed;
+        color: var(--muted);
+      }
+      .site-open > span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      @media (max-width: 600px) {
+        .site-panel {
+          margin-left: 0;
+        }
+        /* A long site name shortens instead of pushing the switch off
+           the card. */
+        #s-table .site-open > span {
+          max-width: calc(100vw - 270px);
+        }
+      }
       .ins-table td {
         padding: 10px;
         border-bottom: 1px solid var(--line);

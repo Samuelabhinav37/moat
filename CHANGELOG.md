@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.238
+
+### Added
+- **Each site on Sites opens its own panel.** Click a site's name to see this week's blocks
+  there by kind (ads, trackers, pop-ups), the tracker companies seen there, and a button to
+  report a problem with it. Safari's Privacy Report opens a site the same way.
+- Moat now keeps each site's blocks by kind, so the split fills in as you browse. Sites from
+  before this version say so instead of guessing.
+
+### Changed
+- The Sites column with the switch is now called "Protected", which says what the switch means.
+- On phones a long site name shortens, so the switch stays on the card.
+
 ## 0.11.237
 
 ### Changed

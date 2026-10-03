@@ -220,8 +220,8 @@ describe("Insights counters (0.11.204)", () => {
     state = recordBlockedTotal(state, "shop.example", 4, at(21));
     const summary = summarize(state, at(22));
     expect(summary.topSites).toEqual([
-      { hostname: "news.example", count: 7 },
-      { hostname: "shop.example", count: 4 },
+      { hostname: "news.example", count: 7, kinds: null, companies: [] },
+      { hostname: "shop.example", count: 4, kinds: null, companies: [] },
     ]);
     expect(summary.hours[6]![9]).toBe(5);
     expect(summary.hours[6]![21]).toBe(6);
@@ -260,5 +260,23 @@ describe("Insights counters (0.11.204)", () => {
     let state = EMPTY_STATE;
     for (const site of ["a.example", "b.example", "c.example", "d.example", "e.example", "f.example"]) state = recordCompanyMatches(state, site, { Google: 1 }, at(10));
     expect(summarize(state, at(11)).companySites.Google).toHaveLength(5);
+  });
+});
+
+describe("per-site detail for the Sites panel", () => {
+  it("keeps each site's blocks by kind and lists the companies seen there, most blocked first", () => {
+    let state: UsageStatsState = EMPTY_STATE;
+    state = recordBlockedTotal(state, "news.example", 30, NOW);
+    state = recordBlockKinds(state, { ads: 10, trackers: 18, popups: 2 }, NOW, "news.example");
+    state = recordBlockKinds(state, { ads: 5 }, NOW);
+    state = recordCompanyMatches(state, "news.example", { Meta: 3, Google: 9 }, NOW);
+    const site = summarize(state, NOW).topSites.find((s) => s.hostname === "news.example")!;
+    expect(site.kinds).toEqual({ ads: 10, trackers: 18, popups: 2 });
+    expect(site.companies).toEqual(["Google", "Meta"]);
+  });
+
+  it("has no split for a site recorded before it was kept", () => {
+    const state = recordBlockedTotal(EMPTY_STATE, "old.example", 4, NOW);
+    expect(summarize(state, NOW).topSites[0]).toMatchObject({ hostname: "old.example", kinds: null, companies: [] });
   });
 });

@@ -733,7 +733,9 @@ export interface UsageSummaryResponse {
   /** Distinct sites with a block this week. */
   weekSiteCount: number;
   /** Sites with the most blocks this week (from 0.11.204 on), most first. */
-  topSites: Array<{ hostname: string; count: number }>;
+  /** `kinds` is null for blocks recorded before 0.11.238 kept them per
+   * site; `companies` are the tracker companies seen there, most first. */
+  topSites: Array<{ hostname: string; count: number; kinds?: BlockKinds | null; companies?: string[] }>;
   /** Blocks per hour of day for each of the last 7 days, oldest first: 7 x 24. */
   hours: number[][];
   /** Tracker blocks this week by TrackerDB purpose ("advertising", "site_analytics", ...). */

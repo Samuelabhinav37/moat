@@ -516,6 +516,33 @@ describe("Security: stops grouped by what stopped them", () => {
   });
 });
 
+describe("Sites: a site opens its own panel", () => {
+  it("shows the week's blocks there by kind and the companies seen there", async () => {
+    const d = new Date();
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const day = {
+      date,
+      total: 40,
+      hostnames: ["news.example"],
+      hostCounts: { "news.example": 40 },
+      hostKinds: { "news.example": { ads: 10, trackers: 28, popups: 2 } },
+      signals: {},
+      companies: { Google: { count: 20, hostnames: ["news.example"] }, Meta: { count: 8, hostnames: ["news.example"] } },
+      kinds: { ads: 10, trackers: 28, popups: 2 },
+    };
+    await renderOptions({ disabledSites: [] }, { usageStats: { days: { [date]: day } } });
+    const open = document.querySelector<HTMLButtonElement>("#s-table .site-open")!;
+    const panel = document.getElementById(open.getAttribute("aria-controls")!)!;
+    expect(panel.hidden).toBe(true);
+    open.click();
+    expect(panel.hidden).toBe(false);
+    expect(open.getAttribute("aria-expanded")).toBe("true");
+    expect(panel.querySelector(".sp-kinds")?.textContent).toBe("Ads10Trackers28Pop-ups2");
+    expect([...panel.querySelectorAll(".sp-who li")].map((li) => li.textContent)).toEqual(["Google", "Meta"]);
+    expect(document.querySelector("#s-table th:last-child")?.textContent).toBe("Protected");
+  });
+});
+
 describe("Pausing for a while", () => {
   it("pauses from Exceptions for the length picked, with a real label on the field", async () => {
     await renderOptions();

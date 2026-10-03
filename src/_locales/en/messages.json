@@ -2830,8 +2830,30 @@
     "description": "Table column."
   },
   "insColMoat": {
-    "message": "Moat",
-    "description": "Table column: Moat on/off switch."
+    "message": "Protected",
+    "description": "Table column: Moat on/off switch for the site."
+  },
+  "siteNoSplit": {
+    "message": "Moat started sorting this site's blocks by kind in this version. The split shows up as you browse.",
+    "description": "Sites panel: the site has blocks from before Moat kept them per site by kind."
+  },
+  "siteCompaniesSeen": {
+    "message": "Tracker companies seen here"
+  },
+  "siteCompaniesMore": {
+    "message": "and $N$ more",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "siteNoCompanies": {
+    "message": "None that Moat could name."
+  },
+  "siteReport": {
+    "message": "Report a problem with this site"
   },
   "insSitesOf": {
     "message": "$A$ of $B$ sites",

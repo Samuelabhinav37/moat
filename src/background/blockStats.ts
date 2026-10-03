@@ -107,7 +107,7 @@ export async function recordDynamicCatch(tabId: number, hostname: string): Promi
   recordBlock(tabId);
   await paint(tabId);
   if (hostname) void recordBlockedTotal(hostname, 1);
-  void recordBlockKinds({ popups: 1 });
+  void recordBlockKinds({ popups: 1 }, hostname || undefined);
 }
 
 // What each tab's current page has already added to the weekly usage stats.
@@ -152,7 +152,7 @@ export async function refreshStaticBreakdown(tabId: number, hostname: string): P
     popups: b.popups,
   });
   recordedKindsByTab.set(tabId, kinds.next);
-  if (Object.keys(kinds.counts).length > 0) void recordBlockKinds(kinds.counts);
+  if (Object.keys(kinds.counts).length > 0) void recordBlockKinds(kinds.counts, hostname);
 }
 
 export function forgetTab(tabId: number): void {

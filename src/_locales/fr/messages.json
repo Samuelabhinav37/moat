@@ -2669,8 +2669,30 @@
     "description": "Table column."
   },
   "insColMoat": {
-    "message": "Moat",
-    "description": "Table column: Moat on/off switch."
+    "message": "Protégé",
+    "description": "Table column: Moat on/off switch for the site."
+  },
+  "siteNoSplit": {
+    "message": "Moat trie les blocages de ce site par type depuis cette version. La répartition apparaîtra au fil de votre navigation.",
+    "description": "Sites panel: the site has blocks from before Moat kept them per site by kind."
+  },
+  "siteCompaniesSeen": {
+    "message": "Sociétés de pistage vues ici"
+  },
+  "siteCompaniesMore": {
+    "message": "et $N$ de plus",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "siteNoCompanies": {
+    "message": "Aucune que Moat ait pu nommer."
+  },
+  "siteReport": {
+    "message": "Signaler un problème avec ce site"
   },
   "insSitesOf": {
     "message": "$A$ sur $B$ sites",

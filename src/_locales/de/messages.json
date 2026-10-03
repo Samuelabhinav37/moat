@@ -2669,8 +2669,30 @@
     "description": "Table column."
   },
   "insColMoat": {
-    "message": "Moat",
-    "description": "Table column: Moat on/off switch."
+    "message": "Geschützt",
+    "description": "Table column: Moat on/off switch for the site."
+  },
+  "siteNoSplit": {
+    "message": "Moat sortiert die Blockierungen dieser Website erst seit dieser Version nach Art. Die Aufteilung erscheint, während du surfst.",
+    "description": "Sites panel: the site has blocks from before Moat kept them per site by kind."
+  },
+  "siteCompaniesSeen": {
+    "message": "Hier gesehene Tracking-Firmen"
+  },
+  "siteCompaniesMore": {
+    "message": "und $N$ weitere",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "siteNoCompanies": {
+    "message": "Keine, die Moat benennen konnte."
+  },
+  "siteReport": {
+    "message": "Problem mit dieser Website melden"
   },
   "insSitesOf": {
     "message": "$A$ von $B$ Seiten",

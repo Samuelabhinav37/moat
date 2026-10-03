@@ -2419,7 +2419,7 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
     ["insColSite", "Site", ""],
     ["insColBlocked", "Blocked", "hide-sm"],
     ["insColTotal", "Total", ""],
-    ["insColMoat", "Moat", ""],
+    ["insColMoat", "Protected", ""],
   ] as const) {
     const th = document.createElement("th");
     th.textContent = tFallback(key, fallback);
@@ -2440,7 +2440,15 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
     const label = document.createElement("span");
     label.id = `site-row-${site.hostname}`;
     label.textContent = site.hostname.replace(/^www\./, "");
-    wrap.append(siteIcon(site.hostname), label);
+    // The site's name opens its panel: what was blocked there and who.
+    const open = document.createElement("button");
+    open.type = "button";
+    open.className = "site-open";
+    open.setAttribute("aria-expanded", "false");
+    const detailId = `site-detail-${site.hostname}`;
+    open.setAttribute("aria-controls", detailId);
+    open.append(siteIcon(site.hostname), label, chevron());
+    wrap.append(open);
     name.append(wrap);
     const barCell = document.createElement("td");
     barCell.className = "hide-sm";
@@ -2478,7 +2486,14 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
     const until = paused ? pausedNote(settings, site.hostname) : null;
     if (until) control.append(Object.assign(document.createElement("small"), { className: "row-note", textContent: until }));
     row.append(name, barCell, total, control);
-    tbody.append(row);
+    const detail = buildSitePanel(site, detailId);
+    open.addEventListener("click", () => {
+      const show = detail.hidden;
+      detail.hidden = !show;
+      open.setAttribute("aria-expanded", String(show));
+      row.classList.toggle("open", show);
+    });
+    tbody.append(row, detail);
   }
   table.append(thead, tbody);
   const sitesHost = document.getElementById("s-table");
@@ -2586,6 +2601,80 @@ function buildStopGroup(key: string, title: string, stops: UsageSummaryResponse[
 }
 
 const SECURITY_GROUPS = ["phishing-urls", "scam", "malicious-urls", "badware"];
+
+function chevron(): SVGSVGElement {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "site-chev");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "1.75");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  svg.setAttribute("aria-hidden", "true");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "m9 6 6 6-6 6");
+  svg.append(path);
+  return svg;
+}
+
+/** A site's own panel on Sites (Safari's Privacy Report opens a site the
+ * same way): the week's blocks there by kind, the tracker companies seen
+ * there, and a way to report a problem with it. Pausing stays on the row's
+ * switch. */
+function buildSitePanel(site: UsageSummaryResponse["topSites"][number], id: string): HTMLTableRowElement {
+  const row = document.createElement("tr");
+  row.className = "site-detail";
+  row.id = id;
+  row.hidden = true;
+  const cell = document.createElement("td");
+  cell.colSpan = 4;
+  const panel = document.createElement("div");
+  panel.className = "site-panel";
+
+  const kinds = document.createElement("p");
+  kinds.className = "sp-kinds";
+  if (site.kinds) {
+    const parts: [string, number][] = [
+      [tFallback("ovKindAdsTitle", "Ads"), site.kinds.ads],
+      [tFallback("ovKindTrackersTitle", "Trackers"), site.kinds.trackers],
+      [tFallback("ovKindPopupsTitle", "Pop-ups"), site.kinds.popups],
+    ];
+    for (const [nameText, count] of parts) {
+      const item = document.createElement("span");
+      item.append(document.createTextNode(nameText), Object.assign(document.createElement("b"), { textContent: count.toLocaleString() }));
+      kinds.append(item);
+    }
+  } else {
+    kinds.textContent = tFallback("siteNoSplit", "Moat started sorting this site's blocks by kind in this version. The split shows up as you browse.");
+  }
+
+  const who = document.createElement("div");
+  who.className = "sp-who";
+  const companies = site.companies ?? [];
+  who.append(Object.assign(document.createElement("span"), { className: "sp-label", textContent: tFallback("siteCompaniesSeen", "Tracker companies seen here") }));
+  if (companies.length) {
+    const list = document.createElement("ul");
+    for (const company of companies.slice(0, 8)) list.append(Object.assign(document.createElement("li"), { textContent: company }));
+    if (companies.length > 8) list.append(Object.assign(document.createElement("li"), { className: "more", textContent: tFallback("siteCompaniesMore", `and ${companies.length - 8} more`, String(companies.length - 8)) }));
+    who.append(list);
+  } else {
+    who.append(Object.assign(document.createElement("span"), { className: "sp-none", textContent: tFallback("siteNoCompanies", "None that Moat could name.") }));
+  }
+
+  const actions = document.createElement("div");
+  actions.className = "sp-actions";
+  const report = Object.assign(document.createElement("button"), { type: "button", className: "ab-btn", textContent: tFallback("siteReport", "Report a problem with this site") });
+  report.addEventListener("click", () => {
+    void browser.tabs.create({ url: browser.runtime.getURL(`report.html?${new URLSearchParams({ site: site.hostname })}`) });
+  });
+  actions.append(report);
+
+  panel.append(kinds, who, actions);
+  cell.append(panel);
+  row.append(cell);
+  return row;
+}
 
 // company name -> { description, url }, fetched once on first view. Lazy on
 // purpose: it's ~450KB of text nobody needs unless they open this tab.

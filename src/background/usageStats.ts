@@ -49,8 +49,8 @@ export function recordBlockedTotal(hostname: string, count: number): Promise<voi
   return mutate((state, when) => recordBlockedTotalPure(state, hostname, count, when));
 }
 
-export function recordBlockKinds(kinds: Partial<BlockKinds>): Promise<void> {
-  return mutate((state, when) => recordBlockKindsPure(state, kinds, when));
+export function recordBlockKinds(kinds: Partial<BlockKinds>, hostname?: string): Promise<void> {
+  return mutate((state, when) => recordBlockKindsPure(state, kinds, when, hostname));
 }
 
 export function recordCompanyMatches(hostname: string, companyBreakdown: Record<string, number>): Promise<void> {
