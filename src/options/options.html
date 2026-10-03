@@ -32,6 +32,8 @@
         --tint-line: rgba(111, 155, 224, 0.45);
         --tip-bg: #0d0c10;
         --kpi-fade: rgba(31, 36, 51, 0.55);
+        --today-line: #44527a;
+        --grid: #2a2d38;
       }
       /* Light theme: pale tinted surfaces, darker blues so text and links keep 4.5:1. */
       :root[data-theme="light"] {
@@ -51,6 +53,8 @@
         --tint-line: rgba(53, 99, 199, 0.35);
         --tip-bg: #ffffff;
         --kpi-fade: rgba(232, 238, 251, 0.6);
+        --today-line: #9fb3dd;
+        --grid: #e4e2ea;
       }
       /* An element's own `display` beats the [hidden] attribute's UA default
          (author styles always win), which once let a hidden panel and the
@@ -374,7 +378,7 @@
         transition: border-color 0.2s, background 0.2s;
       }
       .level:hover:not(:disabled) {
-        border-color: #45414c;
+        border-color: var(--line-2);
       }
       .level[aria-checked="true"] {
         border-color: var(--blue);
@@ -396,7 +400,7 @@
         width: 18px;
         height: 18px;
         box-sizing: border-box;
-        border: 2px solid #5c5763;
+        border: 2px solid var(--sw-off);
         border-radius: 50%;
       }
       .level[aria-checked="true"] .level-radio {
@@ -1953,11 +1957,16 @@
       .ov-headline b {
         color: var(--fg);
       }
-      /* Week chart: one blue family, 2px gaps, faint grid with values. */
-      .k-ads { --k: #a9c4f0; }
-      .k-trackers { --k: #5b8ae0; }
-      .k-popups { --k: #2f57ad; }
+      /* Week chart: three hues told apart by people with any kind of colour
+         vision (blue, magenta, amber; checked for colour-blind separation
+         and 3:1 contrast in both themes), 2px gaps, faint grid with values.
+         Red and green stay reserved for meaning. */
+      .k-ads { --k: #3987e5; }
+      .k-trackers { --k: #d55181; }
+      .k-popups { --k: #c98500; }
       .k-other { --k: var(--sw-off); }
+      :root[data-theme="light"] .k-ads { --k: #2a78d6; }
+      :root[data-theme="light"] .k-popups { --k: #b87a00; }
       .ovc {
         margin-top: 18px;
       }
@@ -1980,7 +1989,7 @@
         position: absolute;
         left: 0;
         right: 0;
-        border-top: 1px dashed #2a2d38;
+        border-top: 1px dashed var(--grid);
       }
       .ovc-line span {
         position: absolute;
@@ -2026,7 +2035,7 @@
         border-radius: 6px 6px 0 0;
       }
       .ovc-col.today .ovc-stack {
-        outline: 1px dashed #44527a;
+        outline: 1px dashed var(--today-line);
         outline-offset: 3px;
         border-radius: 6px 6px 0 0;
       }
@@ -2780,7 +2789,7 @@
         transition: border-color 0.16s, transform 0.16s var(--ease);
       }
       .hp-topic:hover {
-        border-color: #3c3843;
+        border-color: var(--line-2);
       }
       .hp-topic:active {
         transform: scale(0.985);
@@ -2966,7 +2975,7 @@
         align-items: center;
         height: 20px;
         padding: 0 8px;
-        background: #33303a;
+        background: var(--panel-3);
       }
       .hp-bar i {
         width: 7px;

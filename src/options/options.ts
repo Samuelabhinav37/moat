@@ -2482,7 +2482,7 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
         wrap.append(siteIcon(stop.hostname), name);
         td.append(wrap);
         const when = document.createElement("td");
-        when.className = "muted";
+        when.className = "muted hide-sm";
         when.textContent = new Date(stop.time).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" });
         // A safe page on a danger list can't be allowed from here (the
         // security lists outrank "Never block", see rulePriorities.ts), so

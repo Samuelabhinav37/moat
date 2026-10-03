@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.222
+
+### Changed
+- **The week chart's colours are easier to tell apart.** Ads, trackers and pop-ups were three
+  shades of blue, and pop-ups was nearly invisible on the dark background. They are now blue,
+  magenta and amber. The set was checked for people with colour blindness and for contrast
+  against both themes. Red and green stay reserved for meaning, such as on and off.
+- The chart's grid lines are faint in the light theme too, and a few borders on Protection and
+  in Help follow the theme.
+- On a phone, Security drops the time column so each row fits with its Report a mistake button.
+
 ## 0.11.221
 
 ### Changed
