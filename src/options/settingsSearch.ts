@@ -8,6 +8,8 @@ import { pageFromHash, revealTab, type PageKey } from "./dashboard";
 
 export interface SearchItem {
   title: string;
+  /** Runs instead of going to the target (Help topics). */
+  open?: () => void;
   /** Extra text that matches but isn't shown (the row's description). */
   detail: string;
   /** Where it lives, shown under the title: "Blocking › Features". */
@@ -45,8 +47,57 @@ export function collectItems(doc: Document = document): SearchItem[] {
       const title = text(field.querySelector(".field-label"));
       if (title) items.push({ title, detail: text(field.querySelector(".field-hint")), where, page, target: field });
     }
+    // Insights and Overview cards.
+    for (const card of section.querySelectorAll<HTMLElement>(".ttl, .ov-week-head")) {
+      const title = text(card.querySelector("h3"));
+      if (title) items.push({ title, detail: text(card.querySelector("p")), where: screen, page, target: card.parentElement ?? card });
+    }
+    // What you added yourself: paused sites, hidden parts, your rules.
+    for (const row of section.querySelectorAll<HTMLElement>("[data-search]")) {
+      const title = row.dataset.search?.trim();
+      if (title) items.push({ title, detail: "", where, page, target: row });
+    }
   }
   return items;
+}
+
+/** Words people type for things Moat names differently. Each query word
+ * also matches any of these. */
+export const SYNONYMS: Record<string, string[]> = {
+  fingerprint: ["recogniz"],
+  fingerprinting: ["recogniz"],
+  whitelist: ["never block", "always and never"],
+  allowlist: ["never block", "always and never"],
+  allow: ["never block", "always and never"],
+  blacklist: ["always block", "always and never"],
+  blocklist: ["always block", "lists"],
+  element: ["hidden", "hide"],
+  hide: ["hidden"],
+  popup: ["pop-up"],
+  popups: ["pop-up"],
+  vpn: ["ip address"],
+  webrtc: ["ip address"],
+  whitelisted: ["never block", "paused"],
+  disable: ["pause", "off"],
+  stats: ["blocked", "trackers"],
+  analytics: ["trackers"],
+  export: ["backup"],
+  import: ["restore", "import"],
+  update: ["fixes", "lists"],
+};
+
+/** Things people look for that Moat has no setting for, with the answer. */
+export const NO_SETTING: Record<string, { key: string; fallback: string }> = {
+  "dark mode": { key: "searchAnswerTheme", fallback: "Moat follows your system's light or dark theme." },
+  theme: { key: "searchAnswerTheme", fallback: "Moat follows your system's light or dark theme." },
+  language: { key: "searchAnswerLanguage", fallback: "Moat uses your browser's language." },
+  account: { key: "searchAnswerAccount", fallback: "Moat has no account. Everything stays in this browser." },
+};
+
+export function noSettingAnswer(query: string): { key: string; fallback: string } | null {
+  const q = query.trim().toLowerCase();
+  for (const [phrase, answer] of Object.entries(NO_SETTING)) if (q.length >= 3 && phrase.startsWith(q)) return answer;
+  return null;
 }
 
 /** Every word of the query must appear in the title or detail. Title
@@ -57,11 +108,18 @@ export function rankItems(items: readonly SearchItem[], query: string): SearchIt
   if (words.length === 0) return [];
   const q = words.join(" ");
   const scored: { item: SearchItem; score: number; index: number }[] = [];
+  const forms = (word: string) => [word, ...(SYNONYMS[word] ?? [])];
   items.forEach((item, index) => {
     const title = item.title.toLowerCase();
-    const all = `${title} ${item.detail.toLowerCase()}`;
-    if (!words.every((word) => all.includes(word))) return;
-    const score = title.startsWith(q) ? 0 : words.every((word) => title.includes(word)) ? 1 : 2;
+    const all = `${title} ${item.detail.toLowerCase()} ${item.where.toLowerCase()}`;
+    if (!words.every((word) => forms(word).some((f) => all.includes(f)))) return;
+    const score = title.startsWith(q)
+      ? 0
+      : words.every((word) => title.includes(word))
+        ? 1
+        : words.every((word) => forms(word).some((f) => title.includes(f)))
+          ? 2
+          : 3;
     scored.push({ item, score, index });
   });
   scored.sort((a, b) => a.score - b.score || a.index - b.index);
@@ -70,6 +128,9 @@ export function rankItems(items: readonly SearchItem[], query: string): SearchIt
 
 export interface SearchOptions {
   noResults: string;
+  /** More results from outside the page (Help topics). */
+  extraItems?: () => SearchItem[];
+  translate?: (key: string, fallback: string) => string;
 }
 
 export function initSettingsSearch(input: HTMLInputElement, list: HTMLUListElement, options: SearchOptions): void {
@@ -96,6 +157,10 @@ export function initSettingsSearch(input: HTMLInputElement, list: HTMLUListEleme
     close();
     input.value = "";
     input.blur();
+    if (item.open) {
+      item.open();
+      return;
+    }
     if (pageFromHash(win.location.hash) !== item.page) win.location.hash = item.page;
     // A closed "Show all" disclosure would keep the row out of sight.
     for (let el: HTMLElement | null = item.target; el; el = el.parentElement) {
@@ -112,7 +177,7 @@ export function initSettingsSearch(input: HTMLInputElement, list: HTMLUListEleme
   };
 
   const renderResults = () => {
-    results = rankItems(collectItems(doc), input.value);
+    results = rankItems([...collectItems(doc), ...(options.extraItems?.() ?? [])], input.value);
     const query = input.value.trim();
     if (!query) {
       close();
@@ -138,7 +203,15 @@ export function initSettingsSearch(input: HTMLInputElement, list: HTMLUListEleme
             });
             return li;
           })
-        : [Object.assign(doc.createElement("li"), { className: "result-empty", textContent: options.noResults })])
+        : [
+            Object.assign(doc.createElement("li"), {
+              className: "result-empty",
+              textContent: (() => {
+                const answer = noSettingAnswer(query);
+                return answer ? (options.translate ?? ((_k: string, f: string) => f))(answer.key, answer.fallback) : options.noResults;
+              })(),
+            }),
+          ])
     );
     list.hidden = false;
     input.setAttribute("aria-expanded", "true");

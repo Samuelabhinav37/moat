@@ -18,7 +18,7 @@ import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { initSettingsSearch } from "./settingsSearch";
 import { initNavMode } from "./navMode";
-import { initHelpPanel } from "./helpPanel";
+import { TOPICS, initHelpPanel } from "./helpPanel";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
 import { buildKpi, buildTopCard, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
 import { buildHeatmap, buildPurposes, buildReachRows, busiestPhrase, purposeLabel, purposeShares } from "./insightsView";
@@ -140,7 +140,7 @@ for (const [flow, brand] of [["updates", "github"], ["breach", "haveibeenpwned"]
   if (to) prependBrand(to, brand);
 }
 initDashboard(window, explainerPanel.showScreen);
-initHelpPanel(document, {
+const helpPanel = initHelpPanel(document, {
   t: tFallback,
   currentScreen: () => pageFromHash(window.location.hash),
   report: () => void browser.tabs.create({ url: browser.runtime.getURL("report.html") }),
@@ -159,7 +159,19 @@ initNavMode(window, {
 initSettingsSearch(
   document.getElementById("settings-search") as HTMLInputElement,
   document.getElementById("search-results") as HTMLUListElement,
-  { noResults: tFallback("searchNoResults", "No settings match.") }
+  {
+    noResults: tFallback("searchNoResults", "No settings match."),
+    translate: tFallback,
+    extraItems: () =>
+      TOPICS.map((topic) => ({
+        title: tFallback(topic.title[0], topic.title[1]),
+        detail: tFallback(topic.sub[0], topic.sub[1]),
+        where: tFallback("settingsHelp", "Help"),
+        page: pageFromHash(window.location.hash),
+        target: document.body,
+        open: () => helpPanel.openTopic(topic.id),
+      })),
+  }
 );
 
 const savedToast = createSavedToast(

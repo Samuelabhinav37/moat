@@ -2958,5 +2958,17 @@
         "example": "2"
       }
     }
+  },
+  "searchAnswerTheme": {
+    "message": "Moat follows your system's light or dark theme.",
+    "description": "Settings search: answer when there is no setting for what was typed."
+  },
+  "searchAnswerLanguage": {
+    "message": "Moat uses your browser's language.",
+    "description": "Settings search: answer when there is no setting for what was typed."
+  },
+  "searchAnswerAccount": {
+    "message": "Moat has no account. Everything stays in this browser.",
+    "description": "Settings search: answer when there is no setting for what was typed."
   }
 }

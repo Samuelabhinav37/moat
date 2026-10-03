@@ -194,7 +194,7 @@ export interface HelpOptions {
   testPageUrl: string;
 }
 
-export function initHelpPanel(doc: Document, options: HelpOptions): { open: () => void; close: () => void; isOpen: () => boolean } {
+export function initHelpPanel(doc: Document, options: HelpOptions): { open: () => void; close: () => void; isOpen: () => boolean; openTopic: (id: string) => void } {
   const { t } = options;
   const win = doc.defaultView ?? window;
   const panel = doc.getElementById("help-panel")!;
@@ -360,5 +360,9 @@ export function initHelpPanel(doc: Document, options: HelpOptions): { open: () =
   win.addEventListener("hashchange", () => {
     if (isOpen() && topicId === null) showList();
   });
-  return { open, close, isOpen };
+  const openTopic = (id: string) => {
+    if (!isOpen()) open();
+    showTopic(id);
+  };
+  return { open, close, isOpen, openTopic };
 }

@@ -120,3 +120,41 @@ describe("initSettingsSearch", () => {
     expect(document.activeElement).toBe(input);
   });
 });
+
+describe("finding what people type", () => {
+  it("matches common other names and lands on the screen they mean", () => {
+    expect(titles(rankItems(collectItems(), "whitelist")).slice(0, 2)).toContain("Never block");
+    expect(rankItems(collectItems(), "whitelist")[0]!.page).toBe("exceptions");
+    expect(rankItems(collectItems(), "allow")[0]!.page).toBe("exceptions");
+  });
+
+  it("finds sites you added yourself, on their screen", () => {
+    document.querySelector('section[data-tab="rules"]')!.insertAdjacentHTML("beforeend", '<ul><li data-search="bank.example">bank.example</li></ul>');
+    const hit = rankItems(collectItems(), "bank")[0]!;
+    expect(hit.title).toBe("bank.example");
+    expect(hit.page).toBe("exceptions");
+  });
+
+  it("answers questions Moat has no setting for", async () => {
+    const { noSettingAnswer } = await import("./settingsSearch");
+    expect(noSettingAnswer("dark")!.fallback).toBe("Moat follows your system's light or dark theme.");
+    expect(noSettingAnswer("da")).toBeNull();
+    const input = document.getElementById("q") as HTMLInputElement;
+    const list = document.getElementById("results") as HTMLUListElement;
+    initSettingsSearch(input, list, { noResults: "No settings match." });
+    input.value = "dark mode";
+    input.dispatchEvent(new Event("input"));
+    expect(list.textContent).toBe("Moat follows your system's light or dark theme.");
+  });
+
+  it("runs an extra result's own action (Help topics)", () => {
+    const input = document.getElementById("q") as HTMLInputElement;
+    const list = document.getElementById("results") as HTMLUListElement;
+    let opened = "";
+    initSettingsSearch(input, list, { noResults: "x", extraItems: () => [{ title: "Page won't load", detail: "", where: "Help", page: "overview", target: document.body, open: () => (opened = "load") }] });
+    input.value = "won't load";
+    input.dispatchEvent(new Event("input"));
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    expect(opened).toBe("load");
+  });
+});

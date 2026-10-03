@@ -2794,5 +2794,17 @@
         "example": "2"
       }
     }
+  },
+  "searchAnswerTheme": {
+    "message": "Moat sigue el tema claro u oscuro de tu sistema.",
+    "description": "Settings search: answer when there is no setting for what was typed."
+  },
+  "searchAnswerLanguage": {
+    "message": "Moat usa el idioma de tu navegador.",
+    "description": "Settings search: answer when there is no setting for what was typed."
+  },
+  "searchAnswerAccount": {
+    "message": "Moat no tiene cuenta. Todo se queda en este navegador.",
+    "description": "Settings search: answer when there is no setting for what was typed."
   }
 }

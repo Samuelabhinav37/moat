@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.208
+
+### Changed
+- **Settings search finds what people type.** Tested with real searches before and after:
+  - Other names for the same thing now match: "fingerprint" finds Stop sites recognizing your
+    device, "whitelist" and "allow" find Always and never block, "hide element" finds Hidden on
+    pages, "vpn" finds Keep your IP address private. Before, these found nothing or the wrong row.
+  - Sites you added yourself are searchable (paused sites, hidden parts, your rules), and open
+    the right Exceptions tab.
+  - The Insights cards and the Help topics are searchable. Picking a Help topic opens it in the
+    Help panel.
+  - Searches for things Moat has no setting for get an answer instead of "No settings match":
+    dark mode or theme, language, account.
+
 ## 0.11.207
 
 ### Added
