@@ -83,7 +83,7 @@ export function buildPrivacyBody({ fullHtml, version, updated }) {
   <div class="pv-table" role="list">
     <div class="pv-head" aria-hidden="true"><span></span><span>What</span><span>What's sent</span><span>Who receives it</span><span>When</span><span></span></div>
     ${CONNECTIONS.map(([icon, name, sent, who, when, st, detail]) => `
-    <details class="pv-row" role="listitem">
+    <div class="pv-item" role="listitem"><details class="pv-row">
       <summary>
         <span class="pv-ico">${ic(icon, 18)}</span>
         <span class="pv-name">${name}</span>
@@ -93,7 +93,7 @@ export function buildPrivacyBody({ fullHtml, version, updated }) {
         <span class="pv-chev">${ic("chev", 16)}</span>
       </summary>
       <div class="pv-detail">${detail.map((p) => `<p>${p}</p>`).join("")}</div>
-    </details>`).join("")}
+    </details></div>`).join("")}
   </div>
   <p class="pv-note">${ic("lock", 16)} Nothing else in Moat uses the network. The filter lists ship inside the extension.</p>
 </section>

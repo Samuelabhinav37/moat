@@ -214,7 +214,7 @@ export interface RankRow {
 export function buildTopCard(doc: Document, title: string, takeaway: string, rows: RankRow[], empty: string, link?: { href: string; label: string }): HTMLElement {
   const card = el(doc, "div", "ov-top");
   const head = el(doc, "div", "ov-top-head");
-  head.append(el(doc, "h3", "", title), el(doc, "p", "", takeaway));
+  head.append(el(doc, "h2", "", title), el(doc, "p", "", takeaway));
   card.append(head);
   if (!rows.length) {
     card.append(el(doc, "p", "ov-top-empty", empty));

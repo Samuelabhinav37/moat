@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <title>Moat</title>
     <link rel="stylesheet" href="theme.css" />
     <link rel="stylesheet" href="components.css" />
     <script src="theme-boot.js"></script>
@@ -442,7 +443,7 @@
   </head>
   <body>
     <header class="moat-header popup-head">
-      <span class="moat-brand moat-brand--sm">
+      <h1 class="moat-brand moat-brand--sm">
         <svg viewBox="0 0 32 32" aria-hidden="true" shape-rendering="geometricPrecision">
           <rect width="32" height="32" rx="7" fill="#030307" />
           <line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2" />
@@ -454,11 +455,13 @@
           <circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)" />
         </svg>
         <span>Moat</span>
-      </span>
+      </h1>
       <div class="moat-header-actions">
         <a href="#" id="open-options" data-i18n="popupSettingsLink">Settings</a>
       </div>
     </header>
+
+    <main>
 
     <div class="notice" id="onboarding-card" hidden>
       <span data-i18n="popupOnboardingCard"
@@ -573,6 +576,7 @@
     </div>
 
     <a href="#" class="week-link" id="week-link" hidden></a>
+    </main>
 
     <script src="popup.js"></script>
   </body>

@@ -67,7 +67,7 @@ export function collectItems(doc: Document = document): SearchItem[] {
     }
     // Insights and Overview cards.
     for (const card of section.querySelectorAll<HTMLElement>(".ttl, .ov-week-head")) {
-      const title = text(card.querySelector("h3"));
+      const title = text(card.querySelector("h2, h3"));
       if (title) items.push({ title, detail: text(card.querySelector("p")), where: screen, page, target: card.parentElement ?? card });
     }
     // What you added yourself: paused sites, hidden parts, your rules.

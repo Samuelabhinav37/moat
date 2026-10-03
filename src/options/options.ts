@@ -2536,7 +2536,7 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
         { key: "ads", title: tFallback("secGroupAds", "Ad pages that never loaded"), stops: stops.filter((s) => s.kind === "ads") },
         { key: "custom", title: tFallback("secGroupCustom", "On your block list"), stops: stops.filter((s) => s.kind === "custom") },
         { key: "policy", title: tFallback("secGroupPolicy", "Blocked by your organization"), stops: stops.filter((s) => s.kind === "policy") },
-        { key: "earlier", title: tFallback("secGroupEarlier", "Earlier, reason not recorded"), stops: stops.filter((s) => !s.kind) },
+        { key: "earlier", title: tFallback("secGroupEarlier", "List not known"), stops: stops.filter((s) => !s.kind || s.kind === "unknown") },
       ];
       list.replaceChildren(...groups.filter((g) => g.stops.length).map((g) => buildStopGroup(g.key, g.title, g.stops)));
     }
@@ -2557,7 +2557,7 @@ function buildStopGroup(key: string, title: string, stops: UsageSummaryResponse[
   const group = document.createElement("div");
   group.className = "stop-group";
   group.dataset.group = key;
-  const head = document.createElement("h4");
+  const head = document.createElement("h3");
   head.append(document.createTextNode(title), Object.assign(document.createElement("span"), { className: "n", textContent: stops.length.toLocaleString() }));
   const t2 = document.createElement("table");
   t2.className = "ins-table";

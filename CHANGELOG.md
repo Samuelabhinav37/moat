@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.243
+
+### Fixed
+- **The block page names a dangerous site's list even after heavy browsing.** It used to ask
+  Chrome which rule stopped the page, and Chrome allows only 20 of those questions every
+  10 minutes, which ordinary browsing can use up. A phishing site could then be described as
+  an ad page, with a plain "Open anyway" button. Moat now checks its own lists first: the danger
+  lists (bundled and today's), your block list and your organization's. It only asks Chrome to
+  name an ad or tracker list. When even that can't be answered, the page says Moat couldn't tell
+  which list it was, and keeps "Open anyway" under Details, as it does for dangerous sites.
+- **Clearer structure for screen readers.** Card headings in Settings no longer skip a level.
+  The popup has a title, a main region and a top-level heading, and Diagnostics has a main
+  region. The privacy page's list of connections is marked up correctly.
+
 ## 0.11.242
 
 ### Changed

@@ -2786,8 +2786,8 @@
     "message": "Blocked by your organization"
   },
   "secGroupEarlier": {
-    "message": "Earlier, reason not recorded",
-    "description": "Security: heading over stops from before Moat recorded which list stopped them."
+    "message": "List not known",
+    "description": "Security: heading over stops Moat couldn't trace to a list (from before lists were recorded, or when Chrome's lookup was unavailable)."
   },
   "insWhoTake": {
     "message": "was on $PCT$% of the sites you visited. Pick a company to see where.",
@@ -3493,6 +3493,9 @@
   },
   "blockedWhyAdsUnknown": {
     "message": "It's on one of Moat's lists of ad and tracker sites. Whole pages from these usually show only ads, or send you somewhere else."
+  },
+  "blockedWhyUnknown": {
+    "message": "It's on one of Moat's lists. Moat couldn't tell which one this time, so it may be a dangerous site."
   },
   "blockedWhyCustom": {
     "message": "It's on your own block list in Moat's settings."

@@ -87,6 +87,13 @@ describe("blocked.html", () => {
     expect(document.getElementById("danger-proceed")!.hidden).toBe(true);
   });
 
+  it("treats a stop it couldn't trace to a list as carefully as a dangerous one", async () => {
+    await openPage(q("https://maybe.example/", "unknown", "unknown"));
+    expect(text("why")).toContain("may be a dangerous site");
+    expect(document.getElementById("open-anyway")!.hidden).toBe(true);
+    expect(document.getElementById("danger-proceed")!.hidden).toBe(false);
+  });
+
   it("asks the worker to open the site, and says so if it can't", async () => {
     await openPage(q("https://pop.example/", "popups", "ads"));
     document.getElementById("open-anyway")!.click();

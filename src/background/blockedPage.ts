@@ -18,8 +18,10 @@ import { readMatchedRules } from "./matchStats";
 import { rememberBlockedTab } from "./proceedRules";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import { recordPageStop } from "./usageStats";
-import { UNKNOWN_LIST, blockedPageQuery, hostOnList, kindForList, listForRule, pageMatch, type BlockKind, type MatchedRule } from "../shared/blockedPage";
+import { CUSTOM_LIST, POLICY_LIST, UNKNOWN_LIST, blockedPageQuery, hostOnList, kindForList, listForRule, pageMatch, type BlockKind, type MatchedRule } from "../shared/blockedPage";
 import { hostnameOf } from "../shared/trackerDomains";
+import { matchesDomainOrSubdomain } from "../shared/domainChain";
+import { getEffectiveSettings, getSettings } from "./settings";
 
 /** Leave 2 of Chrome's 20 calls per 10 minutes for opening the popup. */
 const MATCHED_RULES_BUDGET = 18;
@@ -56,11 +58,43 @@ async function findPageMatch(block: PageBlocked): Promise<MatchedRule | null> {
   return null;
 }
 
-/** Which list stopped the page, and what kind of stop it was. */
+/** A list Moat holds itself that blocks this host: a danger list that's
+ * switched on (today's copy, then the bundled one), your block list, or
+ * your organization's. Danger first: it decides how careful the page is. */
+async function ownListFor(hostname: string): Promise<{ list: string; kind: BlockKind } | null> {
+  const [own, effective] = await Promise.all([getSettings().catch(() => null), getEffectiveSettings().catch(() => null)]);
+  const enabled = (group: string) => effective?.filterGroups[group] ?? true;
+  const live = await liveSecurityGroupFor(hostname).catch(() => null);
+  if (live && enabled(live)) return { list: live, kind: "danger" };
+  const bundled = await bundledSecurityGroupFor(hostname, enabled).catch(() => null);
+  if (bundled) return { list: bundled, kind: "danger" };
+  if (own && matchesDomainOrSubdomain(hostname, own.customBlockedDomains)) return { list: CUSTOM_LIST, kind: "custom" };
+  if (effective && matchesDomainOrSubdomain(hostname, effective.customBlockedDomains)) return { list: POLICY_LIST, kind: "policy" };
+  return null;
+}
+
+/** The bundled danger list that blocks this host, if one that's switched
+ * on does (rules/security-hosts.json, built by scripts/lib/securityHosts.mjs). */
+async function bundledSecurityGroupFor(hostname: string, enabled: (group: string) => boolean): Promise<string | null> {
+  const index = (await (await fetch(browser.runtime.getURL("rules/security-hosts.json"))).json()) as Record<string, string[]>;
+  for (const [group, hosts] of Object.entries(index)) {
+    if (enabled(group) && hostOnList(hostname, new Set(hosts))) return group;
+  }
+  return null;
+}
+
+/** Which list stopped the page, and what kind of stop it was. The lists
+ * Moat holds itself answer first, since they cost nothing: your block list,
+ * your organization's, and the danger lists. Only an ad or tracker list
+ * needs Chrome's match lookup, and when its quota is spent the stop is
+ * "unknown" and handled as carefully as a dangerous one. */
 export async function resolveBlock(block: PageBlocked): Promise<{ list: string; kind: BlockKind }> {
+  const hostname = hostnameOf(block.url);
+  const known = await ownListFor(hostname);
+  if (known) return known;
   const manifest = await loadRulesetManifest().catch(() => []);
   const match = await findPageMatch(block);
-  if (!match) return { list: UNKNOWN_LIST, kind: "ads" };
+  if (!match) return { list: UNKNOWN_LIST, kind: "unknown" };
   const live = match.rulesetId === "_dynamic" && match.ruleId >= LIVE_SECURITY_ID_START && match.ruleId < LIVE_SECURITY_ID_START + MAX_LIVE_SECURITY_RULES;
   const liveGroup = live ? await liveSecurityGroupFor(hostnameOf(block.url)) : null;
   const list = listForRule(match, manifest, () => liveGroup);

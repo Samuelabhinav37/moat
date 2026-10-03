@@ -50,6 +50,7 @@ function render(): void {
     ads: msg("blockedTitleAds", "Moat stopped this page"),
     custom: msg("blockedTitleCustom", "You blocked this site"),
     policy: msg("blockedTitlePolicy", "Your organization blocked this site"),
+    unknown: msg("blockedTitleAds", "Moat stopped this page"),
   };
   const reasons: Record<BlockKind, string> = {
     danger: dangerReason(list),
@@ -59,6 +60,7 @@ function render(): void {
         : msg("blockedWhyAds", `It's on ${listName(list)}. Whole pages from these sites usually show only ads, or send you somewhere else.`, listName(list)),
     custom: msg("blockedWhyCustom", "It's on your own block list in Moat's settings."),
     policy: msg("blockedWhyPolicy", "Your organization's policy blocks it. Ask your IT team if you need it."),
+    unknown: msg("blockedWhyUnknown", "It's on one of Moat's lists. Moat couldn't tell which one this time, so it may be a dangerous site."),
   };
   document.getElementById("title")!.textContent = titles[kind];
   document.title = host ? `${titles[kind]}: ${host}` : titles[kind];
@@ -85,7 +87,8 @@ function render(): void {
   // "Open anyway": plain for ads and your own blocks, behind Details for a
   // dangerous site, and not at all for an organization's block.
   document.getElementById("open-anyway")!.hidden = !params || (kind !== "ads" && kind !== "custom");
-  document.getElementById("danger-proceed")!.hidden = !params || kind !== "danger";
+  // A stop Moat couldn't trace to a list gets the same care as a dangerous one.
+  document.getElementById("danger-proceed")!.hidden = !params || (kind !== "danger" && kind !== "unknown");
 }
 
 /** Asks the worker to let this tab's blocked site through for one visit.

@@ -2625,8 +2625,8 @@
     "message": "Bloqueadas por tu organización"
   },
   "secGroupEarlier": {
-    "message": "Anteriores, sin motivo registrado",
-    "description": "Security: heading over stops from before Moat recorded which list stopped them."
+    "message": "Lista desconocida",
+    "description": "Security: heading over stops Moat couldn't trace to a list (from before lists were recorded, or when Chrome's lookup was unavailable)."
   },
   "insWhoTake": {
     "message": "estaba en el $PCT$% de los sitios que visitaste. Elige una empresa para ver dónde.",
@@ -3332,6 +3332,9 @@
   },
   "blockedWhyAdsUnknown": {
     "message": "Está en una de las listas de anuncios y rastreadores de Moat. Las páginas de estos sitios suelen mostrar solo anuncios o llevarte a otro sitio."
+  },
+  "blockedWhyUnknown": {
+    "message": "Está en una de las listas de Moat. Esta vez Moat no pudo saber cuál, así que podría ser un sitio peligroso."
   },
   "blockedWhyCustom": {
     "message": "Está en tu propia lista de bloqueo en la configuración de Moat."

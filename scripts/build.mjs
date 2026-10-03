@@ -11,6 +11,7 @@ import { createRequire } from "node:module";
 import { buildManifest } from "./manifest.ts";
 import { buildDocs } from "./docs/buildDocs.mjs";
 import { buildTrackerDomains } from "./lib/trackerDomains.mjs";
+import { buildSecurityHosts } from "./lib/securityHosts.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
@@ -152,6 +153,13 @@ function copyStaticAssets() {
   // Built from the vendored TrackerDB here so it never needs a filter update.
   const trackerDb = JSON.parse(readFileSync(resolve(root, "node_modules/@ghostery/trackerdb/dist/trackerdb.json"), "utf8"));
   writeFileSync(resolve(outDir, "rules", "tracker-domains.json"), JSON.stringify(buildTrackerDomains(trackerDb)));
+  // Which danger list blocks which hosts, so the block page can name it
+  // without Chrome's quota-limited match lookup (scripts/lib/securityHosts.mjs).
+  const rulesetManifest = JSON.parse(readFileSync(resolve(rulesDir, "manifest.json"), "utf8"));
+  writeFileSync(
+    resolve(outDir, "rules", "security-hosts.json"),
+    JSON.stringify(buildSecurityHosts(rulesetManifest, (file) => JSON.parse(readFileSync(resolve(rulesDir, file), "utf8"))))
+  );
 
   // Hand-curated, checked into the repo (not generated into rules/dnr): the
   // ad-network domain list src/content/adCollapse.ts uses to collapse the

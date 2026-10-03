@@ -503,7 +503,7 @@ describe("Security: stops grouped by what stopped them", () => {
     });
     const groups = [...document.querySelectorAll<HTMLElement>("#sec-list .stop-group")];
     expect(groups.map((g) => g.dataset.group)).toEqual(["danger", "ads", "custom", "earlier"]);
-    expect(groups[0]!.querySelector("h4")?.textContent).toBe("Dangerous pages1");
+    expect(groups[0]!.querySelector("h3")?.textContent).toBe("Dangerous pages1");
     expect(groups[0]!.querySelector(".stop-list")?.textContent).toBe("Phishing");
     expect(groups[1]!.querySelector(".stop-list")?.textContent).toBe("Pop-up ads");
     // Your own list isn't Moat's to correct.

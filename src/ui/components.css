@@ -17,6 +17,8 @@
 
 /* ---------- Brand: Moat's mark and name ---------- */
 .moat-brand {
+  /* Also used on an <h1> (the popup), so no heading margins. */
+  margin: 0;
   display: inline-flex;
   align-items: center;
   gap: 10px;

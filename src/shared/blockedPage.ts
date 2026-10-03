@@ -7,9 +7,11 @@
 import type { RulesetManifestEntry } from "./rulesetManifest";
 
 /** What kind of stop a list makes. Danger lists (phishing, malware, scams)
- * only offer "Open anyway" behind Details, as Chrome's Safe Browsing does. */
-export type BlockKind = "danger" | "ads" | "custom" | "policy";
-export const BLOCK_KINDS: readonly BlockKind[] = ["danger", "ads", "custom", "policy"];
+ * only offer "Open anyway" behind Details, as Chrome's Safe Browsing does.
+ * "unknown" is a stop Moat couldn't trace to a list (Chrome's lookup quota
+ * was spent): it might be a dangerous site, so it's treated as carefully. */
+export type BlockKind = "danger" | "ads" | "custom" | "policy" | "unknown";
+export const BLOCK_KINDS: readonly BlockKind[] = ["danger", "ads", "custom", "policy", "unknown"];
 
 /** A list id for rules that aren't from a bundled list. */
 export const CUSTOM_LIST = "custom";

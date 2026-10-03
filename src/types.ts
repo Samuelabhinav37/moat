@@ -741,7 +741,7 @@ export interface UsageSummaryResponse {
   /** Tracker blocks this week by TrackerDB purpose ("advertising", "site_analytics", ...). */
   purposes: Record<string, number>;
   /** Whole pages Moat refused to load this week, newest first. */
-  pageStops: Array<{ hostname: string; time: number; list?: string; kind?: "danger" | "ads" | "custom" | "policy" }>;
+  pageStops: Array<{ hostname: string; time: number; list?: string; kind?: "danger" | "ads" | "custom" | "policy" | "unknown" }>;
   /** Up to 5 sites each company was blocked on this week. */
   companySites: Record<string, string[]>;
   /** Distinct sites where at least one tracker company was blocked this week. */

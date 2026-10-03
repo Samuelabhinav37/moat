@@ -1908,7 +1908,7 @@
         justify-content: space-between;
         gap: 12px;
       }
-      .ov-week-head h3 {
+      .ov-week-head h2 {
         font-size: 17px;
       }
       .ov-big {
@@ -2137,7 +2137,7 @@
         justify-content: space-between;
         gap: 16px;
       }
-      .ov-checkup h3 {
+      .ov-checkup h2 {
         margin: 0 0 4px;
       }
       .ov-checkup p {
@@ -2350,7 +2350,7 @@
         border-radius: 16px;
         background: var(--panel);
       }
-      .ov-top-head h3 {
+      .ov-top-head h2 {
         font-size: 16px;
       }
       .ov-top-head p {
@@ -2465,7 +2465,7 @@
       .ttl {
         margin-bottom: 14px;
       }
-      .ttl h3 {
+      .ttl h2 {
         font-size: 17px;
       }
       .ttl p {
@@ -2715,7 +2715,7 @@
       .stop-group + .stop-group {
         margin-top: 22px;
       }
-      .stop-group h4 {
+      .stop-group h3 {
         display: flex;
         align-items: center;
         gap: 8px;
@@ -2723,12 +2723,12 @@
         font-size: 13.5px;
         font-weight: 600;
       }
-      .stop-group h4 .n {
+      .stop-group h3 .n {
         color: var(--muted);
         font-weight: 400;
         font-variant-numeric: tabular-nums;
       }
-      .stop-group[data-group="danger"] h4::before {
+      .stop-group[data-group="danger"] h3::before {
         content: "";
         width: 8px;
         height: 8px;
@@ -4480,7 +4480,7 @@
           </p>
           <div class="ov-card ov-week">
             <div class="ov-week-head">
-              <h3 id="ov-week-title" data-i18n="ovWeekTitle">Blocked this week</h3>
+              <h2 id="ov-week-title" data-i18n="ovWeekTitle">Blocked this week</h2>
               <!-- Only offered once there is a last week to show (14 days are kept). -->
               <div class="ov-period" id="ov-period" role="group" aria-label="Week" data-i18n-aria-label="ovPeriodGroup" hidden>
                 <button type="button" data-period="this" aria-pressed="true" data-i18n="ovPeriodThis">This week</button>
@@ -4500,7 +4500,7 @@
           <!-- Guided checkup (checkup.ts): a few choices, one at a time. -->
           <div class="ov-card ov-checkup">
             <div>
-              <h3 data-i18n="checkupCardTitle">Review your protection</h3>
+              <h2 data-i18n="checkupCardTitle">Review your protection</h2>
               <p data-i18n="checkupCardLead">Three quick questions about how much Moat blocks. Nothing changes until you say Done.</p>
             </div>
             <button type="button" class="ab-btn" id="checkup-start" data-i18n="checkupStart">Start</button>
@@ -4512,30 +4512,30 @@
         <section class="sec ins-sec" data-page="trackers">
           <div class="ov-kpis" id="t-kpis"></div>
           <div class="ov-card">
-            <div class="ttl"><h3 data-i18n="insWhoTitle">Who tracks you</h3><p id="t-who-take"></p></div>
+            <div class="ttl"><h2 data-i18n="insWhoTitle">Who tracks you</h2><p id="t-who-take"></p></div>
             <div id="t-who"><span class="skel-bar" aria-hidden="true"></span><span class="skel-bar" aria-hidden="true"></span><span class="skel-bar" aria-hidden="true" style="width: 60%"></span></div>
           </div>
           <div class="ins-two">
             <div class="ov-card">
-              <div class="ttl"><h3 data-i18n="insWhatTitle">What they wanted</h3><p id="t-what-take"></p></div>
+              <div class="ttl"><h2 data-i18n="insWhatTitle">What they wanted</h2><p id="t-what-take"></p></div>
               <div id="t-what"></div>
             </div>
             <div class="ov-card">
-              <div class="ttl"><h3 data-i18n="insWhenTitle">When they were busiest</h3><p id="t-when-take"></p></div>
+              <div class="ttl"><h2 data-i18n="insWhenTitle">When they were busiest</h2><p id="t-when-take"></p></div>
               <div id="t-when"></div>
             </div>
           </div>
         </section>
         <section class="sec ins-sec" data-page="sites">
           <div class="ov-card">
-            <div class="ttl"><h3 data-i18n="insSitesTitle">Blocks by site</h3><p id="s-take"></p></div>
+            <div class="ttl"><h2 data-i18n="insSitesTitle">Blocks by site</h2><p id="s-take"></p></div>
             <div id="s-table"></div>
           </div>
         </section>
         <section class="sec ins-sec" data-page="security">
           <div class="ov-kpis" id="sec-kpis"></div>
           <div class="ov-card">
-            <div class="ttl"><h3 data-i18n="insStoppedTitle">Pages Moat stopped</h3><p data-i18n="insStoppedTake">Whole pages Moat refused to load: dangerous sites and known ad or tracker addresses.</p></div>
+            <div class="ttl"><h2 data-i18n="insStoppedTitle">Pages Moat stopped</h2><p data-i18n="insStoppedTake">Whole pages Moat refused to load: dangerous sites and known ad or tracker addresses.</p></div>
             <div id="sec-list"></div>
           </div>
         </section>
