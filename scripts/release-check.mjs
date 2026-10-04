@@ -43,18 +43,36 @@ const port = server.address().port;
 
 async function launch(extraArgs = []) {
   const errors = [];
+  // MOAT_LEGACY_LOAD=1 loads the extension with --load-extension, for old
+  // Chrome for Testing builds (before Chrome 148's native `browser`) that lack
+  // the Extensions.loadUnpacked protocol method enableExtensions relies on.
+  const legacy = process.env.MOAT_LEGACY_LOAD === "1";
   const browser = await puppeteer.launch({
     executablePath: await chromePath(root),
     headless: true,
     pipe: true,
     userDataDir: mkdtempSync(join(tmpdir(), "moat-release-")),
-    enableExtensions: [ext],
-    args: [`--host-resolver-rules=MAP battery.release.test 127.0.0.1:${port}`, "--disable-features=HttpsUpgrades", ...extraArgs],
+    ...(legacy
+      ? { ignoreDefaultArgs: ["--disable-extensions"] }
+      : { enableExtensions: [ext] }),
+    args: [
+      ...(legacy ? [`--load-extension=${ext}`, `--disable-extensions-except=${ext}`] : []),
+      `--host-resolver-rules=MAP battery.release.test 127.0.0.1:${port}`,
+      "--disable-features=HttpsUpgrades",
+      ...extraArgs,
+    ],
   });
   const target = await browser.waitForTarget((t) => t.type() === "service_worker" && t.url().startsWith("chrome-extension://"), { timeout: 60000 });
   const worker = await target.worker();
   worker.on("console", (m) => m.type() === "error" && errors.push(`worker: ${m.text()}`));
   const id = new URL(target.url()).host;
+  if (legacy) {
+    // Old Chrome for Testing builds never answer Puppeteer's evaluate in the
+    // service worker, so run the same chrome.* calls from an extension page.
+    const page = await browser.newPage();
+    await page.goto(`chrome-extension://${id}/licenses.html`);
+    worker.evaluate = (fn, ...args) => page.evaluate(fn, ...args);
+  }
   const watch = (page) => {
     // Only Moat's own pages: websites throw errors of their own (weather.com
     // throws React #418 on every load, with or without Moat).
@@ -132,7 +150,8 @@ async function sendFromOptions(browser, id, message) {
   await site.screenshot({ path: join(shots, "2-weather.png") });
   record("real site: ad and tracker requests blocked on weather.com", siteBlocked > 5, `${siteBlocked} blocked`);
   await site.bringToFront();
-  await worker.evaluate(() => chrome.action.openPopup());
+  // openPopup() needs Chrome 127+; older builds fail the popup check below.
+  await worker.evaluate(() => chrome.action.openPopup()).catch(() => {});
   const popupTarget = await browser.waitForTarget((t) => t.url().includes("popup.html"), { timeout: 10000 }).catch(() => null);
   if (popupTarget) {
     const popup = watch(await popupTarget.asPage());
