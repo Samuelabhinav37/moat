@@ -40,8 +40,9 @@ day one — not a stripped-down port of an older extension.
   can't block.
 - Optional, all off by default: fingerprint resistance, a feed ad scanner, a
   leaked-password check (via Have I Been Pwned's
-  k-anonymity API — a 5-character hash prefix, never the password), and tracker
-  CNAME-uncloaking.
+  k-anonymity API — a 5-character hash prefix, never the password), a filter
+  that hides low-quality content-farm results on Google, Bing and DuckDuckGo,
+  and tracker CNAME-uncloaking.
 
 **What leaves your device**
 
@@ -91,7 +92,7 @@ Source (GPL-3.0): https://github.com/Samuelabhinav37/moat
 > Moat blocks ads, trackers, and hijacked popups/redirects, and hides the
 > cosmetic leftovers (empty ad boxes, cookie banners) that blocking can't
 > reach. Every other toggle (fingerprint resistance, feed ad removal, leaked-
-> password check, CNAME uncloaking, GPC) is a variant of the same purpose —
+> password check, low-quality search-result hiding, CNAME uncloaking, GPC) is a variant of the same purpose —
 > stopping a page from tracking, redirecting, or serving unwanted content to
 > the person viewing it — not an unrelated bundled feature.
 
