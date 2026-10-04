@@ -152,7 +152,7 @@ async function sendFromOptions(browser, id, message) {
 
   // A domain only in today's list (not bundled) is blocked.
   const bundled = new Set();
-  for (const e of JSON.parse(readFileSync(join(ext, "rules", "manifest.json"), "utf8")).filter((e) => e.category === "security")) {
+  for (const e of JSON.parse(readFileSync(join(ext, "rules", "rulesets.json"), "utf8")).filter((e) => e.category === "security")) {
     for (const r of JSON.parse(readFileSync(join(ext, "rules", e.file), "utf8"))) for (const d of r.condition.requestDomains ?? []) bundled.add(d);
   }
   const fresh = dynamic.flatMap((r) => r.condition.requestDomains).find((d) => !bundled.has(d));

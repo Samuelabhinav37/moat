@@ -65,7 +65,7 @@ vi.mock("webextension-polyfill", () => {
   };
 });
 
-// filterGroups.ts fetches rules/manifest.json directly via the global fetch,
+// filterGroups.ts fetches rules/rulesets.json directly via the global fetch,
 // not through the browser.* mock above -- stub it to an empty catalog so
 // setSettings() doesn't attempt a real network request.
 vi.stubGlobal("fetch", () => Promise.resolve({ json: () => Promise.resolve([]) }));

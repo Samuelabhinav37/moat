@@ -63,7 +63,7 @@ export interface Settings {
    */
   fingerprintRotatePerSession: boolean;
   /**
-   * Per-filter-list overrides, keyed by the group slug in rules/manifest.json
+   * Per-filter-list overrides, keyed by the group slug in rules/rulesets.json
    * (e.g. "ads", "trackers", "cookie-notices"). Only stores what the user
    * actually changed -- a group with no entry here keeps whatever `enabled`
    * state it shipped with, so we never have to reconcile all 18 rulesets on

@@ -1111,7 +1111,7 @@ let manifestCache: RulesetManifestEntry[] | null = null;
 async function loadRulesetManifest(): Promise<RulesetManifestEntry[] | null> {
   if (manifestCache) return manifestCache;
   try {
-    const url = browser.runtime.getURL("rules/manifest.json");
+    const url = browser.runtime.getURL("rules/rulesets.json");
     manifestCache = (await (await fetch(url)).json()) as RulesetManifestEntry[];
     return manifestCache;
   } catch {

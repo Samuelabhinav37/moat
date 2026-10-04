@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.245
+
+### Fixed
+- **The Chrome Web Store accepts the package again.** It refused 0.11.244 with "More than one
+  manifest found in package", because the index of Moat's filter lists shipped as
+  `rules/manifest.json`. It now ships as `rules/rulesets.json`, and the build stops with an
+  error if any other file named `manifest.json` ever appears in the package. Nothing changes
+  for people using Moat.
+
 ## 0.11.244
 
 ### Fixed

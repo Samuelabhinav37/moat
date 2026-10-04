@@ -29,7 +29,7 @@ function stubFetch(): void {
   vi.stubGlobal(
     "fetch",
     vi.fn((url: string) => {
-      if (url === "test://rules/manifest.json") return Promise.resolve({ json: () => Promise.resolve(MANIFEST) });
+      if (url === "test://rules/rulesets.json") return Promise.resolve({ json: () => Promise.resolve(MANIFEST) });
       if (url === "test://rules/ruleset_malicious-urls.json") return Promise.resolve({ json: () => Promise.resolve(RULES) });
       return Promise.reject(new Error(`unexpected fetch: ${url}`));
     })
@@ -81,7 +81,7 @@ describe("resolveSecurityRuleDomain", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn((url: string) => {
-        if (url === "test://rules/manifest.json") return Promise.resolve({ json: () => Promise.resolve(MANIFEST) });
+        if (url === "test://rules/rulesets.json") return Promise.resolve({ json: () => Promise.resolve(MANIFEST) });
         return Promise.reject(new Error(`unreachable: ${url}`));
       })
     );

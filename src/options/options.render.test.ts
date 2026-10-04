@@ -284,7 +284,7 @@ describe("About Moat (DR-13)", () => {
     expect(document.getElementById("about-flows-summary")?.textContent).toMatch(/sends a little data/);
     expect(document.getElementById("version-number")?.textContent).toBe("0.0.0-test");
     expect(document.getElementById("version-build")?.textContent).toBe("Chrome");
-    // This jsdom harness has no real rules/manifest.json to fetch, so the
+    // This jsdom harness has no real rules/rulesets.json to fetch, so the
     // count stays the "—" placeholder rather than a made-up number.
     expect(document.getElementById("version-rules")?.textContent).toBe("—");
     expect(document.getElementById("disclosure-sync-recipient")?.textContent).toBe("Google");

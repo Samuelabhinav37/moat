@@ -15,7 +15,7 @@
     },
     "managedFilterGroups": {
       "type": "object",
-      "title": "Filter-list group slugs (see rules/manifest.json \"group\" values) mapped to forced on/off.",
+      "title": "Filter-list group slugs (see rules/rulesets.json \"group\" values) mapped to forced on/off.",
       "additionalProperties": { "type": "boolean" }
     },
     "managedCustomBlockedDomains": {

@@ -122,7 +122,7 @@ async function outcomes(extDir, table) {
 }
 
 const started = Date.now();
-const packedManifest = JSON.parse(readFileSync(join(packedExt, "rules", "manifest.json"), "utf8"));
+const packedManifest = JSON.parse(readFileSync(join(packedExt, "rules", "rulesets.json"), "utf8"));
 const before = await outcomes(unpackedExt, actionTable(join(unpackedExt, "rules"), unpackedManifest));
 const after = await outcomes(packedExt, actionTable(join(packedExt, "rules"), packedManifest));
 rmSync(work, { recursive: true, force: true });

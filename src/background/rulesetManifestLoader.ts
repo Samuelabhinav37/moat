@@ -1,4 +1,4 @@
-// Fetches and caches rules/manifest.json for the background worker. Split
+// Fetches and caches rules/rulesets.json (the ruleset index) for the background worker. Split
 // out from shared/rulesetManifest.ts (which stays free of any
 // webextension-polyfill import so its pure logic is testable without a
 // browser extension context) so filterGroups.ts and matchStats.ts -- both
@@ -11,7 +11,7 @@ let manifestCache: RulesetManifestEntry[] | null = null;
 
 export async function loadRulesetManifest(): Promise<RulesetManifestEntry[]> {
   if (manifestCache) return manifestCache;
-  const url = browser.runtime.getURL("rules/manifest.json");
+  const url = browser.runtime.getURL("rules/rulesets.json");
   manifestCache = (await (await fetch(url)).json()) as RulesetManifestEntry[];
   return manifestCache;
 }

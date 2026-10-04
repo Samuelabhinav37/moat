@@ -4,9 +4,9 @@
 // build, and content scripts / the background worker must each be a single
 // self-contained file with no shared chunk to import.
 import { build } from "vite";
-import { cpSync, mkdirSync, writeFileSync, existsSync, rmSync, readFileSync } from "node:fs";
+import { cpSync, mkdirSync, writeFileSync, existsSync, rmSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { buildManifest } from "./manifest.ts";
 import { buildDocs } from "./docs/buildDocs.mjs";
@@ -104,6 +104,12 @@ await Promise.all(
 );
 
 copyStaticAssets();
+// The Chrome Web Store refuses a package with more than one manifest.json
+// ("More than one manifest found in package"), even in a subfolder.
+const extraManifests = readdirSync(outDir, { recursive: true })
+  .map(String)
+  .filter((f) => basename(f).toLowerCase() === "manifest.json" && f !== "manifest.json");
+if (extraManifests.length) throw new Error(`Only the root manifest.json may be named that; the store rejects the package. Rename: ${extraManifests.join(", ")}`);
 console.log(`Built ${target} -> dist/${target}`);
 
 if (watch) {
@@ -130,12 +136,13 @@ function copyStaticAssets() {
   const bucketFiles = Array.from({ length: cosmeticsManifest.bucketCount }, (_, i) => `cosmetics-bucket-${i}.json`);
   const cosmeticsFiles = ["cosmetics-manifest.json", cosmeticsManifest.meta, ...bucketFiles];
 
-  // manifest.json itself is now also a runtime asset (not just read at build
-  // time by scripts/manifest.ts) -- the Filter Lists settings tab fetches it
-  // to know what rulesets exist and how they're grouped.
+  // The ruleset index (rules/dnr/manifest.json) is also a runtime asset: the
+  // worker and the Filter Lists tab fetch it to know what rulesets exist and
+  // how they're grouped. It ships as rules/rulesets.json, because the Chrome
+  // Web Store refuses a package with more than one file named manifest.json.
+  cpSync(resolve(rulesDir, "manifest.json"), resolve(outDir, "rules", "rulesets.json"));
   for (const file of [
     ...rulesetFiles,
-    "manifest.json",
     "redirect-domains.json",
     "rule-companies.json",
     "company-info.json",

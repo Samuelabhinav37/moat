@@ -1,4 +1,4 @@
-// Shape of rules/dnr/manifest.json, copied into dist/<target>/rules/manifest.json
+// Shape of rules/dnr/manifest.json, copied into dist/<target>/rules/rulesets.json
 // at build time (see scripts/build.mjs) and fetched at runtime by both the
 // background worker (to apply filter-group toggles) and the options page
 // (to render the Filter Lists tab). Kept free of any webextension-polyfill
