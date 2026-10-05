@@ -104,6 +104,17 @@ Source (GPL-3.0): https://github.com/Samuelabhinav37/moat
 > selectors are passed through `isSafeCosmeticSelector` before use the same as
 > every bundled selector.
 
+**Data usage** (the "What user data do you plan to collect" checkboxes)
+
+Tick **Web history** only. A problem report the user chooses to send carries the site's name
+(the full address only if they tick the box), and "Uncloak disguised trackers" (opt-in) looks up
+tracker hostnames with a public DNS resolver. Leave every other category unticked: the
+leaked-password check sends a 5-character hash prefix, not credentials, and nothing else leaves
+the device. Then tick all three certifications (not sold to third parties; not used or
+transferred for purposes unrelated to the single purpose; not used to determine
+creditworthiness). Keep this in step with `PRIVACY.md` — a mismatch between these boxes and the
+policy is a common rejection reason.
+
 **Permission justifications** (paste one per permission the dashboard flags)
 
 | Permission | Justification |
