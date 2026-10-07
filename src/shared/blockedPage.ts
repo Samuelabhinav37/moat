@@ -154,3 +154,45 @@ export function destinationIn(link: string): string | null {
   const inPath = PATH_DESTINATION.exec(url.pathname)?.[0];
   return inPath ? webAddress(inPath, url.hostname) : null;
 }
+
+/** rules/security-hosts.json (scripts/lib/securityHosts.mjs): per danger
+ * list, the hosts it blocks as whole sites, and the page patterns it
+ * blocks on other hosts, each stored as the part after "||host". */
+export type SecurityHostsIndex = Record<string, { hosts: string[]; pages: Record<string, string[]> }>;
+
+/** Whether a "||host..." urlFilter matches a page address, the way
+ * declarativeNetRequest reads it: "*" is anything, "^" is a separator or
+ * the end, a final "|" anchors the end, case doesn't matter. */
+export function urlFilterMatches(filter: string, url: string): boolean {
+  if (!filter.startsWith("||")) return false;
+  let body = filter.slice(2);
+  const anchored = body.endsWith("|");
+  if (anchored) body = body.slice(0, -1);
+  let pattern = "";
+  for (const ch of body) {
+    if (ch === "*") pattern += ".*";
+    else if (ch === "^") pattern += "(?:[^a-z0-9_.%-]|$)";
+    else pattern += ch.replace(/[\\^$.*+?()[\]{}|/-]/g, "\\$&");
+  }
+  return new RegExp(`^[a-z][a-z0-9+.-]*://(?:[^/?#]*\\.)?${pattern}${anchored ? "$" : ""}`, "i").test(url);
+}
+
+/** The danger list that stops this address, if one that's switched on
+ * does: the site as a whole, or this page of it. */
+export function securityGroupFor(url: string, index: SecurityHostsIndex, enabled: (group: string) => boolean): string | null {
+  let hostname: string;
+  try {
+    hostname = new URL(url).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+  for (const [group, { hosts, pages }] of Object.entries(index)) {
+    if (!enabled(group)) continue;
+    if (hostOnList(hostname, new Set(hosts))) return group;
+    for (let host = hostname; ; host = host.slice(host.indexOf(".") + 1)) {
+      if (pages[host]?.some((rest) => urlFilterMatches(`||${host}${rest}`, url))) return group;
+      if (!host.includes(".")) break;
+    }
+  }
+  return null;
+}

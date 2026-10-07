@@ -163,10 +163,10 @@ function copyStaticAssets() {
   // Which danger list blocks which hosts, so the block page can name it
   // without Chrome's quota-limited match lookup (scripts/lib/securityHosts.mjs).
   const rulesetManifest = JSON.parse(readFileSync(resolve(rulesDir, "manifest.json"), "utf8"));
-  writeFileSync(
-    resolve(outDir, "rules", "security-hosts.json"),
-    JSON.stringify(buildSecurityHosts(rulesetManifest, (file) => JSON.parse(readFileSync(resolve(rulesDir, file), "utf8"))))
-  );
+  const securityHosts = JSON.stringify(buildSecurityHosts(rulesetManifest, (file) => JSON.parse(readFileSync(resolve(rulesDir, file), "utf8"))));
+  // Firefox's linter refuses a text file over 5MB.
+  if (securityHosts.length > 4.5 * 1024 * 1024) throw new Error(`rules/security-hosts.json is ${securityHosts.length} bytes, over the 4.5MB ceiling`);
+  writeFileSync(resolve(outDir, "rules", "security-hosts.json"), securityHosts);
 
   // Hand-curated, checked into the repo (not generated into rules/dnr): the
   // ad-network domain list src/content/adCollapse.ts uses to collapse the

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blockedPageQuery, destinationIn, hostOnList, kindForList, listForRule, pageMatch, parseBlockedPageQuery } from "./blockedPage";
+import { blockedPageQuery, destinationIn, hostOnList, securityGroupFor, urlFilterMatches, kindForList, listForRule, pageMatch, parseBlockedPageQuery } from "./blockedPage";
 import type { RulesetManifestEntry } from "./rulesetManifest";
 
 const entry = (id: string, group: string, category: RulesetManifestEntry["category"]): RulesetManifestEntry => ({ id, group, category, name: id, enabled: true, file: `${id}.json`, ruleCount: 1 });
@@ -89,5 +89,41 @@ describe("destinationIn", () => {
     // An address without "https://" isn't guessed at.
     expect(destinationIn("https://www.shareasale.com/r.cfm?b=1&u=2&m=3&urllink=www.example.com%2Fp")).toBeNull();
     expect(destinationIn("not a url")).toBeNull();
+  });
+});
+
+describe("urlFilterMatches", () => {
+  it("reads a page pattern the way declarativeNetRequest does", () => {
+    expect(urlFilterMatches("||mediafire.com/folder/abc/", "https://www.mediafire.com/folder/abc/file.exe")).toBe(true);
+    expect(urlFilterMatches("||mediafire.com/folder/abc/", "https://www.mediafire.com/folder/other/")).toBe(false);
+    expect(urlFilterMatches("||moviesboys.com/*.shtml", "https://moviesboys.com/a/b.shtml")).toBe(true);
+    expect(urlFilterMatches("||qrco.de/server-side^", "https://qrco.de/server-side?x=1")).toBe(true);
+    expect(urlFilterMatches("||qrco.de/server-side^", "https://qrco.de/server-sidebar")).toBe(false);
+    expect(urlFilterMatches("||example.com/A|", "https://example.com/a")).toBe(true);
+    expect(urlFilterMatches("||example.com/a|", "https://example.com/ab")).toBe(false);
+    expect(urlFilterMatches("||example.com/a", "https://notexample.com/a")).toBe(false);
+  });
+});
+
+describe("securityGroupFor", () => {
+  const index = {
+    "phishing-urls": { hosts: ["paypa1-secure.top"], pages: { "awin1.com": ["/cread.php?awinmid=10178&awinaffid=346289&clickref&p=https://qrco.de/server-side^"] } },
+    "malicious-urls": { hosts: [], pages: { "github.io": ["/health-records-x-ray"] } },
+  };
+  const all = () => true;
+
+  it("names a whole-site danger host and its subdomains", () => {
+    expect(securityGroupFor("https://login.paypa1-secure.top/x", index, all)).toBe("phishing-urls");
+  });
+
+  it("names a page pattern only for the page it blocks", () => {
+    expect(securityGroupFor("https://www.awin1.com/cread.php?awinmid=10178&awinaffid=346289&clickref&p=https://qrco.de/server-side", index, all)).toBe("phishing-urls");
+    expect(securityGroupFor("https://www.awin1.com/cread.php?awinmid=1&awinaffid=2&ued=https%3A%2F%2Fexample.com%2F", index, all)).toBeNull();
+    expect(securityGroupFor("https://someone.github.io/health-records-x-ray", index, all)).toBe("malicious-urls");
+    expect(securityGroupFor("https://someone.github.io/blog", index, all)).toBeNull();
+  });
+
+  it("skips a list that's switched off", () => {
+    expect(securityGroupFor("https://paypa1-secure.top/", index, (g) => g !== "phishing-urls")).toBeNull();
   });
 });

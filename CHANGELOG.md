@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.249
+
+### Fixed
+- **The block page no longer calls an ordinary link "phishing".** Since 0.11.243 the block page
+  has named the danger list from Moat's own copy of it. That copy counted a whole site as
+  dangerous when the list blocked just one page on it. One awin1.com address is on the Phishing
+  list, so every awin1.com shopping link Moat stopped as a tracker showed the danger page, with
+  "Open anyway" hidden under Details. Other hosts with one bad page listed, like github.io,
+  mediafire.com and amazonaws.com, did the same. Moat now checks the exact address against
+  those single-page entries. A listed page still gets the danger page, and the rest of the site
+  gets the ordinary one.
+
 ## 0.11.248
 
 ### Added
