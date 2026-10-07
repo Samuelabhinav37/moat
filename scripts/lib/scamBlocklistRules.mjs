@@ -1,5 +1,5 @@
-// Turns the vendored jarelllama/Scam-Blocklist domains (rules/dnr/scam-blocklist-domains.json,
-// written by scripts/vendor-scam-blocklist.mjs) into DNR block rules. Unlike
+// Turns the vendored HaGeZi Fake domains (rules/dnr/scam-blocklist-domains.json,
+// written by scripts/update-filters.mjs) into DNR block rules. Unlike
 // circumventionServiceRules.mjs's domains (legitimate ad-tech vendors being
 // misused, where a direct navigation should still resolve), these are
 // confirmed scam/phishing domains with no legitimate direct-navigation use

@@ -206,7 +206,7 @@ One codebase builds for Chrome and Firefox. The Firefox build also targets **Fir
 <summary><strong>Licensing and third-party data</strong></summary>
 
 Moat's own code is [GPL-3.0](LICENSE), matching the bundled AdGuard/EasyList/uBlock Origin/
-[Scam-Blocklist](https://github.com/jarelllama/Scam-Blocklist)/[oisd](https://github.com/sjhgvr/oisd)
+[HaGeZi](https://github.com/hagezi/dns-blocklists)/[oisd](https://github.com/sjhgvr/oisd)
 filter data so the whole package sits under one copyleft license. Full third-party license texts
 are in [`NOTICE.md`](NOTICE.md), which ships inside the extension package itself.
 

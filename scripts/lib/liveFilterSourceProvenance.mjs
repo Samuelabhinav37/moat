@@ -1,6 +1,6 @@
 // Records a SHA-256 + basic stats for each of the third-party filter
-// sources scripts/update-filters.mjs fetches live at build time (jarelllama/
-// Scam-Blocklist, Peter Lowe's list, oisd small) -- see
+// sources scripts/update-filters.mjs fetches live at build time (HaGeZi
+// Fake, Peter Lowe's list, oisd small) -- see
 // docs/RELEASING.md's "Filter lists" section for the reproducibility gap
 // this exists to shrink: those three sources' actual rule content lands in
 // the gitignored rules/dnr/, invisible to the weekly filter-refresh PR's

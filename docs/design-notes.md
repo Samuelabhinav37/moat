@@ -73,8 +73,9 @@ their own sections further down.
   build time by `scripts/update-filters.mjs` and each held to its own parse-format sanity floor —
   the same reasoning uBlock Origin ships EasyList *and* Peter Lowe's list *and* its own Badware
   list together rather than trusting one maintainer's list alone to catch everything:
-  [jarelllama/Scam-Blocklist](https://github.com/jarelllama/Scam-Blocklist) (`ruleset_scam-blocklist`),
-  a daily-updated, newly-registered-domain-derived scam/phishing list, folded into the existing
+  [HaGeZi Fake](https://github.com/hagezi/dns-blocklists) (`ruleset_scam-blocklist`),
+  a list of fake shops and subscription traps updated several times a day (it replaced
+  jarelllama/Scam-Blocklist in 0.11.246, which had stopped updating), folded into the existing
   "Scam" toggle; [Peter Lowe's Ad and tracking server list](https://pgl.yoyo.org/adservers/)
   (`ruleset_peter-lowe`), a small, hand-curated ad-server list running since 2003, folded into the
   existing "Tracking Protection" toggle; and [oisd small](https://github.com/sjhgvr/oisd)

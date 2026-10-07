@@ -2,7 +2,7 @@
 // (rules/dnr/peter-lowe-domains.json, written by update-filters.mjs's own
 // fetch step) into DNR block rules. A long-running (since 2003), small,
 // hand-curated ad-server list -- independent redundancy alongside AdGuard's
-// own Ads/Tracking filters and jarelllama/Scam-Blocklist, same "more than one
+// own Ads/Tracking filters and HaGeZi Fake, same "more than one
 // maintainer's list" reasoning as scamBlocklistRules.mjs. Same resourceTypes
 // shape as that file too: these are ad/tracking server domains with no
 // legitimate direct-navigation use case, so main_frame/sub_frame are

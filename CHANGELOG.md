@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.246
+
+### Fixed
+- **Popular sites are no longer blocked as scams.** The scam list Moat used,
+  jarelllama/Scam-Blocklist, stopped updating in March 2025. It still listed 18 of the 10,000 most
+  visited sites, including surveymonkey.com, rei.com and hotmart.com, so Moat showed its danger
+  page for them and broke their embedded forms. Moat now uses HaGeZi's "Fake" list instead. It
+  covers fake shops, fake streaming sites and subscription traps, is updated several times a
+  day, and lists none of the 50,000 most visited sites. The "Scam" switch in Settings is
+  unchanged. The daily copy switches over once its first update has been reviewed.
+
 ## 0.11.245
 
 ### Fixed

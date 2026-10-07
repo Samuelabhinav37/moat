@@ -468,15 +468,20 @@ manifestEntries.push({
   ruleCount: ownRetryLoopStubRules.length,
 });
 
-// Third-party, not sourced from AdGuard: jarelllama/Scam-Blocklist (GPL-3.0
-// -- github.com/jarelllama/Scam-Blocklist), a daily-updated, newly-
-// registered-domain-derived list of scam/phishing domains -- redundant
-// multi-vendor coverage for exactly the category the unlimitedadblocker.pro
-// incident fell into (a domain too new to have reached AdGuard's own Scam
-// Blocklist yet). Registered under the existing "scam" group, not a new
-// toggle -- same reasoning as folding ownTrackerExtraRules into "trackers"
-// above: another source for a category the user already has a toggle for,
-// not a new decision to surface.
+// Third-party, not sourced from AdGuard: HaGeZi's "Fake" list (GPL-3.0 --
+// github.com/hagezi/dns-blocklists), fake shops, fake streaming sites,
+// subscription traps and similar scams, updated several times a day --
+// redundant multi-vendor coverage for exactly the category the
+// unlimitedadblocker.pro incident fell into (a domain too new to have
+// reached AdGuard's own Scam Blocklist yet). Registered under the existing
+// "scam" group, not a new toggle -- same reasoning as folding
+// ownTrackerExtraRules into "trackers" above: another source for a category
+// the user already has a toggle for, not a new decision to surface.
+//
+// Replaced jarelllama/Scam-Blocklist (scams_light) in 0.11.246: that list
+// stopped updating in March 2025 and still blocked 18 sites in the Tranco
+// top 10,000 (surveymonkey.com, rei.com, hotmart.com) on every request
+// type. HaGeZi Fake had none in the top 50,000 when checked on 2026-10-07.
 //
 // Fetched here (not a separate scripts/vendor-*.mjs step like
 // cname-list/consent-rules) because, unlike those, this data is needed
@@ -485,20 +490,15 @@ manifestEntries.push({
 // pre-running vendor script's output would just get deleted before this
 // point ever ran.
 //
-// Deliberately the LIGHT variant, not the full list: the full list is
-// ~469,000 domains (checked directly against the live feed) -- more than
-// Moat's entire current rule count on its own, for comparatively thin
-// marginal coverage over the light version's ~18,000. "Expires: 12 hours"
-// per the source's own header; this project only refreshes weekly
-// (filter-refresh.yml), same cadence every other filter source here
-// already gets -- a reasonable scope reduction, not an attempt to match
-// the source's own freshness.
+// The "onlydomains" variant lists each domain once without its
+// subdomains; the ||domain^ rules scamBlocklistRules.mjs builds cover the
+// subdomains anyway.
 const SCAM_BLOCKLIST_URL =
-  "https://raw.githubusercontent.com/jarelllama/Scam-Blocklist/main/lists/wildcard_domains/scams_light.txt";
+  "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/fake-onlydomains.txt";
 const scamBlocklistResponse = await fetchWithRetry(SCAM_BLOCKLIST_URL);
 if (!scamBlocklistResponse.ok) {
   throw new Error(
-    `Failed to fetch jarelllama/Scam-Blocklist: ${scamBlocklistResponse.status} ${scamBlocklistResponse.statusText}`
+    `Failed to fetch HaGeZi Fake: ${scamBlocklistResponse.status} ${scamBlocklistResponse.statusText}`
   );
 }
 const scamBlocklistText = await scamBlocklistResponse.text();
@@ -515,17 +515,17 @@ const scamBlocklistDomains = [
   ),
 ].sort();
 // A real refresh should land in the same order of magnitude as what this
-// was written against (~18,000) -- a near-empty parse means the source
+// was written against (~17,000) -- a near-empty parse means the source
 // changed format under us, not that scam domains dried up.
 if (scamBlocklistDomains.length < 5000) {
   throw new Error(
-    `jarelllama/Scam-Blocklist (light) parsed to only ${scamBlocklistDomains.length} domains -- refusing to ` +
+    `HaGeZi Fake parsed to only ${scamBlocklistDomains.length} domains -- refusing to ` +
       "ship a suspiciously small list; the source's format may have changed."
   );
 }
 writeFileSync(join(outDir, "scam-blocklist-domains.json"), JSON.stringify(scamBlocklistDomains));
 liveFilterSources.push({
-  name: "jarelllamaScamBlocklist",
+  name: "hageziFake",
   url: SCAM_BLOCKLIST_URL,
   text: scamBlocklistText,
   itemCount: scamBlocklistDomains.length,
@@ -558,11 +558,11 @@ scamBlocklistChunks.forEach((chunkRules, index) => {
 // list (pgl.yoyo.org, CC-BY-SA -- see NOTICE.md), a small (~3,500-domain),
 // hand-curated ad-server list running continuously since 2003. Folded into
 // the existing "trackers" group/toggle, same reasoning as
-// ownTrackerExtraRules and the Scam-Blocklist fold-in above: another
+// ownTrackerExtraRules and the HaGeZi Fake fold-in above: another
 // independent source for a category the user already has a toggle for.
 // The `mimetype=plaintext` query param returns one bare hostname per line,
 // no comments/formatting -- reuses the same SCAM_DOMAIN_PATTERN bare-
-// hostname check as the Scam-Blocklist fetch above (the pattern itself
+// hostname check as the HaGeZi Fake fetch above (the pattern itself
 // isn't scam-specific, it's just the general "is this a plausible hostname"
 // gate remote content is held to before it becomes a urlFilter).
 const PETER_LOWE_URL =
@@ -622,8 +622,8 @@ peterLoweChunks.forEach((chunkRules, index) => {
 // ad/tracker/malware source lists -- broader redundant coverage than any
 // single source Moat already ships. Deliberately the "small" variant, not
 // "big" (~247,000 domains, checked directly against the live feed -- more
-// than Moat's entire current rule count on its own, same oversized-relative-
-// to-marginal-value reasoning as the Scam-Blocklist "light" choice above)
+// than Moat's entire current rule count on its own, for thin marginal
+// coverage)
 // nor "nsfw"/"full" (small already excludes NSFW by design, matching the
 // rest of this project's filter choices). Registered as its own Filter
 // Lists toggle rather than folded into "trackers" like Peter Lowe's list

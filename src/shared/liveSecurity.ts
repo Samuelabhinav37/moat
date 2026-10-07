@@ -16,14 +16,14 @@
 export const LIVE_SECURITY_SOURCES = {
   "phishing-urls": "https://malware-filter.gitlab.io/malware-filter/phishing-filter-domains.txt",
   "malicious-urls": "https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-domains-online.txt",
-  scam: "https://raw.githubusercontent.com/jarelllama/Scam-Blocklist/main/lists/wildcard_domains/scams_light.txt",
+  scam: "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/fake-onlydomains.txt",
 } as const;
 
 export type LiveSecurityGroup = keyof typeof LIVE_SECURITY_SOURCES;
 export const LIVE_SECURITY_GROUPS = Object.keys(LIVE_SECURITY_SOURCES) as LiveSecurityGroup[];
 
 export const LIVE_SECURITY_FORMAT = 1;
-/** Far above today's sizes (about 40k phishing, 18k scam, 2k malicious). */
+/** Far above today's sizes (about 40k phishing, 17k scam, 2k malicious). */
 export const MAX_LIVE_SECURITY_DOMAINS_PER_GROUP = 150_000;
 
 /** Sites a security list must never be able to take down, however it's
