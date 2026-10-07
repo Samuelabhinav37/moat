@@ -19,6 +19,8 @@ import { buildOisdRules } from "./lib/oisdRules.mjs";
 import { buildCompatAllowRules } from "./lib/compatAllowRules.mjs";
 import { plainBlockedDomains, isBlockedByDomainChain } from "./lib/blockedDomains.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
+import { loadPsl } from "./lib/publicSuffixList.mjs";
+import { loadPopularSites, dropPopularSites, dropPopularSiteRules } from "./lib/popularSites.mjs";
 import { SECURITY_PRIORITY_OFFSET } from "../src/shared/rulePriorities.ts";
 import { writeLiveFilterSourceProvenance, readPreviousLiveFilterSourceProvenance } from "./lib/liveFilterSourceProvenance.mjs";
 
@@ -43,6 +45,13 @@ const trackerDb = existsSync(trackerDbPath) ? JSON.parse(readFileSync(trackerDbP
 // weekly filter-refresh PR can at least see THAT one of these changed, even
 // though the actual expanded rule content stays out of git.
 const liveFilterSources = [];
+
+// The Tranco top 10,000: the danger lists below never block one of these
+// as a whole site (scripts/lib/popularSites.mjs).
+const popularSites = await loadPopularSites(await loadPsl());
+function logPopularDrops(name, dropped) {
+  if (dropped.length > 0) console.log(`  ${name}: left out ${dropped.length} popular site(s): ${dropped.join(", ")}`);
+}
 
 // AdGuard filter IDs. See https://filters.adtidy.org/extension/chromium-mv3/filters.json
 // `category` groups these for the Filter Lists settings tab: "ads" (ads/trackers/redirects),
@@ -189,6 +198,11 @@ for (const ruleset of RULESETS) {
     siblingsConsolidated = consolidated.consolidatedCount;
     cleaned.length = 0;
     cleaned.push(...consolidated.kept);
+  } else {
+    const guarded = dropPopularSiteRules(cleaned, popularSites);
+    logPopularDrops(ruleset.slug, guarded.dropped);
+    cleaned.length = 0;
+    cleaned.push(...guarded.kept);
   }
 
   // Firefox's linter (the same one AMO's automated review runs) refuses to
@@ -506,14 +520,15 @@ const scamBlocklistText = await scamBlocklistResponse.text();
 // enforces for user-typed domains -- this is remote content, held to the
 // same bar before it ever becomes a urlFilter.
 const SCAM_DOMAIN_PATTERN = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
-const scamBlocklistDomains = [
+const { kept: scamBlocklistDomains, dropped: scamPopularDropped } = dropPopularSites([
   ...new Set(
     scamBlocklistText
       .split("\n")
       .map((line) => line.trim().toLowerCase())
       .filter((line) => line.length > 0 && !line.startsWith("#") && SCAM_DOMAIN_PATTERN.test(line))
   ),
-].sort();
+].sort(), popularSites);
+logPopularDrops("scam-blocklist", scamPopularDropped);
 // A real refresh should land in the same order of magnitude as what this
 // was written against (~17,000) -- a near-empty parse means the source
 // changed format under us, not that scam domains dried up.

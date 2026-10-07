@@ -5,8 +5,11 @@
 //
 // Guardrails (see liveSecurity.ts): only well-formed host names, never an
 // IP address, a public suffix (blocking "github.io" would take down every
-// site on it) or a protected site; and a day's change that's too big to
-// trust unattended is flagged for review instead of published.
+// site on it), a protected site or one of the Tranco top 10,000 as a whole
+// (scripts/lib/popularSites.mjs); and a day's change that's too big to
+// trust unattended is flagged for review instead of published. So is a
+// day that would have blocked more than a few popular sites, since that
+// usually means a bad upstream list.
 //
 // Exit codes: 0 = written (or unchanged), 3 = written but needs a person
 // to review it (the workflow opens a pull request instead of publishing),
@@ -15,6 +18,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
+import { loadPopularSites, dropPopularSites } from "./lib/popularSites.mjs";
 import { loadPsl, registrableDomain } from "./lib/publicSuffixList.mjs";
 import {
   LIVE_SECURITY_FORMAT,
@@ -30,18 +34,23 @@ const outPath = join(root, "live", "security-domains.json");
 
 const previous = existsSync(outPath) ? JSON.parse(readFileSync(outPath, "utf8")) : { groups: {} };
 const psl = await loadPsl();
+const popular = await loadPopularSites(psl);
+const MAX_POPULAR_DROPS = 5;
 
 const groups = {};
 const reviews = [];
 for (const group of LIVE_SECURITY_GROUPS) {
   const response = await fetchWithRetry(LIVE_SECURITY_SOURCES[group]);
   const cleaned = cleanSecurityDomains(parseDomainList(await response.text()));
-  const domains = cleaned.filter((domain) => registrableDomain(domain, psl) !== null);
-  const dropped = cleaned.length - domains.length;
-  const review = securityChangeNeedsReview(previous.groups?.[group] ?? [], domains);
+  const registrable = cleaned.filter((domain) => registrableDomain(domain, psl) !== null);
+  const dropped = cleaned.length - registrable.length;
+  const { kept: domains, dropped: popularDropped } = dropPopularSites(registrable, popular);
+  let review = securityChangeNeedsReview(previous.groups?.[group] ?? [], domains);
+  if (!review && popularDropped.length > MAX_POPULAR_DROPS) review = `${popularDropped.length} popular sites listed`;
   if (review) reviews.push(`${group}: ${review}`);
   groups[group] = domains;
   console.log(`${group}: ${domains.length} domains${dropped ? ` (${dropped} public suffixes dropped)` : ""}${review ? ` -- NEEDS REVIEW: ${review}` : ""}`);
+  if (popularDropped.length > 0) console.log(`  popular sites left out: ${popularDropped.join(", ")}`);
 }
 
 const unchanged = LIVE_SECURITY_GROUPS.every(

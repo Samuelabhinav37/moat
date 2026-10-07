@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.247
+
+### Fixed
+- **The danger lists can't block a popular site as a whole.** When Moat builds its phishing,
+  malware and scam lists, and each day before it publishes the fresh copies, it now leaves out any
+  entry that would block one of the 10,000 most visited sites (from the Tranco ranking) or its
+  "www.". Pages on a subdomain, like a fake sign-in page on a free website builder, stay blocked.
+  A day whose lists would have blocked more than 5 popular sites waits for a person to check it
+  instead of going out. Today this leaves out one entry, ipwho.is, an IP lookup service.
+
 ## 0.11.246
 
 ### Fixed
