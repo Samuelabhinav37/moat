@@ -3372,6 +3372,16 @@
     "message": "Ouvrir quand même",
     "description": "Block page: opens an ad or tracker site for this visit only."
   },
+  "blockedGoTo": {
+    "message": "Aller sur $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "wise.com"
+      }
+    },
+    "description": "Block page: goes straight to the address a blocked tracking link was taking you to. $HOST$ is a site name like wise.com."
+  },
   "blockedRiskNote": {
     "message": "Si vous comprenez le risque, vous pouvez ouvrir ce site pour cette visite.",
     "description": "Block page Details, for a dangerous site."

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blockedPageQuery, hostOnList, kindForList, listForRule, pageMatch, parseBlockedPageQuery } from "./blockedPage";
+import { blockedPageQuery, destinationIn, hostOnList, kindForList, listForRule, pageMatch, parseBlockedPageQuery } from "./blockedPage";
 import type { RulesetManifestEntry } from "./rulesetManifest";
 
 const entry = (id: string, group: string, category: RulesetManifestEntry["category"]): RulesetManifestEntry => ({ id, group, category, name: id, enabled: true, file: `${id}.json`, ruleCount: 1 });
@@ -60,5 +60,34 @@ describe("blocked.html query", () => {
     expect(parseBlockedPageQuery("?u=https://a.example/&list=ads&kind=nope")).toBeNull();
     expect(parseBlockedPageQuery("?u=https://a.example/&list=<b>&kind=ads")).toBeNull();
     expect(parseBlockedPageQuery("?list=ads&kind=ads")).toBeNull();
+  });
+});
+
+describe("destinationIn", () => {
+  it("finds the address in common click-link parameters", () => {
+    expect(destinationIn("https://www.awin1.com/cread.php?awinmid=1&awinaffid=2&ued=https%3A%2F%2Fwww.example.com%2Fshoes")).toBe("https://www.example.com/shoes");
+    expect(destinationIn("https://click.linksynergy.com/deeplink?id=x&mid=1&murl=https%3A%2F%2Fshop.example%2Fitem")).toBe("https://shop.example/item");
+    expect(destinationIn("https://go.skimresources.com/?id=1X2&url=https%3A%2F%2Fwww.example.com%2Fdeal")).toBe("https://www.example.com/deal");
+  });
+
+  it("finds a doubly encoded address and one under an unusual key", () => {
+    expect(destinationIn("https://click.lenovo.com/?q=https%253A%252F%252Fwww.lenovo.com%252Fus")).toBe("https://www.lenovo.com/us");
+    expect(destinationIn("https://t.example.net/c?qs=abc&xyz=https%3A%2F%2Fwise.com%2Fsend")).toBe("https://wise.com/send");
+  });
+
+  it("finds an awstrack.me address in the path", () => {
+    expect(destinationIn("https://abc.r.us-east-1.awstrack.me/L0/https:%2F%2Fwise.com%2Fsend%3Fx=1/1/0100abc/xyz=")).toBe("https://wise.com/send?x=1");
+  });
+
+  it("refuses anything that isn't a plain web address on another host", () => {
+    expect(destinationIn("https://click.example.com/?url=javascript%3Aalert(1)")).toBeNull();
+    expect(destinationIn("https://click.example.com/?url=data%3Atext%2Fhtml%2Chi")).toBeNull();
+    expect(destinationIn("https://click.example.com/?url=https%3A%2F%2Fclick.example.com%2Floop")).toBeNull();
+    expect(destinationIn("https://click.example.com/?url=https%3A%2F%2Fbank.example%40evil.example%2F")).toBeNull();
+    expect(destinationIn("https://click.example.com/?id=12345")).toBeNull();
+    expect(destinationIn("https://t.co/AbCdEf123")).toBeNull();
+    // An address without "https://" isn't guessed at.
+    expect(destinationIn("https://www.shareasale.com/r.cfm?b=1&u=2&m=3&urllink=www.example.com%2Fp")).toBeNull();
+    expect(destinationIn("not a url")).toBeNull();
   });
 });

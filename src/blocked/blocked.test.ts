@@ -40,6 +40,24 @@ describe("blocked.html", () => {
     expect(document.getElementById("help-link")!.hidden).toBe(false);
   });
 
+  it("offers the real address of a blocked click-link as the main button", async () => {
+    await openPage(q("https://ablink.info.wise.com/ls/click?upn=x&url=https%3A%2F%2Fwww.wise.com%2Fsend", "trackers", "ads"));
+    const goTo = document.getElementById("go-to") as HTMLButtonElement;
+    expect(goTo.hidden).toBe(false);
+    expect(goTo.textContent).toBe("Go to wise.com");
+    expect(goTo.classList.contains("primary")).toBe(true);
+    expect(document.getElementById("go-back")!.classList.contains("primary")).toBe(false);
+    expect(document.getElementById("open-anyway")!.hidden).toBe(false);
+  });
+
+  it("never follows a dangerous page's link, and has no Go to without an address", async () => {
+    await openPage(q("https://evil.example/r?url=https%3A%2F%2Fwise.com%2F", "phishing-urls", "danger"));
+    expect(document.getElementById("go-to")!.hidden).toBe(true);
+    expect(document.getElementById("go-back")!.classList.contains("primary")).toBe(true);
+    await openPage(q("https://click.example.com/abc123", "trackers", "ads"));
+    expect(document.getElementById("go-to")!.hidden).toBe(true);
+  });
+
   it("explains an ad list in plain words", async () => {
     await openPage(q("https://pop.example/", "popups", "ads"));
     expect(text("title")).toBe("Moat stopped this page");

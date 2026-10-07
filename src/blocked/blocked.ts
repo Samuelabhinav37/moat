@@ -2,7 +2,7 @@
 // background/blockedPage.ts for how a tab gets here.
 import browser from "webextension-polyfill";
 import { applyStaticI18n } from "../shared/i18n";
-import { CUSTOM_LIST, POLICY_LIST, UNKNOWN_LIST, parseBlockedPageQuery, type BlockKind } from "../shared/blockedPage";
+import { CUSTOM_LIST, POLICY_LIST, UNKNOWN_LIST, destinationIn, parseBlockedPageQuery, type BlockKind } from "../shared/blockedPage";
 import { LIST_LABELS } from "../options/filterListLabels";
 import type { OpenBlockedPageMessage } from "../types";
 
@@ -89,6 +89,19 @@ function render(): void {
   document.getElementById("open-anyway")!.hidden = !params || (kind !== "ads" && kind !== "custom");
   // A stop Moat couldn't trace to a list gets the same care as a dangerous one.
   document.getElementById("danger-proceed")!.hidden = !params || (kind !== "danger" && kind !== "unknown");
+
+  // An email or social click-link that was blocked as a tracker usually
+  // carries the real address. Going there skips only the tracking hop, and
+  // the destination still goes through Moat's lists.
+  const destination = params && kind === "ads" ? destinationIn(params.url) : null;
+  const goTo = document.getElementById("go-to") as HTMLButtonElement;
+  goTo.hidden = !destination;
+  if (destination) {
+    const destinationHost = new URL(destination).hostname.replace(/^www\./, "");
+    goTo.textContent = msg("blockedGoTo", `Go to ${destinationHost}`, destinationHost);
+    goTo.addEventListener("click", () => location.assign(destination));
+    document.getElementById("go-back")!.classList.remove("primary");
+  }
 }
 
 /** Asks the worker to let this tab's blocked site through for one visit.

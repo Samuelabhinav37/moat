@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.248
+
+### Added
+- **"Go to wise.com" when Moat stops a link from an email.** Shops and newsletters wrap their links
+  in tracking addresses like click.lenovo.com or awstrack.me, and Moat's tracker lists stop those
+  as whole pages. When the real address is inside the link, the block page now offers to go
+  straight there, skipping only the tracking step. The site you land on still goes through
+  Moat's lists. "Open anyway" and "Go back" stay. This never appears for a dangerous site.
+
 ## 0.11.247
 
 ### Fixed

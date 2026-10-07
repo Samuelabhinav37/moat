@@ -100,3 +100,57 @@ export function parseBlockedPageQuery(search: string): BlockedPageParams | null 
   if (!/^[a-z0-9-]{1,40}$/.test(list)) return null;
   return { url: parsed.href, list, kind };
 }
+
+/** Query keys click-links put their destination under, most specific
+ * first. Any other value that is itself a web address counts too. */
+const DESTINATION_KEYS = ["url", "u", "murl", "ued", "urllink", "dest", "destination", "redirect", "redirect_url", "target", "to", "goto", "link", "r"];
+/** A percent-encoded address in the path, as Amazon SES's awstrack.me
+ * puts it: /L0/https:%2F%2Fwise.com%2Fsend/1/... */
+const PATH_DESTINATION = /https?(?::|%3A)%2F%2F[^/?#]+/i;
+
+function webAddress(value: string, from: string): string | null {
+  let candidate = value.trim();
+  if (!/^https?:\/\//i.test(candidate)) {
+    try {
+      candidate = decodeURIComponent(candidate);
+    } catch {
+      return null;
+    }
+  }
+  if (candidate.length > 2048 || !/^https?:\/\//i.test(candidate)) return null;
+  let url: URL;
+  try {
+    url = new URL(candidate);
+  } catch {
+    return null;
+  }
+  // "https://bank.com@evil.example" reads as bank.com but goes to evil.example.
+  if (url.username || url.password) return null;
+  if (url.hostname === from || !url.hostname.includes(".")) return null;
+  return url.href;
+}
+
+/** Where a click-link (an email's "click.brand.com/...?url=...", awin,
+ * awstrack.me) was taking you, when the address is in the link itself.
+ * Null when it isn't, or when it only points back at the same host. Only
+ * ever offered for ad and tracker blocks: a dangerous page's link is not
+ * followed, and the destination still goes through Moat's lists. */
+export function destinationIn(link: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(link);
+  } catch {
+    return null;
+  }
+  const values = [...url.searchParams.entries()];
+  const ordered = [
+    ...DESTINATION_KEYS.flatMap((key) => values.filter(([k]) => k.toLowerCase() === key).map(([, v]) => v)),
+    ...values.filter(([k]) => !DESTINATION_KEYS.includes(k.toLowerCase())).map(([, v]) => v),
+  ];
+  for (const value of ordered) {
+    const found = webAddress(value, url.hostname);
+    if (found) return found;
+  }
+  const inPath = PATH_DESTINATION.exec(url.pathname)?.[0];
+  return inPath ? webAddress(inPath, url.hostname) : null;
+}
