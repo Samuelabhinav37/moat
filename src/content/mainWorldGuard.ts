@@ -6,7 +6,7 @@ import { GUARD_CONNECT_EVENT, type GuardBlockKind, type GuardBlockReport, type P
 import { isAuthPopupUrl } from "./authPopup";
 import { isPlausibleTrigger } from "./isPlausibleTrigger";
 import { createPopupRateLimiter } from "./popupRateLimit";
-import { nativeGetter, nativeMethod } from "./nativeToString";
+import { maskRealm, nativeGetter, nativeMethod } from "./nativeToString";
 
 declare global {
   interface Navigator {
@@ -94,18 +94,18 @@ document.addEventListener(
   true
 );
 
-// nativeMethod: same name/length as the real window.open, no prototype,
-// not constructible, toString masked -- see nativeToString.ts.
-window.open = nativeMethod<typeof window.open>(nativeWindowOpen, function guardedOpen(
-  ...args: Parameters<typeof window.open>
-): ReturnType<typeof window.open> {
-  if (siteDisabled) return nativeOpen(...args);
+/** Whether the page may open a new window right now, from window.open or
+ * anything that does the same job (a script-clicked new-tab link the click
+ * listener can't see, a form submitted to a new tab, a frame's open()).
+ * Reports the block when it says no. */
+function mayOpenWindow(url: unknown, kind: GuardBlockKind): boolean {
+  if (siteDisabled) return true;
 
   const active = navigator.userActivation?.isActive ?? false;
   // A sign-in page the user asked for: no click-shape checks, no one-per-
   // click limit (some flows open a second window after an error), no rate
   // limit. Still needs the browser's own live user gesture.
-  if (active && isAuthPopupUrl(args[0], location.href)) return nativeOpen(...args);
+  if (active && isAuthPopupUrl(url as Parameters<typeof window.open>[0], location.href)) return true;
   const recentTrusted = lastTrustedClick !== null && performance.now() - lastTrustedClick.time < TRUST_WINDOW_MS;
   const plausible = recentTrusted && isPlausibleTrigger(lastTrustedClick!.target);
   const freshClick = recentTrusted && !lastTrustedClick!.consumed;
@@ -120,13 +120,130 @@ window.open = nativeMethod<typeof window.open>(nativeWindowOpen, function guarde
   // pattern without touching the click-plausibility heuristic itself.
   if (active && plausible && freshClick && popupRateLimiter.tryApprove(performance.now())) {
     lastTrustedClick!.consumed = true;
-    return nativeOpen(...args);
+    return true;
   }
 
-  const url = args[0];
-  report("window-open", typeof url === "string" ? url : url instanceof URL ? url.href : null);
-  return null;
+  report(kind, typeof url === "string" ? url : url instanceof URL ? url.href : null);
+  return false;
+}
+
+// nativeMethod: same name/length as the real window.open, no prototype,
+// not constructible, toString masked -- see nativeToString.ts.
+window.open = nativeMethod<typeof window.open>(nativeWindowOpen, function guardedOpen(
+  ...args: Parameters<typeof window.open>
+): ReturnType<typeof window.open> {
+  return mayOpenWindow(args[0], "window-open") ? nativeOpen(...args) : null;
 });
+
+// Frames the page makes itself (about:blank, srcdoc, blob:) share its origin,
+// so their window.open was a way around the one above. Chrome runs this file
+// in about:blank and blob: frames before the page can touch them, but a
+// srcdoc frame's first, empty document gets nothing. So the moment the page
+// reaches into a same-origin frame, its open() is replaced with one that
+// asks this page's guard, using this page's clicks.
+const guardedFrames = new WeakSet<Window>();
+
+function guardFrameWindow(child: Window | null): void {
+  if (!child || child === window || guardedFrames.has(child)) return;
+  let childOpen: typeof window.open;
+  try {
+    childOpen = child.open; // throws for a cross-origin frame, which can't reach this page anyway
+  } catch {
+    return;
+  }
+  guardedFrames.add(child);
+  maskRealm(child);
+  try {
+    child.open = nativeMethod<typeof window.open>(childOpen, function guardedFrameOpen(
+      ...args: Parameters<typeof window.open>
+    ): ReturnType<typeof window.open> {
+      return mayOpenWindow(args[0], "window-open") ? childOpen.apply(child, args) : null;
+    });
+  } catch {
+    // A frame that won't take the property: leave it, nothing else to do.
+  }
+}
+
+for (const ctor of [HTMLIFrameElement, HTMLFrameElement, HTMLObjectElement]) {
+  for (const property of ["contentWindow", "contentDocument"] as const) {
+    const native = Object.getOwnPropertyDescriptor(ctor.prototype, property);
+    if (!native?.get) continue;
+    const realGetter = native.get;
+    Object.defineProperty(ctor.prototype, property, {
+      ...native,
+      get: nativeGetter(property, realGetter, function (this: Element) {
+        const value = realGetter.call(this) as Window | Document | null;
+        // Not instanceof Document: the frame's Document is its own realm's.
+        guardFrameWindow(property === "contentDocument" ? ((value as Document | null)?.defaultView ?? null) : (value as Window | null));
+        return value;
+      }),
+    });
+  }
+}
+
+/** A target that opens a new window. */
+function opensNewWindow(target: string | null | undefined): boolean {
+  const t = (target ?? "").trim().toLowerCase();
+  return t === "_blank" || t === "blank";
+}
+
+/** The click listener above sees script clicks on new-tab links in the
+ * page. A link never added to the page, or inside a shadow root (closed
+ * ones hide it from the listener entirely), opened a new tab unseen. */
+function unseenNewTabLink(element: Element): HTMLAnchorElement | HTMLAreaElement | null {
+  const link = element.closest("a[href], area[href]");
+  if (!(link instanceof HTMLAnchorElement || link instanceof HTMLAreaElement)) return null;
+  if (!opensNewWindow(link.getAttribute("target")) || link.hasAttribute("download")) return null;
+  return !link.isConnected || link.getRootNode() instanceof ShadowRoot ? link : null;
+}
+
+/** A submit button whose form goes to a new tab. */
+function newTabSubmitter(element: Element): HTMLButtonElement | HTMLInputElement | null {
+  if (!(element instanceof HTMLButtonElement || element instanceof HTMLInputElement)) return null;
+  if (element.type !== "submit" && element.type !== "image") return null;
+  const form = element.form;
+  if (!form) return null;
+  return opensNewWindow(element.getAttribute("formtarget") ?? form.target) ? element : null;
+}
+
+/** Whether a script-driven click on `element` may go ahead. */
+function mayScriptClick(element: Element): boolean {
+  const link = unseenNewTabLink(element);
+  if (link) return mayOpenWindow(link.href, "synthetic-click");
+  const submitter = newTabSubmitter(element);
+  if (submitter) return mayOpenWindow(submitter.formAction, "synthetic-click");
+  return true;
+}
+
+const nativeClick = HTMLElement.prototype.click;
+HTMLElement.prototype.click = nativeMethod<typeof nativeClick>(nativeClick, function guardedClick(this: HTMLElement): void {
+  if (mayScriptClick(this)) nativeClick.call(this);
+});
+
+const nativeDispatchEvent = EventTarget.prototype.dispatchEvent;
+EventTarget.prototype.dispatchEvent = nativeMethod<typeof nativeDispatchEvent>(nativeDispatchEvent, function guardedDispatchEvent(
+  this: EventTarget,
+  event: Event
+): boolean {
+  if (event?.type === "click" && this instanceof Element && !mayScriptClick(this)) return false;
+  return nativeDispatchEvent.call(this, event);
+});
+
+const nativeSubmit = HTMLFormElement.prototype.submit;
+HTMLFormElement.prototype.submit = nativeMethod<typeof nativeSubmit>(nativeSubmit, function guardedSubmit(this: HTMLFormElement): void {
+  if (!opensNewWindow(this.target) || mayOpenWindow(this.action, "window-open")) nativeSubmit.call(this);
+});
+
+const nativeRequestSubmit = HTMLFormElement.prototype.requestSubmit;
+if (nativeRequestSubmit) {
+  HTMLFormElement.prototype.requestSubmit = nativeMethod<typeof nativeRequestSubmit>(nativeRequestSubmit, function guardedRequestSubmit(
+    this: HTMLFormElement,
+    submitter?: HTMLElement | null
+  ): void {
+    const target = submitter?.getAttribute("formtarget") ?? this.target;
+    if (!opensNewWindow(target) || mayOpenWindow(this.action, "window-open")) nativeRequestSubmit.call(this, submitter);
+  });
+}
 
 document.addEventListener(GUARD_CONNECT_EVENT, (event) => {
   const port = (event as MessageEvent).ports?.[0];

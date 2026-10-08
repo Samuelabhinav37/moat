@@ -26,11 +26,14 @@ import {
   UNMASKED_RENDERER_WEBGL,
   UNMASKED_VENDOR_WEBGL,
 } from "./fingerprintNoise";
-import { nativeGetter, nativeMethod } from "./nativeToString";
+import { maskRealm, nativeGetter, nativeMethod } from "./nativeToString";
 import { GUARD_CONNECT_EVENT, type FingerprintGuardConfig } from "../types";
 
 let seed = "";
 let active = false;
+
+/** The page's window, or a same-origin frame's (see ensurePatched). */
+type GuardWindow = Window & typeof globalThis;
 
 // Private channel to bridge.ts (the second port of GUARD_CONNECT_EVENT, see
 // types.ts). The seed only ever travels over it, so page scripts can't read
@@ -41,9 +44,9 @@ function canvasSeed(width: number, height: number): string {
   return `${seed}:canvas:${width}x${height}`;
 }
 
-function patchCanvas(): void {
-  const canvasProto = HTMLCanvasElement.prototype;
-  const ctxProto = CanvasRenderingContext2D.prototype;
+function patchCanvas(w: GuardWindow): void {
+  const canvasProto = w.HTMLCanvasElement.prototype;
+  const ctxProto = w.CanvasRenderingContext2D.prototype;
   const nativeToDataURL = canvasProto.toDataURL;
   const nativeToBlob = canvasProto.toBlob;
   const nativeGetImageData = ctxProto.getImageData;
@@ -52,7 +55,7 @@ function patchCanvas(): void {
   // methods, noises that clone's pixels, and reads back from the clone --
   // the on-screen canvas the page actually displays is never touched.
   function noisedClone(canvas: HTMLCanvasElement): HTMLCanvasElement {
-    const clone = document.createElement("canvas");
+    const clone = (canvas.ownerDocument ?? w.document).createElement("canvas");
     clone.width = canvas.width;
     clone.height = canvas.height;
     const ctx = clone.getContext("2d");
@@ -94,9 +97,9 @@ function patchCanvas(): void {
   });
 }
 
-function patchAudio(): void {
-  if (typeof AudioBuffer !== "undefined") {
-    const proto = AudioBuffer.prototype;
+function patchAudio(w: GuardWindow): void {
+  if (typeof w.AudioBuffer !== "undefined") {
+    const proto = w.AudioBuffer.prototype;
     const nativeGetChannelData = proto.getChannelData;
 
     proto.getChannelData = nativeMethod<typeof nativeGetChannelData>(nativeGetChannelData, function guardedGetChannelData(
@@ -114,9 +117,9 @@ function patchAudio(): void {
   // value below) are different fingerprinting vectors -- see the research
   // doc's own distinction between Moat's existing noisifyFloatSamples and
   // Firefox's actual shipped outputLatency/sampleRate spoofing.
-  if (typeof AudioContext !== "undefined") {
-    patchFixedGetter(AudioContext.prototype, "sampleRate", () => SPOOFED_AUDIO_SAMPLE_RATE);
-    patchFixedGetter(AudioContext.prototype, "outputLatency", () => SPOOFED_AUDIO_OUTPUT_LATENCY);
+  if (typeof w.AudioContext !== "undefined") {
+    patchFixedGetter(w.AudioContext.prototype, "sampleRate", () => SPOOFED_AUDIO_SAMPLE_RATE);
+    patchFixedGetter(w.AudioContext.prototype, "outputLatency", () => SPOOFED_AUDIO_OUTPUT_LATENCY);
   }
 }
 
@@ -171,21 +174,21 @@ function patchTransformedGetter(object: object, property: string, transform: (ac
 // that cross-checks the spoofed values against observed layout behavior can
 // catch the inconsistency. Same category of limitation Moat's existing
 // canvas/WebGL spoofs already accept, not a new risk class.
-function patchDimensions(): void {
+function patchDimensions(w: GuardWindow): void {
   for (const prop of ["innerWidth", "outerWidth"] as const) {
-    patchTransformedGetter(window, prop, bucketWidth);
+    patchTransformedGetter(w, prop, bucketWidth);
   }
   for (const prop of ["innerHeight", "outerHeight"] as const) {
-    patchTransformedGetter(window, prop, bucketHeight);
+    patchTransformedGetter(w, prop, bucketHeight);
   }
 }
 
-function patchScreenDimensions(): void {
-  if (typeof Screen === "undefined") return;
-  patchTransformedGetter(Screen.prototype, "width", bucketWidth);
-  patchTransformedGetter(Screen.prototype, "availWidth", bucketWidth);
-  patchTransformedGetter(Screen.prototype, "height", bucketHeight);
-  patchTransformedGetter(Screen.prototype, "availHeight", bucketHeight);
+function patchScreenDimensions(w: GuardWindow): void {
+  if (typeof w.Screen === "undefined") return;
+  patchTransformedGetter(w.Screen.prototype, "width", bucketWidth);
+  patchTransformedGetter(w.Screen.prototype, "availWidth", bucketWidth);
+  patchTransformedGetter(w.Screen.prototype, "height", bucketHeight);
+  patchTransformedGetter(w.Screen.prototype, "availHeight", bucketHeight);
 }
 
 // Real, disclosed tradeoff (see clampTimestamp's own comment in
@@ -195,30 +198,30 @@ function patchScreenDimensions(): void {
 // tradeoff Firefox's own resistFingerprinting already carries in
 // production -- not a new risk class this introduces, but real enough to
 // state here rather than only in a research doc.
-function patchTiming(): void {
-  if (typeof Performance !== "undefined") {
-    const nativeNow = Performance.prototype.now;
-    Performance.prototype.now = nativeMethod<typeof nativeNow>(nativeNow, function guardedNow(this: Performance): number {
+function patchTiming(w: GuardWindow): void {
+  if (typeof w.Performance !== "undefined") {
+    const nativeNow = w.Performance.prototype.now;
+    w.Performance.prototype.now = nativeMethod<typeof nativeNow>(nativeNow, function guardedNow(this: Performance): number {
       const actual = nativeNow.call(this);
       return active ? clampTimestamp(actual) : actual;
     });
   }
 
-  const nativeDateNow = Date.now;
-  Date.now = nativeMethod<typeof nativeDateNow>(nativeDateNow, function guardedDateNow(): number {
+  const nativeDateNow = w.Date.now;
+  w.Date.now = nativeMethod<typeof nativeDateNow>(nativeDateNow, function guardedDateNow(): number {
     const actual = nativeDateNow();
     return active ? clampTimestamp(actual) : actual;
   });
 
-  if (typeof Event !== "undefined") {
-    patchTransformedGetter(Event.prototype, "timeStamp", clampTimestamp);
+  if (typeof w.Event !== "undefined") {
+    patchTransformedGetter(w.Event.prototype, "timeStamp", clampTimestamp);
   }
 }
 
-function patchWebGL(): void {
+function patchWebGL(w: GuardWindow): void {
   const contexts = [
-    typeof WebGLRenderingContext === "undefined" ? undefined : WebGLRenderingContext,
-    typeof WebGL2RenderingContext === "undefined" ? undefined : WebGL2RenderingContext,
+    typeof w.WebGLRenderingContext === "undefined" ? undefined : w.WebGLRenderingContext,
+    typeof w.WebGL2RenderingContext === "undefined" ? undefined : w.WebGL2RenderingContext,
   ];
   for (const ctor of contexts) {
     if (!ctor) continue;
@@ -236,10 +239,10 @@ function patchWebGL(): void {
   }
 }
 
-function patchNavigatorHints(): void {
-  const nativeConcurrency = Object.getOwnPropertyDescriptor(Navigator.prototype, "hardwareConcurrency");
+function patchNavigatorHints(w: GuardWindow): void {
+  const nativeConcurrency = Object.getOwnPropertyDescriptor(w.Navigator.prototype, "hardwareConcurrency");
   const nativeMemory = Object.getOwnPropertyDescriptor(
-    Navigator.prototype as Navigator & { deviceMemory?: number },
+    w.Navigator.prototype as Navigator & { deviceMemory?: number },
     "deviceMemory"
   );
 
@@ -248,7 +251,7 @@ function patchNavigatorHints(): void {
       const actual = nativeConcurrency.get!.call(this) as number;
       return active ? bucketHardwareConcurrency(actual) : actual;
     });
-    Object.defineProperty(Navigator.prototype, "hardwareConcurrency", {
+    Object.defineProperty(w.Navigator.prototype, "hardwareConcurrency", {
       ...nativeConcurrency,
       get: guardedGetter,
     });
@@ -259,7 +262,7 @@ function patchNavigatorHints(): void {
       const actual = nativeMemory.get!.call(this) as number;
       return active ? bucketDeviceMemory(actual) : actual;
     });
-    Object.defineProperty(Navigator.prototype, "deviceMemory", {
+    Object.defineProperty(w.Navigator.prototype, "deviceMemory", {
       ...nativeMemory,
       get: guardedGetter,
     });
@@ -274,19 +277,53 @@ function patchNavigatorHints(): void {
 // that actually reports the feature on, instead of running unconditionally
 // at parse time: `active` already gates *behavior* inside the patched
 // functions, this just also gates whether they get patched at all.
-let patched = false;
+const patchedWindows = new WeakSet<Window>();
 
-function ensurePatched(): void {
-  if (patched) return;
-  patched = true;
+/** Same-origin frames the page makes itself (about:blank, srcdoc, blob:)
+ * have their own HTMLCanvasElement, Navigator and the rest, and a page read
+ * the real canvas through them. Chrome runs this file in about:blank and
+ * blob: frames too, but its config arrives a moment later, after the page
+ * may already have read. So the moment the page reaches into a same-origin
+ * frame, this page's guard patches it, with this page's seed. */
+function patchFramesOnAccess(w: GuardWindow): void {
+  for (const ctor of [w.HTMLIFrameElement, w.HTMLFrameElement, w.HTMLObjectElement]) {
+    for (const property of ["contentWindow", "contentDocument"] as const) {
+      const native = Object.getOwnPropertyDescriptor(ctor.prototype, property);
+      if (!native?.get) continue;
+      const realGetter = native.get;
+      Object.defineProperty(ctor.prototype, property, {
+        ...native,
+        get: nativeGetter(property, realGetter, function (this: Element) {
+          const value = realGetter.call(this) as Window | Document | null;
+          // Not instanceof Document: the frame's Document is its own realm's.
+          const child = property === "contentDocument" ? ((value as Document | null)?.defaultView ?? null) : (value as Window | null);
+          if (active && child && child !== w) {
+            try {
+              void child.document; // throws for a cross-origin frame
+              ensurePatched(child as GuardWindow);
+            } catch {
+              // Cross-origin: its own copy of this script guards it.
+            }
+          }
+          return value;
+        }),
+      });
+    }
+  }
+}
+
+function ensurePatched(w: GuardWindow = window): void {
+  if (patchedWindows.has(w)) return;
+  patchedWindows.add(w);
+  if (w !== window) maskRealm(w);
   // Each surface is independent -- one throwing (an unusual embedding
   // context missing a global this file assumes) must not stop the others
   // from installing. Previously these ran unconditionally at parse time
   // with the same lack of isolation between them; grouping them here is
   // what makes that pre-existing gap worth closing now.
-  for (const patch of [patchCanvas, patchAudio, patchWebGL, patchNavigatorHints, patchDimensions, patchScreenDimensions, patchTiming]) {
+  for (const patch of [patchCanvas, patchAudio, patchWebGL, patchNavigatorHints, patchDimensions, patchScreenDimensions, patchTiming, patchFramesOnAccess]) {
     try {
-      patch();
+      patch(w);
     } catch {
       // Best-effort: losing noise on one surface is better than losing it
       // on every surface over one missing global.

@@ -27,10 +27,11 @@
 // matches found just means no filtering, never breaks the page) against
 // whatever these three sites' markup looks like next time they change it.
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
+import { pageMarker } from "./pageMarker";
 
-const HIDDEN_ATTR = "data-moat-slop-hidden";
-const STYLE_ID = "moat-search-slop-style";
-const BANNER_ID = "moat-search-slop-banner";
+export const HIDDEN_ATTR = `data-${pageMarker()}`;
+export const STYLE_ID = pageMarker();
+export const BANNER_ID = pageMarker();
 
 interface EngineConfig {
   /** Each matched element is one organic result "card" to evaluate. */

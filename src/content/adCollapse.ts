@@ -10,6 +10,7 @@
 // Not a MutationObserver -- two timed passes, same "no persistent DOM
 // watcher for cosmetic filtering" design as the rest of the feature.
 import { domainChain } from "../shared/domainChain";
+import { pageMarker } from "./pageMarker";
 
 // Common IAB / display-ad slot dimensions (WxH). An ancestor whose own box
 // matches one of these, or is at least MIN_RESERVED_PX tall with nothing in
@@ -22,8 +23,8 @@ const AD_SLOT_SIZES = new Set([
 const MIN_RESERVED_PX = 20;
 const MAX_ANCESTOR_WALK = 3;
 const SECOND_PASS_DELAY_MS = 2500;
-const HANDLED_ATTR = "data-moat-ad-collapsed";
-const STYLE_ID = "moat-ad-collapse";
+export const HANDLED_ATTR = `data-${pageMarker()}`;
+export const STYLE_ID = pageMarker();
 
 /** hostname of an absolute URL string, lowercased; "" for a relative or
  * unparseable src (a blocked ad is essentially always absolute cross-origin). */

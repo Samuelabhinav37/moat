@@ -20,6 +20,7 @@
 import browser from "webextension-polyfill";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { STORAGE_KEY, type RecordUsageSignalMessage } from "../types";
+import { pageMarker } from "./pageMarker";
 
 function reportDimmed(): void {
   const message: RecordUsageSignalMessage = {
@@ -30,8 +31,8 @@ function reportDimmed(): void {
   browser.runtime.sendMessage(message).catch(() => {});
 }
 
-const DIM_CLASS = "moat-ad-dim";
-const STYLE_ELEMENT_ID = "moat-yt-ad-dim-style";
+export const DIM_CLASS = pageMarker();
+export const STYLE_ELEMENT_ID = pageMarker();
 const AD_STATE_CLASSES = ["ad-showing", "ad-interrupting"];
 const AD_MODULE_SELECTOR = ".ytp-ad-module";
 

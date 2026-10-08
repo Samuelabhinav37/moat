@@ -1,6 +1,9 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  BANNER_ID,
+  HIDDEN_ATTR,
+  STYLE_ID,
   engineConfigFor,
   findSpamResults,
   hostFromCiteText,
@@ -15,7 +18,7 @@ const DDG = engineConfigFor("duckduckgo.com")!;
 
 afterEach(() => {
   document.body.innerHTML = "";
-  document.getElementById("moat-search-slop-style")?.remove();
+  document.getElementById(STYLE_ID)?.remove();
 });
 
 describe("engineConfigFor", () => {
@@ -79,7 +82,7 @@ describe("findSpamResults (Google-shaped markup)", () => {
   it("does not re-match an already-hidden result", () => {
     document.body.innerHTML = `
       <div id="search">
-        <div class="g" data-moat-slop-hidden><a href="https://ehow.com/x"><h3>Title</h3></a></div>
+        <div class="g" ${HIDDEN_ATTR}><a href="https://ehow.com/x"><h3>Title</h3></a></div>
       </div>`;
     expect(findSpamResults(document, "https://www.google.com/search", GOOGLE, DOMAINS)).toHaveLength(0);
   });
@@ -218,9 +221,9 @@ describe("runSearchSlopPass", () => {
     const count = runSearchSlopPass(document, "https://www.google.com/search", GOOGLE, DOMAINS);
     expect(count).toBe(1);
 
-    const hidden = document.querySelectorAll("[data-moat-slop-hidden]");
+    const hidden = document.querySelectorAll(`[${HIDDEN_ATTR}]`);
     expect(hidden).toHaveLength(1);
-    const banner = document.getElementById("moat-search-slop-banner");
+    const banner = document.getElementById(BANNER_ID);
     expect(banner?.textContent).toContain("1 low-quality result hidden");
   });
 
@@ -231,7 +234,7 @@ describe("runSearchSlopPass", () => {
       </div>`;
     const count = runSearchSlopPass(document, "https://www.google.com/search", GOOGLE, DOMAINS);
     expect(count).toBe(0);
-    expect(document.getElementById("moat-search-slop-banner")).toBeNull();
+    expect(document.getElementById(BANNER_ID)).toBeNull();
   });
 
   it("the banner's Show button un-hides every matched result", () => {
@@ -241,12 +244,12 @@ describe("runSearchSlopPass", () => {
         <div class="g"><a href="https://buzzle.com/b"><h3>Title</h3></a></div>
       </div>`;
     runSearchSlopPass(document, "https://www.google.com/search", GOOGLE, DOMAINS);
-    expect(document.querySelectorAll("[data-moat-slop-hidden]")).toHaveLength(2);
+    expect(document.querySelectorAll(`[${HIDDEN_ATTR}]`)).toHaveLength(2);
 
-    const button = document.querySelector("#moat-search-slop-banner button") as HTMLButtonElement;
+    const button = document.querySelector(`#${BANNER_ID} button`) as HTMLButtonElement;
     button.click();
 
-    expect(document.querySelectorAll("[data-moat-slop-hidden]")).toHaveLength(0);
-    expect(document.getElementById("moat-search-slop-banner")).toBeNull();
+    expect(document.querySelectorAll(`[${HIDDEN_ATTR}]`)).toHaveLength(0);
+    expect(document.getElementById(BANNER_ID)).toBeNull();
   });
 });

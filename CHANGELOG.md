@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.252
+
+### Security
+- **Pop-up tabs can't slip past Moat through frames, hidden links or forms.** A test site got
+  pop-under tabs past Moat five ways: opening them from a blank or `srcdoc` frame it made itself,
+  clicking a new-tab link it never added to the page or hid in a shadow root, and submitting a form
+  to a new tab. All five are now held to the same rule as `window.open`: they need a real click on
+  something that looks clickable. Real buttons and links that open a new tab still work, including
+  ones whose script clicks a hidden link.
+- **The fingerprint disguise covers frames a page makes itself.** With it on, a page could still
+  read the real canvas fingerprint from a blank frame it created, and compare it with the disguised
+  one. Those frames now get the same disguise as the page. A page can still read it from a Web
+  Worker, which Moat can't reach, so the setting now says it makes you harder to recognize rather
+  than impossible to.
+- **Pages can't tell Moat specifically is installed.** The markers Moat adds to pages used to be
+  named "moat", so any site could look for them. Each name is now random for every page load.
+
 ## 0.11.251
 
 ### Security

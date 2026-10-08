@@ -73,11 +73,15 @@ export async function checkPassword(input: HTMLInputElement): Promise<void> {
   if (isSuffixInRangeResponse(body, suffix)) showWarning(input);
 }
 
+/** Fields showing a warning. Kept here, not as a data- attribute the page
+ * could read. */
+const warned = new WeakSet<HTMLInputElement>();
+
 function showWarning(input: HTMLInputElement): void {
   // Only ever show one live warning per field -- a second blur on the same
   // still-breached value would otherwise stack duplicate tooltips.
-  if (input.dataset.moatLeakWarningShown === "true") return;
-  input.dataset.moatLeakWarningShown = "true";
+  if (warned.has(input)) return;
+  warned.add(input);
 
   const warning = document.createElement("div");
   warning.textContent = browser.i18n.getMessage("leakedPasswordWarning") || "This password has appeared in a known data breach.";
@@ -100,7 +104,7 @@ function showWarning(input: HTMLInputElement): void {
   document.body.appendChild(warning);
   const remove = (): void => {
     warning.remove();
-    delete input.dataset.moatLeakWarningShown;
+    warned.delete(input);
   };
   input.addEventListener("focus", remove, { once: true });
   setTimeout(remove, 10000);

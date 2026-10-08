@@ -25,6 +25,7 @@ import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { findAdContainer, isAdLabel } from "./feedAdLabel";
 import { effectiveValue } from "../shared/perSiteOverrides";
 import { STORAGE_KEY, type RecordUsageSignalMessage } from "../types";
+import { pageMarker } from "./pageMarker";
 
 function reportHidden(count: number): void {
   if (count <= 0) return;
@@ -37,8 +38,8 @@ function reportHidden(count: number): void {
   browser.runtime.sendMessage(message).catch(() => {});
 }
 
-const HIDE_CLASS = "moat-feed-ad-hidden";
-const STYLE_ELEMENT_ID = "moat-feed-scanner-style";
+export const HIDE_CLASS = pageMarker();
+export const STYLE_ELEMENT_ID = pageMarker();
 const SCAN_DELAY_MS = 200;
 
 async function isEnabled(): Promise<boolean> {

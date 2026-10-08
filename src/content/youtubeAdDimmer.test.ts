@@ -15,12 +15,16 @@ vi.mock("webextension-polyfill", () => ({
     storage: { onChanged: { addListener: (fn: typeof onChanged) => (onChanged = fn) } },
   },
 }));
+// Fixed names: this test reloads the module, and each load would otherwise
+// pick new random ones (pageMarker.ts). Called class first, then style id.
+const markers = vi.hoisted(() => ({ count: 0 }));
+vi.mock("./pageMarker", () => ({ pageMarker: () => (markers.count++ % 2 === 0 ? "kdim" : "kdimstyle") }));
 vi.mock("./siteDisabled", () => ({
   getEffectiveSettingsHere: async () => ({ ...settings }),
   isDisabled: (s: typeof settings) => s.paused,
 }));
 
-const DIM = "moat-ad-dim";
+const DIM = "kdim";
 const player = () => document.getElementById("movie_player")!;
 const dimmed = () => player().classList.contains(DIM);
 
@@ -58,7 +62,7 @@ describe("when the setting is on", () => {
 
     player().classList.add("ad-showing");
     await vi.waitFor(() => expect(dimmed()).toBe(true));
-    const style = document.getElementById("moat-yt-ad-dim-style")!;
+    const style = document.getElementById("kdimstyle")!;
     expect(style.textContent).toContain(`#movie_player.${DIM} video{filter:grayscale(1)`);
 
     player().classList.remove("ad-showing");
@@ -127,7 +131,7 @@ describe("when it shouldn't run", () => {
     player().classList.add("ad-showing");
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(dimmed()).toBe(false);
-    expect(document.getElementById("moat-yt-ad-dim-style")).toBeNull();
+    expect(document.getElementById("kdimstyle")).toBeNull();
   });
 
   it("does nothing on a site where Moat is paused", async () => {

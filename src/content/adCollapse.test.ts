@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  HANDLED_ATTR,
+  STYLE_ID,
   findAdElements,
   hostOf,
   isAdNetworkHost,
@@ -28,7 +30,7 @@ const withRect = (el: Element, width: number, height: number): Element => {
 
 afterEach(() => {
   document.body.innerHTML = "";
-  document.getElementById("moat-ad-collapse")?.remove();
+  document.getElementById(STYLE_ID)?.remove();
 });
 
 describe("hostOf", () => {
@@ -75,7 +77,7 @@ describe("findAdElements", () => {
   });
 
   it("skips an element already handled in a previous pass", () => {
-    document.body.innerHTML = `<iframe src="https://ad.doubleclick.net/x" data-moat-ad-collapsed></iframe>`;
+    document.body.innerHTML = `<iframe src="https://ad.doubleclick.net/x" ${HANDLED_ATTR}></iframe>`;
     expect(findAdElements(document, NETWORKS)).toHaveLength(0);
   });
 });
@@ -125,18 +127,18 @@ describe("runAdCollapsePass", () => {
     expect(n1).toBe(1);
     const iframe = document.querySelector("iframe")!;
     const slot = document.querySelector(".slot")!;
-    expect(iframe.hasAttribute("data-moat-ad-collapsed")).toBe(true);
-    expect(slot.hasAttribute("data-moat-ad-collapsed")).toBe(true);
-    expect(document.querySelectorAll("#moat-ad-collapse")).toHaveLength(1);
+    expect(iframe.hasAttribute(HANDLED_ATTR)).toBe(true);
+    expect(slot.hasAttribute(HANDLED_ATTR)).toBe(true);
+    expect(document.querySelectorAll(`#${STYLE_ID}`)).toHaveLength(1);
 
     const n2 = runAdCollapsePass(document, NETWORKS, g);
     expect(n2).toBe(0);
-    expect(document.querySelectorAll("#moat-ad-collapse")).toHaveLength(1);
+    expect(document.querySelectorAll(`#${STYLE_ID}`)).toHaveLength(1);
   });
 
   it("does nothing when there are no ad elements", () => {
     document.body.innerHTML = `<div><iframe src="https://example.com/x"></iframe></div>`;
     expect(runAdCollapsePass(document, NETWORKS, geom({ height: 250 }))).toBe(0);
-    expect(document.getElementById("moat-ad-collapse")).toBeNull();
+    expect(document.getElementById(STYLE_ID)).toBeNull();
   });
 });

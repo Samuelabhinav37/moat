@@ -33,6 +33,31 @@ function installGlobalPatch(): void {
   spoofed.set(patchedToString, nativeToString.call(nativeToString));
 }
 
+const maskedRealms = new WeakSet<object>();
+
+/** Points another same-origin frame's Function.prototype.toString at the
+ * same table, so functions this script installs into that frame (see
+ * mainWorldGuard.ts and fingerprintGuard.ts) read as built-ins there too. */
+export function maskRealm(w: Window): void {
+  installGlobalPatch();
+  try {
+    const realm = w as Window & { Function: FunctionConstructor };
+    const proto = realm.Function.prototype;
+    if (maskedRealms.has(proto) || proto === Function.prototype) return;
+    maskedRealms.add(proto);
+    const realmToString = proto.toString;
+    const patched = {
+      toString(this: Function): string {
+        return spoofed.get(this) ?? realmToString.call(this);
+      },
+    }.toString;
+    proto.toString = patched;
+    spoofed.set(patched, realmToString.call(realmToString));
+  } catch {
+    // A cross-origin or closing frame: nothing to mask.
+  }
+}
+
 /**
  * Registers `patchedFn` so that `Function.prototype.toString.call(patchedFn)`
  * (and `patchedFn.toString()`) returns exactly what `originalFn.toString()`

@@ -106,7 +106,7 @@
     "message": "Impedir que los sitios reconozcan tu dispositivo"
   },
   "popupOverrideFingerprintSub": {
-    "message": "Hace que tu navegador se vea un poco distinto cada visita, para que los sitios no te reconozcan."
+    "message": "Hace que tu navegador se vea un poco distinto cada visita, para que a los sitios les cueste más reconocerte."
   },
   "popupOverrideCookieBanner": {
     "message": "Rechazar avisos de cookies"

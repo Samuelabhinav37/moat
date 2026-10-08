@@ -15,11 +15,12 @@
 // a hard pass cap.
 import { isSafeProceduralPrefix, isSafeProceduralTask } from "../shared/proceduralSafety";
 import type { ProceduralRule, ProceduralTask } from "../types";
+import { pageMarker } from "./pageMarker";
 
 const FLUSH_DELAY_MS = 300;
 const QUIET_FLUSHES_TO_STOP = 6;
 const MAX_PASSES = 60;
-const HIDDEN_ATTR = "data-moat-proc-hidden";
+export const HIDDEN_ATTR = `data-${pageMarker()}`;
 
 // A rule's task patterns are static strings fixed at parse time -- the same
 // pattern gets re-parsed by toRegExp() on every element, on every pass, for

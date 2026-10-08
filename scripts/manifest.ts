@@ -137,6 +137,12 @@ function baseManifest() {
         js: ["main-world-guard.js", "fingerprint-guard.js"],
         run_at: "document_start",
         all_frames: true,
+        // Also about:blank, srcdoc and blob: frames a page makes itself.
+        // Without these, a page opened pop-ups through a blank iframe's
+        // window.open and read the real canvas through its
+        // HTMLCanvasElement, around both guards.
+        match_about_blank: true,
+        match_origin_as_fallback: true,
         world: "MAIN" as const,
       },
       {
@@ -144,6 +150,8 @@ function baseManifest() {
         js: ["bridge.js"],
         run_at: "document_start",
         all_frames: true,
+        match_about_blank: true,
+        match_origin_as_fallback: true,
       },
       {
         // Top frame only: cosmetic rules target the containers a blocked
