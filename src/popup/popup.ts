@@ -125,7 +125,7 @@ const OVERRIDE_LABEL_KEYS: Record<OverridableSettingKey, readonly [string, strin
 const OVERRIDE_SUBTITLE_KEYS: Record<OverridableSettingKey, readonly [string, string]> = {
   fingerprintResistance: [
     "popupOverrideFingerprintSub",
-    "Makes your browser look slightly different each visit, so it's harder for sites to recognize you.",
+    "Makes your browser look slightly different on each site, so it's harder for sites to recognize you.",
   ],
   cookieBannerAutoReject: [
     "popupOverrideCookieBannerSub",

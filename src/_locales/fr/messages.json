@@ -15,7 +15,7 @@
     "message": "Voir les nouveautés"
   },
   "popupBudgetNotice": {
-    "message": "Une partie du blocage est désactivée. La limite de ton navigateur pour les extensions de blocage est atteinte. "
+    "message": "Une partie du blocage est désactivée. La limite de votre navigateur pour les extensions de blocage est atteinte. "
   },
   "popupBudgetNoticeLink": {
     "message": "Ouvrir les Paramètres"
@@ -103,10 +103,10 @@
     "message": "Personnaliser pour ce site"
   },
   "popupOverrideFingerprint": {
-    "message": "Empêcher les sites de reconnaître ton appareil"
+    "message": "Empêcher les sites de reconnaître votre appareil"
   },
   "popupOverrideFingerprintSub": {
-    "message": "Fait paraître votre navigateur légèrement différent à chaque visite, pour que les sites aient plus de mal à vous reconnaître."
+    "message": "Fait paraître votre navigateur légèrement différent sur chaque site, pour que les sites aient plus de mal à vous reconnaître."
   },
   "popupOverrideCookieBanner": {
     "message": "Refuser les bandeaux cookies"
@@ -145,7 +145,7 @@
     "message": "Effacer les données du site…"
   },
   "popupFreshStartConfirm": {
-    "message": "Clique à nouveau pour effacer. Tu seras déconnecté de ce site."
+    "message": "Cliquez à nouveau pour effacer. Vous serez déconnecté de ce site."
   },
   "popupFreshStartError": {
     "message": "Impossible d’effacer les données de ce site. Recharge la page et réessaie."
@@ -184,7 +184,7 @@
     "message": "Empêche les pages de trouver votre vraie adresse IP via les fonctions d'appel vidéo, même derrière un VPN."
   },
   "optionsFingerprintToggleLabel": {
-    "message": "Empêcher les sites de reconnaître ton appareil"
+    "message": "Empêcher les sites de reconnaître votre appareil"
   },
   "optionsFingerprintRotateToggleLabel": {
     "message": "Utiliser un nouveau déguisement à chaque redémarrage"
@@ -205,7 +205,7 @@
     "message": "Refuser les bandeaux cookies"
   },
   "optionsConsentRejectToggleHint": {
-    "message": "Choisit l’option qui partage le moins, pour que tu n’aies pas à le faire."
+    "message": "Choisit l’option qui partage le moins, pour que vous n’ayez pas à le faire."
   },
   "optionsCnameToggleLabel": {
     "message": "Repérer les traqueurs cachés"
@@ -220,7 +220,7 @@
     "message": "Pas encore vérifié."
   },
   "optionsExceptionsHint": {
-    "message": "Les pubs et les traceurs se chargent normalement sur ces sites. Les sites dangereux connus restent bloqués. Ajoutes-en un ici, ou mets un site en pause depuis l’icône de Moat quand tu y es."
+    "message": "Les pubs et les traceurs se chargent normalement sur ces sites. Les sites dangereux connus restent bloqués. Ajoutez-en un ici, ou mettez un site en pause depuis l’icône de Moat quand vous y êtes."
   },
   "optionsNoSitesAdded": {
     "message": "Aucun site pour l’instant."
@@ -232,7 +232,7 @@
     "message": "Certaines listes de filtres de Moat n’ont pas pu s’activer. Les navigateurs limitent le nombre de règles de blocage que toutes les extensions peuvent utiliser ensemble. Un autre bloqueur ou une extension de confidentialité peut épuiser cette limite. Désactive-en une, ou désactive une liste ici."
   },
   "optionsFilterBudgetDetail": {
-    "message": "Ton navigateur indique qu’il reste $COUNT$ règles pour toutes tes extensions ensemble. Toujours bas après avoir désactivé d’autres extensions et rechargé Moat ? Désactive une liste ici. Nuisances et Bandeaux cookies sont de bons premiers choix.",
+    "message": "Votre navigateur indique qu’il reste $COUNT$ règles pour toutes vos extensions ensemble. Toujours bas après avoir désactivé d’autres extensions et rechargé Moat ? Désactivez une liste ici. Nuisances et Bandeaux cookies sont de bons premiers choix.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -240,7 +240,7 @@
     }
   },
   "optionsFilterBudgetDropped": {
-    "message": "$NAMES$ sont désactivées pour l’instant pour rester dans la limite de ton navigateur.",
+    "message": "$NAMES$ sont désactivées pour l’instant pour rester dans la limite de votre navigateur.",
     "placeholders": {
       "names": {
         "content": "$1"
@@ -263,7 +263,7 @@
     "message": "Strict"
   },
   "optionsIndividualListsHint": {
-    "message": "Les listes derrière ton niveau de blocage. En activer ou désactiver une ici en fait ton propre choix."
+    "message": "Les listes derrière votre niveau de blocage. En activer ou désactiver une ici en fait votre propre choix."
   },
   "optionsLoadListsError": {
     "message": "Impossible de charger les listes de filtres. Recharge cette page pour réessayer."
@@ -290,7 +290,7 @@
     "message": "Laisse cette adresse se charger sur tous les sites, même si une liste de filtres la bloque. Les autres pubs de la page restent bloquées."
   },
   "optionsHiddenElementsHint": {
-    "message": "Les éléments de pages que tu as masqués. Retires-en un pour le faire réapparaître."
+    "message": "Les éléments de pages que vous avez masqués. Retirez-en un pour le faire réapparaître."
   },
   "optionsNothingSelected": {
     "message": "Rien n’est encore grisé."
@@ -346,7 +346,7 @@
     "message": "Stocké par le compte de votre navigateur. Aucune donnée de navigation n'est incluse."
   },
   "optionsSyncStatusFailed": {
-    "message": "Impossible de synchroniser tes réglages le $WHEN$. Tu as peut-être plus de règles ou de sites que ce que peut contenir la synchronisation de ton navigateur. Ils restent enregistrés sur cet appareil.",
+    "message": "Impossible de synchroniser vos réglages le $WHEN$. Vous avez peut-être plus de règles ou de sites que ce que peut contenir la synchronisation de votre navigateur. Ils restent enregistrés sur cet appareil.",
     "placeholders": {
       "when": {
         "content": "$1"
@@ -439,7 +439,7 @@
     "message": "Signaler les mots de passe divulgués"
   },
   "popupPermissionGuardIntro": {
-    "message": "Ce site a demandé ta caméra, ton micro ou ta position. Moat l’en a empêché."
+    "message": "Ce site a demandé votre caméra, votre micro ou votre position. Moat l’en a empêché."
   },
   "popupAllowCameraHere": {
     "message": "Autoriser la caméra ici"
@@ -454,7 +454,7 @@
     "message": "Masquer les résultats de recherche de faible qualité"
   },
   "optionsFingerprintDrawerDesc": {
-    "message": "Rend plus difficile pour les sites de reconnaître ton appareil."
+    "message": "Rend plus difficile pour les sites de reconnaître votre appareil."
   },
   "optionsFingerprintCaution": {
     "message": "Peut parfois bloquer un CAPTCHA ou la vérification d'une banque. Si un site dysfonctionne, désactivez ceci d'abord."
@@ -587,7 +587,7 @@
     "message": "Ce site a été bloqué"
   },
   "warningLede": {
-    "message": "La politique de sécurité de ton organisation bloque ce site. Il ne figure sur aucune des listes de Moat."
+    "message": "La politique de sécurité de votre organisation bloque ce site. Il ne figure sur aucune des listes de Moat."
   },
   "warningGoBack": {
     "message": "Retour"
@@ -596,13 +596,13 @@
     "message": "Signaler une erreur"
   },
   "warningOverrideNote": {
-    "message": "Cela envoie une note à l’équipe de sécurité de ton organisation pour examen. Cela ne débloque pas le site."
+    "message": "Cela envoie une note à l’équipe de sécurité de votre organisation pour examen. Cela ne débloque pas le site."
   },
   "warningReasonPlaceholder": {
     "message": "Pourquoi pensez-vous que ce blocage est une erreur ?"
   },
   "warningSubmit": {
-    "message": "Envoyer à ton équipe de sécurité"
+    "message": "Envoyer à votre équipe de sécurité"
   },
   "warningGoesToIT": {
     "message": "Va à votre équipe informatique, pas à Moat."
@@ -848,10 +848,10 @@
     "message": "Tout ce que fait Léger, plus les traceurs, le pistage ajouté aux liens et les faux sites de connexion. Recommandé."
   },
   "levelStrictDesc": {
-    "message": "Tout ce que fait Équilibré, plus les bandeaux cookies et les boutons de réseaux sociaux. Empêche aussi les sites de reconnaître ton appareil, de te suivre d’un site à l’autre ou de voir ton adresse IP. Quelques sites peuvent ne plus marcher."
+    "message": "Tout ce que fait Équilibré, plus les bandeaux cookies et les boutons de réseaux sociaux. Rend aussi votre appareil plus difficile à reconnaître, bloque les cookies entre sites et garde votre adresse IP privée lors des appels vidéo. Quelques sites peuvent ne plus marcher."
   },
   "levelCustomNote": {
-    "message": "Tu utilises ton propre choix de listes de filtres."
+    "message": "Vous utilisez votre propre choix de listes de filtres."
   },
   "levelYourMix": {
     "message": "Votre mélange",
@@ -861,7 +861,7 @@
     "message": "Nuisances"
   },
   "featuresLead": {
-    "message": "Retire les bandeaux cookies, les publications sponsorisées et le reste du fouillis. Active celles que tu veux."
+    "message": "Retire les bandeaux cookies, les publications sponsorisées et le reste du fouillis. Activez celles que vous voulez."
   },
   "pausedEmptyTitle": {
     "message": "Aucun site en pause"
@@ -873,7 +873,7 @@
     "message": "Rien de masqué pour l'instant"
   },
   "hiddenEmptyHint": {
-    "message": "Clique sur l’icône de Moat, choisis Masquer un élément de cette page, puis clique sur ce que tu veux faire disparaître."
+    "message": "Cliquez sur l’icône de Moat, choisissez Masquer un élément de cette page, puis cliquez sur ce que vous voulez faire disparaître."
   },
   "advShowAllLists": {
     "message": "Afficher toutes les listes"
@@ -935,7 +935,7 @@
     "message": "Moat vérifie chacun sur votre appareil"
   },
   "tourHow2Sub": {
-    "message": "Il compare chaque requête à des centaines de milliers de règles issues de listes de filtres publiques. Rien ne quitte ton appareil."
+    "message": "Il compare chaque requête à des centaines de milliers de règles issues de listes de filtres publiques. Rien ne quitte votre appareil."
   },
   "tourHow3Title": {
     "message": "Ce qui correspond ne se charge jamais"
@@ -1503,7 +1503,7 @@
     "message": "Les fonctions d’appel vidéo peuvent montrer votre vraie adresse IP à une page, même derrière un VPN. Moat la garde cachée."
   },
   "explainFingerprint": {
-    "message": "Les sites peuvent vous reconnaître grâce à votre écran, vos polices et votre carte graphique. Moat modifie légèrement ces détails à chaque visite."
+    "message": "Les sites peuvent vous reconnaître grâce à votre écran, vos polices et votre carte graphique. Moat modifie légèrement ces détails, et différemment sur chaque site."
   },
   "explainCname": {
     "message": "Certains traqueurs se cachent derrière l’adresse du site lui-même. Moat vérifie où cette adresse mène vraiment et la bloque si c’est un traqueur."
@@ -1748,25 +1748,25 @@
     "message": "Moat l’atténue jusqu’à la fin"
   },
   "explainStepFeed1": {
-    "message": "Une publication sponsorisée est dans ton fil"
+    "message": "Une publication sponsorisée est dans votre fil"
   },
   "explainStepFeed2": {
     "message": "Moat la retire"
   },
   "explainStepPassword1": {
-    "message": "Tu tapes un mot de passe"
+    "message": "Vous tapez un mot de passe"
   },
   "explainStepPassword2": {
-    "message": "Il figure dans une fuite connue, donc Moat te prévient"
+    "message": "Il figure dans une fuite connue, donc Moat vous prévient"
   },
   "explainStepCookies1": {
-    "message": "Le cookie d’un traceur essaie de te suivre"
+    "message": "Le cookie d’un traceur essaie de vous suivre"
   },
   "explainStepCookies2": {
     "message": "Moat l’arrête au site suivant"
   },
   "explainStepWebrtc1": {
-    "message": "Une fonction d’appel peut lire ta vraie adresse IP"
+    "message": "Une fonction d’appel peut lire votre vraie adresse IP"
   },
   "explainStepWebrtc2": {
     "message": "Moat la cache à la page"
@@ -1787,13 +1787,13 @@
     "message": "Moat le replie derrière un lien Afficher"
   },
   "explainStepPermission1": {
-    "message": "Une page demande ta caméra dès son chargement"
+    "message": "Une page demande votre caméra dès son chargement"
   },
   "explainStepPermission2": {
     "message": "Moat bloque la demande"
   },
   "explainStepPaused1": {
-    "message": "Tu mets en pause un site de confiance"
+    "message": "Vous mettez en pause un site de confiance"
   },
   "explainStepPaused2": {
     "message": "Ses pubs se chargent à nouveau"
@@ -1811,7 +1811,7 @@
     "message": "Il disparaît, à chaque visite"
   },
   "explainStepRules1": {
-    "message": "Tes propres règles passent en premier"
+    "message": "Vos propres règles passent en premier"
   },
   "explainStepRules2": {
     "message": "Un site est toujours bloqué, l’autre jamais"
@@ -1832,7 +1832,7 @@
     }
   },
   "filtersLevelCustom": {
-    "message": "Ton propre choix de listes."
+    "message": "Votre propre choix de listes."
   },
   "filtersLevelMix": {
     "message": "Votre mélange : $MIX$.",
@@ -1864,7 +1864,7 @@
     "message": "Pistage"
   },
   "privacyGroupDevice": {
-    "message": "Ton appareil"
+    "message": "Votre appareil"
   },
   "privacyGroupPermissions": {
     "message": "Autorisations et mots de passe"
@@ -1876,7 +1876,7 @@
     "message": "Modifié pour un site"
   },
   "overridesLead": {
-    "message": "Les réglages que tu as activés ou désactivés pour un seul site depuis l’icône de Moat. Réinitialise un site pour y retrouver tes réglages habituels."
+    "message": "Les réglages que vous avez activés ou désactivés pour un seul site depuis l’icône de Moat. Réinitialisez un site pour y retrouver vos réglages habituels."
   },
   "overridesEmptyTitle": {
     "message": "Rien de modifié pour un seul site"
@@ -1933,7 +1933,7 @@
     }
   },
   "backupSavesFile": {
-    "message": "Enregistre $FILE$, un fichier texte que tu peux ouvrir et lire.",
+    "message": "Enregistre $FILE$, un fichier texte que vous pouvez ouvrir et lire.",
     "placeholders": {
       "file": {
         "content": "$1",
@@ -1942,7 +1942,7 @@
     }
   },
   "aboutManagedNote": {
-    "message": "Ton organisation gère cette copie de Moat et a défini les règles affichées ici. Ton administrateur peut voir et modifier ces règles, mais pas ton historique de navigation."
+    "message": "Votre organisation gère cette copie de Moat et a défini les règles affichées ici. Votre administrateur peut voir et modifier ces règles, mais pas votre historique de navigation."
   },
   "popupInternalPage": {
     "message": "Moat ne fonctionne pas sur les pages du navigateur comme celle-ci. Ouvre un site web pour voir ce qu’il y bloque."
@@ -1985,7 +1985,7 @@
     "message": "Aucun résultat de cette recherche ne correspondait au filtre."
   },
   "diagnosticsSilentLeakedPassword": {
-    "message": "Ne s’active que quand tu tapes un mot de passe dans un champ de cette page."
+    "message": "Ne s’active que quand vous tapez un mot de passe dans un champ de cette page."
   },
   "diagnosticsSilentFingerprint": {
     "message": "Rien n’a eu besoin d’être déguisé au chargement de cette page."

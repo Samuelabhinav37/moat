@@ -2620,7 +2620,7 @@ const SECURITY_GROUPS = ["phishing-urls", "scam", "malicious-urls", "badware"];
 const LEVEL_DESC: Record<Level, [string, string]> = {
   lite: ["levelLightDesc", "Blocks ads, pop-ups, and dangerous sites like scams and malware. Trackers still load, so sites that depend on them keep working."],
   standard: ["levelBalancedDesc", "Everything in Light, plus trackers, tracking added to links, and fake login sites. Recommended."],
-  strict: ["levelStrictDesc", "Everything in Balanced, plus cookie banners and social media buttons. It also stops sites recognizing your device, following you between sites, or seeing your IP address. A few sites may break."],
+  strict: ["levelStrictDesc", "Everything in Balanced, plus cookie banners and social media buttons. It also makes your device harder for sites to recognize, blocks cross-site cookies and keeps your IP address private in video calls. A few sites may break."],
 };
 const CHECKUP_PRIVACY = ["cookies", "webrtc"];
 const CHECKUP_ANNOYANCES = ["consentReject", "grayscale", "feedScan", "searchSlop"];

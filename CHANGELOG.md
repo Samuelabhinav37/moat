@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.260
+
+### Changed
+- **The device disguise is described as what it is.** The Strict level said it "stops sites
+  recognizing your device" and the explainer said details change "on every visit". It makes your
+  device harder to recognize, with a different disguise on each site that stays the same until
+  you restart the browser, and it can't reach every corner a page can use, such as workers shared
+  between tabs. The text now says that.
+- **German and French speak to you one way.** German now always says "du" and French always says
+  "vous". Some screens used the other form.
+
 ## 0.11.259
 
 ### Fixed

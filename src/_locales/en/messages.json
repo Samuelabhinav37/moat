@@ -108,7 +108,7 @@
     "message": "Stop sites recognizing your device"
   },
   "popupOverrideFingerprintSub": {
-    "message": "Makes your browser look slightly different each visit, so it's harder for sites to recognize you."
+    "message": "Makes your browser look slightly different on each site, so it's harder for sites to recognize you."
   },
   "popupOverrideCookieBanner": {
     "message": "Reject cookie banners"
@@ -850,7 +850,7 @@
     "message": "Everything in Light, plus trackers, tracking added to links, and fake login sites. Recommended."
   },
   "levelStrictDesc": {
-    "message": "Everything in Balanced, plus cookie banners and social media buttons. It also stops sites recognizing your device, following you between sites, or seeing your IP address. A few sites may break."
+    "message": "Everything in Balanced, plus cookie banners and social media buttons. It also makes your device harder for sites to recognize, blocks cross-site cookies and keeps your IP address private in video calls. A few sites may break."
   },
   "levelCustomNote": {
     "message": "You're using your own mix of filter lists.",
@@ -1514,7 +1514,7 @@
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainFingerprint": {
-    "message": "Sites can recognize you from details like your screen, fonts and graphics card. Moat changes those details slightly on every visit.",
+    "message": "Sites can recognize you from details like your screen, fonts and graphics card. Moat changes those details slightly, and differently on each site.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainCname": {

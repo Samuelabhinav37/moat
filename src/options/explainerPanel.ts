@@ -24,7 +24,7 @@ export const CAPTIONS: Record<string, [string, string]> = {
   leakedPassword: ["explainLeakedPassword", "Moat checks a short scrambled piece of a password you type against known breaches. Your password itself never leaves your computer."],
   cookies: ["explainCookies", "A tracker on one site leaves a cookie so it can spot you on the next one. Moat stops sites from sharing those cookies."],
   webrtc: ["explainWebrtc", "Video-call features can show a page your real IP address, even behind a VPN. Moat keeps it hidden."],
-  fingerprint: ["explainFingerprint", "Sites can recognize you from details like your screen, fonts and graphics card. Moat changes those details slightly on every visit."],
+  fingerprint: ["explainFingerprint", "Sites can recognize you from details like your screen, fonts and graphics card. Moat changes those details slightly, and differently on each site."],
   cname: ["explainCname", "Some trackers hide behind the site's own address. Moat looks up where that address really points and blocks it if it's a tracker."],
   searchSlop: ["explainSearchSlop", "Results from known content farms fold away behind a Show link, so they're still one click away."],
   permissionGuard: ["explainPermissionGuard", "Pages that ask for your camera, microphone or location as soon as they load are stopped. Allow a site from Moat's popup when you trust it."],
