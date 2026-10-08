@@ -148,9 +148,11 @@ describe("fetchAndApply rejects what it can't trust", () => {
   });
 
   it("an older, validly signed manifest replayed after a newer one was applied", async () => {
-    // The committed manifest has no sequence, as every one signed before
-    // 0.11.251 does: once a sequenced manifest was accepted, it's a replay.
-    storage.liveManifestSequence = 1_791_000_000;
+    // A newer manifest than the committed one was already accepted, so the
+    // committed one is now a replay. (One signed before 0.11.251 has no
+    // sequence at all, which after a sequenced one is a replay too.)
+    const committed = JSON.parse(text(liveFile("manifest.json"))) as { sequence?: number };
+    storage.liveManifestSequence = (committed.sequence ?? 1_791_000_000) + 1;
     await expectNothingApplied();
   });
 });
