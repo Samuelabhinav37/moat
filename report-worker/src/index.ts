@@ -4,13 +4,21 @@
 // issue in the private moat-reports repository. A second report for the same
 // site and problem adds a comment to the open issue instead of a new one.
 //
-// What it keeps: nothing. No logs (observability is off in wrangler.toml),
-// no storage. The caller's IP address is only passed to the rate limiter as
-// a key and never written anywhere by this code.
+// What it keeps: one number, how many reports it filed today (DailyCap
+// below), so a flood can't run through the GitHub token's limits or fill
+// the repository. No logs (observability is off in wrangler.toml), nothing
+// about the sender. The caller's IP address is only passed to the rate
+// limiter as a key and never written anywhere by this code.
 import { formatReport, reportTitle, validateReport, type ProblemReport } from "../../src/shared/problemReport";
 
 export interface RateLimiter {
   limit(options: { key: string }): Promise<{ success: boolean }>;
+}
+
+/** The parts of a Durable Object namespace this file uses. */
+export interface CapNamespace {
+  idFromName(name: string): unknown;
+  get(id: unknown): { fetch(input: string): Promise<Response> };
 }
 
 export interface Env {
@@ -22,6 +30,46 @@ export interface Env {
   IP_LIMITER: RateLimiter;
   /** Per site and problem: stops one site being flooded. */
   SITE_LIMITER: RateLimiter;
+  /** Everyone together, per Cloudflare location: a burst from many IPs. */
+  ALL_LIMITER: RateLimiter;
+  /** One DailyCap counter for the whole service. */
+  DAILY_CAP: CapNamespace;
+  /** Reports filed per UTC day before the service answers "busy". */
+  DAILY_REPORT_LIMIT: string;
+}
+
+/** Counts reports per UTC day across every Cloudflare location (one
+ * Durable Object, so the count is exact). Keeps only today's number. */
+export class DailyCap {
+  constructor(private readonly state: { storage: { get(key: string): Promise<unknown>; put(key: string, value: unknown): Promise<void>; delete(key: string): Promise<boolean> } }) {}
+
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+    const day = url.searchParams.get("day") ?? "";
+    const limit = Number(url.searchParams.get("limit"));
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !Number.isFinite(limit)) return Response.json({ ok: false }, { status: 400 });
+    // Storage calls in one Durable Object don't interleave, so this
+    // read-then-write can't double-count.
+    const previous = await this.state.storage.get("day");
+    if (previous !== day) {
+      await this.state.storage.put("day", day);
+      await this.state.storage.put("count", 0);
+    }
+    const count = Number((await this.state.storage.get("count")) ?? 0);
+    if (count >= limit) return Response.json({ ok: false });
+    await this.state.storage.put("count", count + 1);
+    return Response.json({ ok: true });
+  }
+}
+
+const DEFAULT_DAILY_LIMIT = 150;
+
+/** Takes one of today's report slots; false when they're used up. */
+async function takeDailySlot(env: Env, now: Date): Promise<boolean> {
+  const limit = Number(env.DAILY_REPORT_LIMIT) || DEFAULT_DAILY_LIMIT;
+  const stub = env.DAILY_CAP.get(env.DAILY_CAP.idFromName("reports"));
+  const res = await stub.fetch(`https://daily-cap/take?day=${now.toISOString().slice(0, 10)}&limit=${limit}`);
+  return res.ok && ((await res.json()) as { ok?: boolean }).ok === true;
 }
 
 const MAX_BODY_BYTES = 16 * 1024;
@@ -95,7 +143,7 @@ export async function fileReport(report: ProblemReport, env: Env, fetchImpl: typ
   return ((await created.json()) as { number: number }).number;
 }
 
-export async function handle(request: Request, env: Env, fetchImpl: typeof fetch = fetch): Promise<Response> {
+export async function handle(request: Request, env: Env, fetchImpl: typeof fetch = fetch, now: Date = new Date()): Promise<Response> {
   const origin = request.headers.get("origin");
   const allowed = origin !== null && EXTENSION_ORIGIN.test(origin) ? origin : null;
   if (request.method === "OPTIONS") {
@@ -122,6 +170,8 @@ export async function handle(request: Request, env: Env, fetchImpl: typeof fetch
   const ip = request.headers.get("cf-connecting-ip") ?? "unknown";
   if (!(await env.IP_LIMITER.limit({ key: `ip:${ip}` })).success) return json({ error: "busy" }, 429, allowed);
   if (!(await env.SITE_LIMITER.limit({ key: `site:${report.hostname}:${report.category}` })).success) return json({ error: "busy" }, 429, allowed);
+  if (!(await env.ALL_LIMITER.limit({ key: "all" })).success) return json({ error: "busy" }, 429, allowed);
+  if (!(await takeDailySlot(env, now))) return json({ error: "busy" }, 429, allowed);
 
   try {
     const number = await fileReport(report, env, fetchImpl);

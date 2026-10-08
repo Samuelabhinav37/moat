@@ -155,8 +155,9 @@ only to an organization's own infrastructure, never to Moat's developer.
    lists you have on. Nothing else: no browsing history, no cookies, no
    other tabs. It goes to Moat's report service, a Cloudflare Worker that
    files it as an issue in a private GitHub repository that only Moat's
-   developer can read. The service keeps no logs and stores nothing
-   itself. Your IP address reaches Cloudflare, as with any web request;
+   developer can read. The service keeps no logs. The only thing it stores
+   is how many reports it filed today, a single number with nothing about
+   you, so a flood of fake reports stops at a daily limit. Your IP address reaches Cloudflare, as with any web request;
    the service uses it only to limit how many reports one address can send
    a minute, and never passes it on. If you'd rather, the same page can
    copy the report or open it as a public GitHub issue instead.

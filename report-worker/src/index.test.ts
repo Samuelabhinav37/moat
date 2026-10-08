@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ProblemReport } from "../../src/shared/problemReport";
-import { handle, labelsFor, type Env } from "./index";
+import { DailyCap, handle, labelsFor, type CapNamespace, type Env } from "./index";
 
 const report: ProblemReport = {
   v: 1,
@@ -18,8 +18,30 @@ const ORIGIN = "chrome-extension://abcdefghijklmnopabcdefghijklmnop";
 const allow = { limit: async () => ({ success: true }) };
 const deny = { limit: async () => ({ success: false }) };
 
+/** A Durable Object namespace holding one real DailyCap over in-memory storage. */
+function fakeCap(): CapNamespace {
+  const data = new Map<string, unknown>();
+  const cap = new DailyCap({
+    storage: {
+      get: async (k) => data.get(k),
+      put: async (k, v) => void data.set(k, v),
+      delete: async (k) => data.delete(k),
+    },
+  });
+  return { idFromName: (n) => n, get: () => ({ fetch: (input) => cap.fetch(new Request(input)) }) };
+}
+
 function env(overrides: Partial<Env> = {}): Env {
-  return { GITHUB_TOKEN: "t", REPORTS_REPO: "owner/moat-reports", IP_LIMITER: allow, SITE_LIMITER: allow, ...overrides };
+  return {
+    GITHUB_TOKEN: "t",
+    REPORTS_REPO: "owner/moat-reports",
+    IP_LIMITER: allow,
+    SITE_LIMITER: allow,
+    ALL_LIMITER: allow,
+    DAILY_CAP: fakeCap(),
+    DAILY_REPORT_LIMIT: "150",
+    ...overrides,
+  };
 }
 
 function post(body: unknown, headers: Record<string, string> = {}): Request {
@@ -103,5 +125,21 @@ describe("report service", () => {
   it("keeps labels within GitHub's 50-character limit", () => {
     const long = { ...report, hostname: `${"a".repeat(60)}.example.com` };
     for (const l of labelsFor(long)) expect(l.length).toBeLessThanOrEqual(50);
+  });
+
+  it("answers busy once today's reports are used up, and starts again tomorrow", async () => {
+    const e = env({ DAILY_REPORT_LIMIT: "2" });
+    const day = new Date("2026-10-08T12:00:00Z");
+    const statuses = [];
+    for (let i = 0; i < 3; i++) statuses.push((await handle(post(report), e, fakeGithub().impl, day)).status);
+    expect(statuses).toEqual([200, 200, 429]);
+    expect((await handle(post(report), e, fakeGithub().impl, new Date("2026-10-09T00:00:01Z"))).status).toBe(200);
+  });
+
+  it("answers busy when everyone together is over the per-minute limit", async () => {
+    const gh = fakeGithub();
+    const res = await handle(post(report), env({ ALL_LIMITER: deny }), gh.impl);
+    expect(res.status).toBe(429);
+    expect(gh.calls).toHaveLength(0);
   });
 });

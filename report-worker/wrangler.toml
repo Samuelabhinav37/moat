@@ -12,6 +12,17 @@ enabled = false
 
 [vars]
 REPORTS_REPO = "Samuelabhinav37/moat-reports"
+# Reports filed per UTC day before the service answers "busy" (DailyCap).
+DAILY_REPORT_LIMIT = "150"
+
+# One exact, global count of today's reports. Keeps only that number.
+[[durable_objects.bindings]]
+name = "DAILY_CAP"
+class_name = "DailyCap"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["DailyCap"]
 
 # Counted per Cloudflare location. Limits must use a period of 10 or 60 seconds.
 [[ratelimits]]
@@ -26,4 +37,12 @@ name = "SITE_LIMITER"
 namespace_id = "7302"
   [ratelimits.simple]
   limit = 20
+  period = 60
+
+# Everyone together, per location: a burst spread over many IP addresses.
+[[ratelimits]]
+name = "ALL_LIMITER"
+namespace_id = "7303"
+  [ratelimits.simple]
+  limit = 30
   period = 60
