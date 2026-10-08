@@ -20,7 +20,7 @@ describe("targetHost", () => {
 
   it("gives nothing for many hosts, regexes, allow rules or other redirects", () => {
     expect(targetHost(block(5, { requestDomains: ["a.com", "b.com"] }))).toBeNull();
-    expect(targetHost(block(6, { regexFilter: "^https://a\.com/" }))).toBeNull();
+    expect(targetHost(block(6, { regexFilter: "^https://a\\.com/" }))).toBeNull();
     expect(targetHost(block(7, { urlFilter: "/ads/banner" }))).toBeNull();
     expect(targetHost({ id: 8, action: { type: "allow" }, condition: { urlFilter: "||a.com^" } })).toBeNull();
     expect(targetHost({ id: 9, action: { type: "redirect", redirect: { url: "https://b.com" } }, condition: { urlFilter: "||a.com^" } })).toBeNull();

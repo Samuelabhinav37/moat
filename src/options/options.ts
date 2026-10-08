@@ -2280,7 +2280,7 @@ async function renderOverviewTops(usage: UsageSummaryResponse): Promise<void> {
   const companies = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count).slice(0, 5);
   const companyIcon = (company: string) => {
     const url = info[company]?.url;
-    let host = "";
+    let host: string;
     try {
       host = url ? new URL(url).hostname : "";
     } catch {

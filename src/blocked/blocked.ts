@@ -37,7 +37,7 @@ function render(): void {
   const params = parseBlockedPageQuery(location.search);
   const kind: BlockKind = params?.kind ?? "ads";
   const list = params?.list ?? UNKNOWN_LIST;
-  let host = "";
+  let host: string;
   try {
     host = params ? new URL(params.url).hostname : "";
   } catch {

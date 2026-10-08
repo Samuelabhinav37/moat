@@ -42,7 +42,7 @@
 // "private" section for exactly this reason, so a correct PSL lookup
 // naturally refuses to group their subdomains as siblings at all.
 
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadPsl, registrableDomain } from "../lib/publicSuffixList.mjs";
@@ -72,10 +72,6 @@ function isSimpleDomainBlock(rule) {
   const extraKeys = Object.keys(condition).filter((k) => k !== "urlFilter" && k !== "resourceTypes");
   if (extraKeys.length > 0) return false;
   return SIMPLE_BLOCK.test(condition.urlFilter ?? "");
-}
-
-function isAncestor(candidateAncestor, domain) {
-  return domain === candidateAncestor || domain.endsWith("." + candidateAncestor);
 }
 
 function auditRuleset(file, rules, psl) {

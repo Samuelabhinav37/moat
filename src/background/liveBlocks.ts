@@ -52,7 +52,7 @@ export function getBlockedHosts(tabId: number): ReadonlyMap<string, number> {
 }
 
 function addHost(tabId: number, url: string | undefined): void {
-  let host = "";
+  let host: string;
   try {
     host = url ? new URL(url).hostname : "";
   } catch {

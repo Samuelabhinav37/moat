@@ -60,6 +60,7 @@ describe("maskAsNative", () => {
 });
 
 // What bot-detection scripts check on a built-in besides toString.
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type -- any built-in
 function looksBuiltIn(fn: Function, name: string): void {
   expect(fn.name).toBe(name);
   expect(Object.prototype.hasOwnProperty.call(fn, "prototype")).toBe(false);

@@ -39,6 +39,7 @@ async function applyOrClear<T>(
   // `clear`'s details shape differs (and is all-optional) across the three
   // settings this is called with; typing it exactly isn't worth the
   // friction for an internal helper.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above
   setting: { set(details: { value: T }): Promise<void>; clear(details: any): Promise<void> } | undefined,
   isOn: boolean,
   onValue: T

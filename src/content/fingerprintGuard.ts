@@ -247,7 +247,7 @@ function patchWorkers(w: GuardWindow): void {
   if (typeof w.Worker === "undefined") return;
   const NativeWorker = w.Worker;
   const proxy = new Proxy(NativeWorker, {
-    construct(target, args: unknown[], newTarget: Function) {
+    construct(target, args: unknown[], newTarget) {
       const guarded = guardedWorkerArgs(w, args);
       if (guarded) {
         try {

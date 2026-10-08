@@ -20,6 +20,9 @@
 /** `seed`: the page's fingerprint seed. `scriptUrl`: the address the page
  * asked for. `preludeSource`: this function's own source, for nested
  * workers. */
+/* eslint-disable @typescript-eslint/no-explicit-any --
+   It patches a worker's globals, which have no types here (this file is
+   built against the window's lib), and must stay self-contained. */
 export function workerGuardPrelude(seed: string, scriptUrl: string, preludeSource: string): void {
   type AnyFn = (...args: any[]) => any;
   type Ctor = new (...args: any[]) => any;

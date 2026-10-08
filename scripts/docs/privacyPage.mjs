@@ -61,8 +61,7 @@ const CHOICES = [
   ["trash", "Remove everything", "Removing Moat from your browser deletes its settings and numbers with it."],
 ];
 
-export function buildPrivacyBody({ fullHtml, version, updated }) {
-  const state = { on: "Always", off: "Off by default", send: "When you send", org: "Organizations only" };
+export function buildPrivacyBody({ fullHtml }) {
   return `
 <section class="pv-label" id="summary" aria-labelledby="pv-label-title">
   <div class="pv-badge">${ic("shield", 34)}</div>

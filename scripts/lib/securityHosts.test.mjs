@@ -21,7 +21,7 @@ const files = {
     { action: { type: "allow" }, condition: { requestDomains: ["allowed.example"], resourceTypes: PAGE } },
     { action: { type: "block" }, condition: { urlFilter: "/ads/*", resourceTypes: PAGE } },
     // A suffix narrowed by a pattern blocks a few look-alikes, not all of .org.
-    { action: { type: "block" }, condition: { regexFilter: "^https?://reddit-\d\.[a-z]{4}\.org/", requestDomains: ["org", "net"], resourceTypes: PAGE } },
+    { action: { type: "block" }, condition: { regexFilter: "^https?://reddit-\\d\\.[a-z]{4}\\.org/", requestDomains: ["org", "net"], resourceTypes: PAGE } },
     { action: { type: "block" }, condition: { urlFilter: "||org.gov-", resourceTypes: PAGE } },
   ],
   "a.json": [{ action: { type: "block" }, condition: { requestDomains: ["ads.example"], resourceTypes: PAGE } }],

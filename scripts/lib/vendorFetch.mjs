@@ -44,7 +44,7 @@ export async function fetchAndVendor({ url, describe, outFile, parse, validate, 
   try {
     parsed = parse(text);
   } catch (err) {
-    throw new Error(`${describe} did not parse as expected: ${err.message}`);
+    throw new Error(`${describe} did not parse as expected: ${err.message}`, { cause: err });
   }
 
   validate(parsed);

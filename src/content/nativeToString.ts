@@ -9,6 +9,8 @@
 // functions we've deliberately masked and falling through to the real
 // implementation for everything else -- the same technique documented in
 // browser-fingerprinting/anti-detect literature.
+/* eslint-disable @typescript-eslint/no-unsafe-function-type, @typescript-eslint/no-explicit-any --
+   This file stands in for arbitrary built-ins, whatever their signature. */
 const spoofed = new WeakMap<Function, string>();
 let installed = false;
 

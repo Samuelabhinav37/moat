@@ -29,7 +29,7 @@ const SETUP = `
   var fetch = function fetch(input) { calls.push(["fetch", input]); };
 `;
 
-function runPrelude(seed: string, scriptUrl: string): Record<string, any> {
+function runPrelude(seed: string, scriptUrl: string): ReturnType<typeof createContext> {
   const context = createContext({ URL, Uint8ClampedArray, Proxy, Reflect, WeakMap, JSON, Math });
   runInContext(SETUP, context);
   const source = workerGuardPrelude.toString();
