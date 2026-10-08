@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.254
+
+### Fixed
+- **The Web Worker disguise works in Firefox.** In 0.11.253 it never turned on there. Moat checks
+  each page's security policy before starting its workers, and in Firefox the page asked before
+  Moat had read the policy, so the answer was always no. Moat now waits a moment for the policy of
+  that exact page. It also no longer risks using the previous page's policy after you navigate in
+  the same tab, which could have broken workers on a strict site.
+
 ## 0.11.253
 
 ### Security

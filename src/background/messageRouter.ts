@@ -328,7 +328,7 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
         // iframe must get the *embedding* site's scope, not its own domain.
         return {
           seed: scopeFingerprintSeedToSite(baseSeed, hostnameOf(sender.tab?.url)),
-          blobWorkers: blobWorkersAllowed(sender.tab?.id, sender.frameId),
+          blobWorkers: await blobWorkersAllowed(sender.tab?.id, sender.frameId, sender.url),
         };
       })();
     }

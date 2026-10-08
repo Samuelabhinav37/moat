@@ -13,6 +13,7 @@ const browserMock = vi.hoisted(() => ({
   runtime: { id: "moat-id", getURL: (path: string) => `chrome-extension://moat-id/${path}` },
 }));
 vi.mock("webextension-polyfill", () => ({ default: browserMock }));
+vi.mock("./frameCsp", () => ({ blobWorkersAllowed: vi.fn(async () => false) }));
 
 const settings = vi.hoisted(() => ({
   enabled: true,
