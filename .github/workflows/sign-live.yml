@@ -90,3 +90,6 @@ jobs:
           git pull --rebase origin master
           git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:master
           gh workflow run publish-live.yml --ref master
+          # The merge commit before this one has no .sig, so its CI run fails
+          # the signed-manifest tests. Run CI on the signed commit too.
+          gh workflow run ci.yml --ref master

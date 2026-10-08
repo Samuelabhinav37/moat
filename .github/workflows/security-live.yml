@@ -82,8 +82,9 @@ jobs:
           git pull --rebase origin master
           git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:master
           # A push made with the workflow's own token doesn't start other
-          # workflows, so start the gh-pages deploy explicitly.
+          # workflows, so start the gh-pages deploy and CI explicitly.
           gh workflow run publish-live.yml --ref master
+          gh workflow run ci.yml --ref master
 
       - name: Open a pull request for review
         if: steps.fetch.outputs.changed == 'true' && steps.fetch.outputs.code == '3'

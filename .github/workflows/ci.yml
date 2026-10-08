@@ -3,6 +3,9 @@ name: CI
 on:
   push:
   pull_request:
+  # Started by sign-live.yml and security-live.yml after their bot commits,
+  # which don't trigger push runs.
+  workflow_dispatch:
 
 # Read-only token: nothing here writes to the repo or calls the GitHub API.
 permissions:
