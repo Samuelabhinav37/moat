@@ -18,6 +18,7 @@ import { presetPatch } from "../shared/filterPresets";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 
 const OPTIONS_HTML = join(__dirname, "options.html");
+const OPTIONS_CSS = join(__dirname, "options.css");
 const THEME_CSS = join(__dirname, "..", "ui", "theme.css");
 
 // Each test re-imports the page module after vi.resetModules() and builds a
@@ -47,7 +48,7 @@ async function renderOptions(settings?: Partial<Settings>, storage?: Record<stri
   createdTabs = mock.createdTabs;
   sentMessages = mock.sentMessages;
   vi.doMock("webextension-polyfill", () => ({ default: browser }));
-  loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+  loadPageFixture(OPTIONS_HTML, [THEME_CSS, OPTIONS_CSS]);
   await import("./options");
   for (let i = 0; i < 20; i++) await Promise.resolve();
   await new Promise((resolve) => setTimeout(resolve, 20));
@@ -103,7 +104,7 @@ describe("options.html render", () => {
     websites.resistFingerprinting = { set: () => Promise.resolve(), get: () => Promise.resolve({ value: false }) };
     websites.firstPartyIsolate = { set: () => Promise.resolve(), get: () => Promise.resolve({ value: false }) };
     vi.doMock("webextension-polyfill", () => ({ default: browser }));
-    loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS, OPTIONS_CSS]);
     await import("./options");
     for (let i = 0; i < 20; i++) await Promise.resolve();
     await new Promise((resolve) => setTimeout(resolve, 20));
@@ -230,7 +231,7 @@ describe("Backup and sync (DR-15)", () => {
   it("clicking Export actually records a backup and updates the line live", async () => {
     const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
     vi.doMock("webextension-polyfill", () => ({ default: browser }));
-    loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS, OPTIONS_CSS]);
     // jsdom has no real Blob-URL machinery -- stub just the two static
     // methods the export handler calls (not the whole URL global, which
     // options.ts's own normalizeHostname/hostnameOf still need as a real
@@ -296,7 +297,7 @@ describe("First open (the tour replaced the old Welcome panel)", () => {
     const { browser } = createMockBrowser({ hostname: "example.com" });
     // No uiState seeded: the "never seen anything" state.
     vi.doMock("webextension-polyfill", () => ({ default: browser }));
-    loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS, OPTIONS_CSS]);
     await import("./options");
     for (let i = 0; i < 20; i++) await Promise.resolve();
     await new Promise((resolve) => setTimeout(resolve, 20));
@@ -312,7 +313,7 @@ describe("Block and allow: migration import", () => {
   it("parses pasted text, actually writes the result to storage, and reports real counts", async () => {
     const { browser, storageLocalData } = createMockBrowser({ hostname: "example.com" });
     vi.doMock("webextension-polyfill", () => ({ default: browser }));
-    loadPageFixture(OPTIONS_HTML, [THEME_CSS]);
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS, OPTIONS_CSS]);
     await import("./options");
     for (let i = 0; i < 20; i++) await Promise.resolve();
     await new Promise((resolve) => setTimeout(resolve, 20));

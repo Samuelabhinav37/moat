@@ -6,10 +6,9 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { contrastRatio, parseColor } from "../shared/colorContrast";
 
-const page = readFileSync("src/options/options.html", "utf8");
 // Only the stylesheet: scanning the whole page made this test slow enough
 // to time out in a busy full run.
-const html = page.slice(page.indexOf("<style>"), page.indexOf("</style>"));
+const html = readFileSync("src/options/options.css", "utf8");
 
 describe("settings sidebar tiles", () => {
   it("keeps the white glyph at 5:1 or more on the current screen's tile", () => {

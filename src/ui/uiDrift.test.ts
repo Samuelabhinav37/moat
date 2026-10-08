@@ -21,7 +21,13 @@ const BRANDED = ["src/popup/popup.html", "src/options/options.html", "src/report
 
 const read = (path: string) => readFileSync(path, "utf8");
 const styles = (html: string) => Array.from(html.matchAll(/<style>([\s\S]*?)<\/style>/g), (m) => m[1]!).join("\n");
-const ownStyles = [...PAGES.map((p) => [p, styles(read(p))] as const), ["src/ui/theme.css", read("src/ui/theme.css")] as const, ["src/docs/doc.css", read("src/docs/doc.css")] as const];
+/** A page's own stylesheet file, where it has one instead of a <style> block. */
+const OWN_CSS: Record<string, string> = { "src/options/options.html": "src/options/options.css" };
+const ownStyles = [
+  ...PAGES.map((p) => [p, styles(read(p)) + (OWN_CSS[p] ? read(OWN_CSS[p]) : "")] as const),
+  ["src/ui/theme.css", read("src/ui/theme.css")] as const,
+  ["src/docs/doc.css", read("src/docs/doc.css")] as const,
+];
 
 describe("shared components stay shared", () => {
   it("loads components.css right after theme.css on every page", () => {
