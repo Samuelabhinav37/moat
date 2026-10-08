@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.261
+
+### Fixed
+- **Pages no longer jump when Moat hides an ad box by its text.** Some ad boxes can only be
+  recognized by what they say, like weather.com's grey "Advertisement" card at the top of the
+  page. Moat hid those up to a third of a second after they appeared, so the page had already
+  drawn them and everything below jumped up. On weather.com that happened twice per visit, once
+  more when the site redrew itself. While a page loads, Moat now checks for them before each new
+  frame is drawn. On weather.com the page moves about 30 times less than before, and less than
+  without Moat.
+
 ## 0.11.260
 
 ### Changed

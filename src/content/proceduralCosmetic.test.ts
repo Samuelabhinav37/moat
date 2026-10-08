@@ -187,3 +187,59 @@ describe("startProceduralCosmetic — lifecycle", () => {
     expect(isHidden(document.querySelector(".ok"))).toBe(true);
   });
 });
+
+describe("startProceduralCosmetic — next-frame passes while the page loads", () => {
+  const frame = () => new Promise((r) => requestAnimationFrame(() => r(undefined)));
+
+  it("hides a slot added during the window by the next frame, before the debounced flush", async () => {
+    const handle = startProceduralCosmetic(document, [rule({ s: ".slot", t: [["has-text", "Advertisement"]] })], {
+      flushDelayMs: 60_000,
+    });
+    const el = document.createElement("div");
+    el.className = "slot";
+    el.textContent = "Advertisement";
+    document.body.append(el);
+    await frame();
+    await frame();
+    expect(isHidden(el)).toBe(true);
+    handle.stop();
+  });
+
+  it("waits for the debounced flush once the window is over", async () => {
+    const handle = startProceduralCosmetic(document, [rule({ s: ".slot", t: [["has-text", "Advertisement"]] })], {
+      flushDelayMs: 60_000,
+      fastWindowMs: 0,
+    });
+    const el = document.createElement("div");
+    el.className = "slot";
+    el.textContent = "Advertisement";
+    document.body.append(el);
+    await frame();
+    await frame();
+    expect(isHidden(el)).toBe(false);
+    handle.stop();
+  });
+
+  it("a flush after a busy next-frame pass doesn't count as quiet", async () => {
+    // quietFlushesToStop 1: if the flush counted the frame-pass batch as quiet,
+    // it would stop the observer and the second slot would stay visible.
+    const handle = startProceduralCosmetic(document, [rule({ s: ".slot", t: [["has-text", "Advertisement"]] })], {
+      flushDelayMs: 40,
+      quietFlushesToStop: 1,
+      fastWindowMs: 60_000,
+    });
+    const add = () => {
+      const el = document.createElement("div");
+      el.className = "slot";
+      el.textContent = "Advertisement";
+      document.body.append(el);
+      return el;
+    };
+    add();
+    await new Promise((r) => setTimeout(r, 80));
+    const second = add();
+    await new Promise((r) => setTimeout(r, 80));
+    expect(isHidden(second)).toBe(true);
+    handle.stop();
+  });
+});

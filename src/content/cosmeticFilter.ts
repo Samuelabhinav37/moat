@@ -70,12 +70,11 @@ async function run(): Promise<void> {
   // injection too -- keep them consistent by not surveying either.
   if (isDisabled(effective)) return;
 
-  startAdCollapse(window, await readAdNetworks());
-  watchCustomRuleMatches(effective);
-
   // Procedural (extended-selector) rules -- evaluated against the live DOM
   // here because :has-text/:matches-css/:xpath need it; the worker can't run
   // them. Best-effort: a failed request just means no procedural hiding.
+  // Asked for first, before the ad-network fetch below: the sooner they
+  // start, the more slots they hide before the page first paints them.
   void browser.runtime
     .sendMessage({ type: "get-procedural-rules", hostname: location.hostname })
     .then((res) => {
@@ -83,6 +82,9 @@ async function run(): Promise<void> {
       if (rules.length > 0) startProceduralCosmetic(document, rules);
     })
     .catch(() => {});
+
+  startAdCollapse(window, await readAdNetworks());
+  watchCustomRuleMatches(effective);
 
   startSurveyor(
     document,

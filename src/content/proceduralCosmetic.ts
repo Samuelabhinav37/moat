@@ -20,6 +20,15 @@ import { pageMarker } from "./pageMarker";
 const FLUSH_DELAY_MS = 300;
 const QUIET_FLUSHES_TO_STOP = 6;
 const MAX_PASSES = 60;
+// While the page is first loading (and often re-rendering itself, as React
+// sites do on hydration), a slot the debounced flush hides 300 ms later has
+// already painted, and hiding it then shifts the page (weather.com's
+// ".bg-gray-100:has-text(Advertisement)" moved everything 298px, twice).
+// For this window each mutation batch also gets a pass in the next animation
+// frame, which runs before that frame paints. These passes are extra: the
+// debounced flush still runs and decides when to stop.
+const FAST_WINDOW_MS = 3000;
+const MAX_FAST_PASSES = 120;
 export const HIDDEN_ATTR = `data-${pageMarker()}`;
 
 // A rule's task patterns are static strings fixed at parse time -- the same
@@ -164,6 +173,8 @@ export interface ProceduralOptions {
   flushDelayMs?: number;
   quietFlushesToStop?: number;
   maxPasses?: number;
+  /** How long after start mutations also get a next-frame pass; 0 turns it off. */
+  fastWindowMs?: number;
 }
 
 /**
@@ -179,6 +190,8 @@ export function startProceduralCosmetic(
   const flushDelayMs = options.flushDelayMs ?? FLUSH_DELAY_MS;
   const quietFlushesToStop = options.quietFlushesToStop ?? QUIET_FLUSHES_TO_STOP;
   const maxPasses = options.maxPasses ?? MAX_PASSES;
+  const fastUntil = Date.now() + (options.fastWindowMs ?? FAST_WINDOW_MS);
+  const raf = typeof requestAnimationFrame === "function" ? requestAnimationFrame : undefined;
 
   const active = rules.filter(isValid);
   if (active.length === 0) return { stop() {} };
@@ -187,6 +200,11 @@ export function startProceduralCosmetic(
   let quietFlushes = 0;
   let passes = 0;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let frame: number | undefined;
+  let fastPasses = 0;
+  // Elements the next-frame passes acted on since the last flush, so the
+  // flush still counts that batch as busy rather than quiet.
+  let fastActed = 0;
 
   function actOn(rule: ProceduralRule, els: Element[]): number {
     let acted = 0;
@@ -222,6 +240,10 @@ export function startProceduralCosmetic(
       clearTimeout(timer);
       timer = undefined;
     }
+    if (frame !== undefined) {
+      cancelAnimationFrame(frame);
+      frame = undefined;
+    }
     observer.disconnect();
   }
 
@@ -229,13 +251,23 @@ export function startProceduralCosmetic(
     timer = undefined;
     if (stopped) return;
     passes += 1;
-    const acted = pass();
+    const acted = pass() + fastActed;
+    fastActed = 0;
     quietFlushes = acted > 0 ? 0 : quietFlushes + 1;
     if (quietFlushes >= quietFlushesToStop || passes >= maxPasses) stop();
   }
 
+  function fastFlush(): void {
+    frame = undefined;
+    if (stopped) return;
+    fastPasses += 1;
+    fastActed += pass();
+  }
+
   function schedule(): void {
-    if (timer === undefined && !stopped) timer = setTimeout(flush, flushDelayMs);
+    if (stopped) return;
+    if (timer === undefined) timer = setTimeout(flush, flushDelayMs);
+    if (raf && frame === undefined && fastPasses < MAX_FAST_PASSES && Date.now() < fastUntil) frame = raf(fastFlush);
   }
 
   const observer = new MutationObserver(() => {
