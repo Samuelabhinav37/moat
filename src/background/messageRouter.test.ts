@@ -251,6 +251,8 @@ describe("handleMessage: content-script requests", () => {
   it("scopes the fingerprint seed to the embedding tab's site", async () => {
     await expect(send({ type: "get-fingerprint-seed", session: true }, contentSender(2))).resolves.toEqual({
       seed: "session-seed@news.example",
+      // No CSP headers seen for this frame: workers stay unguarded.
+      blobWorkers: false,
     });
   });
 

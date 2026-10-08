@@ -33,6 +33,7 @@ import {
   setSiteDisabled,
 } from "./settings";
 import { OVERRIDABLE_KEYS } from "../shared/perSiteOverrides";
+import { blobWorkersAllowed } from "./frameCsp";
 import { exportSettings, isBoundedStringArray, isSelectorMap, validateImportedSettings } from "./settingsPortability";
 import { dismissOnboarding, dismissUpdateNotice, getPopupUiNotices } from "./updateNotice";
 import { fetchAndApply } from "./liveUpdates";
@@ -325,7 +326,10 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
         // sender.tab.url, not the requesting frame's own location -- see
         // scopeFingerprintSeedToSite's own comment on why a third-party
         // iframe must get the *embedding* site's scope, not its own domain.
-        return { seed: scopeFingerprintSeedToSite(baseSeed, hostnameOf(sender.tab?.url)) };
+        return {
+          seed: scopeFingerprintSeedToSite(baseSeed, hostnameOf(sender.tab?.url)),
+          blobWorkers: blobWorkersAllowed(sender.tab?.id, sender.frameId),
+        };
       })();
     }
 

@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.253
+
+### Security
+- **The fingerprint disguise reaches Web Workers.** With it on, a page could still draw on a canvas
+  inside a worker and read the real fingerprint there. Moat now starts the page's workers with the
+  same disguise first, so a drawing reads the same in the page and in its workers. It also covers
+  `OffscreenCanvas` in the page itself, which had no disguise. Workers keep their own address, so
+  their relative links, imports and requests work as before.
+- **Strict pages keep their workers untouched.** Some sites forbid the kind of worker Moat starts
+  them from. Moat reads each page's security policy and leaves those sites' workers alone instead
+  of breaking them or setting off the site's violation reports. Shared workers aren't covered:
+  restarting one per tab would stop the tabs sharing it.
+
 ## 0.11.252
 
 ### Security

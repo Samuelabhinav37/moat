@@ -544,6 +544,8 @@ export interface GetFingerprintSeedMessage {
 
 export interface FingerprintSeedResponse {
   seed: string;
+  /** The requesting frame's CSP headers allow blob: workers (frameCsp.ts). */
+  blobWorkers: boolean;
 }
 
 /** The fields options.ts's own toggles/lists/presets patch. Same
@@ -861,6 +863,8 @@ export interface PopupGuardConfig {
 export interface FingerprintGuardConfig {
   fingerprintResistance: boolean;
   fingerprintSeed: string;
+  /** See FingerprintSeedResponse.blobWorkers. False guards no workers. */
+  blobWorkers: boolean;
 }
 
 /** mainWorldGuard.ts -> bridge.ts: a pop-up or synthetic click it stopped. */

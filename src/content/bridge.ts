@@ -27,10 +27,9 @@ import { effectiveValue } from "../shared/perSiteOverrides";
 // Routing through the one background worker (which every tab's request
 // funnels through) is what actually makes "one seed per browser session"
 // hold; see types.ts's GetFingerprintSeedMessage.
-async function fetchFingerprintSeed(session: boolean): Promise<string> {
+async function fetchFingerprintSeed(session: boolean): Promise<FingerprintSeedResponse> {
   const message: GetFingerprintSeedMessage = { type: "get-fingerprint-seed", session };
-  const response = (await browser.runtime.sendMessage(message)) as FingerprintSeedResponse;
-  return response.seed;
+  return (await browser.runtime.sendMessage(message)) as FingerprintSeedResponse;
 }
 
 // One private channel per MAIN-world guard, handed over synchronously below.
@@ -61,18 +60,20 @@ async function sendConfig(): Promise<void> {
     };
     browser.runtime.sendMessage(signalMessage).catch(() => {});
   }
-  const fingerprintSeed = fingerprintResistance
+  const seedResponse = fingerprintResistance
     ? settings.fingerprintRotatePerSession
       ? // The background worker may still be waking up right after a browser
         // restart -- fall back to the permanent seed rather than fail the
         // whole config message over a message-channel hiccup.
         await fetchFingerprintSeed(true).catch(() => fetchFingerprintSeed(false))
       : await fetchFingerprintSeed(false)
-    : "";
+    : undefined;
+  const fingerprintSeed = seedResponse?.seed ?? "";
+  const blobWorkers = seedResponse?.blobWorkers === true;
 
   // Each guard gets only what it needs: the popup guard never sees the seed.
   popupGuardChannel.port1.postMessage({ disabled } satisfies PopupGuardConfig);
-  fingerprintChannel.port1.postMessage({ fingerprintResistance, fingerprintSeed } satisfies FingerprintGuardConfig);
+  fingerprintChannel.port1.postMessage({ fingerprintResistance, fingerprintSeed, blobWorkers } satisfies FingerprintGuardConfig);
 }
 
 connectGuards();

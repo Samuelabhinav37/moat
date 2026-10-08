@@ -32,6 +32,7 @@ import { forgetTab as forgetHeuristicTab, resetForNavigation as resetHeuristicFi
 import { reconcileCustomRuleStats } from "./customRuleStats";
 import { injectCosmeticsForCommit } from "./cosmeticInject";
 import { endProceed } from "./proceedRules";
+import { forgetTab as forgetFrameCspTab, startFrameCspTracking } from "./frameCsp";
 
 initPopupGuard();
 initLiveUpdates();
@@ -104,6 +105,7 @@ browser.tabs.onRemoved.addListener((tabId) => {
   forgetBlockReasonTab(tabId);
   forgetLastNormalTab(tabId);
   forgetHeuristicTab(tabId);
+  forgetFrameCspTab(tabId);
   void endProceed(tabId);
 });
 
@@ -128,6 +130,9 @@ void browser.tabs
 // Quota-free count of refused requests per tab (see liveBlocks.ts). Top
 // level, so a blocked request can wake the worker.
 startLiveBlockCounting(onLiveBlock, onPageBlocked);
+
+// Top level too: the response headers arrive before the page's guard asks.
+startFrameCspTracking();
 
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0) return;

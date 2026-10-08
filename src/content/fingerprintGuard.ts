@@ -26,11 +26,23 @@ import {
   UNMASKED_RENDERER_WEBGL,
   UNMASKED_VENDOR_WEBGL,
 } from "./fingerprintNoise";
-import { maskRealm, nativeGetter, nativeMethod } from "./nativeToString";
+import { maskAsNative, maskRealm, nativeGetter, nativeMethod } from "./nativeToString";
+import { workerGuardPrelude } from "./workerGuard";
+import { cspAllowsBlobWorkers } from "../shared/cspBlobWorkers";
 import { GUARD_CONNECT_EVENT, type FingerprintGuardConfig } from "../types";
 
 let seed = "";
 let active = false;
+/** The page's CSP headers allow blob: workers (from bridge.ts). */
+let blobWorkers = false;
+
+// Taken now, at document_start, before any page script can wrap them: the
+// worker bootstrap below carries the seed, and a page that hooked Blob or
+// createObjectURL would read it.
+const NativeBlob = Blob;
+const nativeCreateObjectURL = URL.createObjectURL;
+const nativeRevokeObjectURL = URL.revokeObjectURL;
+const WORKER_PRELUDE = workerGuardPrelude.toString();
 
 /** The page's window, or a same-origin frame's (see ensurePatched). */
 type GuardWindow = Window & typeof globalThis;
@@ -95,6 +107,167 @@ function patchCanvas(w: GuardWindow): void {
     if (active) noisifyRGBA(imageData.data, canvasSeed(this.canvas.width, this.canvas.height));
     return imageData;
   });
+}
+
+/** Same noise for OffscreenCanvas in the page itself (workers: workerGuard.ts). */
+function patchOffscreenCanvas(w: GuardWindow): void {
+  if (typeof w.OffscreenCanvas === "undefined" || typeof w.OffscreenCanvasRenderingContext2D === "undefined") return;
+  const canvasProto = w.OffscreenCanvas.prototype;
+  const ctxProto = w.OffscreenCanvasRenderingContext2D.prototype;
+  const nativeConvertToBlob = canvasProto.convertToBlob;
+  const nativeGetImageData = ctxProto.getImageData;
+  const Offscreen = w.OffscreenCanvas;
+
+  canvasProto.convertToBlob = nativeMethod<typeof nativeConvertToBlob>(nativeConvertToBlob, function guardedConvertToBlob(
+    this: OffscreenCanvas,
+    ...args: Parameters<typeof nativeConvertToBlob>
+  ): Promise<Blob> {
+    const { width, height } = this;
+    const clone = active && width > 0 && height > 0 ? new Offscreen(width, height) : null;
+    const ctx = clone?.getContext("2d");
+    if (!clone || !ctx) return nativeConvertToBlob.apply(this, args);
+    ctx.drawImage(this, 0, 0);
+    const imageData = nativeGetImageData.call(ctx, 0, 0, width, height);
+    noisifyRGBA(imageData.data, canvasSeed(width, height));
+    ctx.putImageData(imageData, 0, 0);
+    return nativeConvertToBlob.apply(clone, args);
+  });
+
+  ctxProto.getImageData = nativeMethod<typeof nativeGetImageData>(nativeGetImageData, function guardedGetImageData(
+    this: OffscreenCanvasRenderingContext2D,
+    ...args: Parameters<typeof nativeGetImageData>
+  ): ImageData {
+    const imageData = nativeGetImageData.apply(this, args);
+    if (active) noisifyRGBA(imageData.data, canvasSeed(this.canvas.width, this.canvas.height));
+    return imageData;
+  });
+}
+
+// Blobs behind the page's own blob: URLs, so a worker started from one can
+// be restarted from a fresh URL to the same Blob: pages often revoke the URL
+// right after new Worker() returns, before the bootstrap would load it.
+const pageBlobs = new Map<string, Blob>();
+
+function patchBlobUrls(w: GuardWindow): void {
+  const nativeCreate = w.URL.createObjectURL;
+  const nativeRevoke = w.URL.revokeObjectURL;
+  w.URL.createObjectURL = nativeMethod<typeof nativeCreate>(nativeCreate, function createObjectURL(
+    this: unknown,
+    object: Blob | MediaSource
+  ): string {
+    const url = nativeCreate.call(this, object);
+    const tag = Object.prototype.toString.call(object);
+    if (tag === "[object Blob]" || tag === "[object File]") pageBlobs.set(url, object as Blob);
+    return url;
+  });
+  w.URL.revokeObjectURL = nativeMethod<typeof nativeRevoke>(nativeRevoke, function revokeObjectURL(this: unknown, url: string): void {
+    pageBlobs.delete(String(url));
+    nativeRevoke.call(this, url);
+  });
+}
+
+function metaCspAllowsBlobWorkers(doc: Document): boolean {
+  const policies = [...doc.querySelectorAll('meta[http-equiv="content-security-policy" i]')].map(
+    (meta) => meta.getAttribute("content") ?? ""
+  );
+  return cspAllowsBlobWorkers(policies);
+}
+
+/** What to start instead of the page's worker: a blob: bootstrap running
+ * workerGuardPrelude, then the page's script. Null leaves the worker as the
+ * page asked: guard off, a CSP that forbids blob: workers, an address the
+ * browser would refuse (it then throws just as it would have), or a page
+ * blob: URL made before the guard turned on. */
+function guardedWorkerArgs(w: GuardWindow, args: unknown[]): { args: unknown[]; cleanup: (worker: Worker) => void } | null {
+  if (!active || !blobWorkers || args.length === 0) return null;
+  const options = args[1] as WorkerOptions | undefined;
+  if (options !== undefined && (typeof options !== "object" || options === null)) return null;
+  const module = options?.type === "module";
+  if (module && options?.credentials !== undefined && options.credentials !== "same-origin") return null;
+  let address: URL;
+  try {
+    address = new URL(String(args[0]), w.document.baseURI);
+  } catch {
+    return null;
+  }
+  let scriptUrl = address.href;
+  let pageBlobUrl: string | null = null;
+  if (address.protocol === "blob:") {
+    const blob = pageBlobs.get(address.href);
+    if (!blob) return null;
+    pageBlobUrl = scriptUrl = nativeCreateObjectURL(blob);
+  } else if (!/^https?:$/.test(address.protocol) || address.origin !== w.origin) {
+    return null;
+  }
+  if (!metaCspAllowsBlobWorkers(w.document)) {
+    if (pageBlobUrl) nativeRevokeObjectURL(pageBlobUrl);
+    return null;
+  }
+  const json = JSON.stringify;
+  const blobUrl = (text: string): string => nativeCreateObjectURL(new NativeBlob([text], { type: "text/javascript" }));
+  const prelude = `(${WORKER_PRELUDE})(${json(seed)},${json(address.href)},${json(WORKER_PRELUDE)});`;
+  // URLs the worker fetches after it starts, revoked once it's running.
+  const later = pageBlobUrl ? [pageBlobUrl] : [];
+  let source: string;
+  if (module) {
+    // Static imports, run in order before the worker takes messages; an
+    // awaited import() would let the page's first postMessage arrive
+    // before its script set onmessage. The guard module revokes its own
+    // URL as it runs, so the page can't fetch it back for the seed.
+    const preludeUrl = blobUrl(`URL.revokeObjectURL(import.meta.url);${prelude}`);
+    later.push(preludeUrl);
+    source = `import ${json(preludeUrl)};\nimport ${json(scriptUrl)};`;
+  } else {
+    source = `${prelude}\nimportScripts(${json(scriptUrl)});`;
+  }
+  const bootstrap = blobUrl(source);
+  return {
+    args: [bootstrap, ...args.slice(1)],
+    cleanup(worker) {
+      // The worker holds the bootstrap from construction on.
+      nativeRevokeObjectURL(bootstrap);
+      if (later.length === 0) return;
+      let timer = 0;
+      const done = (): void => {
+        clearTimeout(timer);
+        for (const url of later) nativeRevokeObjectURL(url);
+      };
+      timer = setTimeout(done, 30_000) as unknown as number;
+      worker.addEventListener("message", done, { once: true });
+      worker.addEventListener("error", done, { once: true });
+    },
+  };
+}
+
+/** Starts the page's dedicated workers through guardedWorkerArgs, so
+ * OffscreenCanvas, WebGL, navigator and clocks are guarded in there too.
+ * SharedWorker isn't wrapped: a fresh blob: URL per call would stop tabs
+ * sharing one, which is the point of it. */
+function patchWorkers(w: GuardWindow): void {
+  if (typeof w.Worker === "undefined") return;
+  const NativeWorker = w.Worker;
+  const proxy = new Proxy(NativeWorker, {
+    construct(target, args: unknown[], newTarget: Function) {
+      const guarded = guardedWorkerArgs(w, args);
+      if (guarded) {
+        try {
+          const worker = Reflect.construct(target, guarded.args, newTarget) as Worker;
+          guarded.cleanup(worker);
+          return worker;
+        } catch {
+          // e.g. Trusted Types refusing a plain string URL. Let the browser
+          // handle the page's own arguments below.
+          nativeRevokeObjectURL(String(guarded.args[0]));
+        }
+      }
+      return Reflect.construct(target, args, newTarget) as Worker;
+    },
+  });
+  maskAsNative(proxy, NativeWorker);
+  const ownProp = Object.getOwnPropertyDescriptor(w, "Worker");
+  if (ownProp) Object.defineProperty(w, "Worker", { ...ownProp, value: proxy });
+  const constructorProp = Object.getOwnPropertyDescriptor(NativeWorker.prototype, "constructor");
+  if (constructorProp) Object.defineProperty(NativeWorker.prototype, "constructor", { ...constructorProp, value: proxy });
 }
 
 function patchAudio(w: GuardWindow): void {
@@ -321,7 +494,7 @@ function ensurePatched(w: GuardWindow = window): void {
   // from installing. Previously these ran unconditionally at parse time
   // with the same lack of isolation between them; grouping them here is
   // what makes that pre-existing gap worth closing now.
-  for (const patch of [patchCanvas, patchAudio, patchWebGL, patchNavigatorHints, patchDimensions, patchScreenDimensions, patchTiming, patchFramesOnAccess]) {
+  for (const patch of [patchCanvas, patchOffscreenCanvas, patchBlobUrls, patchWorkers, patchAudio, patchWebGL, patchNavigatorHints, patchDimensions, patchScreenDimensions, patchTiming, patchFramesOnAccess]) {
     try {
       patch(w);
     } catch {
@@ -335,6 +508,7 @@ function applyConfig(data: FingerprintGuardConfig | undefined): void {
   if (typeof data?.fingerprintResistance !== "boolean" || typeof data.fingerprintSeed !== "string") return;
   active = data.fingerprintResistance;
   seed = data.fingerprintSeed;
+  blobWorkers = data.blobWorkers === true;
   // Patch as soon as the feature is ever turned on for this page load --
   // covers both "already on at load" and "the user flips it on mid-session"
   // (bridge.ts re-sends config on a storage change). Once patched, later
