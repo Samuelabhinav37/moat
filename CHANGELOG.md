@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.259
+
+### Fixed
+- **Ads no longer flash for a moment.** Right after installing, after the browser had been idle,
+  or on the first visit to a site, an ad box could show for a few frames before Moat hid it,
+  because the part of Moat that hides it was still waking up. The browser now hides the common
+  ad boxes by itself from the very first frame. Sites that are paused, or that a filter list
+  says need an ad box kept, are left out. Measured on a page with 12,000 elements, it adds no
+  time a page takes to draw.
+
 ## 0.11.258
 
 ### Changed

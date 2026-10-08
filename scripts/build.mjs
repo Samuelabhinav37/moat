@@ -12,6 +12,7 @@ import { buildManifest } from "./manifest.ts";
 import { buildDocs } from "./docs/buildDocs.mjs";
 import { buildTrackerDomains } from "./lib/trackerDomains.mjs";
 import { buildSecurityHosts } from "./lib/securityHosts.mjs";
+import { buildEarlyCosmetics } from "./lib/earlyCosmetics.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
@@ -155,6 +156,14 @@ function copyStaticAssets() {
   ]) {
     cpSync(resolve(rulesDir, file), resolve(outDir, "rules", file));
   }
+
+  // Generic hiding the browser applies by itself at document start
+  // (scripts/lib/earlyCosmetics.mjs).
+  const cosmeticsMeta = JSON.parse(readFileSync(resolve(rulesDir, cosmeticsManifest.meta), "utf8"));
+  const early = buildEarlyCosmetics(cosmeticsMeta);
+  writeFileSync(resolve(outDir, "early-cosmetics.css"), early.css);
+  writeFileSync(resolve(outDir, "early-cosmetics-excepted.css"), early.exceptedCss);
+  writeFileSync(resolve(outDir, "rules", "early-cosmetics-exclude.json"), JSON.stringify(early.excludeDomains));
 
   // Who a blocked request belonged to, by its domain (scripts/lib/trackerDomains.mjs).
   // Built from the vendored TrackerDB here so it never needs a filter update.
