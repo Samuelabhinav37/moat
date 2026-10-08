@@ -114,7 +114,7 @@ function privacyFrame() {
     ["api.lab.amplitude.com", "Behavior analytics", false],
     ["js-agent.newrelic.com", "Session monitoring", false],
   ];
-  return head("Nothing leaves <em>your browser.</em>", "No account, no server, no tracking of you. Every check happens on your device.") +
+  return head("Nothing leaves <em>your browser.</em>", "No account, no tracking of you. Every check happens on your device.") +
     `<div class="card"><div class="ctitle"><span class="logo">${logo}</span>What happened on weather.com</div>
       ${rows.map(([host, what, ok]) => `<div class="row ${ok ? "ok" : "no"}"><div><div class="host">${host}</div><div class="what">${what}</div></div><div class="res">${ok ? "✓ Loaded" : "✕ Stopped"}</div></div>`).join("")}
     </div>`;

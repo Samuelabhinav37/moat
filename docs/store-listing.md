@@ -16,9 +16,9 @@ goes in which slot and how to rebuild them).
 
 ## Short description (≤132 chars — CWS "summary" / AMO "summary")
 
-> Ad blocker and popup firewall with no server, no account, and no telemetry. Everything runs on your device. Manifest V3, open source.
+> Ad blocker and popup firewall with no account and no telemetry. Blocking runs on your device. Manifest V3, open source.
 
-(129 chars.)
+(119 chars.)
 
 ## Full description
 

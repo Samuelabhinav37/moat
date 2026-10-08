@@ -4,7 +4,7 @@
 </h1>
 
 <p align="center"><strong>Ad blocking that keeps to itself.</strong><br>
-A free, open-source ad blocker for Chrome and Firefox. No server, no account, no telemetry.</p>
+A free, open-source ad blocker for Chrome and Firefox. No account, no telemetry, and blocking runs in your browser.</p>
 
 <p align="center">
   <a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml"><img src="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
