@@ -14,6 +14,10 @@ export const RETRY_LOOP_STUBS = [
     // 5,673 times in 20 seconds on one page load.
     urlFilter: "||cdn-media.brightline.tv/config/",
     resourceTypes: ["xmlhttprequest"],
+    // A fetch()/XHR stand-in shows the page Moat's own address (see
+    // fetchableRedirects.mjs), so it only answers the site it was measured
+    // on. Anywhere else the request is blocked like any other.
+    initiatorDomains: ["cnn.com"],
     resource: "noopjson.json",
   },
 ];
@@ -25,8 +29,20 @@ export function buildRetryLoopStubRules(stubs = RETRY_LOOP_STUBS) {
     id: i + 1,
     priority: RETRY_LOOP_STUB_PRIORITY,
     action: { type: "redirect", redirect: { extensionPath: `/web-accessible-resources/redirects/${stub.resource}` } },
-    condition: { urlFilter: stub.urlFilter, resourceTypes: stub.resourceTypes },
+    condition: { urlFilter: stub.urlFilter, resourceTypes: stub.resourceTypes, initiatorDomains: stub.initiatorDomains },
   }));
+}
+
+/** True for one of the rules above, exactly as built: the only stand-ins
+ * allowed to answer fetch()/XHR, each limited to its measured site. */
+export function isRetryLoopStubRule(rule, stubs = RETRY_LOOP_STUBS) {
+  const c = rule.condition ?? {};
+  return stubs.some(
+    (stub) =>
+      rule.action?.redirect?.extensionPath === `/web-accessible-resources/redirects/${stub.resource}` &&
+      c.urlFilter === stub.urlFilter &&
+      JSON.stringify(c.initiatorDomains) === JSON.stringify(stub.initiatorDomains)
+  );
 }
 
 /** The redirect resource files these rules need shipped. */

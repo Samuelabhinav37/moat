@@ -32,6 +32,7 @@ const AD_HOST = "securepubads.g.doubleclick.net";
 // A request pages retry in a loop when blocked; Moat answers it with an
 // empty stand-in instead (scripts/lib/retryLoopStubRules.mjs).
 const STUB_HOST = "cdn-media.brightline.tv";
+const STUB_SITE = "www.cnn.com";
 const stubHits = [];
 const NEWS = "news.moat-smoke.test";
 const LONG = "a-really-long-subdomain-for-checking.popup-width.moat-smoke.test";
@@ -62,11 +63,22 @@ function newsPage() {
     <script>
       const x = new XMLHttpRequest();
       x.open("GET", "http://${STUB_HOST}/config/v3/1018.json");
-      x.onload = () => (window.__stub = { status: x.status, body: x.responseText });
+      x.onload = () => (window.__stub = { status: x.status, body: x.responseText, url: x.responseURL });
       x.onerror = () => (window.__stub = { error: true });
       x.send();
     </script>
   </body></html>`;
+}
+
+// The retry-loop stand-in only answers the site it was measured on.
+function stubSitePage() {
+  return `<!doctype html><html><body><script>
+      const x = new XMLHttpRequest();
+      x.open("GET", "http://${STUB_HOST}/config/v3/1018.json");
+      x.onload = () => (window.__stub = { status: x.status, body: x.responseText });
+      x.onerror = () => (window.__stub = { error: true });
+      x.send();
+    </script></body></html>`;
 }
 
 function proceduralPage() {
@@ -90,6 +102,7 @@ const server = createServer((req, res) => {
   }
   res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
   if (host === "widget.moat-smoke.test") return res.end("<!doctype html><p>A third-party widget, like a Cloudflare check.</p>");
+  if (host === STUB_SITE) return res.end(stubSitePage());
   res.end(host === "athlonoutdoors.com" ? proceduralPage() : newsPage());
 });
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
@@ -184,7 +197,12 @@ async function pageChecks(label) {
   check(`${label}: ad requests blocked`, adHits.length === 0 && !(await page.evaluate(() => window.__adLoaded)), `${adHits.length} reached the server`);
   const slot = await page.$eval("#slot", (el) => el.getBoundingClientRect().height);
   check(`${label}: empty ad box collapsed`, slot === 0, `slot height ${slot}px`);
-  const stub = await page.evaluate(() => window.__stub);
+  const elsewhere = await page.evaluate(() => window.__stub);
+  check(`${label}: stand-in never answers fetch/XHR on other sites`, elsewhere?.error === true && stubHits.length === 0,
+    elsewhere?.url ? `answered from ${elsewhere.url}` : `${stubHits.length} reached the network`);
+  const site = await load(`http://${STUB_SITE}/`);
+  const stub = await site.evaluate(() => window.__stub);
+  await site.close();
   check(`${label}: retry-loop request answered with an empty stand-in`, stub?.status === 200 && stub.body.trim() === "{}" && stubHits.length === 0,
     stub?.error ? "request failed (blocked, so the page would retry)" : `got ${JSON.stringify(stub?.body)}, ${stubHits.length} reached the network`);
   return page;

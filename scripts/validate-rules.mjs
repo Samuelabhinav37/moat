@@ -3,6 +3,8 @@
 // file (DNR requires uniqueness per-ruleset, not globally). Run after
 // `npm run filters:update`, before building.
 import { readFileSync, existsSync } from "node:fs";
+import { exposesExtensionAddress } from "./lib/fetchableRedirects.mjs";
+import { isRetryLoopStubRule } from "./lib/retryLoopStubRules.mjs";
 import { createPublicKey, verify as edVerify } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -54,6 +56,10 @@ for (const entry of manifest) {
     ids.add(rule.id);
     if (!ALLOWED_ACTION_TYPES.has(rule.action?.type)) {
       console.error(`${entry.file}: rule ${rule.id} has unknown action.type "${rule.action?.type}"`);
+      ok = false;
+    }
+    if (exposesExtensionAddress(rule) && !isRetryLoopStubRule(rule)) {
+      console.error(`${entry.file}: rule ${rule.id} answers fetch()/XHR with a stand-in file, showing pages Moat's address`);
       ok = false;
     }
   }

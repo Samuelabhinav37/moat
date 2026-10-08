@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.255
+
+### Security
+- **Sites can no longer read a Moat ID from blocked requests.** For some blocked ad and tracker
+  addresses, Moat answers with a harmless empty file of its own. When a page asked for one of those
+  with `fetch()`, the answer showed the file's real address inside Moat. In Firefox that address
+  holds an ID made when Moat was installed, the same on every site, so any site could read it and
+  recognize your browser again, even after you cleared cookies. In Chrome it showed that Moat was
+  installed. Those requests are now simply blocked. Scripts and images still get the empty files,
+  which don't show their address. One exception stays, on CNN only: a video player there asks for a
+  blocked file hundreds of times a second, so it still gets an empty answer.
+
 ## 0.11.254
 
 ### Fixed
