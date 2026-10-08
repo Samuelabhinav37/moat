@@ -4,6 +4,12 @@ name: Weekly filter refresh
 # delta, so filter freshness doesn't depend on the maintainer remembering to
 # run it. The PR still gets the full CI gate and a human merge -- this only
 # removes the "did anyone refresh the lists?" failure mode.
+#
+# Two jobs, so the job that installs npm packages and runs their code never
+# holds anything worth stealing: no signing key, a read-only token, and no
+# git credentials on disk. A compromised package could only put something
+# into the PR, which a person reviews. live/manifest.json goes out unsigned
+# here; sign-live.yml signs it after the merge.
 
 on:
   schedule:
@@ -11,16 +17,21 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "24"
           cache: npm
@@ -46,33 +57,69 @@ jobs:
           if [ -n "$LATEST" ] && [ "${LATEST%%.*}" != "$MAJOR" ]; then
             echo "::warning::@adguard/dnr-rulesets $LATEST is out (a new major). This refresh stays on v$MAJOR; move to the new major in its own PR."
           fi
-      # The only workflow that can change live/*.json, so the only one that
-      # needs to re-sign live/manifest.json. Every other workflow keeps the
-      # committed .sig as long as it still verifies (see update-live-manifest.mjs).
+
+      # LIVE_SIGN_LATER: a changed live/*.json leaves the manifest unsigned
+      # for sign-live.yml to sign after merge (scripts/update-live-manifest.mjs).
       - run: npm run filters:update
         env:
-          LIVE_SIGNING_PRIVATE_KEY: ${{ secrets.LIVE_SIGNING_PRIVATE_KEY }}
+          LIVE_SIGN_LATER: "1"
+
+      - name: Package the change for review
+        id: diff
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No filter changes this week."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git diff --cached --binary > refresh.patch
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: steps.diff.outputs.changed == 'true'
+        with:
+          name: refresh-patch
+          path: refresh.patch
+          retention-days: 7
+
+  # Runs no npm code: it only applies the patch, pushes the branch and opens
+  # the PR. A patch that touches .github/workflows/ fails to push, since this
+  # token has no `workflows` permission.
+  open-pr:
+    needs: refresh
+    if: needs.refresh.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: refresh-patch
 
       - name: Open / update the refresh PR
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          if git diff --quiet; then
-            echo "No filter changes this week."
-            exit 0
-          fi
           BR="chore/filter-refresh"
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BR"
-          git add -A
+          git apply --index refresh.patch
+          rm refresh.patch
           git commit -m "chore: weekly filter refresh ($(date -u +%Y-%m-%d))"
-          git push -f -u origin "$BR"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BR"
           if gh pr view "$BR" --json state --jq .state 2>/dev/null | grep -q OPEN; then
             echo "PR already open for $BR; force-push updated it."
           else
             gh pr create --base master --head "$BR" \
               --title "chore: weekly filter refresh" \
-              --body "Automated \`npm run filters:update\` on the newest @adguard/dnr-rulesets in its major line (\`package.json\` and the lockfile show the version). Beyond that, this diff only covers the small, tracked \`live/*.json\` slice — rules/dnr/ and rules/redirect-resources/ are gitignored, so the bulk of the ruleset (AdGuard, Peter Lowe, oisd) regenerates invisibly to this PR even when its content changes. CI is held until you approve it (GitHub holds workflows on PRs opened by the Actions bot): click **Approve and run** under the checks, review what's here, then merge once CI passes."
+              --body "Automated \`npm run filters:update\` on the newest @adguard/dnr-rulesets in its major line (\`package.json\` and the lockfile show the version). Beyond that, this diff only covers the small, tracked \`live/*.json\` slice — rules/dnr/ and rules/redirect-resources/ are gitignored, so the bulk of the ruleset (AdGuard, Peter Lowe, oisd) regenerates invisibly to this PR even when its content changes. If \`live/\` changed, its manifest is unsigned here and sign-live.yml signs it after the merge. CI is held until you approve it (GitHub holds workflows on PRs opened by the Actions bot): click **Approve and run** under the checks, review what's here, then merge once CI passes."
           fi

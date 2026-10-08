@@ -2,8 +2,16 @@ name: Publish to stores
 
 # Manual, deliberate, and separate from release.yml (which only builds a draft
 # GitHub Release). Dormant until the CWS_* / AMO_* repository secrets exist --
-# each store step skips cleanly if its credentials are missing, so this file is
+# each store job skips cleanly if its credentials are missing, so this file is
 # safe to merge before the secrets are set up. See docs/RELEASING.md.
+#
+# The build runs in its own job with no store secrets. A step can set
+# environment variables and PATH for every later step in its job (through
+# $GITHUB_ENV / $GITHUB_PATH), so a compromised npm package in the same job as
+# a store upload could read that upload's credentials. Each store gets its own
+# job that only receives the built files: the Chrome job runs curl and Node's
+# own JSON parsing; the Firefox job installs web-ext alone, at the version the
+# lockfile pins, with install scripts off.
 
 on:
   workflow_dispatch:
@@ -28,23 +36,26 @@ permissions:
   contents: read
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ inputs.ref }}
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "24"
           cache: npm
 
       - name: Verify the ref matches package.json
+        env:
+          REF: ${{ inputs.ref }}
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
-          if [ "v$PKG_VERSION" != "${{ inputs.ref }}" ]; then
-            echo "::error::input ref ${{ inputs.ref }} does not match package.json v$PKG_VERSION"
+          if [ "v$PKG_VERSION" != "$REF" ]; then
+            echo "::error::input ref $REF does not match package.json v$PKG_VERSION"
             exit 1
           fi
 
@@ -61,15 +72,36 @@ jobs:
       - run: npm run smoke:firefox
       - run: npm run zip
 
-      # ---- Chrome Web Store (API v2 -- v1 is EOL 2026-10-15) --------------
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: chrome-zip
+          path: chrome.zip
+          retention-days: 7
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: firefox-dist
+          path: dist/firefox
+          retention-days: 7
+
+  # ---- Chrome Web Store (API v2 -- v1 is EOL 2026-10-15) ----------------
+  submit-chrome:
+    needs: build
+    if: ${{ inputs.targets != 'firefox' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: chrome-zip
+
       - name: Submit to the Chrome Web Store
-        if: ${{ inputs.targets != 'firefox' }}
         env:
           CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
           PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
           EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+          CHANNEL: ${{ inputs.channel }}
         run: |
           if [ -z "$CLIENT_ID" ] || [ -z "$REFRESH_TOKEN" ] || [ -z "$PUBLISHER_ID" ] || [ -z "$EXTENSION_ID" ]; then
             echo "::warning::CWS_* secrets not set -- skipping Chrome Web Store submission."
@@ -90,7 +122,7 @@ jobs:
             -H "Content-Type: application/zip" --data-binary @chrome.zip \
             "$BASE/upload/v2/$ITEM:upload"
           PUBLISH_URL="$BASE/v2/$ITEM:publish"
-          if [ "${{ inputs.channel }}" = "beta" ]; then
+          if [ "$CHANNEL" = "beta" ]; then
             PUBLISH_URL="$PUBLISH_URL?publishTarget=trustedTesters"
           fi
           echo "Submitting for review ($PUBLISH_URL) ..."
@@ -98,20 +130,44 @@ jobs:
             -H "Content-Type: application/json" -d '{}' "$PUBLISH_URL"
           echo "Chrome Web Store: submitted."
 
-      # ---- Firefox Add-ons (AMO) -----------------------------------------
+  # ---- Firefox Add-ons (AMO) -------------------------------------------
+  submit-firefox:
+    needs: build
+    if: ${{ inputs.targets != 'chrome' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+          sparse-checkout: package-lock.json
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: firefox-dist
+          path: dist/firefox
+
       - name: Submit to AMO
-        if: ${{ inputs.targets != 'chrome' }}
         env:
           WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
           WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+          CHANNEL: ${{ inputs.channel }}
+          npm_config_ignore_scripts: "true"
         run: |
           if [ -z "$WEB_EXT_API_KEY" ] || [ -z "$WEB_EXT_API_SECRET" ]; then
             echo "::warning::AMO_* secrets not set -- skipping AMO submission."
             exit 0
           fi
+          set -euo pipefail
+          WEB_EXT_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/web-ext'].version")
           AMO_CHANNEL=listed
-          [ "${{ inputs.channel }}" = "beta" ] && AMO_CHANNEL=unlisted
-          npx web-ext sign --channel="$AMO_CHANNEL" \
+          [ "$CHANNEL" = "beta" ] && AMO_CHANNEL=unlisted
+          npx --yes "web-ext@$WEB_EXT_VERSION" sign --channel="$AMO_CHANNEL" \
             --source-dir=dist/firefox \
             --artifacts-dir=web-ext-artifacts
           echo "AMO: submitted for review."

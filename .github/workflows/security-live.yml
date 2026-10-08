@@ -11,6 +11,12 @@ name: Daily security lists
 # A day that trips the size guardrails (a list that shrank by more than
 # half, or more than max(5,000, 25%) domains changed) is NOT published:
 # it goes to a pull request on chore/security-live for a person to check.
+# That pull request is not signed: a signed manifest is valid forever, so
+# signing one a person might reject would leave a usable copy in a public
+# branch. sign-live.yml signs it once it's merged.
+#
+# This job installs no npm packages (the scripts use only Node's own
+# modules), which is why it may hold the signing key.
 
 on:
   schedule:
@@ -30,9 +36,11 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "24"
 
@@ -50,9 +58,15 @@ jobs:
           if [ -n "$(git status --porcelain live/)" ]; then echo "changed=true" >> "$GITHUB_OUTPUT"; fi
 
       - name: Sign the live manifest
-        if: steps.fetch.outputs.changed == 'true'
+        if: steps.fetch.outputs.changed == 'true' && steps.fetch.outputs.code == '0'
         env:
           LIVE_SIGNING_PRIVATE_KEY: ${{ secrets.LIVE_SIGNING_PRIVATE_KEY }}
+        run: node scripts/update-live-manifest.mjs
+
+      - name: Update the manifest without signing it (for review)
+        if: steps.fetch.outputs.changed == 'true' && steps.fetch.outputs.code == '3'
+        env:
+          LIVE_SIGN_LATER: "1"
         run: node scripts/update-live-manifest.mjs
 
       - name: Publish
@@ -66,7 +80,7 @@ jobs:
           git add live/
           git commit -m "live: daily security lists ($(date -u +%Y-%m-%d))"
           git pull --rebase origin master
-          git push origin HEAD:master
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:master
           # A push made with the workflow's own token doesn't start other
           # workflows, so start the gh-pages deploy explicitly.
           gh workflow run publish-live.yml --ref master
@@ -83,11 +97,11 @@ jobs:
           git checkout -B "$BR"
           git add live/
           git commit -m "live: security lists need review ($(date -u +%Y-%m-%d))"
-          git push -f -u origin "$BR"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BR"
           if gh pr view "$BR" --json state --jq .state 2>/dev/null | grep -q OPEN; then
             echo "PR already open for $BR; force-push updated it."
           else
             gh pr create --base master --head "$BR" \
               --title "live: security lists need review" \
-              --body "Today's security lists changed more than the unattended limits allow (see the workflow log for which list and why). Nothing was published. Look at the diff; merge to publish it, or close to keep the current lists."
+              --body "Today's security lists changed more than the unattended limits allow (see the workflow log for which list and why). Nothing was published, and nothing here is signed. Look at the diff; merge to publish it (sign-live.yml signs it after the merge), or close to keep the current lists."
           fi

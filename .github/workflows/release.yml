@@ -1,19 +1,30 @@
 name: Release
 
+# Two jobs: `build` installs npm packages and runs the build with a
+# read-only token and no git credentials on disk; `release` installs
+# nothing and only turns the built zips into a draft GitHub Release. A
+# compromised package can break the build, but can't push to the repo or
+# swap files in a release after the checksums are taken.
+
 on:
   push:
     tags:
       - "v*"
 
+permissions:
+  contents: read
+
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "24"
           cache: npm
@@ -25,7 +36,6 @@ jobs:
             echo "::error::tag $GITHUB_REF_NAME does not match package.json version $PKG_VERSION"
             exit 1
           fi
-          echo "PKG_VERSION=$PKG_VERSION" >> "$GITHUB_ENV"
 
       - run: npm ci
 
@@ -43,11 +53,34 @@ jobs:
       - name: Package store zips
         run: npm run zip
 
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: store-zips
+          path: |
+            chrome.zip
+            firefox.zip
+          retention-days: 7
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: store-zips
+
       - name: Compute checksums
         run: sha256sum chrome.zip firefox.zip | tee SHA256SUMS.txt
 
       - name: Extract release notes from CHANGELOG.md
         run: |
+          PKG_VERSION="${GITHUB_REF_NAME#v}"
           awk -v ver="## $PKG_VERSION" '
             $0 == ver { found = 1; next }
             found && /^## / { exit }

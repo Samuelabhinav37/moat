@@ -1,37 +1,46 @@
 name: Sign live fixes
 
-# Signs the live manifest after a fix lands in live/quick-fixes.json or
-# live/cosmetic-fixes.json (typically a report-bot pull request, merged by a
-# person), then publishes it. Fixes merged this way reach every install
-# within a day, without a store release.
+# Signs the live manifest after a change to live/ is merged by a person (a
+# report-bot fix, a weekly filter refresh, or a daily security update that
+# needed review), then publishes it. Changes merged this way reach every
+# install within a day, without a store release.
 #
 # Only this workflow and security-live.yml hold LIVE_SIGNING_PRIVATE_KEY. A
-# pull request never touches live/manifest.json or its signature: that's
-# regenerated here, from what was merged.
+# pull request never signs live/manifest.json: that's regenerated here, from
+# what was merged.
+#
+# Two jobs: `check` installs npm packages to run the fix-format tests, so it
+# gets no key and a read-only token. `sign` installs nothing; it runs only
+# scripts/update-live-manifest.mjs, which uses Node's own crypto. A
+# compromised npm package can fail the check, but can't reach the key.
 
 on:
   push:
     branches: [master]
     paths:
-      - "live/quick-fixes.json"
-      - "live/cosmetic-fixes.json"
+      - "live/*.json"
   workflow_dispatch:
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
 
 concurrency:
   group: sign-live
   cancel-in-progress: false
 
 jobs:
-  sign:
+  check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      needed: ${{ steps.check.outputs.needed }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "24"
 
@@ -46,8 +55,23 @@ jobs:
           npm ci --ignore-scripts
           npx vitest run src/background/liveFixesData.test.ts src/background/quickFixRules.test.ts src/background/liveCosmeticFixes.test.ts
 
+  sign:
+    needs: check
+    if: needs.check.outputs.needed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+
       - name: Sign the live manifest
-        if: steps.check.outputs.needed == 'true'
         env:
           LIVE_SIGNING_PRIVATE_KEY: ${{ secrets.LIVE_SIGNING_PRIVATE_KEY }}
         run: |
@@ -55,17 +79,14 @@ jobs:
           node scripts/check-live-manifest.mjs
 
       - name: Commit and publish
-        if: steps.check.outputs.needed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add live/manifest.json live/manifest.json.sig
-          git commit -m "live: sign fixes ($(git log -1 --format=%h -- live/quick-fixes.json live/cosmetic-fixes.json))"
+          git add live/
+          git commit -m "live: sign ($(git log -1 --format=%h -- live/))"
           git pull --rebase origin master
-          git push origin HEAD:master
-          # Pushes made with the workflow's own token don't start other
-          # workflows, so start the gh-pages deploy explicitly.
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:master
           gh workflow run publish-live.yml --ref master

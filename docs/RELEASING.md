@@ -64,13 +64,19 @@ identifies exactly the source used for submitted packages.
 - To turn on **manifest signing**: `node scripts/gen-live-signing-key.mjs` once, put the private
   key PEM in the `LIVE_SIGNING_PRIVATE_KEY` Actions secret, paste the public key into
   `src/shared/liveSigningKey.ts`, and commit a `npm run filters:update` (which now also writes
-  `live/manifest.json.sig`). **Done as of 0.11.126.** Only `filter-refresh.yml` is given the secret,
-  because it's the one workflow that changes `live/*.json`. Every other workflow keeps the
-  committed `.sig` while it still verifies, and fails loudly if a live file changed without the
-  key. To re-sign after a hand edit to `live/`:
-  `LIVE_SIGNING_PRIVATE_KEY="$(cat key.pem)" node scripts/update-live-manifest.mjs`.
+  `live/manifest.json.sig`). **Done as of 0.11.126.** Since 0.11.251 only two jobs hold the
+  secret, and neither runs npm package code: `security-live.yml` (its scripts use only Node's own
+  modules) signs a normal day's lists, and the `sign` job in `sign-live.yml` signs anything in
+  `live/` that a person merged. `filter-refresh.yml` installs packages, so it never gets the key:
+  it leaves the manifest unsigned in its PR (`LIVE_SIGN_LATER=1`), and `sign-live.yml` signs it
+  after the merge. A daily update that needs review is also left unsigned until it's merged, since
+  a signed manifest stays valid forever. Every other workflow keeps the committed `.sig` while it
+  still verifies, and fails loudly if a live file changed without the key. To re-sign after a hand
+  edit to `live/`: `LIVE_SIGNING_PRIVATE_KEY="$(cat key.pem)" node scripts/update-live-manifest.mjs`.
+- **Manifests carry a rising `sequence`** (0.11.251). Installed copies refuse one lower than the
+  last they accepted, so the host can't replay an old signed update. Don't hand-edit `sequence`.
 - **From 0.11.194 the extension rejects a live update with no `.sig`** (a build with a public key
-  only falls back to the per-file hashes when the browser has no Ed25519). Never publish
+  never falls back to the per-file hashes alone; 0.11.251 needs Chrome 137+ for Ed25519). Never publish
   `live/manifest.json` without its matching `manifest.json.sig`, or every install keeps its last
   good copy until a signed one appears.
 - The weekly refresh opens its PR with the Actions token, which needs *Settings → Actions →
