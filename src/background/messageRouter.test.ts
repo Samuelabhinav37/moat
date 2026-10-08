@@ -262,6 +262,27 @@ describe("handleMessage: content-script requests", () => {
     expect(liveHeuristics.recordFired).toHaveBeenCalledWith(7, "feedAdRemoval", 4);
     expect(usageStats.recordSignalEvent).toHaveBeenCalledWith("feedAdRemoval", "news.example", 4);
   });
+
+  it("files a content script's messages under the site it really runs on", async () => {
+    vi.mocked(usageStats.recordSignalEvent).mockClear();
+    await send({ type: "record-usage-signal", hostname: "other.example", signal: "feedAdRemoval", count: 1 }, contentSender());
+    expect(usageStats.recordSignalEvent).toHaveBeenCalledWith("feedAdRemoval", "news.example", 1);
+
+    vi.mocked(genericSelectorCache.rememberGenericSelectors).mockClear();
+    await send({ type: "get-cosmetic-generics", hostname: "other.example", hashes: ["abc"] }, contentSender());
+    expect(vi.mocked(genericSelectorCache.rememberGenericSelectors).mock.calls.every(([host]) => host === "news.example")).toBe(true);
+  });
+
+  it("keeps only rule hits for the sender's own site or a parent domain", async () => {
+    const customRuleStats = await import("./customRuleStats");
+    vi.mocked(customRuleStats.recordRuleMatches).mockClear();
+    const hit = (hostname: string) => ({ hostname, selector: ".ad" });
+    await send(
+      { type: "record-custom-rule-match", hideHits: [hit("m.news.example"), hit("news.example"), hit("bank.example")], grayscaleHits: [hit("other.example")] },
+      { ...contentSender(), url: "https://m.news.example/story" }
+    );
+    expect(customRuleStats.recordRuleMatches).toHaveBeenCalledWith([hit("m.news.example"), hit("news.example")], []);
+  });
 });
 
 describe("handleMessage: start-element-picker", () => {

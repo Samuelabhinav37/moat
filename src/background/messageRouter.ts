@@ -32,6 +32,7 @@ import {
   setSettings,
   setSiteDisabled,
 } from "./settings";
+import { matchesDomainOrSubdomain } from "../shared/domainChain";
 import { OVERRIDABLE_KEYS } from "../shared/perSiteOverrides";
 import { blobWorkersAllowed } from "./frameCsp";
 import { exportSettings, isBoundedStringArray, isSelectorMap, validateImportedSettings } from "./settingsPortability";
@@ -133,6 +134,20 @@ const CONTENT_SCRIPT_MESSAGES: ReadonlySet<string> = new Set([
 export function isExtensionPageSender(sender: Runtime.MessageSender): boolean {
   const base = browser.runtime.getURL("");
   return sender.id === browser.runtime.id && typeof sender.url === "string" && sender.url.startsWith(base);
+}
+
+/** The site a content script is actually running on, from the browser's own
+ * record of the sender. Content scripts also send a hostname of their own,
+ * but a compromised page could send any; this one it can't change. "" for
+ * a frame without a web address (about:blank). */
+function senderHostname(sender: Runtime.MessageSender): string {
+  return hostnameOf(sender.url ?? sender.tab?.url);
+}
+
+/** Rule hits a content script may report: only rules for its own site or a
+ * parent domain of it, the only ones it could have matched. */
+function ownSiteHits<T extends { hostname: string }>(hits: T[], hostname: string): T[] {
+  return hostname ? hits.filter((hit) => matchesDomainOrSubdomain(hostname, [hit.hostname])) : [];
 }
 
 function isRuntimeMessage(value: unknown): value is RuntimeMessage {
@@ -297,11 +312,12 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
       // hostname/hashes come from the DOM surveyor in a content script the
       // TS types trust, but the listener validates the boundary itself --
       // same stance as every other case here.
-      if (!isValidMessageString(message.hostname) || !Array.isArray(message.hashes)) return undefined;
+      const genericsHost = fromExtensionPage ? message.hostname : senderHostname(sender);
+      if (!isValidMessageString(genericsHost) || !Array.isArray(message.hashes)) return undefined;
       const hashes = message.hashes.filter((h): h is string => typeof h === "string" && h.length > 0 && h.length <= 16);
       if (hashes.length === 0) return Promise.resolve({ selectors: [] });
       return (async () => {
-        const { selectors } = await cosmeticGenericsFor(message.hostname, hashes);
+        const { selectors } = await cosmeticGenericsFor(genericsHost, hashes);
         // Inject worker-side, same user-origin stylesheet path as the
         // up-front CSS. The selectors are still returned so the surveyor
         // knows the batch was productive (its self-disable counter).
@@ -310,14 +326,15 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
         }
         // Top frame only: the next page load on this site gets them in the
         // commit-time stylesheet, before first paint (genericSelectorCache.ts).
-        if ((sender.frameId ?? 0) === 0) void rememberGenericSelectors(message.hostname, selectors);
+        if ((sender.frameId ?? 0) === 0) void rememberGenericSelectors(genericsHost, selectors);
         return { selectors };
       })();
     }
 
     case "get-procedural-rules": {
-      if (!isValidMessageString(message.hostname)) return undefined;
-      return proceduralRulesFor(message.hostname);
+      const proceduralHost = fromExtensionPage ? message.hostname : senderHostname(sender);
+      if (!isValidMessageString(proceduralHost)) return undefined;
+      return proceduralRulesFor(proceduralHost);
     }
 
     case "get-fingerprint-seed": {
@@ -434,7 +451,8 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
     }
 
     case "record-usage-signal": {
-      if (!isValidMessageString(message.hostname)) return undefined;
+      const signalHost = fromExtensionPage ? message.hostname : senderHostname(sender);
+      if (!isValidMessageString(signalHost)) return undefined;
       if (!(SIGNAL_KEYS as readonly string[]).includes(message.signal)) return undefined;
       const count = clampUsageSignalCount(message.count);
       // Live, per-page-load counter for the Diagnostics page (DR-16) --
@@ -442,7 +460,7 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
       // this doesn't replace. Same `count` (searchSlop's real batch size)
       // as the history write just below, so the two never disagree.
       if (sender.tab?.id !== undefined) recordFired(sender.tab.id, message.signal, count);
-      return recordSignalEvent(message.signal, message.hostname, count).then(() => undefined);
+      return recordSignalEvent(message.signal, signalHost, count).then(() => undefined);
     }
 
     case "get-filter-list-matches": {
@@ -459,7 +477,11 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
       if (!isHostnameSelectorHits(message.hideHits) || !isHostnameSelectorHits(message.grayscaleHits)) {
         return undefined;
       }
-      return recordRuleMatches(message.hideHits, message.grayscaleHits).then(() => undefined);
+      const site = senderHostname(sender);
+      const hideHits = fromExtensionPage ? message.hideHits : ownSiteHits(message.hideHits, site);
+      const grayscaleHits = fromExtensionPage ? message.grayscaleHits : ownSiteHits(message.grayscaleHits, site);
+      if (hideHits.length === 0 && grayscaleHits.length === 0) return undefined;
+      return recordRuleMatches(hideHits, grayscaleHits).then(() => undefined);
     }
 
     case "check-for-live-updates": {

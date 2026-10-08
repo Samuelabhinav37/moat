@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.256
+
+### Security
+- **A page can't file Moat's statistics under another site.** What Moat runs inside a page told
+  Moat which site it was on, and Moat believed it. It now uses the browser's own record of the
+  site instead, so a compromised page can't fill another site's counts or cached page fixes.
+
 ## 0.11.255
 
 ### Security
