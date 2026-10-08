@@ -1003,6 +1003,9 @@ function renderLiveStatus(
       [String(youtubeStatus.selectorCount)]
     );
   }
+  if (status.stale) {
+    text += tFallback("optionsLiveStatusStale", " The newest update is more than two weeks old, so updates may have stopped.");
+  }
   liveStatus.textContent = text;
 }
 

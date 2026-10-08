@@ -202,7 +202,9 @@ export function buildManifest(target: "chrome" | "firefox") {
   if (target === "chrome") {
     return {
       ...manifest,
-      minimum_chrome_version: "111",
+      // 137 is the first Chrome with Ed25519 in WebCrypto. Below it the live
+      // channel's signature couldn't be checked (background/liveSignature.ts).
+      minimum_chrome_version: "137",
       // Non-blocking only -- MV3 disallows "webRequestBlocking" for regular
       // extensions on Chrome (Firefox continues to allow it below). Lets
       // background/cnameUncloakChrome.ts *observe* candidate requests for

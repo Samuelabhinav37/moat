@@ -15,6 +15,7 @@ import {
   MIN_REFETCH_INTERVAL_MS,
   YT_MIN_REFETCH_INTERVAL_MS,
   getYoutubeQuickFixesStatus,
+  manifestSequenceAllowed,
   sha256Hex,
   shouldSkipRefetch,
 } from "./liveUpdates";
@@ -79,3 +80,23 @@ describe("the YouTube quick-fixes channel", () => {
   });
 });
 
+
+describe("manifestSequenceAllowed", () => {
+  it("accepts the first manifest, sequenced or not", () => {
+    expect(manifestSequenceAllowed(null, null)).toBe(true);
+    expect(manifestSequenceAllowed(1_791_000_000, null)).toBe(true);
+  });
+
+  it("accepts the same or a newer sequence", () => {
+    expect(manifestSequenceAllowed(1_791_000_000, 1_791_000_000)).toBe(true);
+    expect(manifestSequenceAllowed(1_791_000_500, 1_791_000_000)).toBe(true);
+  });
+
+  it("refuses an older signed manifest replayed by the host", () => {
+    expect(manifestSequenceAllowed(1_790_000_000, 1_791_000_000)).toBe(false);
+  });
+
+  it("refuses an unsequenced manifest once a sequenced one was applied", () => {
+    expect(manifestSequenceAllowed(null, 1_791_000_000)).toBe(false);
+  });
+});

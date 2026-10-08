@@ -59,7 +59,12 @@ const INJECT_MARKER = "#$#";
 // a stylesheet from outside this build's own vendored/validated content.
 // expression(: legacy IE CSS-expression code execution -- inert in any
 // browser Moat supports, blocked anyway since it costs nothing to.
-const DECLARATION_DISALLOWED = /<\/?style|`|@import|expression\(/i;
+// url( / image-set( / image( / src(: each makes the page load an address the
+// list chose, so a list rule could ping a server from every Moat user, and
+// with attribute selectors (input[value^="a"]) leak what's typed into a page.
+// uBlock Origin refuses url() in :style() for the same reason. A backslash
+// is refused too, since CSS escapes could spell any of these indirectly.
+const DECLARATION_DISALLOWED = /<\/?style|`|\\|@import|expression\(|url\(|image-set\(|image\(|src\(/i;
 const MAX_DECLARATION_LENGTH = 2000;
 
 export function isSafeCssDeclarationText(declaration) {

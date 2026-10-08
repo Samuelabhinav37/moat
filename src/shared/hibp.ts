@@ -22,5 +22,10 @@ export function splitHashForRangeQuery(hashHex: string): { prefix: string; suffi
  * comparison rather than assuming an exact line ending). */
 export function isSuffixInRangeResponse(responseBody: string, suffix: string): boolean {
   const target = suffix.trim().toUpperCase();
-  return responseBody.split("\n").some((line) => line.split(":")[0]?.trim().toUpperCase() === target);
+  return responseBody.split("\n").some((line) => {
+    const [hash, count] = line.split(":");
+    // Padded responses (the Add-Padding header) add made-up suffixes with a
+    // count of 0. Only a real count means the password was in a breach.
+    return hash?.trim().toUpperCase() === target && Number(count ?? "1") > 0;
+  });
 }

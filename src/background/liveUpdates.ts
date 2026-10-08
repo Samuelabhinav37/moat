@@ -101,6 +101,8 @@ interface LiveUpdateStatus {
   cosmeticFixCount?: number;
   /** Domains in the daily security lists last applied (liveSecurityRules.ts). */
   securityDomainCount?: number;
+  /** The newest signed manifest is over STALE_MANIFEST_MS old. */
+  stale?: boolean;
 }
 
 export async function getLiveUpdateStatus(): Promise<LiveUpdateStatus | null> {
@@ -114,6 +116,36 @@ async function setStatus(status: LiveUpdateStatus): Promise<void> {
 
 interface LiveManifestFetch {
   files: Record<string, string>;
+  sequence: number | null;
+  generated: number | null;
+}
+
+const SEQUENCE_KEY = "liveManifestSequence";
+/** A signed manifest older than this means updates have stopped: the host
+ * may be replaying the newest copy it has. */
+export const STALE_MANIFEST_MS = 14 * 24 * 60 * 60 * 1000;
+
+/** Whether a signed manifest may replace what's applied. The signature
+ * proves who made it, not when, so without this anyone who can serve files
+ * at the update host could replay an older signed manifest (all of them are
+ * public in git history) and roll the lists back. Manifests carry a rising
+ * `sequence`; one lower than the last accepted is refused, and so is one
+ * without a sequence once a sequenced one has been seen. Pure; exported for
+ * tests. */
+export function manifestSequenceAllowed(sequence: number | null, lastAccepted: number | null): boolean {
+  if (sequence === null) return lastAccepted === null;
+  return lastAccepted === null || sequence >= lastAccepted;
+}
+
+async function lastAcceptedSequence(): Promise<number | null> {
+  const value = (await browser.storage.local.get(SEQUENCE_KEY))[SEQUENCE_KEY];
+  return typeof value === "number" && Number.isSafeInteger(value) ? value : null;
+}
+
+async function acceptSequence(sequence: number | null): Promise<void> {
+  if (sequence === null) return;
+  const last = await lastAcceptedSequence();
+  if (last === null || sequence > last) await browser.storage.local.set({ [SEQUENCE_KEY]: sequence });
 }
 
 async function fetchLiveManifest(): Promise<LiveManifestFetch> {
@@ -126,16 +158,19 @@ async function fetchLiveManifest(): Promise<LiveManifestFetch> {
 
   // Ed25519 check first. A bad or missing signature rejects the whole update
   // (see liveSignature.ts for why a missing one can't fall back to the
-  // hashes). Only a build with no key, or an engine without Ed25519, falls
-  // through to the per-payload SHA-256 check alone.
+  // hashes). Only a build with no key falls through to the per-payload
+  // SHA-256 check alone.
   const signatureB64 = await fetchManifestSignature();
   const sigResult = await verifyLiveManifest(bytes, signatureB64);
   if (!isManifestTrusted(sigResult)) throw new Error(`live manifest signature: ${sigResult}`);
 
-  const parsed = JSON.parse(new TextDecoder().decode(bytes)) as { files?: unknown };
+  const parsed = JSON.parse(new TextDecoder().decode(bytes)) as { files?: unknown; sequence?: unknown; generated?: unknown };
   const files = parsed.files;
   if (typeof files !== "object" || files === null) throw new Error("live manifest has no files map");
-  return { files: files as Record<string, string> };
+  const sequence = typeof parsed.sequence === "number" && Number.isSafeInteger(parsed.sequence) && parsed.sequence > 0 ? parsed.sequence : null;
+  if (!manifestSequenceAllowed(sequence, await lastAcceptedSequence())) throw new Error("live manifest is older than the one already applied");
+  const generated = typeof parsed.generated === "string" ? Date.parse(parsed.generated) : NaN;
+  return { files: files as Record<string, string>, sequence, generated: Number.isFinite(generated) ? generated : null };
 }
 
 async function fetchManifestSignature(): Promise<string | null> {
@@ -195,7 +230,7 @@ export async function fetchAndApply(options: { force?: boolean } = {}): Promise<
   if (!options.force && shouldSkipRefetch(await getLiveUpdateStatus(), Date.now())) return;
 
   try {
-    const { files: hashes } = await fetchLiveManifest();
+    const { files: hashes, sequence, generated } = await fetchLiveManifest();
     const domainCount = await refreshRedirectDomains(hashes["redirect-domains.json"]);
 
     // A failure in either secondary channel shouldn't fail the whole refresh
@@ -230,6 +265,7 @@ export async function fetchAndApply(options: { force?: boolean } = {}): Promise<
       }
     }
 
+    await acceptSequence(sequence);
     await setStatus({
       ok: true,
       timestamp: Date.now(),
@@ -237,6 +273,7 @@ export async function fetchAndApply(options: { force?: boolean } = {}): Promise<
       quickFixCount,
       cosmeticFixCount,
       securityDomainCount,
+      ...(generated !== null && Date.now() - generated > STALE_MANIFEST_MS ? { stale: true } : {}),
     });
   } catch {
     // Offline, CDN unreachable, or a hash that didn't match the shipped
@@ -326,8 +363,9 @@ async function fetchAndApplyYoutubeQuickFixes(): Promise<void> {
   if (shouldSkipRefetch(await getYoutubeQuickFixesStatus(), Date.now(), YT_MIN_REFETCH_INTERVAL_MS)) return;
 
   try {
-    const { files: hashes } = await fetchLiveManifest();
+    const { files: hashes, sequence } = await fetchLiveManifest();
     const selectorCount = await refreshYoutubeQuickFixes(hashes["youtube-quick-fixes.json"]);
+    await acceptSequence(sequence);
     await setYoutubeStatus({
       ok: true,
       timestamp: Date.now(),

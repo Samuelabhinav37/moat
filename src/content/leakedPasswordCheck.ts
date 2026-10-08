@@ -52,8 +52,13 @@ export async function checkPassword(input: HTMLInputElement): Promise<void> {
   try {
     // no-referrer: this is a third-party request explicitly designed to
     // minimize what HIBP learns (only a 5-char hash prefix) -- the default
-    // referrer behavior shouldn't add anything on top of that.
-    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, { referrerPolicy: "no-referrer" });
+    // referrer behavior shouldn't add anything on top of that. Add-Padding
+    // makes every response a similar size, so someone watching the
+    // encrypted traffic can't guess the prefix from the response length.
+    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
+      referrerPolicy: "no-referrer",
+      headers: { "Add-Padding": "true" },
+    });
     if (!response.ok) return; // best-effort -- retry on the next blur/submit, not marked checked
     body = await response.text();
   } catch {

@@ -12,8 +12,13 @@
 //
 // Run as the last step of `npm run filters:update`, and by hand any time a
 // live/*.json is edited (then `git push`).
+//
+// LIVE_SIGN_LATER=1: a live/*.json changed in a job that must not hold the
+// key (one that installs npm packages, or whose change waits for review).
+// The manifest is rewritten and the stale .sig removed; sign-live.yml signs
+// it after the change is merged.
 import { createHash, sign as edSign, verify as edVerify, createPrivateKey, createPublicKey } from "node:crypto";
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -66,11 +71,18 @@ for (const name of TRACKED_FILES) {
   files[name] = sha256Hex(Buffer.from(text, "utf8"));
 }
 
-// No timestamp field: the manifest is byte-stable when the hashes don't
-// change, so re-running this (every `filters:update`, every CI run) produces
-// no git diff unless a live file actually changed.
+// `sequence` and `generated` let an installed copy refuse an older signed
+// manifest replayed by the host (src/background/liveUpdates.ts). They only
+// move when a live file changes, so re-running this (every
+// `filters:update`, every CI run) still produces no git diff otherwise.
 const outPath = join(liveDir, "manifest.json");
-const manifestBytes = Buffer.from(JSON.stringify({ files }, null, 2) + "\n", "utf8");
+const previous = existsSync(outPath) ? JSON.parse(readFileSync(outPath, "utf8")) : {};
+const unchanged = JSON.stringify(previous.files ?? {}) === JSON.stringify(files);
+const previousSequence = Number.isSafeInteger(previous.sequence) ? previous.sequence : 0;
+const sequence = Math.max(Math.floor(Date.now() / 1000), previousSequence + 1);
+const manifestBytes = unchanged
+  ? Buffer.from(JSON.stringify(previous, null, 2) + "\n", "utf8")
+  : Buffer.from(JSON.stringify({ sequence, generated: new Date(sequence * 1000).toISOString(), files }, null, 2) + "\n", "utf8");
 writeFileSync(outPath, manifestBytes);
 
 const sigPath = join(liveDir, "manifest.json.sig");
@@ -86,6 +98,9 @@ if (keyPem && keyPem.includes("PRIVATE KEY")) {
   // filters:update, and only the one that actually changes live/*.json
   // (filter-refresh.yml, which is given the secret) needs to re-sign.
   console.log(`live/manifest.json unchanged, existing .sig still verifies (${TRACKED_FILES.length} files, signed)`);
+} else if (existsSync(sigPath) && process.env.LIVE_SIGN_LATER === "1") {
+  unlinkSync(sigPath);
+  console.log(`live/manifest.json updated (${TRACKED_FILES.length} files), unsigned until sign-live.yml signs it after merge`);
 } else if (existsSync(sigPath)) {
   // A committed .sig with no key available this run used to be silently
   // deleted here, which would let the live channel quietly regress from

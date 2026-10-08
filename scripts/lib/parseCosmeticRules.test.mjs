@@ -101,6 +101,14 @@ describe("parseCosmeticLine", () => {
     expect(isSafeCssDeclarationText("</style><script>alert(1)</script>")).toBe(false);
   });
 
+  it("isSafeCssDeclarationText refuses anything that makes the page load an address", () => {
+    expect(isSafeCssDeclarationText("background: url(https://ping.example/x) !important;")).toBe(false);
+    expect(isSafeCssDeclarationText("background-image: URL( //ping.example/x );")).toBe(false);
+    expect(isSafeCssDeclarationText("background-image: image-set('https://ping.example/x' 1x);")).toBe(false);
+    expect(isSafeCssDeclarationText("background: u\\72l(https://ping.example/x);")).toBe(false);
+    expect(isSafeCssDeclarationText("margin-top: 0 !important; height: auto !important;")).toBe(true);
+  });
+
   it("rejects a CSS-injection selector using extended-selector syntax", () => {
     expect(parseCosmeticLine("example.com#$#div:contains(x) { display: none; }")).toBeNull();
   });

@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.251
+
+### Security
+- **Moat refuses an older update replayed as new.** Each daily update is signed, but the signature
+  proved who made it, not when. Anyone able to serve files at the update address could send an
+  older signed update again, and every past one is public, so they could roll the lists back or
+  freeze them. Updates now carry a signed number that only goes up, and Moat refuses one lower
+  than the last it accepted. If the newest update Moat can get is more than two weeks old,
+  Settings › About says updates may have stopped.
+- **Every update must be signed.** Chrome versions before 137 can't check the signature, and Moat
+  used to accept unsigned updates there. Moat now needs Chrome 137 or newer (Firefox already needed
+  140), and an update it can't check is refused.
+- **Filter lists can't make pages load outside addresses.** A list's style rule could have included
+  a web address, making every Moat user's browser contact it, or used it to leak what's typed into
+  a form. Moat now drops any such rule, the way uBlock Origin does. No rule in today's lists did
+  this.
+- **The leaked-password check pads its answer.** It already sent only the first 5 characters of
+  the password's hash. Now the reply is padded to a similar size every time, so someone watching
+  the traffic can't guess even that from its length.
+
 ## 0.11.250
 
 ### Fixed

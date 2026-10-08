@@ -407,6 +407,10 @@
       }
     }
   },
+  "optionsLiveStatusStale": {
+    "message": " The newest update is more than two weeks old, so updates may have stopped.",
+    "description": "Settings › About, after the update status: the newest signed update Moat could get is over 14 days old."
+  },
   "optionsRuleCount": {
     "message": "$COUNT$ rules",
     "placeholders": {

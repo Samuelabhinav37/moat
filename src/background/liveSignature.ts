@@ -10,16 +10,18 @@
 //                   the per-file hashes live in the same unsigned manifest, so
 //                   whoever can delete the .sig can also rewrite the payloads.
 //   "no-key"     -- this build has no public key (signing not set up).
-//   "no-engine"  -- this engine has no WebCrypto Ed25519 (Chrome < 137 / old
-//                   Gecko). Fall back to the SHA-256-per-payload check rather
-//                   than cut those browsers off from updates.
+//   "no-engine"  -- this engine has no WebCrypto Ed25519. Reject: the
+//                   hashes alone prove nothing (see "no-sig"). Every browser
+//                   Moat supports has it (Chrome 137+, Firefox 140+), so this
+//                   only happens on a broken or unusual engine, which keeps
+//                   the bundled lists.
 import { LIVE_MANIFEST_PUBLIC_KEY } from "../shared/liveSigningKey";
 
 export type ManifestSigResult = "ok" | "bad" | "no-sig" | "no-key" | "no-engine";
 
 /** Whether a manifest with this result may be applied. */
 export function isManifestTrusted(result: ManifestSigResult): boolean {
-  return result === "ok" || result === "no-key" || result === "no-engine";
+  return result === "ok" || result === "no-key";
 }
 
 function base64ToBytes(b64: string): Uint8Array {
@@ -61,8 +63,7 @@ export async function verifyLiveManifest(
       ["verify"],
     );
   } catch {
-    // No Ed25519 in this engine's WebCrypto -- don't punish the user, just
-    // fall through to the hash check.
+    // No Ed25519 in this engine's WebCrypto. The caller rejects the update.
     return "no-engine";
   }
 

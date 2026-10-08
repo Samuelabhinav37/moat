@@ -38,6 +38,10 @@ describe("isSuffixInRangeResponse", () => {
     expect(isSuffixInRangeResponse(body, "0018A45C4D1DEF81644B54AB7F969B88D65")).toBe(true);
   });
 
+  it("ignores the made-up count-0 lines a padded response adds", () => {
+    expect(isSuffixInRangeResponse(`${body}\r\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA:0`, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")).toBe(false);
+  });
+
   it("returns false when the suffix isn't present", () => {
     expect(isSuffixInRangeResponse(body, "0000000000000000000000000000000000")).toBe(false);
   });

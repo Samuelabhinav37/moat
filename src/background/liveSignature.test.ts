@@ -58,14 +58,14 @@ describe("verifyLiveManifest", () => {
 });
 
 describe("isManifestTrusted", () => {
-  it("trusts a verified signature, a build with no key, and an engine without Ed25519", () => {
+  it("trusts a verified signature and a build with no key", () => {
     expect(isManifestTrusted("ok")).toBe(true);
     expect(isManifestTrusted("no-key")).toBe(true);
-    expect(isManifestTrusted("no-engine")).toBe(true);
   });
 
-  it("rejects a bad or missing signature", () => {
+  it("rejects a bad or missing signature, and an engine that can't check one", () => {
     expect(isManifestTrusted("bad")).toBe(false);
     expect(isManifestTrusted("no-sig")).toBe(false);
+    expect(isManifestTrusted("no-engine")).toBe(false);
   });
 });
