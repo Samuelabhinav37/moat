@@ -103,6 +103,14 @@ describe("urlFilterMatches", () => {
     expect(urlFilterMatches("||example.com/a|", "https://example.com/ab")).toBe(false);
     expect(urlFilterMatches("||example.com/a", "https://notexample.com/a")).toBe(false);
   });
+
+  it("stays fast on a many-wildcard list entry and a long near-miss address", () => {
+    const filter = "||amazonaws.com/*.*.*.*.*.*.*.*/*/index*.html";
+    expect(urlFilterMatches(filter, "https://b.s3.amazonaws.com/a.b.c.d.e.f.g.h/x/index1.html")).toBe(true);
+    const started = performance.now();
+    expect(urlFilterMatches(filter, `https://b.s3.amazonaws.com/${".".repeat(5000)}/a`)).toBe(false);
+    expect(performance.now() - started).toBeLessThan(500);
+  });
 });
 
 describe("securityGroupFor", () => {

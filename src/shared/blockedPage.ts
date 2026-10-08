@@ -160,21 +160,64 @@ export function destinationIn(link: string): string | null {
  * blocks on other hosts, each stored as the part after "||host". */
 export type SecurityHostsIndex = Record<string, { hosts: string[]; pages: Record<string, string[]> }>;
 
+const SEPARATOR = /[^a-z0-9_.%-]/;
+
+/** Where `part` (plain characters and "^") ends if it matches `url` at
+ * `at`, or -1. "^" is one separator character, or nothing at the end. */
+function partEnd(url: string, at: number, part: string): number {
+  let i = at;
+  for (const ch of part) {
+    if (ch === "^") {
+      if (i === url.length) continue;
+      if (!SEPARATOR.test(url.charAt(i))) return -1;
+    } else if (url[i] !== ch) {
+      return -1;
+    }
+    i++;
+  }
+  return i;
+}
+
+/** The "*"-separated parts matched in order from `start`, each at its
+ * first fit. That finds a match whenever one exists, without the
+ * backtracking a regex does: "*.*.*.*.*.*.*.*" (a real list entry) as a
+ * regex takes seconds on a URL with 50 dots. */
+function partsMatch(url: string, start: number, parts: readonly string[], anchored: boolean): boolean {
+  let pos = partEnd(url, start, parts[0] ?? "");
+  if (pos < 0) return false;
+  for (let k = 1; k < parts.length; k++) {
+    const last = k === parts.length - 1;
+    let next = -1;
+    for (let p = pos; p <= url.length && next < 0; p++) {
+      const end = partEnd(url, p, parts[k] ?? "");
+      if (end >= 0 && (!last || !anchored || end === url.length)) next = end;
+    }
+    if (next < 0) return false;
+    pos = next;
+  }
+  return !anchored || pos === url.length;
+}
+
 /** Whether a "||host..." urlFilter matches a page address, the way
- * declarativeNetRequest reads it: "*" is anything, "^" is a separator or
- * the end, a final "|" anchors the end, case doesn't matter. */
+ * declarativeNetRequest reads it: it starts at the host or after a dot in
+ * it, "*" is anything, "^" is a separator or the end, a final "|" anchors
+ * the end, case doesn't matter. */
 export function urlFilterMatches(filter: string, url: string): boolean {
   if (!filter.startsWith("||")) return false;
-  let body = filter.slice(2);
+  let body = filter.slice(2).toLowerCase();
   const anchored = body.endsWith("|");
   if (anchored) body = body.slice(0, -1);
-  let pattern = "";
-  for (const ch of body) {
-    if (ch === "*") pattern += ".*";
-    else if (ch === "^") pattern += "(?:[^a-z0-9_.%-]|$)";
-    else pattern += ch.replace(/[\\^$.*+?()[\]{}|/-]/g, "\\$&");
+  const parts = body.split("*");
+  const address = url.toLowerCase();
+  const hostStart = address.indexOf("://") + 3;
+  if (hostStart < 3) return false;
+  let hostEnd = address.slice(hostStart).search(/[/?#]/);
+  hostEnd = hostEnd < 0 ? address.length : hostStart + hostEnd;
+  for (let start = hostStart; start < hostEnd; start = address.indexOf(".", start) + 1) {
+    if (partsMatch(address, start, parts, anchored)) return true;
+    if (address.indexOf(".", start) < 0 || address.indexOf(".", start) >= hostEnd) return false;
   }
-  return new RegExp(`^[a-z][a-z0-9+.-]*://(?:[^/?#]*\\.)?${pattern}${anchored ? "$" : ""}`, "i").test(url);
+  return false;
 }
 
 /** The danger list that stops this address, if one that's switched on

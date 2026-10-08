@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.250
+
+### Fixed
+- **The block page can't stall Moat on a long address.** 0.11.249's check of single-page danger
+  entries turned each entry into a regular expression. A few entries have many wildcards, and on
+  an address with 50 dots one check took over 2 seconds, growing fast with more. While it ran,
+  Moat's popup and settings would freeze. The check now walks the address once per wildcard
+  part, so a 20,000-character address takes about 2 milliseconds.
+
 ## 0.11.249
 
 ### Fixed
