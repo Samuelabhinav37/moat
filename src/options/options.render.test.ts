@@ -615,7 +615,7 @@ describe("Overview: this week or last week", () => {
 
   it("says the number from last week, and can show last week's chart", async () => {
     await renderOptions(undefined, twoWeeks());
-    expect(document.getElementById("ov-headline")?.textContent).toBe("Up from 70 last week");
+    expect(document.getElementById("ov-headline")?.textContent).toBe("70 last week");
     expect(document.getElementById("ov-period")?.hidden).toBe(false);
 
     document.querySelector<HTMLButtonElement>('#ov-period [data-period="last"]')!.click();

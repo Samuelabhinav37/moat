@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.258
+
+### Changed
+- **Easier to read and to click.** Small links and buttons that stand on their own (Settings in the
+  popup, Change, Refresh, Show all lists and others) are now at least 24 pixels tall. The Camera,
+  Microphone and Location buttons say what they do ("Block requests for:") and show a tick when on.
+- **Stopped pages show their whole address.** Lists of pages Moat stopped used to cut long addresses
+  short, which hid the end, where a lookalike like "paypa1-secure.top" gives itself away.
+- **Last week's number is just a number.** "Up from" and "Down from" read like good or bad news, but
+  more blocking can simply mean more browsing.
+- The organization block page has a main landmark, and the welcome tour's menu pictures no longer
+  announce headings.
+
 ## 0.11.257
 
 ### Changed

@@ -482,6 +482,9 @@
   "optionsPermissionGuardMergedDesc": {
     "message": "Stops pages asking for your camera, microphone or location the moment they load. Allow a site from the popup when you trust it."
   },
+  "optionsChipsLabel": {
+    "message": "Block requests for:"
+  },
   "optionsChipCameraLabel": {
     "message": "Camera"
   },
@@ -2494,7 +2497,7 @@
     "description": "Overview: title of the week chart card."
   },
   "ovUpFrom": {
-    "message": "Up from $COUNT$ last week",
+    "message": "$COUNT$ last week",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2504,7 +2507,7 @@
     "description": "Overview, under this week's total: last week's total, shown in bold where the number goes."
   },
   "ovDownFrom": {
-    "message": "Down from $COUNT$ last week",
+    "message": "$COUNT$ last week",
     "placeholders": {
       "count": {
         "content": "$1",

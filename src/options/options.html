@@ -328,10 +328,26 @@
         color: var(--muted);
         background: var(--panel-2);
       }
+      .chip {
+        cursor: pointer;
+        min-height: 28px;
+      }
       .chip.on {
         border-color: var(--blue);
         background: var(--tint);
         color: var(--fg);
+      }
+      /* On reads as on without colour alone. */
+      .chip.on::before {
+        content: "\2713";
+        margin-right: 5px;
+        font-weight: 700;
+      }
+      .chips-label {
+        align-self: center;
+        font-size: 13px;
+        color: var(--muted);
+        margin-right: 2px;
       }
 
       /* ---------- How much to block: three level cards ---------- */
@@ -2391,6 +2407,15 @@
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+      .ov-rank-name--full {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      .ov-rank-note {
+        display: block;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
       .ov-rank-bar {
         display: block;
         height: 6px;
@@ -2757,10 +2782,9 @@
         gap: 8px;
         min-width: 0;
       }
+      /* Whole address, wrapped if long: a lookalike gives itself away at the end. */
       .stop-host {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        overflow-wrap: anywhere;
       }
       .stop-list {
         flex: none;

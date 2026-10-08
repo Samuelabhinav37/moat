@@ -210,6 +210,10 @@ export interface RankRow {
   /** 0..1 share for the bar, or null for no bar. */
   share: number | null;
   title?: string;
+  /** Show the whole name, wrapping if needed. For the addresses of pages
+   * Moat stopped: a lookalike like "paypa1-secure.top" gives itself away
+   * at the end, which an ellipsis would cut. */
+  fullName?: boolean;
 }
 
 export function buildTopCard(doc: Document, title: string, takeaway: string, rows: RankRow[], empty: string, link?: { href: string; label: string }): HTMLElement {
@@ -225,7 +229,9 @@ export function buildTopCard(doc: Document, title: string, takeaway: string, row
       const li = el(doc, "li");
       if (r.title) li.title = r.title;
       const text = el(doc, "div", "ov-rank-text");
-      text.append(el(doc, "span", "ov-rank-name", r.name));
+      text.append(el(doc, "span", r.fullName ? "ov-rank-name ov-rank-name--full" : "ov-rank-name", r.name));
+      // A full name takes the row's width; its value goes on a line below.
+      if (r.fullName) text.append(el(doc, "span", "ov-rank-note", r.value));
       if (r.share !== null) {
         const bar = el(doc, "span", "ov-rank-bar");
         const fill = el(doc, "i");
@@ -234,9 +240,12 @@ export function buildTopCard(doc: Document, title: string, takeaway: string, row
         bar.append(fill);
         text.append(bar);
       }
-      const value = el(doc, "span", "ov-rank-value", r.value);
-      if (r.sub) value.append(el(doc, "small", "", r.sub));
-      li.append(el(doc, "span", "ov-rank-pos", String(i + 1)), r.icon, text, value);
+      li.append(el(doc, "span", "ov-rank-pos", String(i + 1)), r.icon, text);
+      if (!r.fullName) {
+        const value = el(doc, "span", "ov-rank-value", r.value);
+        if (r.sub) value.append(el(doc, "small", "", r.sub));
+        li.append(value);
+      }
       list.append(li);
     });
     card.append(list);

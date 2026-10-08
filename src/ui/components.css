@@ -149,3 +149,28 @@
     transition: none;
   }
 }
+
+/* WCAG 2.5.8: a link or control that stands on its own (not inside a
+   sentence) gets a target at least 24px tall. Same look; the extra height
+   is padding. */
+#open-options,
+#week-link,
+#ov-status-change,
+#level-line-change,
+#filter-check-updates,
+#trackers-refresh,
+.flow-change,
+details > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+details > summary {
+  display: list-item;
+  padding-block: 2px;
+}
+input[type="checkbox"]:not(.switch input),
+input[type="radio"] {
+  width: 18px;
+  height: 18px;
+}

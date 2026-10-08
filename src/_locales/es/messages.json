@@ -480,6 +480,9 @@
   "optionsPermissionGuardMergedDesc": {
     "message": "Impide que las páginas pidan tu cámara, micrófono o ubicación nada más cargar. Permite un sitio desde la ventana emergente cuando confíes en él."
   },
+  "optionsChipsLabel": {
+    "message": "Bloquear solicitudes de:"
+  },
   "optionsChipCameraLabel": {
     "message": "Cámara"
   },
@@ -2333,7 +2336,7 @@
     "description": "Overview: title of the week chart card."
   },
   "ovUpFrom": {
-    "message": "Más que los $COUNT$ de la semana pasada",
+    "message": "La semana pasada: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2343,7 +2346,7 @@
     "description": "Overview, under this week's total: last week's total, shown in bold where the number goes."
   },
   "ovDownFrom": {
-    "message": "Menos que los $COUNT$ de la semana pasada",
+    "message": "La semana pasada: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",

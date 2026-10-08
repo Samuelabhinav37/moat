@@ -879,6 +879,14 @@ function buildFingerprintRotateRow(settings: Settings): HTMLElement {
 function buildPermissionGuardRow(settings: Settings): HTMLElement {
   const chips = document.createElement("div");
   chips.className = "permission-chips";
+  // The chips are switches: say so, and say what they switch.
+  const chipsLabel = document.createElement("span");
+  chipsLabel.className = "chips-label";
+  chipsLabel.id = "permission-chips-label";
+  chipsLabel.textContent = tFallback("optionsChipsLabel", "Block requests for:");
+  chips.setAttribute("role", "group");
+  chips.setAttribute("aria-labelledby", chipsLabel.id);
+  chips.append(chipsLabel);
   const kinds = [
     { key: "permissionGuardCamera", labelKey: ["optionsChipCameraLabel", "Camera"] },
     { key: "permissionGuardMicrophone", labelKey: ["optionsChipMicrophoneLabel", "Microphone"] },
@@ -2159,9 +2167,10 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
     if (before) {
       const n = document.createElement("b");
       n.textContent = before.toLocaleString();
+      // Neutral either way: more blocked can just mean more browsing.
       // The number goes in bold, so the sentence is split around a marker.
       const MARK = "{n}";
-      const sentence = week >= before ? tFallback("ovUpFrom", `Up from ${MARK} last week`, MARK) : tFallback("ovDownFrom", `Down from ${MARK} last week`, MARK);
+      const sentence = week >= before ? tFallback("ovUpFrom", `${MARK} last week`, MARK) : tFallback("ovDownFrom", `${MARK} last week`, MARK);
       const [lead, tail] = sentence.split(MARK);
       headline.append(document.createTextNode(lead ?? ""), n, document.createTextNode(tail ?? ""));
     } else {
@@ -2315,7 +2324,7 @@ async function renderOverviewTops(usage: UsageSummaryResponse): Promise<void> {
       document,
       tFallback("ovTopStopsTitle", "Pages Moat stopped"),
       tFallback("ovTopStopsSub", "Whole pages that never loaded"),
-      usage.pageStops.slice(0, 5).map((stop) => ({ icon: siteIcon(stop.hostname), name: stop.hostname, value: ago(stop.time), share: null })),
+      usage.pageStops.slice(0, 5).map((stop) => ({ icon: siteIcon(stop.hostname), name: stop.hostname, value: ago(stop.time), share: null, fullName: true })),
       tFallback("ovTopStopsEmpty", "None this week.")
     )
   );

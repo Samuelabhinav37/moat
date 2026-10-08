@@ -186,7 +186,7 @@
       .skeleton i { display: block; height: 14px; border-radius: 7px; background: #e3e1e7; }
       .skeleton .block { height: 150px; border-radius: 10px; }
       .ext-menu { position: absolute; top: 48px; right: 12px; width: min(330px, calc(100% - 24px)); background: #fff; color: #202124; border-radius: 12px; box-shadow: 0 12px 34px rgba(0,0,0,.25); padding: 16px 0 8px; font-size: 13.5px; z-index: 3; }
-      .ext-menu h4 { margin: 0 18px 10px; font-size: 15px; font-weight: 600; }
+      .ext-menu .menu-title { margin: 0 18px 10px; font-size: 15px; font-weight: 600; }
       .ext-menu .menu-sub { margin: 0 18px 8px; color: #5f6368; font-size: 12.5px; }
       .ext-row { display: flex; align-items: center; gap: 12px; padding: 8px 18px; }
       .ext-row .name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -386,7 +386,7 @@
             <div class="skeleton" aria-hidden="true"><i style="width: 40%"></i><i class="block"></i><i style="width: 80%"></i><i style="width: 65%"></i><i style="width: 72%"></i></div>
 
             <div class="ext-menu" id="menu-chrome" hidden>
-              <h4 data-i18n="tourMenuExtensions">Extensions</h4>
+              <p class="menu-title" data-i18n="tourMenuExtensions">Extensions</p>
               <p class="menu-sub" data-i18n="tourMenuAccess">Full access. These extensions can see and change information on this site.</p>
               <div class="ext-row">
                 <span class="moat-icon"><img src="icons/icon48.png" alt="" /></span>
@@ -400,7 +400,7 @@
             </div>
 
             <div class="ext-menu" id="menu-firefox" hidden>
-              <h4 data-i18n="tourMenuExtensions">Extensions</h4>
+              <p class="menu-title" data-i18n="tourMenuExtensions">Extensions</p>
               <div class="ext-row">
                 <span class="moat-icon"><img src="icons/icon48.png" alt="" /></span>
                 <span class="name">Moat</span>
