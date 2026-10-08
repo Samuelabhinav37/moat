@@ -161,7 +161,6 @@ One codebase builds for Chrome and Firefox. The Firefox build also targets **Fir
 | Permission | Why |
 | --- | --- |
 | `<all_urls>` (host permission) | So the content-script firewall runs on every page and `declarativeNetRequest` can act on every request. |
-| `tabs` | Read the URL/opener of new tabs for the popup safety net; show the right badge count per tab. |
 | `webNavigation` | Detect when a page spawns a new tab/window, and when a page finishes loading. |
 | `declarativeNetRequest` | The core network-blocking engine. |
 | `declarativeNetRequestFeedback` | Chrome-only, read-only match feedback for the popup's breakdown (`getMatchedRules`). |

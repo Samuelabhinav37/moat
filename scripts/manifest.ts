@@ -76,7 +76,8 @@ function baseManifest() {
     },
     permissions: [
       "storage",
-      "tabs",
+      // No "tabs": tab URLs, titles and pending URLs come with the
+      // <all_urls> host permission below for every page Moat works on.
       "webNavigation",
       "declarativeNetRequest",
       "declarativeNetRequestFeedback",

@@ -3,6 +3,12 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.257
+
+### Changed
+- **One permission fewer.** Moat no longer asks for "tabs". It only needed the address of the
+  page in a tab, which the access to websites it already has gives it.
+
 ## 0.11.256
 
 ### Security

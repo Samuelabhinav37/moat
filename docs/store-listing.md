@@ -120,7 +120,6 @@ policy is a common rejection reason.
 | Permission | Justification |
 | --- | --- |
 | Host permission `<all_urls>` | Core functionality: a content blocker must see requests and page content on every site to block/hide on it. No narrower host permission covers this. |
-| `tabs` | Read the URL/opener of a newly opened tab to distinguish a real navigation from a hijacked popup/redirect, and show the correct per-tab block count on the toolbar icon. |
 | `webNavigation` | Detect when a page opens a new tab/window and when navigation completes, to run the popup/redirect firewall at the right moment. |
 | `declarativeNetRequest` | Core network-blocking engine — all ad/tracker/malware blocking runs through this API, matched by the browser itself. |
 | `declarativeNetRequestFeedback` | Read-only match feedback (`getMatchedRules`) to show the user which categories (ads/trackers/popups) were blocked on the current page. |
