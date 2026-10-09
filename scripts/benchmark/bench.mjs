@@ -1,13 +1,16 @@
 // Competitive benchmark: Moat vs uBlock Origin Lite, AdGuard, Ghostery,
 // Adblock Plus, and no blocker. Each gets a fresh profile, its own defaults
-// and identical tests: the d3ward host list, eight ad-heavy sites, the
-// Cloudflare Turnstile test key, and cnn.com's request storm. Live sites, so
-// numbers move day to day; ~25 minutes. Results: .cache/benchmark/bench-results.json
+// and identical tests: the d3ward host list, a set of sites, the Cloudflare
+// Turnstile test key, and cnn.com's request storm. Live sites, so numbers
+// move day to day. Results: .cache/benchmark/bench-results[-<set>][-<blockers>].json
 //   npm run build && node scripts/benchmark/fetch-competitors.mjs
-//   node scripts/benchmark/bench.mjs [moat,ubol,...]
+//   node scripts/benchmark/bench.mjs [moat,ubol,...] [--set=ads|tranco] [--sites=N]
+// --set=ads (default): ad-heavy news, recipe and weather sites, ~25 minutes.
+// --set=tranco: every 5th site of the Tranco top 1000 (.cache/crawl/tranco-top1000.csv),
+// adult sites left out, first N (default 150). Then: node scripts/benchmark/report.mjs
 import puppeteer from "puppeteer-core";
 import { createServer } from "node:http";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,7 +18,9 @@ import { chromePath } from "../chrome-for-testing.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-const only = process.argv[2];
+const flags = Object.fromEntries(process.argv.slice(2).filter((a) => a.startsWith("--")).map((a) => a.slice(2).split("=")));
+const only = process.argv.slice(2).find((a) => !a.startsWith("--"));
+const SET = flags.set ?? "ads";
 const dir = join(root, ".cache", "benchmark");
 const exe = await chromePath(root);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -27,7 +32,7 @@ const EXT = {
   ghostery: `${dir}/ext/ghostery`,
   abp: `${dir}/ext/abp`,
 };
-const SITES = [
+const AD_SITES = [
   "https://weather.com/",
   "https://www.forbes.com/",
   "https://www.yahoo.com/",
@@ -36,7 +41,40 @@ const SITES = [
   "https://www.espn.com/",
   "https://www.independent.co.uk/",
   "https://www.speedtest.net/",
+  "https://www.allrecipes.com/",
+  "https://www.simplyrecipes.com/",
+  "https://www.theguardian.com/uk",
+  "https://www.foxnews.com/",
+  "https://www.bbc.com/news",
+  "https://www.reuters.com/",
+  "https://www.thesun.co.uk/",
 ];
+const ADULT = /porn|xvideo|xnxx|xhamster|sex|onlyfans|chaturbate|stripchat|livejasmin|bongacams|spankbang|redtube|youporn|hentai|erome|camsoda|fapello|nsfw/i;
+function trancoSites(n) {
+  const rows = readFileSync(join(root, ".cache", "crawl", "tranco-top1000.csv"), "utf8").split(/\r?\n/).map((l) => l.split(",")).filter((r) => r[1]);
+  return rows.filter(([rank]) => Number(rank) % 5 === 1).map((r) => r[1].trim()).filter((d) => !ADULT.test(d)).slice(0, n).map((d) => `https://${d}/`);
+}
+const SITES = SET === "tranco" ? trancoSites(Number(flags.sites ?? 150)) : AD_SITES.slice(0, Number(flags.sites ?? AD_SITES.length));
+
+// Tracker requests are classified with DuckDuckGo's tracker list, which none of
+// the blockers here ship as their own, so it doesn't favour any of them.
+//   curl -o .cache/benchmark/ddg-tds.json https://staticcdn.duckduckgo.com/trackerblocking/v5/current/extension-tds.json
+// Only entries DuckDuckGo blocks by default ("ignore" ones are CDNs and
+// widgets it only names for ownership), and never one owned by the same
+// company as the page (DuckDuckGo's domain -> company map).
+const TDS_FILE = join(dir, "ddg-tds.json");
+const TDS = existsSync(TDS_FILE) ? JSON.parse(readFileSync(TDS_FILE, "utf8")) : { trackers: {}, domains: {} };
+const TRACKERS = new Set(Object.entries(TDS.trackers).filter(([, t]) => t.default === "block").map(([d]) => d));
+const ownerOf = (h) => { const p = h.split("."); for (let i = 0; i < p.length - 1; i++) { const o = TDS.domains[p.slice(i).join(".")]; if (o) return o; } return null; };
+if (TRACKERS.size === 0) console.warn("No ddg-tds.json: tracker counts will be 0.");
+const SLD = new Set(["co.uk", "com.au", "co.jp", "com.br", "co.in", "com.cn", "co.kr", "com.tr", "com.mx", "co.za", "com.ar", "org.uk", "ne.jp", "or.jp", "com.tw", "com.hk", "com.sg"]);
+const site2 = (h) => { const p = h.split("."); return SLD.has(p.slice(-2).join(".")) ? p.slice(-3).join(".") : p.slice(-2).join("."); };
+function trackerOf(host) {
+  const p = host.split(".");
+  for (let i = 0; i < p.length - 1; i++) { const d = p.slice(i).join("."); if (TRACKERS.has(d)) return d; }
+  return null;
+}
+const SHOTS = join(dir, "shots", SET);
 const d3 = JSON.parse(readFileSync(`${dir}/d3ward.json`, "utf8"));
 const HOSTS = [];
 for (const [cat, groups] of Object.entries(d3)) for (const hosts of Object.values(groups)) for (const h of hosts) HOSTS.push({ cat, h });
@@ -106,19 +144,54 @@ async function battery(b) {
   return { blocked: HOSTS.filter((x) => blockedHosts.has(x.h)).length, total: HOSTS.length, byCat, missed: HOSTS.filter((x) => !blockedHosts.has(x.h) && x.cat !== "OEMs").map((x) => x.h) };
 }
 
-async function site(b, url) {
+async function site(b, url, name) {
   const p = await newPage(b);
   const cdp = await p.createCDPSession(); await cdp.send("Network.enable"); await cdp.send("Performance.enable");
   let reqs = 0, blocked = 0, bytes = 0;
-  cdp.on("Network.requestWillBeSent", () => reqs++);
+  // Tracker requests: third-party to the page, host on DuckDuckGo's list.
+  // "reached" got a response from the network; "stopped" was refused or
+  // answered by the extension itself (a stand-in script or pixel).
+  const trk = new Map(); let trackersReached = 0, trackersStopped = 0; const reachedTrackers = new Set();
+  let pageSite = "", pageOwner = null, docRequest = "";
+  cdp.on("Network.requestWillBeSent", (e) => {
+    reqs++;
+    let h = ""; try { const u = new URL(e.request.url); if (/^https?:$/.test(u.protocol)) h = u.hostname; } catch {}
+    // The page's own navigation, followed through redirects (x.com -> www.x.co).
+    if (e.type === "Document" && (!docRequest || e.requestId === docRequest)) { docRequest = e.requestId; if (h) { pageSite = site2(h); pageOwner = ownerOf(h); } return; }
+    if (e.redirectResponse && trk.has(e.requestId) && !h) { trackersStopped++; trk.delete(e.requestId); return; }
+    if (e.redirectResponse || !h) return;
+    const t = trackerOf(h);
+    if (t && pageSite && site2(h) !== pageSite && !(pageOwner && ownerOf(h) === pageOwner)) trk.set(e.requestId, t);
+  });
+  cdp.on("Network.responseReceived", (e) => {
+    const t = trk.get(e.requestId); if (!t) return;
+    if (/^https?:/.test(e.response.url) && !e.response.fromServiceWorker) { trackersReached++; reachedTrackers.add(t); } else trackersStopped++;
+    trk.delete(e.requestId);
+  });
   cdp.on("Network.loadingFinished", (e) => (bytes += e.encodedDataLength));
-  cdp.on("Network.loadingFailed", (e) => { if (e.errorText === "net::ERR_BLOCKED_BY_CLIENT") blocked++; });
-  await p.evaluateOnNewDocument(() => { window.__lcp = 0; new PerformanceObserver((l) => { for (const e of l.getEntries()) window.__lcp = e.startTime; }).observe({ type: "largest-contentful-paint", buffered: true }); });
-  await p.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 }).catch(() => {});
+  cdp.on("Network.loadingFailed", (e) => {
+    if (e.errorText === "net::ERR_BLOCKED_BY_CLIENT") { blocked++; if (trk.has(e.requestId)) trackersStopped++; }
+    trk.delete(e.requestId);
+  });
+  let pageErrors = 0; p.on("pageerror", () => pageErrors++);
+  await p.evaluateOnNewDocument(() => {
+    window.__lcp = 0; window.__cls = 0;
+    new PerformanceObserver((l) => { for (const e of l.getEntries()) window.__lcp = e.startTime; }).observe({ type: "largest-contentful-paint", buffered: true });
+    new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
+  });
+  const res = await p.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 }).catch(() => null);
+  const status = res ? res.status() : 0;
+  // CLS before scrolling: wheel input counts as recent input, but lazy
+  // content scrolled into view would muddy "how much does the page jump".
   await sleep(6000);
+  const cls = await p.evaluate(() => window.__cls).catch(() => null);
   for (let i = 0; i < 4; i++) { await p.mouse.wheel({ deltaY: 700 }).catch(() => {}); await sleep(1000); }
   await p.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
   await sleep(2000);
+  let host = ""; try { host = new URL(url).hostname; } catch {}
+  mkdirSync(join(SHOTS, name), { recursive: true });
+  await p.screenshot({ path: join(SHOTS, name, `${host}.jpg`), type: "jpeg", quality: 45 }).catch(() => {});
+  const textLen = await p.evaluate(() => (document.body?.innerText ?? "").trim().length).catch(() => 0);
   const dom = await p.evaluate((reSrc, cmp) => {
     const re = new RegExp(reSrc, "i");
     const vis = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width >= 100 && r.height >= 50 && cs.display !== "none" && cs.visibility !== "hidden" && Number(cs.opacity) > 0.05; };
@@ -136,7 +209,10 @@ async function site(b, url) {
   }, AD_RE.source, CMP).catch(() => ({}));
   const m = Object.fromEntries((await cdp.send("Performance.getMetrics").catch(() => ({ metrics: [] }))).metrics.map((x) => [x.name, x.value]));
   await p.close();
-  return { url, reqs, blocked, kb: Math.round(bytes / 1024), task: m.TaskDuration ?? null, script: m.ScriptDuration ?? null, heap: m.JSHeapUsedSize ? Math.round(m.JSHeapUsedSize / 1048576) : null, ...dom };
+  return {
+    url, status, reqs, blocked, kb: Math.round(bytes / 1024), task: m.TaskDuration ?? null, script: m.ScriptDuration ?? null, heap: m.JSHeapUsedSize ? Math.round(m.JSHeapUsedSize / 1048576) : null,
+    cls: cls == null ? null : +cls.toFixed(4), trackersReached, trackersStopped, trackerHostsReached: [...reachedTrackers], pageErrors, textLen, ...dom,
+  };
 }
 
 async function turnstile(b) {
@@ -181,7 +257,14 @@ for (const name of Object.keys(EXT)) {
   const r = { startup };
   r.battery = await battery(b);
   r.sites = [];
-  for (const url of SITES) { r.sites.push(await site(b, url)); }
+  for (const [i, url] of SITES.entries()) {
+    r.sites.push(await site(b, url, name));
+    if (SITES.length > 20 && i % 10 === 9) {
+      console.log(`${name}: ${i + 1}/${SITES.length}`);
+      // Partial save, so a stopped run keeps what it measured.
+      writeFileSync(`${dir}/bench-results${SET === "ads" ? "" : "-" + SET}${only ? "-" + only.replace(/,/g, "_") : ""}.partial.json`, JSON.stringify({ ...results, [name]: r }, null, 1));
+    }
+  }
   r.turnstile = await turnstile(b);
   r.cnnBlocked15s = await cnnStorm(b);
   r.workerHeapMB = await workerHeap(b);
@@ -190,7 +273,7 @@ for (const name of Object.keys(EXT)) {
   const s = r.sites;
   const sum = (f) => s.reduce((a, x) => a + (x[f] ?? 0), 0);
   console.log(`${name}: battery ${r.battery.blocked}/${r.battery.total} | blocked ${sum("blocked")} reqs ${sum("reqs")} | ${Math.round(sum("kb") / 1024)}MB | adFrames ${sum("adFrames")} adBoxes ${sum("adBoxes")} cookieBanners ${s.filter((x) => x.cookieBanner).length} | turnstile ${r.turnstile}/3 | cnn ${r.cnnBlocked15s} | worker ${r.workerHeapMB}MB | startup ${startup}ms | ${Math.round((Date.now() - t0) / 1000)}s`);
-  writeFileSync(`${dir}/bench-results${only ? "-" + only.replace(/,/g, "_") : ""}.json`, JSON.stringify(results, null, 1));
+  writeFileSync(`${dir}/bench-results${SET === "ads" ? "" : "-" + SET}${only ? "-" + only.replace(/,/g, "_") : ""}.json`, JSON.stringify(results, null, 1));
 }
 server.close();
 console.log("done");
