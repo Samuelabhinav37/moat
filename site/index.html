@@ -17,6 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap">
+<script>document.documentElement.classList.add("js");</script>
 <style>
   /* Black page, white type, one blue. Bold Inter headlines. Every product
      image is a real screenshot of Moat (captured with Chrome for Testing).
@@ -150,42 +151,152 @@
   .sec-head h2 { font-size: clamp(36px, 5vw, 60px); }
   .sec-head p { margin-top: 18px; font-size: 19px; color: var(--soft); }
 
-  /* ---- feature bento ------------------------------------------------- */
-  /* Cards with a real screenshot bleeding off the bottom-right edge. Each
-     screenshot pair plays a short loop: the page as it loads without Moat
-     (ads outlined, with their real share of the screen), then the same page
-     with Moat. Loops only while the card is on screen (.play, set by an
-     IntersectionObserver); reduced motion shows the "with Moat" state. */
-  .bento { margin-top: 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .bcard { position: relative; overflow: hidden; border-radius: 20px; background: var(--panel); box-shadow: 0 0 0 1px var(--line); padding: 36px 0 0 36px; display: flex; flex-direction: column; }
-  .bcard.wide { grid-column: 1 / -1; flex-direction: row; align-items: stretch; gap: 40px; padding: 0 0 0 44px; min-height: 480px; }
-  .bcard .txt { padding-right: 36px; max-width: 460px; }
-  .bcard.wide .txt { align-self: center; flex: 0 0 340px; padding: 44px 0; }
-  .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: rgba(111, 155, 224, .14); color: var(--blue-lt); }
-  .ic svg { width: 21px; height: 21px; }
-  .bcard h3 { margin-top: 18px; font-size: clamp(24px, 2.4vw, 30px); letter-spacing: -0.02em; }
-  .bcard p { margin-top: 10px; font-size: 16.5px; color: var(--soft); }
-  .bcard .note { margin-top: 12px; font-size: 14px; color: var(--soft); }
-  .bcard .note b { color: var(--ink); font-weight: 600; }
+  /* ---- promo film ----------------------------------------------------- */
+  .film-wrap { padding-top: 56px; }
+  .film { position: relative; max-width: 1120px; margin: 0 auto; aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden; background: radial-gradient(90% 80% at 62% 42%, #13213d 0%, #0a0f1c 45%, #030305 100%); box-shadow: 0 0 0 1px var(--line), 0 40px 80px -40px rgba(63, 111, 209, .45); container-type: inline-size; }
+  .film video, .film iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+  .film .play-btn { position: absolute; inset: 0; margin: auto; width: 96px; height: 96px; border-radius: 50%; border: 0; background: var(--blue); color: #fff; display: grid; place-items: center; cursor: pointer; box-shadow: 0 0 0 10px rgba(63, 111, 209, .25), 0 20px 40px -10px #000; z-index: 4; }
+  .film .play-btn svg { width: 36px; height: 36px; margin-left: 5px; }
+  .film .play-btn:hover { background: var(--blue-deep); }
+  .film .poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .scene { position: absolute; inset: 0; }
+  .film-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 28px; font-size: clamp(14px, 1.6cqw, 18px); color: var(--soft); background: linear-gradient(transparent, rgba(0, 0, 0, .75)); }
+  .film-cap b { color: var(--ink); font-weight: 600; }
+  /* the moat: a flat glowing ring Kai floats inside */
+  .moat-ring { position: absolute; left: 51%; top: 61%; width: 34cqw; height: 9cqw; border-radius: 50%; border: .4cqw solid var(--blue-lt); box-shadow: 0 0 2.4cqw rgba(111, 155, 224, .7), inset 0 0 2.4cqw rgba(111, 155, 224, .45); background: radial-gradient(closest-side, rgba(63, 111, 209, .18), transparent); animation: ringpulse 3s ease-in-out infinite; }
+  @keyframes ringpulse { 50% { box-shadow: 0 0 3.6cqw rgba(111, 155, 224, .9), inset 0 0 3cqw rgba(111, 155, 224, .6); } }
+  .kai-film { position: absolute; left: 61%; top: 33%; width: 15cqw; animation: bob 3.2s ease-in-out infinite; }
+  .kai-film img { width: 100%; height: auto; display: block; }
+  @keyframes bob { 50% { transform: translateY(-1.4cqw); } }
+  /* each cookie walks in from the left; at the ring's edge it crumbles */
+  .walker { --d: 0s; position: absolute; left: 0; top: 50%; width: 10cqw; animation: walk 8s linear var(--d) infinite both; }
+  .walker .hop { display: block; animation: hop .42s ease-in-out infinite alternate; }
+  .walker img { width: 100%; height: auto; display: block; }
+  .walker.w2 { --d: 2s; width: 8.6cqw; top: 53%; }
+  .walker.w3 { --d: 4s; width: 8cqw; top: 54%; }
+  .walker.w4 { --d: 6s; width: 8cqw; top: 53%; }
+  @keyframes walk {
+    0% { transform: translateX(-14cqw); }
+    60% { transform: translateX(40cqw); }
+    100% { transform: translateX(42cqw); }
+  }
+  @keyframes hop { to { transform: translateY(-.9cqw) rotate(4deg); } }
+  /* crumbs: six bits flying out where a cookie crumbles */
+  .walker > i, .cookie > i { position: absolute; left: 50%; top: 55%; width: .9cqw; height: .9cqw; min-width: 6px; min-height: 6px; border-radius: 40%; background: #b77a3e; opacity: 0; }
+  .walker > i { animation: crumb 8s linear var(--d) infinite both; }
+  .walker > i:nth-of-type(1) { --dx: -6cqw; --dy: -4cqw; } .walker > i:nth-of-type(2) { --dx: 5cqw; --dy: -5cqw; background: #6b3f1d; }
+  .walker > i:nth-of-type(3) { --dx: 7cqw; --dy: 1cqw; } .walker > i:nth-of-type(4) { --dx: -7cqw; --dy: 2cqw; background: #6b3f1d; }
+  .walker > i:nth-of-type(5) { --dx: -2cqw; --dy: -7cqw; } .walker > i:nth-of-type(6) { --dx: 2cqw; --dy: 5cqw; }
+  @keyframes crumb {
+    0%, 63% { opacity: 0; transform: translate(0, 0) scale(1); }
+    65% { opacity: 1; transform: translate(0, 0) scale(1); }
+    74% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.5); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.5); }
+  }
+  /* the cookie art squashes and vanishes at the ring; crumbs fly out */
+  .walker .hop { animation: hop .42s ease-in-out infinite alternate; }
+  .walker img { animation: art 8s linear var(--d) infinite both; transform-origin: 50% 100%; }
+  @keyframes art { 0%, 60% { opacity: 1; transform: none; } 64% { opacity: 1; transform: scale(1.1, .85); } 69%, 100% { opacity: 0; transform: scale(.15); } }
 
-  /* screenshot window, bleeding off the card's bottom/right edge */
-  .win { position: relative; margin-top: 30px; margin-right: -2px; border-radius: 12px 0 0 0; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 30px 60px -20px #000; flex: 1; min-height: 300px; }
-  .bcard.wide .win { margin-top: 44px; }
+  /* ---- features: zig-zag rows ----------------------------------------- */
+  #features { position: relative; overflow: hidden; }
+  .ghostbg { position: absolute; z-index: 0; width: 320px; height: auto; opacity: .03; filter: grayscale(1) brightness(1.8); pointer-events: none; }
+  .ghostbg.g1 { left: -60px; top: 18%; transform: rotate(-14deg); }
+  .ghostbg.g2 { right: -50px; top: 44%; transform: rotate(12deg); }
+  .ghostbg.g3 { left: 4%; bottom: 4%; transform: rotate(8deg); width: 260px; }
+  #features .container { position: relative; z-index: 1; }
+  .zz { margin-top: 80px; display: flex; flex-direction: column; gap: 120px; }
+  .row { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 72px; align-items: center; }
+  .row.flip .vis { order: 2; }
+  .row .txt h3 { font-size: clamp(28px, 3vw, 40px); letter-spacing: -0.025em; }
+  .row .txt p { margin-top: 14px; font-size: 18px; color: var(--soft); max-width: 440px; }
+  .row .txt .note { font-size: 15px; }
+  .row .txt .note b { color: var(--ink); font-weight: 600; }
+  .vis { position: relative; padding-top: 18px; }
+  /* the label tab on the screenshot's corner, a cookie peeking over it */
+  .tag { position: absolute; top: -18px; left: 22px; z-index: 5; background: var(--panel); color: var(--ink); font-size: 14px; font-weight: 600; padding: 8px 14px 8px 16px; border-radius: 10px 10px 0 0; box-shadow: 0 0 0 1px var(--line); }
+  .row.flip .tag { left: auto; right: 22px; }
+  .cookie { position: absolute; z-index: 4; top: -96px; left: 150px; width: 112px; transform-origin: 50% 100%; }
+  .row.flip .cookie { left: auto; right: 150px; }
+  .cookie img { width: 100%; height: auto; display: block; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .55)); }
+  .cookie.ck-shy { width: 50px; top: -118px; left: 220px; }
+  .cookie > i { width: 9px; height: 9px; top: 60%; }
+  .cookie > i:nth-of-type(1) { --dx: -60px; --dy: -40px; } .cookie > i:nth-of-type(2) { --dx: 50px; --dy: -54px; background: #6b3f1d; }
+  .cookie > i:nth-of-type(3) { --dx: 70px; --dy: 10px; } .cookie > i:nth-of-type(4) { --dx: -72px; --dy: 18px; background: #6b3f1d; }
+  .cookie > i:nth-of-type(5) { --dx: -16px; --dy: -74px; } .cookie > i:nth-of-type(6) { --dx: 22px; --dy: 50px; }
+  /* row reveal on scroll (only when JS runs, so the page never hides content without it) */
+  .js .row { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1); }
+  .js .row.seen { opacity: 1; transform: none; }
+  /* cookie timelines, paused until the row plays (.play from the observer) */
+  .ck-poof img, .ck-late img, .ck-shy img, .cookie > i { animation-duration: var(--loop); animation-iteration-count: infinite; animation-fill-mode: both; animation-play-state: paused; animation-delay: .9s; }
+  .ck-poof img { animation-name: ckPoof; }
+  .ck-poof > i { animation-name: ckCrumb; }
+  .ck-late img { animation-name: ckLate; }
+  .ck-late > i { animation-name: ckCrumbLate; }
+  .ck-shy img { animation-name: ckShy; animation-duration: 7s; }
+  .play .cookie img, .play .cookie > i { animation-play-state: running; }
+  /* 8s rows: Moat clears the page at 40-50% of the loop */
+  @keyframes ckPoof {
+    0% { transform: translateY(60px) scale(.9); opacity: 0; }
+    8% { transform: translateY(0) rotate(-5deg); opacity: 1; }
+    18% { transform: translateY(0) rotate(5deg); }
+    28% { transform: translateY(0) rotate(-5deg); }
+    38% { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
+    42% { transform: translateY(6px) scale(1.12, .82); opacity: 1; }
+    46% { transform: translateY(10px) scale(.2); opacity: 0; }
+    92% { transform: translateY(60px) scale(.9); opacity: 0; }
+    100% { transform: translateY(60px) scale(.9); opacity: 0; }
+  }
+  @keyframes ckCrumb {
+    0%, 43% { opacity: 0; transform: translate(0, 0); }
+    45% { opacity: 1; transform: translate(0, 0); }
+    56% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.5); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.5); }
+  }
+  /* 6s pop-up row: the bad tab is struck out at 50% and gone by 74% */
+  @keyframes ckLate {
+    0% { transform: translateY(60px) scale(.9); opacity: 0; }
+    10% { transform: translateY(0) rotate(-6deg); opacity: 1; }
+    24% { transform: translateY(0) rotate(6deg); }
+    38% { transform: translateY(0) rotate(-6deg); }
+    52% { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
+    58% { transform: translateY(6px) scale(1.12, .82); opacity: 1; }
+    63% { transform: translateY(10px) scale(.2); opacity: 0; }
+    100% { transform: translateY(60px) scale(.9); opacity: 0; }
+  }
+  @keyframes ckCrumbLate {
+    0%, 59% { opacity: 0; transform: translate(0, 0); }
+    61% { opacity: 1; transform: translate(0, 0); }
+    74% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.5); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.5); }
+  }
+  /* the nervous wafer: peeks up, flinches when the switch flips (~40%) */
+  @keyframes ckShy {
+    0%, 6% { transform: translateY(70px); }
+    14%, 34% { transform: translateY(0) rotate(0); }
+    38% { transform: translateY(0) rotate(-8deg); }
+    40% { transform: translateY(0) rotate(8deg); }
+    42% { transform: translateY(0) rotate(-6deg); }
+    46% { transform: translateY(40px) rotate(0); }
+    80% { transform: translateY(40px); }
+    90%, 100% { transform: translateY(70px); }
+  }
+
+  /* screenshot window */
+  .win { position: relative; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 40px 80px -30px #000; }
   .win-bar { height: 34px; background: #35363a; display: flex; align-items: center; gap: 10px; padding: 0 12px; }
   .win-bar .d { display: flex; gap: 6px; }
   .win-bar .d i { width: 10px; height: 10px; border-radius: 50%; background: #5f6368; display: block; }
   .win-bar .u { height: 24px; flex: 0 1 420px; border-radius: 12px; background: #202124; color: #e8eaed; font-size: 12.5px; display: flex; align-items: center; padding: 0 12px; white-space: nowrap; overflow: hidden; }
-  .shotbox { position: relative; width: 680px; aspect-ratio: 16 / 10; }
-  .bcard.wide .shotbox { width: 1060px; }
+  .shotbox { position: relative; width: 100%; aspect-ratio: 16 / 10; }
   .shotbox img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  .shotbox .before { animation: bf 8s infinite both paused; }
+  .shotbox .before { animation: bf 8s infinite both paused; clip-path: none; }
   .mark { position: absolute; border: 2.5px solid #ff5a4f; border-radius: 6px; background: rgba(255, 90, 79, .16); animation: mk 8s infinite both paused; }
   .flag { position: absolute; z-index: 3; left: 50%; transform: translateX(-50%); white-space: nowrap; background: #d63a30; color: #fff; font-size: 14px; font-weight: 600; padding: 7px 12px; border-radius: 8px; box-shadow: 0 10px 24px -8px rgba(0, 0, 0, .6); animation: mk 8s infinite both paused; }
   .toast { position: absolute; z-index: 3; display: inline-flex; align-items: center; gap: 9px; background: #1b191d; color: #eceef0; font-size: 14px; font-weight: 600; padding: 9px 14px; border-radius: 10px; border: 1px solid #37343b; box-shadow: 0 16px 32px -10px rgba(0, 0, 0, .6); white-space: nowrap; animation: ts 8s infinite both paused; }
   .toast svg { width: 16px; height: 16px; color: var(--blue-lt); flex: none; }
   .before, .mark, .flag, .toast, .tabnew, .pcycle { animation-delay: .9s !important; }
   .play .before, .play .mark, .play .flag, .play .toast, .play .tabnew, .play .pcycle { animation-play-state: running; }
-  /* 0-40% the page without Moat, ads outlined; 40-50% Moat clears it; 50-92% clean; loop */
   @keyframes bf { 0%, 40% { opacity: 1; } 50%, 92% { opacity: 0; } 100% { opacity: 1; } }
   @keyframes mk { 0%, 8% { opacity: 0; transform: scale(.98); } 14%, 38% { opacity: 1; transform: scale(1); } 46%, 100% { opacity: 0; transform: scale(.98); } }
   .flag { animation-name: fl; }
@@ -193,8 +304,8 @@
   @keyframes ts { 0%, 48% { opacity: 0; transform: translateY(8px); } 54%, 88% { opacity: 1; transform: translateY(0); } 94%, 100% { opacity: 0; transform: translateY(0); } }
 
   /* hijacked pop-up tab: a tab opens, gets struck out, and closes */
-  .tabstrip { margin-top: 30px; margin-right: -2px; border-radius: 12px 0 0 0; overflow: hidden; background: #202124; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14); flex: 1; min-height: 300px; display: flex; flex-direction: column; }
-  .tabs2 { height: 42px; display: flex; align-items: flex-end; gap: 4px; padding: 0 12px 0 72px; position: relative; font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .tabstrip { border-radius: 14px; overflow: hidden; background: #202124; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 40px 80px -30px #000; display: flex; flex-direction: column; aspect-ratio: 16 / 10.6; }
+  .tabs2 { height: 42px; flex: none; display: flex; align-items: flex-end; gap: 4px; padding: 0 12px 0 72px; position: relative; font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; }
   .tabs2 .dd { position: absolute; left: 14px; top: 15px; display: flex; gap: 7px; }
   .tabs2 .dd i { width: 11px; height: 11px; border-radius: 50%; background: #5f6368; display: block; }
   .t2 { height: 34px; width: 230px; flex: none; border-radius: 9px 9px 0 0; display: flex; align-items: center; gap: 9px; padding: 0 12px; color: #bdc1c6; white-space: nowrap; overflow: hidden; }
@@ -208,9 +319,9 @@
     50%, 62% { width: 230px; opacity: 1; padding: 0 12px; text-decoration: line-through; color: #ff8a80; }
     74%, 100% { width: 0; opacity: 0; padding: 0; text-decoration: line-through; }
   }
-  .tabpage { flex: 1; background: #35363a; padding: 10px 12px 0; }
-  .tabpage .omni { height: 32px; border-radius: 16px; background: #202124; color: #e8eaed; font: 13px system-ui, sans-serif; display: flex; align-items: center; padding: 0 14px; max-width: 460px; }
-  .tabpage .pg { margin-top: 10px; height: calc(100% - 42px); min-height: 200px; border-radius: 6px 0 0 0; background: #fff; padding: 22px 24px; font-family: Georgia, serif; color: #111; }
+  .tabpage { flex: 1; background: #35363a; padding: 10px 12px 0; display: flex; flex-direction: column; }
+  .tabpage .omni { height: 32px; flex: none; border-radius: 16px; background: #202124; color: #e8eaed; font: 13px system-ui, sans-serif; display: flex; align-items: center; padding: 0 14px; max-width: 460px; }
+  .tabpage .pg { margin-top: 10px; flex: 1; border-radius: 6px 6px 0 0; background: #fff; padding: 22px 24px; font-family: Georgia, serif; color: #111; }
   .tabpage .pg h5 { margin: 0 0 6px; font-size: 22px; }
   .tabpage .pg p { margin: 0; font: 13.5px/1.6 system-ui, sans-serif; color: #555; max-width: 460px; }
   .tabpage .toast { right: 18px; bottom: 18px; animation: tt 6s infinite both paused; }
@@ -218,14 +329,13 @@
   @keyframes tt { 0%, 58% { opacity: 0; transform: translateY(8px); } 66%, 92% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
 
   /* control: the same popup switching between on and paused */
-  .popstage { position: relative; margin-top: 30px; flex: 1; min-height: 360px; display: flex; justify-content: center; gap: 22px; padding: 0 36px 0 0; }
+  .popstage { position: relative; border-radius: 14px; background: radial-gradient(110% 90% at 50% 0%, #1d2740 0%, #0f0f12 70%); box-shadow: 0 0 0 1px var(--line); aspect-ratio: 16 / 10.6; display: flex; justify-content: center; align-items: flex-start; padding-top: 40px; overflow: hidden; }
   .popstage figure { margin: 0; position: relative; width: 260px; }
-  .popstage img { display: block; width: 260px; height: auto; border-radius: 12px 12px 0 0; box-shadow: 0 0 0 1px #37343b, 0 30px 60px -20px #000; }
+  .popstage img { display: block; width: 260px; height: auto; border-radius: 12px; box-shadow: 0 0 0 1px #37343b, 0 30px 60px -20px #000; }
   .popstage .p-off { position: absolute; top: 0; left: 0; }
   .popstage .cap { position: absolute; top: -14px; left: 16px; z-index: 3; color: #fff; font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 7px; }
   .popstage .cap.on { background: var(--blue); }
   .popstage .cap.off { background: #52525b; }
-  /* the real switch sits at ~79% x 59% of the "on" popup */
   .popstage .tap { position: absolute; left: 78.8%; top: 58.6%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; border: 2.5px solid var(--blue); background: rgba(63, 111, 209, .18); box-shadow: 0 0 0 6px rgba(63, 111, 209, .18); z-index: 4; }
   .pcycle { animation: 7s infinite both paused; }
   .p-on, .cap.on { animation-name: pOn; }
@@ -235,25 +345,119 @@
   @keyframes pOff { 0%, 44% { opacity: 0; } 50%, 92% { opacity: 1; } 98%, 100% { opacity: 0; } }
   @keyframes pTap { 0%, 34% { opacity: 0; transform: scale(1.6); } 40% { opacity: 1; transform: scale(1); } 46%, 100% { opacity: 0; transform: scale(.7); } }
 
+  /* ---- how to use it: Kai narrates, the cursor acts it out ------------- */
+  .howto { margin-top: 64px; display: grid; grid-template-columns: minmax(300px, 420px) minmax(0, 1fr); gap: 56px; align-items: start; }
+  .narrator { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 26px; min-height: 120px; }
+  .kai { position: relative; width: 96px; flex: none; animation: bob 3.2s ease-in-out infinite; }
+  .kai img { width: 100%; height: auto; display: block; }
+  /* eyelids over Kai's eyes (measured from kai.webp): blink, and a happy squint */
+  .lid { position: absolute; top: 50.6%; height: 16%; background: #0c0d11; border-radius: 30%; transform: scaleY(0); transform-origin: 50% 0; animation: blink 4.6s infinite; }
+  .lid.l { left: 37.1%; width: 18.4%; }
+  .lid.r { left: 63.8%; width: 18%; }
+  @keyframes blink { 0%, 93%, 100% { transform: scaleY(0); } 95.5% { transform: scaleY(1); } }
+  .kai.happy .lid { animation: none; transform: scaleY(.5); transform-origin: 50% 100%; border-radius: 50% 50% 20% 20% / 90% 90% 10% 10%; transition: transform .2s; }
+  .kai.nod { animation: nod .5s ease-in-out; }
+  @keyframes nod { 30% { transform: rotate(-7deg) translateY(-3px); } 70% { transform: rotate(4deg); } }
+  .say { position: relative; flex: 1; margin-bottom: 30px; background: #f4f4f5; color: #111; font-size: 15.5px; font-weight: 500; line-height: 1.45; padding: 12px 16px; border-radius: 14px 14px 14px 4px; min-height: 48px; }
+  .say::before { content: ""; position: absolute; left: -7px; bottom: 6px; border: 7px solid transparent; border-right-color: #f4f4f5; border-left: 0; }
+  .howto-pane h3 { font-size: clamp(26px, 2.8vw, 34px); }
+  .howto-pane > p { margin-top: 14px; color: var(--soft); }
+  .howto-pane ol { margin: 20px 0 0; padding: 0; list-style: none; counter-reset: st; display: grid; gap: 10px; }
+  .howto-pane li { counter-increment: st; display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; font-size: 16px; padding: 8px 10px; margin-left: -10px; border-radius: 10px; color: var(--soft); transition: background .25s, color .25s; }
+  .howto-pane li::before { content: counter(st); width: 28px; height: 28px; border-radius: 50%; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 14px; font-weight: 600; display: grid; place-items: center; transition: background .25s; }
+  .howto-pane li.on { background: rgba(63, 111, 209, .14); color: var(--ink); }
+  .howto-pane li.on::before { background: var(--blue); color: #fff; }
+  .howto-pane li b, .howto-pane .tip b { font-weight: 600; color: var(--ink); }
+  .howto-pane .tip { margin-top: 18px; font-size: 15px; color: var(--soft); padding-left: 14px; border-left: 2px solid var(--blue); }
+  .howto .next { margin-top: 26px; background: none; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .howto-pane[hidden] { display: none; }
+
+  .howstage { position: relative; border-radius: 16px; overflow: hidden; background: #1b1a1f; box-shadow: 0 0 0 1px var(--line), 0 40px 80px -30px rgba(0, 0, 0, .9); }
+  .tb { height: 44px; background: #35363a; display: flex; align-items: center; gap: 12px; padding: 0 12px; }
+  .tb .d { display: flex; gap: 6px; } .tb .d i { width: 10px; height: 10px; border-radius: 50%; background: #5f6368; display: block; }
+  .tb-url { flex: 1; height: 28px; border-radius: 14px; background: #202124; color: #e8eaed; font: 13px system-ui, sans-serif; display: flex; align-items: center; padding: 0 14px; white-space: nowrap; overflow: hidden; }
+  .tb-moat { width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; background: #4a4b4f; color: #fff; transition: background .2s; }
+  .tb-moat svg { width: 19px; height: 19px; }
+  .howstage[data-show$="b"] .tb-moat { background: #5f6a85; }
+  .view { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #fbf8f3; }
+  .view > * { position: absolute; opacity: 0; transition: opacity .3s ease; }
+  .view .scr { inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+  .view img.scr[data-s~="1a"] { object-position: left top; }
+  .view img.zoom { inset: auto; left: -35%; top: -12.7%; width: 170%; height: 170%; }
+  .view .report img[data-s="5c"] { top: auto; bottom: 0; }
+  .view .popimg { top: 6px; right: 10px; width: 31%; max-width: 250px; height: auto; border-radius: 12px; box-shadow: 0 0 0 1px #37343b, 0 24px 48px -12px rgba(0, 0, 0, .6); transform: translateY(-6px); transition: opacity .25s, transform .25s; }
+  .view .on { opacity: 1; }
+  .view .popimg.on { transform: none; }
+  .view .panel { background: #141317; display: flex; align-items: center; justify-content: center; padding: 4%; }
+  .view .panel img { position: absolute; width: 92%; height: auto; opacity: 0; transition: opacity .25s; }
+  .view .panel img.on { opacity: 1; }
+  .view .report { align-items: flex-start; padding-top: 0; }
+  .view .report img { width: 54%; top: 0; }
+  .view .mail { background: #eef0f4; display: grid; place-items: center; }
+  .mail-card { width: 62%; background: #fff; border-radius: 12px; padding: 6% 7%; color: #1f2328; font: 15px/1.5 system-ui, sans-serif; box-shadow: 0 10px 30px -12px rgba(0, 0, 0, .25); }
+  .mail-from { margin: 0 0 14px; font-weight: 600; } .mail-from span { color: #6b7280; font-weight: 400; margin-left: 6px; }
+  .mail-card h4 { margin: 0 0 8px; font-size: 22px; }
+  .mail-card p { margin: 0; color: #4b5563; }
+  .mail-btn { display: inline-block; margin-top: 18px; background: #111827; color: #fff; font-weight: 600; padding: 10px 18px; border-radius: 8px; }
+  .view .landing { background: #f0f0f2; display: grid; place-items: center; font: 16px/1.5 system-ui, sans-serif; color: #222; }
+  .view .landing div { max-width: 60%; }
+  .view .landing h4 { margin: 0 0 8px; font-size: 28px; }
+  .view .landing p { margin: 0; color: #555; }
+  .cursor { position: absolute; left: 0; top: 0; width: 26px; height: 26px; z-index: 10; pointer-events: none; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .45)); transition: transform .85s cubic-bezier(.45, .05, .25, 1); transform: translate(70%, 70%); opacity: 0; }
+  .howstage.live .cursor { opacity: 1; }
+  .cursor.press { scale: .86; transition: transform .85s cubic-bezier(.45, .05, .25, 1), scale .12s; }
+  .ripple { position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; border: 3px solid var(--blue-lt); background: rgba(111, 155, 224, .2); z-index: 9; pointer-events: none; opacity: 0; }
+  .ripple.go { animation: rip .55s ease-out; }
+  @keyframes rip { from { opacity: 1; transform: scale(.4); } to { opacity: 0; transform: scale(1.5); } }
+
+  .howto-strip { margin-top: 48px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .howto-strip button { all: unset; cursor: pointer; display: grid; gap: 10px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--soft); font-size: 15px; font-weight: 500; line-height: 1.3; transition: border-color .15s, color .15s; }
+  .howto-strip button:hover { color: var(--ink); border-color: rgba(255, 255, 255, .25); }
+  .howto-strip button[aria-selected="true"] { color: var(--ink); border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); }
+  .howto-strip button:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 3px; }
+  .howto-strip .n { font-size: 13px; color: var(--soft); font-weight: 500; }
+
   @media (prefers-reduced-motion: reduce) {
     .shotbox .before, .mark, .flag { animation: none; opacity: 0; }
     .toast, .tabpage .toast { animation: none; opacity: 1; transform: none; }
     .tabnew { animation: none; width: 0; opacity: 0; padding: 0; }
     .p-on, .cap.on { animation: none; opacity: 1; }
     .p-off, .cap.off, .tap { animation: none; opacity: 0; }
+    .cookie img, .cookie > i { animation: none !important; }
+    .cookie > i { opacity: 0; }
+    .js .row { opacity: 1; transform: none; transition: none; }
+    .kai, .kai-film, .moat-ring, .lid, .walker, .walker .hop, .walker > i { animation: none !important; }
+    .walker.w1 { transform: translateX(10cqw); } .walker.w2 { transform: translateX(22cqw); } .walker.w3, .walker.w4 { display: none; }
+    .view > *, .cursor { transition: none; }
   }
   @media (max-width: 1000px) {
-    .bento { grid-template-columns: 1fr; }
-    .bcard.wide { flex-direction: column; padding: 32px 0 0 32px; min-height: 0; }
-    .bcard.wide .txt { flex: none; padding: 0 32px 0 0; }
-    .bcard.wide .win { margin-top: 28px; }
+    .row, .howto { grid-template-columns: 1fr; gap: 40px; }
+    .row.flip .vis { order: 0; }
+    .zz { gap: 110px; }
+    .howstage { order: -1; }
+    .howto-strip { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(180px, 40%); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+    .howto-strip button { scroll-snap-align: start; }
   }
   @media (max-width: 640px) {
-    .bcard, .bcard.wide { padding: 26px 0 0 22px; }
-    .shotbox, .bcard.wide .shotbox { width: 520px; }
-    .popstage { gap: 12px; padding-right: 22px; min-height: 300px; }
-
+    .film { border-radius: 14px; aspect-ratio: 4 / 3; }
+    .film-cap { padding: 14px 16px; }
+    .cookie { width: 84px; top: -74px; left: 120px; }
+    .row.flip .cookie { right: 120px; }
+    .cookie.ck-shy { width: 38px; top: -92px; left: 170px; }
+    .tag { font-size: 13px; padding: 7px 12px; }
+    .tabs2 { padding-left: 60px; } .t2 { width: 170px; }
+    @keyframes tn {
+      0%, 12% { width: 0; opacity: 0; padding: 0; } 20%, 42% { width: 170px; opacity: 1; padding: 0 12px; }
+      50%, 62% { width: 170px; opacity: 1; padding: 0 12px; text-decoration: line-through; color: #ff8a80; } 74%, 100% { width: 0; opacity: 0; padding: 0; }
+    }
+    .popstage { padding-top: 26px; } .popstage figure, .popstage img { width: 200px; }
+    .howto-strip { grid-auto-columns: 62%; }
+    .narrator { min-height: 0; } .kai { width: 72px; } .say { font-size: 14.5px; margin-bottom: 20px; }
+    .mail-card { width: 84%; font-size: 13px; } .mail-card h4 { font-size: 17px; }
+    .view .report img { width: 80%; }
   }
+
+  html:not(.js) .view > [data-s~="1a"] { opacity: 1; }
 
   /* ---- private by design cards --------------------------------------- */
   .cards { margin-top: 60px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
@@ -281,6 +485,9 @@
   .cta-box { background: var(--blue); border-radius: 20px; padding: 60px 64px; display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
   .cta-box h2 { font-size: clamp(30px, 3.6vw, 44px); }
   .cta-box p { margin-top: 10px; color: rgba(255, 255, 255, .85); font-size: 18px; }
+  .cta-kai { width: 92px; height: auto; flex: none; animation: bob 3.2s ease-in-out infinite; filter: drop-shadow(0 14px 20px rgba(0, 0, 0, .35)); }
+  @media (prefers-reduced-motion: reduce) { .cta-kai { animation: none; } }
+  @media (max-width: 640px) { .cta-kai { width: 70px; } }
 
 
   /* ---- details / summary base (used by the FAQ) --------------------- */
@@ -346,10 +553,10 @@
 </head>
 <body>
 
-<!-- Store-launch swap: every element with data-store is an install CTA.
-     Until the Chrome Web Store listing is live they say "Coming soon to
-     Chrome" and point at GitHub releases. At launch, change their text to
-     "Add to Chrome" / "Get Moat" and their href to the store listing. -->
+<!-- Install buttons: every element with data-store links to the Chrome
+     Web Store listing. TODO(launch): the listing URL isn't known yet, so
+     they point at GitHub releases. Replace each data-store href with the
+     store URL before publishing. -->
 
 <div class="nav-wrap">
   <div class="container">
@@ -360,6 +567,7 @@
       </a>
       <div class="nav-links">
         <a href="#features">Features</a>
+        <a href="#how">How to use it</a>
         <a href="#privacy">Privacy</a>
         <a href="#faq">FAQ</a>
         <a href="https://github.com/Samuelabhinav37/moat">GitHub ↗</a>
@@ -372,18 +580,37 @@
 <header class="hero" id="top">
   <div class="container">
     <h1>Ad blocking that<br>keeps to itself.</h1>
-    <p class="sub">Moat blocks ads, trackers and hijacked popups. No account, no telemetry, and blocking runs in your browser.</p>
+    <p class="sub">Moat blocks ads, trackers and hijacked pop-ups. No account, no telemetry, and blocking runs in your browser.</p>
     <div class="cta">
       <a class="btn btn-blue btn-big" data-store href="https://github.com/Samuelabhinav37/moat/releases">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Coming soon to Chrome
+        Add to Chrome
       </a>
-      <p class="alt">Want it now? <a href="https://github.com/Samuelabhinav37/moat#install--build">Install from source</a>. It works in Chrome and Firefox today.</p>
+      <p class="alt">Free on the Chrome Web Store. Firefox users can <a href="https://github.com/Samuelabhinav37/moat#install--build">build it from source</a>.</p>
     </div>
     <div class="trust">
       <span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Open source</b> (GPL-3.0)</span>
       <span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Chrome</b> and <b>Firefox</b></span>
       <span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Free</b> with no paid tier</span>
+    </div>
+  </div>
+
+  <!-- Promo film. Put the video's address in data-src (an .mp4/.webm on
+       this site, or a YouTube link) and it plays here on click. A YouTube
+       link loads nothing from YouTube until then, and uses its no-cookie
+       player. Until data-src is set, the frame plays the story in short:
+       cookies chase Kai, and the ones that reach the moat crumble. -->
+  <div class="container film-wrap">
+    <div class="film" id="film" data-src="" data-poster="">
+      <div class="scene" aria-hidden="true">
+        <span class="moat-ring"></span>
+        <div class="kai-film"><img src="characters/kai.webp" width="438" height="525" alt=""></div>
+        <span class="walker w1"><span class="hop"><img src="characters/cookie-chip.webp" width="358" height="369" alt=""></span><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="walker w2"><span class="hop"><img src="characters/cookie-star.webp" width="288" height="374" alt=""></span><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="walker w3"><span class="hop"><img src="characters/cookie-sandwich.webp" width="282" height="341" alt=""></span><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="walker w4"><span class="hop"><img src="characters/cookie-crescent.webp" width="263" height="378" alt=""></span><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      </div>
+      <p class="film-cap"><b>Meet Kai.</b> Cookies chase Kai around the web. Inside the moat, they can't follow.</p>
     </div>
   </div>
 
@@ -416,116 +643,263 @@
       </div>
     </div></div>
     <p class="sr-only" id="demo-desc">Left of the handle: a WIRED article without Moat, with a large display ad above the headline. Right of the handle: the same article with Moat, which starts at the headline, and Moat's popup showing 14 things blocked.</p>
-    <p class="demo-cap">Drag the handle to see the same page with and without Moat.</p>
+    <p class="demo-cap">Drag the handle to compare the same page with and without Moat.</p>
   </div>
 </header>
 
 <main>
   <!-- ============ FEATURES ============ -->
+  <!-- Zig-zag rows, one cookie per row (like Ghost Town Games' skulls on
+       their cards). Each cookie peeks over its screenshot while the page
+       loads without Moat, then crumbles when Moat cleans it up. The cookie's
+       timeline uses the same length as the row's own loop, so they stay in
+       step. Characters are decoration (alt=""), the text carries the meaning. -->
   <section class="block" id="features" aria-labelledby="features-h">
+    <img class="ghostbg g1" src="characters/cookie-chip.webp" alt="" aria-hidden="true">
+    <img class="ghostbg g2" src="characters/cookie-star.webp" alt="" aria-hidden="true">
+    <img class="ghostbg g3" src="characters/cookie-crescent.webp" alt="" aria-hidden="true">
     <div class="container">
       <div class="sec-head">
         <h2 id="features-h">What Moat does</h2>
         <p>It works the moment you install it. There's nothing to set up.</p>
       </div>
 
-      <div class="bento">
+      <div class="zz">
         <!-- ads: BBC Weather, ad rects measured in the real 1440x900 capture -->
-        <article class="bcard wide">
+        <article class="row" style="--loop:8s">
+          <div class="vis">
+            <span class="tag">Ads</span>
+            <span class="cookie ck-poof"><img src="characters/cookie-chip.webp" width="358" height="369" alt=""><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <div class="win" aria-hidden="true">
+              <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">bbc.co.uk/weather</span></div>
+              <div class="shotbox">
+                <img src="shots/bbc-after.webp" srcset="shots/bbc-after-1040.webp 1040w, shots/bbc-after.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
+                <img class="before" src="shots/bbc-before.webp" srcset="shots/bbc-before-1040.webp 1040w, shots/bbc-before.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
+                <span class="mark" style="left:0;top:14.2%;width:100%;height:31.9%"></span>
+                <span class="mark" style="left:72.5%;top:53.3%;width:20.8%;height:46.7%"></span>
+                <span class="flag" style="left:36%;top:48%">Ads: 42% of the screen</span>
+                <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Blocked by Moat</span>
+              </div>
+            </div>
+          </div>
           <div class="txt">
-            <span class="ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M4 20 20 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
             <h3>Just the page you came for.</h3>
             <p>About 310,000 filter rules stop ads and trackers before they load, on every site.</p>
             <p class="note">On this page, ads took up <b>42% of the first screen</b>.</p>
           </div>
-          <div class="win" aria-hidden="true">
-            <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">bbc.co.uk/weather</span></div>
-            <div class="shotbox">
-              <img src="shots/bbc-after.webp" srcset="shots/bbc-after-1040.webp 1040w, shots/bbc-after.webp 1440w" sizes="(max-width: 640px) 520px, 1060px" width="1440" height="900" alt="" loading="lazy">
-              <img class="before" src="shots/bbc-before.webp" srcset="shots/bbc-before-1040.webp 1040w, shots/bbc-before.webp 1440w" sizes="(max-width: 640px) 520px, 1060px" width="1440" height="900" alt="" loading="lazy">
-              <span class="mark" style="left:0;top:14.2%;width:100%;height:31.9%"></span>
-              <span class="mark" style="left:72.5%;top:53.3%;width:20.8%;height:46.7%"></span>
-              <span class="flag" style="left:36%;top:48%">Ads: 42% of the screen</span>
-              <span class="toast" style="left:24px;bottom:24px"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Blocked by Moat</span>
-            </div>
-          </div>
         </article>
 
         <!-- clutter: Allrecipes -->
-        <article class="bcard">
+        <article class="row flip" style="--loop:8s">
+          <div class="vis">
+            <span class="tag">Clutter</span>
+            <span class="cookie ck-poof"><img src="characters/cookie-sandwich.webp" width="282" height="341" alt=""><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <div class="win" aria-hidden="true">
+              <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">allrecipes.com</span></div>
+              <div class="shotbox">
+                <img src="shots/recipe-after.webp" srcset="shots/recipe-after-1040.webp 1040w, shots/recipe-after.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
+                <img class="before" src="shots/recipe-before.webp" srcset="shots/recipe-before-1040.webp 1040w, shots/recipe-before.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
+                <span class="mark" style="left:24.7%;top:17.8%;width:50.6%;height:10%"></span>
+                <span class="mark" style="left:63.75%;top:40.6%;width:20.8%;height:59.4%"></span>
+                <span class="flag" style="left:34%;top:31%">2 ads above the recipe</span>
+                <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Space given back</span>
+              </div>
+            </div>
+          </div>
           <div class="txt">
-            <span class="ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
             <h3>Less clutter.</h3>
             <p>Blocked ads don't leave empty boxes behind, so the page closes up around what you're reading.</p>
-          </div>
-          <div class="win" aria-hidden="true">
-            <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">allrecipes.com</span></div>
-            <div class="shotbox">
-              <img src="shots/recipe-after.webp" srcset="shots/recipe-after-1040.webp 1040w, shots/recipe-after.webp 1440w" sizes="(max-width: 640px) 520px, 680px" width="1440" height="900" alt="" loading="lazy">
-              <img class="before" src="shots/recipe-before.webp" srcset="shots/recipe-before-1040.webp 1040w, shots/recipe-before.webp 1440w" sizes="(max-width: 640px) 520px, 680px" width="1440" height="900" alt="" loading="lazy">
-              <span class="mark" style="left:24.7%;top:17.8%;width:50.6%;height:10%"></span>
-              <span class="mark" style="left:63.75%;top:40.6%;width:20.8%;height:59.4%"></span>
-              <span class="flag" style="left:34%;top:31%">2 ads above the recipe</span>
-              <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Space given back</span>
-            </div>
           </div>
         </article>
 
         <!-- cookies: GOV.UK, banner rejected by Moat (on by default) -->
-        <article class="bcard">
-          <div class="txt">
-            <span class="ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.5 12.5A8.5 8.5 0 1 1 11.5 3.5a3 3 0 0 0 4 3.8 3 3 0 0 0 5 5.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="9" cy="10" r="1.2" fill="currentColor"/><circle cx="13.5" cy="15" r="1.2" fill="currentColor"/></svg></span>
-            <h3>No more cookie banners.</h3>
-            <p>Moat answers them for you, sharing as little as the site allows.</p>
-          </div>
-          <div class="win" aria-hidden="true">
-            <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">gov.uk</span></div>
-            <div class="shotbox">
-              <img src="shots/govuk-after.webp" srcset="shots/govuk-after-1040.webp 1040w, shots/govuk-after.webp 1440w" sizes="(max-width: 640px) 520px, 680px" width="1440" height="900" alt="" loading="lazy">
-              <img class="before" src="shots/govuk-before.webp" srcset="shots/govuk-before-1040.webp 1040w, shots/govuk-before.webp 1440w" sizes="(max-width: 640px) 520px, 680px" width="1440" height="900" alt="" loading="lazy">
-              <span class="mark" style="left:0;top:0;width:100%;height:36.1%"></span>
-              <span class="flag" style="left:40%;top:40%">Cookie banner: 36% of the screen</span>
-              <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Rejected additional cookies</span>
+        <article class="row" style="--loop:8s">
+          <div class="vis">
+            <span class="tag">Cookie banners</span>
+            <span class="cookie ck-poof"><img src="characters/cookie-star.webp" width="288" height="374" alt=""><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <div class="win" aria-hidden="true">
+              <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">gov.uk</span></div>
+              <div class="shotbox">
+                <img src="shots/govuk-after.webp" srcset="shots/govuk-after-1040.webp 1040w, shots/govuk-after.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
+                <img class="before" src="shots/govuk-before.webp" srcset="shots/govuk-before-1040.webp 1040w, shots/govuk-before.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
+                <span class="mark" style="left:0;top:0;width:100%;height:36.1%"></span>
+                <span class="flag" style="left:40%;top:40%">Cookie banner: 36% of the screen</span>
+                <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Rejected additional cookies</span>
+              </div>
             </div>
+          </div>
+          <div class="txt">
+            <h3>No more cookie banners.</h3>
+            <p>Moat answers them for you, picking the option that shares the least.</p>
           </div>
         </article>
 
         <!-- hijacked pop-up tabs -->
-        <article class="bcard">
-          <div class="txt">
-            <span class="ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="7" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 4h9.5A2 2 0 0 1 20.5 6v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m7.5 10.5 4 4m0-4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
-            <h3>Closes hijacked pop-ups.</h3>
-            <p>Fake prize and fake virus tabs get shut the moment they open. You never see them.</p>
+        <article class="row flip" style="--loop:6s">
+          <div class="vis">
+            <span class="tag">Pop-ups</span>
+            <span class="cookie ck-late"><img src="characters/cookie-crescent.webp" width="263" height="378" alt=""><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <div class="tabstrip" aria-hidden="true">
+              <div class="tabs2"><span class="dd"><i></i><i></i><i></i></span>
+                <span class="t2 on"><span class="fv"></span>Slow-roast tomato soup</span>
+                <span class="t2 bad tabnew"><span class="fv"></span>you-won-a-prize.example</span>
+              </div>
+              <div class="tabpage" style="position:relative">
+                <div class="omni">recipes.example/tomato-soup</div>
+                <div class="pg"><h5>Slow-roast tomato soup</h5><p>Halve the tomatoes and roast them cut side up with the garlic until the edges catch.</p><p style="margin-top:10px">Blend with the stock, then season with salt and a little sugar. Serve with bread.</p><div style="margin-top:16px;height:120px;border-radius:6px;background:linear-gradient(160deg,#d4b89b,#a77c5c 60%,#6d4c35);max-width:460px"></div></div>
+                <span class="toast"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Pop-up tab closed</span>
+              </div>
+            </div>
           </div>
-          <div class="tabstrip" aria-hidden="true">
-            <div class="tabs2"><span class="dd"><i></i><i></i><i></i></span>
-              <span class="t2 on"><span class="fv"></span>Slow-roast tomato soup</span>
-              <span class="t2 bad tabnew"><span class="fv"></span>you-won-a-prize.example</span>
-            </div>
-            <div class="tabpage" style="position:relative">
-              <div class="omni">recipes.example/tomato-soup</div>
-              <div class="pg"><h5>Slow-roast tomato soup</h5><p>Halve the tomatoes and roast them cut side up with the garlic until the edges catch.</p><p style="margin-top:10px">Blend with the stock, then season with salt and a little sugar. Serve with bread.</p><div style="margin-top:16px;height:120px;border-radius:6px;background:linear-gradient(160deg,#d4b89b,#a77c5c 60%,#6d4c35);max-width:460px"></div></div>
-              <span class="toast"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Pop-up tab closed</span>
-            </div>
+          <div class="txt">
+            <h3>Stops hijacked pop-ups.</h3>
+            <p>Fake prize and fake virus tabs get closed as they open, before they can load.</p>
           </div>
         </article>
 
         <!-- control: the real popup, on and paused -->
-        <article class="bcard">
-          <div class="txt">
-            <span class="ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="8" width="18" height="8" rx="4" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="12" r="2.2" fill="currentColor"/></svg></span>
-            <h3>You stay in control.</h3>
-            <p>Trust a site? One switch pauses Moat there. Anything a filter list misses, you can block with a click.</p>
+        <article class="row" style="--loop:7s">
+          <div class="vis">
+            <span class="tag">You're in charge</span>
+            <span class="cookie ck-shy"><img src="characters/cookie-wafer.webp" width="111" height="347" alt=""></span>
+            <div class="popstage" aria-hidden="true">
+              <figure class="pcy">
+                <span class="cap on pcycle">On</span><span class="cap off pcycle">Paused</span>
+                <img class="p-on pcycle" src="shots/pop-on.png" width="260" height="507" alt="" loading="lazy">
+                <img class="p-off pcycle" src="shots/pop-paused.png" width="260" height="349" alt="" loading="lazy">
+                <span class="tap pcycle"></span>
+              </figure>
+            </div>
           </div>
-          <div class="popstage" aria-hidden="true">
-            <figure class="pcy">
-              <span class="cap on pcycle">On</span><span class="cap off pcycle">Paused</span>
-              <img class="p-on pcycle" src="shots/pop-on.png" width="260" height="507" alt="" loading="lazy">
-              <img class="p-off pcycle" src="shots/pop-paused.png" width="260" height="349" alt="" loading="lazy">
-              <span class="tap pcycle"></span>
-            </figure>
+          <div class="txt">
+            <h3>You stay in control.</h3>
+            <p>Trust a site? One switch pauses Moat there. Anything a filter list misses, you can hide with a click.</p>
           </div>
         </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW TO USE IT ============ -->
+  <!-- Chrome's "What's new" pattern: one task at a time, the outcome as the
+       heading, numbered steps naming the real buttons, a tip. Kai narrates
+       while a cursor acts each step out on real Moat screens (captured by
+       .cache/opt/howto-captures.mjs). The scripts live in the page script
+       below (HOWTO); reduced motion shows each task's finished screen. -->
+  <section class="block" id="how" aria-labelledby="how-h">
+    <div class="container">
+      <div class="sec-head">
+        <h2 id="how-h">How to use it</h2>
+        <p>Most days you won't touch Moat. When you need it, Kai shows you how.</p>
+      </div>
+
+      <div class="howto">
+        <div class="howto-txt">
+          <div class="narrator" aria-hidden="true">
+            <div class="kai" id="kai">
+              <img src="characters/kai.webp" width="438" height="525" alt="">
+              <span class="lid l"></span><span class="lid r"></span>
+            </div>
+            <p class="say" id="kai-say">Hi, I'm Kai. Let me show you around.</p>
+          </div>
+
+          <div class="howto-pane" id="how-1" role="tabpanel" aria-labelledby="how-t1">
+            <h3>Fix a site that breaks</h3>
+            <p>Now and then a site won't load right with ads blocked. You can turn Moat off for just that site.</p>
+            <ol>
+              <li><span>Click the <b>Moat icon</b> next to the address bar.</span></li>
+              <li><span>Turn off the <b>switch</b> next to the site's name.</span></li>
+              <li><span>The page reloads without Moat.</span></li>
+            </ol>
+            <p class="tip">Every other site stays protected. Turn the switch back on whenever you like.</p>
+          </div>
+          <div class="howto-pane" id="how-2" role="tabpanel" aria-labelledby="how-t2" hidden>
+            <h3>Hide anything the lists miss</h3>
+            <p>A banner or box the filter lists don't catch? Point at it and it's gone, every time you visit.</p>
+            <ol>
+              <li><span>Click the <b>Moat icon</b>, then <b>Hide something on this page</b>.</span></li>
+              <li><span>Point at the thing you want gone and click it.</span></li>
+              <li><span>Click <b>Hide on</b> the site's name.</span></li>
+            </ol>
+            <p class="tip">Got too little or too much? Use <b>Select more</b> or <b>Select less</b>. You can bring anything back in Settings.</p>
+          </div>
+          <div class="howto-pane" id="how-3" role="tabpanel" aria-labelledby="how-t3" hidden>
+            <h3>Get past tracked email links</h3>
+            <p>Many emails send their links through a tracker first. Moat stops the tracker and shows you where the link was going.</p>
+            <ol>
+              <li><span>Click the link in your email as usual.</span></li>
+              <li><span>Moat stops the tracker page.</span></li>
+              <li><span>Click <b>Go to</b> the site's name to skip it.</span></li>
+            </ol>
+            <p class="tip"><b>Open anyway</b> loads the page once. A site on a scam or phishing list gets a stronger warning instead.</p>
+          </div>
+          <div class="howto-pane" id="how-4" role="tabpanel" aria-labelledby="how-t4" hidden>
+            <h3>Choose how much Moat blocks</h3>
+            <p>Balanced suits most people. Go Strict for more privacy, or Light if sites keep breaking.</p>
+            <ol>
+              <li><span>Click the <b>Moat icon</b>, then <b>Settings</b>.</span></li>
+              <li><span>Open <b>Protection</b>.</span></li>
+              <li><span>Pick <b>Light</b>, <b>Balanced</b> or <b>Strict</b>.</span></li>
+            </ol>
+            <p class="tip">Extras like blocking cross-site cookies sit just below. Each one has its own switch.</p>
+          </div>
+          <div class="howto-pane" id="how-5" role="tabpanel" aria-labelledby="how-t5" hidden>
+            <h3>Tell us when something's off</h3>
+            <p>An ad got through, or a page broke? Send a report to Moat's developer in a few clicks.</p>
+            <ol>
+              <li><span>Click the <b>Moat icon</b>, then <b>Report a problem</b>.</span></li>
+              <li><span>Pick what's wrong.</span></li>
+              <li><span>Check <b>What will be sent</b>, then click <b>Send report</b>.</span></li>
+            </ol>
+            <p class="tip">You see exactly what gets sent before you send it. No account needed.</p>
+          </div>
+          <button class="btn btn-line next" type="button" id="how-next">Next</button>
+        </div>
+
+        <!-- The demo window. Each data-state is one screen; the script
+             switches .howstage[data-show] and moves the cursor. -->
+        <div class="howstage" id="howstage" aria-hidden="true">
+          <div class="tb"><span class="d"><i></i><i></i><i></i></span><span class="tb-url" id="tb-url">wired.com/story/best-password-managers</span>
+            <span class="tb-moat"><svg viewBox="0 0 32 32"><line x1="24" y1="8" x2="16" y2="16" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="currentColor"/><circle cx="16" cy="16" r="2.8" fill="currentColor" fill-opacity=".85"/><circle cx="9" cy="25" r="2.2" fill="currentColor" fill-opacity=".7"/><circle cx="5.5" cy="11" r="2" fill="currentColor" fill-opacity=".62"/></svg></span>
+          </div>
+          <div class="view">
+            <!-- 1: pause -->
+            <img class="scr" data-s="1a 1b 1c" src="shots/hero-after-1200.webp" width="1200" height="675" alt="" loading="lazy">
+            <img class="popimg" data-s="1b" src="shots/pop-on.png" width="260" height="507" alt="" loading="lazy">
+            <img class="popimg" data-s="1c" src="shots/pop-paused.png" width="260" height="349" alt="" loading="lazy">
+            <!-- 2: hide -->
+            <img class="scr" data-s="2a 2b" src="shots/how/recipe.webp" width="1440" height="900" alt="" loading="lazy">
+            <img class="popimg" data-s="2b" src="shots/how/pop-recipe.webp" width="280" height="539" alt="" loading="lazy">
+            <img class="scr" data-s="2c" src="shots/how/pick-hover.webp" width="1440" height="900" alt="" loading="lazy">
+            <img class="scr" data-s="2d" src="shots/how/pick-panel.webp" width="1440" height="900" alt="" loading="lazy">
+            <img class="scr" data-s="2e" src="shots/how/pick-done.webp" width="1440" height="900" alt="" loading="lazy">
+            <!-- 3: tracked email link -->
+            <div class="scr mail" data-s="3a">
+              <div class="mail-card">
+                <p class="mail-from">Shop <span>orders@shop.example</span></p>
+                <h4>Your order is on its way</h4>
+                <p>Your package left our warehouse this morning. You can follow it from here.</p>
+                <span class="mail-btn">Track your package</span>
+              </div>
+            </div>
+            <img class="scr zoom" data-s="3b" src="shots/how/blocked.webp" width="1440" height="900" alt="" loading="lazy">
+            <div class="scr landing" data-s="3c"><div><h4>Example Domain</h4><p>The page the email link was taking you to, without the tracker in between.</p></div></div>
+            <!-- 4: level -->
+            <div class="scr panel" data-s="4a 4b"><img data-s="4a" src="shots/how/level-balanced.webp" width="1086" height="332" alt="" loading="lazy"><img data-s="4b" src="shots/how/level-strict.webp" width="1086" height="332" alt="" loading="lazy"></div>
+            <!-- 5: report -->
+            <div class="scr panel report" data-s="5a 5b 5c"><img data-s="5a" src="shots/how/report-0.webp" width="608" height="796" alt="" loading="lazy"><img data-s="5b" src="shots/how/report-1.webp" width="608" height="796" alt="" loading="lazy"><img data-s="5c" src="shots/how/report-2.webp" width="608" height="1000" alt="" loading="lazy"></div>
+          </div>
+          <svg class="cursor" id="cursor" viewBox="0 0 24 24"><path d="M4 2.5v17.2l4.6-4.3 3 6.6 3.1-1.4-3-6.5h6.4Z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          <span class="ripple" id="ripple"></span>
+        </div>
+      </div>
+
+      <div class="howto-strip" role="tablist" aria-label="Tasks">
+        <button role="tab" id="how-t1" aria-controls="how-1" aria-selected="true"><span class="n">1</span>Fix a site that breaks</button>
+        <button role="tab" id="how-t2" aria-controls="how-2" aria-selected="false" tabindex="-1"><span class="n">2</span>Hide what the lists miss</button>
+        <button role="tab" id="how-t3" aria-controls="how-3" aria-selected="false" tabindex="-1"><span class="n">3</span>Tracked email links</button>
+        <button role="tab" id="how-t4" aria-controls="how-4" aria-selected="false" tabindex="-1"><span class="n">4</span>Choose how much it blocks</button>
+        <button role="tab" id="how-t5" aria-controls="how-5" aria-selected="false" tabindex="-1"><span class="n">5</span>Report a problem</button>
       </div>
     </div>
   </section>
@@ -535,13 +909,13 @@
     <div class="container">
       <div class="sec-head">
         <h2>Private by design, not by promise.</h2>
-        <p>There's nothing to collect, so there's nothing to leak or sell. You can check every line.</p>
+        <p>There's nothing to collect, so there's nothing to leak or sell. You can read the code.</p>
       </div>
       <div class="cards">
         <div class="card">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="16" height="7" rx="2" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="16" height="7" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           <h3>On your device.</h3>
-          <p>Blocking happens inside your browser. Moat goes online only for signed list updates and reports you send.</p>
+          <p>Blocking happens inside your browser. Moat goes online for signed list updates, reports you send, and two checks you can turn on.</p>
         </div>
         <div class="card">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -574,19 +948,19 @@
         <h2>Built for Manifest V3.</h2>
         <p class="lead">Written for the current extension platform from day one. It's not a cut-down port of an older blocker.</p>
         <div class="nums">
-          <div><b>350k</b>bundled filter rules</div>
+          <div><b>310k</b>bundled filter rules</div>
           <div><b>2</b>browsers, one codebase</div>
         </div>
       </div>
       <div class="extras">
         <h3>Extras, all off until you want them</h3>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Fingerprint resistance</b> for canvas, audio and WebGL tracking.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Device protection</b> makes your device harder for sites to recognize.</li>
           <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Breached-password warnings</b> as you type into a login form.</li>
-          <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Tracker uncloaking</b> for trackers hiding behind a site's own domain.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Hidden-tracker detection</b> for trackers hiding behind a site's own address.</li>
         </ul>
         <div class="actions">
-          <a class="btn btn-blue" href="https://github.com/Samuelabhinav37/moat#install--build">Install from source</a>
+          <a class="btn btn-blue" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
           <a class="btn btn-line" href="https://github.com/Samuelabhinav37/moat">View the source</a>
         </div>
       </div>
@@ -597,13 +971,14 @@
   <section id="get">
     <div class="container">
       <div class="cta-box">
+        <img class="cta-kai" src="characters/kai.webp" width="438" height="525" alt="">
         <div>
           <h2>Start browsing quieter today.</h2>
-          <p>Moat is on its way to the Chrome Web Store. You can install it from source now.</p>
+          <p>Moat is free on the Chrome Web Store. Kai's ready when you are.</p>
         </div>
         <div class="cta-btns">
-          <a class="btn btn-white" href="https://github.com/Samuelabhinav37/moat#install--build">Install from source</a>
-          <a class="btn btn-ghost-w" data-store href="https://github.com/Samuelabhinav37/moat/releases">Watch for the release</a>
+          <a class="btn btn-white" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
+          <a class="btn btn-ghost-w" href="https://github.com/Samuelabhinav37/moat">View the source</a>
         </div>
       </div>
     </div>
@@ -617,16 +992,16 @@
       <div class="faq">
         <div class="faq-col">
           <details id="faq-free"><summary>Is Moat free?</summary><p>Yes. Moat is free and open source under GPL-3.0. There's no paid tier, no premium unlock and no subscription.</p></details>
-          <details id="faq-what"><summary>What does Moat block?</summary><p>Ads, trackers, hijacked pop-up tabs and cookie banners, out of the box. Fingerprinting protection and leaked-password warnings are switches in Settings.</p></details>
-          <details id="faq-data"><summary>Does Moat collect my data?</summary><p>No. Blocking runs on your device, and there's no account and no analytics. The only thing it downloads is a small, signed file of filter fixes once a day, and that request carries nothing about you. The only time anything reaches Moat's developer is a problem report you write and send yourself, after seeing exactly what it contains.</p></details>
-          <details id="faq-money"><summary>How does Moat make money?</summary><p>It doesn't. Moat is an open-source project that runs almost nothing online, so there's little to pay for. Nothing you do is sold, and it doesn't show "acceptable" ads.</p></details>
+          <details id="faq-what"><summary>What does Moat block?</summary><p>Ads, trackers, hijacked pop-up tabs and cookie banners, out of the box. Device protection and leaked-password warnings are switches in Settings.</p></details>
+          <details id="faq-data"><summary>Does Moat collect my data?</summary><p>No. Blocking runs on your device, and there's no account and no analytics. Once a day it downloads small, signed files of filter fixes and security lists, and those requests carry nothing about you. Two optional switches go online when you turn them on: hidden-tracker detection asks Cloudflare where an address really points, and leaked-password warnings send a short scrambled piece of the password to Have I Been Pwned. The only time anything reaches Moat's developer is a problem report you write and send yourself, after seeing exactly what it contains.</p></details>
+          <details id="faq-money"><summary>How does Moat make money?</summary><p>It doesn't. Moat is an open-source project that runs very little online, so there's little to pay for. Nothing you do is sold, and it doesn't show "acceptable" ads.</p></details>
         </div>
         <div class="faq-col">
-          <details id="faq-how"><summary>How does Moat work?</summary><p>Filter lists run inside the browser's own blocking engine, so ads and trackers are stopped before they load. A small signed update arrives once a day. <a href="https://github.com/Samuelabhinav37/moat/blob/master/docs/design-notes.md">Read the technical details</a>.</p></details>
+          <details id="faq-how"><summary>How does Moat work?</summary><p>Filter lists run inside the browser's own blocking engine, so ads and trackers are stopped before they load. Small signed updates arrive once a day. <a href="https://github.com/Samuelabhinav37/moat/blob/master/docs/design-notes.md">Read the technical details</a>.</p></details>
           <details id="faq-perm"><summary>Why does it ask to read every site?</summary><p>An ad blocker has to see a page's requests to block them, on every site you visit. Moat reads pages on your computer only and never sends their content anywhere.</p></details>
-          <details id="faq-pause"><summary>Can I turn it off for one site?</summary><p>Yes. Open the Moat popup on that site and flip the switch. Everywhere else stays protected.</p></details>
-          <details id="faq-firefox"><summary>Does it work in Firefox?</summary><p>Yes. Moat is built from one codebase for both Chrome and Firefox, including Firefox for Android.</p></details>
-          <details id="faq-store"><summary>When will it be in the Chrome Web Store?</summary><p>It's being prepared for submission now. Until then you can <a href="https://github.com/Samuelabhinav37/moat#install--build">install it from source</a> in a couple of minutes.</p></details>
+          <details id="faq-pause"><summary>Can I turn it off for one site?</summary><p>Yes. Open the Moat popup on that site and flip the switch. Everywhere else stays protected. <a href="#how">Kai shows you how</a>.</p></details>
+          <details id="faq-firefox"><summary>Does it work in Firefox?</summary><p>Yes. Moat is built from one codebase for Chrome and Firefox. For now, Firefox users <a href="https://github.com/Samuelabhinav37/moat#install--build">build it from source</a>.</p></details>
+          <details id="faq-store"><summary>Where do I get it?</summary><p>From the <a data-store href="https://github.com/Samuelabhinav37/moat/releases">Chrome Web Store</a>. It's free. You can also <a href="https://github.com/Samuelabhinav37/moat#install--build">build it from source</a> on GitHub.</p></details>
         </div>
       </div>
     </div>
@@ -638,8 +1013,8 @@
     <div class="foot-top">
       <a class="logo" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#030307" stroke="rgba(255,255,255,.18)"/><line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="#fff"/><circle cx="16" cy="16" r="2.8" fill="rgba(255,255,255,.85)"/><circle cx="9" cy="25" r="2.2" fill="rgba(255,255,255,.7)"/><circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)"/></svg>Moat</a>
       <div class="foot-cols" role="navigation" aria-label="Footer">
-        <div><h4>Product</h4><a href="#features">Features</a><a href="#privacy">Privacy</a><a href="#faq">FAQ</a></div>
-        <div><h4>Resources</h4><a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md">Changelog</a><a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md">Privacy policy</a><a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml">Build status</a><a href="https://github.com/Samuelabhinav37/moat#install--build">Install from source</a></div>
+        <div><h4>Product</h4><a href="#features">Features</a><a href="#how">How to use it</a><a href="#privacy">Privacy</a><a href="#faq">FAQ</a></div>
+        <div><h4>Resources</h4><a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md">Changelog</a><a href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md">Privacy policy</a><a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml">Build status</a><a href="https://github.com/Samuelabhinav37/moat#install--build">Build from source</a></div>
         <div><h4>Project</h4><a href="https://github.com/Samuelabhinav37/moat">GitHub</a><a href="https://github.com/Samuelabhinav37/moat/blob/master/LICENSE">GPL-3.0 license</a><a href="https://github.com/Samuelabhinav37/moat/issues">Report an issue</a></div>
       </div>
     </div>
@@ -663,14 +1038,180 @@
     }
     addEventListener("resize", fit);
     fit();
-    // Feature cards: run their loops only while on screen.
+    // Feature rows: reveal once when they scroll in, and run their loops
+    // (screenshot, cookie) only while on screen.
+    var rows = document.querySelectorAll(".row");
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) { e.target.classList.toggle("play", e.isIntersecting); });
-      }, { threshold: 0.35 });
-      document.querySelectorAll(".bcard").forEach(function (c) { io.observe(c); });
+        entries.forEach(function (e) {
+          if (e.isIntersecting) e.target.classList.add("seen");
+          e.target.classList.toggle("play", e.isIntersecting);
+        });
+      }, { threshold: 0.3 });
+      rows.forEach(function (r) { io.observe(r); });
     } else {
-      document.querySelectorAll(".bcard").forEach(function (c) { c.classList.add("play"); });
+      rows.forEach(function (r) { r.classList.add("seen", "play"); });
+    }
+
+    // Promo film: plays only after a click, so nothing loads from a video
+    // host until the visitor asks for it. A YouTube link uses the
+    // no-cookie player.
+    var film = document.getElementById("film");
+    if (film && film.dataset.src) {
+      var src = film.dataset.src;
+      var yt = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/.exec(src);
+      var btn = document.createElement("button");
+      btn.className = "play-btn"; btn.type = "button"; btn.setAttribute("aria-label", "Play the Moat video");
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5Z"/></svg>';
+      if (film.dataset.poster) {
+        var poster = document.createElement("img");
+        poster.className = "poster"; poster.src = film.dataset.poster; poster.alt = "";
+        film.appendChild(poster);
+      }
+      film.appendChild(btn);
+      btn.addEventListener("click", function () {
+        var player;
+        if (yt) {
+          player = document.createElement("iframe");
+          player.src = "https://www.youtube-nocookie.com/embed/" + yt[1] + "?autoplay=1&rel=0";
+          player.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+          player.title = "Moat video";
+        } else {
+          player = document.createElement("video");
+          player.src = src; player.controls = true; player.autoplay = true; player.playsInline = true;
+        }
+        film.replaceChildren(player);
+      });
+    }
+
+    // How to use it. Each task is a list of steps: Kai says the line, the
+    // step lights up, the cursor moves to a spot on a real screenshot
+    // ([selector, x, y] as fractions of that element's box) and clicks,
+    // and the window switches to the next screen (data-s on .view items).
+    var HOWTO = [
+      { start: "1a", url: "wired.com/story/best-password-managers", steps: [
+        { li: 0, say: "Site acting up? Click my icon, up by the address bar.", go: [".tb-moat", .5, .55], then: "1b" },
+        { li: 1, say: "Flip the switch. Moat pauses on this site only.", go: ['img[data-s="1b"]', .79, .59], then: "1c" },
+        { li: 2, say: "The page reloads without Moat. Every other site stays protected.", reload: true, happy: true }
+      ] },
+      { start: "2a", url: "recipes.example/tomato-soup", steps: [
+        { li: 0, say: "See that app banner? Click my icon first.", go: [".tb-moat", .5, .55], then: "2b" },
+        { li: 0, say: "Now pick Hide something on this page.", go: ['img[data-s="2b"]', .46, .85], then: "2c" },
+        { li: 1, say: "Point at the banner and click it.", go: ['img[data-s="2c"]', .5, .3], then: "2d" },
+        { li: 2, say: "Choose Hide on recipes.example.", go: ['img[data-s="2d"]', .234, .525], then: "2e" },
+        { li: 2, say: "Gone. It stays gone next time too.", happy: true }
+      ] },
+      { start: "3a", url: "mail.example/inbox", steps: [
+        { li: 0, say: "Here's a normal email. Click its link.", go: [".mail-btn", .5, .5], then: "3b", url: "www.awin1.com/cread.php?awinmid=1&ued=https%3A%2F%2Fexample.com" },
+        { li: 1, say: "That link went through a tracker first, so I stopped it." },
+        { li: 2, say: "Click Go to example.com to skip the tracker.", go: ['img[data-s="3b"]', .363, .434], then: "3c", url: "example.com/landing" },
+        { li: 2, say: "And you land where the email meant to send you.", happy: true }
+      ] },
+      { start: "1a", url: "wired.com/story/best-password-managers", steps: [
+        { li: 0, say: "My settings are one click away. Open my icon.", go: [".tb-moat", .5, .55], then: "1b" },
+        { li: 0, say: "Then Settings, at the top.", go: ['img[data-s="1b"]', .83, .063], then: "4a", url: "Moat › Settings › Protection" },
+        { li: 1, say: "Protection is where your level lives. Balanced is the default." },
+        { li: 2, say: "Want more privacy? Pick Strict.", go: ['img[data-s="4a"]', .72, .44], then: "4b" },
+        { li: 2, say: "Strict blocks more. If a site breaks, Light blocks less.", happy: true }
+      ] },
+      { start: "1a", url: "wired.com/story/best-password-managers", steps: [
+        { li: 0, say: "Spotted a problem? Open my icon.", go: [".tb-moat", .5, .55], then: "1b" },
+        { li: 0, say: "Pick Report a problem.", go: ['img[data-s="1b"]', .5, .923], then: "5a", url: "Moat › Report a problem" },
+        { li: 1, say: "Say what's wrong.", go: ['img[data-s="5a"]', .115, .255], then: "5b" },
+        { li: 2, say: "Open What will be sent. You see all of it first.", go: ['img[data-s="5b"]', .2, .814], then: "5c" },
+        { li: 2, say: "Then send it. No account needed.", go: ['img[data-s="5c"]', .17, .931], happy: true }
+      ] }
+    ];
+    var stageEl = document.getElementById("howstage");
+    if (stageEl) {
+      var view = stageEl.querySelector(".view"), cursor = document.getElementById("cursor"), ripple = document.getElementById("ripple");
+      var urlEl = document.getElementById("tb-url"), sayEl = document.getElementById("kai-say"), kai = document.getElementById("kai");
+      var tabs = [].slice.call(document.querySelectorAll(".howto-strip [role=tab]"));
+      var items = [].slice.call(view.querySelectorAll("[data-s]"));
+      var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var current = 0, token = 0, visible = false;
+      var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+      var show = function (state) {
+        stageEl.dataset.show = state;
+        items.forEach(function (el) { el.classList.toggle("on", el.dataset.s.split(" ").indexOf(state) !== -1); });
+      };
+      var lis = function () { return [].slice.call(document.querySelectorAll("#how-" + (current + 1) + " li")); };
+      var light = function (i) { lis().forEach(function (li, k) { li.classList.toggle("on", k === i); }); };
+      var point = function (target) {
+        var el = stageEl.querySelector(target[0]); if (!el) return null;
+        var s = stageEl.getBoundingClientRect(), r = el.getBoundingClientRect();
+        return { x: r.left - s.left + r.width * target[1], y: r.top - s.top + r.height * target[2] };
+      };
+      var moveTo = function (p) { cursor.style.transform = "translate(" + (p.x - 5) + "px," + (p.y - 3) + "px)"; };
+      var rest = function () { var s = stageEl.getBoundingClientRect(); moveTo({ x: s.width * .62, y: s.height * .78 }); };
+      var cheer = function () { kai.classList.add("happy"); setTimeout(function () { kai.classList.remove("happy"); }, 1700); };
+      var nod = function () { kai.classList.remove("nod"); void kai.offsetWidth; kai.classList.add("nod"); };
+      var finalState = function (task) {
+        var st = task.start; task.steps.forEach(function (s) { if (s.then) st = s.then; });
+        return st;
+      };
+      var run = async function () {
+        var my = ++token, task = HOWTO[current];
+        if (reduce) {
+          show(finalState(task)); urlEl.textContent = task.url; sayEl.textContent = task.steps[task.steps.length - 1].say; light(-1);
+          return;
+        }
+        stageEl.classList.add("live");
+        while (my === token) {
+          show(task.start); urlEl.textContent = task.url; light(-1); rest();
+          sayEl.textContent = "Watch this. I'll show you.";
+          await sleep(1100);
+          for (var i = 0; i < task.steps.length; i++) {
+            if (my !== token) return;
+            var step = task.steps[i];
+            sayEl.textContent = step.say; light(step.li);
+            await sleep(step.go ? 650 : 1500);
+            if (step.go) {
+              var p = point(step.go); if (!p) continue;
+              moveTo(p); await sleep(950); if (my !== token) return;
+              ripple.style.left = p.x + "px"; ripple.style.top = p.y + "px";
+              ripple.classList.remove("go"); void ripple.offsetWidth; ripple.classList.add("go");
+              cursor.classList.add("press"); nod();
+              await sleep(160); cursor.classList.remove("press");
+              await sleep(200);
+              if (step.then) show(step.then);
+              if (step.url) urlEl.textContent = step.url;
+            }
+            if (step.reload) { view.style.opacity = ".35"; await sleep(260); view.style.opacity = ""; }
+            if (step.happy) cheer();
+            await sleep(step.happy ? 2600 : 900);
+          }
+          await sleep(900);
+        }
+      };
+      var stop = function () { token++; stageEl.classList.remove("live"); };
+      var select = function (i, focus) {
+        current = i;
+        tabs.forEach(function (t, k) {
+          var on = k === i;
+          t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1;
+          document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+        });
+        if (focus) tabs[i].focus();
+        stop(); if (visible || reduce) run();
+      };
+      tabs.forEach(function (t, i) {
+        t.addEventListener("click", function () { select(i); });
+        t.addEventListener("keydown", function (e) {
+          var d = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+          if (d) { e.preventDefault(); select((i + d + tabs.length) % tabs.length, true); }
+        });
+      });
+      document.getElementById("how-next").addEventListener("click", function () { select((current + 1) % tabs.length); });
+      show(HOWTO[0].start);
+      if (reduce) run();
+      else if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (en) {
+          var now = en[0].isIntersecting;
+          if (now && !visible) { visible = true; run(); }
+          else if (!now && visible) { visible = false; stop(); }
+        }, { threshold: 0.35 }).observe(stageEl);
+      } else { visible = true; run(); }
     }
     // Before/after divider. Without JS the page still shows a fixed split.
     var stage = document.getElementById("stage");
