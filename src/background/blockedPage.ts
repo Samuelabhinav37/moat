@@ -4,7 +4,8 @@
 // plain words, with "Go back" first (Chrome Safe Browsing's pattern).
 //
 // liveBlocks.ts sees the refused page load (net::ERR_BLOCKED_BY_CLIENT on a
-// main_frame). One getMatchedRules read names the rule; shared/blockedPage.ts
+// main_frame). Prebuilt host indexes name most lists; for the rest, one
+// getMatchedRules read names the rule; shared/blockedPage.ts
 // turns it into a list. That read shares Chrome's 20-per-10-minutes quota
 // with the popup's counts, so it keeps a few calls spare, and without it the
 // page still shows, as "one of Moat's lists".
@@ -22,6 +23,7 @@ import { CUSTOM_LIST, POLICY_LIST, UNKNOWN_LIST, blockedPageQuery, hostOnList, k
 import { hostnameOf } from "../shared/trackerDomains";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
 import { getEffectiveSettings, getSettings } from "./settings";
+import type { RulesetManifestEntry } from "../shared/rulesetManifest";
 
 /** Leave 2 of Chrome's 20 calls per 10 minutes for opening the popup. */
 const MATCHED_RULES_BUDGET = 18;
@@ -81,16 +83,31 @@ async function bundledSecurityGroupFor(url: string, enabled: (group: string) => 
   return securityGroupFor(url, index, enabled);
 }
 
+/** The switched-on ad or tracker list that blocks this address as a whole
+ * page (rules/ad-hosts.json, built by scripts/lib/securityHosts.mjs). A
+ * list counts as on when Chrome has one of its rulesets enabled. */
+async function adGroupFor(url: string, manifest: readonly RulesetManifestEntry[]): Promise<string | null> {
+  const [index, enabledIds] = await Promise.all([
+    fetch(browser.runtime.getURL("rules/ad-hosts.json")).then((r) => r.json() as Promise<SecurityHostsIndex>),
+    browser.declarativeNetRequest.getEnabledRulesets(),
+  ]);
+  const enabled = new Set(manifest.filter((entry) => enabledIds.includes(entry.id)).map((entry) => entry.group));
+  return securityGroupFor(url, index, (group) => enabled.has(group));
+}
+
 /** Which list stopped the page, and what kind of stop it was. The lists
  * Moat holds itself answer first, since they cost nothing: your block list,
- * your organization's, and the danger lists. Only an ad or tracker list
- * needs Chrome's match lookup, and when its quota is spent the stop is
- * "unknown" and handled as carefully as a dangerous one. */
+ * your organization's, the danger lists, then the ad and tracker lists'
+ * whole-page hosts. Only what's left needs Chrome's match lookup, which
+ * can come back empty (the match isn't filed yet, or the quota is spent).
+ * Then the stop is "unknown" and handled as carefully as a dangerous one. */
 export async function resolveBlock(block: PageBlocked): Promise<{ list: string; kind: BlockKind }> {
   const hostname = hostnameOf(block.url);
   const known = await ownListFor(block.url, hostname);
   if (known) return known;
   const manifest = await loadRulesetManifest().catch(() => []);
+  const adGroup = await adGroupFor(block.url, manifest).catch(() => null);
+  if (adGroup) return { list: adGroup, kind: "ads" };
   const match = await findPageMatch(block);
   if (!match) return { list: UNKNOWN_LIST, kind: "unknown" };
   const live = match.rulesetId === "_dynamic" && match.ruleId >= LIVE_SECURITY_ID_START && match.ruleId < LIVE_SECURITY_ID_START + MAX_LIVE_SECURITY_RULES;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSecurityHosts } from "./securityHosts.mjs";
+import { buildAdHosts, buildSecurityHosts } from "./securityHosts.mjs";
 
 const PAGE = ["main_frame", "sub_frame", "script"];
 const manifest = [
@@ -35,5 +35,11 @@ describe("buildSecurityHosts", () => {
         pages: { "host.example": ["/phish/page", "^*fake-login"] },
       },
     });
+  });
+});
+
+describe("buildAdHosts", () => {
+  it("collects the same index for the ad and tracker lists only", () => {
+    expect(buildAdHosts(manifest, (f) => files[f])).toEqual({ ads: { hosts: ["ads.example"], pages: {} } });
   });
 });

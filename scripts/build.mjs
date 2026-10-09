@@ -11,7 +11,7 @@ import { createRequire } from "node:module";
 import { buildManifest } from "./manifest.ts";
 import { buildDocs } from "./docs/buildDocs.mjs";
 import { buildTrackerDomains } from "./lib/trackerDomains.mjs";
-import { buildSecurityHosts } from "./lib/securityHosts.mjs";
+import { buildAdHosts, buildSecurityHosts } from "./lib/securityHosts.mjs";
 import { buildEarlyCosmetics } from "./lib/earlyCosmetics.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -176,6 +176,11 @@ function copyStaticAssets() {
   // Firefox's linter refuses a text file over 5MB.
   if (securityHosts.length > 4.5 * 1024 * 1024) throw new Error(`rules/security-hosts.json is ${securityHosts.length} bytes, over the 4.5MB ceiling`);
   writeFileSync(resolve(outDir, "rules", "security-hosts.json"), securityHosts);
+  // The same for the ad and tracker lists, so a stopped page names its list
+  // even when the match lookup comes back empty.
+  const adHosts = JSON.stringify(buildAdHosts(rulesetManifest, (file) => JSON.parse(readFileSync(resolve(rulesDir, file), "utf8"))));
+  if (adHosts.length > 4.5 * 1024 * 1024) throw new Error(`rules/ad-hosts.json is ${adHosts.length} bytes, over the 4.5MB ceiling`);
+  writeFileSync(resolve(outDir, "rules", "ad-hosts.json"), adHosts);
 
   // Hand-curated, checked into the repo (not generated into rules/dnr): the
   // ad-network domain list src/content/adCollapse.ts uses to collapse the

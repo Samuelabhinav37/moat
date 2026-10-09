@@ -24,9 +24,22 @@ const WHOLE_SITE_ENDINGS = new Set(["", "^", "^|", "|"]);
  * host's page-level urlFilter patterns (the part after "||host"), for the
  * manifest's security rulesets. */
 export function buildSecurityHosts(manifest, readRuleset) {
+  return buildPageHosts(manifest, readRuleset, (category) => category === "security");
+}
+
+/** The same index for the ad and tracker lists (rules/ad-hosts.json). The
+ * block page used Chrome's match lookup for these, and when that came back
+ * empty (the match not filed yet, or the quota spent) the stop showed as
+ * "unknown": no list name and no "Go to" for a tracked email link. Patterns
+ * this can't read (no "||host" start, or a regex) still fall back to it. */
+export function buildAdHosts(manifest, readRuleset) {
+  return buildPageHosts(manifest, readRuleset, (category) => category !== "security");
+}
+
+function buildPageHosts(manifest, readRuleset, includeCategory) {
   const byGroup = {};
   for (const entry of manifest) {
-    if (entry.category !== "security") continue;
+    if (!includeCategory(entry.category)) continue;
     const group = (byGroup[entry.group] ??= { hosts: new Set(), pages: new Map() });
     for (const rule of readRuleset(entry.file)) {
       if (rule.action?.type !== "block") continue;

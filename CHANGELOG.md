@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.263
+
+### Fixed
+- **The block page names the ad or tracker list every time.** When Moat stopped a whole page,
+  like a tracked link in an email, the page sometimes couldn't tell which list stopped it. It then
+  showed "One of Moat's lists", hid "Go to" for the link's real destination, and treated the site
+  as possibly dangerous. Moat asked Chrome which rule matched, and Chrome answers only 20 times
+  every 10 minutes across all of Moat. Moat now carries its own list of the sites each ad and
+  tracker list blocks as whole pages, so the answer no longer depends on Chrome.
+
 ## 0.11.262
 
 ### Fixed
