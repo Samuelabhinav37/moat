@@ -23,25 +23,28 @@ const root = resolve(__dirname, "..");
 function createZip(sourceDir, destZipPath) {
   if (existsSync(destZipPath)) rmSync(destZipPath);
   if (process.platform === "win32") {
-    // Compress-Archive is built into Windows (PowerShell 5.1+, no extra
-    // install) and produces a real, correctly-compressed zip.
-    // Get-ChildItem's -Exclude is silently a no-op when combined with
-    // -LiteralPath -- confirmed directly (a _metadata/ dir, Chrome's own
-    // ~12MB runtime cache, still leaked into the archive with -LiteralPath).
-    // It only takes effect alongside a wildcard -Path, hence the trailing
-    // \* here -- also what makes each item land at the archive's top level
-    // instead of nested under one wrapper folder.
-    execFileSync(
-      "powershell.exe",
-      [
-        "-NoProfile",
-        "-NonInteractive",
-        "-Command",
-        `Get-ChildItem -Path '${sourceDir}\\*' -Exclude '_metadata' | ` +
-          `Compress-Archive -DestinationPath '${destZipPath}' -CompressionLevel Optimal -Force`,
-      ],
-      { stdio: "inherit" }
-    );
+    // .NET's ZipArchive, built into Windows. Not Compress-Archive: in Windows
+    // PowerShell 5.1 it names entries with backslashes ("icons\16.png"), which
+    // unzip warns about and the zip spec doesn't allow. Entries here are
+    // relative paths with forward slashes, files only, at the archive's top
+    // level, with Chrome's own _metadata/ cache left out.
+    const script = [
+      "Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem",
+      "$src = (Resolve-Path -LiteralPath $env:ZIP_SRC).Path.TrimEnd([char]92) + [char]92",
+      "$zip = [System.IO.Compression.ZipFile]::Open($env:ZIP_DEST, [System.IO.Compression.ZipArchiveMode]::Create)",
+      "try {",
+      "  Get-ChildItem -LiteralPath $src -Recurse -File | ForEach-Object {",
+      "    $rel = $_.FullName.Substring($src.Length).Replace([char]92, [char]47)",
+      "    if (-not $rel.StartsWith('_metadata/')) {",
+      "      [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $_.FullName, $rel, [System.IO.Compression.CompressionLevel]::Optimal)",
+      "    }",
+      "  }",
+      "} finally { $zip.Dispose() }",
+    ].join("\n");
+    execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", script], {
+      stdio: "inherit",
+      env: { ...process.env, ZIP_SRC: sourceDir, ZIP_DEST: destZipPath },
+    });
   } else {
     // -X: no extra file attributes/timestamps, for reproducible output.
     execFileSync("zip", ["-r", "-X", destZipPath, ".", "-x", "_metadata/*"], {
