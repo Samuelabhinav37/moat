@@ -89,12 +89,17 @@ ${toc.length ? `<aside class="toc"><div class="toc-h">On this page</div>${toc.ma
 
 // ---------- Changelog ----------
 {
+  // Dates come from the version's commit. Headings come from the entry itself:
+  // its first bold lead ("Pages no longer jump ..."), which then isn't repeated
+  // in the bullet. Commit subjects ("Procedural cosmetics: ...") are for developers.
   const log = git(["log", "--format=%cs|%s", "-400"]).split("\n");
-  const info = {}; for (const l of log) { const m = l.match(/^(\S+)\|(.*)\((0\.\d+\.\d+)\)\s*$/); if (m && !info[m[3]]) info[m[3]] = { date: m[1], title: m[2].trim() }; }
+  const info = {}; for (const l of log) { const m = l.match(/^(\S+)\|(.*)\((0\.\d+\.\d+)\)\s*$/); if (m && !info[m[3]]) info[m[3]] = { date: m[1] }; }
   const src = md("CHANGELOG.md"); const parts = src.split(/\n## /).slice(1, 21);
   const TAG = { fixed: "fix", added: "new", changed: "chg", security: "sec", removed: "rem", performance: "perf" };
-  const entries = parts.map((p) => {
-    const ver = p.split("\n")[0].trim(); const i = info[ver] || {};
+  const entries = parts.map((raw) => {
+    const lead = raw.match(/\*\*(.+?)\*\*[ \t]*/);
+    const p = lead ? raw.replace(lead[0], "") : raw;
+    const ver = p.split("\n")[0].trim(); const i = { ...info[ver], title: lead ? lead[1].replace(/[.:]$/, "") : "" };
     const secs = p.split(/\n### /).slice(1).map((s) => { const name = s.split("\n")[0].trim(); const kind = Object.keys(TAG).find((k) => name.toLowerCase().startsWith(k)) || "changed"; return { name, kind, html: render(s.slice(s.indexOf("\n"))).html }; });
     const kinds = [...new Set(secs.map((s) => s.kind))];
     return `<article class="rel" id="v${ver.replace(/\./g, "-")}" data-kinds="${kinds.join(" ")}"><div class="rel-side"><span class="ver">${ver}</span>${i.date ? `<time datetime="${i.date}">${new Date(i.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}</time>` : ""}</div>

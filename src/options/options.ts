@@ -2431,7 +2431,7 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
   for (const [key, fallback, cls] of [
     ["insColSite", "Site", ""],
     ["insColBlocked", "Blocked", "hide-sm"],
-    ["insColTotal", "Total", ""],
+    ["insColTotal", "Total", "num-h"],
     ["insColMoat", "Protected", ""],
   ] as const) {
     const th = document.createElement("th");

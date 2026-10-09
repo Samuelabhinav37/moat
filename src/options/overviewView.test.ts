@@ -92,6 +92,13 @@ describe("buildKpi / buildTopCard", () => {
     expect(buildKpi(document, "Pop-ups", 0, null, [0, 0], t).querySelector(".ov-kpi-delta, svg")).toBeNull();
   });
 
+  it("draws a count that never changed level through the middle, not along the top", () => {
+    const line = buildKpi(document, "Companies", 4, null, [4, 4, 4, 4], t).querySelector(".ov-spark-line")!.getAttribute("d")!;
+    expect(line).toBe("M0.0 22.0 L100.0 22.0 L200.0 22.0 L300.0 22.0");
+    const rising = buildKpi(document, "Trackers", 3, null, [1, 2, 3], t).querySelector(".ov-spark-line")!.getAttribute("d")!;
+    expect(rising.endsWith("300.0 6.0")).toBe(true); // the highest day still reaches the top
+  });
+
   it("lists up to five rows with a bar, or says it's empty", () => {
     const icon = () => document.createElement("span");
     const card = buildTopCard(document, "Who tracks you most", "Sites each company was on", [{ icon: icon(), name: "Google", value: "41", sub: "of 58", share: 41 / 58 }], "None yet", { href: "#trackers", label: "All trackers" });

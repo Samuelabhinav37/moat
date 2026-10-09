@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.262
+
+### Fixed
+- **Settings look right on a phone-sized window.** In About, the "Check for filter fixes" button
+  sat on top of the version line. The box for pausing a site shrank to "example.c" next to its
+  menu. On Security, long addresses were cut off, though the end of an address is where a
+  lookalike gives itself away. Protection's switches squeezed their descriptions into a narrow
+  strip, so the decorative icons now step aside on small screens.
+- **Columns line up.** About's list of what Moat connects to now keeps its columns straight from
+  row to row, and the Sites table's "Total" sits over its numbers.
+- **A count that never changed no longer looks like a solid block.** On Trackers, the small chart
+  for a steady number (the same 4 companies every day) now runs level through the middle.
+- **The changelog speaks plainly.** Each version's heading is now its first change in words,
+  not a developer's note like "Procedural cosmetics".
+
 ## 0.11.261
 
 ### Fixed

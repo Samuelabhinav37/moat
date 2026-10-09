@@ -171,7 +171,11 @@ function sparkline(doc: Document, values: number[]): SVGSVGElement {
   svg.setAttribute("aria-hidden", "true");
   const max = Math.max(...values, 1);
   const min = Math.min(...values, 0);
-  const pts = values.map((v, i) => [values.length > 1 ? (i * 300) / (values.length - 1) : 0, 6 + 32 * (1 - (v - min) / (max - min || 1))] as const);
+  // A count that never changed (the same 4 companies every day) would sit on
+  // the top edge with the fill below it, reading as a solid box: draw it level
+  // through the middle instead.
+  const flat = values.every((v) => v === values[0]);
+  const pts = values.map((v, i) => [values.length > 1 ? (i * 300) / (values.length - 1) : 0, flat ? 22 : 6 + 32 * (1 - (v - min) / (max - min || 1))] as const);
   const d = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
   const area = doc.createElementNS(SVG_NS, "path");
   area.setAttribute("class", "ov-spark-area");

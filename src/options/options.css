@@ -230,6 +230,17 @@ main.wrap:focus {
 .setting-row.pop .setting-icon {
   animation: pop 0.45s var(--spring);
 }
+/* On a phone the icon column cost the text a third of its width ("Catch
+   hidden trackers" ran to nine lines); the title says what the row is. */
+@media (max-width: 480px) {
+  .setting-rows .setting-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+  .setting-rows .setting-icon {
+    display: none;
+  }
+}
 @keyframes pop {
   40% {
     transform: scale(1.14);
@@ -788,7 +799,10 @@ ul.site-list li + li {
   min-height: 40px;
 }
 @media (max-width: 600px) {
-  .add-row input {
+  /* Two classes, so it beats the plain .add-row input { flex: 1 } further
+     down, which reset this basis to 0 and squeezed the pause box (next to its
+     "Until I turn it back on" menu) to "example.c". */
+  .pause-card .add-row input {
     flex-basis: 100%;
   }
 }
@@ -1163,8 +1177,10 @@ details.more[open] > :not(summary) {
   height: 48px;
   border-radius: 12px;
 }
+/* A 200px basis, not 0: on a phone the text keeps its width and the button
+   wraps under it instead of sitting on top of "Chrome · 310,021 filter entries". */
 .ab-id-text {
-  flex: 1;
+  flex: 1 1 200px;
   min-width: 0;
 }
 .ab-name {
@@ -1279,9 +1295,11 @@ details.more[open] > :not(summary) {
   margin: 0;
   padding: 6px 12px 12px;
 }
+/* Fixed recipient and state columns: each row is its own grid, so an auto
+   state column ("always on" vs "off · Change") moved both columns row to row. */
 .flow-row {
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) minmax(0, 170px) auto;
+  grid-template-columns: 36px minmax(0, 1fr) minmax(0, 170px) 190px;
   align-items: center;
   gap: 14px;
   padding: 12px;
@@ -1323,19 +1341,19 @@ details.more[open] > :not(summary) {
 /* Plain status, not a button: a dot and a word. Optional rows add a
    Change link that jumps to the setting. */
 .flow-end {
-  justify-self: end;
+  justify-self: start;
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 4px 12px;
 }
 .flow-state {
   position: relative;
-  justify-self: end;
+  justify-self: start;
   padding-left: 14px;
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
-  white-space: nowrap;
 }
 .flow-state::first-letter {
   text-transform: uppercase;
@@ -2772,7 +2790,13 @@ main.wrap > * {
   gap: 8px;
   min-width: 0;
 }
-/* Whole address, wrapped if long: a lookalike gives itself away at the end. */
+/* Whole address, wrapped if long: a lookalike gives itself away at the end.
+   Beats .ins-table .site span:last-child (0,3,1), which cuts other tables'
+   names short. */
+.stop-group .ins-table .site .stop-name {
+  overflow: visible;
+  white-space: normal;
+}
 .stop-host {
   overflow-wrap: anywhere;
 }
@@ -2938,6 +2962,10 @@ tr.open td {
   font-weight: 700;
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+/* The header over a right-aligned number column lines up with it. */
+.ins-table th.num-h {
+  text-align: right;
 }
 .ins-table tr.off td:not(:last-child) {
   opacity: 0.5;
