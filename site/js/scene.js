@@ -1,11 +1,8 @@
 // The page's scenes, using the characters from life.js:
-// - the moat (live poster for the promo film): cookies wander up to the
-//   moat and crumble at it while Kai keeps watch;
-// - the feature rows: each cookie gloats while the page is cluttered, then
-//   cracks apart when Moat cleans it up, and hops back for the next round;
+// - the promo film: a play button over the hero scene once data-src is set;
 // - How to use it: Kai talks through each task while a cursor clicks
 //   through real Moat screens, and watches that cursor as it goes;
-// - reveals on scroll, and Kai cheering when the install button is near.
+// - reveals on scroll, and Kai cheering at the closing install button.
 // Scenes run only while on screen; reduced motion shows the end states.
 (function () {
   "use strict";
@@ -26,111 +23,30 @@
     rev.forEach(function (el) { rio.observe(el); });
   } else rev.forEach(function (el) { el.classList.add("in"); });
 
-  // ---- the moat ---------------------------------------------------------------
+  // ---- the promo film, once it has an address ------------------------------------
   var film = document.getElementById("film");
-  if (film) {
-    var fkai = L.kai(film.querySelector("[data-kai]"));
-    var cookies = [].slice.call(film.querySelectorAll("[data-cookie]")).map(function (el) { return L.cookie(el); });
-    var water = film.querySelector(".moat-water");
-    var filmOn = false;
-    watch(film, function (v) { filmOn = v; }, .25);
-    // a cookie walks up to the moat's edge and crumbles there
-    var charge = async function (c) {
-      c.busy = true;
-      fkai.target = c.root; fkai.setMood("focus");
-      var r = c.root.getBoundingClientRect(), w = water.getBoundingClientRect();
-      var dist = w.left + w.width * .08 - (r.left + r.width * .6);
-      var hops = Math.max(2, Math.round(dist / 70)), step = dist / hops;
-      c.dir = 1; c.root.style.setProperty("--dir", String(c.face));
-      for (var i = 0; i < hops; i++) await c.hop(step, rand(12, 20), 400);
-      film.classList.remove("hit"); void film.offsetWidth; film.classList.add("hit");
-      c.busy = false;
-      await c.crumble({ fall: 70 });
-      fkai.target = null; fkai.setMood("happy", 1500); fkai.hop(); fkai.talk(500);
-      await sleep(rand(1600, 2600));
-      c.root.style.setProperty("--dir", "1");
-      await c.enter(-1);
-    };
-    if (!reduce) (async function loop() {
-      await sleep(1500);
-      for (;;) {
-        await sleep(rand(2200, 4200));
-        if (!filmOn) continue;
-        var ready = cookies.filter(function (c) { return !c.busy && !c.gone && getComputedStyle(c.root).display !== "none"; });
-        if (!ready.length) continue;
-        await charge(ready[Math.floor(Math.random() * ready.length)]);
+  if (film && film.dataset.src) {
+    var src = film.dataset.src;
+    var yt = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/.exec(src);
+    var btn = document.createElement("button");
+    btn.className = "play-btn"; btn.type = "button"; btn.setAttribute("aria-label", "Play the Moat video");
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5Z"/></svg>';
+    film.appendChild(btn);
+    btn.addEventListener("click", function () {
+      var player;
+      if (yt) {
+        player = document.createElement("iframe");
+        player.src = "https://www.youtube-nocookie.com/embed/" + yt[1] + "?autoplay=1&rel=0";
+        player.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+        player.title = "Moat video";
+      } else {
+        player = document.createElement("video");
+        player.src = src; player.controls = true; player.autoplay = true; player.playsInline = true;
+        if (film.dataset.poster) player.poster = film.dataset.poster;
       }
-    })();
-    // the promo film, once it has an address
-    if (film.dataset.src) {
-      var src = film.dataset.src;
-      var yt = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/.exec(src);
-      var btn = document.createElement("button");
-      btn.className = "play-btn"; btn.type = "button"; btn.setAttribute("aria-label", "Play the Moat video");
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5Z"/></svg>';
-      film.appendChild(btn);
-      btn.addEventListener("click", function () {
-        var player;
-        if (yt) {
-          player = document.createElement("iframe");
-          player.src = "https://www.youtube-nocookie.com/embed/" + yt[1] + "?autoplay=1&rel=0";
-          player.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
-          player.title = "Moat video";
-        } else {
-          player = document.createElement("video");
-          player.src = src; player.controls = true; player.autoplay = true; player.playsInline = true;
-          if (film.dataset.poster) player.poster = film.dataset.poster;
-        }
-        film.appendChild(player); btn.remove();
-      });
-    }
-    // Kai cheers when the visitor heads for the install button
-    document.querySelectorAll("[data-store]").forEach(function (b) {
-      b.addEventListener("pointerenter", function () {
-        fkai.setMood("happy", 1400);
-        cookies.forEach(function (c) { if (!c.gone && !c.busy) c.wiggle(); });
-      });
+      film.appendChild(player); btn.remove();
     });
   }
-
-  // ---- feature rows -------------------------------------------------------------
-  document.querySelectorAll(".row[data-loop]").forEach(function (row) {
-    var kind = row.dataset.loop, el = row.querySelector("[data-cookie]"), c = el && L.cookie(el);
-    var chip = row.querySelector(".say-chip"), on = false, running = false;
-    if (chip) chip.textContent = row.dataset.line || "";
-    var rest = { shot: "clean", pop: "closed", ctl: "on" }[kind];
-    row.dataset.phase = rest;
-    if (reduce || !c) return;
-    var say = function (show) { if (chip) chip.classList.toggle("on", show); };
-    var phase = function (p) { row.dataset.phase = p; };
-    var play = async function () {
-      if (running) return; running = true;
-      while (on) {
-        if (kind === "shot") {
-          phase("dirty"); c.setMood("gloat"); await sleep(700); say(true);
-          await sleep(2600); say(false); c.setMood("scared");
-          await sleep(500); phase("clean"); await c.crumble();
-          await sleep(2400); phase("dirty"); await c.enter(row.classList.contains("flip") ? 1 : -1);
-        } else if (kind === "pop") {
-          phase("calm"); await sleep(900);
-          phase("open"); c.setMood("gloat"); say(true); await sleep(2200);
-          say(false); c.setMood("scared"); phase("struck"); await sleep(600);
-          phase("closed"); await c.crumble();
-          await sleep(2400); await c.enter(row.classList.contains("flip") ? 1 : -1);
-        } else {
-          phase("on"); await sleep(1800);
-          say(true); await sleep(1600); say(false);
-          phase("tap"); c.setMood("scared"); await c.hop(0, 26, 420);
-          await sleep(300); phase("paused"); c.setMood(""); await sleep(2800);
-          phase("on"); await c.wiggle(); await sleep(1200);
-        }
-      }
-      phase(rest); c.setMood(""); say(false);
-      if (c.gone) await c.enter(-1);
-      running = false;
-    };
-    watch(row, function (v) { on = v; if (v) play(); }, .45);
-  });
 
   // ---- How to use it -----------------------------------------------------------------
   // Each task is a list of steps: Kai says the line, the step lights up, the

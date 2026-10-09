@@ -1,6 +1,7 @@
-// The page's product demos: the before/after inside the laptop, the
-// tracker report, the cookie banner tile, the pop-up tab and the pause
-// switch. Each plays only while on screen; reduced motion shows the end.
+// The page's product demos. Each one shows the problem, then Moat's real
+// answer, and the cookie that stands for the problem fades and blurs out
+// ("handled"); then it calmly starts over. Everything plays only while on
+// screen; reduced motion shows the answered state and stays still.
 (function () {
   "use strict";
   var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -10,88 +11,117 @@
     if (!("IntersectionObserver" in window)) { cb(true); return; }
     new IntersectionObserver(function (en) { cb(en[0].isIntersecting); }, { threshold: t || .4 }).observe(el);
   };
-  var once = function (el, cb, t) {
-    var done = false;
-    watch(el, function (v) { if (v && !done) { done = true; cb(); } }, t);
+  // runs `step` in a loop while `el` is on screen
+  var loop = function (el, step, done) {
+    var on = false, running = false;
+    var go = async function () {
+      if (running) return; running = true;
+      while (on) await step(function () { return on; });
+      running = false; if (done) done();
+    };
+    watch(el, function (v) { on = v; if (v) go(); }, .45);
   };
 
-  // before/after: sweeps once when it comes into view, then it's the visitor's
-  var cmp = document.getElementById("compare");
+  // ---- before/after; Blare is there while the ads are ------------------------
+  var cmp = document.getElementById("compare"), blare = document.getElementById("blare-side");
   if (cmp) {
-    var range = cmp.querySelector(".range");
+    var range = cmp.querySelector(".range"), taken = false;
+    var x = function () { return parseFloat(getComputedStyle(cmp).getPropertyValue("--x")) || 50; };
+    var paintBlare = function () {
+      if (!blare) return;
+      var v = x() / 100;                      // share of the page shown without Moat
+      var img = blare.firstElementChild;
+      img.style.opacity = (.15 + .85 * v).toFixed(3);
+      img.style.filter = "blur(" + ((1 - v) * 7).toFixed(1) + "px) drop-shadow(0 18px 24px rgba(0,0,0,.55))";
+    };
     var set = function (v) {
       cmp.style.setProperty("--x", v + "%");
       range.setAttribute("aria-valuetext", v < 10 ? "Mostly with Moat" : v > 90 ? "Mostly without Moat" : Math.round(v) + "% without Moat");
+      paintBlare();
     };
-    var taken = false;
     var take = function () { if (taken) return; taken = true; cmp.classList.remove("sweep"); set(range.value); };
-    ["pointerdown", "keydown", "focus", "touchstart"].forEach(function (t) { range.addEventListener(t, take, { passive: true }); });
+    ["pointerdown", "keydown", "touchstart"].forEach(function (t) { range.addEventListener(t, take, { passive: true }); });
     range.addEventListener("input", function () { take(); set(range.value); });
-    if (reduce || !(window.CSS && CSS.registerProperty)) set(50);
-    else once(cmp, function () { if (!taken) cmp.classList.add("sweep"); }, .5);
-    cmp.addEventListener("animationend", function () { if (!taken) { cmp.classList.remove("sweep"); set(50); } });
+    set(50);
+    if (!reduce && window.CSS && CSS.registerProperty) {
+      var swept = false;
+      watch(cmp, function (v) {
+        if (!v || swept || taken) return;
+        swept = true; cmp.classList.add("sweep");
+        var t0 = performance.now();
+        var tick = function (t) { paintBlare(); if (t - t0 < 4000 && cmp.classList.contains("sweep")) requestAnimationFrame(tick); };
+        requestAnimationFrame(tick);
+      }, .5);
+      cmp.addEventListener("animationend", function () { if (!taken) { cmp.classList.remove("sweep"); set(50); } });
+    }
   }
 
-  // tracker report: rows arrive one by one
-  var rep = document.getElementById("report");
-  if (rep) once(rep, function () {
-    var lis = rep.querySelectorAll("li");
-    lis.forEach(function (li, i) { li.style.transitionDelay = (reduce ? 0 : 200 + i * 160) + "ms"; });
-    rep.classList.add("on");
-  });
+  var feature = function (id) { return document.getElementById(id); };
 
-  // cookie banner: the banner is there, then Moat answers it
-  var consent = document.getElementById("consent"), chip = document.getElementById("consent-chip");
-  if (consent) {
-    var on = false, running = false;
-    var loop = async function () {
-      if (running) return; running = true;
-      while (on) {
-        consent.classList.remove("clean"); chip.classList.remove("on");
-        await sleep(2200); if (!on) break;
-        consent.classList.add("clean"); await sleep(500); chip.classList.add("on");
-        await sleep(3600);
-      }
-      running = false;
-    };
-    if (reduce) { consent.classList.add("clean"); chip.classList.add("on"); }
-    else watch(consent, function (v) { on = v; if (v) loop(); }, .4);
+  // ---- trackers: each blocked tracker is ticked off, then Crumb is handled ----
+  var ft = feature("f-trackers"), rep = document.getElementById("report");
+  if (ft && rep) {
+    var lis = [].slice.call(rep.querySelectorAll("li"));
+    if (reduce) { lis.forEach(function (li) { li.classList.add("on"); }); ft.classList.add("handled"); }
+    else loop(ft, async function (on) {
+      ft.classList.remove("handled"); lis.forEach(function (li) { li.classList.remove("on"); });
+      await sleep(1200);
+      for (var i = 0; i < lis.length && on(); i++) { lis[i].classList.add("on"); await sleep(420); }
+      await sleep(400); ft.classList.add("handled");
+      await sleep(4200);
+    });
   }
 
-  // pop-up tab: opens, gets struck out, closes
-  var tabs = document.getElementById("tabs-demo");
-  if (tabs && !reduce) {
-    var ton = false, trun = false;
-    var tloop = async function () {
-      if (trun) return; trun = true;
-      while (ton) {
-        tabs.className = "tabs-demo"; await sleep(1400); if (!ton) break;
-        tabs.classList.add("open"); await sleep(1300);
-        tabs.classList.remove("open"); tabs.classList.add("struck"); await sleep(700);
-        tabs.classList.remove("struck"); await sleep(2200);
-      }
-      tabs.className = "tabs-demo"; trun = false;
+  // ---- cookie banners: the real steps of Moat's consent rule, then Nag ---------
+  var fb = feature("f-banners"), film = document.getElementById("steps-film");
+  if (fb && film) {
+    var frames = [].slice.call(film.querySelectorAll("img"));
+    var caps = [].slice.call(fb.querySelectorAll(".steps-cap span"));
+    var capFor = [0, 1, 2, 2, 2, 3];          // frame -> caption
+    var show = function (k) {
+      frames.forEach(function (f, i) { f.classList.toggle("on", i === k); });
+      caps.forEach(function (c, i) { c.classList.toggle("on", i === capFor[k]); });
     };
-    watch(tabs, function (v) { ton = v; if (v) tloop(); }, .4);
+    if (reduce) { show(frames.length - 1); fb.classList.add("handled"); }
+    else { show(0); loop(fb, async function (on) {
+      fb.classList.remove("handled"); show(0);
+      await sleep(1800);
+      for (var k = 1; k < frames.length && on(); k++) { show(k); await sleep(k === 1 ? 1100 : 700); }
+      fb.classList.add("handled");
+      await sleep(3800);
+    }); }
   }
 
-  // pause switch: tapped, paused for a while, back on
-  var flip = document.getElementById("flipper");
-  if (flip && !reduce) {
-    var fon = false, frun = false;
-    var floop = async function () {
-      if (frun) return; frun = true;
-      while (fon) {
-        await sleep(2000); if (!fon) break;
-        flip.classList.remove("tapping"); void flip.offsetWidth; flip.classList.add("tapping");
-        await sleep(300); flip.classList.add("paused");
-        await sleep(3000);
-        flip.classList.remove("tapping"); void flip.offsetWidth; flip.classList.add("tapping");
-        await sleep(300); flip.classList.remove("paused");
-        await sleep(1600);
-      }
-      flip.classList.remove("paused"); frun = false;
-    };
-    watch(flip, function (v) { fon = v; if (v) floop(); }, .4);
+  // ---- pop-ups: a tab sneaks open, gets struck out and closed, then Popsy -------
+  var fp = feature("f-popups"), tabs = document.getElementById("tabs-demo");
+  if (fp && tabs) {
+    if (reduce) fp.classList.add("handled");
+    else loop(fp, async function () {
+      fp.classList.remove("handled"); tabs.className = "tabs-demo";
+      await sleep(1600);
+      tabs.classList.add("open"); await sleep(1400);
+      tabs.classList.remove("open"); tabs.classList.add("struck"); await sleep(700);
+      tabs.classList.remove("struck"); fp.classList.add("handled");
+      await sleep(3800);
+    });
+  }
+
+  // ---- hero: cookies drift up to the page now and then, and fade away -----------
+  var scene = document.getElementById("film");
+  if (scene && !reduce) {
+    var outs = [].slice.call(scene.querySelectorAll(".out"));
+    var kaiEl = scene.querySelector("[data-kai]");
+    var kai = window.MoatLife && kaiEl ? window.MoatLife.kai(kaiEl) : null;
+    loop(scene, async function () {
+      await sleep(2600 + Math.random() * 1800);
+      var o = outs[Math.floor(Math.random() * outs.length)];
+      if (getComputedStyle(o).display === "none") return;
+      if (kai) { kai.target = o; kai.setMood("focus"); }
+      o.classList.add("near"); await sleep(1200);
+      o.classList.remove("near"); o.classList.add("handled");
+      if (kai) { kai.setMood("happy", 1400); kai.target = null; }
+      await sleep(2600);
+      o.classList.remove("handled");
+    });
   }
 })();
