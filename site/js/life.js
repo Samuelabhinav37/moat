@@ -115,6 +115,15 @@
   };
 
   // ---- Cookies ------------------------------------------------------------
+  // Eye rigs for the cookies whose irises were painted out of the art
+  // (.cache/opt/characters/rig_eyes.py): each eye's white as a box in % of
+  // the image, the iris centre and size in % of that box, and the lid
+  // colour for blinks. Popsy (half-closed eyes) and Wafer blink nothing.
+  var RIG = {
+    crumb: [{ x: 33.69, y: 22.53, w: 10.78, h: 6.58, ix: 64.5, iy: 48.7, ir: 39.3, lid: "#d0823e" }, { x: 48.88, y: 20.78, w: 11.19, h: 7.04, ix: 43.2, iy: 49.6, ir: 37.9, lid: "#eead61" }],
+    blare: [{ x: 37.5, y: 22.59, w: 13.25, h: 7.08, ix: 68.7, iy: 66.9, ir: 26.7, lid: "#eabf95" }, { x: 52.65, y: 20.41, w: 13.38, h: 8.71, ix: 30.5, iy: 63.1, ir: 26.4, lid: "#ceb1a4" }],
+    nag: [{ x: 32.96, y: 22.11, w: 16.58, h: 13.27, ix: 36.5, iy: 66.7, ir: 40, lid: "#c5894b", wobble: 1 }, { x: 54.62, y: 17.8, w: 16.38, h: 14.37, ix: 76.2, iy: 32.7, ir: 37.3, lid: "#91653f", wobble: 1 }]
+  };
   // Pieces a cookie cracks into: polygons in % of its box.
   var SHARDS = [
     "0 0,46 0,40 34,0 42", "46 0,100 0,100 30,62 40,40 34", "0 42,40 34,34 66,0 70",
@@ -126,10 +135,22 @@
     this.img = root.querySelector("img");
     root.insertAdjacentHTML("afterbegin", '<span class="c-shadow"></span>');
     this.body = document.createElement("span"); this.body.className = "c-body";
-    this.img.replaceWith(this.body); this.body.appendChild(this.img);
+    this.art = document.createElement("span"); this.art.className = "c-art";
+    this.img.replaceWith(this.body); this.body.appendChild(this.art); this.art.appendChild(this.img);
+    this.eyes = [];
+    var rig = RIG[root.dataset.cast];
+    if (rig) rig.forEach(function (e) {
+      var w = document.createElement("span"); w.className = "c-eye";
+      w.style.cssText = "left:" + e.x + "%;top:" + e.y + "%;width:" + e.w + "%;height:" + e.h + "%";
+      var iris = document.createElement("i"); iris.className = "c-iris";
+      iris.style.cssText = "left:" + e.ix + "%;top:" + e.iy + "%;width:" + e.ir + "%";
+      var lid = document.createElement("b"); lid.className = "c-lid"; lid.style.background = "linear-gradient(" + e.lid + ", " + e.lid + " 70%, rgba(0,0,0,.35))";
+      w.append(iris, lid); this.art.appendChild(w);
+      this.eyes.push({ iris: iris, lid: lid, wobble: !!e.wobble, x: 0, y: 0 });
+    }, this);
     this.shadow = root.querySelector(".c-shadow");
     this.face = root.dataset.face === "left" ? -1 : 1;   // which way the art faces
-    this.lean = 0; this.dir = 1; this.busy = false; this.gone = false; this.mood = "";
+    this.lean = 0; this.dir = 1; this.busy = false; this.gone = false; this.mood = ""; this.seed = Math.random() * 10;
     root.style.setProperty("--phase", (-Math.random() * 3).toFixed(2) + "s");
     if (io) io.observe(root);
     if (!reduce) { this.watchLoop(); this.idleLoop(); }
@@ -151,6 +172,17 @@
       var dir = near && Math.abs(dx) > 30 ? (dx > 0 ? 1 : -1) : self.dir;
       if (dir !== self.dir && !self.busy) { self.dir = dir; self.turn(); }
       self.root.style.setProperty("--lean", self.lean.toFixed(2) + "deg");
+      if (self.eyes.length) {
+        var lx = 0, ly = 0, t = performance.now() / 1000;
+        if (pointer.seen && d < 900) { var k = Math.min(1, d / 300); lx = dx / (d || 1) * k; ly = dy / (d || 1) * k; }
+        else { lx = Math.sin(t * .7 + self.seed) * .5; ly = Math.cos(t * .5 + self.seed) * .2; }
+        if (self.dir * self.face < 0) lx = -lx;
+        self.eyes.forEach(function (e) {
+          var wob = e.wobble ? Math.sin(t * 9 + self.seed) * .12 * (self.busy ? 1 : .2) : 0;
+          e.x += (lx + wob - e.x) * .16; e.y += (ly - e.y) * .16;
+          e.iris.style.transform = "translate(calc(-50% + " + (e.x * 40).toFixed(1) + "%), calc(-50% + " + (e.y * 26).toFixed(1) + "%))";
+        });
+      }
       if (near && d < r.width * .75 && !self.busy) self.dodge(dx);
     };
     requestAnimationFrame(tick);
@@ -190,11 +222,15 @@
       await sleep(rand(1800, 4200));
       if (!visible(this.root) || this.busy || this.gone) continue;
       var r = Math.random();
+      if (this.eyes.length && Math.random() < .6) this.blink();
       if (this.mood === "gloat") { this.busy = true; await this.hop(0, 16, 460); await this.hop(0, 10, 380); this.busy = false; }
       else if (r < .45) await this.wiggle();
       else if (r < .8) { this.busy = true; await this.hop(0, 12, 420); this.busy = false; }
       else { this.busy = true; await this.hop(rand(-14, 14), 9, 420); this.busy = false; }
     }
+  };
+  Cookie.prototype.blink = function () {
+    this.eyes.forEach(function (e) { anim(e.lid, [{ transform: "scaleY(0)" }, { transform: "scaleY(1)", offset: .45 }, { transform: "scaleY(1)", offset: .55 }, { transform: "scaleY(0)" }], { duration: 190, easing: "ease-in-out" }); });
   };
   Cookie.prototype.setMood = function (m) {
     this.mood = m || "";

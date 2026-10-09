@@ -113,11 +113,11 @@
   .film.hit .ripple-ring { animation: ripple .9s ease-out; }
   @keyframes ripple { from { opacity: .9; transform: scale(.92); } to { opacity: 0; transform: scale(1.18); } }
   .film [data-kai] { position: absolute; left: 58.5%; top: 25%; width: 15cqw; z-index: 6; filter: drop-shadow(0 2cqw 2.4cqw rgba(0, 0, 0, .7)); }
-  .film [data-cookie] { top: auto; bottom: 30%; width: 8.4cqw; }
+  .film [data-cookie] { top: auto; bottom: 30%; width: 9cqw; }
   .film [data-cookie].s1 { left: 6%; }
-  .film [data-cookie].s2 { left: 17%; width: 7.4cqw; }
-  .film [data-cookie].s3 { left: 28%; width: 7.2cqw; }
-  .film [data-cookie].s4 { left: 38.5%; width: 6.8cqw; }
+  .film [data-cookie].s2 { left: 17%; width: 8cqw; }
+  .film [data-cookie].s3 { left: 28%; width: 8.4cqw; }
+  .film [data-cookie].s4 { left: 38.5%; width: 6.6cqw; }
   .film-cap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; padding: 22px 30px; display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap; font-size: clamp(13px, 1.4cqw, 16px); color: var(--soft-2); background: linear-gradient(transparent, rgba(0, 0, 0, .7)); }
   .film-cap b { color: var(--ink); font-weight: 600; }
   .film-cap .hint { margin-left: auto; color: var(--soft); }
@@ -176,13 +176,15 @@
   .report li i { font-style: normal; font-size: 13px; color: #6fcf8f; }
   .js .report li { opacity: 0; translate: 0 8px; transition: opacity .4s, translate .4s; }
   .js .report.on li { opacity: 1; translate: 0 0; }
-  .popshot { width: min(300px, 80%); border-radius: 20px 20px 0 0; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 30px 60px -20px #000; display: block; }
-  .flipper { position: relative; width: min(300px, 80%); }
-  .flipper img { width: 100%; border-radius: 20px 20px 0 0; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 30px 60px -20px #000; display: block; transition: opacity .5s; }
+  .tile .vis.full { margin: auto -44px 0; padding-top: 0; height: 420px; }
+  .pausedemo { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  .pausedemo .page { position: absolute; left: 0; top: 0; width: 160%; max-width: none; height: auto; transform: translateX(-30%); filter: brightness(.45) saturate(.8); }
+  .pausedemo .flipper { position: absolute; right: 9%; top: 26px; width: 52%; max-width: 280px; }
+  .flipper img { width: 100%; height: auto; border-radius: 16px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 30px 60px -12px rgba(0, 0, 0, .8); display: block; transition: opacity .45s; }
   .flipper img + img { position: absolute; top: 0; left: 0; opacity: 0; }
   .flipper.paused img + img { opacity: 1; }
   .flipper.paused img:first-child { opacity: 0; }
-  .flipper .tap { position: absolute; left: 72.5%; top: 18%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; border: 2.5px solid #fff; opacity: 0; pointer-events: none; }
+  .flipper .tap { position: absolute; left: 72.9%; top: 18.2%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; border: 2.5px solid #fff; opacity: 0; pointer-events: none; }
   .flipper.tapping .tap { animation: tap .6s ease-out; }
   @keyframes tap { from { opacity: 1; transform: scale(1.5); } to { opacity: 0; transform: scale(.7); } }
   /* cookie banner tile: the real Simmer capture, banner fading out */
@@ -214,10 +216,11 @@
   /* ---- the cast ------------------------------------------------------------------ */
   .cast { margin-top: 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
   .card { position: relative; border-radius: 28px; background: var(--tile); padding: 0 26px 30px; overflow: hidden; }
-  .card .stage { position: relative; height: 230px; margin: 0 -26px 22px; display: grid; place-items: end center; padding-bottom: 26px;
+  .card .stage { position: relative; height: 250px; margin: 0 -26px 22px; display: grid; place-items: end center; padding-bottom: 26px;
     background: radial-gradient(70% 70% at 50% 75%, var(--glow, rgba(63, 111, 209, .28)), transparent 70%), linear-gradient(180deg, #0c0e14, #12141b); }
   .card .stage::after { content: ""; position: absolute; left: 22%; right: 22%; bottom: 20px; height: 16px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .6), transparent); }
-  .card [data-cookie] { position: relative; z-index: 2; width: 120px; transform-origin: 50% 100%; }
+  .card [data-cookie] { position: relative; z-index: 2; width: 150px; transform-origin: 50% 100%; }
+  .card [data-cast="popsy"] { width: 118px; } .card [data-cast="blare"] { width: 138px; }
   .card [data-cookie].thin { width: 54px; }
   .card h3 { font-size: 24px; }
   .card .role { margin-top: 4px; font-size: 14px; font-weight: 600; color: var(--soft-2); }
@@ -241,10 +244,16 @@
   @keyframes float { 50% { translate: 0 -4%; } }
   [data-cookie] { position: absolute; z-index: 4; cursor: pointer; transform: rotate(var(--lean, 0deg)); transform-origin: 50% 100%; --dir: 1; }
   .c-body { display: block; transform-origin: 50% 100%; }
-  [data-cookie] img { width: 100%; height: auto; display: block; transform: scaleX(var(--dir)); transition: transform .2s; transform-origin: 50% 100%; animation: breathe 2.8s ease-in-out var(--phase, 0s) infinite; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .55)); }
+  .c-art { position: relative; display: block; transform: scaleX(var(--dir)); transition: transform .2s; transform-origin: 50% 100%; animation: breathe 2.8s ease-in-out var(--phase, 0s) infinite; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .55)); }
+  [data-cookie] img { width: 100%; height: auto; display: block; }
+  .c-eye { position: absolute; border-radius: 50%; overflow: hidden; }
+  .c-iris { position: absolute; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%);
+    background: radial-gradient(circle at 50% 50%, #0d0705 0 30%, #3a1c0d 33%, #6b3a1c 55%, #4a2410 78%, #1e0f07 100%); box-shadow: 0 0 0 1px rgba(0, 0, 0, .35); }
+  .c-iris::after { content: ""; position: absolute; left: 22%; top: 18%; width: 24%; height: 24%; border-radius: 50%; background: rgba(255, 255, 255, .92); }
+  .c-lid { position: absolute; inset: -6% -4%; transform: scaleY(0); transform-origin: 50% 0; border-radius: 0 0 50% 50%; }
   @keyframes breathe { 50% { scale: 1.03 .97; } }
-  [data-cookie].gloat img { animation-duration: 1.1s; }
-  [data-cookie].scared img { animation: shiver .12s linear infinite; }
+  [data-cookie].gloat .c-art { animation-duration: 1.1s; }
+  [data-cookie].scared .c-art { animation: shiver .12s linear infinite; }
   @keyframes shiver { 50% { translate: 1.5px 0; } }
   .c-shadow { position: absolute; left: 18%; right: 18%; bottom: -4%; height: 9%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .55), transparent); transition: opacity .3s; }
   .card .c-shadow { display: none; }
@@ -322,7 +331,10 @@
   /* ---- privacy ------------------------------------------------------------------------- */
   .grid4 { margin-top: 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
   .fact { border-radius: 24px; background: var(--tile); padding: 30px 26px 32px; }
-  .fact svg { width: 34px; height: 34px; color: var(--ink); }
+  .fact .ico { width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center;
+    background: radial-gradient(120% 100% at 30% 0%, #3b5aa8 0%, #22325f 45%, #131a2e 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -10px 20px rgba(0, 0, 0, .35), 0 14px 30px -14px rgba(63, 111, 209, .8); }
+  .fact .ico svg { width: 32px; height: 32px; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .35)); }
   .fact h3 { margin-top: 22px; font-size: 21px; }
   .fact p { margin-top: 8px; font-size: 15px; line-height: 1.45; color: var(--soft); font-weight: 500; }
 
@@ -367,7 +379,7 @@
   .foot-bottom { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 22px; }
 
   @media (prefers-reduced-motion: reduce) {
-    .moat-water, .float, [data-cookie] img { animation: none; }
+    .moat-water, .float, .c-art { animation: none; }
     .js [data-reveal] { opacity: 1; translate: none; transition: none; }
     .compare.sweep { animation: none; --x: 50%; }
     .view > *, .cursor { transition: none; }
@@ -403,6 +415,7 @@
     .base { margin: 0 -4%; }
     .tile { padding: 32px 26px 0; min-height: 480px; border-radius: 24px; }
     .tile .vis { height: 340px; }
+    .tile .vis.full { margin: auto -26px 0; height: 380px; }
     .tile.wide { padding: 32px 0 0 26px; }
     .tile.wide .txt { padding-right: 26px; }
     .cast, .grid4 { grid-template-columns: 1fr; }
@@ -425,7 +438,7 @@
     <a class="logo" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#030307" stroke="rgba(255,255,255,.18)"/><line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="#fff"/><circle cx="16" cy="16" r="2.8" fill="rgba(255,255,255,.85)"/><circle cx="9" cy="25" r="2.2" fill="rgba(255,255,255,.7)"/><circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)"/></svg>Moat</a>
     <div class="nav-links">
       <a href="#difference">Overview</a>
-      <a href="#cast">The cookies</a>
+      <a href="#cast">Characters</a>
       <a href="#how">How to use it</a>
       <a href="#privacy">Privacy</a>
       <a href="#faq">FAQ</a>
@@ -462,11 +475,11 @@
       <span class="ripple-ring" aria-hidden="true"></span>
       <div class="float" data-kai aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
       <!-- CAST SLOTS: swap each img for the new 3D render (same file names work) -->
-      <span class="s1" data-cookie data-cast="crumb" aria-hidden="true"><img src="characters/cookie-chip.webp" width="358" height="369" alt=""></span>
-      <span class="s2" data-cookie data-cast="blare" aria-hidden="true"><img src="characters/cookie-star.webp" width="288" height="374" alt=""></span>
-      <span class="s3" data-cookie data-cast="nag" aria-hidden="true"><img src="characters/cookie-sandwich.webp" width="282" height="341" alt=""></span>
-      <span class="s4" data-cookie data-cast="popsy" aria-hidden="true"><img src="characters/cookie-crescent.webp" width="263" height="378" alt=""></span>
-      <p class="film-cap"><span><b>Meet Kai.</b> The cookies follow you around the web. At the moat, they crumble.</span><span class="hint">Try clicking one.</span></p>
+      <span class="s1" data-cookie data-cast="crumb" aria-hidden="true"><img src="characters/crumb.webp" width="633" height="640" alt=""></span>
+      <span class="s2" data-cookie data-cast="blare" aria-hidden="true"><img src="characters/blare.webp" width="513" height="640" alt=""></span>
+      <span class="s3" data-cookie data-cast="nag" aria-hidden="true"><img src="characters/nag.webp" width="544" height="640" alt=""></span>
+      <span class="s4" data-cookie data-cast="popsy" aria-hidden="true"><img src="characters/popsy.webp" width="435" height="640" alt=""></span>
+      <p class="film-cap"><span><b>Meet Kai.</b> Each cookie is something that follows you online. Kai keeps them out.</span><span class="hint">Click a cookie.</span></p>
     </div>
   </div>
 
@@ -477,7 +490,7 @@
   <!-- ============ THE DIFFERENCE ============ -->
   <section id="difference" class="wrap">
     <div class="head col">
-      <h2 data-reveal>Just the page.<br>Nothing in the way.</h2>
+      <h2 data-reveal>Just the page<br>you came for.</h2>
       <p data-reveal style="--i:1">About 310,000 filter rules run on every site. On this page, Moat stopped <b>4 ads and 3 trackers</b> before any of them loaded.</p>
     </div>
     <div class="laptop" data-reveal>
@@ -497,11 +510,11 @@
     <div class="bento">
       <article class="tile grad" data-reveal>
         <h3>Tracker blocking</h3>
-        <p class="big"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 4 5.5v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10v-6l-8-3Z" fill="#fff"/></svg>Moat stops trackers at the moat.</p>
+        <p class="big"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 4 5.5v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10v-6l-8-3Z" fill="#fff"/></svg>Trackers are blocked before they load.</p>
       </article>
       <article class="tile" data-reveal style="--i:1">
-        <h3>See what was stopped</h3>
-        <p>Open Moat on any page to see what it blocked, and who tried to follow you there.</p>
+        <h3>See what Moat blocked</h3>
+        <p>Open Moat on any page to see every ad and tracker it stopped, and which companies were behind them.</p>
         <div class="vis">
           <div class="report" id="report">
             <div class="top"><span class="shield">7</span><span class="who"><b>dailypost.example</b><span>7 things stopped before they loaded</span></span></div>
@@ -527,8 +540,8 @@
         </div>
       </article>
       <article class="tile" data-reveal>
-        <h3>Pop-up control</h3>
-        <p>Fake prize and fake virus tabs close as they open, before they can load.</p>
+        <h3>Pop-ups</h3>
+        <p>Fake prize and fake virus tabs are closed as they open, before they can load.</p>
         <div class="vis">
           <div class="tabs-demo" id="tabs-demo" aria-hidden="true">
             <div class="strip"><span class="t on"><i></i>Slow-roast tomato soup</span><span class="t bad"><i></i>you-won-a-prize.example</span></div>
@@ -537,13 +550,16 @@
         </div>
       </article>
       <article class="tile" data-reveal style="--i:1">
-        <h3>One switch per site</h3>
-        <p>If a site breaks, pause Moat there. Every other site stays protected.</p>
-        <div class="vis top">
-          <div class="flipper" id="flipper" aria-hidden="true">
-            <img src="shots/v4/dailypost-popup.webp" width="560" height="1086" alt="" loading="lazy">
-            <img src="shots/v4/dailypost-popup-paused.webp" width="560" height="820" alt="" loading="lazy">
-            <span class="tap"></span>
+        <h3>Off for one site</h3>
+        <p>If a site doesn't work right, pause Moat there with one switch. Every other site stays protected.</p>
+        <div class="vis full">
+          <div class="pausedemo" aria-hidden="true">
+            <img class="page" src="shots/v4/dailypost-after-1200.webp" width="1200" height="750" alt="" loading="lazy">
+            <div class="flipper" id="flipper">
+              <img src="shots/v4/dailypost-popup.webp" width="560" height="1086" alt="" loading="lazy">
+              <img src="shots/v4/dailypost-popup-paused.webp" width="560" height="820" alt="" loading="lazy">
+              <span class="tap"></span>
+            </div>
           </div>
         </div>
       </article>
@@ -554,28 +570,28 @@
   <section id="cast" class="wrap">
     <div class="head col">
       <h2 data-reveal>Meet the cookies.</h2>
-      <p data-reveal style="--i:1">Each one is something Moat stops on the web. Kai keeps them all out.</p>
+      <p data-reveal style="--i:1">Each one stands for something Moat blocks.</p>
     </div>
     <div class="cast">
       <article class="card" data-reveal style="--glow: rgba(214, 140, 60, .35)">
-        <div class="stage"><span data-cookie data-cast="crumb" aria-hidden="true"><img src="characters/cookie-chip.webp" width="358" height="369" alt=""></span></div>
+        <div class="stage"><span data-cookie data-cast="crumb" aria-hidden="true"><img src="characters/crumb.webp" width="633" height="640" alt=""></span></div>
         <h3>Crumb</h3><p class="role">Trackers</p>
-        <p>Follows you from site to site, taking notes. Moat blocks trackers before they load.</p>
+        <p>Follows you from site to site and records what you do. Moat blocks trackers before they load.</p>
       </article>
       <article class="card" data-reveal style="--i:1; --glow: rgba(229, 72, 77, .32)">
-        <div class="stage"><span data-cookie data-cast="blare" aria-hidden="true"><img src="characters/cookie-star.webp" width="288" height="374" alt=""></span></div>
+        <div class="stage"><span data-cookie data-cast="blare" aria-hidden="true"><img src="characters/blare.webp" width="513" height="640" alt=""></span></div>
         <h3>Blare</h3><p class="role">Ads</p>
-        <p>Shouts over everything you came to read. Moat stops ads and closes the gap they leave.</p>
+        <p>Covers the page you came to read. Moat blocks ads and closes the space they leave.</p>
       </article>
       <article class="card" data-reveal style="--i:2; --glow: rgba(214, 90, 220, .3)">
-        <div class="stage"><span data-cookie data-cast="popsy" aria-hidden="true"><img src="characters/cookie-crescent.webp" width="263" height="378" alt=""></span></div>
+        <div class="stage"><span data-cookie data-cast="popsy" aria-hidden="true"><img src="characters/popsy.webp" width="435" height="640" alt=""></span></div>
         <h3>Popsy</h3><p class="role">Hijacked pop-ups</p>
-        <p>Jumps out in a new tab when you click. Moat closes it before it loads.</p>
+        <p>Opens a new tab when you click on a page. Moat closes it before it loads.</p>
       </article>
       <article class="card" data-reveal style="--i:3; --glow: rgba(230, 190, 60, .3)">
-        <div class="stage"><span data-cookie data-cast="nag" aria-hidden="true"><img src="characters/cookie-sandwich.webp" width="282" height="341" alt=""></span></div>
+        <div class="stage"><span data-cookie data-cast="nag" aria-hidden="true"><img src="characters/nag.webp" width="544" height="640" alt=""></span></div>
         <h3>Nag</h3><p class="role">Cookie banners</p>
-        <p>Asks you to accept everything, on every site. Moat answers no for you.</p>
+        <p>Asks you to accept every cookie on every site. Moat turns them down for you.</p>
       </article>
     </div>
   </section>
@@ -586,8 +602,8 @@
        in js/scene.js (HOWTO); reduced motion shows the finished screens. -->
   <section id="how" class="wrap">
     <div class="head col">
-      <h2 data-reveal>Kai shows you around.</h2>
-      <p data-reveal style="--i:1">Most days you won't touch Moat. When you do, it's one click away.</p>
+      <h2 data-reveal>How to use Moat.</h2>
+      <p data-reveal style="--i:1">Most days you won't need to. When you do, it's one click away, and Kai walks you through it.</p>
     </div>
     <div class="guide" data-reveal>
       <div class="peek float" data-kai id="kai" aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
@@ -706,18 +722,19 @@
       <p data-reveal style="--i:1">Moat has nothing to collect, so there's nothing to leak or sell. Blocking runs on your device, and the code is open for anyone to read.</p>
       <a class="more" data-reveal style="--i:2" href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md">Read the privacy policy</a>
     </div>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="ig" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#9cc0f5"/></linearGradient></defs></svg>
     <div class="grid4">
-      <div class="fact" data-reveal><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1.4-3.6 4.2-5.4 7.5-5.4s6.1 1.8 7.5 5.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><h3>No account</h3><p>Install it and it works. No sign-up, no email, no login.</p></div>
-      <div class="fact" data-reveal style="--i:1"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 18V9m5 9V5m5 13v-6m5 6V8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><h3>No telemetry</h3><p>No analytics and no crash reports. Nothing reaches the developer unless you send a report.</p></div>
-      <div class="fact" data-reveal style="--i:2"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 4 5.5v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10v-6l-8-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Signed updates</h3><p>Daily list fixes are checked against a key built into Moat before they're used.</p></div>
-      <div class="fact" data-reveal style="--i:3"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Open source</h3><p>GPL-3.0 on GitHub. Anyone can read it, build it and check it.</p></div>
+      <div class="fact" data-reveal><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="url(#ig)"><path d="M12 3.2a4.4 4.4 0 1 1 0 8.8 4.4 4.4 0 0 1 0-8.8ZM4 20.2c.9-4 4.2-6.4 8-6.4s7.1 2.4 8 6.4c.1.6-.3 1-.9 1H4.9c-.6 0-1-.4-.9-1Z"/></g><path d="M3.5 3.5 20.5 20.5" stroke="#131a2e" stroke-width="4.4" stroke-linecap="round"/><path d="M3.5 3.5 20.5 20.5" stroke="url(#ig)" stroke-width="2.2" stroke-linecap="round"/></svg></span><h3>No account</h3><p>Install it and it works. No sign-up, no email, no login.</p></div>
+      <div class="fact" data-reveal style="--i:1"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="url(#ig)"><rect x="3.5" y="11" width="4" height="9.5" rx="1.4"/><rect x="10" y="6" width="4" height="14.5" rx="1.4"/><rect x="16.5" y="13.5" width="4" height="7" rx="1.4"/></g><path d="M3.5 3.5 20.5 20.5" stroke="#131a2e" stroke-width="4.4" stroke-linecap="round"/><path d="M3.5 3.5 20.5 20.5" stroke="url(#ig)" stroke-width="2.2" stroke-linecap="round"/></svg></span><h3>No telemetry</h3><p>No analytics and no crash reports. Nothing reaches the developer unless you send a report.</p></div>
+      <div class="fact" data-reveal style="--i:2"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="url(#ig)"><path fill-rule="evenodd" d="M12 2.2 20 5.3v6.1c0 5.1-3.4 8.9-8 10.4-4.6-1.5-8-5.3-8-10.4V5.3l8-3.1Zm3.9 7.1a1 1 0 0 0-1.4.1l-3.4 4-1.6-1.6a1 1 0 1 0-1.4 1.4l2.4 2.4a1 1 0 0 0 1.5-.1l4-4.8a1 1 0 0 0-.1-1.4Z"/></g></svg></span><h3>Signed updates</h3><p>Daily list fixes are checked against a key built into Moat before they're used.</p></div>
+      <div class="fact" data-reveal style="--i:3"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="url(#ig)"><path d="M8.6 6.3a1.2 1.2 0 0 1 0 1.7L4.6 12l4 4a1.2 1.2 0 1 1-1.7 1.7l-4.9-4.85a1.2 1.2 0 0 1 0-1.7l4.9-4.85a1.2 1.2 0 0 1 1.7 0Zm6.8 0a1.2 1.2 0 0 1 1.7 0l4.9 4.85a1.2 1.2 0 0 1 0 1.7L17.1 17.7a1.2 1.2 0 1 1-1.7-1.7l4-4-4-4a1.2 1.2 0 0 1 0-1.7Z"/></g></svg></span><h3>Open source</h3><p>GPL-3.0 on GitHub. Anyone can read it, build it and check it.</p></div>
     </div>
   </section>
 
   <!-- ============ FREE ============ -->
   <section class="wrap">
     <div class="head col">
-      <h2 data-reveal>Free. Not freemium.</h2>
+      <h2 data-reveal>Free. All of it.</h2>
       <p data-reveal style="--i:1">No paid tier, no premium unlock and no "acceptable" ads. Everything Moat does is in the free version, because there's only one version.</p>
     </div>
     <div class="stats">
@@ -742,8 +759,8 @@
   <!-- ============ CLOSING ============ -->
   <section class="closing wrap">
     <div class="float" data-kai id="cta-kai" aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
-    <h2 data-reveal>Start browsing quieter.</h2>
-    <p data-reveal style="--i:1">Moat is free on the Chrome Web Store. Kai's ready when you are.</p>
+    <h2 data-reveal>Try Moat today.</h2>
+    <p data-reveal style="--i:1">Free on the Chrome Web Store. Set up in seconds.</p>
     <div class="ctas" data-reveal style="--i:2">
       <a class="btn btn-blue" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
       <a class="more" href="https://github.com/Samuelabhinav37/moat">View the source</a>
