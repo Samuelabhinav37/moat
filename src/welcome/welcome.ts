@@ -96,6 +96,7 @@ function show(n: number): void {
   document.querySelectorAll(".progress span").forEach((bar, i) => bar.classList.toggle("on", i < n));
   $("step-label").textContent = t("tourStepLabel", `Step ${n} of ${STEPS}`, [String(n), String(STEPS)]);
   $("back").hidden = n === 1;
+  if (n === STEPS) cheer();
   $("next").textContent =
     n === STEPS
       ? t("tourFinish", "Start browsing")
@@ -176,6 +177,8 @@ function renderSite(): void {
   after.src = s.after;
   after.alt = s.afterAlt;
   $("ad-tag").style.left = s.tag.left;
+  $("cookies").style.left = s.tag.left;
+  $("cookies").style.top = s.tag.top;
   $("ad-tag").style.top = s.tag.top;
   $("badge").textContent = String(s.blocked);
 
@@ -198,6 +201,13 @@ function setMoat(on: boolean): void {
   $("off").setAttribute("aria-pressed", String(!on));
   $("shot").classList.toggle("moat", on);
   $("badge").hidden = !on;
+  if (on) cheer();
+}
+
+/** Kai squints happily for a moment. */
+function cheer(): void {
+  $("kai").classList.add("happy");
+  setTimeout(() => $("kai").classList.remove("happy"), 1600);
 }
 
 $("on").addEventListener("click", () => setMoat(true));

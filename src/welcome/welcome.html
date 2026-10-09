@@ -235,6 +235,33 @@
         .flow-head, .req { grid-template-columns: minmax(0, 1fr) 80px minmax(0, .8fr); }
         .popup { transform: scale(.8); transform-origin: top right; }
       }
+
+      /* Kai, Moat's mascot: blinks, bobs, and squints happily when Moat
+         cleans the page. The two cookies on the ad crumble when Moat is on.
+         Decoration only (aria-hidden), the text carries the tour. */
+      .kai { position: relative; width: 64px; margin-top: 28px; animation: kai-bob 3.2s ease-in-out infinite; }
+      .kai img { width: 100%; height: auto; display: block; }
+      .kai + .step-label { margin-top: 14px; }
+      .kai .lid { position: absolute; top: 50.6%; height: 16%; background: #0c0d11; border-radius: 30%; transform: scaleY(0); transform-origin: 50% 0; animation: kai-blink 4.6s infinite; }
+      .kai .lid.l { left: 37.1%; width: 18.4%; }
+      .kai .lid.r { left: 63.8%; width: 18%; }
+      .kai.happy .lid { animation: none; transform: scaleY(.5); transform-origin: 50% 100%; border-radius: 50% 50% 20% 20% / 90% 90% 10% 10%; }
+      @keyframes kai-bob { 50% { transform: translateY(-4px); } }
+      @keyframes kai-blink { 0%, 93%, 100% { transform: scaleY(0); } 95.5% { transform: scaleY(1); } }
+      .cookies { position: absolute; width: 0; height: 0; z-index: 2; pointer-events: none; }
+      .cookies .ck { position: absolute; width: 74px; transform-origin: 50% 100%; transition: transform .35s cubic-bezier(.5, -0.4, .6, 1), opacity .35s; animation: ck-wiggle 1.6s ease-in-out infinite alternate; }
+      .cookies .ck img { width: 100%; height: auto; display: block; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .45)); }
+      .cookies .ck.a { left: 46px; top: 14px; }
+      .cookies .ck.b { left: 128px; top: 30px; width: 60px; animation-delay: -.8s; }
+      .shot.moat .cookies .ck { transform: scale(.1); opacity: 0; animation: none; }
+      .cookies i { position: absolute; left: 110px; top: 70px; width: 7px; height: 7px; border-radius: 40%; background: #b77a3e; opacity: 0; }
+      .shot.moat .cookies i { animation: ck-crumb .6s ease-out; }
+      .cookies i:nth-of-type(1) { --dx: -50px; --dy: -30px; } .cookies i:nth-of-type(2) { --dx: 46px; --dy: -40px; background: #6b3f1d; }
+      .cookies i:nth-of-type(3) { --dx: 60px; --dy: 16px; } .cookies i:nth-of-type(4) { --dx: -56px; --dy: 20px; background: #6b3f1d; }
+      @keyframes ck-wiggle { from { rotate: -5deg; } to { rotate: 5deg; } }
+      @keyframes ck-crumb { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.5); } }
+      @media (max-width: 700px) { .cookies .ck { width: 48px; } .cookies .ck.a { left: 30px; } .cookies .ck.b { left: 84px; width: 40px; } }
+      @media (prefers-reduced-motion: reduce) { .kai, .kai .lid, .cookies .ck, .shot.moat .cookies i { animation: none; } .cookies .ck { transition: none; } }
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { animation: none !important; transition: none !important; }
       }
@@ -248,6 +275,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
           <span data-i18n="tourBack">Back</span>
         </button>
+        <div class="kai" id="kai" aria-hidden="true"><img src="welcome/img/kai.webp" width="438" height="525" alt="" /><span class="lid l"></span><span class="lid r"></span></div>
         <div class="step-label" id="step-label">Step 1 of 5</div>
 
         <div data-step="1" class="active">
@@ -350,6 +378,7 @@
               <img class="before" id="img-before" alt="" />
               <img class="after" id="img-after" alt="" />
               <span class="ad-tag" id="ad-tag" data-i18n="tourAdTag">AD</span>
+              <span class="cookies" id="cookies" aria-hidden="true"><span class="ck a"><img src="welcome/img/cookie-chip.webp" width="358" height="369" alt="" /></span><span class="ck b"><img src="welcome/img/cookie-star.webp" width="288" height="374" alt="" /></span><i></i><i></i><i></i><i></i></span>
             </div>
           </div>
         </div>

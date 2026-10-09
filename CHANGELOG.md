@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.264
+
+### Changed
+- **Meet Kai.** The welcome tour now has Moat's mascot, a small robot that blinks and cheers
+  when you switch Moat on. On the first step, two cookies sit on the weather.com ad and crumble
+  when you flip to "With Moat".
+
 ## 0.11.263
 
 ### Fixed
