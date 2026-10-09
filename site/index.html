@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Moat</title>
-<meta name="description" content="Moat is a free, open-source ad blocker for Chrome and Firefox. It blocks ads, trackers and hijacked popups. No account, no telemetry, and blocking runs in your browser.">
+<meta name="description" content="Moat is a free, open-source ad blocker for Chrome. It stops ads, trackers and hijacked pop-ups before they load. No account, no telemetry, and blocking runs in your browser.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Moat: ad blocking that keeps to itself">
-<meta property="og:description" content="A free, open-source ad blocker for Chrome and Firefox. No account, no telemetry, and blocking runs in your browser.">
+<meta property="og:title" content="Moat: ads gone, privacy kept">
+<meta property="og:description" content="A free, open-source ad blocker for Chrome. No account, no telemetry, and blocking runs in your browser.">
 <meta property="og:url" content="https://samuelabhinav37.github.io/moat/">
 <meta property="og:image" content="https://samuelabhinav37.github.io/moat/og.png">
 <meta property="og:image:width" content="1200">
@@ -16,145 +16,214 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23030307'/%3E%3Cline x1='24' y1='8' x2='16' y2='16' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Cline x1='16' y1='16' x2='9' y2='25' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Cline x1='16' y1='16' x2='5.5' y2='11' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Ccircle cx='24' cy='8' r='4' fill='%23fff'/%3E%3Ccircle cx='16' cy='16' r='2.8' fill='rgba(255,255,255,.85)'/%3E%3Ccircle cx='9' cy='25' r='2.2' fill='rgba(255,255,255,.7)'/%3E%3Ccircle cx='5.5' cy='11' r='2' fill='rgba(255,255,255,.62)'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <script>document.documentElement.classList.add("js");</script>
 <style>
-  /* Black page, white type, one blue. Bold Inter headlines. Every product
-     image is a real screenshot of Moat (captured with Chrome for Testing).
-     The hero is a real 1600x900 desktop window, Chrome frame and popup
-     included, scaled down as one unit so proportions stay true. */
+  /* Moat's site. Apple Safari's page structure, in dark: one idea per
+     section (headline, a short grey paragraph, one text link, one big
+     visual), detail in bento tiles, lots of room. Every product image is
+     a real capture of Moat on our own made-up sites (The Daily Post,
+     Simmer), taken by .cache/opt/demo-capture.mjs. Characters are driven
+     by js/life.js, scenes by js/scene.js; motion stays inside frames. */
   :root {
     --bg: #000;
-    --panel: #0f0f12;
-    --ink: #f4f4f5;
-    --soft: #a1a1aa;
+    --tile: #161617;
+    --tile-2: #1d1d1f;
+    --ink: #f5f5f7;
+    --soft: #86868b;
+    --soft-2: #a1a1a6;
     --line: rgba(255, 255, 255, .1);
     --blue: #3f6fd1;
     --blue-deep: #2f57ad;
+    --link: #2997ff;
     --blue-lt: #6f9be0;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "Segoe UI", sans-serif;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  html { scroll-behavior: smooth; scroll-padding-top: 64px; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-  h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.022em; line-height: 1.1; }
-  .hero h1 { font-weight: 800; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.47; letter-spacing: -0.012em; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -0.02em; line-height: 1.07; }
   p { margin: 0; }
-  a { color: var(--ink); text-underline-offset: 4px; }
-  :focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 4px; border-radius: 6px; }
-  code { font-family: ui-monospace, "Cascadia Mono", Menlo, monospace; font-size: .84em; background: rgba(255, 255, 255, .08); border-radius: 4px; padding: .05em .35em; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 6px; }
   .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-  .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+  .wrap { max-width: 1140px; margin-left: auto; margin-right: auto; padding-left: 32px; padding-right: 32px; }
+  .col { max-width: 760px; }
+  .more::after { content: " ›"; }
 
-  /* ---- buttons ------------------------------------------------------- */
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border-radius: 10px; font-weight: 600; text-decoration: none; transition: background .15s, border-color .15s, transform .15s; }
-  .btn svg { width: 20px; height: 20px; flex: none; }
-  .btn-blue { background: var(--blue); color: #fff; padding: 11px 20px; font-size: 15px; }
+  /* ---- buttons ---------------------------------------------------------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 980px; font-weight: 500; font-size: 17px; padding: 12px 24px; text-decoration: none !important; transition: background .2s, transform .2s cubic-bezier(.2, .7, .2, 1); white-space: nowrap; }
+  .btn svg { width: 18px; height: 18px; }
+  .btn-blue { background: var(--blue); color: #fff; }
   .btn-blue:hover { background: var(--blue-deep); }
-  .btn-big { padding: 18px 40px; font-size: 18px; min-width: min(460px, 100%); box-shadow: 0 16px 36px -14px rgba(63, 111, 209, .8); }
-  .btn-big:hover { transform: translateY(-1px); }
-  .btn-line { border: 1px solid rgba(255, 255, 255, .22); color: var(--ink); padding: 11px 20px; font-size: 15px; }
-  .btn-line:hover { border-color: #fff; }
-  .btn-white { background: #fff; color: var(--blue-deep); padding: 15px 28px; font-size: 16.5px; }
-  .btn-white:hover { background: #e6ecf8; }
-  .btn-ghost-w { border: 1.5px solid rgba(255, 255, 255, .6); color: #fff; padding: 13.5px 24px; font-size: 16.5px; }
-  .btn-ghost-w:hover { border-color: #fff; background: rgba(255, 255, 255, .08); }
-  .cta-btns { margin-left: auto; display: flex; gap: 12px; flex-wrap: wrap; }
-  .hero .alt { margin-top: 16px; font-size: 15.5px; color: var(--soft); }
-  .hero .alt a { color: var(--ink); font-weight: 600; }
+  .btn-sm { font-size: 13px; padding: 5px 13px; }
 
-  /* ---- nav ----------------------------------------------------------- */
-  .nav-wrap { position: sticky; top: 0; z-index: 20; background: rgba(0, 0, 0, .75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
-  .nav-wrap .container, footer .container { max-width: none; padding: 0 48px; }
-  nav { display: flex; align-items: center; gap: 40px; height: 76px; }
-  .logo { display: inline-flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); text-decoration: none; }
-  .logo svg { width: 30px; height: 30px; }
-  .nav-links { display: flex; gap: 6px; }
-  .nav-links a { color: var(--soft); text-decoration: none; font-size: 16px; font-weight: 500; padding: 8px 12px; border-radius: 8px; }
-  .nav-links a:hover { color: var(--ink); background: rgba(255, 255, 255, .06); }
-  nav > .btn { margin-left: auto; }
+  /* ---- nav -------------------------------------------------------------- */
+  .nav { position: sticky; top: 0; z-index: 30; background: rgba(22, 22, 23, .8); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--line); }
+  .nav .wrap { display: flex; align-items: center; gap: 28px; height: 52px; }
+  .logo { display: inline-flex; align-items: center; gap: 9px; color: var(--ink); font-size: 19px; font-weight: 600; text-decoration: none !important; }
+  .logo svg { width: 24px; height: 24px; }
+  .nav-links { display: flex; gap: 26px; margin-left: auto; }
+  .nav-links a { color: var(--soft-2); font-size: 13px; text-decoration: none; transition: color .2s; }
+  .nav-links a:hover { color: var(--ink); }
 
-  /* ---- hero ---------------------------------------------------------- */
-  .hero { text-align: center; padding: 88px 0 0; }
-  .hero h1 { font-size: clamp(46px, 7.6vw, 96px); letter-spacing: -0.035em; line-height: 1.02; }
-  .hero .sub { margin: 26px auto 0; max-width: 640px; font-size: clamp(17.5px, 2.2vw, 21px); color: var(--soft); }
-  .hero .cta { margin-top: 38px; }
-  .trust { margin-top: 26px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 30px; font-size: 16px; color: var(--soft); }
-  .trust span { display: inline-flex; align-items: center; gap: 8px; }
-  .trust svg { width: 18px; height: 18px; color: var(--blue-lt); flex: none; }
-  .trust b { color: var(--ink); font-weight: 600; }
+  /* ---- sections ---------------------------------------------------------- */
+  section { padding: 130px 0 0; }
+  .head h2 { font-size: clamp(40px, 5.4vw, 64px); }
+  .head p { margin-top: 18px; font-size: clamp(17px, 1.6vw, 21px); line-height: 1.42; color: var(--soft); font-weight: 500; }
+  .head p b { color: var(--ink); font-weight: 600; }
+  .head .more { display: inline-block; margin-top: 16px; font-size: clamp(17px, 1.6vw, 19px); }
+  .js [data-reveal] { opacity: 0; translate: 0 26px; transition: opacity .9s ease, translate 1s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--i, 0) * 80ms); }
+  .js [data-reveal].in { opacity: 1; translate: 0 0; }
 
-  /* ---- true-scale browser -------------------------------------------- */
-  [data-fit] { position: relative; overflow: hidden; border-radius: 12px; }
-  [data-fit] > * { transform-origin: 0 0; }
-  .demo { position: relative; padding: 64px 40px 120px; }
-  .bw { width: 1600px; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; text-align: left; }
-  .bw-tabs { height: 40px; background: #202124; display: flex; align-items: flex-end; gap: 2px; padding: 0 10px 0 78px; position: relative; }
-  .bw-tabs .dots { position: absolute; left: 16px; top: 14px; display: flex; gap: 8px; }
-  .bw-tabs .dots i { width: 12px; height: 12px; border-radius: 50%; background: #5f6368; display: block; }
-  .bw-tab { height: 32px; width: 240px; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 9px; padding: 0 12px; font-size: 12.5px; color: #bdc1c6; white-space: nowrap; overflow: hidden; }
-  .bw-tab.on { background: #35363a; color: #e8eaed; }
-  .bw-tab .fv { width: 16px; height: 16px; border-radius: 4px; background: #5f6368; flex: none; }
-  .bw-bar { height: 44px; background: #35363a; display: flex; align-items: center; gap: 12px; padding: 0 12px; }
-  .bw-bar .nv { color: #9aa0a6; font-size: 15px; letter-spacing: .3em; }
-  .bw-omni { flex: 1; height: 34px; border-radius: 17px; background: #202124; color: #e8eaed; font-size: 14px; display: flex; align-items: center; padding: 0 16px; gap: 10px; }
-  .bw-omni svg { width: 13px; height: 13px; color: #9aa0a6; }
-  .bw-ext { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; position: relative; background: #4a4b4f; }
-  .bw-ext svg { width: 18px; height: 18px; color: #fff; }
-  .bw-ext b { position: absolute; right: -6px; bottom: -4px; background: var(--blue); color: #fff; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 0 3px; line-height: 14px; }
-  .bw-me { width: 28px; height: 28px; border-radius: 50%; background: #5f6368; }
+  /* ---- hero ---------------------------------------------------------------- */
+  .hero { padding-top: 72px; text-align: center; }
+  .hero .name { font-size: clamp(21px, 2vw, 26px); font-weight: 600; }
+  .hero h1 { margin-top: 6px; font-size: clamp(48px, 8vw, 96px); letter-spacing: -0.03em; line-height: 1.02; }
+  .hero .sub { margin: 22px auto 0; max-width: 640px; font-size: clamp(18px, 1.8vw, 22px); color: var(--soft-2); font-weight: 500; }
+  .hero .ctas { margin-top: 30px; display: flex; gap: 28px; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .hero .ctas a.more { font-size: 19px; }
+  .hero .fine { margin-top: 16px; font-size: 13px; color: var(--soft); }
 
-  .stage { position: relative; height: 900px; overflow: hidden; --x: 55%; }
-  .layer { position: absolute; inset: 0; background: #fff; color: #1d1d1f; }
-  .layer.after { z-index: 1; }
-  .layer.before { z-index: 2; }
-  .layer .shot { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  .popup-shot { position: absolute; top: 4px; right: 8px; width: 260px; height: auto; border-radius: 12px; box-shadow: 0 0 0 1px #37343b, 0 24px 48px -12px rgba(0, 0, 0, .55); z-index: 5; }
-  .before { clip-path: inset(0 calc(100% - var(--x)) 0 0); }
-  .tag-in { position: absolute; z-index: 5; font: 700 12px/1 system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; padding: 7px 10px; border-radius: 6px; }
-  .tag-in.b { left: 14px; bottom: 14px; background: #d93025; color: #fff; }
-  .tag-in.a { right: 14px; bottom: 14px; background: var(--blue); color: #fff; }
+  /* the moat scene (promo film poster until the film is set) */
+  .film-wrap { margin-top: 64px; }
+  .film { position: relative; max-width: 1140px; margin: 0 auto; aspect-ratio: 16 / 8.2; border-radius: 28px; overflow: hidden; container-type: inline-size; isolation: isolate;
+    background:
+      radial-gradient(60% 55% at 62% 40%, rgba(63, 111, 209, .32), transparent 70%),
+      radial-gradient(90% 70% at 50% 120%, #0c1730 0%, transparent 60%),
+      linear-gradient(180deg, #05070d 0%, #070b16 55%, #0a1224 100%); }
+  .film video, .film iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; z-index: 20; }
+  .film .play-btn { position: absolute; left: 50%; top: 44%; translate: -50% -50%; z-index: 12; width: 84px; height: 84px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .92); color: #000; display: grid; place-items: center; cursor: pointer; transition: transform .2s; }
+  .film .play-btn:hover { transform: scale(1.06); }
+  .film .play-btn svg { width: 30px; height: 30px; margin-left: 4px; }
+  .horizon { position: absolute; left: 0; right: 0; top: 66%; height: 1px; background: linear-gradient(90deg, transparent, rgba(111, 155, 224, .35), transparent); }
+  .floor { position: absolute; left: 0; right: 0; top: 66%; bottom: 0; background: linear-gradient(180deg, rgba(20, 34, 66, .55), rgba(5, 7, 13, .9)); }
+  .floor::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(111, 155, 224, .06) 0 1px, transparent 1px 7cqw); -webkit-mask: linear-gradient(180deg, #000, transparent 90%); mask: linear-gradient(180deg, #000, transparent 90%); transform: perspective(40cqw) rotateX(55deg); transform-origin: top; }
+  @property --swirl { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+  .moat-water, .moat-glow, .ripple-ring { position: absolute; left: 49%; top: 63%; width: 34cqw; height: 9cqw; border-radius: 50%; }
+  .moat-water { background: conic-gradient(from var(--swirl), #2f57ad, #6f9be0, #3f6fd1, #9cc0f5, #2f57ad, #6f9be0, #2f57ad);
+    -webkit-mask: radial-gradient(closest-side, transparent 85%, #000 88%, #000 95%, transparent 100%); mask: radial-gradient(closest-side, transparent 85%, #000 88%, #000 95%, transparent 100%);
+    opacity: .85; filter: drop-shadow(0 0 .9cqw rgba(111, 155, 224, .6)); animation: swirl 10s linear infinite; }
+  .moat-glow { background: radial-gradient(closest-side, rgba(63, 111, 209, .26), rgba(63, 111, 209, .06) 70%, transparent); }
+  @keyframes swirl { to { --swirl: 360deg; } }
+  .ripple-ring { border: .3cqw solid rgba(156, 192, 245, .9); opacity: 0; pointer-events: none; }
+  .film.hit .ripple-ring { animation: ripple .9s ease-out; }
+  @keyframes ripple { from { opacity: .9; transform: scale(.92); } to { opacity: 0; transform: scale(1.18); } }
+  .film [data-kai] { position: absolute; left: 58.5%; top: 25%; width: 15cqw; z-index: 6; filter: drop-shadow(0 2cqw 2.4cqw rgba(0, 0, 0, .7)); }
+  .film [data-cookie] { top: auto; bottom: 30%; width: 8.4cqw; }
+  .film [data-cookie].s1 { left: 6%; }
+  .film [data-cookie].s2 { left: 17%; width: 7.4cqw; }
+  .film [data-cookie].s3 { left: 28%; width: 7.2cqw; }
+  .film [data-cookie].s4 { left: 38.5%; width: 6.8cqw; }
+  .film-cap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; padding: 22px 30px; display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap; font-size: clamp(13px, 1.4cqw, 16px); color: var(--soft-2); background: linear-gradient(transparent, rgba(0, 0, 0, .7)); }
+  .film-cap b { color: var(--ink); font-weight: 600; }
+  .film-cap .hint { margin-left: auto; color: var(--soft); }
 
+  /* intro paragraph (Safari's centered statement under the hero) */
+  .statement { padding-top: 110px; }
+  .statement p { max-width: 720px; margin: 0 auto; text-align: center; font-size: clamp(21px, 2.2vw, 28px); line-height: 1.32; font-weight: 600; color: var(--soft); letter-spacing: -0.015em; }
+  .statement p b { color: var(--ink); font-weight: 600; }
 
-  /* Hero autoplay (same idea as the feature cards): outline the real ad,
-     sweep the divider across to the Moat side, show the result, loop.
-     Only while the hero is on screen, never after the visitor touches the
-     slider, and never with reduced motion. Needs @property so --x can
-     animate; browsers without it just keep the static 55% split. */
-  @property --x { syntax: "<percentage>"; inherits: true; initial-value: 55%; }
-  .hmark, .hflag, .htoast { position: absolute; opacity: 0; pointer-events: none; }
-  .hmark { border: 4px solid #ff5a4f; border-radius: 8px; background: rgba(255, 90, 79, .14); z-index: 3; }
-  .hflag { transform: translateX(-50%); z-index: 4; white-space: nowrap; background: #d63a30; color: #fff; font-size: 22px; font-weight: 600; padding: 10px 18px; border-radius: 10px; box-shadow: 0 14px 30px -10px rgba(0, 0, 0, .6); }
-  .htoast { left: 32px; bottom: 32px; z-index: 6; display: inline-flex; align-items: center; gap: 12px; background: #1b191d; color: #eceef0; font-size: 21px; font-weight: 600; padding: 13px 20px; border-radius: 12px; border: 1px solid #37343b; box-shadow: 0 20px 40px -12px rgba(0, 0, 0, .7); }
-  .htoast svg { width: 22px; height: 22px; color: var(--blue-lt); }
-  .stage.auto { animation: hx 10s .6s infinite both paused; }
-  .stage.auto .hmark { animation: hm 10s .6s infinite both paused; }
-  .stage.auto .hflag { animation: hf 10s .6s infinite both paused; }
-  .stage.auto .htoast { animation: ht 10s .6s infinite both paused; }
-  .stage.auto.run, .stage.auto.run .hmark, .stage.auto.run .hflag, .stage.auto.run .htoast { animation-play-state: running; }
-  @keyframes hx { 0%, 40% { --x: 100%; } 58%, 86% { --x: 0%; } 100% { --x: 100%; } }
-  @keyframes hm { 0%, 6% { opacity: 0; } 12%, 38% { opacity: 1; } 44%, 100% { opacity: 0; } }
-  @keyframes hf { 0%, 8% { opacity: 0; transform: translate(-50%, 10px); } 14%, 38% { opacity: 1; transform: translate(-50%, 0); } 44%, 100% { opacity: 0; transform: translate(-50%, -6px); } }
-  @keyframes ht { 0%, 58% { opacity: 0; transform: translateY(10px); } 63%, 84% { opacity: 1; transform: translateY(0); } 90%, 100% { opacity: 0; } }
-  .divider { position: absolute; top: 0; bottom: 0; left: var(--x); width: 0; z-index: 6; pointer-events: none; }
-  .divider::before { content: ""; position: absolute; top: 0; bottom: 0; left: -1.5px; width: 3px; background: var(--blue); }
-  .knob { position: absolute; top: 50%; left: -26px; width: 52px; height: 52px; margin-top: -26px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; box-shadow: 0 0 0 5px rgba(255, 255, 255, .9), 0 10px 24px rgba(0, 0, 0, .45); }
-  .knob svg { width: 24px; height: 24px; }
-  .range { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; z-index: 7; margin: 0; }
-  .stage:has(.range:focus-visible) .knob { outline: 3px solid #fff; outline-offset: 6px; }
-  .demo-cap { text-align: center; margin-top: 18px; font-size: 15px; color: var(--soft); }
+  /* ---- laptop frame ---------------------------------------------------------- */
+  .laptop { position: relative; margin: 64px auto 0; max-width: 1040px; }
+  .lid { position: relative; padding: 2.1% 2.1% 2.6%; border-radius: 2.4% / 3.6%; background: linear-gradient(180deg, #2c2c2e, #1c1c1e); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12), 0 40px 80px -30px rgba(0, 0, 0, .9); }
+  .lid::before { content: ""; position: absolute; left: 50%; top: .8%; width: .7%; aspect-ratio: 1; border-radius: 50%; background: #0b0b0c; box-shadow: 0 0 0 1px #333; translate: -50% 0; }
+  .screen { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-radius: .6%; background: #fff; }
+  .screen img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .base { position: relative; height: 0; padding-bottom: 2.6%; margin: 0 -6.5%; background: linear-gradient(180deg, #3a3a3c 0%, #2a2a2c 45%, #161618 100%); border-radius: 0 0 14% 14% / 0 0 100% 100%; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .9); }
+  .base::before { content: ""; position: absolute; left: 42%; right: 42%; top: 0; height: 38%; border-radius: 0 0 10px 10px; background: #1a1a1c; }
 
-  /* ---- section heads ------------------------------------------------- */
-  section.block { padding: 120px 0; border-top: 1px solid var(--line); }
-  .sec-head { text-align: center; max-width: 960px; margin: 0 auto; }
-  .sec-head h2 { font-size: clamp(36px, 5vw, 60px); }
-  .sec-head p { margin-top: 18px; font-size: 19px; color: var(--soft); }
+  /* before/after inside the laptop */
+  .compare { --x: 100%; }
+  .compare .before { clip-path: inset(0 calc(100% - var(--x)) 0 0); }
+  .compare .handle { position: absolute; top: 0; bottom: 0; left: var(--x); width: 0; z-index: 4; pointer-events: none; }
+  .compare .handle::before { content: ""; position: absolute; top: 0; bottom: 0; left: -1px; width: 2px; background: #fff; box-shadow: 0 0 12px rgba(0, 0, 0, .35); }
+  .compare .knob { position: absolute; top: 50%; left: -22px; width: 44px; height: 44px; margin-top: -22px; border-radius: 50%; background: #fff; color: #111; display: grid; place-items: center; box-shadow: 0 6px 20px rgba(0, 0, 0, .35); }
+  .compare .knob svg { width: 20px; height: 20px; }
+  .compare .range { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; z-index: 5; margin: 0; }
+  .compare:has(.range:focus-visible) .knob { outline: 3px solid var(--link); outline-offset: 4px; }
+  .compare .lbl { position: absolute; bottom: 3%; z-index: 3; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 980px; background: rgba(0, 0, 0, .65); color: #fff; backdrop-filter: blur(8px); }
+  .compare .lbl.l { left: 2.5%; } .compare .lbl.r { right: 2.5%; }
+  .cap { margin-top: 26px; text-align: center; font-size: 14px; color: var(--soft); }
+  @property --x { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
+  .compare.sweep { animation: sweep 3.6s cubic-bezier(.65, 0, .35, 1) .4s both; }
+  @keyframes sweep { 0% { --x: 100%; } 45% { --x: 0%; } 100% { --x: 50%; } }
 
-  /* ---- characters (driven by js/life.js) ----------------------------- */
-  /* Kai: kai-face.webp has the eyes and mouth painted out; these are drawn
-     on top so they can look, blink, smile and talk. Positions measured
-     from the 438x525 art. Sizes in cqw of Kai's own box. */
+  /* ---- bento --------------------------------------------------------------- */
+  .bento { margin-top: 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .tile { position: relative; overflow: hidden; border-radius: 28px; background: var(--tile); padding: 44px 44px 0; min-height: 580px; display: flex; flex-direction: column; }
+  .tile.wide { grid-column: 1 / -1; min-height: 0; flex-direction: row; gap: 44px; padding: 0 0 0 44px; align-items: stretch; }
+  .tile h3 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; }
+  .tile p { margin-top: 10px; font-size: 17px; line-height: 1.42; color: var(--soft); font-weight: 500; max-width: 440px; }
+  .tile .vis { position: relative; flex: none; height: 400px; margin-top: auto; padding-top: 34px; overflow: hidden; display: flex; justify-content: center; align-items: flex-end; }
+  .tile .vis.top { align-items: flex-start; }
+  .tile.grad { background: linear-gradient(140deg, #1a2f6b 0%, #2f57ad 55%, #5b8be6 100%); }
+  .tile.grad p { color: rgba(255, 255, 255, .78); }
+  .tile .big { margin: auto 0; padding: 40px 0 60px; font-size: clamp(40px, 4.4vw, 56px); font-weight: 600; letter-spacing: -0.025em; line-height: 1.05; }
+  .tile .big svg { display: block; width: 52px; height: 52px; margin-bottom: 22px; }
+  /* tracker list, a quiet live count (Safari's Privacy Report card) */
+  .report { width: min(420px, 100%); background: #2a2a2d; border-radius: 22px 22px 0 0; padding: 22px 24px 8px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .08); }
+  .report .top { display: flex; gap: 14px; align-items: center; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, .1); }
+  .report .shield { width: 46px; height: 52px; flex: none; display: grid; place-items: center; font-weight: 700; font-size: 20px; color: #fff; background: linear-gradient(180deg, #5b8be6, #2f57ad); clip-path: path("M23 0 L46 7 V26 C46 40 35 49 23 52 C11 49 0 40 0 26 V7 Z"); }
+  .report .who b { display: block; font-size: 16px; }
+  .report .who span { font-size: 14px; color: var(--soft-2); }
+  .report ul { list-style: none; margin: 8px 0 0; padding: 0; }
+  .report li { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid rgba(255, 255, 255, .07); font-size: 15px; color: var(--soft-2); }
+  .report li:last-child { border-bottom: 0; }
+  .report li i { font-style: normal; font-size: 13px; color: #6fcf8f; }
+  .js .report li { opacity: 0; translate: 0 8px; transition: opacity .4s, translate .4s; }
+  .js .report.on li { opacity: 1; translate: 0 0; }
+  .popshot { width: min(300px, 80%); border-radius: 20px 20px 0 0; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 30px 60px -20px #000; display: block; }
+  .flipper { position: relative; width: min(300px, 80%); }
+  .flipper img { width: 100%; border-radius: 20px 20px 0 0; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 30px 60px -20px #000; display: block; transition: opacity .5s; }
+  .flipper img + img { position: absolute; top: 0; left: 0; opacity: 0; }
+  .flipper.paused img + img { opacity: 1; }
+  .flipper.paused img:first-child { opacity: 0; }
+  .flipper .tap { position: absolute; left: 72.5%; top: 18%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; border: 2.5px solid #fff; opacity: 0; pointer-events: none; }
+  .flipper.tapping .tap { animation: tap .6s ease-out; }
+  @keyframes tap { from { opacity: 1; transform: scale(1.5); } to { opacity: 0; transform: scale(.7); } }
+  /* cookie banner tile: the real Simmer capture, banner fading out */
+  .shotcrop { position: relative; flex: 1; min-height: 420px; overflow: hidden; border-radius: 0; }
+  .shotcrop img { position: absolute; right: 0; bottom: -1px; width: 100%; max-width: none; height: auto; display: block; border-radius: 14px 0 0 0; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12); transition: opacity .9s ease; }
+  .shotcrop img.before { z-index: 1; }
+  .shotcrop.clean img.before { opacity: 0; }
+  .tile.wide .txt { flex: 0 0 340px; padding: 52px 0; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 980px; background: rgba(111, 207, 143, .12); color: #8fe0aa; opacity: 0; translate: 0 6px; transition: opacity .4s, translate .4s; }
+  .chip.on { opacity: 1; translate: 0 0; }
+  /* pop-up tile: a tab opens, gets struck out, closes */
+  .tabs-demo { width: 100%; max-width: 460px; border-radius: 18px 18px 0 0; overflow: hidden; background: #202124; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1); }
+  .tabs-demo .strip { height: 46px; display: flex; align-items: flex-end; gap: 4px; padding: 0 12px 0 64px; position: relative; font-size: 13px; }
+  .tabs-demo .strip::before { content: ""; position: absolute; left: 16px; top: 18px; width: 10px; height: 10px; border-radius: 50%; background: #5f6368; box-shadow: 16px 0 #5f6368, 32px 0 #5f6368; }
+  .tabs-demo .t { height: 36px; flex: none; width: 190px; border-radius: 10px 10px 0 0; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: #bdc1c6; white-space: nowrap; overflow: hidden; }
+  .tabs-demo .t.on { background: #35363a; color: #e8eaed; }
+  .tabs-demo .t i { width: 16px; height: 16px; border-radius: 4px; background: #5f6368; flex: none; }
+  .tabs-demo .t.bad i { background: #e5484d; }
+  .tabs-demo .t.bad { width: 0; padding: 0; opacity: 0; transition: width .4s ease, padding .4s, opacity .3s, color .2s; }
+  .tabs-demo.open .t.bad, .tabs-demo.struck .t.bad { width: 190px; padding: 0 12px; opacity: 1; }
+  .tabs-demo.struck .t.bad { text-decoration: line-through; color: #ff8a80; }
+  .tabs-demo .page { background: #35363a; padding: 10px 12px 0; }
+  .tabs-demo .omni { height: 32px; border-radius: 16px; background: #202124; color: #e8eaed; font-size: 13px; display: flex; align-items: center; padding: 0 14px; }
+  .tabs-demo .pg { margin-top: 10px; height: 250px; border-radius: 8px 8px 0 0; background: #fbf7f1; padding: 22px 24px; font-family: Georgia, serif; color: #2b211b; }
+  .tabs-demo .pg h5 { margin: 0 0 8px; font-size: 22px; }
+  .tabs-demo .pg p { margin: 0; font: 13.5px/1.6 system-ui, sans-serif; color: #6b5d52; max-width: none; }
+  .tabs-demo .pg .ph { margin-top: 16px; height: 110px; border-radius: 10px; background: radial-gradient(60% 80% at 50% 60%, #c8442a, #6e2316); }
+
+  /* ---- the cast ------------------------------------------------------------------ */
+  .cast { margin-top: 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .card { position: relative; border-radius: 28px; background: var(--tile); padding: 0 26px 30px; overflow: hidden; }
+  .card .stage { position: relative; height: 230px; margin: 0 -26px 22px; display: grid; place-items: end center; padding-bottom: 26px;
+    background: radial-gradient(70% 70% at 50% 75%, var(--glow, rgba(63, 111, 209, .28)), transparent 70%), linear-gradient(180deg, #0c0e14, #12141b); }
+  .card .stage::after { content: ""; position: absolute; left: 22%; right: 22%; bottom: 20px; height: 16px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .6), transparent); }
+  .card [data-cookie] { position: relative; z-index: 2; width: 120px; transform-origin: 50% 100%; }
+  .card [data-cookie].thin { width: 54px; }
+  .card h3 { font-size: 24px; }
+  .card .role { margin-top: 4px; font-size: 14px; font-weight: 600; color: var(--soft-2); }
+  .card p { margin-top: 12px; font-size: 15px; line-height: 1.45; color: var(--soft); font-weight: 500; }
+
+  /* ---- characters (js/life.js) ------------------------------------------------------ */
   [data-kai] { position: relative; container-type: inline-size; }
   [data-kai] > img { width: 100%; height: auto; display: block; }
   .k-eye { position: absolute; top: 51.6%; height: 14.1%; background: #f3f6ff; border-radius: 24% / 26%; box-shadow: 0 0 2.4cqw rgba(235, 242, 255, .95), 0 0 7cqw rgba(170, 195, 255, .55); transition: height .18s ease, top .18s ease, border-radius .18s ease, scale .18s ease, clip-path .18s ease; }
@@ -168,158 +237,43 @@
   .k-mouth i:nth-child(2) { left: 56.8%; width: 6.2%; }
   .k-mouth i:nth-child(3) { left: 65.3%; width: 6.2%; }
   [data-kai].happy .k-mouth i { background: #8fa6d8; }
-  .float { animation: float 3.4s ease-in-out infinite; }
-  @keyframes float { 50% { translate: 0 -5%; } }
-
-  /* Cookies: root leans toward the pointer (--lean), the body hops and
-     wiggles (Web Animations), the art breathes and turns (--dir). */
+  .float { animation: float 3.6s ease-in-out infinite; }
+  @keyframes float { 50% { translate: 0 -4%; } }
   [data-cookie] { position: absolute; z-index: 4; cursor: pointer; transform: rotate(var(--lean, 0deg)); transform-origin: 50% 100%; --dir: 1; }
   .c-body { display: block; transform-origin: 50% 100%; }
-  [data-cookie] img { width: 100%; height: auto; display: block; transform: scaleX(var(--dir)); transition: transform .2s; transform-origin: 50% 100%; animation: breathe 2.6s ease-in-out var(--phase, 0s) infinite; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .5)); }
-  @keyframes breathe { 50% { scale: 1.035 .965; } }
+  [data-cookie] img { width: 100%; height: auto; display: block; transform: scaleX(var(--dir)); transition: transform .2s; transform-origin: 50% 100%; animation: breathe 2.8s ease-in-out var(--phase, 0s) infinite; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .55)); }
+  @keyframes breathe { 50% { scale: 1.03 .97; } }
   [data-cookie].gloat img { animation-duration: 1.1s; }
   [data-cookie].scared img { animation: shiver .12s linear infinite; }
   @keyframes shiver { 50% { translate: 1.5px 0; } }
   .c-shadow { position: absolute; left: 18%; right: 18%; bottom: -4%; height: 9%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .55), transparent); transition: opacity .3s; }
+  .card .c-shadow { display: none; }
   .c-shards { position: absolute; pointer-events: none; }
   .c-shard { position: absolute; inset: 0; background-size: 100% 100%; }
   .c-crumb { position: absolute; width: 6px; height: 6px; border-radius: 40%; background: #a8692f; }
   .c-crumb:nth-child(2n) { background: #6b3f1d; width: 5px; height: 5px; }
 
-  /* ---- scene: the moat (live poster for the promo film) ---------------- */
-  .film-wrap { padding-top: 56px; }
-  .film { position: relative; max-width: 1120px; margin: 0 auto; aspect-ratio: 16 / 9; border-radius: 22px; overflow: hidden; background: radial-gradient(80% 70% at 66% 46%, #142443 0%, #0a1020 48%, #040509 100%); box-shadow: 0 0 0 1px var(--line), 0 40px 90px -40px rgba(63, 111, 209, .5); container-type: inline-size; isolation: isolate; }
-  .film video, .film iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; z-index: 20; }
-  .film .play-btn { position: absolute; left: 50%; top: 42%; translate: -50% -50%; z-index: 12; width: 88px; height: 88px; border-radius: 50%; border: 0; background: var(--blue); color: #fff; display: grid; place-items: center; cursor: pointer; box-shadow: 0 0 0 10px rgba(63, 111, 209, .22), 0 20px 40px -10px #000; transition: transform .2s, box-shadow .2s; }
-  .film .play-btn:hover { transform: scale(1.06); box-shadow: 0 0 0 14px rgba(63, 111, 209, .28), 0 20px 40px -10px #000; }
-  .film .play-btn svg { width: 34px; height: 34px; margin-left: 5px; }
-  .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 34%; background: linear-gradient(180deg, transparent, rgba(8, 12, 24, .9) 60%); }
-  .ground::before { content: ""; position: absolute; left: 0; right: 0; top: 30%; height: 1px; background: linear-gradient(90deg, transparent, rgba(111, 155, 224, .18), transparent); }
-  @property --swirl { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-  .moat-water { position: absolute; left: 47%; top: 62%; width: 38cqw; height: 11cqw; border-radius: 50%;
-    background: conic-gradient(from var(--swirl), #2f57ad, #6f9be0, #3f6fd1, #9cc0f5, #2f57ad, #6f9be0, #2f57ad);
-    -webkit-mask: radial-gradient(closest-side, transparent 84%, #000 87%, #000 95%, transparent 100%);
-    mask: radial-gradient(closest-side, transparent 84%, #000 87%, #000 95%, transparent 100%);
-    opacity: .8; filter: drop-shadow(0 0 1cqw rgba(111, 155, 224, .6)); animation: swirl 9s linear infinite; }
-  .moat-glow { position: absolute; left: 47%; top: 62%; width: 38cqw; height: 11cqw; border-radius: 50%; background: radial-gradient(closest-side, rgba(63, 111, 209, .2), rgba(63, 111, 209, .06) 70%, transparent); }
-  @keyframes swirl { to { --swirl: 360deg; } }
-  .ripple-ring { position: absolute; left: 47%; top: 62%; width: 38cqw; height: 11cqw; border-radius: 50%; border: .35cqw solid rgba(156, 192, 245, .9); opacity: 0; pointer-events: none; }
-  .film.hit .ripple-ring { animation: ripple .9s ease-out; }
-  .film.hit .moat-water { filter: drop-shadow(0 0 3cqw rgba(156, 192, 245, 1)); }
-  @keyframes ripple { from { opacity: .9; transform: scale(.92); } to { opacity: 0; transform: scale(1.18); } }
-  .film [data-kai] { position: absolute; left: 58%; top: 26%; width: 16cqw; z-index: 6; filter: drop-shadow(0 2cqw 2.4cqw rgba(0, 0, 0, .6)); }
-  .film [data-cookie] { top: auto; bottom: 25%; width: 9.5cqw; }
-  .film [data-cookie].s1 { left: 3%; }
-  .film [data-cookie].s2 { left: 14.5%; width: 8.2cqw; }
-  .film [data-cookie].s3 { left: 26%; width: 8cqw; }
-  .film [data-cookie].s4 { left: 36.5%; width: 7.4cqw; }
-  .film-cap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; padding: 22px 28px; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; font-size: clamp(13px, 1.55cqw, 17px); color: var(--soft); background: linear-gradient(transparent, rgba(0, 0, 0, .8)); }
-  .film-cap b { color: var(--ink); font-weight: 600; }
-  .film-cap .hint { margin-left: auto; font-size: .9em; opacity: .75; }
-
-  /* ---- sections: continuous, not slides -------------------------------- */
-  section.block { border-top: 0; position: relative; }
-  section.block::before { content: ""; position: absolute; top: 0; left: 8%; right: 8%; height: 1px; background: linear-gradient(90deg, transparent, rgba(111, 155, 224, .55) 30%, rgba(156, 192, 245, .8) 50%, rgba(111, 155, 224, .55) 70%, transparent) 0 0 / 200% 100%; animation: flow 10s linear infinite; opacity: .6; }
-  @keyframes flow { to { background-position: -200% 0; } }
-  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; letter-spacing: .02em; color: var(--blue-lt); margin-bottom: 14px; }
-  .eyebrow::before { content: ""; width: 18px; height: 2px; border-radius: 2px; background: currentColor; }
-  .sec-head.left { text-align: left; margin: 0; max-width: 760px; }
-  .sec-head.left h2 { font-size: clamp(34px, 4.2vw, 54px); }
-  .sec-head.left p { margin-top: 14px; }
-  .js [data-reveal] { opacity: 0; translate: 0 18px; transition: opacity .7s ease, translate .8s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--i, 0) * 90ms); }
-  .js [data-reveal].in { opacity: 1; translate: 0 0; }
-  .btn { transition: background .15s, border-color .15s, transform .2s cubic-bezier(.2, .7, .2, 1), box-shadow .2s; }
-  .btn:hover { transform: translateY(-2px); }
-  .card { transition: transform .25s cubic-bezier(.2, .7, .2, 1), box-shadow .25s; }
-  .card:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px rgba(111, 155, 224, .35), 0 20px 40px -24px rgba(63, 111, 209, .6); }
-  .card:hover svg { animation: nudge .5s ease; }
-  @keyframes nudge { 40% { transform: rotate(-8deg) scale(1.08); } }
-
-  /* ---- features: rows played as small scenes (data-phase from the page script) */
-  #features { position: relative; overflow: hidden; }
-  #features .container { position: relative; z-index: 1; }
-  .zz { margin-top: 150px; display: flex; flex-direction: column; gap: 150px; }
-  .row { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 72px; align-items: center; }
-  .row.flip .vis { order: 2; }
-  .row .txt h3 { font-size: clamp(28px, 3vw, 40px); letter-spacing: -0.025em; }
-  .row .txt p { margin-top: 14px; font-size: 18px; color: var(--soft); max-width: 440px; }
-  .row .txt .note { font-size: 15px; }
-  .row .txt .note b { color: var(--ink); font-weight: 600; }
-  .vis { position: relative; padding-top: 18px; }
-  .tag { position: absolute; top: -18px; left: 22px; z-index: 5; background: var(--panel); color: var(--ink); font-size: 14px; font-weight: 600; padding: 8px 14px 8px 16px; border-radius: 10px 10px 0 0; box-shadow: 0 0 0 1px var(--line); }
-  .row.flip .tag { left: auto; right: 22px; }
-  .vis [data-cookie] { top: -104px; left: 150px; width: 104px; }
-  .row.flip .vis [data-cookie] { left: auto; right: 150px; }
-  .vis [data-cookie].thin { width: 46px; top: -120px; left: 210px; }
-  .say-chip { position: absolute; z-index: 6; top: -128px; left: 262px; background: #f4f4f5; color: #111; font-size: 13px; font-weight: 600; padding: 6px 11px; border-radius: 12px 12px 12px 3px; opacity: 0; translate: 0 6px; transition: opacity .25s, translate .25s; white-space: nowrap; pointer-events: none; }
-  .row.flip .say-chip { left: auto; right: 262px; border-radius: 12px 12px 3px 12px; }
-  .say-chip.on { opacity: 1; translate: 0 0; }
-
-  .win { position: relative; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 40px 80px -30px #000; }
-  .win-bar { height: 34px; background: #35363a; display: flex; align-items: center; gap: 10px; padding: 0 12px; }
-  .win-bar .d { display: flex; gap: 6px; }
-  .win-bar .d i { width: 10px; height: 10px; border-radius: 50%; background: #5f6368; display: block; }
-  .win-bar .u { height: 24px; flex: 0 1 420px; border-radius: 12px; background: #202124; color: #e8eaed; font-size: 12.5px; display: flex; align-items: center; padding: 0 12px; white-space: nowrap; overflow: hidden; }
-  .shotbox { position: relative; width: 100%; aspect-ratio: 16 / 10; }
-  .shotbox img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  .shotbox .before { clip-path: none; transition: opacity .8s ease; }
-  .mark { position: absolute; border: 2.5px solid #ff5a4f; border-radius: 6px; background: rgba(255, 90, 79, .16); opacity: 0; scale: .97; transition: opacity .35s, scale .35s; }
-  .flag { position: absolute; z-index: 3; transform: translateX(-50%); white-space: nowrap; background: #d63a30; color: #fff; font-size: 14px; font-weight: 600; padding: 7px 12px; border-radius: 8px; box-shadow: 0 10px 24px -8px rgba(0, 0, 0, .6); opacity: 0; translate: 0 6px; transition: opacity .3s, translate .3s; }
-  .toast { position: absolute; z-index: 3; display: inline-flex; align-items: center; gap: 9px; background: #1b191d; color: #eceef0; font-size: 14px; font-weight: 600; padding: 9px 14px; border-radius: 10px; border: 1px solid #37343b; box-shadow: 0 16px 32px -10px rgba(0, 0, 0, .6); white-space: nowrap; opacity: 0; translate: 0 8px; transition: opacity .35s, translate .35s; }
-  .toast svg { width: 16px; height: 16px; color: var(--blue-lt); flex: none; }
-  .row[data-phase="dirty"] .mark, .row[data-phase="dirty"] .flag { opacity: 1; scale: 1; translate: 0 0; }
-  .row[data-phase="clean"] .before { opacity: 0; }
-  .row[data-phase="clean"] .toast, .row[data-phase="closed"] .toast { opacity: 1; translate: 0 0; }
-
-  .tabstrip { border-radius: 14px; overflow: hidden; background: #202124; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 40px 80px -30px #000; display: flex; flex-direction: column; aspect-ratio: 16 / 10.6; }
-  .tabs2 { height: 42px; flex: none; display: flex; align-items: flex-end; gap: 4px; padding: 0 12px 0 72px; position: relative; font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .tabs2 .dd { position: absolute; left: 14px; top: 15px; display: flex; gap: 7px; }
-  .tabs2 .dd i { width: 11px; height: 11px; border-radius: 50%; background: #5f6368; display: block; }
-  .t2 { height: 34px; width: 230px; flex: none; border-radius: 9px 9px 0 0; display: flex; align-items: center; gap: 9px; padding: 0 12px; color: #bdc1c6; white-space: nowrap; overflow: hidden; }
-  .t2.on { background: #35363a; color: #e8eaed; }
-  .t2 .fv { width: 16px; height: 16px; border-radius: 4px; background: #5f6368; flex: none; }
-  .t2.bad .fv { background: #d93025; }
-  .tabnew { width: 0; opacity: 0; padding: 0; transition: width .35s ease, opacity .3s, padding .35s, color .2s; }
-  .row[data-phase="open"] .tabnew, .row[data-phase="struck"] .tabnew { width: 230px; opacity: 1; padding: 0 12px; }
-  .row[data-phase="struck"] .tabnew { text-decoration: line-through; color: #ff8a80; }
-  .tabpage { flex: 1; background: #35363a; padding: 10px 12px 0; display: flex; flex-direction: column; position: relative; }
-  .tabpage .omni { height: 32px; flex: none; border-radius: 16px; background: #202124; color: #e8eaed; font: 13px system-ui, sans-serif; display: flex; align-items: center; padding: 0 14px; max-width: 460px; }
-  .tabpage .pg { margin-top: 10px; flex: 1; border-radius: 6px 6px 0 0; background: #fff; padding: 22px 24px; font-family: Georgia, serif; color: #111; }
-  .tabpage .pg h5 { margin: 0 0 6px; font-size: 22px; }
-  .tabpage .pg p { margin: 0; font: 13.5px/1.6 system-ui, sans-serif; color: #555; max-width: 460px; }
-  .tabpage .toast { right: 18px; bottom: 18px; }
-
-  .popstage { position: relative; border-radius: 14px; background: radial-gradient(110% 90% at 50% 0%, #1d2740 0%, #0f0f12 70%); box-shadow: 0 0 0 1px var(--line); aspect-ratio: 16 / 10.6; display: flex; justify-content: center; align-items: flex-start; padding-top: 40px; overflow: hidden; }
-  .popstage figure { margin: 0; position: relative; width: 260px; }
-  .popstage img { display: block; width: 260px; height: auto; border-radius: 12px; box-shadow: 0 0 0 1px #37343b, 0 30px 60px -20px #000; transition: opacity .35s; }
-  .popstage .p-off { position: absolute; top: 0; left: 0; opacity: 0; }
-  .popstage .cap { position: absolute; top: -14px; left: 16px; z-index: 3; color: #fff; font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 7px; transition: opacity .3s; }
-  .popstage .cap.on { background: var(--blue); }
-  .popstage .cap.off { background: #52525b; opacity: 0; }
-  .popstage .tap { position: absolute; left: 78.8%; top: 58.6%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; border: 2.5px solid var(--blue); background: rgba(63, 111, 209, .18); box-shadow: 0 0 0 6px rgba(63, 111, 209, .18); z-index: 4; opacity: 0; }
-  .row[data-phase="tap"] .tap { animation: tapper .6s ease-out; }
-  @keyframes tapper { from { opacity: 1; transform: scale(1.5); } 50% { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(.8); } }
-  .row[data-phase="paused"] .p-on, .row[data-phase="paused"] .cap.on { opacity: 0; }
-  .row[data-phase="paused"] .p-off, .row[data-phase="paused"] .cap.off { opacity: 1; }
-
-  /* ---- how to use it ------------------------------------------------------ */
-  .howto { margin-top: 56px; display: grid; grid-template-columns: minmax(300px, 420px) minmax(0, 1fr); gap: 56px; align-items: start; }
-  .narrator { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 26px; min-height: 124px; }
-  .narrator [data-kai] { width: 104px; flex: none; }
-  .say { position: relative; flex: 1; margin-bottom: 34px; background: #f4f4f5; color: #111; font-size: 15.5px; font-weight: 500; line-height: 1.45; padding: 12px 16px; border-radius: 14px 14px 14px 4px; min-height: 48px; }
-  .say::before { content: ""; position: absolute; left: -7px; bottom: 6px; border: 7px solid transparent; border-right-color: #f4f4f5; border-left: 0; }
-  .howto-pane h3 { font-size: clamp(26px, 2.8vw, 34px); }
-  .howto-pane > p { margin-top: 14px; color: var(--soft); }
-  .howto-pane ol { margin: 20px 0 0; padding: 0; list-style: none; counter-reset: st; display: grid; gap: 10px; }
-  .howto-pane li { counter-increment: st; display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; font-size: 16px; padding: 8px 10px; margin-left: -10px; border-radius: 10px; color: var(--soft); transition: background .25s, color .25s; }
-  .howto-pane li::before { content: counter(st); width: 28px; height: 28px; border-radius: 50%; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 14px; font-weight: 600; display: grid; place-items: center; transition: background .25s, transform .25s; }
-  .howto-pane li.on { background: rgba(63, 111, 209, .14); color: var(--ink); }
-  .howto-pane li.on::before { background: var(--blue); color: #fff; transform: scale(1.08); }
+  /* ---- how to use it (Firefox-style guided panel) --------------------------------------- */
+  .guide { position: relative; margin-top: 110px; border-radius: 32px; padding: 56px 56px 48px; background: radial-gradient(90% 80% at 80% 0%, rgba(63, 111, 209, .35), transparent 60%), linear-gradient(160deg, #10172b 0%, #0b0f1c 60%, #090b12 100%); box-shadow: inset 0 0 0 1px rgba(111, 155, 224, .18); }
+  .guide .peek { position: absolute; top: -78px; left: 56px; width: 120px; z-index: 3; }
+  .howto { display: grid; grid-template-columns: minmax(280px, 380px) minmax(0, 1fr); gap: 48px; align-items: start; }
+  .narrator { display: flex; align-items: flex-end; gap: 0; margin-bottom: 22px; min-height: 0; }
+  .narrator [data-kai] { display: none; }
+  .say { position: relative; flex: 1; background: #f5f5f7; color: #111; font-size: 15px; font-weight: 500; line-height: 1.45; padding: 12px 16px; border-radius: 16px; min-height: 48px; }
+  .say::before { content: ""; position: absolute; left: 34px; top: -7px; border: 7px solid transparent; border-bottom-color: #f5f5f7; border-top: 0; }
+  .howto-pane h3 { font-size: clamp(26px, 2.6vw, 32px); }
+  .howto-pane > p { margin-top: 12px; color: var(--soft); font-weight: 500; }
+  .howto-pane ol { margin: 20px 0 0; padding: 0; list-style: none; counter-reset: st; display: grid; gap: 8px; }
+  .howto-pane li { counter-increment: st; display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: start; font-size: 16px; padding: 9px 10px; margin-left: -10px; border-radius: 12px; color: var(--soft-2); transition: background .25s, color .25s; }
+  .howto-pane li::before { content: "0" counter(st); width: 30px; height: 30px; border-radius: 50%; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 12px; font-weight: 700; display: grid; place-items: center; transition: background .25s; }
+  .howto-pane li.on { background: rgba(255, 255, 255, .07); color: var(--ink); }
+  .howto-pane li.on::before { background: #fff; color: #111; }
   .howto-pane li b, .howto-pane .tip b { font-weight: 600; color: var(--ink); }
-  .howto-pane .tip { margin-top: 18px; font-size: 15px; color: var(--soft); padding-left: 14px; border-left: 2px solid var(--blue); }
-  .howto .next { margin-top: 26px; background: none; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .howto-pane .tip { margin-top: 18px; font-size: 15px; color: var(--soft); }
+  .howto .next { margin-top: 24px; background: none; border: 0; padding: 0; font: inherit; font-size: 17px; color: var(--link); cursor: pointer; }
+  .howto .next::after { content: " ›"; }
   .howto-pane[hidden] { display: none; }
-  .howstage { position: relative; border-radius: 16px; overflow: hidden; background: #1b1a1f; box-shadow: 0 0 0 1px var(--line), 0 40px 80px -30px rgba(0, 0, 0, .9); }
+  .howstage { position: relative; border-radius: 18px; overflow: hidden; background: #1b1a1f; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 40px 80px -30px #000; }
   .tb { height: 44px; background: #35363a; display: flex; align-items: center; gap: 12px; padding: 0 12px; }
   .tb .d { display: flex; gap: 6px; } .tb .d i { width: 10px; height: 10px; border-radius: 50%; background: #5f6368; display: block; }
   .tb-url { flex: 1; height: 28px; border-radius: 14px; background: #202124; color: #e8eaed; font: 13px system-ui, sans-serif; display: flex; align-items: center; padding: 0 14px; white-space: nowrap; overflow: hidden; }
@@ -354,139 +308,110 @@
   .cursor { position: absolute; left: 0; top: 0; width: 26px; height: 26px; z-index: 10; pointer-events: none; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .45)); transition: transform .85s cubic-bezier(.45, .05, .25, 1); transform: translate(70%, 70%); opacity: 0; }
   .howstage.live .cursor { opacity: 1; }
   .cursor.press { scale: .86; transition: transform .85s cubic-bezier(.45, .05, .25, 1), scale .12s; }
-  .ripple { position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; border: 3px solid var(--blue-lt); background: rgba(111, 155, 224, .2); z-index: 9; pointer-events: none; opacity: 0; }
+  .ripple { position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; border: 3px solid #fff; background: rgba(255, 255, 255, .15); z-index: 9; pointer-events: none; opacity: 0; }
   .ripple.go { animation: rip .55s ease-out; }
   @keyframes rip { from { opacity: 1; transform: scale(.4); } to { opacity: 0; transform: scale(1.5); } }
-  .howto-strip { margin-top: 48px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
-  .howto-strip button { all: unset; cursor: pointer; display: grid; gap: 10px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--soft); font-size: 15px; font-weight: 500; line-height: 1.3; transition: border-color .15s, color .15s, transform .2s; }
-  .howto-strip button:hover { color: var(--ink); border-color: rgba(255, 255, 255, .25); transform: translateY(-2px); }
-  .howto-strip button[aria-selected="true"] { color: var(--ink); border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); }
-  .howto-strip button:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 3px; }
-  .howto-strip .n { font-size: 13px; color: var(--soft); font-weight: 500; }
+  .howto-strip { margin-top: 40px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .howto-strip button { all: unset; cursor: pointer; display: flex; gap: 10px; align-items: center; padding: 14px 16px; border-radius: 14px; background: rgba(255, 255, 255, .05); color: var(--soft-2); font-size: 14px; font-weight: 500; line-height: 1.25; transition: background .2s, color .2s; }
+  .howto-strip button:hover { color: var(--ink); background: rgba(255, 255, 255, .09); }
+  .howto-strip button[aria-selected="true"] { color: #111; background: #f5f5f7; }
+  .howto-strip button:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+  .howto-strip .n { font-size: 12px; font-weight: 700; opacity: .7; }
+  .howto-strip .n::before { content: "0"; }
 
-  .cta-box [data-kai] { width: 100px; flex: none; }
+  /* ---- privacy ------------------------------------------------------------------------- */
+  .grid4 { margin-top: 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .fact { border-radius: 24px; background: var(--tile); padding: 30px 26px 32px; }
+  .fact svg { width: 34px; height: 34px; color: var(--ink); }
+  .fact h3 { margin-top: 22px; font-size: 21px; }
+  .fact p { margin-top: 8px; font-size: 15px; line-height: 1.45; color: var(--soft); font-weight: 500; }
+
+  /* ---- free & open ----------------------------------------------------------------------- */
+  .stats { margin-top: 64px; display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px; }
+  .stat { border-radius: 28px; padding: 44px; min-height: 340px; display: flex; flex-direction: column; background: var(--tile); }
+  .stat.grad { background: linear-gradient(140deg, #1a2f6b 0%, #2f57ad 55%, #5b8be6 100%); }
+  .stat h3 { font-size: 21px; }
+  .stat .sub { margin-top: 8px; font-size: 17px; color: rgba(255, 255, 255, .78); font-weight: 500; }
+  .stat .num { margin-top: auto; font-size: clamp(64px, 7vw, 96px); font-weight: 600; letter-spacing: -0.04em; line-height: 1; }
+  .stat .num + p { margin-top: 10px; font-size: 19px; font-weight: 600; color: rgba(255, 255, 255, .9); }
+  .stat ul { list-style: none; margin: 34px 0 0; padding: 0; display: grid; gap: 20px; }
+  .stat li { display: flex; gap: 14px; align-items: baseline; font-size: 19px; font-weight: 600; }
+  .stat li span { color: var(--soft); font-weight: 500; font-size: 17px; }
+  .stat li b { min-width: 74px; font-size: 30px; letter-spacing: -0.03em; }
+
+  /* ---- closing ------------------------------------------------------------------------------ */
+  .closing { text-align: center; padding-top: 150px; }
+  .closing [data-kai] { width: 150px; margin: 0 auto 30px; }
+  .closing h2 { font-size: clamp(40px, 5.4vw, 64px); }
+  .closing p { margin: 16px auto 0; max-width: 560px; font-size: 21px; color: var(--soft); font-weight: 500; }
+  .closing .ctas { margin-top: 30px; display: flex; gap: 28px; justify-content: center; align-items: center; flex-wrap: wrap; }
+
+  /* ---- FAQ + footer (kept from before, restyled) ------------------------------------------------ */
+  #faq { padding-top: 150px; }
+  .faq-title { font-size: clamp(32px, 4vw, 48px); }
+  .faq { margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; border-radius: 28px; background: var(--tile); padding: 12px 40px; }
+  .faq details { border-bottom: 1px solid var(--line); padding: 22px 0 20px; }
+  .faq-col details:last-child { border-bottom: 0; }
+  .faq summary { cursor: pointer; list-style: none; display: flex; gap: 12px; align-items: flex-start; font-size: 17px; font-weight: 600; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: ""; margin-left: auto; width: 20px; height: 20px; flex: none; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--soft); background: linear-gradient(var(--soft), var(--soft)) center / 9px 1.5px no-repeat, linear-gradient(var(--soft), var(--soft)) center / 1.5px 9px no-repeat; }
+  .faq details[open] summary::after { background: linear-gradient(var(--soft), var(--soft)) center / 9px 1.5px no-repeat; }
+  .faq details p { margin-top: 10px; font-size: 16px; line-height: 1.55; color: var(--soft); max-width: 60ch; }
+  footer { margin-top: 120px; border-top: 1px solid var(--line); padding: 56px 0 40px; font-size: 13px; color: var(--soft); }
+  .foot-top { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; padding-bottom: 40px; border-bottom: 1px solid var(--line); }
+  footer .logo { font-size: 17px; }
+  .foot-cols { display: grid; grid-template-columns: repeat(3, minmax(140px, auto)); gap: 24px 64px; }
+  .foot-cols h4 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: var(--ink); }
+  .foot-cols a { display: block; margin-bottom: 10px; color: var(--soft); font-size: 13px; }
+  .foot-cols a:hover { color: var(--ink); text-decoration: none; }
+  .foot-bottom { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 22px; }
 
   @media (prefers-reduced-motion: reduce) {
-    [data-cookie] img, .float, .moat-water, section.block::before { animation: none; }
+    .moat-water, .float, [data-cookie] img { animation: none; }
     .js [data-reveal] { opacity: 1; translate: none; transition: none; }
-    .view > *, .cursor, .shotbox .before, .mark, .flag, .toast, .tabnew { transition: none; }
+    .compare.sweep { animation: none; --x: 50%; }
+    .view > *, .cursor { transition: none; }
+    .js .report li { opacity: 1; translate: none; }
   }
   @media (max-width: 1000px) {
-    .row, .howto { grid-template-columns: 1fr; gap: 40px; }
-    .row.flip .vis { order: 0; }
-    .zz { gap: 120px; }
+    .bento, .stats { grid-template-columns: 1fr; }
+    .tile.wide { flex-direction: column; padding: 44px 0 0 44px; gap: 0; }
+    .tile.wide .txt { flex: none; padding: 0 44px 0 0; }
+    .shotcrop { min-height: 320px; margin-top: 30px; }
+    .cast, .grid4 { grid-template-columns: 1fr 1fr; }
+    .howto { grid-template-columns: 1fr; gap: 28px; }
     .howstage { order: -1; }
-    .howto-strip { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(180px, 40%); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+    .howto-strip { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(170px, 36%); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
     .howto-strip button { scroll-snap-align: start; }
+    .faq { grid-template-columns: 1fr; padding: 8px 24px; }
+    .faq-col:first-child details:last-child { border-bottom: 1px solid var(--line); }
   }
-  @media (max-width: 640px) {
-    .film { border-radius: 14px; aspect-ratio: 4 / 3.4; }
-    .film [data-kai] { left: 56%; top: 22%; width: 22cqw; }
-    .moat-water, .moat-glow, .ripple-ring { left: 42%; top: 58%; width: 52cqw; height: 15cqw; }
-    .film [data-cookie] { bottom: 30%; width: 12cqw; }
-    .film [data-cookie].s2 { left: 17%; width: 11cqw; } .film [data-cookie].s3 { left: 29%; width: 10cqw; } .film [data-cookie].s4 { display: none; }
-    .film-cap { padding: 14px 16px; } .film-cap .hint { display: none; }
-    .vis [data-cookie] { width: 78px; top: -80px; left: 110px; }
-    .row.flip .vis [data-cookie] { right: 110px; }
-    .vis [data-cookie].thin { width: 36px; top: -94px; left: 160px; }
-    .say-chip { display: none; }
-    .tag { font-size: 13px; padding: 7px 12px; }
-    .tabs2 { padding-left: 60px; } .t2 { width: 170px; }
-    .row[data-phase="open"] .tabnew, .row[data-phase="struck"] .tabnew { width: 170px; }
-    .popstage { padding-top: 26px; } .popstage figure, .popstage img { width: 200px; }
-    .howto-strip { grid-auto-columns: 62%; }
-    .narrator { min-height: 0; } .narrator [data-kai] { width: 80px; } .say { font-size: 14.5px; margin-bottom: 24px; }
-    .mail-card { width: 84%; font-size: 13px; } .mail-card h4 { font-size: 17px; }
-    .view .report img { width: 80%; }
-  }
-
-  /* ---- private by design cards --------------------------------------- */
-  .cards { margin-top: 60px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
-  .card { background: var(--panel); color: var(--ink); border-radius: 16px; padding: 28px 24px 30px; box-shadow: 0 0 0 1px var(--line); }
-  .card svg { width: 44px; height: 44px; padding: 11px; border-radius: 12px; background: rgba(111, 155, 224, .14); color: var(--blue-lt); }
-  .card h3 { margin-top: 18px; font-size: 22px; letter-spacing: -0.02em; }
-  .card p { margin-top: 10px; font-size: 16px; line-height: 1.55; color: var(--soft); }
-
-  /* ---- manifest v3 --------------------------------------------------- */
-  .mv3 { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
-  .mv3 h2 { font-size: clamp(36px, 4.4vw, 56px); }
-  .mv3 .lead { margin-top: 18px; font-size: 19px; color: var(--soft); max-width: 480px; }
-  .nums { margin-top: 36px; display: flex; gap: 48px; flex-wrap: wrap; }
-  .nums div { font-size: 15.5px; color: var(--soft); }
-  .nums b { display: block; font-size: 52px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; color: var(--ink); }
-  .extras { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 32px 34px; }
-  .extras h3 { font-size: 22px; letter-spacing: -0.02em; }
-  .extras ul { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
-  .extras li { position: relative; padding-left: 32px; font-size: 16.5px; color: var(--soft); line-height: 1.55; }
-  .extras li b { color: var(--ink); font-weight: 600; }
-  .extras li svg { position: absolute; left: 0; top: 2px; width: 21px; height: 21px; color: var(--blue-lt); }
-  .extras .actions { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; }
-
-  /* ---- CTA ----------------------------------------------------------- */
-  .cta-box { background: var(--blue); border-radius: 20px; padding: 60px 64px; display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
-  .cta-box h2 { font-size: clamp(30px, 3.6vw, 44px); }
-  .cta-box p { margin-top: 10px; color: rgba(255, 255, 255, .85); font-size: 18px; }
-
-
-  /* ---- details / summary base (used by the FAQ) --------------------- */
-  details { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); margin-bottom: 12px; overflow: hidden; }
-  summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 16px; padding: 22px 26px; font-weight: 600; font-size: 19px; letter-spacing: -0.01em; }
-  summary::-webkit-details-marker { display: none; }
-  summary::after { content: ""; margin-left: auto; width: 10px; height: 10px; border-right: 2px solid var(--soft); border-bottom: 2px solid var(--soft); transform: rotate(45deg); transition: transform .15s; flex: none; }
-  details[open] summary::after { transform: rotate(-135deg); }
-  summary:hover { background: #15151a; }
-
-  /* ---- FAQ ----------------------------------------------------------- */
-  .faq-title { font-size: clamp(32px, 4vw, 48px); }
-  .faq { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; background: var(--panel); border-radius: 20px; box-shadow: 0 0 0 1px var(--line); padding: 12px 40px; }
-  .faq details { background: none; border: 0; border-radius: 0; margin: 0; border-bottom: 1px solid var(--line); padding: 22px 0 20px; overflow: visible; }
-  .faq-col details:last-child { border-bottom: 0; }
-  .faq summary { padding: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; gap: 12px; align-items: flex-start; }
-  .faq summary:hover { background: none; }
-  .faq summary::after { content: ""; width: 20px; height: 20px; border: 0; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--soft); transform: none; background: linear-gradient(var(--soft), var(--soft)) center / 9px 1.5px no-repeat, linear-gradient(var(--soft), var(--soft)) center / 1.5px 9px no-repeat; flex: none; margin-top: 2px; }
-  .faq details[open] summary::after { transform: none; background: linear-gradient(var(--soft), var(--soft)) center / 9px 1.5px no-repeat; }
-  .faq details p { margin-top: 10px; font-size: 16px; line-height: 1.6; color: var(--soft); max-width: 60ch; }
-  .faq details p a { color: var(--blue-lt); }
-  .faq details:target summary { color: var(--blue-lt); }
-
-  /* ---- footer -------------------------------------------------------- */
-  footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 72px 0 40px; }
-  .foot-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 48px; flex-wrap: wrap; padding-bottom: 56px; border-bottom: 1px solid var(--line); }
-  footer .logo { font-size: 24px; color: var(--ink); }
-  footer .logo svg { width: 28px; height: 28px; }
-  .foot-cols { display: grid; grid-template-columns: repeat(3, minmax(150px, auto)); gap: 32px 80px; }
-  .foot-cols h4 { margin: 0 0 18px; font-size: 14px; font-weight: 500; color: var(--soft); }
-  .foot-cols a { display: block; margin-bottom: 14px; font-size: 16px; font-weight: 600; color: var(--ink); text-decoration: none; }
-  .foot-cols a:hover { color: var(--blue-lt); }
-  .foot-bottom { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 26px; font-size: 15px; color: var(--soft); }
-  @media (max-width: 900px) { .faq { grid-template-columns: 1fr; padding: 8px 24px; } .faq-col:first-child details:last-child { border-bottom: 1px solid var(--line); } }
-  @media (max-width: 640px) { .foot-cols { grid-template-columns: 1fr 1fr; gap: 28px 40px; } }
-
-  /* ---- responsive ---------------------------------------------------- */
-  @media (max-width: 1100px) {
-    .cards { grid-template-columns: repeat(6, 1fr); }
-    .card { grid-column: span 2; }
-    .card:nth-child(n+4) { grid-column: span 3; }
-  }
-  @media (max-width: 1000px) {
+  @media (max-width: 680px) {
+    .wrap { padding-left: 20px; padding-right: 20px; }
     .nav-links { display: none; }
-    .mv3 { grid-template-columns: 1fr; }
-    .cta-box { padding: 44px 32px; }
-    .cta-box .btn { margin-left: 0; }
+    .nav .btn { margin-left: auto; }
+    section { padding-top: 96px; }
+    .hero { padding-top: 48px; }
+    .film { aspect-ratio: 4 / 3.6; border-radius: 22px; }
+    .film [data-kai] { left: 55%; top: 20%; width: 24cqw; }
+    .moat-water, .moat-glow, .ripple-ring { left: 40%; top: 58%; width: 56cqw; height: 15cqw; }
+    .horizon, .floor { top: 62%; }
+    .film [data-cookie] { bottom: 33%; width: 13cqw; }
+    .film [data-cookie].s1 { left: 4%; } .film [data-cookie].s2 { left: 19%; width: 12cqw; } .film [data-cookie].s3 { left: 33%; width: 11cqw; } .film [data-cookie].s4 { display: none; }
+    .film-cap .hint { display: none; }
+    .laptop { margin-top: 44px; }
+    .base { margin: 0 -4%; }
+    .tile { padding: 32px 26px 0; min-height: 480px; border-radius: 24px; }
+    .tile .vis { height: 340px; }
+    .tile.wide { padding: 32px 0 0 26px; }
+    .tile.wide .txt { padding-right: 26px; }
+    .cast, .grid4 { grid-template-columns: 1fr; }
+    .guide { padding: 64px 20px 28px; border-radius: 26px; }
+    .guide .peek { left: 24px; top: -60px; width: 90px; }
+    .howto-strip { grid-auto-columns: 62%; }
+    .stat { padding: 32px 26px; min-height: 280px; }
+    .foot-cols { grid-template-columns: 1fr 1fr; }
   }
-  @media (max-width: 640px) {
-    .container, .nav-wrap .container, footer .container { padding: 0 18px; }
-    .demo { padding: 48px 18px 88px; }
-    .hero { padding-top: 56px; }
-    section.block { padding: 88px 0; }
-    .cards { grid-template-columns: 1fr 1fr; }
-    .card, .card:nth-child(n+4) { grid-column: auto; }
-    .card:last-child { grid-column: 1 / -1; }
-    .nums { gap: 32px; }
-    .extras { padding: 26px 22px; }
-    summary { padding: 18px; font-size: 17px; flex-wrap: wrap; }
-  }
-  @media (max-width: 420px) { .cards { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -495,247 +420,180 @@
      Web Store listing. TODO(launch): the listing URL isn't known yet, so
      they point at GitHub releases. Replace each data-store href with the
      store URL before publishing. -->
-
-<div class="nav-wrap">
-  <div class="container">
-    <nav aria-label="Main">
-      <a class="logo" href="#top">
-        <svg viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#030307" stroke="rgba(255,255,255,.18)"/><line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="#fff"/><circle cx="16" cy="16" r="2.8" fill="rgba(255,255,255,.85)"/><circle cx="9" cy="25" r="2.2" fill="rgba(255,255,255,.7)"/><circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)"/></svg>
-        Moat
-      </a>
-      <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#how">How to use it</a>
-        <a href="#privacy">Privacy</a>
-        <a href="#faq">FAQ</a>
-        <a href="https://github.com/Samuelabhinav37/moat">GitHub ↗</a>
-      </div>
-      <a class="btn btn-blue" href="#get">Get Moat</a>
-    </nav>
-  </div>
-</div>
-
-<header class="hero" id="top">
-  <div class="container">
-    <h1>Ad blocking that<br>keeps to itself.</h1>
-    <p class="sub">Moat blocks ads, trackers and hijacked pop-ups. No account, no telemetry, and blocking runs in your browser.</p>
-    <div class="cta">
-      <a class="btn btn-blue btn-big" data-store href="https://github.com/Samuelabhinav37/moat/releases">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Add to Chrome
-      </a>
-      <p class="alt">Free on the Chrome Web Store. Firefox users can <a href="https://github.com/Samuelabhinav37/moat#install--build">build it from source</a>.</p>
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="logo" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#030307" stroke="rgba(255,255,255,.18)"/><line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="#fff"/><circle cx="16" cy="16" r="2.8" fill="rgba(255,255,255,.85)"/><circle cx="9" cy="25" r="2.2" fill="rgba(255,255,255,.7)"/><circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)"/></svg>Moat</a>
+    <div class="nav-links">
+      <a href="#difference">Overview</a>
+      <a href="#cast">The cookies</a>
+      <a href="#how">How to use it</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#faq">FAQ</a>
     </div>
-    <div class="trust">
-      <span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Open source</b> (GPL-3.0)</span>
-      <span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Chrome</b> and <b>Firefox</b></span>
-      <span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Free</b> with no paid tier</span>
-    </div>
+    <a class="btn btn-blue btn-sm" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
   </div>
+</nav>
+
+<main id="top">
+  <!-- ============ HERO ============ -->
+  <header class="hero wrap">
+    <p class="name" data-reveal>Moat</p>
+    <h1 data-reveal style="--i:1">Ads gone.<br>Privacy kept.</h1>
+    <p class="sub" data-reveal style="--i:2">A free ad blocker for Chrome that stops ads, trackers and hijacked pop-ups before they load.</p>
+    <div class="ctas" data-reveal style="--i:3">
+      <a class="btn btn-blue" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
+      <a class="more" href="#film">Meet Kai</a>
+    </div>
+    <p class="fine" data-reveal style="--i:4">Free. No account. Open source.</p>
+  </header>
 
   <!-- Promo film. Put the video's address in data-src (an .mp4/.webm on
        this site, or a YouTube link) and a play button appears; the video
        loads only when pressed (YouTube through its no-cookie player).
-       Until then, and as the poster, the frame is a live scene: cookies
-       (the trackers that follow you around the web) wander up to the moat
-       and crumble at it, while Kai keeps watch. Click a cookie to try it. -->
-  <div class="container film-wrap">
+       Until then the frame is a live scene: the cookies (the trackers
+       that follow you around the web) walk up to the moat and crumble at
+       it while Kai keeps watch. Click a cookie to try it. -->
+  <div class="wrap film-wrap" data-reveal>
     <div class="film" id="film" data-src="" data-poster="">
-      <div class="ground" aria-hidden="true"></div>
+      <div class="floor" aria-hidden="true"></div>
+      <span class="horizon" aria-hidden="true"></span>
       <span class="moat-glow" aria-hidden="true"></span>
       <span class="moat-water" aria-hidden="true"></span>
       <span class="ripple-ring" aria-hidden="true"></span>
       <div class="float" data-kai aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
-      <span class="s1" data-cookie aria-hidden="true"><img src="characters/cookie-chip.webp" width="358" height="369" alt=""></span>
-      <span class="s2" data-cookie aria-hidden="true"><img src="characters/cookie-star.webp" width="288" height="374" alt=""></span>
-      <span class="s3" data-cookie aria-hidden="true"><img src="characters/cookie-sandwich.webp" width="282" height="341" alt=""></span>
-      <span class="s4" data-cookie aria-hidden="true"><img src="characters/cookie-crescent.webp" width="263" height="378" alt=""></span>
-      <p class="film-cap"><span><b>Meet Kai.</b> The cookies are the trackers that follow you around the web. At the moat, they crumble.</span><span class="hint">Try clicking a cookie.</span></p>
+      <!-- CAST SLOTS: swap each img for the new 3D render (same file names work) -->
+      <span class="s1" data-cookie data-cast="crumb" aria-hidden="true"><img src="characters/cookie-chip.webp" width="358" height="369" alt=""></span>
+      <span class="s2" data-cookie data-cast="blare" aria-hidden="true"><img src="characters/cookie-star.webp" width="288" height="374" alt=""></span>
+      <span class="s3" data-cookie data-cast="nag" aria-hidden="true"><img src="characters/cookie-sandwich.webp" width="282" height="341" alt=""></span>
+      <span class="s4" data-cookie data-cast="popsy" aria-hidden="true"><img src="characters/cookie-crescent.webp" width="263" height="378" alt=""></span>
+      <p class="film-cap"><span><b>Meet Kai.</b> The cookies follow you around the web. At the moat, they crumble.</span><span class="hint">Try clicking one.</span></p>
     </div>
   </div>
 
-  <div class="container demo">
-    <div data-fit="1600"><div class="bw">
-      <div class="bw-tabs"><div class="dots"><i></i><i></i><i></i></div>
-        <div class="bw-tab on"><span class="fv"></span>The Best Password Managers to Secure…</div>
-      </div>
-      <div class="bw-bar">
-        <span class="nv">←→↻</span>
-        <div class="bw-omni"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2"/></svg>wired.com/story/best-password-managers/</div>
-        <div class="bw-ext"><svg viewBox="0 0 32 32"><line x1="24" y1="8" x2="16" y2="16" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="currentColor"/><circle cx="16" cy="16" r="2.8" fill="currentColor" fill-opacity=".85"/><circle cx="9" cy="25" r="2.2" fill="currentColor" fill-opacity=".7"/><circle cx="5.5" cy="11" r="2" fill="currentColor" fill-opacity=".62"/></svg><b>14</b></div>
-        <div class="bw-me"></div>
-      </div>
-      <div class="stage" id="stage">
-        <div class="layer after">
-          <img class="shot" src="shots/hero-after.webp" srcset="shots/hero-after-1200.webp 1200w, shots/hero-after.webp 2400w" sizes="(max-width: 700px) 560px, 1600px" width="1600" height="900" alt="A WIRED article with Moat on: the page starts with the headline, no ad.">
-          <img class="popup-shot" src="shots/hero-popup.png" width="260" height="507" alt="Moat popup: 14 blocked on this page, 6 ads and 8 trackers.">
-          <span class="tag-in a">With Moat</span>
+  <section class="statement wrap">
+    <p data-reveal>Moat stops ads and trackers <b>before they load</b>, so pages arrive clean and quick. It answers cookie banners for you, closes pop-up tabs that hijack your clicks, and does it all <b>inside your browser</b>. No account. No telemetry.</p>
+  </section>
+
+  <!-- ============ THE DIFFERENCE ============ -->
+  <section id="difference" class="wrap">
+    <div class="head col">
+      <h2 data-reveal>Just the page.<br>Nothing in the way.</h2>
+      <p data-reveal style="--i:1">About 310,000 filter rules run on every site. On this page, Moat stopped <b>4 ads and 3 trackers</b> before any of them loaded.</p>
+    </div>
+    <div class="laptop" data-reveal>
+      <div class="lid">
+        <div class="screen compare" id="compare">
+          <img src="shots/v4/dailypost-after.webp" srcset="shots/v4/dailypost-after-1200.webp 1200w, shots/v4/dailypost-after.webp 2400w" sizes="(max-width: 1100px) 92vw, 1000px" width="2400" height="1500" alt="The Daily Post with Moat: the article starts right under the menu, with no ads.">
+          <img class="before" src="shots/v4/dailypost-before.webp" srcset="shots/v4/dailypost-before-1200.webp 1200w, shots/v4/dailypost-before.webp 2400w" sizes="(max-width: 1100px) 92vw, 1000px" width="2400" height="1500" alt="The same page without Moat: a large mattress ad above the article, a travel ad beside it and a bank ad pinned to the bottom.">
+          <span class="lbl l">Without Moat</span><span class="lbl r">With Moat</span>
+          <div class="handle" aria-hidden="true"><div class="knob"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6-6 6 6 6M15 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+          <input class="range" type="range" min="0" max="100" value="50" aria-label="Compare the page without Moat and with Moat" aria-valuetext="Half and half">
         </div>
-        <div class="layer before">
-          <img class="shot" src="shots/hero-before.webp" srcset="shots/hero-before-1200.webp 1200w, shots/hero-before.webp 2400w" sizes="(max-width: 700px) 560px, 1600px" width="1600" height="900" alt="The same WIRED article without Moat: a large display ad sits above the headline.">
-          <span class="tag-in b">Without Moat</span>
-          <span class="hmark" style="left:0;top:15.6%;width:100%;height:29.4%"></span>
-          <span class="hflag" style="left:50%;top:47.5%">This ad takes up 29% of the screen</span>
+      </div>
+      <div class="base" aria-hidden="true"></div>
+    </div>
+    <p class="cap">Drag to compare. The Daily Post is a demo site; the blocking is real Moat.</p>
+
+    <div class="bento">
+      <article class="tile grad" data-reveal>
+        <h3>Tracker blocking</h3>
+        <p class="big"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 4 5.5v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10v-6l-8-3Z" fill="#fff"/></svg>Moat stops trackers at the moat.</p>
+      </article>
+      <article class="tile" data-reveal style="--i:1">
+        <h3>See what was stopped</h3>
+        <p>Open Moat on any page to see what it blocked, and who tried to follow you there.</p>
+        <div class="vis">
+          <div class="report" id="report">
+            <div class="top"><span class="shield">7</span><span class="who"><b>dailypost.example</b><span>7 things stopped before they loaded</span></span></div>
+            <ul>
+              <li>securepubads.g.doubleclick.net <i>Blocked</i></li>
+              <li>static.criteo.net <i>Blocked</i></li>
+              <li>connect.facebook.net <i>Blocked</i></li>
+              <li>c.amazon-adsystem.com <i>Blocked</i></li>
+              <li>www.googletagmanager.com <i>Blocked</i></li>
+            </ul>
+          </div>
         </div>
-        <span class="htoast" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Moat blocked 14 things on this page</span>
-        <div class="divider" aria-hidden="true"><div class="knob"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6-6 6 6 6M15 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-        <input class="range" type="range" min="0" max="100" value="55" aria-label="Compare the same page without Moat and with Moat" aria-describedby="demo-desc" aria-valuetext="55% of the page shown without Moat">
-      </div>
-    </div></div>
-    <p class="sr-only" id="demo-desc">Left of the handle: a WIRED article without Moat, with a large display ad above the headline. Right of the handle: the same article with Moat, which starts at the headline, and Moat's popup showing 14 things blocked.</p>
-    <p class="demo-cap">Drag the handle to compare the same page with and without Moat.</p>
-  </div>
-</header>
+      </article>
+      <article class="tile wide" data-reveal>
+        <div class="txt">
+          <h3>Cookie banners</h3>
+          <p>Moat answers them for you. It turns off every optional cookie the site allows, saves, and closes the banner.</p>
+          <span class="chip" id="consent-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Optional cookies turned off</span>
+        </div>
+        <div class="shotcrop" id="consent">
+          <img src="shots/v4/simmer-after-1200.webp" width="1200" height="750" alt="" loading="lazy">
+          <img class="before" src="shots/v4/simmer-before-1200.webp" width="1200" height="750" alt="" loading="lazy">
+        </div>
+      </article>
+      <article class="tile" data-reveal>
+        <h3>Pop-up control</h3>
+        <p>Fake prize and fake virus tabs close as they open, before they can load.</p>
+        <div class="vis">
+          <div class="tabs-demo" id="tabs-demo" aria-hidden="true">
+            <div class="strip"><span class="t on"><i></i>Slow-roast tomato soup</span><span class="t bad"><i></i>you-won-a-prize.example</span></div>
+            <div class="page"><div class="omni">simmer.example/tomato-soup</div><div class="pg"><h5>Slow-roast tomato soup</h5><p>Roast the tomatoes cut side up with the garlic until the edges catch.</p><div class="ph"></div></div></div>
+          </div>
+        </div>
+      </article>
+      <article class="tile" data-reveal style="--i:1">
+        <h3>One switch per site</h3>
+        <p>If a site breaks, pause Moat there. Every other site stays protected.</p>
+        <div class="vis top">
+          <div class="flipper" id="flipper" aria-hidden="true">
+            <img src="shots/v4/dailypost-popup.webp" width="560" height="1086" alt="" loading="lazy">
+            <img src="shots/v4/dailypost-popup-paused.webp" width="560" height="820" alt="" loading="lazy">
+            <span class="tap"></span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
 
-<main>
-  <!-- ============ FEATURES ============ -->
-  <!-- Zig-zag rows, one cookie per row (like Ghost Town Games' skulls on
-       their cards). Each cookie peeks over its screenshot while the page
-       loads without Moat, then crumbles when Moat cleans it up. The cookie's
-       timeline uses the same length as the row's own loop, so they stay in
-       step. Characters are decoration (alt=""), the text carries the meaning. -->
-  <section class="block" id="features" aria-labelledby="features-h">
-    <div class="container">
-      <div class="sec-head left">
-        <span class="eyebrow" data-reveal>What Moat does</span>
-        <h2 id="features-h" data-reveal style="--i:1">Every cookie meets the moat.</h2>
-        <p data-reveal style="--i:2">It works the moment you install it. There's nothing to set up.</p>
-      </div>
-
-      <div class="zz">
-        <!-- ads: BBC Weather, ad rects measured in the real 1440x900 capture -->
-        <article class="row" data-loop="shot" data-line="Look at all my ads!">
-          <div class="vis">
-            <span class="say-chip" aria-hidden="true"></span><span class="tag">Ads</span>
-            <span data-cookie aria-hidden="true"><img src="characters/cookie-chip.webp" width="358" height="369" alt=""></span>
-            <div class="win" aria-hidden="true">
-              <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">bbc.co.uk/weather</span></div>
-              <div class="shotbox">
-                <img src="shots/bbc-after.webp" srcset="shots/bbc-after-1040.webp 1040w, shots/bbc-after.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
-                <img class="before" src="shots/bbc-before.webp" srcset="shots/bbc-before-1040.webp 1040w, shots/bbc-before.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
-                <span class="mark" style="left:0;top:14.2%;width:100%;height:31.9%"></span>
-                <span class="mark" style="left:72.5%;top:53.3%;width:20.8%;height:46.7%"></span>
-                <span class="flag" style="left:36%;top:48%">Ads: 42% of the screen</span>
-                <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Blocked by Moat</span>
-              </div>
-            </div>
-          </div>
-          <div class="txt">
-            <h3 data-reveal>Just the page you came for.</h3>
-            <p>About 310,000 filter rules stop ads and trackers before they load, on every site.</p>
-            <p class="note">On this page, ads took up <b>42% of the first screen</b>.</p>
-          </div>
-        </article>
-
-        <!-- clutter: Allrecipes -->
-        <article class="row flip" data-loop="shot" data-line="Boxes everywhere!">
-          <div class="vis">
-            <span class="say-chip" aria-hidden="true"></span><span class="tag">Clutter</span>
-            <span data-cookie aria-hidden="true"><img src="characters/cookie-sandwich.webp" width="282" height="341" alt=""></span>
-            <div class="win" aria-hidden="true">
-              <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">allrecipes.com</span></div>
-              <div class="shotbox">
-                <img src="shots/recipe-after.webp" srcset="shots/recipe-after-1040.webp 1040w, shots/recipe-after.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
-                <img class="before" src="shots/recipe-before.webp" srcset="shots/recipe-before-1040.webp 1040w, shots/recipe-before.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
-                <span class="mark" style="left:24.7%;top:17.8%;width:50.6%;height:10%"></span>
-                <span class="mark" style="left:63.75%;top:40.6%;width:20.8%;height:59.4%"></span>
-                <span class="flag" style="left:34%;top:31%">2 ads above the recipe</span>
-                <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Space given back</span>
-              </div>
-            </div>
-          </div>
-          <div class="txt">
-            <h3 data-reveal>Less clutter.</h3>
-            <p>Blocked ads don't leave empty boxes behind, so the page closes up around what you're reading.</p>
-          </div>
-        </article>
-
-        <!-- cookies: GOV.UK, banner rejected by Moat (on by default) -->
-        <article class="row" data-loop="shot" data-line="Accept all, please!">
-          <div class="vis">
-            <span class="say-chip" aria-hidden="true"></span><span class="tag">Cookie banners</span>
-            <span data-cookie aria-hidden="true"><img src="characters/cookie-star.webp" width="288" height="374" alt=""></span>
-            <div class="win" aria-hidden="true">
-              <div class="win-bar"><span class="d"><i></i><i></i><i></i></span><span class="u">gov.uk</span></div>
-              <div class="shotbox">
-                <img src="shots/govuk-after.webp" srcset="shots/govuk-after-1040.webp 1040w, shots/govuk-after.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
-                <img class="before" src="shots/govuk-before.webp" srcset="shots/govuk-before-1040.webp 1040w, shots/govuk-before.webp 1440w" sizes="(max-width: 900px) 92vw, 760px" width="1440" height="900" alt="" loading="lazy">
-                <span class="mark" style="left:0;top:0;width:100%;height:36.1%"></span>
-                <span class="flag" style="left:40%;top:40%">Cookie banner: 36% of the screen</span>
-                <span class="toast" style="left:20px;bottom:20px"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Rejected additional cookies</span>
-              </div>
-            </div>
-          </div>
-          <div class="txt">
-            <h3 data-reveal>No more cookie banners.</h3>
-            <p>Moat answers them for you, picking the option that shares the least.</p>
-          </div>
-        </article>
-
-        <!-- hijacked pop-up tabs -->
-        <article class="row flip" data-loop="pop" data-line="You won a prize!">
-          <div class="vis">
-            <span class="say-chip" aria-hidden="true"></span><span class="tag">Pop-ups</span>
-            <span data-cookie aria-hidden="true"><img src="characters/cookie-crescent.webp" width="263" height="378" alt=""></span>
-            <div class="tabstrip" aria-hidden="true">
-              <div class="tabs2"><span class="dd"><i></i><i></i><i></i></span>
-                <span class="t2 on"><span class="fv"></span>Slow-roast tomato soup</span>
-                <span class="t2 bad tabnew"><span class="fv"></span>you-won-a-prize.example</span>
-              </div>
-              <div class="tabpage" style="position:relative">
-                <div class="omni">recipes.example/tomato-soup</div>
-                <div class="pg"><h5>Slow-roast tomato soup</h5><p>Halve the tomatoes and roast them cut side up with the garlic until the edges catch.</p><p style="margin-top:10px">Blend with the stock, then season with salt and a little sugar. Serve with bread.</p><div style="margin-top:16px;height:120px;border-radius:6px;background:linear-gradient(160deg,#d4b89b,#a77c5c 60%,#6d4c35);max-width:460px"></div></div>
-                <span class="toast"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Pop-up tab closed</span>
-              </div>
-            </div>
-          </div>
-          <div class="txt">
-            <h3 data-reveal>Stops hijacked pop-ups.</h3>
-            <p>Fake prize and fake virus tabs get closed as they open, before they can load.</p>
-          </div>
-        </article>
-
-        <!-- control: the real popup, on and paused -->
-        <article class="row" data-loop="ctl" data-line="Is it switched off?">
-          <div class="vis">
-            <span class="say-chip" aria-hidden="true"></span><span class="tag">You're in charge</span>
-            <span class="thin" data-cookie aria-hidden="true"><img src="characters/cookie-wafer.webp" width="111" height="347" alt=""></span>
-            <div class="popstage" aria-hidden="true">
-              <figure class="pcy">
-                <span class="cap on">On</span><span class="cap off">Paused</span>
-                <img class="p-on" src="shots/pop-on.png" width="260" height="507" alt="" loading="lazy">
-                <img class="p-off" src="shots/pop-paused.png" width="260" height="349" alt="" loading="lazy">
-                <span class="tap"></span>
-              </figure>
-            </div>
-          </div>
-          <div class="txt">
-            <h3 data-reveal>You stay in control.</h3>
-            <p>Trust a site? One switch pauses Moat there. Anything a filter list misses, you can hide with a click.</p>
-          </div>
-        </article>
-      </div>
+  <!-- ============ THE COOKIES ============ -->
+  <section id="cast" class="wrap">
+    <div class="head col">
+      <h2 data-reveal>Meet the cookies.</h2>
+      <p data-reveal style="--i:1">Each one is something Moat stops on the web. Kai keeps them all out.</p>
+    </div>
+    <div class="cast">
+      <article class="card" data-reveal style="--glow: rgba(214, 140, 60, .35)">
+        <div class="stage"><span data-cookie data-cast="crumb" aria-hidden="true"><img src="characters/cookie-chip.webp" width="358" height="369" alt=""></span></div>
+        <h3>Crumb</h3><p class="role">Trackers</p>
+        <p>Follows you from site to site, taking notes. Moat blocks trackers before they load.</p>
+      </article>
+      <article class="card" data-reveal style="--i:1; --glow: rgba(229, 72, 77, .32)">
+        <div class="stage"><span data-cookie data-cast="blare" aria-hidden="true"><img src="characters/cookie-star.webp" width="288" height="374" alt=""></span></div>
+        <h3>Blare</h3><p class="role">Ads</p>
+        <p>Shouts over everything you came to read. Moat stops ads and closes the gap they leave.</p>
+      </article>
+      <article class="card" data-reveal style="--i:2; --glow: rgba(214, 90, 220, .3)">
+        <div class="stage"><span data-cookie data-cast="popsy" aria-hidden="true"><img src="characters/cookie-crescent.webp" width="263" height="378" alt=""></span></div>
+        <h3>Popsy</h3><p class="role">Hijacked pop-ups</p>
+        <p>Jumps out in a new tab when you click. Moat closes it before it loads.</p>
+      </article>
+      <article class="card" data-reveal style="--i:3; --glow: rgba(230, 190, 60, .3)">
+        <div class="stage"><span data-cookie data-cast="nag" aria-hidden="true"><img src="characters/cookie-sandwich.webp" width="282" height="341" alt=""></span></div>
+        <h3>Nag</h3><p class="role">Cookie banners</p>
+        <p>Asks you to accept everything, on every site. Moat answers no for you.</p>
+      </article>
     </div>
   </section>
 
   <!-- ============ HOW TO USE IT ============ -->
-  <!-- Chrome's "What's new" pattern: one task at a time, the outcome as the
-       heading, numbered steps naming the real buttons, a tip. Kai narrates
-       while a cursor acts each step out on real Moat screens (captured by
-       .cache/opt/howto-captures.mjs). The scripts live in the page script
-       in js/scene.js (HOWTO); reduced motion shows each task's finished screen. -->
-  <section class="block" id="how" aria-labelledby="how-h">
-    <div class="container">
-      <div class="sec-head left">
-        <span class="eyebrow" data-reveal>How to use it</span>
-        <h2 id="how-h" data-reveal style="--i:1">Kai shows you around.</h2>
-        <p data-reveal style="--i:2">Most days you won't touch Moat. When you need it, it's one click away.</p>
-      </div>
-
+  <!-- Kai talks through each task while a cursor clicks through real Moat
+       screens (captured by .cache/opt/howto-captures.mjs). The steps live
+       in js/scene.js (HOWTO); reduced motion shows the finished screens. -->
+  <section id="how" class="wrap">
+    <div class="head col">
+      <h2 data-reveal>Kai shows you around.</h2>
+      <p data-reveal style="--i:1">Most days you won't touch Moat. When you do, it's one click away.</p>
+    </div>
+    <div class="guide" data-reveal>
+      <div class="peek float" data-kai id="kai" aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
       <div class="howto">
         <div class="howto-txt">
           <div class="narrator" aria-hidden="true">
-            <div class="float" data-kai id="kai"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
             <p class="say" id="kai-say">Hi, I'm Kai. Let me show you around.</p>
           </div>
 
@@ -837,93 +695,63 @@
         <button role="tab" id="how-t4" aria-controls="how-4" aria-selected="false" tabindex="-1"><span class="n">4</span>Choose how much it blocks</button>
         <button role="tab" id="how-t5" aria-controls="how-5" aria-selected="false" tabindex="-1"><span class="n">5</span>Report a problem</button>
       </div>
+
     </div>
   </section>
 
-  <!-- ============ PRIVATE BY DESIGN ============ -->
-  <section class="block" id="privacy">
-    <div class="container">
-      <div class="sec-head left">
-        <span class="eyebrow" data-reveal>Privacy</span>
-        <h2 data-reveal style="--i:1">Private by design, not by promise.</h2>
-        <p data-reveal style="--i:2">There's nothing to collect, so there's nothing to leak or sell. You can read the code.</p>
-      </div>
-      <div class="cards">
-        <div class="card" data-reveal style="--i:1">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="16" height="7" rx="2" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="16" height="7" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <h3>On your device.</h3>
-          <p>Blocking happens inside your browser. Moat goes online for signed list updates, reports you send, and two checks you can turn on.</p>
-        </div>
-        <div class="card" data-reveal style="--i:2">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <h3>No account.</h3>
-          <p>Install it and it works. No sign-up, no email, no login.</p>
-        </div>
-        <div class="card" data-reveal style="--i:3">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 19V9m6 10V5m6 14v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <h3>No telemetry.</h3>
-          <p>No analytics and no crash reports. The developer receives nothing about you, unless you choose to send a problem report.</p>
-        </div>
-        <div class="card" data-reveal style="--i:4">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 8.7 4-1.1 7-4.2 7-8.7V6l-7-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <h3>Signed updates.</h3>
-          <p>Daily filter fixes are checked against a signing key built into the extension.</p>
-        </div>
-        <div class="card" data-reveal style="--i:5">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 7-5 5 5 5m8-10 5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <h3>Open source.</h3>
-          <p>GPL-3.0 on GitHub. Anyone can read it, build it and compare.</p>
-        </div>
-      </div>
+  <!-- ============ PRIVACY ============ -->
+  <section id="privacy" class="wrap">
+    <div class="head col">
+      <h2 data-reveal>Private by design.<br>Not by promise.</h2>
+      <p data-reveal style="--i:1">Moat has nothing to collect, so there's nothing to leak or sell. Blocking runs on your device, and the code is open for anyone to read.</p>
+      <a class="more" data-reveal style="--i:2" href="https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md">Read the privacy policy</a>
+    </div>
+    <div class="grid4">
+      <div class="fact" data-reveal><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1.4-3.6 4.2-5.4 7.5-5.4s6.1 1.8 7.5 5.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><h3>No account</h3><p>Install it and it works. No sign-up, no email, no login.</p></div>
+      <div class="fact" data-reveal style="--i:1"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 18V9m5 9V5m5 13v-6m5 6V8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><h3>No telemetry</h3><p>No analytics and no crash reports. Nothing reaches the developer unless you send a report.</p></div>
+      <div class="fact" data-reveal style="--i:2"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 4 5.5v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10v-6l-8-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Signed updates</h3><p>Daily list fixes are checked against a key built into Moat before they're used.</p></div>
+      <div class="fact" data-reveal style="--i:3"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Open source</h3><p>GPL-3.0 on GitHub. Anyone can read it, build it and check it.</p></div>
     </div>
   </section>
 
-  <!-- ============ MANIFEST V3 ============ -->
-  <section class="block">
-    <div class="container mv3">
-      <div>
-        <h2>Built for Manifest V3.</h2>
-        <p class="lead">Written for the current extension platform from day one. It's not a cut-down port of an older blocker.</p>
-        <div class="nums">
-          <div><b>310k</b>bundled filter rules</div>
-          <div><b>2</b>browsers, one codebase</div>
-        </div>
+  <!-- ============ FREE ============ -->
+  <section class="wrap">
+    <div class="head col">
+      <h2 data-reveal>Free. Not freemium.</h2>
+      <p data-reveal style="--i:1">No paid tier, no premium unlock and no "acceptable" ads. Everything Moat does is in the free version, because there's only one version.</p>
+    </div>
+    <div class="stats">
+      <div class="stat grad" data-reveal>
+        <h3>Ready on day one</h3>
+        <p class="sub">The lists come built in, with fixes every day.</p>
+        <p class="num">310k</p>
+        <p>filter rules, on every site</p>
       </div>
-      <div class="extras">
-        <h3>Extras, all off until you want them</h3>
+      <div class="stat" data-reveal style="--i:1">
+        <h3>What Moat costs you</h3>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Device protection</b> makes your device harder for sites to recognize.</li>
-          <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Breached-password warnings</b> as you type into a login form.</li>
-          <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Hidden-tracker detection</b> for trackers hiding behind a site's own address.</li>
+          <li><b>$0</b><span>forever</span></li>
+          <li><b>0</b><span>accounts to make</span></li>
+          <li><b>0</b><span>ads of its own</span></li>
+          <li><b>1</b><span>click to pause on any site</span></li>
         </ul>
-        <div class="actions">
-          <a class="btn btn-blue" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
-          <a class="btn btn-line" href="https://github.com/Samuelabhinav37/moat">View the source</a>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ CTA ============ -->
-  <section id="get">
-    <div class="container">
-      <div class="cta-box">
-        <div class="float" data-kai id="cta-kai" aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
-        <div>
-          <h2>Start browsing quieter today.</h2>
-          <p>Moat is free on the Chrome Web Store. Kai's ready when you are.</p>
-        </div>
-        <div class="cta-btns">
-          <a class="btn btn-white" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
-          <a class="btn btn-ghost-w" href="https://github.com/Samuelabhinav37/moat">View the source</a>
-        </div>
-      </div>
+  <!-- ============ CLOSING ============ -->
+  <section class="closing wrap">
+    <div class="float" data-kai id="cta-kai" aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
+    <h2 data-reveal>Start browsing quieter.</h2>
+    <p data-reveal style="--i:1">Moat is free on the Chrome Web Store. Kai's ready when you are.</p>
+    <div class="ctas" data-reveal style="--i:2">
+      <a class="btn btn-blue" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
+      <a class="more" href="https://github.com/Samuelabhinav37/moat">View the source</a>
     </div>
   </section>
 
-
-  <!-- ============ FAQ ============ -->
-  <section class="block" id="faq">
+  <div class="wrap">
+<section id="faq">
     <div class="container">
       <h2 class="faq-title">Frequently asked questions</h2>
       <div class="faq">
@@ -943,10 +771,12 @@
       </div>
     </div>
   </section>
+  </div>
 </main>
 
+<div class="wrap">
 <footer>
-  <div class="container">
+  <div>
     <div class="foot-top">
       <a class="logo" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#030307" stroke="rgba(255,255,255,.18)"/><line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="#fff"/><circle cx="16" cy="16" r="2.8" fill="rgba(255,255,255,.85)"/><circle cx="9" cy="25" r="2.2" fill="rgba(255,255,255,.7)"/><circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)"/></svg>Moat</a>
       <div class="foot-cols" role="navigation" aria-label="Footer">
@@ -958,49 +788,10 @@
     <div class="foot-bottom"><span>© 2026 Moat</span><span>Free and open source.</span></div>
   </div>
 </footer>
+</div>
 
-<script>
-  (function () {
-    // Scale the whole 1600px browser window as one unit to fit. On narrow
-    // screens, stop at about a third and crop around the divider instead.
-    function fit() {
-      document.querySelectorAll("[data-fit]").forEach(function (outer) {
-        var inner = outer.firstElementChild, w = Number(outer.dataset.fit), ow = outer.clientWidth;
-        var s = Math.max(0.35, Math.min(1, ow / w)), sw = w * s;
-        // Only when it still overflows: centre the crop on the divider (55%).
-        var tx = sw > ow ? Math.max(ow - sw, Math.min(0, ow / 2 - sw * 0.55)) : 0;
-        inner.style.transform = "translateX(" + tx + "px) scale(" + s + ")";
-        outer.style.height = inner.offsetHeight * s + "px";
-      });
-    }
-    addEventListener("resize", fit);
-    fit();
-    // Before/after divider. Without JS the page still shows a fixed split.
-    var stage = document.getElementById("stage");
-    var range = stage.querySelector(".range");
-    // Hero autoplay: runs while visible until the visitor takes the handle.
-    var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!still && window.CSS && "registerProperty" in CSS) {
-      stage.classList.add("auto");
-      if ("IntersectionObserver" in window) {
-        new IntersectionObserver(function (en) { stage.classList.toggle("run", en[0].isIntersecting); }, { threshold: 0.3 }).observe(stage);
-      } else {
-        stage.classList.add("run");
-      }
-      var stop = function () {
-        if (!stage.classList.contains("auto")) return;
-        stage.classList.remove("auto", "run");
-        stage.style.setProperty("--x", range.value + "%");
-      };
-      ["pointerdown", "keydown", "focus", "touchstart"].forEach(function (t) { range.addEventListener(t, stop, { passive: true }); });
-    }
-    range.addEventListener("input", function (e) {
-      stage.style.setProperty("--x", e.target.value + "%");
-      e.target.setAttribute("aria-valuetext", e.target.value + "% of the page shown without Moat");
-    });
-  })();
-</script>
 <script src="js/life.js"></script>
 <script src="js/scene.js"></script>
+<script src="js/page.js"></script>
 </body>
 </html>
