@@ -29,6 +29,9 @@ const MAX_PASSES = 60;
 // debounced flush still runs and decides when to stop.
 const FAST_WINDOW_MS = 3000;
 const MAX_FAST_PASSES = 120;
+// A pass with a site's real rules took 0.3 ms or less (median) on the busiest
+// sites measured; this caps what a huge page with a broad rule could cost.
+const FAST_BUDGET_MS = 50;
 export const HIDDEN_ATTR = `data-${pageMarker()}`;
 
 // A rule's task patterns are static strings fixed at parse time -- the same
@@ -202,6 +205,7 @@ export function startProceduralCosmetic(
   let timer: ReturnType<typeof setTimeout> | undefined;
   let frame: number | undefined;
   let fastPasses = 0;
+  let fastSpentMs = 0;
   // Elements the next-frame passes acted on since the last flush, so the
   // flush still counts that batch as busy rather than quiet.
   let fastActed = 0;
@@ -261,13 +265,15 @@ export function startProceduralCosmetic(
     frame = undefined;
     if (stopped) return;
     fastPasses += 1;
+    const t0 = performance.now();
     fastActed += pass();
+    fastSpentMs += performance.now() - t0;
   }
 
   function schedule(): void {
     if (stopped) return;
     if (timer === undefined) timer = setTimeout(flush, flushDelayMs);
-    if (raf && frame === undefined && fastPasses < MAX_FAST_PASSES && Date.now() < fastUntil) frame = raf(fastFlush);
+    if (raf && frame === undefined && fastPasses < MAX_FAST_PASSES && fastSpentMs < FAST_BUDGET_MS && Date.now() < fastUntil) frame = raf(fastFlush);
   }
 
   const observer = new MutationObserver(() => {

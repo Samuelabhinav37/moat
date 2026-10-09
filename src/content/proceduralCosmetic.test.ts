@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { startProceduralCosmetic } from "./proceduralCosmetic";
 import type { ProceduralRule } from "../types";
 
@@ -217,6 +217,32 @@ describe("startProceduralCosmetic — next-frame passes while the page loads", (
     await frame();
     await frame();
     expect(isHidden(el)).toBe(false);
+    handle.stop();
+  });
+
+  it("stops next-frame passes once they've used their time budget", async () => {
+    // Every performance.now() call jumps 60 ms, so the first pass alone uses
+    // up the 50 ms budget and later slots wait for the debounced flush.
+    let now = 0;
+    const spy = vi.spyOn(performance, "now").mockImplementation(() => (now += 60));
+    const handle = startProceduralCosmetic(document, [rule({ s: ".slot", t: [["has-text", "Advertisement"]] })], {
+      flushDelayMs: 60_000,
+    });
+    const add = () => {
+      const el = document.createElement("div");
+      el.className = "slot";
+      el.textContent = "Advertisement";
+      document.body.append(el);
+      return el;
+    };
+    const frame = () => new Promise((r) => requestAnimationFrame(() => r(undefined)));
+    const first = add();
+    await frame(); await frame();
+    const second = add();
+    await frame(); await frame();
+    spy.mockRestore();
+    expect(isHidden(first)).toBe(true);
+    expect(isHidden(second)).toBe(false);
     handle.stop();
   });
 
