@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.273
+
+### Fixed
+- **A changed level stays selected.** Turning on something extra while on Balanced used to leave no
+  level selected, which looked like nothing was chosen. Balanced now stays selected, marked
+  Customized, with a line saying what changed ("Balanced, plus Block cross-site cookies") and a
+  Reset to Balanced button. Going back to a level from a changed one offers Undo.
+- **Moat off keeps your level.** With Moat off, your level stays selected and the page says
+  nothing is blocked, with a Turn on button. Filter lists says the same.
+- **The same level everywhere.** Overview says "Balanced, customized", and the welcome tour and
+  Review your protection start on the level your settings came from.
+
 ## 0.11.272
 
 ### Added

@@ -1229,6 +1229,7 @@ const levelCards = document.querySelectorAll<HTMLButtonElement>("#level-cards .l
 const levelNote = document.getElementById("level-note") as HTMLElement;
 
 const levelNoteText = levelNote.querySelector("span") as HTMLElement;
+const levelNoteReset = document.getElementById("level-note-reset") as HTMLButtonElement;
 
 // Names for the parts of a level that a hand-picked mix can change.
 const PRIVACY_NAMES: Record<string, [string, string]> = {
@@ -1241,8 +1242,8 @@ function levelName(level: string): string {
   return document.querySelector(`#level-cards .level[data-level="${level}"] .level-name`)?.textContent ?? level;
 }
 
-/** "Balanced + Social buttons − Trackers": the nearest level and what differs from it. */
-function mixDescription(settings: Settings): { base: PresetName; text: string } {
+/** "Balanced, plus Block cross-site cookies and without Trackers." */
+function changesSentence(settings: Settings): { base: PresetName; text: string; count: number } {
   const diff = presetDifference(settings);
   const name = (key: string): string => {
     const list = LIST_LABELS[key];
@@ -1250,35 +1251,78 @@ function mixDescription(settings: Settings): { base: PresetName; text: string } 
     const privacy = PRIVACY_NAMES[key];
     return privacy ? tFallback(privacy[0], privacy[1]) : key;
   };
-  const parts = [levelName(diff.base), ...diff.added.map((key) => `+ ${name(key)}`), ...diff.removed.map((key) => `− ${name(key)}`)];
-  return { base: diff.base, text: parts.join(" ") };
+  const base = levelName(diff.base);
+  const added = diff.added.map(name).join(", ");
+  const removed = diff.removed.map(name).join(", ");
+  const text =
+    added && removed
+      ? tFallback("levelChangesBoth", `${base}, plus ${added}, without ${removed}.`, [base, added, removed])
+      : added
+        ? tFallback("levelChangesPlus", `${base}, plus ${added}.`, [base, added])
+        : tFallback("levelChangesMinus", `${base}, without ${removed}.`, [base, removed]);
+  return { base: diff.base, text, count: diff.added.length + diff.removed.length };
 }
 
 function renderLevels(preset: PresetName | "custom", locked: boolean, settings: Settings): void {
+  // A changed level keeps its card selected, marked "Customized", so the
+  // page never looks as if no level is chosen.
+  // With Moat off, the level it comes back to stays selected.
+  const off = preset === "off";
+  const level = off ? detectPreset({ ...settings, enabled: true }) : preset;
+  // Any mix that isn't one of the three cards (a hand-picked mix, or an
+  // older level like Essential) reads as the nearest card, changed.
+  const custom = level !== "off" && !(MAIN_LEVELS as readonly string[]).includes(level) ? changesSentence(settings) : null;
+  const selected = custom ? custom.base : level;
   for (const card of levelCards) {
-    card.setAttribute("aria-checked", String(card.dataset.level === preset));
+    card.setAttribute("aria-checked", String(card.dataset.level === selected));
     card.disabled = locked;
   }
-  levelNote.hidden = (MAIN_LEVELS as readonly string[]).includes(preset) || preset === "off";
   for (const badge of document.querySelectorAll("#level-cards .level-mix")) badge.remove();
-  if (!levelNote.hidden && preset === "custom") {
-    const mix = mixDescription(settings);
-    levelNoteText.textContent = tFallback("filtersLevelMix", `Your mix: ${mix.text}.`, mix.text);
-    // Mark the card the mix is closest to, so the page shows where you stand.
-    const nearest = document.querySelector(`#level-cards .level[data-level="${mix.base}"] .level-top`);
-    nearest?.append(Object.assign(document.createElement("span"), { className: "level-mix", textContent: tFallback("levelYourMix", "Your mix") }));
+  levelNote.hidden = !custom && !off;
+  if (off) {
+    levelNoteText.textContent = tFallback("levelOffNote", "Moat is off, so nothing is blocked.");
+    levelNoteReset.textContent = tFallback("checkTurnOn", "Turn on");
+    levelNoteReset.dataset.level = "";
+    levelNoteReset.disabled = locked;
+  } else if (custom) {
+    levelNoteText.textContent = custom.text;
+    levelNoteReset.textContent = tFallback("filtersLevelResetTo", `Reset to ${levelName(custom.base)}`, levelName(custom.base));
+    levelNoteReset.dataset.level = custom.base;
+    levelNoteReset.disabled = locked;
+    document.querySelector(`#level-cards .level[data-level="${custom.base}"] .level-top`)?.append(Object.assign(document.createElement("span"), { className: "level-mix", textContent: tFallback("levelCustomized", "Customized") }));
+  }
+}
+
+/** Applies a level. Coming from a customized level drops those changes, so
+ * it says so and offers Undo. */
+async function applyLevel(level: PresetName): Promise<void> {
+  const before = lastSettings ?? (await getEffectiveSettings());
+  const wasCustom = detectPreset(before) === "custom";
+  const patch = presetPatch(level);
+  await setSettings(patch);
+  await render();
+  if (wasCustom) {
+    const undo = Object.fromEntries(Object.keys(patch).map((key) => [key, before[key as keyof Settings]])) as Partial<Settings>;
+    savedToast.offerUndo(tFallback("levelResetDone", `Back to ${levelName(level)}. Your changes were removed.`, levelName(level)), tFallback("toastUndo", "Undo"), () => {
+      void setSettings(undo).then(() => render());
+    });
   }
 }
 
 for (const card of levelCards) {
-  card.addEventListener("click", async () => {
+  card.addEventListener("click", () => {
     // Select the card at once: applying a level turns whole rulesets on or
     // off in the browser, which takes a few hundred milliseconds.
     for (const other of levelCards) other.setAttribute("aria-checked", String(other === card));
-    await setSettings(presetPatch(card.dataset.level as PresetName));
-    await render();
+    for (const badge of document.querySelectorAll("#level-cards .level-mix")) badge.remove();
+    levelNote.hidden = true;
+    void applyLevel(card.dataset.level as PresetName);
   });
 }
+levelNoteReset.addEventListener("click", () => {
+  if (!levelNoteReset.dataset.level) void setSettings({ enabled: true }).then(() => render());
+  else void applyLevel(levelNoteReset.dataset.level as PresetName);
+});
 
 async function renderFilterLists(settings: Settings, droppedGroups: Set<string>): Promise<void> {
   // Before the list manifest loads, so the level shows even if it can't.
@@ -1361,24 +1405,22 @@ function renderLevelLine(preset: PresetName | "custom", settings: Settings): voi
   if (onCard) {
     const name = levelName(preset);
     levelLineText.textContent = tFallback("filtersLevelUsing", `Using ${name}.`, name);
-  } else if (preset === "custom") {
-    const mix = mixDescription(settings);
-    levelLineText.textContent = tFallback("filtersLevelMix", `Your mix: ${mix.text}.`, mix.text);
+  } else if (preset !== "off") {
+    const mix = changesSentence(settings);
+    levelLineText.textContent = mix.text;
     levelLineReset.dataset.level = mix.base;
     levelLineReset.textContent = tFallback("filtersLevelResetTo", `Reset to ${levelName(mix.base)}`, levelName(mix.base));
-  } else {
-    levelLineText.textContent = tFallback("filtersLevelCustom", "Your own mix of lists.");
-    levelLineReset.dataset.level = "standard";
-    levelLineReset.textContent = tFallback("filtersLevelResetTo", `Reset to ${levelName("standard")}`, levelName("standard"));
+  } else if (preset === "off") {
+    levelLineText.textContent = tFallback("levelOffNote", "Moat is off, so nothing is blocked.");
+    levelLineReset.hidden = true;
+    levelLineChange.hidden = true;
+    return;
   }
   levelLineChange.hidden = !onCard;
   levelLineReset.hidden = onCard;
 }
 
-levelLineReset.addEventListener("click", async () => {
-  await setSettings(presetPatch((levelLineReset.dataset.level as PresetName | undefined) ?? "standard"));
-  await render();
-});
+levelLineReset.addEventListener("click", () => void applyLevel((levelLineReset.dataset.level as PresetName | undefined) ?? "standard"));
 
 /** The one "Check for filter fixes" action, from Filter lists or About. */
 async function checkForFixes(trigger: HTMLElement): Promise<void> {
@@ -2204,7 +2246,9 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   document.getElementById("ov-week-total")!.textContent = week.toLocaleString();
   document.getElementById("ov-week-empty")!.hidden = week > 0;
   (document.querySelector(".ov-hint") as HTMLElement).hidden = week === 0;
-  document.getElementById("ov-status-level")!.textContent = levelLabel(detectPreset(settings));
+  const preset = detectPreset(settings);
+  document.getElementById("ov-status-level")!.textContent =
+    preset === "custom" ? tFallback("ovLevelCustomized", `${levelLabel(presetDifference(settings).base)}, customized`, levelLabel(presetDifference(settings).base)) : levelLabel(preset);
   overviewSettings = settings;
   renderOverviewStatus();
 
@@ -2939,7 +2983,8 @@ document.getElementById("checkup-start")?.addEventListener("click", () => {
     openCheckup(document, {
       t: tFallback,
       settings,
-      currentLevel: (LEVELS as readonly string[]).includes(preset) ? (preset as Level) : null,
+      // A customized level counts as the level it was changed from.
+      currentLevel: (LEVELS as readonly string[]).includes(preset) ? (preset as Level) : preset === "custom" ? (presetDifference(settings).base as Level) : null,
       levelPatch: (level) => presetPatch(level),
       levelName: (level) => levelLabel(level),
       levelDesc: (level) => tFallback(...LEVEL_DESC[level]),

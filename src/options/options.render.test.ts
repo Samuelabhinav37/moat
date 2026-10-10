@@ -182,7 +182,7 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
 
   it("offers Reset to Balanced for a hand-picked mix, Essential included", async () => {
     await renderOptions({ ...presetPatch("essential") });
-    expect(document.getElementById("level-line-text")?.textContent).toBe("Your own mix of lists.");
+    expect(document.getElementById("level-line-text")?.textContent).toMatch(/^(Light|Balanced|Strict), (plus|without) /);
     expect(document.getElementById("level-line-change")?.hidden).toBe(true);
     expect(document.getElementById("level-line-reset")?.hidden).toBe(false);
     expect(document.getElementById("level-note")?.hidden).toBe(false);
@@ -210,11 +210,11 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
     expect(names).toEqual(["www.alpha.example", "beta.example", "zeta.example"]);
   });
 
-  it("points the own-mix note at Filter lists, not at a hidden Advanced button", async () => {
+  it("says what a changed level changes, with a reset to the level it came from", async () => {
     await renderOptions();
     const note = document.getElementById("level-note")!;
-    expect(note.textContent).not.toContain("Advanced settings");
-    expect(note.querySelector("a.to-filters")?.getAttribute("href")).toBe("#filters");
+    expect(note.hidden).toBe(false);
+    expect(note.querySelector("button")?.textContent).toMatch(/^Reset to (Light|Balanced|Strict)$/);
   });
 });
 
@@ -359,12 +359,32 @@ describe("Block and allow: migration import", () => {
 });
 
 describe("Level cards", () => {
-  it("selects no level card for a hand-picked mix, and points to Filter lists", async () => {
+  it("keeps the nearest card selected for a changed level, marked Customized", async () => {
     // The shared mock is deliberately a custom mix (fingerprinting on, etc.).
     await renderOptions();
-    const checkedCards = document.querySelectorAll("#level-cards .level[aria-checked='true']");
-    expect(checkedCards.length).toBe(0);
+    const checkedCards = [...document.querySelectorAll("#level-cards .level[aria-checked='true']")];
+    expect(checkedCards).toHaveLength(1);
+    expect(checkedCards[0]!.querySelector(".level-mix")?.textContent).toBe("Customized");
     expect((document.getElementById("level-note") as HTMLElement).hidden).toBe(false);
+  });
+
+  it("keeps the level selected while Moat is off, with a way to turn it on", async () => {
+    await renderOptions({ ...presetPatch("standard"), enabled: false });
+    const checked = [...document.querySelectorAll<HTMLElement>("#level-cards .level[aria-checked='true']")].map((c) => c.dataset.level);
+    expect(checked).toEqual(["standard"]);
+    expect(document.querySelector("#level-note span")?.textContent).toBe("Moat is off, so nothing is blocked.");
+    document.getElementById("level-note-reset")!.click();
+    await settle();
+    expect(sentMessages.filter((m) => m.type === "set-settings-patch").at(-1)).toMatchObject({ patch: { enabled: true } });
+  });
+
+  it("going back to a level from a changed one offers Undo", async () => {
+    const balanced = presetPatch("standard");
+    await renderOptions({ ...balanced, filterGroups: { ...balanced.filterGroups, "social-widgets": true } });
+    document.getElementById("level-note-reset")!.click();
+    await settle();
+    expect(sentMessages.filter((m) => m.type === "set-settings-patch").at(-1)).toMatchObject({ patch: { filterGroups: { "social-widgets": false } } });
+    expect(document.body.textContent).toContain("Back to Balanced. Your changes were removed.");
   });
 
   it("marks exactly one level card as chosen, and picking another one saves it", async () => {
@@ -412,10 +432,10 @@ describe("Hand-picked mix of lists", () => {
     const balanced = presetPatch("standard");
     await renderOptions({ ...balanced, filterGroups: { ...balanced.filterGroups, "social-widgets": true } });
 
-    expect(document.getElementById("level-line-text")?.textContent).toBe("Your mix: Balanced + Social buttons.");
+    expect(document.getElementById("level-line-text")?.textContent).toBe("Balanced, plus Social buttons.");
     expect(document.getElementById("level-line-reset")?.textContent).toBe("Reset to Balanced");
     expect(document.getElementById("level-line-reset")?.dataset.level).toBe("standard");
-    expect(document.querySelector("#level-note span")?.textContent).toBe("Your mix: Balanced + Social buttons.");
+    expect(document.querySelector("#level-note span")?.textContent).toBe("Balanced, plus Social buttons.");
   });
 });
 

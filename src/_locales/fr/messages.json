@@ -3908,5 +3908,63 @@
   },
   "secStopUnknown": {
     "message": "Sur une liste de danger que Moat n'a pas pu nommer"
+  },
+  "levelChangesPlus": {
+    "message": "$A$, plus $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "levelChangesMinus": {
+    "message": "$A$, sans $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "levelChangesBoth": {
+    "message": "$A$, plus $B$, sans $C$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      },
+      "c": {
+        "content": "$3"
+      }
+    }
+  },
+  "levelCustomized": {
+    "message": "Personnalisé"
+  },
+  "levelResetDone": {
+    "message": "Retour à $A$. Tes changements ont été retirés.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "ovLevelCustomized": {
+    "message": "$A$, personnalisé",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "levelOffNote": {
+    "message": "Moat est désactivé, donc rien n'est bloqué."
   }
 }

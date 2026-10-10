@@ -8,7 +8,7 @@ import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { dismissOnboarding } from "../background/updateNotice";
 import { watchPinState, type ActionLike, type PinState } from "./pinState";
 import { getEffectiveSettings } from "../background/settings";
-import { detectPreset, presetPatch, type PresetName } from "../shared/filterPresets";
+import { detectPreset, presetDifference, presetPatch, type PresetName } from "../shared/filterPresets";
 import type { SetSettingsPatchMessage } from "../types";
 
 const getMessage = (key: string, subs?: string | string[]) => browser.i18n.getMessage(key, subs);
@@ -137,8 +137,10 @@ const markLevel = (level: string) => {
 // Shows the level Moat is on (Balanced on a fresh install).
 void getEffectiveSettings()
   .then((settings) => {
+    // A customized level shows as the level it was changed from.
     const preset = detectPreset(settings);
-    markLevel(levelCards.some((card) => card.dataset.level === preset) ? preset : "standard");
+    const shown = preset === "custom" ? presetDifference(settings).base : preset;
+    markLevel(levelCards.some((card) => card.dataset.level === shown) ? shown : "standard");
   })
   .catch(() => markLevel("standard"));
 for (const card of levelCards) {
