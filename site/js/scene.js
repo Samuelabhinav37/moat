@@ -145,6 +145,13 @@
       });
     });
     document.getElementById("how-next").addEventListener("click", function () { select((current + 1) % tabs.length); });
+    // after a resize (a split window, a rotated phone) the cursor's targets
+    // have moved: start the current task again from its first screen
+    var rz;
+    addEventListener("resize", function () {
+      clearTimeout(rz);
+      rz = setTimeout(function () { if (visible && !reduce) { stop(); run(); } }, 250);
+    });
     show(HOWTO[0].start);
     if (reduce) run();
     else watch(stageEl, function (now) {

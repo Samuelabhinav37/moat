@@ -62,7 +62,7 @@
   var ft = feature("f-trackers"), rep = document.getElementById("report");
   if (ft && rep) {
     var lis = [].slice.call(rep.querySelectorAll("li"));
-    if (reduce) { lis.forEach(function (li) { li.classList.add("on"); }); ft.classList.add("handled"); }
+    if (reduce) { lis.forEach(function (li) { li.classList.add("on"); }); ft.classList.add("done"); }
     else loop(ft, async function (on) {
       ft.classList.remove("handled"); lis.forEach(function (li) { li.classList.remove("on"); });
       await sleep(1200);
@@ -82,7 +82,7 @@
       frames.forEach(function (f, i) { f.classList.toggle("on", i === k); });
       caps.forEach(function (c, i) { c.classList.toggle("on", i === capFor[k]); });
     };
-    if (reduce) { show(frames.length - 1); fb.classList.add("handled"); }
+    if (reduce) { show(frames.length - 2); fb.classList.add("done"); }
     else { show(0); loop(fb, async function (on) {
       fb.classList.remove("handled"); show(0);
       await sleep(1800);
@@ -95,7 +95,7 @@
   // ---- pop-ups: a tab sneaks open, gets struck out and closed, then Popsy -------
   var fp = feature("f-popups"), tabs = document.getElementById("tabs-demo");
   if (fp && tabs) {
-    if (reduce) fp.classList.add("handled");
+    if (reduce) fp.classList.add("done");
     else loop(fp, async function () {
       fp.classList.remove("handled"); tabs.className = "tabs-demo";
       await sleep(1600);
