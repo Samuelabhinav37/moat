@@ -203,7 +203,13 @@ function initJumpChips(win: Window): void {
       doc.getElementById(chip.dataset.jump ?? "")?.scrollIntoView?.({ behavior: reduced ? "auto" : "smooth", block: "start" });
     });
   }
-  const follow = () => {
+  // Reads every chip's card, then writes once, at most once per frame and
+  // only when the current chip changes. Reading layout straight after the
+  // previous event's class writes forced a full layout on each scroll event.
+  let frame = 0;
+  let last: string | undefined;
+  const update = () => {
+    frame = 0;
     const visible = chips.filter((chip) => chip.offsetParent !== null);
     if (!visible.length) return;
     let current = visible[0]!.dataset.jump;
@@ -211,9 +217,14 @@ function initJumpChips(win: Window): void {
       const card = doc.getElementById(chip.dataset.jump ?? "");
       if (card && card.getBoundingClientRect().top < 180) current = chip.dataset.jump;
     }
+    if (current === last) return;
+    last = current;
     for (const chip of visible) chip.classList.toggle("on", chip.dataset.jump === current);
   };
+  const follow = () => {
+    if (!frame) frame = (win.requestAnimationFrame ?? ((cb: FrameRequestCallback) => win.setTimeout(cb, 16)))(update);
+  };
   win.addEventListener("scroll", follow, { passive: true });
-  win.addEventListener("hashchange", () => win.setTimeout(follow, 50));
-  follow();
+  win.addEventListener("hashchange", () => win.setTimeout(() => { last = undefined; follow(); }, 50));
+  update();
 }
