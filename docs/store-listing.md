@@ -110,9 +110,9 @@ policy is a common rejection reason.
 | `webNavigation` | Detect when a page opens a new tab/window and when navigation completes, to run the popup/redirect firewall at the right moment. |
 | `declarativeNetRequest` | Core network-blocking engine — all ad/tracker/malware blocking runs through this API, matched by the browser itself. |
 | `declarativeNetRequestFeedback` | Read-only match feedback (`getMatchedRules`) to show the user which categories (ads/trackers/popups) were blocked on the current page. |
-| `storage` | Store the user's own settings and per-site pause list locally on-device. Never transmitted. |
+| `storage` | Keeps the user's settings, paused sites and the week's block counts shown in Settings, on the device. Never transmitted. |
 | `privacy` | Backs the opt-in privacy toggles (third-party cookie blocking, WebRTC leak protection); inert unless the user turns one on. |
-| `alarms` | Schedule the daily check for a refreshed popup/redirect domain list and cosmetic-fix file. |
+| `alarms` | Schedules the daily download of signed filter fixes and danger lists, ends a timed pause ("pause for 1 hour") on time, and refreshes an organization's managed policy where one is set. |
 | `scripting` | Register the optional content scripts (feed ad removal, YouTube dimmer) scoped only to the sites each applies to; inject cosmetic CSS from the background service worker; run the element picker only when the user clicks "Hide something on this page…". |
 | `webRequest` (non-blocking) | Observe candidate requests for the opt-in "Uncloak disguised trackers" feature; inert unless that toggle is on. Chrome's MV3 `webRequest` can no longer block, so this is observation-only feeding `declarativeNetRequest` dynamic rules. |
 | `contentSettings` | Set the browser-level camera/microphone/location permission default to "block" for the opt-in ambush-prompt guard (a site requesting one with no user gesture). Inert unless that toggle is on. |
