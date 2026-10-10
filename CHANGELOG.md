@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.267
+
+### Fixed
+- **Settings no longer stutter.** Overview spent most of a second checking site icons when it
+  opened, and scrolling the Protection page did extra work on every movement. Both are fixed, and
+  Kai stays still in Settings, which keeps scrolling smooth.
+
+### Changed
+- **Settings look like Moat's website.** Calmer neutral colours, bigger page titles, softer cards
+  with more room, and round buttons. Empty lists show Kai with a short note.
+
 ## 0.11.266
 
 ### Changed

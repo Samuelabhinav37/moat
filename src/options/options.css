@@ -4462,3 +4462,59 @@ body[data-nav="icons"].nav-open .dash-nav a:hover::after {
 .ex-inline-body .ex-say p { background: var(--card); margin: 0 0 6px; }
 .ex-inline-body .ex-say p::before { border-right-color: var(--card); }
 .ex-inline-body .ex-say { margin-top: 12px; }
+
+/* =====================================================================
+   Moat's website look for Settings (the redesign layer).
+   Neutral Apple-style surfaces instead of purple-grey, the site's type
+   scale (40px page titles, bold grey leads), softer tile cards with more
+   room, pill buttons, and Kai in empty lists. Layout and behaviour are
+   unchanged; everything below only restyles.
+   ===================================================================== */
+:root {
+  --page: #0a0a0c;
+  --panel: #161618;
+  --panel-2: #1f1f22;
+  --panel-3: #28282c;
+  --line: #262629;
+  --line-2: #36363b;
+  --tint-2: #1a2236;
+  --bg: var(--page);
+  --card: var(--panel);
+  --hairline: #232326;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "Segoe UI", sans-serif;
+}
+:root[data-theme="light"] {
+  --page: #f5f5f7;
+  --panel: #ffffff;
+  --panel-2: #f2f2f5;
+  --panel-3: #e8e8ed;
+  --line: #e3e3e8;
+  --line-2: #d2d2d8;
+  --hairline: #ececf0;
+}
+body { font-family: var(--font); font-size: 15px; letter-spacing: -0.008em; -webkit-font-smoothing: antialiased; background: var(--page); }
+
+/* page titles and leads, like the site's section heads */
+.page-head { gap: 10px; }
+.page-head h1 { font-size: clamp(30px, 3vw, 40px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.06; }
+.page-head p { font-size: 17px; line-height: 1.4; font-weight: 500; max-width: 62ch; }
+
+/* cards: tiles with soft edges and more room */
+.panel, .ov-card { border: 0; border-radius: 22px; box-shadow: inset 0 0 0 1px var(--line); }
+.ov-card { padding: 26px 28px; }
+.sec h2, .ov-card h2 { font-size: 19px; letter-spacing: -0.015em; }
+.sec .lead { font-size: 15.5px; line-height: 1.5; }
+.inset { border-radius: 16px; }
+
+/* buttons: pills */
+.ab-btn { border-radius: 980px; padding: 8px 16px; transition: background .2s, border-color .2s; }
+.ab-btn:hover:not(:disabled) { background: var(--panel-3); }
+
+/* the big week number gets the site's weight */
+.ov-big { letter-spacing: -0.035em; font-weight: 600; }
+
+/* empty lists: Kai instead of a grey icon circle */
+.empty-card { gap: 16px; padding: 8px 0; }
+.empty-card .empty-icon { width: 52px; height: 62px; border-radius: 0; background: url("characters/kai.webp") center / contain no-repeat; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .35)); }
+.empty-card .empty-icon svg { display: none; }
+.empty-card b { font-size: 15.5px; }
