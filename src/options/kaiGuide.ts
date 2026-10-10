@@ -86,7 +86,12 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
   button.setAttribute("aria-label", t("kaiOpen", "Ask Kai"));
   button.title = t("kaiOpen", "Ask Kai");
   button.append(kaiFace(doc));
-  root.append(card, button);
+  // A small bubble beside Kai: the hello when Settings opens, and "Need
+  // help?" when the pointer comes near. Pressing it opens the questions.
+  const nudge = el(doc, "button", "kai-nudge");
+  nudge.type = "button";
+  nudge.hidden = true;
+  root.append(card, nudge, button);
   doc.body.append(root);
 
   const isOpen = () => !card.hidden;
@@ -153,7 +158,63 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
     button.setAttribute("aria-expanded", "false");
   };
 
-  button.addEventListener("click", () => (isOpen() ? hide() : show()));
+  let nudgeTimer = 0;
+  const showNudge = (text: string, ms: number) => {
+    if (isOpen()) return;
+    nudge.textContent = text;
+    nudge.hidden = false;
+    win.clearTimeout(nudgeTimer);
+    if (ms) nudgeTimer = win.setTimeout(hideNudge, ms);
+  };
+  const hideNudge = () => {
+    nudge.hidden = true;
+    win.clearTimeout(nudgeTimer);
+  };
+  nudge.addEventListener("click", () => {
+    hideNudge();
+    show();
+  });
+  // Hello: Kai smiles and says hi once, as Settings opens.
+  const reduced = win.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  win.setTimeout(() => {
+    root.classList.add("happy");
+    if (!reduced) root.classList.add("hello");
+    showNudge(t("kaiHello", "Hi! I'm Kai. Ask me if you need anything."), 4200);
+    win.setTimeout(() => root.classList.remove("happy", "hello"), 2200);
+  }, 700);
+  // Near: when the pointer comes within reach, Kai offers help. Checked at
+  // most once a frame, and only reads Kai's own box.
+  let near = false;
+  let pending = false;
+  let px = 0;
+  let py = 0;
+  doc.addEventListener("pointermove", (event) => {
+    px = event.clientX;
+    py = event.clientY;
+    if (pending) return;
+    pending = true;
+    win.requestAnimationFrame(() => {
+      pending = false;
+      if (isOpen()) return;
+      const box = button.getBoundingClientRect();
+      const d = Math.hypot(px - (box.left + box.width / 2), py - (box.top + box.height / 2));
+      if (!near && d < 170) {
+        near = true;
+        root.classList.add("happy");
+        showNudge(t("kaiNeedHelp", "Need help?"), 0);
+      } else if (near && d > 260) {
+        near = false;
+        root.classList.remove("happy");
+        hideNudge();
+      }
+    });
+  }, { passive: true });
+
+  button.addEventListener("click", () => {
+    hideNudge();
+    if (isOpen()) hide();
+    else show();
+  });
   close.addEventListener("click", () => {
     hide();
     button.focus();

@@ -3,6 +3,25 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.271
+
+### Added
+- **A warning before a risky backup.** Restoring a settings file now says first if it would turn
+  Moat off, stop blocking dangerous sites, let ads through on some sites, or pause Moat anywhere.
+  Someone can send you a file "to fix your blocker" that does exactly that, so only apply one you
+  made yourself.
+- **Kai says hello.** Kai greets you once when Settings opens, and offers help when your pointer
+  comes close. Press the bubble to see the questions.
+
+### Changed
+- **Choices show at once.** Protection levels and the camera, microphone and location buttons
+  change as soon as you press them, before the setting finishes saving. Those buttons now show an
+  empty circle when off and a check when on.
+
+### Fixed
+- **Overview's empty week reads normally.** "Nothing blocked yet this week" no longer wraps one
+  word per line.
+
 ## 0.11.270
 
 ### Changed

@@ -4438,13 +4438,12 @@ body[data-nav="icons"].nav-open .dash-nav a:hover::after {
 @keyframes ov-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes ov-blink { 0%, 94%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
 
-.ov-empty-block:not([hidden]) { display: grid; grid-template-columns: 72px 1fr; column-gap: 18px; align-items: center; justify-items: start; margin-top: 8px; }
-.ov-empty-block .ov-empty { margin: 0; align-self: end; }
-.ov-empty-block .check-moat { grid-column: 2; margin-top: 10px; align-self: start; }
-.ov-empty-kai { grid-row: span 2; width: 72px; height: auto; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .4)); }
+.ov-empty-block:not([hidden]) { display: grid; justify-items: start; margin-top: 8px; }
+.ov-empty-block .ov-empty { margin: 0; }
+.ov-empty-block .check-moat { margin-top: 10px; }
 
 @media (max-width: 480px) { .ov-hero { gap: 12px; padding: 12px 14px 12px 10px; } .ov-kai { width: 44px; } }
-@media (prefers-reduced-motion: reduce) { .ov-kai, .ov-kai .lid, .ov-empty-kai, .ex-kai, .ex-kai .lid { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ov-kai, .ov-kai .lid, .ex-kai, .ex-kai .lid { animation: none; } }
 
 /* Kai explains: the "How it works" caption is Kai's speech bubble. Kai
    nods when the caption changes (.talk, set by explainerPanel.ts). */
@@ -4571,3 +4570,26 @@ body:has(#help-panel:not([hidden])) .kai-guide { display: none; }
 body:has(#explainer:not([hidden])) .kai-guide { display: none; }
 @media (max-width: 600px) { .kai-guide { right: 12px; bottom: 12px; } .kai-button, .kai-face { width: 56px; } }
 @media (prefers-reduced-motion: reduce) { .kai-face .lid, .kai-card, .kai-here { animation: none; } .kai-button { transition: none; } }
+/* Kai's hello and "Need help?" bubble */
+.kai-guide.happy .kai-face .lid { animation: none; transform: scaleY(.45); transform-origin: 50% 100%; border-radius: 50% 50% 20% 20% / 90% 90% 10% 10%; }
+.kai-guide.hello .kai-face { animation: kai-hello .9s var(--ease); }
+@keyframes kai-hello { 0% { transform: translateY(0); } 30% { transform: translateY(-10px) rotate(-6deg); } 60% { transform: translateY(0) rotate(4deg); } 100% { transform: none; } }
+.kai-nudge { position: relative; width: max-content; max-width: min(240px, calc(100vw - 48px)); white-space: normal; margin-right: 8px; padding: 10px 14px; border: 0; border-radius: 16px 16px 4px 16px; background: var(--panel); color: var(--fg); font: inherit; font-size: 14px; font-weight: 600; line-height: 1.35; text-align: left; cursor: pointer; box-shadow: 0 0 0 1px var(--line-2), 0 16px 40px -16px rgba(0, 0, 0, .7); animation: kai-in .22s var(--ease); }
+.kai-nudge[hidden] { display: none; }
+.kai-nudge:hover { background: var(--panel-2); }
+@media (prefers-reduced-motion: reduce) { .kai-nudge, .kai-guide.hello .kai-face { animation: none; } }
+/* Permission chips read as buttons: an empty circle when off, a filled
+   check when on, a hover state, and the press shows at once. */
+.permission-chips { gap: 8px; margin-top: 12px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 6px 14px 6px 10px; border: 1px solid var(--line-2); border-radius: 980px; background: var(--panel); color: var(--fg); font: inherit; font-size: 14px; font-weight: 600; transition: background .15s, border-color .15s, color .15s; }
+.chip::before { content: ""; width: 16px; height: 16px; flex: none; margin: 0; border-radius: 50%; border: 1.5px solid var(--muted); box-sizing: border-box; }
+.chip:hover { border-color: var(--blue-lt); background: var(--panel-2); }
+.chip.on { border-color: var(--blue); background: var(--blue); color: #fff; }
+.chip.on::before { content: ""; border: 0; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4.5 8.2 2.3 2.3 4.7-5' fill='none' stroke='%233f6fd1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; }
+.chip:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 2px; }
+.chips-label { font-size: 14px; }
+/* Backup import: what would weaken protection, named before Apply. */
+.import-risks { margin: 4px 0 12px; padding: 12px 14px; border-radius: 12px; background: var(--caution-wash, rgba(224, 177, 111, 0.1)); box-shadow: inset 0 0 0 1px var(--caution); color: var(--fg); font-size: 14px; }
+.import-risks[hidden] { display: none; }
+.import-risks-title { margin: 0 0 6px; color: var(--fg); font-weight: 700; }
+.import-risks ul { margin: 0; padding-left: 18px; }

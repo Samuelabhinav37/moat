@@ -3566,5 +3566,52 @@
   },
   "kaiAWorking": {
     "message": "Voici comment vérifier."
+  },
+  "kaiHello": {
+    "message": "Salut ! Je suis Kai. Demande-moi si tu as besoin de quelque chose."
+  },
+  "kaiNeedHelp": {
+    "message": "Besoin d'aide ?"
+  },
+  "optionsImportRisksTitle": {
+    "message": "N'applique ceci que si tu as créé le fichier toi-même."
+  },
+  "optionsImportRiskOff": {
+    "message": "Désactive Moat."
+  },
+  "optionsImportRiskDanger": {
+    "message": "N'arrête plus les sites dangereux : $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskNeverBlock": {
+    "message": "Laisse passer pubs et traqueurs sur $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskPaused": {
+    "message": "Met Moat en pause sur $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskMore": {
+    "message": "$A$ et $B$ de plus",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
   }
 }

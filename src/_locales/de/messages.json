@@ -3566,5 +3566,52 @@
   },
   "kaiAWorking": {
     "message": "So prüfst du es."
+  },
+  "kaiHello": {
+    "message": "Hallo! Ich bin Kai. Frag mich, wenn du etwas brauchst."
+  },
+  "kaiNeedHelp": {
+    "message": "Brauchst du Hilfe?"
+  },
+  "optionsImportRisksTitle": {
+    "message": "Wende das nur an, wenn du die Datei selbst erstellt hast."
+  },
+  "optionsImportRiskOff": {
+    "message": "Schaltet Moat aus."
+  },
+  "optionsImportRiskDanger": {
+    "message": "Gefährliche Seiten werden nicht mehr blockiert: $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskNeverBlock": {
+    "message": "Lässt Werbung und Tracker durch auf $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskPaused": {
+    "message": "Pausiert Moat auf $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskMore": {
+    "message": "$A$ und $B$ weitere",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
   }
 }

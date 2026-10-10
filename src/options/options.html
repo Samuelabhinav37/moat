@@ -564,6 +564,10 @@
                 <input type="file" id="import-settings-input" accept="application/json" hidden />
                 <p class="hint muted" id="import-settings-status" hidden></p>
                 <div id="import-settings-confirm" hidden>
+                  <div class="import-risks" id="import-settings-risks" role="alert" hidden>
+                    <p class="import-risks-title" data-i18n="optionsImportRisksTitle">Only apply this if you made the file yourself.</p>
+                    <ul id="import-settings-risk-list"></ul>
+                  </div>
                   <p class="hint" data-i18n="optionsImportWillChange">This file will change:</p>
                   <ul class="hint" id="import-settings-summary" style="margin: 4px 0 0; padding-left: 18px"></ul>
                   <div class="actions" style="margin-top: 10px">

@@ -33,7 +33,7 @@ import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
 import { customRuleStatKey, isStale } from "../shared/customRuleStats";
 import { validateImportedSettings } from "../background/settingsPortability";
-import { summarizeSettingsImport } from "../shared/settingsDiff";
+import { importRisks, summarizeSettingsImport } from "../shared/settingsDiff";
 import type {
   PauseSource,
   AddCustomDomainMessage,
@@ -930,7 +930,11 @@ function buildPermissionGuardRow(settings: Settings): HTMLElement {
     chip.setAttribute("aria-pressed", String(on));
     chip.textContent = tFallback(kind.labelKey[0], kind.labelKey[1]);
     chip.addEventListener("click", () => {
-      void setSettings({ [kind.key]: !on } as Partial<Pick<Settings, SettingsPatchField>>).then(() => render());
+      // Show the change at once; saving and redrawing follow.
+      const next = chip.getAttribute("aria-pressed") !== "true";
+      chip.classList.toggle("on", next);
+      chip.setAttribute("aria-pressed", String(next));
+      void setSettings({ [kind.key]: next } as Partial<Pick<Settings, SettingsPatchField>>).then(() => render());
     });
     chips.append(chip);
   }
@@ -1266,6 +1270,9 @@ function renderLevels(preset: PresetName | "custom", locked: boolean, settings: 
 
 for (const card of levelCards) {
   card.addEventListener("click", async () => {
+    // Select the card at once: applying a level turns whole rulesets on or
+    // off in the browser, which takes a few hundred milliseconds.
+    for (const other of levelCards) other.setAttribute("aria-checked", String(other === card));
     await setSettings(presetPatch(card.dataset.level as PresetName));
     await render();
   });
@@ -2072,6 +2079,8 @@ const importSettingsInput = document.getElementById("import-settings-input") as 
 const importSettingsStatus = document.getElementById("import-settings-status") as HTMLElement;
 const importSettingsConfirm = document.getElementById("import-settings-confirm") as HTMLElement;
 const importSettingsSummary = document.getElementById("import-settings-summary") as HTMLUListElement;
+const importSettingsRisks = document.getElementById("import-settings-risks") as HTMLElement;
+const importSettingsRiskList = document.getElementById("import-settings-risk-list") as HTMLUListElement;
 const importSettingsApplyButton = document.getElementById("import-settings-apply-button") as HTMLButtonElement;
 const importSettingsCancelButton = document.getElementById("import-settings-cancel-button") as HTMLButtonElement;
 const exportHintEl = document.getElementById("export-hint") as HTMLElement;
@@ -2843,6 +2852,21 @@ function resetImportConfirm(): void {
   pendingImportPayload = null;
   importSettingsConfirm.hidden = true;
   importSettingsSummary.replaceChildren();
+  importSettingsRisks.hidden = true;
+  importSettingsRiskList.replaceChildren();
+}
+
+// Names a few sites, then says how many more.
+function hostList(hosts: readonly string[]): string {
+  const shown = hosts.slice(0, 3).join(", ");
+  return hosts.length > 3 ? tFallback("optionsImportRiskMore", `${shown} and ${hosts.length - 3} more`, [shown, String(hosts.length - 3)]) : shown;
+}
+
+function addImportRisk(key: string, fallback: string, substitutions?: string): void {
+  const item = document.createElement("li");
+  item.textContent = tFallback(key, fallback, substitutions);
+  importSettingsRiskList.append(item);
+  importSettingsRisks.hidden = false;
 }
 
 function addImportSummaryItem(key: string, fallback: string): void {
@@ -2881,6 +2905,21 @@ importSettingsInput.addEventListener("change", async () => {
       if (summary.siteExceptionsChanged) addImportSummaryItem("optionsImportChangeExceptions", "Site exceptions");
       if (summary.filterListChoicesChanged) addImportSummaryItem("optionsImportChangeFilterLists", "Filter list choices");
       if (summary.syncSettingChanged) addImportSummaryItem("optionsImportChangeSync", "Sync setting");
+    }
+    // Anything that weakens protection is named before the summary.
+    const risks = importRisks(current, patch);
+    if (risks.turnsOff) addImportRisk("optionsImportRiskOff", "Turns Moat off.");
+    if (risks.dangerListsOff.length) {
+      const names = risks.dangerListsOff.map((g) => tFallback(LIST_LABELS[g]?.nameKey ?? "", LIST_LABELS[g]?.name ?? g)).join(", ");
+      addImportRisk("optionsImportRiskDanger", `Stops blocking dangerous sites: ${names}.`, names);
+    }
+    if (risks.neverBlock.length) {
+      const sites = hostList(risks.neverBlock);
+      addImportRisk("optionsImportRiskNeverBlock", `Lets ads and trackers through on ${sites}.`, sites);
+    }
+    if (risks.paused.length) {
+      const sites = hostList(risks.paused);
+      addImportRisk("optionsImportRiskPaused", `Pauses Moat on ${sites}.`, sites);
     }
     pendingImportPayload = payload;
     importSettingsConfirm.hidden = false;
