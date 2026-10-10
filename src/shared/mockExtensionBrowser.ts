@@ -202,6 +202,10 @@ export function createMockBrowser(options: MockBrowserOptions = {}) {
           Object.assign(storageLocalData, items);
           return Promise.resolve();
         },
+        remove: (keys: string | string[]) => {
+          for (const k of typeof keys === "string" ? [keys] : keys) delete storageLocalData[k];
+          return Promise.resolve();
+        },
       },
       sync: { get: callbackOrPromise({}), set: callbackOrPromise(undefined) },
       session: { get: callbackOrPromise({}), set: callbackOrPromise(undefined) },

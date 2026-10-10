@@ -565,6 +565,8 @@ describe("Security: Safety check", () => {
     row.querySelector<HTMLButtonElement>("button")!.click();
     await settle();
     expect(sentMessages.filter((m) => m.type === "set-settings-patch").at(-1)).toMatchObject({ patch: { enabled: true } });
+    // Undone once: the offer goes away.
+    expect(document.getElementById("import-undo")?.hidden).toBe(true);
   });
 });
 
