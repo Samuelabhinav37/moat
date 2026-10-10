@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.270
+
+### Changed
+- **Moat's documents look like the rest of Moat.** The privacy policy, changelog, licenses and
+  diagnostics pages are calmer and easier to read: a large title with its date, a narrow column
+  of larger text, plain headings and thin dividing lines instead of coloured boxes and badges.
+
 ## 0.11.269
 
 ### Changed
