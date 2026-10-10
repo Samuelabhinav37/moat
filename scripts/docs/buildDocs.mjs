@@ -14,7 +14,16 @@ const md = (p) => readFileSync(join(REPO, p), "utf8").replace(/\r/g, "");
 // Dates come from git when it is there; a build from a source zip simply has none.
 const git = (args) => { try { return execFileSync("git", args, { cwd: REPO, encoding: "utf8" }); } catch { return ""; } };
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-const slug = (s) => s.toLowerCase().replace(/<[^>]+>/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+// Tags are dropped until none are left (one pass can leave "<script" from
+// "<scr<x>ipt"); the id keeps only letters and digits either way.
+const slug = (s) => {
+  let text = s.toLowerCase();
+  for (let prev = ""; prev !== text; ) {
+    prev = text;
+    text = text.replace(/<[^>]*>/g, "");
+  }
+  return text.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+};
 function inline(s) {
   return esc(s)
     .replace(/`([^`]+)`/g, "<code>$1</code>")
