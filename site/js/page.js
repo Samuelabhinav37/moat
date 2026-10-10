@@ -22,38 +22,53 @@
     watch(el, function (v) { on = v; if (v) go(); }, .45);
   };
 
-  // ---- before/after; Blare is there while the ads are ------------------------
-  var cmp = document.getElementById("compare"), blare = document.getElementById("blare-side");
-  if (cmp) {
+  // ---- before/after sliders. `paint(v)` gets the share of the page shown
+  // without Moat (1 = all ads, 0 = clean) as the slider moves or sweeps.
+  var slider = function (cmp, start, sweep, paint, onTake) {
+    if (!cmp) return;
     var range = cmp.querySelector(".range"), taken = false;
-    var x = function () { return parseFloat(getComputedStyle(cmp).getPropertyValue("--x")) || 50; };
-    var paintBlare = function () {
-      if (!blare) return;
-      var v = x() / 100;                      // share of the page shown without Moat
-      var img = blare.firstElementChild;
-      img.style.opacity = (.15 + .85 * v).toFixed(3);
-      img.style.filter = "blur(" + ((1 - v) * 7).toFixed(1) + "px) drop-shadow(0 18px 24px rgba(0,0,0,.55))";
-    };
+    var x = function () { return parseFloat(getComputedStyle(cmp).getPropertyValue("--x")) || start; };
     var set = function (v) {
       cmp.style.setProperty("--x", v + "%");
-      range.setAttribute("aria-valuetext", v < 10 ? "Mostly with Moat" : v > 90 ? "Mostly without Moat" : Math.round(v) + "% without Moat");
-      paintBlare();
+      range.setAttribute("aria-valuetext", v < 10 ? "With Moat" : v > 90 ? "Without Moat" : Math.round(v) + "% without Moat");
+      paint(v / 100);
     };
-    var take = function () { if (taken) return; taken = true; cmp.classList.remove("sweep"); set(range.value); };
+    var take = function () { if (taken) return; taken = true; cmp.classList.remove("sweep"); set(range.value); if (onTake) onTake(); };
     ["pointerdown", "keydown", "touchstart"].forEach(function (t) { range.addEventListener(t, take, { passive: true }); });
     range.addEventListener("input", function () { take(); set(range.value); });
-    set(50);
-    if (!reduce && window.CSS && CSS.registerProperty) {
+    set(start);
+    if (sweep && !reduce && window.CSS && CSS.registerProperty) {
       var swept = false;
       watch(cmp, function (v) {
         if (!v || swept || taken) return;
         swept = true; cmp.classList.add("sweep");
         var t0 = performance.now();
-        var tick = function (t) { paintBlare(); if (t - t0 < 4000 && cmp.classList.contains("sweep")) requestAnimationFrame(tick); };
+        var tick = function (t) { paint(x() / 100); if (t - t0 < 4000 && cmp.classList.contains("sweep")) requestAnimationFrame(tick); };
         requestAnimationFrame(tick);
       }, .5);
-      cmp.addEventListener("animationend", function () { if (!taken) { cmp.classList.remove("sweep"); set(50); } });
+      cmp.addEventListener("animationend", function () { if (!taken) { cmp.classList.remove("sweep"); set(start); } });
     }
+  };
+  var fade = function (img, v, min) {
+    img.style.opacity = (min + (1 - min) * v).toFixed(3);
+    img.style.filter = "saturate(" + (.3 + .7 * v).toFixed(2) + ") blur(" + ((1 - v) * 7).toFixed(1) + "px) drop-shadow(0 18px 24px rgba(0,0,0,.55))";
+    img.style.scale = (.9 + .1 * v).toFixed(3);
+  };
+  var blare = document.getElementById("blare-side");
+  slider(document.getElementById("compare"), 50, true, function (v) { if (blare) fade(blare.firstElementChild, v, .15); });
+
+  // the closing scene: slide toward "With Moat" and the cookies go
+  var cmp2 = document.getElementById("compare2");
+  if (cmp2) {
+    var scene = document.getElementById("scene"), hint = document.getElementById("scene-hint");
+    var outs = [].slice.call(scene.querySelectorAll(".out .char"));
+    var kaiEl = scene.querySelector("[data-kai]"), happy = false;
+    slider(cmp2, 100, false, function (v) {
+      outs.forEach(function (img) { fade(img, v, 0); });
+      var kai = window.MoatLife && kaiEl ? window.MoatLife.kai(kaiEl) : null;
+      if (kai && v < .08 && !happy) { happy = true; kai.setMood("happy", 1800); kai.hop(); }
+      if (v > .3) happy = false;
+    }, function () { if (hint) hint.classList.add("gone"); });
   }
 
   var feature = function (id) { return document.getElementById(id); };
@@ -119,24 +134,6 @@
       film.appendChild(v); film.classList.add("playing");
       v.addEventListener("ended", function () { v.remove(); film.classList.remove("playing"); play.focus(); });
       v.play().catch(function () {});
-    });
-  }
-  // ---- closing scene: cookies drift up to the page now and then, and fade ------
-  var scene = document.getElementById("scene");
-  if (scene && !reduce) {
-    var outs = [].slice.call(scene.querySelectorAll(".out"));
-    var kaiEl = scene.querySelector("[data-kai]");
-    var kai = window.MoatLife && kaiEl ? window.MoatLife.kai(kaiEl) : null;
-    loop(scene, async function () {
-      await sleep(2400 + Math.random() * 1800);
-      var o = outs[Math.floor(Math.random() * outs.length)];
-      if (getComputedStyle(o).display === "none") return;
-      if (kai) { kai.target = o; kai.setMood("focus"); }
-      o.classList.add("near"); await sleep(1200);
-      o.classList.remove("near"); o.classList.add("handled");
-      if (kai) { kai.setMood("happy", 1400); kai.target = null; }
-      await sleep(2600);
-      o.classList.remove("handled");
     });
   }
 })();
