@@ -36,7 +36,7 @@ describe("help panel", () => {
     expect(document.querySelector(".hp-cap")!.textContent).toBe("1/4Page stuck loading");
     const next = document.querySelectorAll<HTMLButtonElement>(".hp-nav")[1]!;
     next.click();
-    expect(document.querySelector(".hp-cap")!.textContent).toBe("2/4Turn Moat off here");
+    expect(document.querySelector(".hp-cap")!.textContent).toBe("2/4Pause Moat on this site");
     expect(document.querySelectorAll(".hp-steps li.done")).toHaveLength(1);
     expect(document.querySelectorAll(".hp-scene.on")).toHaveLength(1);
     next.click();

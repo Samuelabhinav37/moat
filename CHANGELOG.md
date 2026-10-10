@@ -3,6 +3,123 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.273
+
+### Fixed
+- **A changed level stays selected.** Turning on something extra while on Balanced used to leave no
+  level selected, which looked like nothing was chosen. Balanced now stays selected, marked
+  Customized, with a line saying what changed ("Balanced, plus Block cross-site cookies") and a
+  Reset to Balanced button. Going back to a level from a changed one offers Undo.
+- **Moat off keeps your level.** With Moat off, your level stays selected and the page says
+  nothing is blocked, with a Turn on button. Filter lists says the same.
+- **The same level everywhere.** Overview says "Balanced, customized", and the welcome tour and
+  Review your protection start on the level your settings came from.
+
+## 0.11.272
+
+### Added
+- **Safety check on Security.** One list says whether Moat is on, whether the dangerous-site lists
+  are on and up to date, and whether leaked password warnings are on. It also shows sites where
+  Moat is paused or never blocks, and any recent restore from a file. Anything that needs a look
+  has a button to fix it.
+- **Undo a restore.** For two weeks after you restore settings from a file, Backup and Security
+  both offer to put your settings back.
+
+### Changed
+- **Trackers is easier to read.** Each company shows how many of your sites it was on. Opening it
+  gives a short description and the sites it was on, most blocked first. Press a site to see it on
+  Sites. "Why they tracked you" gives each purpose its own bar and a plain sentence.
+- **"When they were busiest" shows where.** The heat map is now the week's days. Pick a day to see
+  when it was busiest and which sites the blocks came from.
+- **Sites shows one row per site.** Addresses like docs.google.com and mail.google.com now sit
+  under google.com. Opening a site shows its ads, trackers and pop-ups, the tracker companies seen
+  there (each opens on Trackers), and each address with its own switch.
+- **Pages Moat stopped puts danger first.** Each dangerous page says what it was, like "Phishing:
+  fake sign-in pages". Ad pages and your own blocks are folded into one line each.
+- **Privacy on Protection** no longer says it's off by default.
+
+## 0.11.271
+
+### Added
+- **A warning before a risky backup.** Restoring a settings file now says first if it would turn
+  Moat off, stop blocking dangerous sites, let ads through on some sites, or pause Moat anywhere.
+  Someone can send you a file "to fix your blocker" that does exactly that, so only apply one you
+  made yourself.
+- **Kai says hello.** Kai greets you once when Settings opens, and offers help when your pointer
+  comes close. Press the bubble to see the questions.
+
+### Changed
+- **Choices show at once.** Protection levels and the camera, microphone and location buttons
+  change as soon as you press them, before the setting finishes saving. Those buttons now show an
+  empty circle when off and a check when on.
+
+### Fixed
+- **Overview's empty week reads normally.** "Nothing blocked yet this week" no longer wraps one
+  word per line.
+
+## 0.11.270
+
+### Changed
+- **Moat's documents look like the rest of Moat.** The privacy policy, changelog, licenses and
+  diagnostics pages are calmer and easier to read: a large title with its date, a narrow column
+  of larger text, plain headings and thin dividing lines instead of coloured boxes and badges.
+
+## 0.11.269
+
+### Changed
+- **Kai answers "where is it?"** Press Kai at the bottom right and pick a question, like "How do I
+  pause Moat on a site?". Kai answers in a sentence and takes you there, with the right control
+  outlined for a moment. There's only one Kai on screen now, without the circle around it.
+- **Clearer sentences.** Overview's summary now says what it means: "Google tried to track you on
+  more sites than any other company. Moat blocked the most on news.example." A few lines in the
+  welcome tour are plainer too.
+
+## 0.11.268
+
+### Changed
+- **Kai is in the corner of Settings, ready to help.** Press Kai at the bottom right for a quick
+  line about the screen you're on and a few buttons that do something there: check your setup,
+  show how the levels work, hide something on a page, or open the right help topic. If Moat is
+  off, Kai offers to turn it back on.
+- **Clearer explanations.** Settings that were hard to follow now say what they do for you first,
+  in plain words: hiding your IP address, trackers that disguise themselves, leaked-password
+  checks, device protection and the rule limit. Moat's writing rules are in docs/VOICE.md.
+
+## 0.11.267
+
+### Fixed
+- **Settings no longer stutter.** Overview spent most of a second checking site icons when it
+  opened, and scrolling the Protection page did extra work on every movement. Both are fixed, and
+  Kai stays still in Settings, which keeps scrolling smooth.
+
+### Changed
+- **Settings and the popup look like Moat's website.** Calmer neutral colours, bigger page titles,
+  softer cards with more room, and round buttons. Empty lists on Exceptions show Kai explaining
+  what goes there, adding a site is a bigger field with a blue button, and About drops the box
+  around its boxes.
+
+## 0.11.266
+
+### Changed
+- **Kai joins Settings.** Moat's robot sits beside the protection status on Overview, calm when
+  Moat is on and worried when it's off or the lists couldn't update. In every "How it works"
+  picture, Kai explains the setting in a speech bubble. An empty week shows Kai next to the
+  "browse a few sites" note.
+
+## 0.11.265
+
+### Changed
+- **The welcome tour looks like Moat's website.** Bigger, calmer type, one glowing stage for each
+  step's picture, and round buttons. Kai floats beside the steps, and the two cookies sitting on
+  weather.com's ad (Crumb, the tracker, and Blare, the ad) fade away when you switch Moat on.
+
+## 0.11.264
+
+### Changed
+- **Meet Kai.** The welcome tour now has Moat's mascot, a small robot that blinks and cheers
+  when you switch Moat on. On the first step, two cookies sit on the weather.com ad and crumble
+  when you flip to "With Moat".
+
 ## 0.11.263
 
 ### Fixed

@@ -1,6 +1,6 @@
-// Settings Insights pages: who tracked you (reach rows), what they wanted
-// (one share bar plus rows), when (a day x hour heatmap), and sites. DOM
-// calls only, from the local weekly summary.
+// Settings Insights pages: who tracked you (one row per company), why (a
+// row per purpose), and when (the week's days, each opening to where it
+// happened). DOM calls only, from the local weekly summary.
 import type { Translate } from "./overviewView";
 
 function el<K extends keyof HTMLElementTagNameMap>(doc: Document, tag: K, className = "", text?: string): HTMLElementTagNameMap[K] {
@@ -12,14 +12,14 @@ function el<K extends keyof HTMLElementTagNameMap>(doc: Document, tag: K, classN
 
 /** TrackerDB purposes in plain words, with a one-line "what it does". */
 export const PURPOSES: Record<string, { key: string; name: string; descKey: string; desc: string }> = {
-  advertising: { key: "purposeAdvertising", name: "Advertising", descKey: "purposeAdvertisingDesc", desc: "Builds a profile so ads follow you" },
-  site_analytics: { key: "purposeAnalytics", name: "Analytics", descKey: "purposeAnalyticsDesc", desc: "Counts visits, clicks and scrolling" },
-  social_media: { key: "purposeSocial", name: "Social", descKey: "purposeSocialDesc", desc: "Tells social networks what you read" },
-  customer_interaction: { key: "purposeChat", name: "Chat and support", descKey: "purposeChatDesc", desc: "Logs what you look at" },
-  audio_video_player: { key: "purposeVideo", name: "Video players", descKey: "purposeVideoDesc", desc: "Reports what you watch" },
-  consent: { key: "purposeConsent", name: "Consent tools", descKey: "purposeConsentDesc", desc: "Cookie banners that also track" },
-  hosting: { key: "purposeHosting", name: "Hosting", descKey: "purposeHostingDesc", desc: "Servers that carry tracking scripts" },
-  utilities: { key: "purposeUtilities", name: "Utilities", descKey: "purposeUtilitiesDesc", desc: "Add-ons that also collect data" },
+  advertising: { key: "purposeAdvertising", name: "Advertising", descKey: "purposeAdvertisingDesc", desc: "Follow you from site to site to choose the ads you see" },
+  site_analytics: { key: "purposeAnalytics", name: "Analytics", descKey: "purposeAnalyticsDesc", desc: "Record what you click, read and scroll" },
+  social_media: { key: "purposeSocial", name: "Social", descKey: "purposeSocialDesc", desc: "Tell social networks which pages you read" },
+  customer_interaction: { key: "purposeChat", name: "Chat and support", descKey: "purposeChatDesc", desc: "Chat boxes that also record the pages you view" },
+  audio_video_player: { key: "purposeVideo", name: "Video players", descKey: "purposeVideoDesc", desc: "Video players that report what you watch" },
+  consent: { key: "purposeConsent", name: "Consent tools", descKey: "purposeConsentDesc", desc: "Cookie banners that also track you" },
+  hosting: { key: "purposeHosting", name: "Hosting", descKey: "purposeHostingDesc", desc: "Servers that deliver tracking scripts" },
+  utilities: { key: "purposeUtilities", name: "Utilities", descKey: "purposeUtilitiesDesc", desc: "Page add-ons that also collect data" },
   pornvertising: { key: "purposeAdult", name: "Adult advertising", descKey: "purposeAdultDesc", desc: "Adult ad networks" },
   misc: { key: "purposeMisc", name: "Other", descKey: "purposeMiscDesc", desc: "Trackers with no single purpose" },
 };
@@ -58,44 +58,80 @@ export interface ReachRow {
   url?: string | null;
 }
 
-/** One expandable row per company: share of your sites it was on. */
-export function buildReachRows(doc: Document, rows: ReachRow[], t: Translate): HTMLElement {
+/** A company's description as one or two plain sentences. Some entries in
+ * the tracker database drop the name ("is an online image host."), and
+ * some run to a paragraph. */
+export function companyBlurb(company: string, description: string): string {
+  let text = description.trim().replace(/\s+/g, " ");
+  if (!text) return "";
+  if (/^(is|are|was|provides|offers|operates|develops)\b/.test(text)) text = `${company} ${text}`;
+  text = text.charAt(0).toUpperCase() + text.slice(1);
+  const sentences = text.match(/[^.!?]+[.!?]+(\s|$)/g) ?? [text];
+  let out = "";
+  for (const sentence of sentences) {
+    if (out && out.length + sentence.length > 220) break;
+    out += sentence;
+  }
+  if (out.length > 260) out = `${out.slice(0, 257).replace(/\s+\S*$/, "")}…`;
+  return out.trim();
+}
+
+/** A site as a small button that opens its panel on Sites. */
+function siteButton(doc: Document, site: { hostname: string; icon: HTMLElement; count?: number }, t: Translate, onSite?: (hostname: string) => void): HTMLLIElement {
+  const li = el(doc, "li");
+  const name = site.hostname.replace(/^www\./, "");
+  const open = el(doc, "button", "rr-site");
+  open.type = "button";
+  open.append(site.icon, el(doc, "span", "", name));
+  if (site.count !== undefined) open.append(el(doc, "small", "", site.count.toLocaleString()));
+  open.title = t("insOpenSite", `See ${name} on Sites`, name);
+  open.addEventListener("click", () => onSite?.(site.hostname));
+  li.append(open);
+  return li;
+}
+
+/** One row per company, most sites first. A row opens to what the company
+ * is and the sites it was on (most blocks first); each site opens its own
+ * panel on Sites through `onSite`. */
+export function buildReachRows(doc: Document, rows: ReachRow[], t: Translate, onSite?: (hostname: string) => void): HTMLElement {
   const list = el(doc, "div", "reach");
   rows.forEach((r, i) => {
     const item = el(doc, "div", "rr");
     item.dataset.open = "false";
+    item.dataset.search = r.company;
+    item.dataset.company = r.company;
     const btn = el(doc, "button", "rr-btn");
     btn.type = "button";
     btn.setAttribute("aria-expanded", "false");
-    const name = el(doc, "span", "rr-name", r.company);
     const pct = Math.round((r.sites / Math.max(r.ofSites, 1)) * 100);
+    const text = el(doc, "span", "rr-text");
+    text.append(
+      el(doc, "span", "rr-name", r.company),
+      el(doc, "small", "rr-sub", t("insOnSites", `On ${r.sites} of your ${r.ofSites} sites`, [String(r.sites), String(r.ofSites)]))
+    );
     const track = el(doc, "span", "rr-track");
+    track.setAttribute("aria-hidden", "true");
     const fill = el(doc, "i");
     fill.style.width = `${Math.max(2, pct)}%`;
-    fill.style.setProperty("--dl", `${i * 60}ms`);
+    fill.style.setProperty("--dl", `${Math.min(i, 8) * 50}ms`);
     track.append(fill);
-    const value = el(doc, "span", "rr-pct", `${pct}%`);
-    value.append(
-      el(doc, "small", "", t("insSitesOf", `${r.sites} of ${r.ofSites} sites`, [String(r.sites), String(r.ofSites)])),
-      el(doc, "small", "rr-blocked", t("insBlockedShort", `${r.blocks.toLocaleString()} blocked`, r.blocks.toLocaleString()))
-    );
+    const value = el(doc, "span", "rr-pct");
+    value.append(el(doc, "b", "", r.blocks.toLocaleString()), el(doc, "small", "rr-blocked", t("insBlockedWord", "blocked")));
     const chev = el(doc, "span", "rr-chev");
     chev.setAttribute("aria-hidden", "true");
-    btn.append(r.icon, name, track, value, chev);
+    btn.append(r.icon, text, track, value, chev);
+
     const more = el(doc, "div", "rr-more");
     const inner = el(doc, "div", "rr-inner");
-    if (r.description) inner.append(el(doc, "p", "rr-desc", r.description));
+    const blurb = companyBlurb(r.company, r.description);
+    if (blurb) inner.append(el(doc, "p", "rr-desc", blurb));
     if (r.seenOn.length) {
-      const chips = el(doc, "div", "rr-chips");
-      chips.append(el(doc, "span", "rr-chips-label", t("insSeenOn", "Seen on")));
-      for (const s of r.seenOn) {
-        const chip = el(doc, "span", "rr-chip");
-        chip.append(s.icon, doc.createTextNode(s.hostname.replace(/^www\./, "")));
-        chips.append(chip);
-      }
-      inner.append(chips);
+      inner.append(el(doc, "h4", "rr-label", t("insSeenOnTitle", "Where it was")));
+      const sites = el(doc, "ul", "rr-sites");
+      for (const s of r.seenOn) sites.append(siteButton(doc, s, t, onSite));
+      if (r.sites > r.seenOn.length) sites.append(el(doc, "li", "rr-site-more", t("siteCompaniesMore", `and ${r.sites - r.seenOn.length} more`, String(r.sites - r.seenOn.length))));
+      inner.append(sites);
     }
-    inner.append(el(doc, "p", "rr-blocks", t("insBlockedRequests", `${r.blocks.toLocaleString()} requests blocked this week`, r.blocks.toLocaleString())));
     if (r.url) {
       const learn = el(doc, "a", "rr-learn", t("insLearnMore", `Learn more about ${r.company}`, r.company));
       learn.href = r.url;
@@ -115,109 +151,138 @@ export function buildReachRows(doc: Document, rows: ReachRow[], t: Translate): H
   return list;
 }
 
-/** One bar split by purpose, then a row for each purpose. */
+/** How many purposes get a row of their own; the rest join "Other". */
+export const PURPOSE_ROWS = 4;
+
+/** A row per purpose, largest first, each with its own bar: the share of
+ * tracker blocks, and what that kind of tracker does in plain words. */
 export function buildPurposes(doc: Document, purposes: Record<string, number>, t: Translate): HTMLElement {
-  const wrap = el(doc, "div", "purp");
   const shares = purposeShares(purposes);
-  const bar = el(doc, "div", "purp-bar");
-  bar.setAttribute("role", "img");
-  bar.setAttribute("aria-label", shares.map((s) => `${purposeLabel(s.category, t).name} ${Math.round(s.share * 100)}%`).join(", "));
-  shares.forEach((s, i) => {
-    const seg = el(doc, "span");
-    seg.style.flex = String(s.count);
-    seg.style.setProperty("--s", String(Math.min(i, 5)));
-    bar.append(seg);
-  });
-  wrap.append(bar);
-  const rows = el(doc, "div", "purp-rows");
-  shares.forEach((s, i) => {
-    const label = purposeLabel(s.category, t);
-    const row = el(doc, "div", "purp-row");
-    const swatch = el(doc, "span", "purp-sw");
-    swatch.style.setProperty("--s", String(Math.min(i, 5)));
-    const text = el(doc, "div");
-    text.append(el(doc, "b", "", label.name), el(doc, "small", "", label.desc));
-    const value = el(doc, "span", "purp-val");
-    value.append(el(doc, "b", "", `${Math.round(s.share * 100)}%`), el(doc, "small", "", s.count.toLocaleString()));
-    row.append(swatch, text, value);
-    rows.append(row);
-  });
-  wrap.append(rows);
-  return wrap;
-}
-
-/** Heat level 0-4 for a count, against the grid's busiest hour. */
-export function heatLevel(count: number, max: number): number {
-  if (count <= 0 || max <= 0) return 0;
-  return Math.min(4, Math.ceil((count / max) * 4));
-}
-
-/** GitHub-style grid: one row per day, one cell per hour. */
-export function buildHeatmap(doc: Document, hours: number[][], dayLabels: string[], t: Translate): HTMLElement {
-  const wrap = el(doc, "div", "heatwrap");
-  const grid = el(doc, "div", "heat");
-  grid.setAttribute("role", "img");
-  const max = Math.max(...hours.flat(), 0);
-  let busiest = { day: 0, hour: 0, count: -1 };
-  hours.forEach((row, d) => {
-    grid.append(el(doc, "span", "heat-day", dayLabels[d] ?? ""));
-    row.forEach((count, h) => {
-      if (count > busiest.count) busiest = { day: d, hour: h, count };
-      const cell = el(doc, "i", `l${heatLevel(count, max)}`);
-      cell.dataset.tip = `${dayLabels[d] ?? ""} ${String(h).padStart(2, "0")}:00 · ${count.toLocaleString()}`;
-      grid.append(cell);
-    });
-  });
-  grid.append(el(doc, "span"));
-  for (let h = 0; h < 24; h++) grid.append(el(doc, "span", "heat-hour", h % 6 === 0 ? String(h).padStart(2, "0") : ""));
-  grid.setAttribute(
-    "aria-label",
-    busiest.count > 0
-      ? t("insBusiestAria", `Busiest: ${dayLabels[busiest.day]} at ${busiest.hour}:00, ${busiest.count} blocks`, [dayLabels[busiest.day] ?? "", String(busiest.hour), String(busiest.count)])
-      : t("insHeatEmpty", "No blocks yet this week")
-  );
-  const key = el(doc, "div", "heat-key");
-  key.append(el(doc, "span", "", t("insLess", "Less")));
-  for (let l = 0; l <= 4; l++) key.append(el(doc, "i", `l${l}`));
-  key.append(el(doc, "span", "", t("insMore", "More")));
-  // Each day's total and busiest hour as a table, for screen readers.
-  const table = el(doc, "table", "sr-only");
-  table.append(el(doc, "caption", "", t("insHeatTable", "Blocks by day")));
-  const head = el(doc, "tr");
-  head.append(el(doc, "th", "", t("ovChartDay", "Day")), el(doc, "th", "", t("insHeatTotal", "Blocked")), el(doc, "th", "", t("insHeatBusiest", "Busiest hour")));
-  table.append(head);
-  hours.forEach((row, d) => {
-    const top = Math.max(...row, 0);
-    const tr = el(doc, "tr");
-    tr.append(
-      el(doc, "th", "", dayLabels[d] ?? ""),
-      el(doc, "td", "", row.reduce((a, b) => a + b, 0).toLocaleString()),
-      el(doc, "td", "", top > 0 ? `${String(row.indexOf(top)).padStart(2, "0")}:00` : "–")
-    );
-    table.append(tr);
-  });
-  wrap.append(grid, key, table);
-  return wrap;
-}
-
-/** "Weekday evenings", "Weekend mornings"... from the busiest part of the grid. */
-export function busiestPhrase(hours: number[][], weekendRows: boolean[], t: Translate): string {
-  let best = { weekend: false, part: "", count: -1 };
-  const parts: [string, string, number, number][] = [
-    ["mornings", "insMornings", 6, 12],
-    ["afternoons", "insAfternoons", 12, 18],
-    ["evenings", "insEvenings", 18, 24],
-    ["nights", "insNights", 0, 6],
-  ];
-  for (const weekend of [false, true]) {
-    for (const [part, , from, to] of parts) {
-      const rows = hours.filter((_, i) => (weekendRows[i] ?? false) === weekend);
-      if (!rows.length) continue;
-      const avg = rows.reduce((sum, r) => sum + r.slice(from, to).reduce((a, b) => a + b, 0), 0) / rows.length;
-      if (avg > best.count) best = { weekend, part, count: avg };
-    }
+  const shown = shares.slice(0, PURPOSE_ROWS);
+  const rest = shares.slice(PURPOSE_ROWS);
+  if (rest.length) {
+    const extra = rest.reduce((sum, s) => ({ count: sum.count + s.count, share: sum.share + s.share }), { count: 0, share: 0 });
+    const misc = shown.findIndex((s) => s.category === "misc");
+    if (misc >= 0) shown[misc] = { category: "misc", count: shown[misc]!.count + extra.count, share: shown[misc]!.share + extra.share };
+    else shown.push({ category: "misc", ...extra });
   }
-  if (best.count <= 0) return t("insHeatEmpty", "No blocks yet this week");
-  const p = parts.find((x) => x[0] === best.part)!;
-  return best.weekend ? t(`${p[1]}Weekend`, `Weekend ${best.part}`) : t(`${p[1]}Weekday`, `Weekday ${best.part}`);
+  const wrap = el(doc, "div", "purp");
+  shown.forEach((s, i) => {
+    const label = purposeLabel(s.category, t);
+    const pct = Math.round(s.share * 100);
+    const row = el(doc, "div", "purp-row");
+    const top = el(doc, "div", "purp-top");
+    top.append(el(doc, "b", "", label.name), el(doc, "span", "purp-val", `${pct}%`));
+    const bar = el(doc, "span", "purp-track");
+    bar.setAttribute("aria-hidden", "true");
+    const fill = el(doc, "i");
+    fill.style.width = `${Math.max(1.5, pct)}%`;
+    fill.style.setProperty("--s", String(Math.min(i, 4)));
+    bar.append(fill);
+    row.append(top, bar, el(doc, "small", "", label.desc));
+    wrap.append(row);
+  });
+  return wrap;
+}
+
+/** The busiest stretch of a day, as the start of a four-hour window. */
+export function busiestWindow(hours: readonly number[]): { from: number; count: number } {
+  let best = { from: 0, count: 0 };
+  for (let from = 0; from <= 20; from++) {
+    const count = hours.slice(from, from + 4).reduce((a, b) => a + b, 0);
+    if (count > best.count) best = { from, count };
+  }
+  return best;
+}
+
+function hourLabel(hour: number): string {
+  return new Date(2000, 0, 1, hour % 24).toLocaleTimeString(undefined, { hour: "numeric" });
+}
+
+export interface DayData {
+  /** Short name under the bar ("Fri", "Today"). */
+  label: string;
+  /** Long name for sentences ("Friday", "Today"). */
+  name: string;
+  total: number;
+  hours: readonly number[];
+  topSites: { hostname: string; count: number; icon: HTMLElement }[];
+}
+
+/** The week as seven bars. Pressing a day says when in the day it was
+ * busiest and on which sites; the busiest day is picked to start with. */
+export function buildDays(doc: Document, days: DayData[], t: Translate, onSite?: (hostname: string) => void): HTMLElement {
+  const wrap = el(doc, "div", "days");
+  const bars = el(doc, "div", "days-bars");
+  bars.setAttribute("role", "tablist");
+  bars.setAttribute("aria-label", t("insDaysLabel", "Days this week"));
+  const detail = el(doc, "div", "days-detail");
+  detail.setAttribute("role", "tabpanel");
+  const max = Math.max(...days.map((d) => d.total), 1);
+  const buttons: HTMLButtonElement[] = [];
+
+  const select = (index: number) => {
+    buttons.forEach((b, i) => {
+      b.setAttribute("aria-selected", String(i === index));
+      b.tabIndex = i === index ? 0 : -1;
+    });
+    const day = days[index]!;
+    if (day.total <= 0) {
+      detail.replaceChildren(el(doc, "p", "days-line", t("insDayNone", `Nothing blocked on ${day.name}.`, day.name)));
+      return;
+    }
+    const window = busiestWindow(day.hours);
+    const line = el(doc, "p", "days-line");
+    const total = day.total.toLocaleString();
+    line.append(
+      el(doc, "b", "", day.name),
+      doc.createTextNode(
+        ` ${
+          window.count > 0
+            ? t("insDayLine", `${total} blocked, most between ${hourLabel(window.from)} and ${hourLabel(window.from + 4)}.`, [total, hourLabel(window.from), hourLabel(window.from + 4)])
+            : t("insDayTotal", `${total} blocked.`, total)
+        }`
+      )
+    );
+    const parts: HTMLElement[] = [line];
+    if (day.topSites.length) {
+      const sites = el(doc, "ul", "rr-sites days-sites");
+      for (const s of day.topSites) sites.append(siteButton(doc, s, t, onSite));
+      parts.push(el(doc, "h4", "rr-label", t("insDayWhere", "Mostly on")), sites);
+    }
+    detail.replaceChildren(...parts);
+  };
+
+  days.forEach((day, i) => {
+    const b = el(doc, "button", "day-bar");
+    b.type = "button";
+    b.setAttribute("role", "tab");
+    b.setAttribute("aria-label", `${day.name}: ${day.total.toLocaleString()}`);
+    const col = el(doc, "span", "day-col");
+    const fill = el(doc, "i");
+    fill.style.height = `${day.total > 0 ? Math.max(4, (day.total / max) * 100) : 0}%`;
+    col.append(fill);
+    b.append(col, el(doc, "span", "day-label", day.label));
+    b.addEventListener("click", () => select(i));
+    b.addEventListener("keydown", (event) => {
+      const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+      if (!step) return;
+      event.preventDefault();
+      const next = (i + step + days.length) % days.length;
+      select(next);
+      buttons[next]!.focus();
+    });
+    buttons.push(b);
+    bars.append(b);
+  });
+  if (days.length) select(days.reduce((best, d, i) => (d.total > days[best]!.total ? i : best), days.length - 1));
+  wrap.append(bars, detail);
+  return wrap;
+}
+
+/** "Friday was the busiest day." from the week's totals. */
+export function busiestDayPhrase(days: readonly { name: string; total: number }[], t: Translate): string {
+  const best = days.reduce<{ name: string; total: number } | null>((b, d) => (d.total > (b?.total ?? 0) ? d : b), null);
+  if (!best) return t("insHeatEmpty", "No blocks yet this week");
+  return t("insBusiestDay", `${best.name} was the busiest day. Pick a day to see where.`, best.name);
 }

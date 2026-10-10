@@ -182,7 +182,7 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
 
   it("offers Reset to Balanced for a hand-picked mix, Essential included", async () => {
     await renderOptions({ ...presetPatch("essential") });
-    expect(document.getElementById("level-line-text")?.textContent).toBe("Your own mix of lists.");
+    expect(document.getElementById("level-line-text")?.textContent).toMatch(/^(Light|Balanced|Strict), (plus|without) /);
     expect(document.getElementById("level-line-change")?.hidden).toBe(true);
     expect(document.getElementById("level-line-reset")?.hidden).toBe(false);
     expect(document.getElementById("level-note")?.hidden).toBe(false);
@@ -210,11 +210,11 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
     expect(names).toEqual(["www.alpha.example", "beta.example", "zeta.example"]);
   });
 
-  it("points the own-mix note at Filter lists, not at a hidden Advanced button", async () => {
+  it("says what a changed level changes, with a reset to the level it came from", async () => {
     await renderOptions();
     const note = document.getElementById("level-note")!;
-    expect(note.textContent).not.toContain("Advanced settings");
-    expect(note.querySelector("a.to-filters")?.getAttribute("href")).toBe("#filters");
+    expect(note.hidden).toBe(false);
+    expect(note.querySelector("button")?.textContent).toMatch(/^Reset to (Light|Balanced|Strict)$/);
   });
 });
 
@@ -359,12 +359,32 @@ describe("Block and allow: migration import", () => {
 });
 
 describe("Level cards", () => {
-  it("selects no level card for a hand-picked mix, and points to Filter lists", async () => {
+  it("keeps the nearest card selected for a changed level, marked Customized", async () => {
     // The shared mock is deliberately a custom mix (fingerprinting on, etc.).
     await renderOptions();
-    const checkedCards = document.querySelectorAll("#level-cards .level[aria-checked='true']");
-    expect(checkedCards.length).toBe(0);
+    const checkedCards = [...document.querySelectorAll("#level-cards .level[aria-checked='true']")];
+    expect(checkedCards).toHaveLength(1);
+    expect(checkedCards[0]!.querySelector(".level-mix")?.textContent).toBe("Customized");
     expect((document.getElementById("level-note") as HTMLElement).hidden).toBe(false);
+  });
+
+  it("keeps the level selected while Moat is off, with a way to turn it on", async () => {
+    await renderOptions({ ...presetPatch("standard"), enabled: false });
+    const checked = [...document.querySelectorAll<HTMLElement>("#level-cards .level[aria-checked='true']")].map((c) => c.dataset.level);
+    expect(checked).toEqual(["standard"]);
+    expect(document.querySelector("#level-note span")?.textContent).toBe("Moat is off, so nothing is blocked.");
+    document.getElementById("level-note-reset")!.click();
+    await settle();
+    expect(sentMessages.filter((m) => m.type === "set-settings-patch").at(-1)).toMatchObject({ patch: { enabled: true } });
+  });
+
+  it("going back to a level from a changed one offers Undo", async () => {
+    const balanced = presetPatch("standard");
+    await renderOptions({ ...balanced, filterGroups: { ...balanced.filterGroups, "social-widgets": true } });
+    document.getElementById("level-note-reset")!.click();
+    await settle();
+    expect(sentMessages.filter((m) => m.type === "set-settings-patch").at(-1)).toMatchObject({ patch: { filterGroups: { "social-widgets": false } } });
+    expect(document.body.textContent).toContain("Back to Balanced. Your changes were removed.");
   });
 
   it("marks exactly one level card as chosen, and picking another one saves it", async () => {
@@ -412,10 +432,10 @@ describe("Hand-picked mix of lists", () => {
     const balanced = presetPatch("standard");
     await renderOptions({ ...balanced, filterGroups: { ...balanced.filterGroups, "social-widgets": true } });
 
-    expect(document.getElementById("level-line-text")?.textContent).toBe("Your mix: Balanced + Social buttons.");
+    expect(document.getElementById("level-line-text")?.textContent).toBe("Balanced, plus Social buttons.");
     expect(document.getElementById("level-line-reset")?.textContent).toBe("Reset to Balanced");
     expect(document.getElementById("level-line-reset")?.dataset.level).toBe("standard");
-    expect(document.querySelector("#level-note span")?.textContent).toBe("Your mix: Balanced + Social buttons.");
+    expect(document.querySelector("#level-note span")?.textContent).toBe("Balanced, plus Social buttons.");
   });
 });
 
@@ -481,15 +501,15 @@ describe("Security: a stopped page can be reported as a mistake", () => {
   it("opens the report page with the site and the reason filled in", async () => {
     await renderOptions(undefined, { usageStats: { days: {}, pageStops: [{ hostname: "surveymonkey.com", time: Date.now() }] } });
 
-    const button = document.querySelector<HTMLButtonElement>("#sec-list .ins-report")!;
+    const button = document.querySelector<HTMLButtonElement>("#sec-list .stop-report")!;
     expect(button.getAttribute("aria-label")).toBe("Report a mistake: surveymonkey.com");
     button.click();
     expect(createdTabs.at(-1)).toMatch(/report\.html\?site=surveymonkey\.com&reason=false-alarm$/);
   });
 });
 
-describe("Security: stops grouped by what stopped them", () => {
-  it("puts dangerous pages first, names each list, and keeps older stops apart", async () => {
+describe("Security: pages Moat stopped", () => {
+  it("lists dangerous pages with what they were, and folds the rest away", async () => {
     const now = Date.now();
     await renderOptions(undefined, {
       usageStats: {
@@ -502,45 +522,78 @@ describe("Security: stops grouped by what stopped them", () => {
         ],
       },
     });
-    const groups = [...document.querySelectorAll<HTMLElement>("#sec-list .stop-group")];
-    expect(groups.map((g) => g.dataset.group)).toEqual(["danger", "ads", "custom", "earlier"]);
-    expect(groups[0]!.querySelector("h3")?.textContent).toBe("Dangerous pages1");
-    expect(groups[0]!.querySelector(".stop-list")?.textContent).toBe("Phishing");
-    expect(groups[1]!.querySelector(".stop-list")?.textContent).toBe("Pop-up ads");
+    const loud = [...document.querySelectorAll<HTMLElement>("#sec-list .stop-list-danger .stop-row")];
+    expect(loud.map((r) => r.querySelector("b")?.textContent)).toEqual(["paypa1-secure.top", "old.example"]);
+    expect(loud[0]!.querySelector("small")?.textContent).toMatch(/^Phishing: fake sign-in pages · /);
+    expect(document.querySelector("#sec-list .stop-tip")).not.toBeNull();
+    const folds = [...document.querySelectorAll<HTMLDetailsElement>("#sec-list .stop-fold")];
+    expect(folds.map((f) => f.querySelector("summary")?.textContent)).toEqual(["1 ad or tracker page never loaded", "1 page on a block list you or your organization set"]);
     // Your own list isn't Moat's to correct.
-    expect(groups[2]!.querySelector(".ins-report")).toBeNull();
-    expect(groups[3]!.querySelector(".stop-list")).toBeNull();
-    const kpi = (label: string) =>
-      [...document.querySelectorAll("#sec-kpis .ov-kpi")].find((card) => card.querySelector(".ov-kpi-label")?.textContent === label)?.querySelector(".ov-kpi-value")?.textContent;
-    expect(kpi("Dangerous pages stopped")).toBe("1");
-    expect(kpi("Ad pages stopped")).toBe("1");
+    expect(folds[1]!.querySelector(".stop-report")).toBeNull();
+    expect(document.getElementById("sec-stops-take")?.textContent).toBe("2 dangerous pages were stopped this week.");
   });
 });
 
-describe("Sites: a site opens its own panel", () => {
-  it("shows the week's blocks there by kind and the companies seen there", async () => {
+describe("Security: Safety check", () => {
+  it("says all is well when protection is on", async () => {
+    await renderOptions({ enabled: true, disabledSites: [], customAllowedDomains: [] });
+    const rows = [...document.querySelectorAll<HTMLElement>("#sec-check .check-row")];
+    expect(rows.filter((r) => r.dataset.state === "warn")).toHaveLength(0);
+    expect(document.getElementById("sec-check-take")?.textContent).toBe("Everything that keeps you safe is on.");
+  });
+
+  it("flags danger lists switched off, paused sites and Never block, with a fix for each", async () => {
+    await renderOptions({ enabled: true, filterGroups: { "phishing-urls": false, scam: false }, disabledSites: ["a.example"], customAllowedDomains: ["b.example", "c.example"] } as Partial<Settings>);
+    const rows = [...document.querySelectorAll<HTMLElement>("#sec-check .check-row")];
+    const titles = rows.map((r) => r.querySelector("b")?.textContent);
+    expect(titles).toContain("Phishing, Scams off");
+    expect(titles).toContain("Paused on 1 site");
+    expect(titles).toContain("2 sites in Never block");
+    expect(document.getElementById("sec-check-take")?.textContent).toBe("One thing needs a look.");
+    const lists = rows.find((r) => r.querySelector("b")?.textContent === "Phishing, Scams off")!;
+    lists.querySelector<HTMLButtonElement>("button")!.click();
+    await settle();
+    const sent = sentMessages.filter((m) => m.type === "set-settings-patch").at(-1)!;
+    expect((sent.patch as Partial<Settings>).filterGroups).toMatchObject({ "phishing-urls": true, scam: true });
+  });
+
+  it("offers to undo a restore that turned protection off", async () => {
+    await renderOptions({ enabled: true }, { importUndo: { time: Date.now() - 1000, before: { enabled: true }, risky: true } });
+    const row = [...document.querySelectorAll<HTMLElement>("#sec-check .check-row")].find((r) => r.querySelector("b")?.textContent?.startsWith("Settings restored from a file"))!;
+    expect(row.dataset.state).toBe("warn");
+    expect(document.getElementById("import-undo")?.hidden).toBe(false);
+    row.querySelector<HTMLButtonElement>("button")!.click();
+    await settle();
+    expect(sentMessages.filter((m) => m.type === "set-settings-patch").at(-1)).toMatchObject({ patch: { enabled: true } });
+  });
+});
+
+describe("Sites: one row per site", () => {
+  it("puts a site's addresses together and opens to its blocks, companies and addresses", async () => {
     const d = new Date();
     const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     const day = {
       date,
-      total: 40,
-      hostnames: ["news.example"],
-      hostCounts: { "news.example": 40 },
-      hostKinds: { "news.example": { ads: 10, trackers: 28, popups: 2 } },
+      total: 50,
+      hostnames: ["www.news.example", "live.news.example"],
+      hostCounts: { "www.news.example": 40, "live.news.example": 10 },
+      hostKinds: { "www.news.example": { ads: 10, trackers: 28, popups: 2 }, "live.news.example": { ads: 5, trackers: 5, popups: 0 } },
       signals: {},
-      companies: { Google: { count: 20, hostnames: ["news.example"] }, Meta: { count: 8, hostnames: ["news.example"] } },
-      kinds: { ads: 10, trackers: 28, popups: 2 },
+      companies: { Google: { count: 20, hostnames: ["www.news.example"] }, Meta: { count: 8, hostnames: ["live.news.example"] } },
+      kinds: { ads: 15, trackers: 33, popups: 2 },
     };
     await renderOptions({ disabledSites: [] }, { usageStats: { days: { [date]: day } } });
-    const open = document.querySelector<HTMLButtonElement>("#s-table .site-open")!;
-    const panel = document.getElementById(open.getAttribute("aria-controls")!)!;
-    expect(panel.hidden).toBe(true);
+    const rows = [...document.querySelectorAll<HTMLElement>("#s-rows .sr")];
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.querySelector(".sr-name")?.textContent).toBe("news.example");
+    expect(rows[0]!.querySelector(".sr-sub")?.textContent).toBe("15 ads · 33 trackers · 2 pop-ups");
+    const open = rows[0]!.querySelector<HTMLButtonElement>(".sr-btn")!;
     open.click();
-    expect(panel.hidden).toBe(false);
     expect(open.getAttribute("aria-expanded")).toBe("true");
-    expect(panel.querySelector(".sp-kinds")?.textContent).toBe("Ads10Trackers28Pop-ups2");
-    expect([...panel.querySelectorAll(".sp-who li")].map((li) => li.textContent)).toEqual(["Google", "Meta"]);
-    expect(document.querySelector("#s-table th:last-child")?.textContent).toBe("Protected");
+    expect([...rows[0]!.querySelectorAll(".sp-tile")].map((t) => t.textContent)).toEqual(["15Ads", "33Trackers", "2Pop-ups"]);
+    const companies = [...rows[0]!.querySelectorAll(".site-panel .rr-site span:last-child")].map((n) => n.textContent);
+    expect(companies).toEqual(["Google", "Meta"]);
+    expect([...rows[0]!.querySelectorAll(".sp-host-name")].map((n) => n.textContent)).toEqual(["news.example", "live.news.example"]);
   });
 });
 
@@ -639,7 +692,7 @@ describe("Overview: the week in a sentence, and a calm sidebar", () => {
 
   it("names the company seen most under the title, with the totals in the chart's legend and no percentage cards", async () => {
     await renderOptions(undefined, week(Date.now()));
-    expect(document.getElementById("page-lead")?.textContent).toMatch(/^Google tracked you on the most sites\./);
+    expect(document.getElementById("page-lead")?.textContent).toMatch(/^Google tried to track you on more sites than any other company\./);
     expect(document.querySelector("#ov-chart .ovc-legend")?.textContent).toContain("Trackers30");
     expect(document.getElementById("ov-kpis")).toBeNull();
   });

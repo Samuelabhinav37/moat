@@ -181,7 +181,7 @@
     "message": "Mantener privada tu dirección IP"
   },
   "optionsWebrtcToggleHint": {
-    "message": "Impide que las páginas descubran tu IP real mediante funciones de videollamada, incluso con una VPN."
+    "message": "Impide que las páginas averigüen tu dirección IP real, que muestra más o menos dónde estás. Funciona aunque uses una VPN."
   },
   "optionsFingerprintToggleLabel": {
     "message": "Impedir que los sitios reconozcan tu dispositivo"
@@ -214,7 +214,7 @@
     "message": "No disponible en este navegador."
   },
   "optionsCnameChromeDohHint": {
-    "message": "En Chrome, Moat pregunta a Cloudflare adónde apuntan de verdad los rastreadores ocultos. Puede pasar por alto el primero de un sitio. Firefox lo hace por sí mismo y en privado."
+    "message": "Para encontrarlos en Chrome, Moat pregunta a Cloudflare adónde llevan de verdad las direcciones de un sitio. Puede pasar por alto el primero de cada sitio. Firefox lo comprueba solo, así que no se pregunta nada."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Aún no verificado."
@@ -229,7 +229,7 @@
     "message": "ejemplo.com"
   },
   "optionsFilterBudgetWarning": {
-    "message": "Algunas listas de filtros de Moat no se pudieron activar. Los navegadores limitan cuántas reglas de bloqueo pueden usar todas las extensiones juntas. Otro bloqueador o extensión de privacidad puede agotar ese límite. Desactiva una de ellas o desactiva una lista aquí."
+    "message": "Algunas listas de Moat no pudieron activarse. Tu navegador limita cuántas reglas de bloqueo comparten todas las extensiones, y otro bloqueador puede estar usando la mayoría. Desactívalo, o desactiva una lista aquí."
   },
   "optionsFilterBudgetDetail": {
     "message": "Tu navegador dice que quedan $COUNT$ reglas para todas tus extensiones juntas. ¿Sigue bajo tras desactivar otras extensiones y recargar Moat? Desactiva una lista aquí. Molestias y Avisos de cookies son buenas para empezar.",
@@ -457,13 +457,13 @@
     "message": "Hace más difícil que los sitios reconozcan tu dispositivo."
   },
   "optionsFingerprintCaution": {
-    "message": "Puede fallar a veces con un CAPTCHA o la verificación de un banco. Si un sitio falla, desactívalo primero."
+    "message": "De vez en cuando esto interfiere con una comprobación de «No soy un robot» o con la verificación de dispositivo de un banco. Si un sitio falla, desactiva esto primero."
   },
   "optionsCnameDrawerDesc": {
     "message": "Encuentra rastreadores que se esconden tras la propia dirección de un sitio."
   },
   "optionsSearchSlopDrawerDesc": {
-    "message": "Quita de tus resultados de búsqueda los sitios conocidos de contenido basura."
+    "message": "Pliega los sitios de baja calidad hechos para posicionarse en los resultados de búsqueda."
   },
   "optionsSearchSlopCaution": {
     "message": "Cada grupo oculto queda a un clic, tras un enlace «Mostrar»."
@@ -502,10 +502,10 @@
     "message": "Usar el propio modo de camuflaje de Firefox"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Activa un modo de camuflaje más profundo, integrado directamente en Firefox. Llega más lejos de lo que Moat puede por sí solo: tamaño de ventana, fuentes, zona horaria y más."
+    "message": "Activa la protección de dispositivo propia de Firefox, más fuerte. Cubre más de lo que Moat puede, como el tamaño de ventana, las fuentes y la zona horaria."
   },
   "optionsFirefoxRFPCaution": {
-    "message": "Puede ser más disruptivo que la propia protección de huella digital de Moat descrita arriba. Cambia el comportamiento real del navegador, no solo lo que un sitio puede ver, así que conviene probarlo unos días antes de confiar en él."
+    "message": "Esto cambia cómo funciona el propio Firefox, no solo lo que ven las páginas, así que puede romper más que la protección de dispositivo de Moat de arriba. Pruébalo unos días antes de confiar en él."
   },
   "optionsFirefoxFPIToggleLabel": {
     "message": "Evita que los rastreadores te vinculen entre sitios"
@@ -514,7 +514,7 @@
     "message": "Mantiene separados los datos almacenados de cada sitio, para que el mismo rastreador incrustado en dos sitios distintos no pueda relacionar lo que vio en cada uno."
   },
   "optionsFirefoxFPICaution": {
-    "message": "Puede impedir iniciar sesión con una cuenta de Google o Facebook en un sitio de terceros. Si un inicio de sesión deja de funcionar, pausa esto primero."
+    "message": "Puede impedir iniciar sesión con Google o Facebook en otros sitios. Si un inicio de sesión deja de funcionar, desactiva esto primero."
   },
   "optionsGrayscaleMetricLabel": {
     "message": "anuncios atenuados hoy"
@@ -893,7 +893,7 @@
     }
   },
   "advPrivacyLead": {
-    "message": "Protección extra contra el seguimiento y la identificación. Desactivada por defecto porque algunos sitios pueden fallar."
+    "message": "Protección extra contra el seguimiento y la identificación."
   },
   "advRulesLead": {
     "message": "Tus propias reglas. Siempre prevalecen sobre las listas de filtros."
@@ -935,13 +935,13 @@
     "message": "Moat revisa cada una en tu dispositivo"
   },
   "tourHow2Sub": {
-    "message": "Compara cada petición con cientos de miles de reglas de listas de filtros públicas. Nada sale de tu dispositivo."
+    "message": "Comprueba cada una con unas 310.000 reglas de listas públicas de anuncios y rastreadores. Nada sale de tu dispositivo."
   },
   "tourHow3Title": {
     "message": "Lo que coincide nunca se carga"
   },
   "tourHow3Sub": {
-    "message": "Tampoco lo que eso habría cargado después."
+    "message": "Así que tampoco carga nada de lo que habrían traído después."
   },
   "tourHow4Title": {
     "message": "Se limpian los restos"
@@ -953,7 +953,7 @@
     "message": "Fija Moat junto a la barra de direcciones"
   },
   "tourPinLede": {
-    "message": "Así su icono muestra cuánto intentó cargar cada página, y puedes pausarlo en un sitio con un clic."
+    "message": "Así su icono muestra cuántos anuncios y rastreadores intentó cargar cada página, y puedes pausarlo en un sitio con un clic."
   },
   "tourPinStep1": {
     "message": "Haz clic en la pieza de puzle de tu barra de herramientas."
@@ -1104,7 +1104,7 @@
     "message": "Análisis de comportamiento"
   },
   "tourReqFirstParty": {
-    "message": "Rastreador en el propio dominio de weather.com"
+    "message": "Rastreador con la propia dirección de weather.com"
   },
   "tourReqMonitoring": {
     "message": "Grabación de sesiones"
@@ -1494,22 +1494,22 @@
     "message": "Mientras te desplazas, Moat busca la etiqueta Patrocinado en las publicaciones y las quita de tu feed."
   },
   "explainLeakedPassword": {
-    "message": "Moat compara un fragmento corto y cifrado de la contraseña que escribes con filtraciones conocidas. Tu contraseña nunca sale de tu ordenador."
+    "message": "Cuando escribes una contraseña, Moat compara un trozo corto y cifrado con contraseñas filtradas en brechas de datos anteriores. La contraseña nunca sale de tu ordenador."
   },
   "explainCookies": {
     "message": "Un rastreador deja una cookie en un sitio para reconocerte en el siguiente. Moat impide que los sitios compartan esas cookies."
   },
   "explainWebrtc": {
-    "message": "Las funciones de videollamada pueden mostrar a una página tu dirección IP real, incluso con una VPN. Moat la mantiene oculta."
+    "message": "Las funciones de videollamada pueden revelar a una página tu IP real, que muestra más o menos dónde estás, incluso con VPN. Moat la mantiene oculta."
   },
   "explainFingerprint": {
     "message": "Los sitios pueden reconocerte por detalles como tu pantalla, tus fuentes y tu tarjeta gráfica. Moat cambia un poco esos detalles, y de forma distinta en cada sitio."
   },
   "explainCname": {
-    "message": "Algunos rastreadores se esconden tras la propia dirección del sitio. Moat comprueba a dónde apunta de verdad esa dirección y la bloquea si es un rastreador."
+    "message": "Algunos rastreadores se disfrazan con la dirección del propio sitio. Moat comprueba adónde lleva de verdad y la bloquea si es un rastreador."
   },
   "explainSearchSlop": {
-    "message": "Los resultados de granjas de contenido conocidas se pliegan tras un enlace Mostrar, así que siguen a un clic."
+    "message": "Los resultados de sitios de baja calidad hechos para posicionarse en buscadores se pliegan tras un enlace Mostrar, a un clic de distancia."
   },
   "explainPermissionGuard": {
     "message": "Se detienen las páginas que piden tu cámara, micrófono o ubicación nada más cargar. Permite un sitio desde la ventana de Moat cuando confíes en él."
@@ -1781,7 +1781,7 @@
     "message": "Es un rastreador, así que Moat lo bloquea"
   },
   "explainStepSlop1": {
-    "message": "Aparece un resultado de una granja de contenido"
+    "message": "Aparece un resultado de baja calidad"
   },
   "explainStepSlop2": {
     "message": "Moat lo pliega tras un enlace Mostrar"
@@ -2380,7 +2380,7 @@
     "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
   },
   "ovSummaryCompany": {
-    "message": "$COMPANY$ te rastreó en más sitios.",
+    "message": "$COMPANY$ intentó rastrearte en más sitios que cualquier otra empresa.",
     "placeholders": {
       "company": {
         "content": "$1",
@@ -2390,7 +2390,7 @@
     "description": "Overview subtitle, first sentence: the tracker company seen on the most sites this week."
   },
   "ovSummarySite": {
-    "message": "En $SITE$ se bloqueó más.",
+    "message": "Moat bloqueó más en $SITE$.",
     "placeholders": {
       "site": {
         "content": "$1",
@@ -2546,7 +2546,7 @@
     "description": "Sites page subtitle."
   },
   "pageLeadSecurity": {
-    "message": "Páginas que Moat detuvo antes de cargarse",
+    "message": "Tu protección y las páginas que Moat detuvo",
     "description": "Security page subtitle."
   },
   "insWhoTitle": {
@@ -3047,7 +3047,7 @@
     "description": "Settings Help panel."
   },
   "helpStepOffHere": {
-    "message": "Desactiva Moat aquí",
+    "message": "Pausa Moat en este sitio",
     "description": "Settings Help panel."
   },
   "helpStepReload": {
@@ -3497,5 +3497,474 @@
   },
   "checkupApplied": {
     "message": "Protección actualizada. Se aplica a las páginas que abras o recargues."
+  },
+  "kaiOpen": {
+    "message": "Pregunta a Kai"
+  },
+  "kaiClose": {
+    "message": "Cerrar"
+  },
+  "kaiAllHelp": {
+    "message": "Toda la ayuda"
+  },
+  "kaiOff": {
+    "message": "Moat está desactivado ahora mismo, así que los anuncios y rastreadores cargan en todos los sitios."
+  },
+  "kaiTurnOn": {
+    "message": "Activar Moat"
+  },
+  "kaiAsk": {
+    "message": "Hola, soy Kai. ¿Qué buscas?"
+  },
+  "kaiAnotherQuestion": {
+    "message": "Preguntar otra cosa"
+  },
+  "kaiQPause": {
+    "message": "¿Cómo pauso Moat en un sitio?"
+  },
+  "kaiAPause": {
+    "message": "En el sitio, haz clic en el icono de Moat junto a la barra de direcciones y desactiva su interruptor. También puedes añadir un sitio aquí, en Excepciones y En pausa."
+  },
+  "kaiQLevel": {
+    "message": "¿Dónde cambio cuánto bloquea Moat?"
+  },
+  "kaiALevel": {
+    "message": "En Protección, elige un nivel. Equilibrado va bien para la mayoría."
+  },
+  "kaiQBlocked": {
+    "message": "¿Dónde veo lo que bloqueó Moat?"
+  },
+  "kaiABlocked": {
+    "message": "Resumen muestra tu semana. Rastreadores muestra quién intentó seguirte y Sitios muestra dónde."
+  },
+  "kaiQHide": {
+    "message": "¿Cómo oculto algo en una página?"
+  },
+  "kaiAHide": {
+    "message": "En la página, haz clic en el icono de Moat y elige Ocultar algo en esta página. Todo lo que ocultaste aparece aquí."
+  },
+  "kaiQBlock": {
+    "message": "¿Cómo bloqueo siempre un sitio?"
+  },
+  "kaiABlock": {
+    "message": "Escribe el sitio en Bloquear siempre y pulsa Bloquear."
+  },
+  "kaiQBackup": {
+    "message": "¿Cómo llevo mi configuración a otro ordenador?"
+  },
+  "kaiABackup": {
+    "message": "En Copia y sincronización, guarda un archivo de copia o activa la sincronización."
+  },
+  "kaiQBroken": {
+    "message": "Un sitio no funciona"
+  },
+  "kaiABroken": {
+    "message": "Vamos a arreglarlo paso a paso."
+  },
+  "kaiQWorking": {
+    "message": "¿Funciona Moat?"
+  },
+  "kaiAWorking": {
+    "message": "Así puedes comprobarlo."
+  },
+  "kaiHello": {
+    "message": "¡Hola! Soy Kai. Pregúntame si necesitas algo."
+  },
+  "kaiNeedHelp": {
+    "message": "¿Necesitas ayuda?"
+  },
+  "optionsImportRisksTitle": {
+    "message": "Aplícalo solo si creaste el archivo tú."
+  },
+  "optionsImportRiskOff": {
+    "message": "Desactiva Moat."
+  },
+  "optionsImportRiskDanger": {
+    "message": "Deja de bloquear sitios peligrosos: $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskNeverBlock": {
+    "message": "Deja pasar anuncios y rastreadores en $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskPaused": {
+    "message": "Pausa Moat en $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskMore": {
+    "message": "$A$ y $B$ más",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "backupRestoredOn": {
+    "message": "Restaurado desde un archivo el $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkTitle": {
+    "message": "Revisión de seguridad"
+  },
+  "checkTakeOk": {
+    "message": "Todo lo que te protege está activado."
+  },
+  "checkTakeWarnOne": {
+    "message": "Hay una cosa que revisar."
+  },
+  "checkTakeWarnMany": {
+    "message": "Hay $A$ cosas que revisar.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkOnTitle": {
+    "message": "Moat está activado"
+  },
+  "checkOnDetail": {
+    "message": "Las páginas se revisan antes de cargarse."
+  },
+  "checkOffTitle": {
+    "message": "Moat está desactivado"
+  },
+  "checkOffDetail": {
+    "message": "No se bloquea nada, ni siquiera los sitios peligrosos."
+  },
+  "checkTurnOn": {
+    "message": "Activar"
+  },
+  "checkListsOnTitle": {
+    "message": "Las listas de sitios peligrosos están activadas"
+  },
+  "checkListsOnDetail": {
+    "message": "Phishing, malware, estafas y descargas peligrosas."
+  },
+  "checkListsOffTitle": {
+    "message": "$A$ desactivado",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkListsOffDetail": {
+    "message": "Moat no detendrá estos sitios peligrosos."
+  },
+  "checkUpdatedTitle": {
+    "message": "Las listas están al día"
+  },
+  "checkUpdateFailedTitle": {
+    "message": "No se pudieron actualizar las listas"
+  },
+  "checkUpdateFailedDetail": {
+    "message": "Moat sigue usando las listas que tiene y lo intentará pronto."
+  },
+  "checkPwOnTitle": {
+    "message": "Los avisos de contraseñas filtradas están activados"
+  },
+  "checkPwOnDetail": {
+    "message": "Moat te avisa si una contraseña que escribes apareció en una filtración."
+  },
+  "checkPwOffTitle": {
+    "message": "Los avisos de contraseñas filtradas están desactivados"
+  },
+  "checkPwOffDetail": {
+    "message": "Moat puede avisarte si una contraseña que escribes apareció en una filtración. Solo sale un código corto de tu dispositivo."
+  },
+  "checkPausedOne": {
+    "message": "En pausa en 1 sitio"
+  },
+  "checkPausedTitle": {
+    "message": "En pausa en $A$ sitios",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkPausedDetail": {
+    "message": "Moat no bloquea anuncios ni rastreadores allí. Los sitios peligrosos se siguen deteniendo."
+  },
+  "checkAllowedOne": {
+    "message": "1 sitio en Nunca bloquear"
+  },
+  "checkAllowedTitle": {
+    "message": "$A$ sitios en Nunca bloquear",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkAllowedDetail": {
+    "message": "Allí se cargan anuncios y rastreadores. Los sitios peligrosos se siguen deteniendo."
+  },
+  "checkReview": {
+    "message": "Revisar"
+  },
+  "checkRestoredTitle": {
+    "message": "Ajustes restaurados desde un archivo el $A$",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkRestoredRisky": {
+    "message": "Ese archivo desactivó parte de la protección. Deshazlo si no lo creaste tú."
+  },
+  "checkRestoredDetail": {
+    "message": "Puedes volver a tus ajustes anteriores."
+  },
+  "checkUndo": {
+    "message": "Deshacer restauración"
+  },
+  "importUndone": {
+    "message": "Tus ajustes vuelven a estar como antes de la restauración."
+  },
+  "insWhyTitle": {
+    "message": "Por qué te rastrearon"
+  },
+  "insOnSites": {
+    "message": "En $A$ de tus $B$ sitios",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "insBlockedWord": {
+    "message": "bloqueados"
+  },
+  "insSeenOnTitle": {
+    "message": "Dónde estaba"
+  },
+  "insOpenSite": {
+    "message": "Ver $A$ en Sitios",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insOpenCompany": {
+    "message": "Ver $A$ en Rastreadores",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDaysLabel": {
+    "message": "Días de esta semana"
+  },
+  "insBusiestDay": {
+    "message": "$A$ fue el día con más actividad. Elige un día para ver dónde.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDayLine": {
+    "message": "$A$ bloqueados, la mayoría entre las $B$ y las $C$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      },
+      "c": {
+        "content": "$3"
+      }
+    }
+  },
+  "insDayTotal": {
+    "message": "$A$ bloqueados.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDayNone": {
+    "message": "Nada bloqueado el $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDayWhere": {
+    "message": "Sobre todo en"
+  },
+  "siteKindAds": {
+    "message": "$A$ anuncios",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteKindTrackers": {
+    "message": "$A$ rastreadores",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteKindPopups": {
+    "message": "$A$ ventanas emergentes",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteAddresses": {
+    "message": "$A$ direcciones",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteAddressesTitle": {
+    "message": "Direcciones de este sitio"
+  },
+  "secStopsDangerOne": {
+    "message": "1 página peligrosa"
+  },
+  "secStopsDangerMany": {
+    "message": "$A$ páginas peligrosas",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "secStopsDangerTailOne": {
+    "message": "se detuvo esta semana."
+  },
+  "secStopsDangerTail": {
+    "message": "se detuvieron esta semana."
+  },
+  "secStopsNoDanger": {
+    "message": "Ninguna página peligrosa esta semana."
+  },
+  "secPhishTip": {
+    "message": "Si escribiste una contraseña o un número de tarjeta en una de estas páginas antes de que Moat la detuviera, cambia esa contraseña y avisa a tu banco."
+  },
+  "secAdPagesOne": {
+    "message": "1 página de anuncios o rastreo nunca se cargó"
+  },
+  "secAdPagesMany": {
+    "message": "$A$ páginas de anuncios y rastreo nunca se cargaron",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "secCustomOne": {
+    "message": "1 página en una lista de bloqueo tuya o de tu organización"
+  },
+  "secCustomMany": {
+    "message": "$A$ páginas en listas de bloqueo tuyas o de tu organización",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "secNotDangerous": {
+    "message": "¿No es peligroso?"
+  },
+  "secStopUnknown": {
+    "message": "En una lista de peligro que Moat no pudo identificar"
+  },
+  "levelChangesPlus": {
+    "message": "$A$, más $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "levelChangesMinus": {
+    "message": "$A$, sin $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "levelChangesBoth": {
+    "message": "$A$, más $B$, sin $C$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      },
+      "c": {
+        "content": "$3"
+      }
+    }
+  },
+  "levelCustomized": {
+    "message": "Personalizado"
+  },
+  "levelResetDone": {
+    "message": "De vuelta a $A$. Se quitaron tus cambios.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "ovLevelCustomized": {
+    "message": "$A$, personalizado",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "levelOffNote": {
+    "message": "Moat está desactivado, así que no se bloquea nada."
   }
 }

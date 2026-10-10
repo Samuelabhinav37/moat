@@ -23,16 +23,18 @@ import { openPauseMenu } from "./pauseMenu";
 import { pauseEnd, pauseEndLabel, type PauseLength } from "../shared/pauseDuration";
 import { initNavMode } from "./navMode";
 import { TOPICS, initHelpPanel } from "./helpPanel";
+import { initKaiGuide } from "./kaiGuide";
 import { LEVELS, openCheckup, type Level } from "./checkup";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
 import { buildKpi, buildTopCard, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
-import { buildHeatmap, buildPurposes, buildReachRows, busiestPhrase, purposeLabel, purposeShares } from "./insightsView";
+import { buildDays, buildPurposes, buildReachRows, busiestDayPhrase, purposeLabel, purposeShares, type DayData } from "./insightsView";
+import { groupLabel, groupSites, type SiteGroup } from "./siteGroups";
 import { createSavedToast } from "./savedToast";
 import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
 import { customRuleStatKey, isStale } from "../shared/customRuleStats";
 import { validateImportedSettings } from "../background/settingsPortability";
-import { summarizeSettingsImport } from "../shared/settingsDiff";
+import { importRisks, summarizeSettingsImport } from "../shared/settingsDiff";
 import type {
   PauseSource,
   AddCustomDomainMessage,
@@ -63,6 +65,7 @@ import type {
   ToggleSiteMessage,
   UsageSignal,
   UsageSummaryResponse,
+  BlockKinds,
 } from "../types";
 import { STORAGE_KEY } from "../types";
 import { joinCompanyBreakdown, type CompanyInfo } from "./trackerView";
@@ -150,6 +153,35 @@ const helpPanel = initHelpPanel(document, {
   report: () => void browser.tabs.create({ url: browser.runtime.getURL("report.html") }),
   docsUrl: "https://samuelabhinav37.github.io/moat/#faq",
   testPageUrl: "https://d3ward.github.io/toolz/adblock.html",
+});
+// Kai in the bottom-right corner: plain questions; each answer opens the
+// right screen and outlines the control (kaiGuide.ts).
+initKaiGuide(document, {
+  t: tFallback,
+  currentScreen: () => pageFromHash(window.location.hash),
+  isOff: () => document.getElementById("ov-status")?.dataset.state === "off",
+  turnOn: () => void setSettings({ enabled: true }).then(() => render()),
+  openHelp: () => helpPanel.open(),
+  questions: [
+    { id: "pause", ask: ["kaiQPause", "How do I pause Moat on a site?"], answer: ["kaiAPause", "On the site, click the Moat icon next to the address bar and turn off its switch. You can also add a site here, under Exceptions and Paused."], hash: "#paused", target: "#add-input" },
+    { id: "level", ask: ["kaiQLevel", "Where do I change how much Moat blocks?"], answer: ["kaiALevel", "Under Protection, pick a level. Balanced suits most people."], hash: "#blocking", target: "#level-cards" },
+    { id: "blocked", ask: ["kaiQBlocked", "Where do I see what Moat blocked?"], answer: ["kaiABlocked", "Overview shows your week. Trackers shows who tried to follow you, and Sites shows where."], hash: "#overview", target: ".ov-week" },
+    { id: "hide", ask: ["kaiQHide", "How do I hide something on a page?"], answer: ["kaiAHide", "On the page, click the Moat icon and choose Hide something on this page. Everything you hid is listed here."], hash: "#hidden", target: "#pick-element-button" },
+    { id: "block", ask: ["kaiQBlock", "How do I always block a site?"], answer: ["kaiABlock", "Type the site under Always block and press Block."], hash: "#rules", target: "#custom-block-input" },
+    { id: "backup", ask: ["kaiQBackup", "How do I keep my settings on another computer?"], answer: ["kaiABackup", "Under Backup and sync, save a backup file or turn on sync."], hash: "#backup", target: "#a-backup" },
+    { id: "broken", ask: ["kaiQBroken", "A site isn't working"], answer: ["kaiABroken", "Let's fix it step by step."], run: () => helpPanel.openTopic("load") },
+    { id: "working", ask: ["kaiQWorking", "Is Moat working?"], answer: ["kaiAWorking", "Here's how to check."], run: () => helpPanel.openTopic("verify") },
+  ],
+  firstOn: {
+    overview: ["blocked", "working"],
+    protection: ["level", "broken"],
+    exceptions: ["pause", "hide", "block"],
+    backup: ["backup"],
+    trackers: ["blocked"],
+    sites: ["pause", "broken"],
+    security: ["broken"],
+    about: ["working"],
+  },
 });
 initNavMode(window, {
   collapse: tFallback("navCollapse", "Collapse menu"),
@@ -257,7 +289,7 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsWebrtcToggleLabel", "Keep your IP address private"],
     descKey: [
       "optionsWebrtcToggleHint",
-      "Stops pages finding your real IP address through video-call features, even behind a VPN.",
+      "Keeps pages from finding your real IP address, which shows roughly where you are. Works even when you use a VPN.",
     ],
   },
   {
@@ -273,7 +305,7 @@ const PROTECTIONS: ProtectionDef[] = [
     ],
     cautionKey: [
       "optionsFingerprintCaution",
-      "Can occasionally break a CAPTCHA or a bank's device check. If a site misbehaves, turn this off first.",
+      "Now and then this trips up an \"I'm not a robot\" check or a bank's device check. If a site acts up, turn this off first.",
     ],
     metricLabelKey: ["optionsFingerprintMetricLabel", "sites that saw a disguised device this week"],
   },
@@ -298,11 +330,11 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsFirefoxRFPToggleLabel", "Use Firefox's own device-disguise mode"],
     descKey: [
       "optionsFirefoxRFPToggleHint",
-      "Turns on a deeper device-disguise mode built into Firefox itself. It reaches further than Moat can on its own: window size, fonts, timezone, and more.",
+      "Turns on Firefox's own, stronger device protection. It covers more than Moat can, such as window size, fonts and time zone.",
     ],
     cautionKey: [
       "optionsFirefoxRFPCaution",
-      "Can be more disruptive than Moat's own fingerprint protection above. It changes real browser behavior, not just what a page can see, so it's worth trying for a few days before relying on it.",
+      "This changes how Firefox itself behaves, not just what pages see, so it can break more than Moat's device protection above. Try it for a few days before you rely on it.",
     ],
   },
   {
@@ -317,7 +349,7 @@ const PROTECTIONS: ProtectionDef[] = [
     ],
     cautionKey: [
       "optionsFirefoxFPICaution",
-      "Can break logging in with a Google or Facebook account on a third-party site. If a login stops working, pause this first.",
+      "Can break signing in with Google or Facebook on other sites. If a sign-in stops working, turn this off first.",
     ],
   },
   {
@@ -367,7 +399,7 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsSearchSlopToggleLabel", "Hide low-quality search results"],
     descKey: [
       "optionsSearchSlopDrawerDesc",
-      "Filters known content-farm sites out of your search results.",
+      "Folds away low-quality sites built to rank in search results.",
     ],
     noteKey: [
       "optionsSearchSlopCaution",
@@ -532,7 +564,7 @@ const protectionGroupsEl = document.getElementById("protection-groups") as HTMLE
 const cnameUnsupportedHint = tFallback("optionsCnameUnsupportedHint", "Not available in this browser.");
 const cnameChromeDohHint = tFallback(
   "optionsCnameChromeDohHint",
-  "On Chrome, Moat asks Cloudflare where hidden trackers really point. It can miss the first one on a site. Firefox does this privately by itself."
+  "To find these on Chrome, Moat asks Cloudflare where a site's addresses really lead. It can miss the first one on each site. Firefox checks this itself, so nothing is asked."
 );
 
 const liveStatus = document.getElementById("live-status") as HTMLElement | null;
@@ -900,7 +932,11 @@ function buildPermissionGuardRow(settings: Settings): HTMLElement {
     chip.setAttribute("aria-pressed", String(on));
     chip.textContent = tFallback(kind.labelKey[0], kind.labelKey[1]);
     chip.addEventListener("click", () => {
-      void setSettings({ [kind.key]: !on } as Partial<Pick<Settings, SettingsPatchField>>).then(() => render());
+      // Show the change at once; saving and redrawing follow.
+      const next = chip.getAttribute("aria-pressed") !== "true";
+      chip.classList.toggle("on", next);
+      chip.setAttribute("aria-pressed", String(next));
+      void setSettings({ [kind.key]: next } as Partial<Pick<Settings, SettingsPatchField>>).then(() => render());
     });
     chips.append(chip);
   }
@@ -1193,6 +1229,7 @@ const levelCards = document.querySelectorAll<HTMLButtonElement>("#level-cards .l
 const levelNote = document.getElementById("level-note") as HTMLElement;
 
 const levelNoteText = levelNote.querySelector("span") as HTMLElement;
+const levelNoteReset = document.getElementById("level-note-reset") as HTMLButtonElement;
 
 // Names for the parts of a level that a hand-picked mix can change.
 const PRIVACY_NAMES: Record<string, [string, string]> = {
@@ -1205,8 +1242,8 @@ function levelName(level: string): string {
   return document.querySelector(`#level-cards .level[data-level="${level}"] .level-name`)?.textContent ?? level;
 }
 
-/** "Balanced + Social buttons − Trackers": the nearest level and what differs from it. */
-function mixDescription(settings: Settings): { base: PresetName; text: string } {
+/** "Balanced, plus Block cross-site cookies and without Trackers." */
+function changesSentence(settings: Settings): { base: PresetName; text: string; count: number } {
   const diff = presetDifference(settings);
   const name = (key: string): string => {
     const list = LIST_LABELS[key];
@@ -1214,32 +1251,78 @@ function mixDescription(settings: Settings): { base: PresetName; text: string } 
     const privacy = PRIVACY_NAMES[key];
     return privacy ? tFallback(privacy[0], privacy[1]) : key;
   };
-  const parts = [levelName(diff.base), ...diff.added.map((key) => `+ ${name(key)}`), ...diff.removed.map((key) => `− ${name(key)}`)];
-  return { base: diff.base, text: parts.join(" ") };
+  const base = levelName(diff.base);
+  const added = diff.added.map(name).join(", ");
+  const removed = diff.removed.map(name).join(", ");
+  const text =
+    added && removed
+      ? tFallback("levelChangesBoth", `${base}, plus ${added}, without ${removed}.`, [base, added, removed])
+      : added
+        ? tFallback("levelChangesPlus", `${base}, plus ${added}.`, [base, added])
+        : tFallback("levelChangesMinus", `${base}, without ${removed}.`, [base, removed]);
+  return { base: diff.base, text, count: diff.added.length + diff.removed.length };
 }
 
 function renderLevels(preset: PresetName | "custom", locked: boolean, settings: Settings): void {
+  // A changed level keeps its card selected, marked "Customized", so the
+  // page never looks as if no level is chosen.
+  // With Moat off, the level it comes back to stays selected.
+  const off = preset === "off";
+  const level = off ? detectPreset({ ...settings, enabled: true }) : preset;
+  // Any mix that isn't one of the three cards (a hand-picked mix, or an
+  // older level like Essential) reads as the nearest card, changed.
+  const custom = level !== "off" && !(MAIN_LEVELS as readonly string[]).includes(level) ? changesSentence(settings) : null;
+  const selected = custom ? custom.base : level;
   for (const card of levelCards) {
-    card.setAttribute("aria-checked", String(card.dataset.level === preset));
+    card.setAttribute("aria-checked", String(card.dataset.level === selected));
     card.disabled = locked;
   }
-  levelNote.hidden = (MAIN_LEVELS as readonly string[]).includes(preset) || preset === "off";
   for (const badge of document.querySelectorAll("#level-cards .level-mix")) badge.remove();
-  if (!levelNote.hidden && preset === "custom") {
-    const mix = mixDescription(settings);
-    levelNoteText.textContent = tFallback("filtersLevelMix", `Your mix: ${mix.text}.`, mix.text);
-    // Mark the card the mix is closest to, so the page shows where you stand.
-    const nearest = document.querySelector(`#level-cards .level[data-level="${mix.base}"] .level-top`);
-    nearest?.append(Object.assign(document.createElement("span"), { className: "level-mix", textContent: tFallback("levelYourMix", "Your mix") }));
+  levelNote.hidden = !custom && !off;
+  if (off) {
+    levelNoteText.textContent = tFallback("levelOffNote", "Moat is off, so nothing is blocked.");
+    levelNoteReset.textContent = tFallback("checkTurnOn", "Turn on");
+    levelNoteReset.dataset.level = "";
+    levelNoteReset.disabled = locked;
+  } else if (custom) {
+    levelNoteText.textContent = custom.text;
+    levelNoteReset.textContent = tFallback("filtersLevelResetTo", `Reset to ${levelName(custom.base)}`, levelName(custom.base));
+    levelNoteReset.dataset.level = custom.base;
+    levelNoteReset.disabled = locked;
+    document.querySelector(`#level-cards .level[data-level="${custom.base}"] .level-top`)?.append(Object.assign(document.createElement("span"), { className: "level-mix", textContent: tFallback("levelCustomized", "Customized") }));
+  }
+}
+
+/** Applies a level. Coming from a customized level drops those changes, so
+ * it says so and offers Undo. */
+async function applyLevel(level: PresetName): Promise<void> {
+  const before = lastSettings ?? (await getEffectiveSettings());
+  const wasCustom = detectPreset(before) === "custom";
+  const patch = presetPatch(level);
+  await setSettings(patch);
+  await render();
+  if (wasCustom) {
+    const undo = Object.fromEntries(Object.keys(patch).map((key) => [key, before[key as keyof Settings]])) as Partial<Settings>;
+    savedToast.offerUndo(tFallback("levelResetDone", `Back to ${levelName(level)}. Your changes were removed.`, levelName(level)), tFallback("toastUndo", "Undo"), () => {
+      void setSettings(undo).then(() => render());
+    });
   }
 }
 
 for (const card of levelCards) {
-  card.addEventListener("click", async () => {
-    await setSettings(presetPatch(card.dataset.level as PresetName));
-    await render();
+  card.addEventListener("click", () => {
+    // Select the card at once: applying a level turns whole rulesets on or
+    // off in the browser, which takes a few hundred milliseconds.
+    for (const other of levelCards) other.setAttribute("aria-checked", String(other === card));
+    for (const badge of document.querySelectorAll("#level-cards .level-mix")) badge.remove();
+    levelNote.hidden = true;
+    void applyLevel(card.dataset.level as PresetName);
   });
 }
+levelNoteReset.addEventListener("click", () => {
+  if (!levelNoteReset.dataset.level) void setSettings({ enabled: true }).then(() => render());
+  else void applyLevel(levelNoteReset.dataset.level as PresetName);
+});
 
 async function renderFilterLists(settings: Settings, droppedGroups: Set<string>): Promise<void> {
   // Before the list manifest loads, so the level shows even if it can't.
@@ -1322,24 +1405,22 @@ function renderLevelLine(preset: PresetName | "custom", settings: Settings): voi
   if (onCard) {
     const name = levelName(preset);
     levelLineText.textContent = tFallback("filtersLevelUsing", `Using ${name}.`, name);
-  } else if (preset === "custom") {
-    const mix = mixDescription(settings);
-    levelLineText.textContent = tFallback("filtersLevelMix", `Your mix: ${mix.text}.`, mix.text);
+  } else if (preset !== "off") {
+    const mix = changesSentence(settings);
+    levelLineText.textContent = mix.text;
     levelLineReset.dataset.level = mix.base;
     levelLineReset.textContent = tFallback("filtersLevelResetTo", `Reset to ${levelName(mix.base)}`, levelName(mix.base));
-  } else {
-    levelLineText.textContent = tFallback("filtersLevelCustom", "Your own mix of lists.");
-    levelLineReset.dataset.level = "standard";
-    levelLineReset.textContent = tFallback("filtersLevelResetTo", `Reset to ${levelName("standard")}`, levelName("standard"));
+  } else if (preset === "off") {
+    levelLineText.textContent = tFallback("levelOffNote", "Moat is off, so nothing is blocked.");
+    levelLineReset.hidden = true;
+    levelLineChange.hidden = true;
+    return;
   }
   levelLineChange.hidden = !onCard;
   levelLineReset.hidden = onCard;
 }
 
-levelLineReset.addEventListener("click", async () => {
-  await setSettings(presetPatch((levelLineReset.dataset.level as PresetName | undefined) ?? "standard"));
-  await render();
-});
+levelLineReset.addEventListener("click", () => void applyLevel((levelLineReset.dataset.level as PresetName | undefined) ?? "standard"));
 
 /** The one "Check for filter fixes" action, from Filter lists or About. */
 async function checkForFixes(trigger: HTMLElement): Promise<void> {
@@ -2042,6 +2123,8 @@ const importSettingsInput = document.getElementById("import-settings-input") as 
 const importSettingsStatus = document.getElementById("import-settings-status") as HTMLElement;
 const importSettingsConfirm = document.getElementById("import-settings-confirm") as HTMLElement;
 const importSettingsSummary = document.getElementById("import-settings-summary") as HTMLUListElement;
+const importSettingsRisks = document.getElementById("import-settings-risks") as HTMLElement;
+const importSettingsRiskList = document.getElementById("import-settings-risk-list") as HTMLUListElement;
 const importSettingsApplyButton = document.getElementById("import-settings-apply-button") as HTMLButtonElement;
 const importSettingsCancelButton = document.getElementById("import-settings-cancel-button") as HTMLButtonElement;
 const exportHintEl = document.getElementById("export-hint") as HTMLElement;
@@ -2103,7 +2186,18 @@ async function renderBackupTab(settings: Settings): Promise<void> {
     backupMetricLastEl.classList.remove("caution");
   }
 
+  const undo = await getImportUndo();
+  const undoRow = document.getElementById("import-undo");
+  if (undoRow) {
+    undoRow.hidden = !undo;
+    if (undo) {
+      const when = new Date(undo.time).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+      document.getElementById("import-undo-text")!.textContent = tFallback("backupRestoredOn", `Restored from a file on ${when}.`, when);
+    }
+  }
 }
+
+document.getElementById("import-undo-button")?.addEventListener("click", () => void undoImport());
 
 // ---------- Trackers tab ----------
 
@@ -2152,7 +2246,9 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   document.getElementById("ov-week-total")!.textContent = week.toLocaleString();
   document.getElementById("ov-week-empty")!.hidden = week > 0;
   (document.querySelector(".ov-hint") as HTMLElement).hidden = week === 0;
-  document.getElementById("ov-status-level")!.textContent = levelLabel(detectPreset(settings));
+  const preset = detectPreset(settings);
+  document.getElementById("ov-status-level")!.textContent =
+    preset === "custom" ? tFallback("ovLevelCustomized", `${levelLabel(presetDifference(settings).base)}, customized`, levelLabel(presetDifference(settings).base)) : levelLabel(preset);
   overviewSettings = settings;
   renderOverviewStatus();
 
@@ -2202,8 +2298,9 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
 }
 
 /** The week in a sentence or two, under the page title, the way Screen
- * Time's weekly report opens: "Google tracked you on the most sites.
- * jack-reacher.fandom.com had the most blocked." Nothing to say yet keeps
+ * Time's weekly report opens: "Google tried to track you on more sites
+ * than any other company. Moat blocked the most on news.example."
+ * Nothing to say yet keeps
  * the usual subtitle. */
 function renderOverviewSummary(usage: UsageSummaryResponse): void {
   const lead = document.querySelector<HTMLElement>('.dash-nav a[data-page="overview"] .nav-lead');
@@ -2212,8 +2309,8 @@ function renderOverviewSummary(usage: UsageSummaryResponse): void {
   const company = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count)[0];
   const site = usage.topSites[0];
   const parts: string[] = [];
-  if (company) parts.push(tFallback("ovSummaryCompany", `${company.company} tracked you on the most sites.`, company.company));
-  if (site) parts.push(tFallback("ovSummarySite", `${site.hostname} had the most blocked.`, site.hostname));
+  if (company) parts.push(tFallback("ovSummaryCompany", `${company.company} tried to track you on more sites than any other company.`, company.company));
+  if (site) parts.push(tFallback("ovSummarySite", `Moat blocked the most on ${site.hostname}.`, site.hostname));
   lead.textContent = parts.length ? parts.join(" ") : lead.dataset.default;
   if (pageFromHash(location.hash) === "overview") document.getElementById("page-lead")!.textContent = lead.textContent;
 }
@@ -2340,6 +2437,11 @@ function companyHost(info: Record<string, CompanyInfo>, company: string): string
   }
 }
 
+/** A company's own site, once the company list has loaded. */
+function companyHostCache(company: string): string {
+  return companyInfoCache ? companyHost(companyInfoCache, company) : "";
+}
+
 function setTakeaway(id: string, parts: (string | { bold: string })[]): void {
   const el = document.getElementById(id);
   if (!el) return;
@@ -2379,9 +2481,8 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
       ? [{ bold: top.company }, ` ${tFallback("insWhoTake", `was on ${Math.round((top.hostnameCount / sitesThisWeek) * 100)}% of the sites you visited. Pick a company to see where.`, String(Math.round((top.hostnameCount / sitesThisWeek) * 100)))}`]
       : [tFallback("ovTopTrackersEmpty", "No tracker companies this week yet.")]
   );
-  // One list of every company (it used to be two: top 8 by reach here, top
-  // 20 by blocks under "All companies"). Rows go straight into #t-who so the
-  // long-list search and "Show all" attach once, not on every render.
+  // Rows go straight into #t-who so the long-list search and "Show all"
+  // attach once (inside the card), not on every render.
   const whoList = document.getElementById("t-who");
   const reach = buildReachRows(
     document,
@@ -2398,7 +2499,8 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
         url: info[c.company]?.url ?? null,
       };
     }),
-    tFallback
+    tFallback,
+    openSiteOnSites
   );
   if (whoList) {
     whoList.classList.add("reach");
@@ -2413,207 +2515,453 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
       : [tFallback("insWhatEmpty", "Fills in as Moat blocks trackers.")]
   );
   document.getElementById("t-what")?.replaceChildren(...(shares.length ? [buildPurposes(document, usage.purposes, tFallback)] : []));
-  const dayLabels: string[] = [];
-  const weekend: boolean[] = [];
+  const days: DayData[] = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    dayLabels.push(i === 0 ? tFallback("ovToday", "Today") : d.toLocaleDateString(undefined, { weekday: "short" }));
-    weekend.push(d.getDay() === 0 || d.getDay() === 6);
+    const index = 6 - i;
+    days.push({
+      label: i === 0 ? tFallback("ovToday", "Today") : d.toLocaleDateString(undefined, { weekday: "short" }),
+      name: i === 0 ? tFallback("ovToday", "Today") : d.toLocaleDateString(undefined, { weekday: "long" }),
+      total: usage.sparkline[index] ?? 0,
+      hours: usage.hours[index] ?? [],
+      topSites: (usage.dailyTopSites?.[index] ?? []).map((s) => ({ ...s, icon: siteIcon(s.hostname) })),
+    });
   }
-  setTakeaway("t-when-take", [busiestPhrase(usage.hours, weekend, tFallback)]);
-  document.getElementById("t-when")?.replaceChildren(buildHeatmap(document, usage.hours, dayLabels, tFallback));
+  setTakeaway("t-when-take", [busiestDayPhrase(days, tFallback)]);
+  document.getElementById("t-when")?.replaceChildren(buildDays(document, days, tFallback, openSiteOnSites));
 
-  // Sites: blocks per site, with Moat's switch for each.
-  const table = document.createElement("table");
-  table.className = "ins-table";
-  const headRow = document.createElement("tr");
-  for (const [key, fallback, cls] of [
-    ["insColSite", "Site", ""],
-    ["insColBlocked", "Blocked", "hide-sm"],
-    ["insColTotal", "Total", "num-h"],
-    ["insColMoat", "Protected", ""],
-  ] as const) {
-    const th = document.createElement("th");
-    th.textContent = tFallback(key, fallback);
-    if (cls) th.className = cls;
-    headRow.append(th);
+  renderSitesPage(settings, usage);
+  await renderSecurityPage(settings, usage);
+}
+
+// ---------- Sites ----------
+
+/** One row per site (docs.google.com and mail.google.com under google.com),
+ * most blocks first. A row opens to what was blocked there, the companies
+ * seen there and, for a site with several addresses, each address. */
+function renderSitesPage(settings: Settings, usage: UsageSummaryResponse): void {
+  const host = document.getElementById("s-table");
+  if (!host) return;
+  const groups = groupSites(usage.topSites);
+  const top = groups[0];
+  setTakeaway("s-take", top ? [{ bold: groupLabel(top) }, ` ${tFallback("insSitesTake", `had the most blocks this week: ${top.count.toLocaleString()}.`, top.count.toLocaleString())}`] : []);
+  if (!groups.length) {
+    host.replaceChildren(emptyWithCheck(tFallback("insSitesEmpty", "No site has had anything blocked this week. Open a site you use often, then come back.")));
+    return;
   }
-  const thead = document.createElement("thead");
-  thead.append(headRow);
-  const tbody = document.createElement("tbody");
-  const maxSite = Math.max(...usage.topSites.map((x) => x.count), 1);
-  for (const site of usage.topSites) {
-    const row = document.createElement("tr");
-    const paused = settings.disabledSites.includes(site.hostname);
-    row.classList.toggle("off", paused);
-    const name = document.createElement("td");
-    const wrap = document.createElement("div");
-    wrap.className = "site";
-    const label = document.createElement("span");
-    label.id = `site-row-${site.hostname}`;
-    label.textContent = site.hostname.replace(/^www\./, "");
-    // The site's name opens its panel: what was blocked there and who.
-    const open = document.createElement("button");
-    open.type = "button";
-    open.className = "site-open";
-    open.setAttribute("aria-expanded", "false");
-    const detailId = `site-detail-${site.hostname}`;
-    open.setAttribute("aria-controls", detailId);
-    open.append(siteIcon(site.hostname), label, chevron());
-    wrap.append(open);
-    name.append(wrap);
-    const barCell = document.createElement("td");
-    barCell.className = "hide-sm";
-    barCell.style.width = "40%";
-    const bar = document.createElement("span");
-    bar.className = "ins-bar";
-    const fill = document.createElement("i");
-    fill.style.width = `${Math.max(2, (site.count / maxSite) * 100)}%`;
-    bar.append(fill);
-    barCell.append(bar);
-    const total = document.createElement("td");
-    total.className = "num";
-    total.textContent = site.count.toLocaleString();
-    const control = document.createElement("td");
-    control.append(
-      buildSwitch(!paused, label.id, (on) => {
-        row.classList.toggle("off", !on);
-        if (on) {
-          void setSiteDisabled(site.hostname, false).then(() => render());
+  let rows = document.getElementById("s-rows");
+  if (!rows) {
+    rows = Object.assign(document.createElement("div"), { id: "s-rows", className: "site-rows" });
+    const box = Object.assign(document.createElement("div"), { className: "site-box" });
+    box.append(rows);
+    const note = Object.assign(document.createElement("p"), { className: "ins-note", textContent: tFallback("insSitesNote", "Switching Moat off for a site pauses it. It then shows under Exceptions › Paused.") });
+    host.replaceChildren(box, note);
+  }
+  rows.replaceChildren(...groups.map((group) => buildSiteRow(settings, group)));
+  applyLongList(rows, longListLabels);
+}
+
+type TopSite = UsageSummaryResponse["topSites"][number];
+
+function addKinds(members: readonly TopSite[]): BlockKinds | null {
+  if (members.every((m) => !m.kinds)) return null;
+  return members.reduce((sum, m) => ({ ads: sum.ads + (m.kinds?.ads ?? 0), trackers: sum.trackers + (m.kinds?.trackers ?? 0), popups: sum.popups + (m.kinds?.popups ?? 0) }), { ads: 0, trackers: 0, popups: 0 });
+}
+
+/** "141 ads · 142 trackers · 6 pop-ups", leaving out kinds with none. */
+function kindsLine(kinds: BlockKinds | null): string {
+  if (!kinds) return "";
+  const parts: string[] = [];
+  if (kinds.ads) parts.push(tFallback("siteKindAds", `${kinds.ads.toLocaleString()} ads`, kinds.ads.toLocaleString()));
+  if (kinds.trackers) parts.push(tFallback("siteKindTrackers", `${kinds.trackers.toLocaleString()} trackers`, kinds.trackers.toLocaleString()));
+  if (kinds.popups) parts.push(tFallback("siteKindPopups", `${kinds.popups.toLocaleString()} pop-ups`, kinds.popups.toLocaleString()));
+  return parts.join(" · ");
+}
+
+/** Moat's switch for a set of addresses: on unless every one is paused.
+ * Turning it off asks for how long, as everywhere else. */
+function siteSwitch(settings: Settings, hostnames: string[], labelId: string, name: string, row: HTMLElement): HTMLElement {
+  const paused = hostnames.every((h) => settings.disabledSites.includes(h));
+  row.classList.toggle("off", paused);
+  const wrap = document.createElement("span");
+  wrap.className = "site-switch";
+  wrap.append(
+    buildSwitch(!paused, labelId, (on) => {
+      row.classList.toggle("off", !on);
+      if (on) {
+        void (async () => {
+          for (const h of hostnames) await setSiteDisabled(h, false);
+          await render();
+        })();
+        return;
+      }
+      const input = wrap.querySelector<HTMLInputElement>("input")!;
+      openPauseMenu(document, input.closest("label")!, pauseMenuLabels(name), (choice) => {
+        if (choice === null) {
+          input.checked = true;
+          row.classList.remove("off");
+          input.focus();
           return;
         }
-        // Switching off asks for how long; cancelling puts the switch back.
-        const input = control.querySelector<HTMLInputElement>("input")!;
-        openPauseMenu(document, input.closest("label")!, pauseMenuLabels(site.hostname.replace(/^www\./, "")), (choice) => {
-          if (choice === null) {
-            input.checked = true;
-            row.classList.remove("off");
-            input.focus();
-            return;
-          }
-          void setSiteDisabled(site.hostname, true, pauseEnd(choice, Date.now()), "sites").then(() => render());
-        });
+        void (async () => {
+          for (const h of hostnames) await setSiteDisabled(h, true, pauseEnd(choice, Date.now()), "sites");
+          await render();
+        })();
+      });
+    })
+  );
+  const until = paused ? pausedNote(settings, hostnames[0]!) : null;
+  if (until) wrap.append(Object.assign(document.createElement("small"), { className: "row-note", textContent: until }));
+  return wrap;
+}
+
+function buildSiteRow(settings: Settings, group: SiteGroup<TopSite>): HTMLElement {
+  const name = groupLabel(group);
+  const hostnames = group.members.map((m) => m.hostname);
+  const item = document.createElement("div");
+  item.className = "sr";
+  item.dataset.open = "false";
+  item.dataset.search = hostnames.join(" ");
+  item.dataset.hosts = hostnames.join(" ");
+  const head = document.createElement("div");
+  head.className = "sr-head";
+  const open = document.createElement("button");
+  open.type = "button";
+  open.className = "sr-btn";
+  open.setAttribute("aria-expanded", "false");
+  const labelId = `site-row-${group.site}`;
+  const text = document.createElement("span");
+  text.className = "sr-text";
+  const title = Object.assign(document.createElement("span"), { className: "sr-name", id: labelId, textContent: name });
+  const kinds = addKinds(group.members);
+  const sub = kindsLine(kinds) || (group.members.length > 1 ? tFallback("siteAddresses", `${group.members.length} addresses`, String(group.members.length)) : "");
+  text.append(title);
+  if (sub) text.append(Object.assign(document.createElement("small"), { className: "sr-sub", textContent: sub }));
+  const total = Object.assign(document.createElement("span"), { className: "sr-total", textContent: group.count.toLocaleString() });
+  open.append(siteIcon(group.members[0]!.hostname), text, total, Object.assign(document.createElement("span"), { className: "rr-chev" }));
+  head.append(open, siteSwitch(settings, hostnames, labelId, name, item));
+
+  const more = document.createElement("div");
+  more.className = "rr-more";
+  more.append(buildSitePanel(settings, group, kinds));
+  open.addEventListener("click", () => {
+    const show = item.dataset.open !== "true";
+    item.dataset.open = String(show);
+    open.setAttribute("aria-expanded", String(show));
+  });
+  item.append(head, more);
+  return item;
+}
+
+/** A site's panel (Safari's Privacy Report opens a site the same way): the
+ * week's blocks there by kind, the companies seen there (each opens on
+ * Trackers), each address when there are several, and a way to report a
+ * problem. */
+function buildSitePanel(settings: Settings, group: SiteGroup<TopSite>, kinds: BlockKinds | null): HTMLElement {
+  const panel = document.createElement("div");
+  panel.className = "rr-inner site-panel";
+
+  if (kinds) {
+    const tiles = document.createElement("div");
+    tiles.className = "sp-tiles";
+    for (const [label, count] of [
+      [tFallback("ovKindAdsTitle", "Ads"), kinds.ads],
+      [tFallback("ovKindTrackersTitle", "Trackers"), kinds.trackers],
+      [tFallback("ovKindPopupsTitle", "Pop-ups"), kinds.popups],
+    ] as const) {
+      const tile = document.createElement("div");
+      tile.className = "sp-tile";
+      tile.append(Object.assign(document.createElement("b"), { textContent: count.toLocaleString() }), Object.assign(document.createElement("span"), { textContent: label }));
+      tiles.append(tile);
+    }
+    panel.append(tiles);
+  }
+
+  const companies: string[] = [];
+  for (const m of group.members) for (const c of m.companies ?? []) if (!companies.includes(c)) companies.push(c);
+  panel.append(Object.assign(document.createElement("h4"), { className: "rr-label", textContent: tFallback("siteCompaniesSeen", "Tracker companies seen here") }));
+  if (companies.length) {
+    const list = document.createElement("ul");
+    list.className = "rr-sites";
+    for (const company of companies.slice(0, 10)) {
+      const li = document.createElement("li");
+      const b = Object.assign(document.createElement("button"), { type: "button", className: "rr-site" });
+      const host = companyHostCache(company);
+      b.append(host ? siteIcon(host) : buildSiteIcon(document, company, null), Object.assign(document.createElement("span"), { textContent: company }));
+      b.title = tFallback("insOpenCompany", `See ${company} on Trackers`, company);
+      b.addEventListener("click", () => openCompanyOnTrackers(company));
+      li.append(b);
+      list.append(li);
+    }
+    if (companies.length > 10) list.append(Object.assign(document.createElement("li"), { className: "rr-site-more", textContent: tFallback("siteCompaniesMore", `and ${companies.length - 10} more`, String(companies.length - 10)) }));
+    panel.append(list);
+  } else {
+    panel.append(Object.assign(document.createElement("p"), { className: "sp-none", textContent: tFallback("siteNoCompanies", "None that Moat could name.") }));
+  }
+
+  if (group.members.length > 1) {
+    panel.append(Object.assign(document.createElement("h4"), { className: "rr-label", textContent: tFallback("siteAddressesTitle", "Addresses on this site") }));
+    const list = document.createElement("div");
+    list.className = "sp-hosts";
+    for (const m of group.members) {
+      const row = document.createElement("div");
+      row.className = "sp-host";
+      const id = `site-host-${m.hostname}`;
+      row.append(
+        Object.assign(document.createElement("span"), { className: "sp-host-name", id, textContent: m.hostname.replace(/^www\./, "") }),
+        Object.assign(document.createElement("span"), { className: "sp-host-n", textContent: m.count.toLocaleString() }),
+        siteSwitch(settings, [m.hostname], id, m.hostname.replace(/^www\./, ""), row)
+      );
+      list.append(row);
+    }
+    panel.append(list);
+  }
+
+  const report = Object.assign(document.createElement("button"), { type: "button", className: "rr-learn sp-report", textContent: tFallback("siteReport", "Report a problem with this site") });
+  report.addEventListener("click", () => {
+    void browser.tabs.create({ url: browser.runtime.getURL(`report.html?${new URLSearchParams({ site: group.members[0]!.hostname })}`) });
+  });
+  panel.append(report);
+  return panel;
+}
+
+/** Opens Sites at the row holding `hostname`, opened and in view. */
+function openSiteOnSites(hostname: string): void {
+  location.hash = "sites";
+  requestAnimationFrame(() => {
+    const row = [...document.querySelectorAll<HTMLElement>("#s-rows .sr")].find((r) => (r.dataset.hosts ?? "").split(" ").includes(hostname));
+    if (!row) return;
+    revealListRow(row);
+    if (row.dataset.open !== "true") row.querySelector<HTMLButtonElement>(".sr-btn")?.click();
+    row.scrollIntoView({ block: "center", behavior: "smooth" });
+    row.querySelector<HTMLButtonElement>(".sr-btn")?.focus({ preventScroll: true });
+  });
+}
+
+/** Opens Trackers at `company`'s row, opened and in view. */
+function openCompanyOnTrackers(company: string): void {
+  location.hash = "trackers";
+  requestAnimationFrame(() => {
+    const row = [...document.querySelectorAll<HTMLElement>("#t-who .rr")].find((r) => r.dataset.company === company);
+    if (!row) return;
+    revealListRow(row);
+    if (row.dataset.open !== "true") row.querySelector<HTMLButtonElement>(".rr-btn")?.click();
+    row.scrollIntoView({ block: "center", behavior: "smooth" });
+    row.querySelector<HTMLButtonElement>(".rr-btn")?.focus({ preventScroll: true });
+  });
+}
+
+/** A row past the first few of a long list is hidden until "Show all". */
+function revealListRow(row: HTMLElement): void {
+  if (!row.hidden) return;
+  const more = row.parentElement?.closest(".site-box, .ins-list-box")?.nextElementSibling;
+  more?.querySelector<HTMLButtonElement>("button")?.click();
+}
+
+// ---------- Security ----------
+
+const SECURITY_GROUPS = ["phishing-urls", "scam", "malicious-urls", "badware"];
+const IMPORT_UNDO_KEY = "importUndo";
+/** How long "Undo" stays offered after restoring from a file. */
+const IMPORT_UNDO_DAYS = 14;
+
+interface ImportUndo {
+  time: number;
+  before: Partial<Settings>;
+  risky: boolean;
+}
+
+async function getImportUndo(): Promise<ImportUndo | null> {
+  const stored = (await browser.storage.local.get(IMPORT_UNDO_KEY))[IMPORT_UNDO_KEY] as ImportUndo | undefined;
+  if (!stored || Date.now() - stored.time > IMPORT_UNDO_DAYS * 864e5) return null;
+  return stored;
+}
+
+async function undoImport(): Promise<void> {
+  const undo = await getImportUndo();
+  if (!undo) return;
+  await setSettings(undo.before);
+  await browser.storage.local.remove(IMPORT_UNDO_KEY);
+  savedToast.show(tFallback("importUndone", "Your settings are back to how they were before the restore."));
+  await render();
+}
+
+function relativeTime(time: number): string {
+  const minutes = Math.round((time - Date.now()) / 60_000);
+  const rel = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  if (Math.abs(minutes) < 60) return rel.format(minutes, "minute");
+  if (Math.abs(minutes) < 1440) return rel.format(Math.round(minutes / 60), "hour");
+  return rel.format(Math.round(minutes / 1440), "day");
+}
+
+type CheckState = "ok" | "warn" | "info";
+
+/** One Safety check row: a status mark, what's true, and the fix when there is one. */
+function checkRow(state: CheckState, title: string, detail: string, action?: { label: string; run: () => void }): HTMLElement {
+  const row = document.createElement("div");
+  row.className = "check-row";
+  row.dataset.state = state;
+  const mark = document.createElement("span");
+  mark.className = "check-mark";
+  mark.setAttribute("aria-hidden", "true");
+  const text = document.createElement("div");
+  text.className = "check-text";
+  text.append(Object.assign(document.createElement("b"), { textContent: title }), Object.assign(document.createElement("small"), { textContent: detail }));
+  row.append(mark, text);
+  if (action) {
+    const b = Object.assign(document.createElement("button"), { type: "button", className: state === "warn" ? "ab-btn primary" : "ab-btn", textContent: action.label });
+    b.addEventListener("click", action.run);
+    row.append(b);
+  }
+  return row;
+}
+
+async function renderSecurityPage(settings: Settings, usage: UsageSummaryResponse): Promise<void> {
+  const [live, undo] = await Promise.all([getLiveUpdateStatus().catch(() => null), getImportUndo()]);
+  const rows: HTMLElement[] = [];
+
+  rows.push(
+    settings.enabled
+      ? checkRow("ok", tFallback("checkOnTitle", "Moat is on"), tFallback("checkOnDetail", "Pages are checked before they load."))
+      : checkRow("warn", tFallback("checkOffTitle", "Moat is off"), tFallback("checkOffDetail", "Nothing is blocked, including dangerous sites."), {
+          label: tFallback("checkTurnOn", "Turn on"),
+          run: () => void setSettings({ enabled: true }).then(() => render()),
+        })
+  );
+
+  const off = SECURITY_GROUPS.filter((g) => settings.filterGroups[g] === false);
+  const names = off.map((g) => tFallback(LIST_LABELS[g]!.nameKey, LIST_LABELS[g]!.name));
+  rows.push(
+    off.length
+      ? checkRow("warn", tFallback("checkListsOffTitle", `${names.join(", ")} off`, names.join(", ")), tFallback("checkListsOffDetail", "Moat won't stop these dangerous sites."), {
+          label: tFallback("checkTurnOn", "Turn on"),
+          run: () => void setSettings({ filterGroups: { ...settings.filterGroups, ...Object.fromEntries(off.map((g) => [g, true])) } }).then(() => render()),
+        })
+      : checkRow("ok", tFallback("checkListsOnTitle", "Dangerous-site lists are on"), tFallback("checkListsOnDetail", "Phishing, malware, scams and risky downloads."))
+  );
+
+  if (live) {
+    rows.push(
+      live.ok
+        ? checkRow("ok", tFallback("checkUpdatedTitle", "Lists are up to date"), tFallback("ovListsUpdated", `Lists updated ${relativeTime(live.timestamp)}`, relativeTime(live.timestamp)))
+        : checkRow("warn", tFallback("checkUpdateFailedTitle", "Lists couldn't update"), tFallback("checkUpdateFailedDetail", "Moat keeps using the lists it has and tries again soon."))
+    );
+  }
+
+  rows.push(
+    settings.leakedPasswordCheck
+      ? checkRow("ok", tFallback("checkPwOnTitle", "Leaked password warnings are on"), tFallback("checkPwOnDetail", "Moat warns if a password you type was in a data breach."))
+      : checkRow("info", tFallback("checkPwOffTitle", "Leaked password warnings are off"), tFallback("checkPwOffDetail", "Moat can warn when a password you type was in a data breach. Only a short code leaves your device."), {
+          label: tFallback("checkTurnOn", "Turn on"),
+          run: () => void setSettings({ leakedPasswordCheck: true }).then(() => render()),
+        })
+  );
+
+  const paused = settings.disabledSites.length;
+  if (paused) {
+    rows.push(
+      checkRow("info", (paused === 1 ? tFallback("checkPausedOne", "Paused on 1 site") : tFallback("checkPausedTitle", `Paused on ${paused} sites`, String(paused))), tFallback("checkPausedDetail", "Moat doesn't block ads or trackers there. Dangerous sites are still stopped."), {
+        label: tFallback("checkReview", "Review"),
+        run: () => (location.hash = "paused"),
       })
     );
-    const until = paused ? pausedNote(settings, site.hostname) : null;
-    if (until) control.append(Object.assign(document.createElement("small"), { className: "row-note", textContent: until }));
-    row.append(name, barCell, total, control);
-    const detail = buildSitePanel(site, detailId);
-    open.addEventListener("click", () => {
-      const show = detail.hidden;
-      detail.hidden = !show;
-      open.setAttribute("aria-expanded", String(show));
-      row.classList.toggle("open", show);
-    });
-    tbody.append(row, detail);
   }
-  table.append(thead, tbody);
-  const sitesHost = document.getElementById("s-table");
-  if (sitesHost) {
-    if (usage.topSites.length) {
-      const note = document.createElement("p");
-      note.className = "ins-note";
-      note.textContent = tFallback("insSitesNote", "Switching Moat off for a site pauses it. It then shows under Exceptions › Paused.");
-      sitesHost.replaceChildren(table, note);
-    } else {
-      sitesHost.replaceChildren(emptyWithCheck(tFallback("insSitesEmpty", "No site has had anything blocked this week. Open a site you use often, then come back.")));
-    }
+  const allowed = settings.customAllowedDomains.length;
+  if (allowed) {
+    rows.push(
+      checkRow("info", (allowed === 1 ? tFallback("checkAllowedOne", "1 site in Never block") : tFallback("checkAllowedTitle", `${allowed} sites in Never block`, String(allowed))), tFallback("checkAllowedDetail", "Ads and trackers load there. Dangerous sites are still stopped."), {
+        label: tFallback("checkReview", "Review"),
+        run: () => (location.hash = "rules"),
+      })
+    );
   }
-  const topSite = usage.topSites[0];
-  setTakeaway(
-    "s-take",
-    topSite
-      ? [{ bold: topSite.hostname.replace(/^www\./, "") }, ` ${tFallback("insSitesTake", `had the most blocks this week: ${topSite.count.toLocaleString()}.`, topSite.count.toLocaleString())}`]
-      : []
-  );
+  if (undo) {
+    const when = new Date(undo.time).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+    rows.push(
+      checkRow(undo.risky ? "warn" : "info", tFallback("checkRestoredTitle", `Settings restored from a file on ${when}`, when), undo.risky ? tFallback("checkRestoredRisky", "That file turned some protection off. Undo it if you didn't make it yourself.") : tFallback("checkRestoredDetail", "You can put your settings back to how they were."), {
+        label: tFallback("checkUndo", "Undo restore"),
+        run: () => void undoImport(),
+      })
+    );
+  }
 
-  // Security: pages stopped before they loaded, grouped by what stopped
-  // them (Safe Browsing and SmartScreen both name the kind of danger).
-  const stops = usage.pageStops;
-  const dangerous = stops.filter((stop) => stop.kind === "danger").length;
-  const adPages = stops.filter((stop) => stop.kind === "ads").length;
-  document.getElementById("sec-kpis")?.replaceChildren(
-    buildKpi(document, tFallback("insKpiDangerous", "Dangerous pages stopped"), dangerous, null, [], tFallback),
-    buildKpi(document, tFallback("insKpiAdPages", "Ad pages stopped"), adPages, null, [], tFallback),
-    buildKpi(document, tFallback("insKpiSecurityLists", "Dangerous-site lists on"), SECURITY_GROUPS.filter((g) => settings.filterGroups[g] ?? true).length, null, [], tFallback)
-  );
+  const warnings = rows.filter((r) => r.dataset.state === "warn").length;
+  setTakeaway("sec-check-take", [warnings ? (warnings === 1 ? tFallback("checkTakeWarnOne", "One thing needs a look.") : tFallback("checkTakeWarnMany", `${warnings} things need a look.`, String(warnings))) : tFallback("checkTakeOk", "Everything that keeps you safe is on.")]);
+  document.getElementById("sec-check")?.replaceChildren(...rows);
+  renderStops(usage.pageStops);
+}
+
+/** Pages Moat stopped: dangerous ones first, each saying what it was and
+ * what to do; the rest folded into one line each. */
+function renderStops(stops: UsageSummaryResponse["pageStops"]): void {
   const list = document.getElementById("sec-list");
-  if (list) {
-    if (!stops.length) {
-      list.replaceChildren(Object.assign(document.createElement("p"), { className: "ov-top-empty", textContent: tFallback("insStopsEmpty", "Nothing stopped this week. Moat checks every page you open against its danger lists.") }));
-    } else {
-      const groups: { key: string; title: string; stops: typeof stops }[] = [
-        { key: "danger", title: tFallback("secGroupDanger", "Dangerous pages"), stops: stops.filter((s) => s.kind === "danger") },
-        { key: "ads", title: tFallback("secGroupAds", "Ad pages that never loaded"), stops: stops.filter((s) => s.kind === "ads") },
-        { key: "custom", title: tFallback("secGroupCustom", "On your block list"), stops: stops.filter((s) => s.kind === "custom") },
-        { key: "policy", title: tFallback("secGroupPolicy", "Blocked by your organization"), stops: stops.filter((s) => s.kind === "policy") },
-        { key: "earlier", title: tFallback("secGroupEarlier", "List not known"), stops: stops.filter((s) => !s.kind || s.kind === "unknown") },
-      ];
-      list.replaceChildren(...groups.filter((g) => g.stops.length).map((g) => buildStopGroup(g.key, g.title, g.stops)));
+  if (!list) return;
+  const danger = stops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown");
+  const ads = stops.filter((s) => s.kind === "ads");
+  const custom = stops.filter((s) => s.kind === "custom" || s.kind === "policy");
+  setTakeaway(
+    "sec-stops-take",
+    stops.length
+      ? [danger.length ? { bold: (danger.length === 1 ? tFallback("secStopsDangerOne", "1 dangerous page") : tFallback("secStopsDangerMany", `${danger.length} dangerous pages`, String(danger.length))) } : "", danger.length ? ` ${(danger.length === 1 ? tFallback("secStopsDangerTailOne", "was stopped this week.") : tFallback("secStopsDangerTail", "were stopped this week."))}` : tFallback("secStopsNoDanger", "No dangerous pages this week.")]
+      : [tFallback("insStopsEmpty", "Nothing stopped this week. Moat checks every page you open against its danger lists.")]
+  );
+  const parts: HTMLElement[] = [];
+  if (danger.length) {
+    const group = document.createElement("div");
+    group.className = "stop-list-danger";
+    for (const stop of danger) group.append(stopRow(stop, true));
+    parts.push(group);
+    if (danger.some((s) => s.list === "phishing-urls" || s.list === "scam")) {
+      parts.push(Object.assign(document.createElement("p"), { className: "stop-tip", textContent: tFallback("secPhishTip", "If you typed a password or card number on one of these pages before Moat stopped it, change that password and tell your bank.") }));
     }
   }
+  for (const [items, summary] of [
+    [ads, (ads.length === 1 ? tFallback("secAdPagesOne", "1 ad or tracker page never loaded") : tFallback("secAdPagesMany", `${ads.length} ad and tracker pages never loaded`, String(ads.length)))],
+    [custom, (custom.length === 1 ? tFallback("secCustomOne", "1 page on a block list you or your organization set") : tFallback("secCustomMany", `${custom.length} pages on block lists you or your organization set`, String(custom.length)))],
+  ] as const) {
+    if (!items.length) continue;
+    const details = document.createElement("details");
+    details.className = "stop-fold";
+    details.append(Object.assign(document.createElement("summary"), { textContent: summary }));
+    for (const stop of items) details.append(stopRow(stop, false));
+    parts.push(details);
+  }
+  list.replaceChildren(...parts);
 }
 
-/** A stop's list in a few words: "Phishing", "Pop-up ads", "Your block list". */
-function stopListName(list: string | undefined): string | null {
-  if (!list || list === "unknown") return null;
-  if (list === "custom") return tFallback("blockedListCustom", "Your block list");
-  if (list === "policy") return tFallback("blockedListPolicy", "Your organization's policy");
-  const label = LIST_LABELS[list];
-  return label ? tFallback(label.nameKey, label.name) : null;
+/** What a stopped page was, in a few words. */
+function stopWhy(stop: UsageSummaryResponse["pageStops"][number]): string {
+  if (stop.list === "custom") return tFallback("blockedListCustom", "Your block list");
+  if (stop.list === "policy") return tFallback("blockedListPolicy", "Your organization's policy");
+  const label = stop.list ? LIST_LABELS[stop.list] : undefined;
+  if (!label) return tFallback("secStopUnknown", "On a danger list Moat couldn't name");
+  return stop.kind === "danger" ? `${tFallback(label.nameKey, label.name)}: ${tFallback(label.descKey, label.desc).replace(/\.$/, "").toLowerCase()}` : tFallback(label.nameKey, label.name);
 }
 
-/** One heading ("Dangerous pages 2") and its table of stops. */
-function buildStopGroup(key: string, title: string, stops: UsageSummaryResponse["pageStops"]): HTMLElement {
-  const group = document.createElement("div");
-  group.className = "stop-group";
-  group.dataset.group = key;
-  const head = document.createElement("h3");
-  head.append(document.createTextNode(title), Object.assign(document.createElement("span"), { className: "n", textContent: stops.length.toLocaleString() }));
-  const t2 = document.createElement("table");
-  t2.className = "ins-table";
-  const body = document.createElement("tbody");
-  for (const stop of stops) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    const wrap = document.createElement("div");
-    wrap.className = "site gray";
-    // Name and list together, so a phone can stack them.
-    const label = document.createElement("span");
-    label.className = "stop-name";
-    label.append(Object.assign(document.createElement("span"), { className: "stop-host", textContent: stop.hostname }));
-    const listName = stopListName(stop.list);
-    if (listName) label.append(Object.assign(document.createElement("small"), { className: "stop-list", textContent: listName }));
-    wrap.append(siteIcon(stop.hostname), label);
-    td.append(wrap);
-    const when = document.createElement("td");
-    when.className = "muted hide-sm";
-    when.textContent = new Date(stop.time).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" });
-    // A safe page on a danger list can't be allowed from here (the
-    // security lists outrank "Never block", see rulePriorities.ts), so
-    // the fix is to tell the developer, with the details filled in.
-    const action = document.createElement("td");
-    const report = document.createElement("button");
-    report.type = "button";
-    report.className = "ab-btn ins-report";
-    report.textContent = tFallback("insReportMistake", "Report a mistake");
+function stopRow(stop: UsageSummaryResponse["pageStops"][number], loud: boolean): HTMLElement {
+  const row = document.createElement("div");
+  row.className = loud ? "stop-row loud" : "stop-row";
+  const text = document.createElement("div");
+  text.className = "stop-text";
+  text.append(Object.assign(document.createElement("b"), { textContent: stop.hostname }), Object.assign(document.createElement("small"), { textContent: `${stopWhy(stop)} · ${relativeTime(stop.time)}` }));
+  row.append(siteIcon(stop.hostname), text);
+  // A safe page on a danger list can't be allowed from here (the security
+  // lists outrank "Never block", see rulePriorities.ts), so the fix is to
+  // tell the developer. Your own list and your organization's aren't
+  // Moat's to correct.
+  if (stop.kind !== "custom" && stop.kind !== "policy") {
+    const report = Object.assign(document.createElement("button"), { type: "button", className: "rr-learn stop-report", textContent: loud ? tFallback("secNotDangerous", "Not dangerous?") : tFallback("insReportMistake", "Report a mistake") });
     report.setAttribute("aria-label", tFallback("insReportMistakeFor", `Report a mistake: ${stop.hostname}`, stop.hostname));
     report.addEventListener("click", () => {
       const params = new URLSearchParams({ site: stop.hostname, reason: "false-alarm" });
       void browser.tabs.create({ url: browser.runtime.getURL(`report.html?${params}`) });
     });
-    // Your own list and your organization's aren't Moat's to correct.
-    if (stop.kind !== "custom" && stop.kind !== "policy") action.append(report);
-    tr.append(td, when, action);
-    body.append(tr);
+    row.append(report);
   }
-  t2.append(body);
-  group.append(head, t2);
-  return group;
+  return row;
 }
 
-const SECURITY_GROUPS = ["phishing-urls", "scam", "malicious-urls", "badware"];
 
 // ---------- Review your protection (checkup.ts) ----------
 
@@ -2635,7 +2983,8 @@ document.getElementById("checkup-start")?.addEventListener("click", () => {
     openCheckup(document, {
       t: tFallback,
       settings,
-      currentLevel: (LEVELS as readonly string[]).includes(preset) ? (preset as Level) : null,
+      // A customized level counts as the level it was changed from.
+      currentLevel: (LEVELS as readonly string[]).includes(preset) ? (preset as Level) : preset === "custom" ? (presetDifference(settings).base as Level) : null,
       levelPatch: (level) => presetPatch(level),
       levelName: (level) => levelLabel(level),
       levelDesc: (level) => tFallback(...LEVEL_DESC[level]),
@@ -2652,80 +3001,6 @@ document.getElementById("checkup-start")?.addEventListener("click", () => {
     });
   });
 });
-
-function chevron(): SVGSVGElement {
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("class", "site-chev");
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("fill", "none");
-  svg.setAttribute("stroke", "currentColor");
-  svg.setAttribute("stroke-width", "1.75");
-  svg.setAttribute("stroke-linecap", "round");
-  svg.setAttribute("stroke-linejoin", "round");
-  svg.setAttribute("aria-hidden", "true");
-  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute("d", "m9 6 6 6-6 6");
-  svg.append(path);
-  return svg;
-}
-
-/** A site's own panel on Sites (Safari's Privacy Report opens a site the
- * same way): the week's blocks there by kind, the tracker companies seen
- * there, and a way to report a problem with it. Pausing stays on the row's
- * switch. */
-function buildSitePanel(site: UsageSummaryResponse["topSites"][number], id: string): HTMLTableRowElement {
-  const row = document.createElement("tr");
-  row.className = "site-detail";
-  row.id = id;
-  row.hidden = true;
-  const cell = document.createElement("td");
-  cell.colSpan = 4;
-  const panel = document.createElement("div");
-  panel.className = "site-panel";
-
-  const kinds = document.createElement("p");
-  kinds.className = "sp-kinds";
-  if (site.kinds) {
-    const parts: [string, number][] = [
-      [tFallback("ovKindAdsTitle", "Ads"), site.kinds.ads],
-      [tFallback("ovKindTrackersTitle", "Trackers"), site.kinds.trackers],
-      [tFallback("ovKindPopupsTitle", "Pop-ups"), site.kinds.popups],
-    ];
-    for (const [nameText, count] of parts) {
-      const item = document.createElement("span");
-      item.append(document.createTextNode(nameText), Object.assign(document.createElement("b"), { textContent: count.toLocaleString() }));
-      kinds.append(item);
-    }
-  } else {
-    kinds.textContent = tFallback("siteNoSplit", "Moat started sorting this site's blocks by kind in this version. The split shows up as you browse.");
-  }
-
-  const who = document.createElement("div");
-  who.className = "sp-who";
-  const companies = site.companies ?? [];
-  who.append(Object.assign(document.createElement("span"), { className: "sp-label", textContent: tFallback("siteCompaniesSeen", "Tracker companies seen here") }));
-  if (companies.length) {
-    const list = document.createElement("ul");
-    for (const company of companies.slice(0, 8)) list.append(Object.assign(document.createElement("li"), { textContent: company }));
-    if (companies.length > 8) list.append(Object.assign(document.createElement("li"), { className: "more", textContent: tFallback("siteCompaniesMore", `and ${companies.length - 8} more`, String(companies.length - 8)) }));
-    who.append(list);
-  } else {
-    who.append(Object.assign(document.createElement("span"), { className: "sp-none", textContent: tFallback("siteNoCompanies", "None that Moat could name.") }));
-  }
-
-  const actions = document.createElement("div");
-  actions.className = "sp-actions";
-  const report = Object.assign(document.createElement("button"), { type: "button", className: "ab-btn", textContent: tFallback("siteReport", "Report a problem with this site") });
-  report.addEventListener("click", () => {
-    void browser.tabs.create({ url: browser.runtime.getURL(`report.html?${new URLSearchParams({ site: site.hostname })}`) });
-  });
-  actions.append(report);
-
-  panel.append(kinds, who, actions);
-  cell.append(panel);
-  row.append(cell);
-  return row;
-}
 
 // company name -> { description, url }, fetched once on first view. Lazy on
 // purpose: it's ~450KB of text nobody needs unless they open this tab.
@@ -2807,11 +3082,30 @@ trackersRefresh.addEventListener("click", (event) => {
 // directly contradicting the row's own copy ("You'll see what changes
 // before it applies").
 let pendingImportPayload: unknown = null;
+// What the import would overwrite, kept so it can be undone (Backup and
+// Security both offer Undo for IMPORT_UNDO_DAYS).
+let pendingImportUndo: ImportUndo | null = null;
 
 function resetImportConfirm(): void {
   pendingImportPayload = null;
+  pendingImportUndo = null;
   importSettingsConfirm.hidden = true;
   importSettingsSummary.replaceChildren();
+  importSettingsRisks.hidden = true;
+  importSettingsRiskList.replaceChildren();
+}
+
+// Names a few sites, then says how many more.
+function hostList(hosts: readonly string[]): string {
+  const shown = hosts.slice(0, 3).join(", ");
+  return hosts.length > 3 ? tFallback("optionsImportRiskMore", `${shown} and ${hosts.length - 3} more`, [shown, String(hosts.length - 3)]) : shown;
+}
+
+function addImportRisk(key: string, fallback: string, substitutions?: string): void {
+  const item = document.createElement("li");
+  item.textContent = tFallback(key, fallback, substitutions);
+  importSettingsRiskList.append(item);
+  importSettingsRisks.hidden = false;
 }
 
 function addImportSummaryItem(key: string, fallback: string): void {
@@ -2851,6 +3145,24 @@ importSettingsInput.addEventListener("change", async () => {
       if (summary.filterListChoicesChanged) addImportSummaryItem("optionsImportChangeFilterLists", "Filter list choices");
       if (summary.syncSettingChanged) addImportSummaryItem("optionsImportChangeSync", "Sync setting");
     }
+    // Anything that weakens protection is named before the summary.
+    const risks = importRisks(current, patch);
+    if (risks.turnsOff) addImportRisk("optionsImportRiskOff", "Turns Moat off.");
+    if (risks.dangerListsOff.length) {
+      const names = risks.dangerListsOff.map((g) => tFallback(LIST_LABELS[g]?.nameKey ?? "", LIST_LABELS[g]?.name ?? g)).join(", ");
+      addImportRisk("optionsImportRiskDanger", `Stops blocking dangerous sites: ${names}.`, names);
+    }
+    if (risks.neverBlock.length) {
+      const sites = hostList(risks.neverBlock);
+      addImportRisk("optionsImportRiskNeverBlock", `Lets ads and trackers through on ${sites}.`, sites);
+    }
+    if (risks.paused.length) {
+      const sites = hostList(risks.paused);
+      addImportRisk("optionsImportRiskPaused", `Pauses Moat on ${sites}.`, sites);
+    }
+    const before = Object.fromEntries(Object.keys(patch).map((key) => [key, current[key as keyof Settings]])) as Partial<Settings>;
+    const risky = risks.turnsOff || risks.dangerListsOff.length > 0 || risks.neverBlock.length > 0 || risks.paused.length > 0;
+    pendingImportUndo = { time: 0, before, risky };
     pendingImportPayload = payload;
     importSettingsConfirm.hidden = false;
   } catch {
@@ -2864,7 +3176,9 @@ importSettingsInput.addEventListener("change", async () => {
 importSettingsApplyButton.addEventListener("click", async () => {
   if (pendingImportPayload === null) return;
   const message: ImportSettingsMessage = { type: "import-settings", payload: pendingImportPayload };
+  const undo = pendingImportUndo;
   const result = (await browser.runtime.sendMessage(message)) as ImportSettingsResponse;
+  if (result.ok && undo) await browser.storage.local.set({ [IMPORT_UNDO_KEY]: { ...undo, time: Date.now() } });
   resetImportConfirm();
   importSettingsStatus.hidden = false;
   importSettingsStatus.textContent = result.ok

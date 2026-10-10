@@ -183,7 +183,7 @@
     "message": "Keep your IP address private"
   },
   "optionsWebrtcToggleHint": {
-    "message": "Stops pages finding your real IP address through video-call features, even behind a VPN."
+    "message": "Keeps pages from finding your real IP address, which shows roughly where you are. Works even when you use a VPN."
   },
   "optionsFingerprintToggleLabel": {
     "message": "Stop sites recognizing your device"
@@ -216,7 +216,7 @@
     "message": "Not available in this browser."
   },
   "optionsCnameChromeDohHint": {
-    "message": "On Chrome, Moat asks Cloudflare where hidden trackers really point. It can miss the first one on a site. Firefox does this privately by itself."
+    "message": "To find these on Chrome, Moat asks Cloudflare where a site's addresses really lead. It can miss the first one on each site. Firefox checks this itself, so nothing is asked."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Not checked yet."
@@ -231,7 +231,7 @@
     "message": "example.com"
   },
   "optionsFilterBudgetWarning": {
-    "message": "Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules all extensions can use together. Another ad blocker or privacy extension can use up that limit. Turn one of them off, or turn off a list here."
+    "message": "Some of Moat's lists couldn't turn on. Your browser caps how many blocking rules all extensions can share, and another ad blocker may be using most of them. Turn that one off, or turn off a list here."
   },
   "optionsFilterBudgetDetail": {
     "message": "Your browser says $COUNT$ rules are left for all your extensions together. Still low after turning off other extensions and reloading Moat? Turn off a list here. Annoyances and Cookie Notices are good ones to try first.",
@@ -459,13 +459,13 @@
     "message": "Makes it harder for sites to recognize your device."
   },
   "optionsFingerprintCaution": {
-    "message": "Can occasionally break a CAPTCHA or a bank's device check. If a site misbehaves, turn this off first."
+    "message": "Now and then this trips up an \"I'm not a robot\" check or a bank's device check. If a site acts up, turn this off first."
   },
   "optionsCnameDrawerDesc": {
     "message": "Finds trackers that hide behind a website's own address."
   },
   "optionsSearchSlopDrawerDesc": {
-    "message": "Filters known content-farm sites out of your search results."
+    "message": "Folds away low-quality sites built to rank in search results."
   },
   "optionsSearchSlopCaution": {
     "message": "Each hidden batch stays one click away behind a \"Show\" link."
@@ -504,10 +504,10 @@
     "message": "Use Firefox's own device-disguise mode"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Turns on a deeper device-disguise mode built into Firefox itself. It reaches further than Moat can on its own: window size, fonts, timezone, and more."
+    "message": "Turns on Firefox's own, stronger device protection. It covers more than Moat can, such as window size, fonts and time zone."
   },
   "optionsFirefoxRFPCaution": {
-    "message": "Can be more disruptive than Moat's own fingerprint protection above. It changes real browser behavior, not just what a page can see, so it's worth trying for a few days before relying on it."
+    "message": "This changes how Firefox itself behaves, not just what pages see, so it can break more than Moat's device protection above. Try it for a few days before you rely on it."
   },
   "optionsFirefoxFPIToggleLabel": {
     "message": "Stop trackers linking you across sites"
@@ -516,7 +516,7 @@
     "message": "Keeps every site's stored data separate, so the same tracker embedded on two different sites can't connect what it saw on each."
   },
   "optionsFirefoxFPICaution": {
-    "message": "Can break logging in with a Google or Facebook account on a third-party site. If a login stops working, pause this first."
+    "message": "Can break signing in with Google or Facebook on other sites. If a sign-in stops working, turn this off first."
   },
   "optionsGrayscaleMetricLabel": {
     "message": "ads dimmed today"
@@ -896,7 +896,7 @@
     }
   },
   "advPrivacyLead": {
-    "message": "Extra protection against being followed and identified. Off by default because a few sites can break."
+    "message": "Extra protection against being followed and identified."
   },
   "advRulesLead": {
     "message": "Your own rules. They always win over the filter lists."
@@ -938,13 +938,13 @@
     "message": "Moat checks each one on your device"
   },
   "tourHow2Sub": {
-    "message": "It checks each request against hundreds of thousands of rules from public filter lists. Nothing leaves your device."
+    "message": "It checks each one against about 310,000 rules from public lists of ads and trackers. Nothing leaves your device."
   },
   "tourHow3Title": {
     "message": "Matches never load"
   },
   "tourHow3Sub": {
-    "message": "And neither does anything they would have loaded next."
+    "message": "So anything they would have pulled in next doesn't load either."
   },
   "tourHow4Title": {
     "message": "Leftovers get tidied"
@@ -956,7 +956,7 @@
     "message": "Pin Moat next to the address bar"
   },
   "tourPinLede": {
-    "message": "Then its icon shows how much each page tried to load, and you can pause it on a site in one click."
+    "message": "Then its icon shows how many ads and trackers each page tried to load, and you can pause it on a site in one click."
   },
   "tourPinStep1": {
     "message": "Click the puzzle piece in your toolbar."
@@ -1107,7 +1107,7 @@
     "message": "Behavior analytics"
   },
   "tourReqFirstParty": {
-    "message": "Tracker on weather.com's own domain"
+    "message": "Tracker using weather.com's own address"
   },
   "tourReqMonitoring": {
     "message": "Session monitoring"
@@ -1502,7 +1502,7 @@
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainLeakedPassword": {
-    "message": "Moat checks a short scrambled piece of a password you type against known breaches. Your password itself never leaves your computer.",
+    "message": "When you type a password, Moat checks a short scrambled piece of it against passwords leaked in past data breaches. The password itself never leaves your computer.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainCookies": {
@@ -1510,7 +1510,7 @@
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainWebrtc": {
-    "message": "Video-call features can show a page your real IP address, even behind a VPN. Moat keeps it hidden.",
+    "message": "Video-call features can tell a page your real IP address, which shows roughly where you are, even behind a VPN. Moat keeps it hidden.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainFingerprint": {
@@ -1518,11 +1518,11 @@
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainCname": {
-    "message": "Some trackers hide behind the site's own address. Moat looks up where that address really points and blocks it if it's a tracker.",
+    "message": "Some trackers use the site's own address as a disguise. Moat checks where that address really leads and blocks it if it's a tracker.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainSearchSlop": {
-    "message": "Results from known content farms fold away behind a Show link, so they're still one click away.",
+    "message": "Results from low-quality sites built to rank in search fold away behind a Show link, so they're still one click away.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainPermissionGuard": {
@@ -1876,7 +1876,7 @@
     "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
   },
   "explainStepSlop1": {
-    "message": "A content-farm result shows up",
+    "message": "A low-quality result shows up",
     "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
   },
   "explainStepSlop2": {
@@ -2541,7 +2541,7 @@
     "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
   },
   "ovSummaryCompany": {
-    "message": "$COMPANY$ tracked you on the most sites.",
+    "message": "$COMPANY$ tried to track you on more sites than any other company.",
     "placeholders": {
       "company": {
         "content": "$1",
@@ -2551,7 +2551,7 @@
     "description": "Overview subtitle, first sentence: the tracker company seen on the most sites this week."
   },
   "ovSummarySite": {
-    "message": "$SITE$ had the most blocked.",
+    "message": "Moat blocked the most on $SITE$.",
     "placeholders": {
       "site": {
         "content": "$1",
@@ -2707,7 +2707,7 @@
     "description": "Sites page subtitle."
   },
   "pageLeadSecurity": {
-    "message": "Pages Moat stopped before they loaded",
+    "message": "Your protection, and the pages Moat stopped",
     "description": "Security page subtitle."
   },
   "insWhoTitle": {
@@ -2999,7 +2999,7 @@
     "description": "Tracker purpose."
   },
   "purposeAdvertisingDesc": {
-    "message": "Builds a profile so ads follow you",
+    "message": "Follow you from site to site to choose the ads you see",
     "description": "Tracker purpose."
   },
   "purposeAnalytics": {
@@ -3007,7 +3007,7 @@
     "description": "Tracker purpose."
   },
   "purposeAnalyticsDesc": {
-    "message": "Counts visits, clicks and scrolling",
+    "message": "Record what you click, read and scroll",
     "description": "Tracker purpose."
   },
   "purposeSocial": {
@@ -3015,7 +3015,7 @@
     "description": "Tracker purpose."
   },
   "purposeSocialDesc": {
-    "message": "Tells social networks what you read",
+    "message": "Tell social networks which pages you read",
     "description": "Tracker purpose."
   },
   "purposeChat": {
@@ -3023,7 +3023,7 @@
     "description": "Tracker purpose."
   },
   "purposeChatDesc": {
-    "message": "Logs what you look at",
+    "message": "Chat boxes that also record the pages you view",
     "description": "Tracker purpose."
   },
   "purposeVideo": {
@@ -3031,7 +3031,7 @@
     "description": "Tracker purpose."
   },
   "purposeVideoDesc": {
-    "message": "Reports what you watch",
+    "message": "Video players that report what you watch",
     "description": "Tracker purpose."
   },
   "purposeConsent": {
@@ -3039,7 +3039,7 @@
     "description": "Tracker purpose."
   },
   "purposeConsentDesc": {
-    "message": "Cookie banners that also track",
+    "message": "Cookie banners that also track you",
     "description": "Tracker purpose."
   },
   "purposeHosting": {
@@ -3047,7 +3047,7 @@
     "description": "Tracker purpose."
   },
   "purposeHostingDesc": {
-    "message": "Servers that carry tracking scripts",
+    "message": "Servers that deliver tracking scripts",
     "description": "Tracker purpose."
   },
   "purposeUtilities": {
@@ -3055,7 +3055,7 @@
     "description": "Tracker purpose."
   },
   "purposeUtilitiesDesc": {
-    "message": "Add-ons that also collect data",
+    "message": "Page add-ons that also collect data",
     "description": "Tracker purpose."
   },
   "purposeAdult": {
@@ -3208,7 +3208,7 @@
     "description": "Settings Help panel."
   },
   "helpStepOffHere": {
-    "message": "Turn Moat off here",
+    "message": "Pause Moat on this site",
     "description": "Settings Help panel."
   },
   "helpStepReload": {
@@ -3658,5 +3658,474 @@
   },
   "checkupApplied": {
     "message": "Protection updated. It applies to pages you open or reload."
+  },
+  "kaiOpen": {
+    "message": "Ask Kai"
+  },
+  "kaiClose": {
+    "message": "Close"
+  },
+  "kaiAllHelp": {
+    "message": "All help"
+  },
+  "kaiOff": {
+    "message": "Moat is off right now, so ads and trackers load on every site."
+  },
+  "kaiTurnOn": {
+    "message": "Turn Moat on"
+  },
+  "kaiAsk": {
+    "message": "Hi, I'm Kai. What are you looking for?"
+  },
+  "kaiAnotherQuestion": {
+    "message": "Ask something else"
+  },
+  "kaiQPause": {
+    "message": "How do I pause Moat on a site?"
+  },
+  "kaiAPause": {
+    "message": "On the site, click the Moat icon next to the address bar and turn off its switch. You can also add a site here, under Exceptions and Paused."
+  },
+  "kaiQLevel": {
+    "message": "Where do I change how much Moat blocks?"
+  },
+  "kaiALevel": {
+    "message": "Under Protection, pick a level. Balanced suits most people."
+  },
+  "kaiQBlocked": {
+    "message": "Where do I see what Moat blocked?"
+  },
+  "kaiABlocked": {
+    "message": "Overview shows your week. Trackers shows who tried to follow you, and Sites shows where."
+  },
+  "kaiQHide": {
+    "message": "How do I hide something on a page?"
+  },
+  "kaiAHide": {
+    "message": "On the page, click the Moat icon and choose Hide something on this page. Everything you hid is listed here."
+  },
+  "kaiQBlock": {
+    "message": "How do I always block a site?"
+  },
+  "kaiABlock": {
+    "message": "Type the site under Always block and press Block."
+  },
+  "kaiQBackup": {
+    "message": "How do I keep my settings on another computer?"
+  },
+  "kaiABackup": {
+    "message": "Under Backup and sync, save a backup file or turn on sync."
+  },
+  "kaiQBroken": {
+    "message": "A site isn't working"
+  },
+  "kaiABroken": {
+    "message": "Let's fix it step by step."
+  },
+  "kaiQWorking": {
+    "message": "Is Moat working?"
+  },
+  "kaiAWorking": {
+    "message": "Here's how to check."
+  },
+  "kaiHello": {
+    "message": "Hi! I'm Kai. Ask me if you need anything."
+  },
+  "kaiNeedHelp": {
+    "message": "Need help?"
+  },
+  "optionsImportRisksTitle": {
+    "message": "Only apply this if you made the file yourself."
+  },
+  "optionsImportRiskOff": {
+    "message": "Turns Moat off."
+  },
+  "optionsImportRiskDanger": {
+    "message": "Stops blocking dangerous sites: $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskNeverBlock": {
+    "message": "Lets ads and trackers through on $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskPaused": {
+    "message": "Pauses Moat on $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsImportRiskMore": {
+    "message": "$A$ and $B$ more",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "backupRestoredOn": {
+    "message": "Restored from a file on $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkTitle": {
+    "message": "Safety check"
+  },
+  "checkTakeOk": {
+    "message": "Everything that keeps you safe is on."
+  },
+  "checkTakeWarnOne": {
+    "message": "One thing needs a look."
+  },
+  "checkTakeWarnMany": {
+    "message": "$A$ things need a look.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkOnTitle": {
+    "message": "Moat is on"
+  },
+  "checkOnDetail": {
+    "message": "Pages are checked before they load."
+  },
+  "checkOffTitle": {
+    "message": "Moat is off"
+  },
+  "checkOffDetail": {
+    "message": "Nothing is blocked, including dangerous sites."
+  },
+  "checkTurnOn": {
+    "message": "Turn on"
+  },
+  "checkListsOnTitle": {
+    "message": "Dangerous-site lists are on"
+  },
+  "checkListsOnDetail": {
+    "message": "Phishing, malware, scams and risky downloads."
+  },
+  "checkListsOffTitle": {
+    "message": "$A$ off",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkListsOffDetail": {
+    "message": "Moat won't stop these dangerous sites."
+  },
+  "checkUpdatedTitle": {
+    "message": "Lists are up to date"
+  },
+  "checkUpdateFailedTitle": {
+    "message": "Lists couldn't update"
+  },
+  "checkUpdateFailedDetail": {
+    "message": "Moat keeps using the lists it has and tries again soon."
+  },
+  "checkPwOnTitle": {
+    "message": "Leaked password warnings are on"
+  },
+  "checkPwOnDetail": {
+    "message": "Moat warns if a password you type was in a data breach."
+  },
+  "checkPwOffTitle": {
+    "message": "Leaked password warnings are off"
+  },
+  "checkPwOffDetail": {
+    "message": "Moat can warn when a password you type was in a data breach. Only a short code leaves your device."
+  },
+  "checkPausedOne": {
+    "message": "Paused on 1 site"
+  },
+  "checkPausedTitle": {
+    "message": "Paused on $A$ sites",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkPausedDetail": {
+    "message": "Moat doesn't block ads or trackers there. Dangerous sites are still stopped."
+  },
+  "checkAllowedOne": {
+    "message": "1 site in Never block"
+  },
+  "checkAllowedTitle": {
+    "message": "$A$ sites in Never block",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkAllowedDetail": {
+    "message": "Ads and trackers load there. Dangerous sites are still stopped."
+  },
+  "checkReview": {
+    "message": "Review"
+  },
+  "checkRestoredTitle": {
+    "message": "Settings restored from a file on $A$",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkRestoredRisky": {
+    "message": "That file turned some protection off. Undo it if you didn't make it yourself."
+  },
+  "checkRestoredDetail": {
+    "message": "You can put your settings back to how they were."
+  },
+  "checkUndo": {
+    "message": "Undo restore"
+  },
+  "importUndone": {
+    "message": "Your settings are back to how they were before the restore."
+  },
+  "insWhyTitle": {
+    "message": "Why they tracked you"
+  },
+  "insOnSites": {
+    "message": "On $A$ of your $B$ sites",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "insBlockedWord": {
+    "message": "blocked"
+  },
+  "insSeenOnTitle": {
+    "message": "Where it was"
+  },
+  "insOpenSite": {
+    "message": "See $A$ on Sites",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insOpenCompany": {
+    "message": "See $A$ on Trackers",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDaysLabel": {
+    "message": "Days this week"
+  },
+  "insBusiestDay": {
+    "message": "$A$ was the busiest day. Pick a day to see where.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDayLine": {
+    "message": "$A$ blocked, most between $B$ and $C$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      },
+      "c": {
+        "content": "$3"
+      }
+    }
+  },
+  "insDayTotal": {
+    "message": "$A$ blocked.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDayNone": {
+    "message": "Nothing blocked on $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDayWhere": {
+    "message": "Mostly on"
+  },
+  "siteKindAds": {
+    "message": "$A$ ads",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteKindTrackers": {
+    "message": "$A$ trackers",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteKindPopups": {
+    "message": "$A$ pop-ups",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteAddresses": {
+    "message": "$A$ addresses",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteAddressesTitle": {
+    "message": "Addresses on this site"
+  },
+  "secStopsDangerOne": {
+    "message": "1 dangerous page"
+  },
+  "secStopsDangerMany": {
+    "message": "$A$ dangerous pages",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "secStopsDangerTailOne": {
+    "message": "was stopped this week."
+  },
+  "secStopsDangerTail": {
+    "message": "were stopped this week."
+  },
+  "secStopsNoDanger": {
+    "message": "No dangerous pages this week."
+  },
+  "secPhishTip": {
+    "message": "If you typed a password or card number on one of these pages before Moat stopped it, change that password and tell your bank."
+  },
+  "secAdPagesOne": {
+    "message": "1 ad or tracker page never loaded"
+  },
+  "secAdPagesMany": {
+    "message": "$A$ ad and tracker pages never loaded",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "secCustomOne": {
+    "message": "1 page on a block list you or your organization set"
+  },
+  "secCustomMany": {
+    "message": "$A$ pages on block lists you or your organization set",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "secNotDangerous": {
+    "message": "Not dangerous?"
+  },
+  "secStopUnknown": {
+    "message": "On a danger list Moat couldn't name"
+  },
+  "levelChangesPlus": {
+    "message": "$A$, plus $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "levelChangesMinus": {
+    "message": "$A$, without $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "levelChangesBoth": {
+    "message": "$A$, plus $B$, without $C$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      },
+      "c": {
+        "content": "$3"
+      }
+    }
+  },
+  "levelCustomized": {
+    "message": "Customized"
+  },
+  "levelResetDone": {
+    "message": "Back to $A$. Your changes were removed.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "ovLevelCustomized": {
+    "message": "$A$, customized",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "levelOffNote": {
+    "message": "Moat is off, so nothing is blocked."
   }
 }

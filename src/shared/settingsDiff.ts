@@ -76,3 +76,35 @@ export function summarizeSettingsImport(current: Settings, patch: Partial<Settin
 
   return { protectionSettingsChanged, customRulesChanged, siteExceptionsChanged, filterListChoicesChanged, syncSettingChanged, isNoOp };
 }
+
+/** The danger lists (phishing, malware, scams, risky downloads). */
+const DANGER_GROUPS = ["phishing-urls", "malicious-urls", "scam", "badware"] as const;
+
+export interface ImportRisks {
+  /** The file turns Moat off. */
+  turnsOff: boolean;
+  /** Danger lists the file turns off that are on now. */
+  dangerListsOff: string[];
+  /** Sites the file adds to Never block. */
+  neverBlock: string[];
+  /** Sites the file pauses Moat on. */
+  paused: string[];
+}
+
+/** What in a backup could weaken protection, so the preview can say so
+ * before it's applied. A file someone else sends ("import this to fix
+ * your blocker") is the way a backup gets misused: it can't run code, but
+ * it can switch protections off. Never block and paused sites still can't
+ * reopen a known dangerous site (the danger lists outrank them), so those
+ * are named for what they do allow: ads and trackers. */
+export function importRisks(current: Settings, patch: Partial<Settings>): ImportRisks {
+  const added = (now: readonly string[], next: readonly string[] | undefined) => (next ? next.filter((host) => !now.includes(host)) : []);
+  const groupsNow = current.filterGroups ?? {};
+  const groupsNext = patch.filterGroups;
+  return {
+    turnsOff: patch.enabled === false && current.enabled !== false,
+    dangerListsOff: groupsNext ? DANGER_GROUPS.filter((g) => groupsNow[g] !== false && groupsNext[g] === false) : [],
+    neverBlock: added(current.customAllowedDomains, patch.customAllowedDomains),
+    paused: added(current.disabledSites, patch.disabledSites),
+  };
+}

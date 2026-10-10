@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { summarizeSettingsImport } from "./settingsDiff";
+import { importRisks, summarizeSettingsImport } from "./settingsDiff";
 import { DEFAULT_SETTINGS, type Settings } from "../types";
 
 function settings(overrides: Partial<Settings> = {}): Settings {
@@ -109,5 +109,33 @@ describe("summarizeSettingsImport", () => {
       syncSettingChanged: true,
       isNoOp: false,
     });
+  });
+});
+
+describe("importRisks", () => {
+  it("finds nothing in a file that only strengthens protection", () => {
+    const risks = importRisks(settings(), { blockThirdPartyCookies: true, customBlockedDomains: ["ads.example.com"] });
+    expect(risks).toEqual({ turnsOff: false, dangerListsOff: [], neverBlock: [], paused: [] });
+  });
+
+  it("flags a file that turns Moat off, but not one that leaves it off", () => {
+    expect(importRisks(settings({ enabled: true }), { enabled: false }).turnsOff).toBe(true);
+    expect(importRisks(settings({ enabled: false }), { enabled: false }).turnsOff).toBe(false);
+  });
+
+  it("names danger lists the file turns off, ignoring ad lists and lists already off", () => {
+    const current = settings({ filterGroups: { ...DEFAULT_SETTINGS.filterGroups, scam: false } });
+    const risks = importRisks(current, { filterGroups: { ...current.filterGroups, "phishing-urls": false, scam: false, ads: false } });
+    expect(risks.dangerListsOff).toEqual(["phishing-urls"]);
+  });
+
+  it("lists only newly added Never block and paused sites", () => {
+    const current = settings({ customAllowedDomains: ["old.example.com"], disabledSites: ["paused.example.com"] });
+    const risks = importRisks(current, {
+      customAllowedDomains: ["old.example.com", "new.example.com"],
+      disabledSites: ["paused.example.com", "bank.example.com"],
+    });
+    expect(risks.neverBlock).toEqual(["new.example.com"]);
+    expect(risks.paused).toEqual(["bank.example.com"]);
   });
 });

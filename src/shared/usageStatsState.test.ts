@@ -256,10 +256,26 @@ describe("Insights counters (0.11.204)", () => {
     expect(prev.dailyKinds).toHaveLength(7);
   });
 
-  it("lists up to five sites for each company", () => {
+  it("lists up to eight sites for each company, most blocks first", () => {
     let state = EMPTY_STATE;
-    for (const site of ["a.example", "b.example", "c.example", "d.example", "e.example", "f.example"]) state = recordCompanyMatches(state, site, { Google: 1 }, at(10));
-    expect(summarize(state, at(11)).companySites.Google).toHaveLength(5);
+    const sites = ["a.example", "b.example", "c.example", "d.example", "e.example", "f.example", "g.example", "h.example", "i.example"];
+    for (const site of sites) state = recordCompanyMatches(state, site, { Google: 1 }, at(10));
+    state = recordBlockedTotal(state, "i.example", 50, at(10));
+    state = recordBlockedTotal(state, "c.example", 20, at(10));
+    const listed = summarize(state, at(11)).companySites.Google!;
+    expect(listed).toHaveLength(8);
+    expect(listed.slice(0, 2)).toEqual(["i.example", "c.example"]);
+  });
+
+  it("gives each day's top three sites", () => {
+    let state = recordBlockedTotal(EMPTY_STATE, "a.example", 5, at(10));
+    state = recordBlockedTotal(state, "b.example", 9, at(10));
+    state = recordBlockedTotal(state, "c.example", 1, at(10));
+    state = recordBlockedTotal(state, "d.example", 2, at(10));
+    const days = summarize(state, at(10)).dailyTopSites;
+    expect(days).toHaveLength(7);
+    expect(days[6]!.map((s) => s.hostname)).toEqual(["b.example", "a.example", "d.example"]);
+    expect(days[0]).toEqual([]);
   });
 });
 

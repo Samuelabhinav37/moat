@@ -36,15 +36,25 @@ export const NO_ICON_HOSTNAME = "moat-no-icon.invalid";
 
 const SAMPLE = 16;
 
+// One canvas for every icon on the page, marked for frequent reads so its
+// pixels stay on the CPU. A new canvas per icon read back from the GPU
+// each time, which cost Overview most of a second on load.
+let sampler: { doc: Document; context: CanvasRenderingContext2D } | null = null;
+
 /** The icon's pixels at a fixed small size, or null when they can't be
  * read (no canvas, or a cross-origin image). */
 export function readPixels(doc: Document, img: HTMLImageElement): Uint8ClampedArray | null {
   try {
-    const canvas = doc.createElement("canvas");
-    canvas.width = SAMPLE;
-    canvas.height = SAMPLE;
-    const context = canvas.getContext("2d");
-    if (!context) return null;
+    if (!sampler || sampler.doc !== doc) {
+      const canvas = doc.createElement("canvas");
+      canvas.width = SAMPLE;
+      canvas.height = SAMPLE;
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      if (!context) return null;
+      sampler = { doc, context };
+    }
+    const { context } = sampler;
+    context.clearRect(0, 0, SAMPLE, SAMPLE);
     context.drawImage(img, 0, 0, SAMPLE, SAMPLE);
     return context.getImageData(0, 0, SAMPLE, SAMPLE).data;
   } catch {
@@ -97,6 +107,8 @@ export function monogramHue(name: string): number {
   return hash % 6;
 }
 
+const verdicts = new Map<string, "globe" | "light" | "ok">();
+
 export function buildSiteIcon(doc: Document, hostname: string, src: string | null): HTMLElement {
   const tile = doc.createElement("span");
   tile.className = "site-icon";
@@ -113,15 +125,24 @@ export function buildSiteIcon(doc: Document, hostname: string, src: string | nul
     // Keep the letter until the icon has loaded and turned out to be the
     // site's own.
     img.addEventListener("load", () => {
-      void defaultIconPixels(doc, src).then((globe) => {
-        const pixels = readPixels(doc, img);
-        if (samePixels(pixels, globe)) return;
+      // Off the critical path: the letter tile shows until the browser is idle.
+      const idle = (doc.defaultView as (Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }) | null)?.requestIdleCallback;
+      const later = (cb: () => void) => (idle ? idle(cb, { timeout: 1500 }) : setTimeout(cb, 0));
+      later(() => void defaultIconPixels(doc, src).then((globe) => {
+        // The same site shows up in several lists: check its icon once.
+        let verdict = verdicts.get(src);
+        if (!verdict) {
+          const pixels = readPixels(doc, img);
+          verdict = samePixels(pixels, globe) ? "globe" : pixels && isLightIcon(pixels) ? "light" : "ok";
+          verdicts.set(src, verdict);
+        }
+        if (verdict === "globe") return;
         tile.textContent = "";
         delete tile.dataset.hue;
         tile.classList.add("has-img");
-        if (pixels && isLightIcon(pixels)) tile.classList.add("light-img");
+        if (verdict === "light") tile.classList.add("light-img");
         tile.append(img);
-      });
+      }));
     });
   }
   return tile;

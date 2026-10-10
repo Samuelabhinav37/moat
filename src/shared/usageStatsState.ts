@@ -7,6 +7,9 @@
 import type { BlockKinds, UsageSignal, UsageSignalSummary, UsageSummaryResponse } from "../types";
 import type { BlockKind } from "./blockedPage";
 
+/** Sites listed under each company on Trackers. */
+export const COMPANY_SITES_SHOWN = 8;
+
 export const SIGNAL_KEYS: readonly UsageSignal[] = [
   "fingerprint",
   "cookieBannerReject",
@@ -379,8 +382,17 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
     .filter((stop) => dateKey(stop.time) >= weekStart)
     .reverse()
     .slice(0, 20);
+  // Each company's sites, the ones with the most blocks first.
   const companySites: Record<string, string[]> = {};
-  for (const [company, { hostnames }] of companyTotals) companySites[company] = [...hostnames].slice(0, 5);
+  const byBlocks = (a: string, b: string) => (siteCounts.get(b) ?? 0) - (siteCounts.get(a) ?? 0) || a.localeCompare(b);
+  for (const [company, { hostnames }] of companyTotals) companySites[company] = [...hostnames].sort(byBlocks).slice(0, COMPANY_SITES_SHOWN);
+  // Each day's top sites, so "When" can say where a busy day happened.
+  const dailyTopSites = last7.map((date) =>
+    Object.entries(dayOrEmpty(state, date).hostCounts ?? {})
+      .map(([hostname, count]) => ({ hostname, count }))
+      .sort((a, b) => b.count - a.count || a.hostname.localeCompare(b.hostname))
+      .slice(0, 3)
+  );
   const trackerSites = new Set<string>();
   for (const { hostnames } of companyTotals.values()) for (const hostname of hostnames) trackerSites.add(hostname);
 
@@ -400,6 +412,7 @@ export function summarize(state: UsageStatsState, when: number): UsageSummaryRes
     purposes,
     pageStops,
     companySites,
+    dailyTopSites,
     trackerSiteCount: trackerSites.size,
   };
 }

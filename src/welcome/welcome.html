@@ -235,6 +235,73 @@
         .flow-head, .req { grid-template-columns: minmax(0, 1fr) 80px minmax(0, .8fr); }
         .popup { transform: scale(.8); transform-origin: top right; }
       }
+
+      /* Kai, Moat's mascot: blinks, bobs, and squints happily when Moat
+         cleans the page. The two cookies on the ad crumble when Moat is on.
+         Decoration only (aria-hidden), the text carries the tour. */
+      .kai { position: relative; width: 64px; margin-top: 28px; animation: kai-bob 3.2s ease-in-out infinite; }
+      .kai img { width: 100%; height: auto; display: block; }
+      .kai + .step-label { margin-top: 14px; }
+      .kai .lid { position: absolute; top: 50.6%; height: 16%; background: #0c0d11; border-radius: 30%; transform: scaleY(0); transform-origin: 50% 0; animation: kai-blink 4.6s infinite; }
+      .kai .lid.l { left: 37.1%; width: 18.4%; }
+      .kai .lid.r { left: 63.8%; width: 18%; }
+      .kai.happy .lid { animation: none; transform: scaleY(.5); transform-origin: 50% 100%; border-radius: 50% 50% 20% 20% / 90% 90% 10% 10%; }
+      @keyframes kai-bob { 50% { transform: translateY(-4px); } }
+      @keyframes kai-blink { 0%, 93%, 100% { transform: scaleY(0); } 95.5% { transform: scaleY(1); } }
+
+      /* ---------- Moat's site look (samuelabhinav37.github.io/moat) ----------
+         Apple-style type and rhythm, one glowing stage tile, pill buttons, a
+         calm 0.66s fade-up per step. Kai floats beside the steps; the two
+         cookies on the ad (Crumb and Blare, the trackers and the ads) fade
+         and grey out when Moat is switched on. */
+      :root { --site-blue: #3f6fd1; --site-blue-deep: #2f57ad; --ease: cubic-bezier(.66, 0, .2, 1);
+        --stage-bg: radial-gradient(80% 90% at 85% 0%, rgba(63, 111, 209, .42), transparent 60%), linear-gradient(160deg, #0f1a36 0%, #0a1022 55%, #07090f 100%);
+        --stage-line: rgba(111, 155, 224, .2); }
+      :root[data-theme="light"] { --stage-bg: radial-gradient(80% 90% at 85% 0%, rgba(63, 111, 209, .22), transparent 60%), linear-gradient(160deg, #eef2fb 0%, #e6ebf7 100%); --stage-line: rgba(63, 111, 209, .18); }
+      body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "Segoe UI", sans-serif; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; }
+      .wrap { grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 64px; max-width: 1320px; padding: 36px 48px; }
+      .kai { width: 96px; margin-top: 30px; animation: kai-float 6.5s ease-in-out infinite; filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .45)); }
+      @keyframes kai-float { 0%, 100% { translate: 0 0; rotate: 0deg; } 50% { translate: 0 -7px; rotate: .8deg; } }
+      .kai + .step-label { margin-top: 18px; }
+      .step-label { font-size: 13px; letter-spacing: 0; text-transform: none; font-weight: 600; color: var(--muted); }
+      h1 { font-size: clamp(32px, 3.2vw, 44px); line-height: 1.07; font-weight: 600; letter-spacing: -0.02em; margin: 8px 0 14px; }
+      .lede { font-size: 19px; line-height: 1.38; font-weight: 600; color: var(--muted); }
+      .facts li, .how li, .howto li, .legend li { font-size: 16px; }
+      .sub { font-size: 14.5px; font-weight: 500; }
+      [data-step].active > * { animation: step-in .66s var(--ease) both; }
+      [data-step].active > *:nth-child(2) { animation-delay: .06s; } [data-step].active > *:nth-child(3) { animation-delay: .12s; } [data-step].active > *:nth-child(4) { animation-delay: .18s; }
+      @keyframes step-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+      .stage { position: relative; padding: 34px; border-radius: 32px; background: var(--stage-bg); box-shadow: inset 0 0 0 1px var(--stage-line); align-self: center; }
+      .browser { border-radius: 16px; border: 0; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 40px 80px -30px rgba(0, 0, 0, .8); }
+      .seg { background: #141a2b; border: 0; }
+      :root[data-theme="light"] .seg { background: #dde3f1; }
+      .seg button[aria-pressed="true"] { background: #262d40; }
+      :root[data-theme="light"] .seg button[aria-pressed="true"] { background: #fff; }
+      .seg button.moat-on[aria-pressed="true"] { background: var(--site-blue); color: #fff; }
+      .tabs button[aria-selected="true"] { background: #1c2335; border-color: transparent; border-radius: 999px; }
+      :root[data-theme="light"] .tabs button[aria-selected="true"] { background: #dde3f1; }
+      .progress span { height: 3px; }
+      .progress span.on { background: var(--site-blue); }
+      .actions .primary { border-radius: 980px; background: var(--site-blue); color: #fff; font-weight: 500; font-size: 17px; padding: 13px 24px; }
+      .actions .primary:hover { background: var(--site-blue-deep); }
+      .actions .ghost { border: 0; color: #2997ff; font-size: 17px; padding: 13px 6px; }
+      .actions .ghost::after { content: " ›"; }
+      .actions .ghost:hover { color: #2997ff; text-decoration: underline; }
+      :root[data-theme="light"] .actions .ghost, :root[data-theme="light"] .actions .ghost:hover { color: #0066cc; }
+      .level-card { border-radius: 22px; padding: 22px; }
+      .level-card[aria-checked="true"] { border-color: var(--site-blue); box-shadow: inset 0 0 0 1px var(--site-blue); }
+      .lc-meter i.on { background: var(--site-blue); }
+      /* the cookies on the ad */
+      .cookies { position: absolute; width: 0; height: 0; z-index: 2; pointer-events: none; }
+      .cookies .ck { position: absolute; width: 92px; animation: ck-float 6s ease-in-out infinite; transition: opacity .9s var(--ease), filter .9s var(--ease), scale .9s var(--ease); }
+      .cookies .ck img { width: 100%; height: auto; display: block; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .5)); }
+      .cookies .ck.a { left: 30px; top: -6px; }
+      .cookies .ck.b { left: 128px; top: 4px; width: 76px; animation-delay: -2.5s; }
+      .shot.moat .cookies .ck { opacity: .0; scale: .92; filter: saturate(.2) blur(3px); }
+      @keyframes ck-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+      @media (max-width: 920px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 22px 16px; } .stage { padding: 16px; border-radius: 24px; } .kai { width: 72px; } }
+      @media (max-width: 600px) { .stage { padding: 12px; } .stage-top { gap: 8px; } .tabs button, .seg button { padding: 6px 10px; font-size: 12.5px; } .hint { font-size: 13px; } h1 { font-size: 30px; } .lede { font-size: 17px; } }
+      @media (max-width: 700px) { .cookies .ck { width: 56px; } .cookies .ck.a { left: 14px; } .cookies .ck.b { left: 72px; width: 46px; } }
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { animation: none !important; transition: none !important; }
       }
@@ -248,6 +315,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
           <span data-i18n="tourBack">Back</span>
         </button>
+        <div class="kai" id="kai" aria-hidden="true"><img src="welcome/img/kai.webp" width="438" height="525" alt="" /><span class="lid l"></span><span class="lid r"></span></div>
         <div class="step-label" id="step-label">Step 1 of 5</div>
 
         <div data-step="1" class="active">
@@ -261,15 +329,15 @@
           <p class="lede" data-i18n="tourHowLede">Moat stops ads and trackers before they download, not after they appear.</p>
           <ol class="how">
             <li><div><span data-i18n="tourHow1Title">The page asks for things</span><span class="sub" data-i18n="tourHow1Sub">Images, scripts, ads and trackers, often hundreds per page.</span></div></li>
-            <li><div><span data-i18n="tourHow2Title">Moat checks each one on your device</span><span class="sub" data-i18n="tourHow2Sub">It checks each request against hundreds of thousands of rules from public filter lists. Nothing leaves your device.</span></div></li>
-            <li><div><span data-i18n="tourHow3Title">Matches never load</span><span class="sub" data-i18n="tourHow3Sub">And neither does anything they would have loaded next.</span></div></li>
+            <li><div><span data-i18n="tourHow2Title">Moat checks each one on your device</span><span class="sub" data-i18n="tourHow2Sub">It checks each one against about 310,000 rules from public lists of ads and trackers. Nothing leaves your device.</span></div></li>
+            <li><div><span data-i18n="tourHow3Title">Matches never load</span><span class="sub" data-i18n="tourHow3Sub">So anything they would have pulled in next doesn't load either.</span></div></li>
             <li><div><span data-i18n="tourHow4Title">Leftovers get tidied</span><span class="sub" data-i18n="tourHow4Sub">Empty ad boxes fold away. Cookie banners get a “reject” where the site allows it.</span></div></li>
           </ol>
         </div>
 
         <div data-step="3">
           <h1 data-i18n="tourPinTitle">Pin Moat next to the address bar</h1>
-          <p class="lede" data-i18n="tourPinLede">Then its icon shows how much each page tried to load, and you can pause it on a site in one click.</p>
+          <p class="lede" data-i18n="tourPinLede">Then its icon shows how many ads and trackers each page tried to load, and you can pause it on a site in one click.</p>
           <ol class="howto">
             <li id="how-1">
               <span class="n">1</span>
@@ -350,6 +418,7 @@
               <img class="before" id="img-before" alt="" />
               <img class="after" id="img-after" alt="" />
               <span class="ad-tag" id="ad-tag" data-i18n="tourAdTag">AD</span>
+              <span class="cookies" id="cookies" aria-hidden="true"><span class="ck a"><img src="welcome/img/crumb.webp" width="300" height="303" alt="" /></span><span class="ck b"><img src="welcome/img/blare.webp" width="300" height="374" alt="" /></span></span>
             </div>
           </div>
         </div>

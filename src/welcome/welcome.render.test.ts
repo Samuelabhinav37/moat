@@ -103,11 +103,12 @@ describe("welcome.html (first-run tour)", () => {
     for (let i = 0; i < 4; i++) next();
     await settle();
     const checkedLevel = () => document.querySelector<HTMLElement>('.level-card[aria-checked="true"]')?.dataset.level;
-    expect(checkedLevel()).toBe("standard");
-    expect(document.getElementById("level-saved")?.hidden).toBe(true);
-    document.querySelector<HTMLButtonElement>('.level-card[data-level="strict"]')!.click();
-    await settle();
+    // The shared mock is a changed level closest to Strict, so Strict shows.
     expect(checkedLevel()).toBe("strict");
+    expect(document.getElementById("level-saved")?.hidden).toBe(true);
+    document.querySelector<HTMLButtonElement>('.level-card[data-level="lite"]')!.click();
+    await settle();
+    expect(checkedLevel()).toBe("lite");
     expect(document.getElementById("level-saved")?.hidden).toBe(false);
   });
 

@@ -8,7 +8,7 @@ import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { dismissOnboarding } from "../background/updateNotice";
 import { watchPinState, type ActionLike, type PinState } from "./pinState";
 import { getEffectiveSettings } from "../background/settings";
-import { detectPreset, presetPatch, type PresetName } from "../shared/filterPresets";
+import { detectPreset, presetDifference, presetPatch, type PresetName } from "../shared/filterPresets";
 import type { SetSettingsPatchMessage } from "../types";
 
 const getMessage = (key: string, subs?: string | string[]) => browser.i18n.getMessage(key, subs);
@@ -72,7 +72,7 @@ const REQUESTS: [host: string, what: string, loaded: boolean][] = [
   ["securepubads.g.doubleclick.net", t("tourReqAdServer", "Google ad server"), false],
   ["micro.rubiconproject.com", t("tourReqAuction", "Ad auction"), false],
   ["api.lab.amplitude.com", t("tourReqAnalytics", "Behavior analytics"), false],
-  ["mparticle.weather.com", t("tourReqFirstParty", "Tracker on weather.com's own domain"), false],
+  ["mparticle.weather.com", t("tourReqFirstParty", "Tracker using weather.com's own address"), false],
   ["js-agent.newrelic.com", t("tourReqMonitoring", "Session monitoring"), false],
   ["weather-channel.solutions.cdn.optable.co", t("tourReqAudience", "Audience data for advertisers"), false],
 ];
@@ -96,6 +96,7 @@ function show(n: number): void {
   document.querySelectorAll(".progress span").forEach((bar, i) => bar.classList.toggle("on", i < n));
   $("step-label").textContent = t("tourStepLabel", `Step ${n} of ${STEPS}`, [String(n), String(STEPS)]);
   $("back").hidden = n === 1;
+  if (n === STEPS) cheer();
   $("next").textContent =
     n === STEPS
       ? t("tourFinish", "Start browsing")
@@ -136,8 +137,10 @@ const markLevel = (level: string) => {
 // Shows the level Moat is on (Balanced on a fresh install).
 void getEffectiveSettings()
   .then((settings) => {
+    // A customized level shows as the level it was changed from.
     const preset = detectPreset(settings);
-    markLevel(levelCards.some((card) => card.dataset.level === preset) ? preset : "standard");
+    const shown = preset === "custom" ? presetDifference(settings).base : preset;
+    markLevel(levelCards.some((card) => card.dataset.level === shown) ? shown : "standard");
   })
   .catch(() => markLevel("standard"));
 for (const card of levelCards) {
@@ -176,6 +179,8 @@ function renderSite(): void {
   after.src = s.after;
   after.alt = s.afterAlt;
   $("ad-tag").style.left = s.tag.left;
+  $("cookies").style.left = s.tag.left;
+  $("cookies").style.top = s.tag.top;
   $("ad-tag").style.top = s.tag.top;
   $("badge").textContent = String(s.blocked);
 
@@ -198,6 +203,13 @@ function setMoat(on: boolean): void {
   $("off").setAttribute("aria-pressed", String(!on));
   $("shot").classList.toggle("moat", on);
   $("badge").hidden = !on;
+  if (on) cheer();
+}
+
+/** Kai squints happily for a moment. */
+function cheer(): void {
+  $("kai").classList.add("happy");
+  setTimeout(() => $("kai").classList.remove("happy"), 1600);
 }
 
 $("on").addEventListener("click", () => setMoat(true));
