@@ -152,7 +152,7 @@ const netlog = (blocked: boolean): Scene => (doc) => {
 export const TOPICS: Topic[] = [
   {
     id: "load", icon: "reload", fix: true, title: ["helpLoadTitle", "Page won't load"], sub: ["helpLoadSub", "Or loads very slowly"],
-    steps: [["helpStepStuck", "Page stuck loading", spinner], ["helpStepOffHere", "Turn Moat off here", toggleOff("helpToggleLabel", "Moat on this site")], ["helpStepReload", "Reload the page", reload], ["helpStepWorksReport", "Works? Report the site", done]],
+    steps: [["helpStepStuck", "Page stuck loading", spinner], ["helpStepOffHere", "Pause Moat on this site", toggleOff("helpToggleLabel", "Moat on this site")], ["helpStepReload", "Reload the page", reload], ["helpStepWorksReport", "Works? Report the site", done]],
   },
   {
     id: "signin", icon: "key", fix: true, title: ["helpSigninTitle", "Can't sign in"], sub: ["helpSigninSub", "Sign-in window or CAPTCHA"],
@@ -160,7 +160,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "video", icon: "play", fix: true, title: ["helpVideoTitle", "Video won't play"], sub: ["helpVideoSub", "Or the player is blank"],
-    steps: [["helpStepNoVideo", "Video won't play", icon("hp-warn", "play")], ["helpStepOffHere", "Turn Moat off here", toggleOff("helpToggleLabel", "Moat on this site")], ["helpStepReload", "Reload the page", reload], ["helpStepWorksReport", "Works? Report the site", done]],
+    steps: [["helpStepNoVideo", "Video won't play", icon("hp-warn", "play")], ["helpStepOffHere", "Pause Moat on this site", toggleOff("helpToggleLabel", "Moat on this site")], ["helpStepReload", "Reload the page", reload], ["helpStepWorksReport", "Works? Report the site", done]],
   },
   {
     id: "missing", icon: "hidden", fix: true, title: ["helpMissingTitle", "Something's missing"], sub: ["helpMissingSub", "A button or section is gone"],

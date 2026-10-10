@@ -290,7 +290,7 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsWebrtcToggleLabel", "Keep your IP address private"],
     descKey: [
       "optionsWebrtcToggleHint",
-      "Stops pages finding your real IP address through video-call features, even behind a VPN.",
+      "Keeps pages from finding your real IP address, which shows roughly where you are. Works even when you use a VPN.",
     ],
   },
   {
@@ -306,7 +306,7 @@ const PROTECTIONS: ProtectionDef[] = [
     ],
     cautionKey: [
       "optionsFingerprintCaution",
-      "Can occasionally break a CAPTCHA or a bank's device check. If a site misbehaves, turn this off first.",
+      "Now and then this trips up an \"I'm not a robot\" check or a bank's device check. If a site acts up, turn this off first.",
     ],
     metricLabelKey: ["optionsFingerprintMetricLabel", "sites that saw a disguised device this week"],
   },
@@ -331,11 +331,11 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsFirefoxRFPToggleLabel", "Use Firefox's own device-disguise mode"],
     descKey: [
       "optionsFirefoxRFPToggleHint",
-      "Turns on a deeper device-disguise mode built into Firefox itself. It reaches further than Moat can on its own: window size, fonts, timezone, and more.",
+      "Turns on Firefox's own, stronger device protection. It covers more than Moat can, such as window size, fonts and time zone.",
     ],
     cautionKey: [
       "optionsFirefoxRFPCaution",
-      "Can be more disruptive than Moat's own fingerprint protection above. It changes real browser behavior, not just what a page can see, so it's worth trying for a few days before relying on it.",
+      "This changes how Firefox itself behaves, not just what pages see, so it can break more than Moat's device protection above. Try it for a few days before you rely on it.",
     ],
   },
   {
@@ -350,7 +350,7 @@ const PROTECTIONS: ProtectionDef[] = [
     ],
     cautionKey: [
       "optionsFirefoxFPICaution",
-      "Can break logging in with a Google or Facebook account on a third-party site. If a login stops working, pause this first.",
+      "Can break signing in with Google or Facebook on other sites. If a sign-in stops working, turn this off first.",
     ],
   },
   {
@@ -400,7 +400,7 @@ const PROTECTIONS: ProtectionDef[] = [
     titleKey: ["optionsSearchSlopToggleLabel", "Hide low-quality search results"],
     descKey: [
       "optionsSearchSlopDrawerDesc",
-      "Filters known content-farm sites out of your search results.",
+      "Folds away low-quality sites built to rank in search results.",
     ],
     noteKey: [
       "optionsSearchSlopCaution",
@@ -565,7 +565,7 @@ const protectionGroupsEl = document.getElementById("protection-groups") as HTMLE
 const cnameUnsupportedHint = tFallback("optionsCnameUnsupportedHint", "Not available in this browser.");
 const cnameChromeDohHint = tFallback(
   "optionsCnameChromeDohHint",
-  "On Chrome, Moat asks Cloudflare where hidden trackers really point. It can miss the first one on a site. Firefox does this privately by itself."
+  "To find these on Chrome, Moat asks Cloudflare where a site's addresses really lead. It can miss the first one on each site. Firefox checks this itself, so nothing is asked."
 );
 
 const liveStatus = document.getElementById("live-status") as HTMLElement | null;
