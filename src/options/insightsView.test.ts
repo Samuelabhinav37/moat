@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { buildHeatmap, buildPurposes, buildReachRows, busiestPhrase, heatLevel, purposeLabel, purposeShares } from "./insightsView";
+import { buildDays, buildPurposes, buildReachRows, busiestDayPhrase, busiestWindow, companyBlurb, purposeLabel, purposeShares } from "./insightsView";
 
 const t = (_key: string, fallback: string) => fallback;
 const span = () => document.createElement("span");
@@ -18,11 +18,12 @@ describe("purposes", () => {
     expect(purposeLabel("something_new", t).name).toBe("Other");
   });
 
-  it("draws one split bar and a row per purpose", () => {
-    const node = buildPurposes(document, { advertising: 59, site_analytics: 26 }, t);
-    expect(node.querySelectorAll(".purp-bar span")).toHaveLength(2);
-    expect(node.querySelector(".purp-row b")!.textContent).toBe("Advertising");
-    expect(node.querySelector(".purp-bar")!.getAttribute("aria-label")).toBe("Advertising 69%, Analytics 31%");
+  it("draws a row per purpose with its own bar, folding small ones into Other", () => {
+    const node = buildPurposes(document, { advertising: 50, site_analytics: 20, social_media: 10, consent: 8, audio_video_player: 7, hosting: 5 }, t);
+    const names = [...node.querySelectorAll(".purp-row b")].map((b) => b.textContent);
+    expect(names).toEqual(["Advertising", "Analytics", "Social", "Consent tools", "Other"]);
+    expect(node.querySelectorAll(".purp-track i")).toHaveLength(5);
+    expect(node.querySelector(".purp-row:last-child .purp-val")!.textContent).toBe("12%");
   });
 });
 
@@ -33,45 +34,62 @@ describe("purposeShares", () => {
   });
 });
 
+describe("companyBlurb", () => {
+  it("puts back a missing name and keeps it short", () => {
+    expect(companyBlurb("Imgur", "is an online image sharing community and image host.")).toBe("Imgur is an online image sharing community and image host.");
+    const long = "First sentence here. " + "Another long sentence that keeps going on and on about the company. ".repeat(6);
+    expect(companyBlurb("X", long).length).toBeLessThanOrEqual(260);
+    expect(companyBlurb("X", "")).toBe("");
+  });
+});
+
 describe("buildReachRows", () => {
-  it("says how many were blocked in the row, and links to the company when it has a site", () => {
+  it("says how many sites and how many blocked, and links to the company", () => {
     const node = buildReachRows(document, [{ company: "Google", icon: span(), sites: 2, ofSites: 7, blocks: 1335, description: "", seenOn: [], url: "https://about.google/" }], t);
-    expect(node.querySelector(".rr-blocked")!.textContent).toBe("1,335 blocked");
+    expect(node.querySelector(".rr-sub")!.textContent).toBe("On 2 of your 7 sites");
+    expect(node.querySelector(".rr-pct b")!.textContent).toBe("1,335");
     const learn = node.querySelector<HTMLAnchorElement>(".rr-learn")!;
     expect(learn.textContent).toBe("Learn more about Google");
     expect(learn.href).toBe("https://about.google/");
   });
 
-  it("shows the share of your sites and opens to say where it was seen", () => {
-    const node = buildReachRows(document, [{ company: "Google", icon: span(), sites: 41, ofSites: 58, blocks: 1268, description: "Ads and analytics.", seenOn: [{ hostname: "www.fandom.com", icon: span() }] }], t);
-    expect(node.querySelector(".rr-pct")!.firstChild!.textContent).toBe("71%");
+  it("opens to the sites it was on, each opening that site", () => {
+    const opened: string[] = [];
+    const node = buildReachRows(document, [{ company: "Google", icon: span(), sites: 41, ofSites: 58, blocks: 1268, description: "Ads and analytics.", seenOn: [{ hostname: "www.fandom.com", icon: span() }] }], t, (h) => opened.push(h));
     const btn = node.querySelector<HTMLButtonElement>(".rr-btn")!;
     btn.click();
     expect(node.querySelector<HTMLElement>(".rr")!.dataset.open).toBe("true");
     expect(btn.getAttribute("aria-expanded")).toBe("true");
-    expect(node.querySelector(".rr-chip")!.textContent).toBe("fandom.com");
+    const site = node.querySelector<HTMLButtonElement>(".rr-site")!;
+    expect(site.textContent).toBe("fandom.com");
+    site.click();
+    expect(opened).toEqual(["www.fandom.com"]);
+    expect(node.querySelector(".rr-site-more")!.textContent).toBe("and 40 more");
   });
 });
 
-describe("heatmap", () => {
-  it("grades cells 0-4 against the busiest hour", () => {
-    expect([heatLevel(0, 20), heatLevel(1, 20), heatLevel(10, 20), heatLevel(20, 20)]).toEqual([0, 1, 2, 4]);
+describe("days", () => {
+  const day = (name: string, total: number, peak = 20) => ({ label: name.slice(0, 3), name, total, hours: Array.from({ length: 24 }, (_, h) => (h === peak ? total : 0)), topSites: [{ hostname: "a.example", count: total, icon: span() }] });
+
+  it("finds a day's busiest four hours", () => {
+    const hours = new Array<number>(24).fill(0);
+    hours[19] = 5;
+    hours[21] = 4;
+    expect(busiestWindow(hours)).toEqual({ from: 18, count: 9 });
   });
 
-  it("draws 7 x 24 cells and names the busiest hour for screen readers", () => {
-    const hours = Array.from({ length: 7 }, () => new Array<number>(24).fill(0));
-    hours[5]![21] = 9;
-    const node = buildHeatmap(document, hours, ["Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu"], t);
-    expect(node.querySelectorAll(".heat i")).toHaveLength(168);
-    expect(node.querySelector(".heat")!.getAttribute("aria-label")).toBe("Busiest: Wed at 21:00, 9 blocks");
-    const wed = [...node.querySelectorAll("table.sr-only tr")].find((tr) => tr.firstElementChild?.textContent === "Wed");
-    expect([...wed!.children].map((c) => c.textContent)).toEqual(["Wed", "9", "21:00"]);
+  it("starts on the busiest day and says where it happened", () => {
+    const node = buildDays(document, [day("Monday", 3), day("Friday", 90), day("Today", 1)], t);
+    expect(node.querySelectorAll(".day-bar")).toHaveLength(3);
+    expect(node.querySelector('[aria-selected="true"]')!.getAttribute("aria-label")).toBe("Friday: 90");
+    expect(node.querySelector(".days-line b")!.textContent).toBe("Friday");
+    expect(node.querySelector(".days-sites .rr-site")!.textContent).toBe("a.example90");
+    node.querySelectorAll<HTMLButtonElement>(".day-bar")[0]!.click();
+    expect(node.querySelector(".days-line b")!.textContent).toBe("Monday");
   });
 
-  it("says when blocks happen most, in words", () => {
-    const hours = Array.from({ length: 7 }, () => new Array<number>(24).fill(0));
-    hours[1]![20] = 5;
-    hours[3]![9] = 1;
-    expect(busiestPhrase(hours, [false, true, true, false, false, false, false], t)).toBe("Weekend evenings");
+  it("names the busiest day in words", () => {
+    expect(busiestDayPhrase([{ name: "Monday", total: 2 }, { name: "Friday", total: 9 }], t)).toBe("Friday was the busiest day. Pick a day to see where.");
+    expect(busiestDayPhrase([{ name: "Monday", total: 0 }], t)).toBe("No blocks yet this week");
   });
 });

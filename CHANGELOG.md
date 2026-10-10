@@ -3,6 +3,29 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.272
+
+### Added
+- **Safety check on Security.** One list says whether Moat is on, whether the dangerous-site lists
+  are on and up to date, and whether leaked password warnings are on. It also shows sites where
+  Moat is paused or never blocks, and any recent restore from a file. Anything that needs a look
+  has a button to fix it.
+- **Undo a restore.** For two weeks after you restore settings from a file, Backup and Security
+  both offer to put your settings back.
+
+### Changed
+- **Trackers is easier to read.** Each company shows how many of your sites it was on. Opening it
+  gives a short description and the sites it was on, most blocked first. Press a site to see it on
+  Sites. "Why they tracked you" gives each purpose its own bar and a plain sentence.
+- **"When they were busiest" shows where.** The heat map is now the week's days. Pick a day to see
+  when it was busiest and which sites the blocks came from.
+- **Sites shows one row per site.** Addresses like docs.google.com and mail.google.com now sit
+  under google.com. Opening a site shows its ads, trackers and pop-ups, the tracker companies seen
+  there (each opens on Trackers), and each address with its own switch.
+- **Pages Moat stopped puts danger first.** Each dangerous page says what it was, like "Phishing:
+  fake sign-in pages". Ad pages and your own blocks are folded into one line each.
+- **Privacy on Protection** no longer says it's off by default.
+
 ## 0.11.271
 
 ### Added

@@ -893,7 +893,7 @@
     }
   },
   "advPrivacyLead": {
-    "message": "Protección extra contra el seguimiento y la identificación. Desactivada por defecto porque algunos sitios pueden fallar."
+    "message": "Protección extra contra el seguimiento y la identificación."
   },
   "advRulesLead": {
     "message": "Tus propias reglas. Siempre prevalecen sobre las listas de filtros."
@@ -2546,7 +2546,7 @@
     "description": "Sites page subtitle."
   },
   "pageLeadSecurity": {
-    "message": "Páginas que Moat detuvo antes de cargarse",
+    "message": "Tu protección y las páginas que Moat detuvo",
     "description": "Security page subtitle."
   },
   "insWhoTitle": {
@@ -3613,5 +3613,300 @@
         "content": "$2"
       }
     }
+  },
+  "backupRestoredOn": {
+    "message": "Restaurado desde un archivo el $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkTitle": {
+    "message": "Revisión de seguridad"
+  },
+  "checkTakeOk": {
+    "message": "Todo lo que te protege está activado."
+  },
+  "checkTakeWarnOne": {
+    "message": "Hay una cosa que revisar."
+  },
+  "checkTakeWarnMany": {
+    "message": "Hay $A$ cosas que revisar.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkOnTitle": {
+    "message": "Moat está activado"
+  },
+  "checkOnDetail": {
+    "message": "Las páginas se revisan antes de cargarse."
+  },
+  "checkOffTitle": {
+    "message": "Moat está desactivado"
+  },
+  "checkOffDetail": {
+    "message": "No se bloquea nada, ni siquiera los sitios peligrosos."
+  },
+  "checkTurnOn": {
+    "message": "Activar"
+  },
+  "checkListsOnTitle": {
+    "message": "Las listas de sitios peligrosos están activadas"
+  },
+  "checkListsOnDetail": {
+    "message": "Phishing, malware, estafas y descargas peligrosas."
+  },
+  "checkListsOffTitle": {
+    "message": "$A$ desactivado",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkListsOffDetail": {
+    "message": "Moat no detendrá estos sitios peligrosos."
+  },
+  "checkUpdatedTitle": {
+    "message": "Las listas están al día"
+  },
+  "checkUpdateFailedTitle": {
+    "message": "No se pudieron actualizar las listas"
+  },
+  "checkUpdateFailedDetail": {
+    "message": "Moat sigue usando las listas que tiene y lo intentará pronto."
+  },
+  "checkPwOnTitle": {
+    "message": "Los avisos de contraseñas filtradas están activados"
+  },
+  "checkPwOnDetail": {
+    "message": "Moat te avisa si una contraseña que escribes apareció en una filtración."
+  },
+  "checkPwOffTitle": {
+    "message": "Los avisos de contraseñas filtradas están desactivados"
+  },
+  "checkPwOffDetail": {
+    "message": "Moat puede avisarte si una contraseña que escribes apareció en una filtración. Solo sale un código corto de tu dispositivo."
+  },
+  "checkPausedOne": {
+    "message": "En pausa en 1 sitio"
+  },
+  "checkPausedTitle": {
+    "message": "En pausa en $A$ sitios",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkPausedDetail": {
+    "message": "Moat no bloquea anuncios ni rastreadores allí. Los sitios peligrosos se siguen deteniendo."
+  },
+  "checkAllowedOne": {
+    "message": "1 sitio en Nunca bloquear"
+  },
+  "checkAllowedTitle": {
+    "message": "$A$ sitios en Nunca bloquear",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkAllowedDetail": {
+    "message": "Allí se cargan anuncios y rastreadores. Los sitios peligrosos se siguen deteniendo."
+  },
+  "checkReview": {
+    "message": "Revisar"
+  },
+  "checkRestoredTitle": {
+    "message": "Ajustes restaurados desde un archivo el $A$",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "checkRestoredRisky": {
+    "message": "Ese archivo desactivó parte de la protección. Deshazlo si no lo creaste tú."
+  },
+  "checkRestoredDetail": {
+    "message": "Puedes volver a tus ajustes anteriores."
+  },
+  "checkUndo": {
+    "message": "Deshacer restauración"
+  },
+  "importUndone": {
+    "message": "Tus ajustes vuelven a estar como antes de la restauración."
+  },
+  "insWhyTitle": {
+    "message": "Por qué te rastrearon"
+  },
+  "insOnSites": {
+    "message": "En $A$ de tus $B$ sitios",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      }
+    }
+  },
+  "insBlockedWord": {
+    "message": "bloqueados"
+  },
+  "insSeenOnTitle": {
+    "message": "Dónde estaba"
+  },
+  "insOpenSite": {
+    "message": "Ver $A$ en Sitios",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insOpenCompany": {
+    "message": "Ver $A$ en Rastreadores",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDaysLabel": {
+    "message": "Días de esta semana"
+  },
+  "insBusiestDay": {
+    "message": "$A$ fue el día con más actividad. Elige un día para ver dónde.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDayLine": {
+    "message": "$A$ bloqueados, la mayoría entre las $B$ y las $C$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      },
+      "b": {
+        "content": "$2"
+      },
+      "c": {
+        "content": "$3"
+      }
+    }
+  },
+  "insDayTotal": {
+    "message": "$A$ bloqueados.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDayNone": {
+    "message": "Nada bloqueado el $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "insDayWhere": {
+    "message": "Sobre todo en"
+  },
+  "siteKindAds": {
+    "message": "$A$ anuncios",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteKindTrackers": {
+    "message": "$A$ rastreadores",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteKindPopups": {
+    "message": "$A$ ventanas emergentes",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteAddresses": {
+    "message": "$A$ direcciones",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteAddressesTitle": {
+    "message": "Direcciones de este sitio"
+  },
+  "secStopsDangerOne": {
+    "message": "1 página peligrosa"
+  },
+  "secStopsDangerMany": {
+    "message": "$A$ páginas peligrosas",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "secStopsDangerTailOne": {
+    "message": "se detuvo esta semana."
+  },
+  "secStopsDangerTail": {
+    "message": "se detuvieron esta semana."
+  },
+  "secStopsNoDanger": {
+    "message": "Ninguna página peligrosa esta semana."
+  },
+  "secPhishTip": {
+    "message": "Si escribiste una contraseña o un número de tarjeta en una de estas páginas antes de que Moat la detuviera, cambia esa contraseña y avisa a tu banco."
+  },
+  "secAdPagesOne": {
+    "message": "1 página de anuncios o rastreo nunca se cargó"
+  },
+  "secAdPagesMany": {
+    "message": "$A$ páginas de anuncios y rastreo nunca se cargaron",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "secCustomOne": {
+    "message": "1 página en una lista de bloqueo tuya o de tu organización"
+  },
+  "secCustomMany": {
+    "message": "$A$ páginas en listas de bloqueo tuyas o de tu organización",
+    "placeholders": {
+      "a": {
+        "content": "$1"
+      }
+    }
+  },
+  "secNotDangerous": {
+    "message": "¿No es peligroso?"
+  },
+  "secStopUnknown": {
+    "message": "En una lista de peligro que Moat no pudo identificar"
   }
 }

@@ -744,8 +744,10 @@ export interface UsageSummaryResponse {
   purposes: Record<string, number>;
   /** Whole pages Moat refused to load this week, newest first. */
   pageStops: Array<{ hostname: string; time: number; list?: string; kind?: "danger" | "ads" | "custom" | "policy" | "unknown" }>;
-  /** Up to 5 sites each company was blocked on this week. */
+  /** Up to 8 sites each company was blocked on this week, most blocks first. */
   companySites: Record<string, string[]>;
+  /** Each day's three sites with the most blocks, oldest day first: 7 entries. */
+  dailyTopSites: Array<Array<{ hostname: string; count: number }>>;
   /** Distinct sites where at least one tracker company was blocked this week. */
   trackerSiteCount: number;
 }
