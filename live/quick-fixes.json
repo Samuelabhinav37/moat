@@ -3,5 +3,15 @@
     "urlFilter": "||unlimitedadblocker.pro^",
     "resourceTypes": ["main_frame", "sub_frame"],
     "action": "block"
+  },
+  {
+    "urlFilter": "||adblockerpremium.online^",
+    "resourceTypes": ["main_frame", "sub_frame"],
+    "action": "block"
+  },
+  {
+    "urlFilter": "||krilovane.info^",
+    "resourceTypes": ["main_frame", "sub_frame"],
+    "action": "block"
   }
 ]
