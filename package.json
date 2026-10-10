@@ -3,7 +3,7 @@
   "version": "0.11.274",
   "private": true,
   "license": "GPL-3.0",
-  "description": "A quiet ad blocker and popup/redirect firewall for Chrome and Firefox.",
+  "description": "Free ad blocker for Chrome and Firefox. Stops ads, trackers and pop-ups before they load. No account, no telemetry.",
   "homepage": "https://samuelabhinav37.github.io/moat/",
   "repository": {
     "type": "git",

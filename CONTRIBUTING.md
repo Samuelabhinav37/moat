@@ -8,7 +8,9 @@ Thank you for helping improve Moat. Contributions should preserve its quiet user
 npm ci
 npm run typecheck
 npm test
+npm run lint
 npm run build
+npm run check:chrome-load   # loads the build in Chrome and checks every regex rule
 npm run lint:firefox
 ```
 
