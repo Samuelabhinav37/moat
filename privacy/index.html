@@ -1,0 +1,829 @@
+<!-- Built by scripts/site-privacy.mjs from PRIVACY.md. Don't edit by hand. -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Privacy policy · Moat</title><style>:root {
+  color-scheme: light dark;
+  --bg: #1b191d;
+  --card: #242229;
+  --fg: #eceef0;
+  --muted: #a7a1ac;
+  /* Link/affordance colour. Deliberately a distinct blue -- the old value
+     (#d7dae0) was near-white and left links indistinguishable from body
+     text. Matches the blue the popup already uses for the "protected"
+     state. */
+  --accent: #6f9be0;
+  /* Toggle-on (switches, "protected"). Toned down from the previous acid #4ae03f, which
+     read as neon against the dark surfaces. */
+  --on: #43c13a;
+  --primary: #3f6fd1;
+  --primary-hover: #2f57ad;
+  --on-fg: #0e2b0c;
+  --danger: #fa6d6d;
+  --danger-fg: #2c2c2f;
+  --border: #37343b;
+  /* Row separator inside a borderless list -- sits between --bg and --border
+     so it reads as a rule, not an edge. */
+  --hairline: #2b282f;
+  /* Amber: "worth knowing" warnings, stale rules, heavy-page badges.
+     Distinct from --danger, which means blocked -- red here would say
+     "this might break something" when it should say "this is refused". */
+  --caution: #e0b16f;
+  --caution-fg: #2c2c2f;
+  /* Border of a selected list row / keycap outline. */
+  --selected: #4a4550;
+  /* Extension-icon background plate -- see icons/logo.svg. */
+  --plate: #030307;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+h1 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  padding: 6px 12px;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+/* Primary actions are Moat blue on every page (Settings and the report page
+   used to override this; Diagnostics and the warning page didn't, so their
+   main buttons were the green kept for "on" and "protected"). */
+button.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+button.primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+
+/* Generic keyboard-focus ring for everything else clickable -- rail tabs,
+   filter-preset buttons, clickable protection rows, permission chips,
+   <summary> disclosures, custom-rule remove links. One shared rule rather
+   than bespoke styling per component, same reasoning as the switch's own
+   focus ring above (which needs its own rule only because the real
+   checkbox is visually zeroed out). Everything here already has a visible
+   focus state from the browser's own default outline; this just matches it
+   to the rest of the product's polish instead of leaving it unstyled. */
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+ul.site-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+ul.site-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* DR-12, second half: the permission chips in the Protection list are also
+   under the 24px floor. Applied directly in options.html, where .chip's
+   real rule lives (that inline sheet loads after this one and would shadow
+   any rule added here). */
+
+/* ---------------------------------------------------------------------------
+   DR-15 — one new token. "Stays on your device" vs "leaves your device" is
+   now a real distinction in the UI (Backup tab), and the heading that marks
+   the leaving half needs to read as a caution without being an alarm.
+   --------------------------------------------------------------------------- */
+:root {
+  /* Caution at low alpha, for the inline notice block behind sync. */
+  --caution-wash: rgba(224, 177, 111, 0.1);
+}
+
+/* ---------------------------------------------------------------------------
+   Light theme. <html data-theme> is set before the first paint by
+   theme-boot.js (src/ui/theme.ts): the Settings choice, or the device's
+   setting when the choice is System. Pale tinted surfaces rather than stark
+   white; every text colour here keeps at least 4.5:1 on --bg and --card.
+   --------------------------------------------------------------------------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f5f8;
+  --card: #ffffff;
+  --fg: #1c1a20;
+  --muted: #5d5764;
+  --accent: #2f5fc4;
+  --on: #1d7f18;
+  --primary: #3563c7;
+  --primary-hover: #2a4fa3;
+  --on-fg: #ffffff;
+  --danger: #b42e2e;
+  --danger-fg: #ffffff;
+  --border: #dcd8e2;
+  --hairline: #e8e5ed;
+  --caution: #8a5a00;
+  --caution-fg: #ffffff;
+  --selected: #c9c4d0;
+  --caution-wash: rgba(196, 132, 20, 0.12);
+}
+
+/* Moat's shared components: the only definition of each, loaded after
+   theme.css on every page (and by the document pages). A page may place
+   them, but doesn't restyle them; uiDrift.test.ts checks that.
+   Material 3 and GitHub's Primer work the same way: one source for each
+   piece, so the popup, Settings and the rest can't drift apart again. */
+
+:root {
+  --switch-off: #4a4650;
+  --switch-on: #3f6fd1;
+  --switch-focus: #6f9be0;
+}
+:root[data-theme="light"] {
+  --switch-off: #c4bfcb;
+  --switch-on: #3563c7;
+  --switch-focus: #2f5fc4;
+}
+
+/* ---------- Brand: Moat's mark and name ---------- */
+.moat-brand {
+  /* Also used on an <h1> (the popup), so no heading margins. */
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--fg);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  text-decoration: none;
+}
+.moat-brand:hover {
+  text-decoration: none;
+}
+.moat-brand > img,
+.moat-brand > svg {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+}
+/* The popup's smaller header. */
+.moat-brand--sm {
+  gap: 8px;
+  font-size: 17px;
+}
+.moat-brand--sm > img,
+.moat-brand--sm > svg {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+/* ---------- Header: brand, then an optional middle, then actions ---------- */
+.moat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.moat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* ---------- Card ---------- */
+.moat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+}
+
+/* ---------- Switch: blue when on, the same everywhere ---------- */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+  padding: 0;
+  flex: none;
+  cursor: pointer;
+}
+.switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.switch .track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--switch-off);
+  transition: background 0.25s;
+}
+.switch .thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.switch input:checked + .track {
+  background: var(--switch-on);
+}
+.switch input:checked + .track .thumb {
+  left: 23px;
+}
+/* The real checkbox is invisible, so its focus ring goes on the track. */
+.switch input:focus-visible + .track {
+  outline: 2px solid var(--switch-focus);
+  outline-offset: 3px;
+}
+.switch input:disabled + .track {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+/* The popup's smaller switch: 36x20 to look at, with a transparent 4px
+   ring so the target is 44x28 (WCAG 2.5.8 asks 24px at least). */
+.switch--sm {
+  width: 44px;
+  height: 28px;
+  padding: 4px;
+}
+.switch--sm .track {
+  inset: 4px;
+}
+.switch--sm .thumb {
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+}
+.switch--sm input:checked + .track .thumb {
+  left: 18px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .switch .track,
+  .switch .thumb {
+    transition: none;
+  }
+}
+
+/* WCAG 2.5.8: a link or control that stands on its own (not inside a
+   sentence) gets a target at least 24px tall. Same look; the extra height
+   is padding. */
+#open-options,
+#week-link,
+#ov-status-change,
+#level-line-change,
+#filter-check-updates,
+#trackers-refresh,
+.flow-change,
+details > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+details > summary {
+  display: list-item;
+  padding-block: 2px;
+}
+input[type="checkbox"]:not(.switch input),
+input[type="radio"] {
+  width: 18px;
+  height: 18px;
+}
+
+/* Moat document pages: same tokens and type as Settings. Reading width ~70ch, sticky contents list. */
+:root { color-scheme: dark; --page: #141317; --panel: #1b191d; --panel-2: #222027; --panel-3: #2a2730; --line: #2e2b33; --fg: #eceef0; --muted: #a7a1ac; --faint: #8c8792;
+  --blue: #3f6fd1; --blue-deep: #2f57ad; --blue-lt: #6f9be0; --tint: rgba(111,155,224,.12); --tint-2: #1f2433; --on: #43c13a; --caution: #e0b16f; --danger: #f08080;
+  --ui: system-ui, -apple-system, "Segoe UI", sans-serif; --mono: ui-monospace, "SFMono-Regular", Consolas, monospace; --e-out: cubic-bezier(.2,0,0,1); }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 84px; scrollbar-gutter: stable; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+body { margin: 0; background: var(--page); color: var(--fg); font: 15px/1.6 var(--ui); }
+a { color: var(--blue-lt); text-decoration: none; } a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 2px; }
+svg { flex: none; vertical-align: -2px; }
+
+.bar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; height: 64px; padding: 0 20px; background: var(--bar-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.docnav { display: flex; gap: 4px; margin-left: 12px; overflow-x: auto; scrollbar-width: none; flex: 1; }
+.docnav a { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 9px; color: var(--muted); font-size: 14px; font-weight: 600; white-space: nowrap; transition: background .16s, color .16s; }
+.docnav a:hover { background: var(--panel-2); color: var(--fg); text-decoration: none; }
+.docnav a[aria-current="page"] { background: var(--tint-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--tint-line); }
+.docnav a[aria-current="page"] svg { color: var(--blue-lt); }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--fg); font-weight: 600; font-size: 14px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); white-space: nowrap; }
+.back:hover { text-decoration: none; background: var(--panel-2); }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 36px 24px 96px; }
+.wrap.has-toc { display: grid; grid-template-columns: 220px minmax(0,1fr); gap: 48px; }
+.toc { position: sticky; top: 96px; align-self: start; display: grid; gap: 2px; font-size: 13.5px; max-height: calc(100vh - 120px); overflow-y: auto; }
+.toc-h { font-weight: 600; color: var(--faint); margin-bottom: 6px; }
+.toc a { color: var(--muted); padding: 6px 10px; border-left: 2px solid var(--line); line-height: 1.35; transition: color .16s, border-color .16s, background .16s; }
+.toc a:hover { color: var(--fg); text-decoration: none; }
+.toc a.on { color: var(--fg); border-left-color: var(--blue-lt); background: linear-gradient(90deg, var(--tint), transparent); }
+main { min-width: 0; }
+.head { margin-bottom: 28px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+h1 { font-size: 34px; line-height: 1.15; margin: 0; letter-spacing: -.015em; }
+.lead { color: var(--muted); font-size: 17px; margin: 8px 0 0; }
+.meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; font-size: 13.5px; color: var(--faint); }
+.meta b { color: var(--fg); }
+
+.prose { max-width: 72ch; }
+.prose h2 { font-size: 21px; margin: 40px 0 10px; padding-top: 8px; letter-spacing: -.01em; }
+.prose h3 { font-size: 16.5px; margin: 26px 0 6px; }
+.prose p, .prose li { color: var(--prose); }
+.prose p { margin: 0 0 12px; }
+.prose ul, .prose ol { padding-left: 22px; margin: 0 0 14px; display: grid; gap: 6px; }
+.prose li::marker { color: var(--faint); }
+.prose b { color: var(--fg); }
+code { font: 13px var(--mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; color: var(--code-fg); word-break: break-word; }
+pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; overflow-x: auto; } pre code { border: 0; padding: 0; background: none; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+
+/* Privacy: four summary cards */
+.summary { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin-bottom: 10px; }
+.sum { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
+.sum .si { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--tint-2); color: var(--blue-lt); box-shadow: inset 0 0 0 1px rgba(111,155,224,.3); }
+.sum h3 { margin: 12px 0 4px; font-size: 16px; }
+.sum p { margin: 0; color: var(--prose-2); font-size: 14.5px; }
+
+/* Changelog */
+.tools { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 18px; }
+.seg { display: inline-flex; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 4px; gap: 2px; overflow-x: auto; max-width: 100%; }
+.seg button { border: 0; background: none; color: var(--muted); font: 600 14px var(--ui); padding: 7px 14px; border-radius: 9px; cursor: pointer; white-space: nowrap; transition: background .16s, color .16s; }
+.seg button[aria-selected="true"] { background: var(--tint-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--tint-line); }
+.find { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--muted); min-width: 240px; flex: 0 1 320px; }
+.find input { flex: 1; min-width: 0; border: 0; background: none; color: var(--fg); font: inherit; outline: none; }
+.find:focus-within { border-color: var(--blue-lt); }
+.timeline { display: grid; }
+.rel { display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 28px; padding: 26px 0; border-top: 1px solid var(--line); position: relative; }
+.rel:first-child { border-top: 0; padding-top: 6px; }
+.rel-side { display: grid; align-content: start; gap: 4px; position: sticky; top: 92px; align-self: start; }
+.ver { justify-self: start; font: 700 14px var(--mono); color: var(--blue-lt); background: var(--tint-2); border: 1px solid rgba(111,155,224,.35); border-radius: 8px; padding: 3px 9px; }
+.rel:first-child .ver::after { content: "Latest"; margin-left: 8px; font: 700 11px var(--ui); color: var(--fg); }
+.rel-side time { font-weight: 600; font-size: 14px; margin-top: 6px; }
+.rel-side .date { font-size: 13px; color: var(--faint); }
+.rel-body h2 { font-size: 20px; margin: 0 0 12px; line-height: 1.3; letter-spacing: -.01em; }
+.part { margin-top: 12px; }
+.tag { display: inline-flex; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; margin-bottom: 8px; background: var(--panel-3); color: var(--muted); }
+.tag.fix { background: rgba(111,155,224,.14); color: var(--blue-fg); } .tag.new { background: rgba(67,193,58,.13); color: var(--green-fg); } .tag.sec { background: rgba(240,128,128,.13); color: var(--danger); } .tag.perf { background: rgba(224,177,111,.13); color: var(--caution); }
+.rel .prose ul { gap: 8px; } .rel .prose ul ul { margin: 6px 0 0; }
+.more { margin-top: 24px; } .empty { color: var(--muted); padding: 24px 0; }
+
+/* Licenses */
+.own { display: flex; align-items: center; gap: 20px; justify-content: space-between; flex-wrap: wrap; background: linear-gradient(135deg, var(--tint-2), var(--panel) 70%); border: 1px solid rgba(111,155,224,.3); border-radius: 16px; padding: 20px 22px; margin-bottom: 30px; }
+.own h2 { margin: 0 0 4px; font-size: 18px; } .own p { margin: 0; color: var(--prose-2); }
+.btn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); border-radius: 10px; padding: 9px 14px; font: 600 14px var(--ui); cursor: pointer; white-space: nowrap; }
+.btn:hover { background: var(--panel-3); text-decoration: none; }
+.btn.ghost { background: none; }
+.sub { font-size: 18px; margin: 30px 0 12px; display: flex; align-items: center; gap: 10px; }
+.count { font-size: 12.5px; font-weight: 700; color: var(--muted); background: var(--panel-3); border-radius: 999px; padding: 1px 9px; }
+.lic-list { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--panel); }
+.lic + .lic { border-top: 1px solid var(--line); }
+.lic summary { display: grid; grid-template-columns: minmax(0,1fr) auto auto 20px; gap: 14px; align-items: center; padding: 14px 18px; cursor: pointer; list-style: none; transition: background .16s; }
+.lic summary::-webkit-details-marker { display: none; }
+.lic summary:hover { background: var(--panel-2); }
+.lic[open] summary { background: var(--tint-2); }
+.lic .nm { font-weight: 650; }
+.lic .src { font-size: 13px; }
+.lic .chev { color: var(--faint); transform: rotate(180deg); transition: transform .24s var(--e-out); display: grid; }
+.lic[open] .chev { transform: rotate(270deg); }
+.lic .prose { padding: 4px 18px 16px; font-size: 14px; }
+.badge { font: 700 12px var(--mono); padding: 3px 9px; border-radius: 7px; background: var(--panel-3); color: var(--muted); white-space: nowrap; }
+.badge.gpl { background: rgba(111,155,224,.14); color: var(--blue-fg); } .badge.perm { background: rgba(67,193,58,.12); color: var(--green-fg); } .badge.nc, .badge.warn { background: rgba(224,177,111,.13); color: var(--caution); }
+.note { margin-top: 28px; color: var(--muted); font-size: 14px; }
+
+/* Diagnostics */
+.dhero { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.tab { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.tab div { flex: 1; display: grid; } .tab div span { font-size: 13px; color: var(--muted); }
+.fav { width: 36px; height: 36px; border-radius: 10px; background: var(--panel-3); display: grid; place-items: center; font-weight: 750; }
+.dstats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); }
+.dstats div { padding: 16px 20px; display: grid; } .dstats div + div { border-left: 1px solid var(--line); }
+.dstats .v { font-size: 26px; font-weight: 750; line-height: 1.1; } .dstats .l { font-size: 13px; color: var(--muted); }
+.hint { color: var(--muted); font-size: 14px; margin: -6px 0 12px; }
+.tbl { border: 1px solid var(--line); border-radius: 14px; overflow-x: auto; background: var(--panel); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-size: 12.5px; color: var(--muted); font-weight: 600; padding: 11px 16px; border-bottom: 1px solid var(--line); white-space: nowrap; background: var(--panel-2); }
+td { padding: 11px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; } tbody tr:hover { background: rgba(111,155,224,.05); }
+.r { text-align: right; } .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.url { font: 12.5px var(--mono); color: var(--prose-2); word-break: break-all; }
+.st { font-size: 12.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--panel-3); color: var(--muted); }
+.st.ok { background: rgba(111,155,224,.14); color: var(--blue-fg); }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+@media (max-width: 900px) {
+  .wrap.has-toc { grid-template-columns: 1fr; } .toc { display: none; }
+  .docnav a span { display: none; } .docnav a[aria-current="page"] span { display: inline; }
+  .summary { grid-template-columns: 1fr; }
+  .rel { grid-template-columns: 1fr; gap: 10px; } .rel-side { position: static; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; } .rel-side time { margin: 0; }
+  .dstats { grid-template-columns: repeat(2, minmax(0,1fr)); } .dstats div:nth-child(3) { border-left: 0; } .dstats div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .lic summary { grid-template-columns: minmax(0,1fr) auto 20px; } .lic .src { display: none; }
+  .wrap { padding: 24px 16px 72px; } h1 { font-size: 28px; }
+}
+@media (max-width: 560px) { .back { padding: 8px 10px; } .moat-brand span { display: none; } .find { min-width: 0; flex: 1 1 100%; } }
+
+/* ---------- Privacy page: label, connections table, tiles ---------- */
+.pv-label { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 20px 24px; align-items: center; padding: 28px; border: 1px solid rgba(67,193,58,.3); border-radius: 20px; background: linear-gradient(135deg, rgba(67,193,58,.10), var(--panel) 55%); margin-bottom: 40px; }
+.pv-badge { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 20px; background: rgba(67,193,58,.15); color: var(--green-fg); box-shadow: inset 0 0 0 1px rgba(67,193,58,.35); }
+.pv-eyebrow { margin: 0; font-size: 13px; font-weight: 600; color: var(--green-fg); }
+.pv-label h2 { margin: 2px 0 6px; font-size: 28px; letter-spacing: -.015em; }
+.pv-label p { margin: 0; color: var(--prose); max-width: 60ch; }
+.pv-facts { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin: 6px 0 0; padding: 0; list-style: none; }
+.pv-facts li { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; background: var(--fact-bg); border: 1px solid var(--line); }
+.pv-facts svg { color: var(--green-fg); margin-top: 1px; }
+.pv-facts b { display: block; font-size: 15px; }
+.pv-facts span { font-size: 13.5px; color: var(--muted); }
+.pv-sec { margin-top: 44px; }
+.pv-h { margin-bottom: 16px; }
+.pv-h h2 { margin: 0; font-size: 22px; letter-spacing: -.01em; }
+.pv-h p { margin: 4px 0 0; color: var(--muted); }
+.pv-table { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--panel); }
+.pv-head, .pv-row summary { display: grid; grid-template-columns: 36px minmax(140px, 1.1fr) minmax(0, 1.4fr) minmax(0, 1.2fr) 170px 18px; gap: 16px; align-items: center; }
+.pv-head { padding: 12px 18px; border-bottom: 1px solid var(--line); background: var(--panel-2); font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.pv-item + .pv-item { border-top: 1px solid var(--line); }
+.pv-row summary { padding: 14px 18px; cursor: pointer; list-style: none; transition: background .16s; }
+.pv-row summary::-webkit-details-marker { display: none; }
+.pv-row summary:hover { background: rgba(111,155,224,.05); }
+.pv-row[open] summary { background: var(--tint-2); }
+.pv-ico { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--panel-3); color: var(--muted); }
+.pv-name { font-weight: 650; }
+.pv-sent, .pv-who { font-size: 14px; color: var(--prose); }
+.pv-sent small, .pv-who small { display: none; }
+.pv-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; border: 1px solid var(--line); color: var(--muted); }
+.pv-pill.on { color: var(--fg); background: var(--panel-3); }
+.pv-pill.off { color: var(--muted); border-color: var(--line-2); background: none; }
+.pv-pill.send { color: var(--blue-fg); border-color: rgba(111,155,224,.4); background: rgba(111,155,224,.1); }
+.pv-chev { color: var(--muted); display: grid; transition: transform .24s var(--e-out); }
+.pv-row[open] .pv-chev { transform: rotate(90deg); }
+.pv-detail { padding: 2px 18px 18px 70px; display: grid; gap: 8px; max-width: 80ch; }
+.pv-detail p { margin: 0; color: var(--prose-2); font-size: 14.5px; }
+.pv-note { display: flex; gap: 8px; align-items: center; margin: 12px 2px 0; font-size: 14px; color: var(--muted); }
+.pv-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+.pv-grid.three { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.pv-tile { display: grid; gap: 6px; align-content: start; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+.pv-tile .pv-ico { margin-bottom: 4px; }
+.pv-tile b { font-size: 15.5px; }
+.pv-tile p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.pv-tile a { margin-top: 4px; font-weight: 600; font-size: 14px; }
+.pv-full { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+.pv-full > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; cursor: pointer; list-style: none; }
+.pv-full > summary::-webkit-details-marker { display: none; }
+.pv-full > summary b { display: block; font-size: 16px; }
+.pv-full > summary small { color: var(--muted); font-size: 13.5px; }
+.pv-full[open] > summary svg { transform: rotate(90deg); }
+.pv-full > summary svg { transition: transform .24s var(--e-out); color: var(--muted); }
+.pv-full .prose { padding: 0 20px 20px; max-width: none; border-top: 1px solid var(--line); }
+@media (max-width: 900px) {
+  .pv-head { display: none; }
+  .pv-row summary { grid-template-columns: 36px minmax(0,1fr) 18px; grid-template-areas: "i n c" "i s s" "i w w" "i p p"; row-gap: 6px; }
+  .pv-row .pv-ico { grid-area: i; align-self: start; } .pv-name { grid-area: n; } .pv-chev { grid-area: c; }
+  .pv-sent { grid-area: s; } .pv-who { grid-area: w; } .pv-when { grid-area: p; }
+  .pv-sent small, .pv-who small { display: block; font-size: 12px; color: var(--muted); }
+  .pv-detail { padding-left: 18px; }
+  .pv-facts, .pv-grid, .pv-grid.three { grid-template-columns: 1fr; }
+  .pv-label { grid-template-columns: 1fr; padding: 22px; }
+}
+
+
+/* v15: tokens for both themes; the theme follows Settings › About › Appearance. */
+:root { --line-2: #3a3640; --prose: #d6d8dd; --prose-2: #cfd2d8; --code-bg: #0f0e12; --code-fg: #d9cdf2; --bar-bg: rgba(20,19,23,.92); --fact-bg: rgba(20,19,23,.55); --blue-fg: #a9c4f0; --green-fg: #7fd877; --tint-line: rgba(111,155,224,.45); }
+:root[data-theme="light"] { color-scheme: light; --page: #f6f5f8; --panel: #ffffff; --panel-2: #f1eff4; --panel-3: #e9e6ee; --line: #e2dfe7; --line-2: #d3cfd9; --fg: #1c1a20; --muted: #5d5764; --faint: #6c6573;
+  --blue: #3563c7; --blue-deep: #2a4fa3; --blue-lt: #2f5fc4; --tint: rgba(53,99,199,.08); --tint-2: #e8eefb; --tint-line: rgba(53,99,199,.35); --on: #1d7f18; --caution: #8a5a00; --danger: #b42e2e;
+  --prose: #2c2932; --prose-2: #3d3944; --code-bg: #f1eff4; --code-fg: #5b3a99; --bar-bg: rgba(246,245,248,.92); --fact-bg: rgba(255,255,255,.7); --blue-fg: #2a4fa3; --green-fg: #1d7f18; }
+@media (prefers-color-scheme: light) { :root:not([data-theme]) { color-scheme: light; --page: #f6f5f8; --panel: #ffffff; --panel-2: #f1eff4; --panel-3: #e9e6ee; --line: #e2dfe7; --line-2: #d3cfd9; --fg: #1c1a20; --muted: #5d5764; --faint: #6c6573;
+  --blue: #3563c7; --blue-deep: #2a4fa3; --blue-lt: #2f5fc4; --tint: rgba(53,99,199,.08); --tint-2: #e8eefb; --tint-line: rgba(53,99,199,.35); --on: #1d7f18; --caution: #8a5a00; --danger: #b42e2e;
+  --prose: #2c2932; --prose-2: #3d3944; --code-bg: #f1eff4; --code-fg: #5b3a99; --bar-bg: rgba(246,245,248,.92); --fact-bg: rgba(255,255,255,.7); --blue-fg: #2a4fa3; --green-fg: #1d7f18; } }
+:root[data-theme="dark"] { color-scheme: dark; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 99; background: var(--blue); color: #fff; padding: 10px 14px; border-radius: 10px; font-weight: 650; }
+.skip:focus { top: 10px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+main:focus { outline: none; }
+.bar .back { margin-right: 4px; }
+.bar .moat-brand { margin-right: 4px; }
+.docnav { margin-left: 4px; position: relative; }
+/* Links that stand on their own get a 24px target; links inside sentences stay inline. */
+.pv-tile a, .more a, .lic a, .actions a, .own a { display: inline-flex; align-items: center; gap: 5px; min-height: 24px; }
+.prose a { display: inline; min-height: 0; }
+.toc-m { display: none; }
+@media (max-width: 900px) {
+  .bar { flex-wrap: wrap; height: auto; padding: 10px 16px; row-gap: 8px; }
+  .docnav { order: 3; flex-basis: 100%; margin-left: 0; }
+  .docnav a span { display: inline; }
+  .toc-m { display: grid; gap: 6px; margin: 0 0 22px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .toc-m select { height: 42px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); padding: 0 10px; font: 600 15px var(--ui); }
+  html { scroll-padding-top: 120px; }
+}
+
+/* Not in English: the page's short version in the browser's language. */
+.lang-note { margin: 0 0 28px; padding: 14px 16px; border: 1px solid var(--tint-line); border-radius: 12px; background: var(--tint-2); color: var(--fg); line-height: 1.55; }
+.lang-note b { margin-right: 4px; }
+
+/* =====================================================================
+   Apple-style pass (after apple.com/legal): neutral surfaces, the system
+   SF type, a centered title with its date, a narrow reading column, plain
+   headings, hairlines instead of boxes, and no coloured badges. Layout and
+   behaviour are unchanged; this only restyles.
+   ===================================================================== */
+:root { --page: #0a0a0c; --panel: #161618; --panel-2: #1f1f22; --panel-3: #28282c; --line: #262629; --line-2: #36363b; --fg: #f5f5f7; --muted: #a1a1a6; --faint: #86868b;
+  --prose: #e8e8ed; --prose-2: #c7c7cc; --tint-2: #1a2236; --bar-bg: rgba(10, 10, 12, .8); --fact-bg: transparent; --code-bg: #161618; --code-fg: #e8e8ed;
+  --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "Segoe UI", sans-serif; }
+:root[data-theme="light"] { --page: #ffffff; --panel: #f5f5f7; --panel-2: #ececf0; --panel-3: #e3e3e8; --line: #e5e5ea; --line-2: #d2d2d7; --fg: #1d1d1f; --muted: #6e6e73; --faint: #86868b;
+  --prose: #1d1d1f; --prose-2: #424245; --tint-2: #f0f4fd; --bar-bg: rgba(255, 255, 255, .8); --code-bg: #f5f5f7; --code-fg: #1d1d1f; }
+@media (prefers-color-scheme: light) { :root:not([data-theme]) { --page: #ffffff; --panel: #f5f5f7; --panel-2: #ececf0; --panel-3: #e3e3e8; --line: #e5e5ea; --line-2: #d2d2d7; --fg: #1d1d1f; --muted: #6e6e73; --faint: #86868b;
+  --prose: #1d1d1f; --prose-2: #424245; --tint-2: #f0f4fd; --bar-bg: rgba(255, 255, 255, .8); --code-bg: #f5f5f7; --code-fg: #1d1d1f; } }
+body { font-family: var(--ui); font-size: 17px; line-height: 1.53; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; }
+
+/* top bar: quiet, translucent, plain links */
+.bar { height: 52px; backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
+.docnav a { font-size: 13px; font-weight: 500; padding: 6px 10px; border-radius: 980px; }
+.docnav a svg { display: none; }
+.docnav a[aria-current="page"] { background: none; box-shadow: none; color: var(--fg); font-weight: 600; }
+.back { border: 0; background: none; padding: 6px 4px; font-weight: 500; font-size: 13px; color: var(--blue-lt); }
+.back:hover { background: none; text-decoration: underline; }
+
+/* one reading column; the contents list sits quietly at the left on wide screens */
+.wrap { max-width: 980px; padding: 64px 24px 120px; }
+.wrap.has-toc { grid-template-columns: 180px minmax(0, 1fr); gap: 56px; }
+.toc { top: 84px; font-size: 13px; }
+.toc a { border-left: 0; padding: 5px 0; }
+.toc a.on { background: none; color: var(--fg); font-weight: 600; }
+main { max-width: 692px; }
+
+/* the title block, as on Apple's legal pages */
+.head { border-bottom: 0; padding-bottom: 0; margin-bottom: 48px; }
+h1 { font-size: clamp(36px, 4.4vw, 48px); line-height: 1.08; font-weight: 600; letter-spacing: -0.025em; }
+.lead { font-size: 21px; line-height: 1.38; color: var(--muted); margin-top: 14px; }
+.meta { margin-top: 18px; font-size: 14px; color: var(--faint); }
+.meta b { color: var(--muted); font-weight: 600; }
+
+/* prose */
+.prose { max-width: none; }
+.prose h2, .pv-h h2, .sub { font-size: 28px; line-height: 1.14; font-weight: 600; letter-spacing: -0.02em; margin: 56px 0 14px; }
+.prose h3 { font-size: 19px; font-weight: 600; margin: 32px 0 8px; }
+.prose p, .prose li { font-size: 17px; line-height: 1.53; }
+.prose ul, .prose ol { gap: 8px; }
+code { border: 0; background: var(--code-bg); font-size: 14px; }
+pre { border: 0; border-radius: 14px; }
+
+/* privacy: the label and every box become plain sections with hairlines */
+.pv-label { display: block; padding: 0 0 32px; margin-bottom: 0; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: none; }
+.pv-badge { display: none; }
+.pv-eyebrow { color: var(--muted); font-size: 14px; }
+.pv-label h2 { font-size: 32px; margin: 4px 0 10px; }
+.pv-label p { font-size: 19px; line-height: 1.42; color: var(--prose-2); }
+.pv-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 28px; }
+.pv-facts li { padding: 0; border: 0; background: none; flex-direction: column; gap: 6px; }
+.pv-facts svg { color: var(--fg); }
+.pv-facts b { font-size: 17px; }
+.pv-facts span { font-size: 15px; }
+.pv-sec { margin-top: 56px; }
+.pv-h { margin-bottom: 8px; } .pv-h h2 { margin-top: 0; }
+.pv-h p { font-size: 17px; }
+.pv-table, .lic-list, .tbl, .pv-full, .dhero { border: 0; border-radius: 0; background: none; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.pv-head { background: none; padding-left: 0; padding-right: 0; }
+.pv-row summary { padding: 18px 0; }
+.pv-row summary:hover, .pv-row[open] summary { background: none; }
+.pv-ico { background: none; width: 28px; color: var(--muted); }
+.pv-pill, .pv-pill.on, .pv-pill.send { border: 0; background: none; padding: 0; font-size: 14px; color: var(--muted); }
+.pv-pill.send { color: var(--blue-lt); }
+.pv-detail { padding: 0 0 18px 52px; }
+.pv-grid, .pv-grid.three { gap: 0; border-top: 1px solid var(--line); }
+.pv-tile { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: none; padding: 22px 0; }
+.pv-full > summary { padding: 20px 0; }
+.pv-full .prose { padding: 0 0 24px; border-top: 0; }
+.summary { gap: 0; } .sum { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: none; padding: 20px 0; } .sum .si { display: none; }
+
+/* changelog: version and date as a quiet line, no coloured tags */
+.seg { border: 0; background: var(--panel); border-radius: 980px; }
+.seg button { border-radius: 980px; font-size: 13px; font-weight: 500; }
+.seg button[aria-selected="true"] { background: var(--fg); color: var(--page); box-shadow: none; }
+.find { border: 0; background: var(--panel); border-radius: 980px; height: 36px; }
+.rel { grid-template-columns: 1fr; gap: 8px; padding: 40px 0; }
+.rel-side { position: static; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.ver { background: none; border: 0; padding: 0; font: 600 14px var(--ui); color: var(--muted); }
+.rel:first-child .ver::after { font-weight: 600; color: var(--blue-lt); }
+.rel-side time { margin: 0; font-size: 14px; font-weight: 400; color: var(--faint); }
+.rel-side .date { display: none; }
+.rel-body h2 { font-size: 24px; font-weight: 600; margin: 4px 0 14px; }
+.tag, .tag.fix, .tag.new, .tag.sec, .tag.perf { background: none; padding: 0; font-size: 13px; font-weight: 600; color: var(--faint); text-transform: none; }
+
+/* licenses */
+.own { border: 0; border-radius: 18px; background: var(--panel); padding: 24px; }
+.btn { border: 0; border-radius: 980px; background: var(--panel-2); font-weight: 500; }
+.lic summary { padding: 16px 0; }
+.lic summary:hover, .lic[open] summary { background: none; }
+.lic .prose { padding: 0 0 18px; }
+.badge, .badge.gpl, .badge.perm, .badge.nc, .badge.warn { background: none; padding: 0; font: 500 13px var(--ui); color: var(--faint); }
+.count { background: none; padding: 0; color: var(--faint); font-weight: 500; }
+.sub { margin-top: 48px; }
+
+/* diagnostics */
+.dhero .tab { padding: 20px 0; }
+.dstats div { padding: 20px 0; } .dstats div + div { border-left: 0; padding-left: 24px; }
+th { background: none; padding-left: 0; } td { padding-left: 0; }
+.st, .st.ok { background: none; padding: 0; }
+.lang-note { border: 0; background: var(--panel); border-radius: 14px; }
+
+@media (max-width: 900px) {
+  .wrap { padding: 40px 20px 80px; }
+  .wrap.has-toc { grid-template-columns: 1fr; }
+  main { max-width: none; }
+  .pv-facts { grid-template-columns: 1fr; gap: 16px; }
+  .pv-detail { padding-left: 0; }
+}
+</style><script>document.documentElement.dataset.theme = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";</script></head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar moat-header"><a class="back" href="https://samuelabhinav37.github.io/moat/"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Moat</a><a class="moat-brand" href="https://samuelabhinav37.github.io/moat/" aria-label="Moat website"><svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#030307"/><line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="#fff"/><circle cx="16" cy="16" r="2.8" fill="rgba(255,255,255,.85)"/><circle cx="9" cy="25" r="2.2" fill="rgba(255,255,255,.7)"/><circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)"/></svg><span>Moat</span></a><nav class="docnav" aria-label="Documents"><a href="./" aria-current="page"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.7-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.8-7.5-9.5V6z"/></svg><span>Privacy policy</span></a><a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md" ><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5v4h4M9.5 12h5M9.5 15.5h5"/></svg><span>Changelog</span></a><a href="https://github.com/Samuelabhinav37/moat/blob/master/NOTICE.md" ><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M5 20h14M6 8h12M6 8l-3 6a3 3 0 006 0zM18 8l-3 6a3 3 0 006 0z"/></svg><span>Licenses</span></a><a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg><span>Source code</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg><span class="sr">(opens GitHub)</span></a></nav></header>
+<div class="wrap has-toc">
+<aside class="toc"><div class="toc-h">On this page</div><a href="#summary" data-toc="summary">Privacy label</a><a href="#connections" data-toc="connections">Every connection</a><a href="#on-device" data-toc="on-device">Stays on your device</a><a href="#choices" data-toc="choices">Your choices</a><a href="#more" data-toc="more">Changes and questions</a><a href="#full" data-toc="full">Full text</a></aside>
+<main id="main" tabindex="-1"><div class="head"><h1>Privacy policy</h1><p class="lead">What Moat does with your data, in plain words. Short version first.</p><div class="meta"><span>Updated 8 October 2026</span></div></div><div class="lang-note" id="lang-note" data-doc="privacy" role="note" hidden></div><label class="toc-m"><span>On this page</span><select data-tocm><option value="summary">Privacy label</option><option value="connections">Every connection</option><option value="on-device">Stays on your device</option><option value="choices">Your choices</option><option value="more">Changes and questions</option><option value="full">Full text</option></select></label>
+<section class="pv-label" id="summary" aria-labelledby="pv-label-title">
+  <div class="pv-badge"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.7-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.8-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.2-4.4"/></svg></div>
+  <div class="pv-label-text">
+    <p class="pv-eyebrow">Privacy label</p>
+    <h2 id="pv-label-title">Data not collected</h2>
+    <p>Moat's developer doesn't collect anything about you or your browsing. Moat works inside your browser.</p>
+  </div>
+  <ul class="pv-facts">
+    <li><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/><path d="M4 4l16 16"/></svg><span><b>No account</b>Nothing to sign up for</span></li>
+    <li><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20V11M12 20V5M18 20v-6"/><path d="M4 4l16 16"/></svg><span><b>No analytics</b>No usage tracking or crash reports</span></li>
+    <li><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M4 4l16 16"/></svg><span><b>Never sold or shared</b>No ads, no data brokers</span></li>
+  </ul>
+</section>
+
+<section class="pv-sec" id="connections">
+  <div class="pv-h"><h2>Every connection Moat makes</h2><p>Six in total. Only the first is on by default, and it carries nothing about you.</p></div>
+  <div class="pv-table" role="list">
+    <div class="pv-head" aria-hidden="true"><span></span><span>What</span><span>What's sent</span><span>Who receives it</span><span>When</span><span></span></div>
+    
+    <div class="pv-item" role="listitem"><details class="pv-row">
+      <summary>
+        <span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span>
+        <span class="pv-name">Daily list updates</span>
+        <span class="pv-sent"><small>What's sent</small>Nothing about you</span>
+        <span class="pv-who"><small>Who receives it</small>GitHub Pages (a public file host)</span>
+        <span class="pv-when"><span class="pv-pill on">Once a day</span></span>
+        <span class="pv-chev"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </summary>
+      <div class="pv-detail"><p>Moat downloads a few public files: fixes for broken filters and today's lists of phishing, malware and scam sites. It's a plain file download, like opening a web page.</p><p>Every file is checked against a signature before Moat uses it. If the check fails, Moat keeps the lists it already has.</p><p>GitHub sees your IP address, as with any web request. Nothing else is sent.</p></div>
+    </details></div>
+    <div class="pv-item" role="listitem"><details class="pv-row">
+      <summary>
+        <span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></span>
+        <span class="pv-name">Catch hidden trackers</span>
+        <span class="pv-sent"><small>What's sent</small>Some web addresses your browser is about to load</span>
+        <span class="pv-who"><small>Who receives it</small>Cloudflare (on Chrome only)</span>
+        <span class="pv-when"><span class="pv-pill off">Off by default</span></span>
+        <span class="pv-chev"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </summary>
+      <div class="pv-detail"><p>Some trackers hide behind a site's own address. To catch them, Moat asks where those addresses really point.</p><p>Only addresses that look like part of the site you're on are checked, never your whole history. Nothing is checked on paused sites.</p><p>Firefox does this through its own resolver, so nothing extra leaves your browser.</p></div>
+    </details></div>
+    <div class="pv-item" role="listitem"><details class="pv-row">
+      <summary>
+        <span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="3.5"/><path d="M10.5 12.5L19 4M16 7l2 2M13.8 9.2l2 2"/></svg></span>
+        <span class="pv-name">Warn about leaked passwords</span>
+        <span class="pv-sent"><small>What's sent</small>The first 5 characters of a scrambled password</span>
+        <span class="pv-who"><small>Who receives it</small>Have I Been Pwned</span>
+        <span class="pv-when"><span class="pv-pill off">Off by default</span></span>
+        <span class="pv-chev"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </summary>
+      <div class="pv-detail"><p>When you type a password, Moat scrambles it on your device (SHA-1) and sends only the first 5 characters of the result.</p><p>Have I Been Pwned answers with a list, and Moat checks for a match on your device. Your password and its full scrambled form never leave it.</p></div>
+    </details></div>
+    <div class="pv-item" role="listitem"><details class="pv-row">
+      <summary>
+        <span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 00-14.5-4M4 13a8 8 0 0014.5 4M5 3v4h4M19 21v-4h-4"/></svg></span>
+        <span class="pv-name">Settings sync</span>
+        <span class="pv-sent"><small>What's sent</small>Your Moat settings, no browsing data</span>
+        <span class="pv-who"><small>Who receives it</small>Your browser account (Google or Mozilla)</span>
+        <span class="pv-when"><span class="pv-pill off">Off by default</span></span>
+        <span class="pv-chev"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </summary>
+      <div class="pv-detail"><p>Your settings are copied to your browser's own sync, under the account you're already signed into. Moat runs no server for this.</p></div>
+    </details></div>
+    <div class="pv-item" role="listitem"><details class="pv-row">
+      <summary>
+        <span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg></span>
+        <span class="pv-name">Problem reports</span>
+        <span class="pv-sent"><small>What's sent</small>The site, what went wrong, your note, Moat's version and settings</span>
+        <span class="pv-who"><small>Who receives it</small>Moat's developer, privately</span>
+        <span class="pv-when"><span class="pv-pill send">When you press Send</span></span>
+        <span class="pv-chev"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </summary>
+      <div class="pv-detail"><p>Nothing is sent until you press Send, and the report page shows you the whole report first.</p><p>It includes the site's name (the full address only if you tick that box), the problem you picked, whether pausing helped, your note, Moat's version, your browser and its major version, your blocking level and which lists are on. Nothing else.</p><p>It goes through a Cloudflare Worker that keeps no logs into a private GitHub repository only Moat's developer can read. Your IP address is used only to limit how many reports one address can send a minute.</p></div>
+    </details></div>
+    <div class="pv-item" role="listitem"><details class="pv-row">
+      <summary>
+        <span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20.5V6l8-3v17.5M12 9h6a2 2 0 012 2v9.5M2.5 20.5h19M7.5 8.5h1.5M7.5 12h1.5M7.5 15.5h1.5"/></svg></span>
+        <span class="pv-name">Organization security events</span>
+        <span class="pv-sent"><small>What's sent</small>A category, risk level, time and blocked domain</span>
+        <span class="pv-who"><small>Who receives it</small>Your organization's own server</span>
+        <span class="pv-when"><span class="pv-pill org">Set up by your IT team</span></span>
+        <span class="pv-chev"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </summary>
+      <div class="pv-detail"><p>This can't be turned on by a person. It only exists when an organization's device-management policy sets it up, pointing at that organization's own server, never Moat's developer.</p><p>It never sends full addresses, page content or browsing history. If you installed Moat yourself, this doesn't apply to you.</p></div>
+    </details></div>
+  </div>
+  <p class="pv-note"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/></svg> Nothing else in Moat uses the network. The filter lists ship inside the extension.</p>
+</section>
+
+<section class="pv-sec" id="on-device">
+  <div class="pv-h"><h2>What stays on your device</h2><p>Kept in your browser's own storage. Never synced unless you turn sync on, never sent.</p></div>
+  <div class="pv-grid"><div class="pv-tile"><span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></span><b>Your settings</b><p>Lists, paused sites and when you paused them, your rules and hidden parts of pages.</p></div><div class="pv-tile"><span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20V11M12 20V5M18 20v-6"/></svg></span><b>This week's numbers</b><p>What was blocked, on which sites and when, and which list stopped a whole page. Deleted after 14 days.</p></div><div class="pv-tile"><span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></span><b>Everything Moat does on a page</b><p>Blocking, hiding ads, rejecting cookie banners and the rest all happen in your browser.</p></div><div class="pv-tile"><span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></svg></span><b>Clear site data</b><p>Deletes a site's cookies and storage on your device, only when you confirm twice.</p></div></div>
+</section>
+
+<section class="pv-sec" id="choices">
+  <div class="pv-h"><h2>Your choices</h2></div>
+  <div class="pv-grid three"><div class="pv-tile"><span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7" width="19" height="10" rx="5"/><circle cx="8" cy="12" r="3"/></svg></span><b>Turn features off</b><p>Every optional connection above is off by default and has a switch in Settings.</p></div><div class="pv-tile"><span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 00-14.5-4M4 13a8 8 0 0014.5 4M5 3v4h4M19 21v-4h-4"/></svg></span><b>Keep settings on this device</b><p>Leave Settings › Backup and sync › Sync off, and nothing leaves your browser.</p></div><div class="pv-tile"><span class="pv-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></svg></span><b>Remove everything</b><p>Removing Moat from your browser deletes its settings and numbers with it.</p></div></div>
+</section>
+
+<section class="pv-sec" id="more">
+  <div class="pv-h"><h2>Changes and questions</h2></div>
+  <div class="pv-grid two">
+    <div class="pv-tile"><b>When this changes</b><p>This page changes in the same update as any change to what Moat sends. Every edit is public in the project's history.</p><a href="https://github.com/Samuelabhinav37/moat/commits/master/PRIVACY.md" target="_blank" rel="noopener">See every change <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg></a></div>
+    <div class="pv-tile"><b>Questions</b><p>Open an issue on Moat's GitHub page, or use Report a problem in Moat.</p><a href="https://github.com/Samuelabhinav37/moat/issues" target="_blank" rel="noopener">Ask on GitHub <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg></a></div>
+  </div>
+</section>
+
+<section class="pv-sec" id="full">
+  <details class="pv-full">
+    <summary><span><b>Full policy text</b><small>Every word, including permissions and the technical details</small></span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></summary>
+    <div class="prose"><p><b>In four lines:</b></p><ul><li><b>What Moat reads:</b> page content on sites you visit, entirely on your device, to block ads/trackers/popups and hide ad elements.</li><li><b>Where it goes:</b> nowhere. Moat has no account, no analytics and no crash reporting. Its developer receives nothing about you, except a problem report you choose to send, shown to you in full before you press Send.</li><li><b>What's stored:</b> your settings (filter lists, paused sites, custom rules) in your browser's own local storage, never transmitted by default.</li><li><b>What leaves your device:</b> roughly once a day Moat downloads a few static files from a public GitHub Pages URL (filter fixes and today's phishing, malware and scam domain lists) — a plain file download that carries nothing about you. Two opt-in features (both off by default) send something derived from what you type to a third party (never to Moat); one enterprise-only feature sends security events to your own organization's server; and a problem report you write reaches Moat's developer only when you press Send. All are detailed below.</li></ul><p>Moat does not collect, sell, or transmit any user data to Moat or its developer on its own. The one exception is a problem report: it's sent only when you fill it in and press Send, and the report page shows you exactly what it contains first (item 6 below). Nothing is ever sent automatically. There is no crash reporting and no account or sign-in of any kind. For a personal or open-source install – everyone reading this outside of an organization that has specifically deployed enterprise device-management policy for Moat – there is also no analytics or telemetry of any kind, full stop. This document discloses every case where Moat's own code talks to a network at all: most are plain file downloads that carry nothing about you; two (both off by default) send something derived from what you typed, to a third party, never to Moat itself; and one (item 5, enterprise-managed only, impossible to enable as a regular user) sends minimized security-event telemetry, but only to an organization's own infrastructure, never to Moat's developer.</p><h2 id="what-stays-on-your-device" class="">What stays on your device</h2><ul><li>All settings (which filter lists are on, paused sites with when and from where each was paused, custom block/allow rules, custom cosmetic rules) are stored in <code>browser.storage.local</code> -- local to your browser profile, never transmitted anywhere by default, and never read by anyone but the extension itself. (See "Opt-in sync" below for the one setting that changes this, and only if you turn it on.)</li><li>Ad/tracker blocking, popup/redirect blocking, cosmetic element hiding, fingerprint resistance, the YouTube ad dimmer, the feed ad scanner, and cookie-banner auto-rejection all run entirely inside your browser against page content already on your device. None of it sends page content, browsing history, or any other data off your device.</li><li>The per-tab block-count breakdown (Ads/Trackers/Popups, and the optional by-company detail) is computed and displayed locally from the browser's own <code>declarativeNetRequest</code> match data and the blocked requests' own domains, looked up in a copy of Ghostery's TrackerDB bundled with Moat. It is never transmitted.</li><li>Settings' Insights pages read a weekly summary kept in your browser's local storage for 14 days and then deleted: blocks per day, per site you visited (split into ads, trackers and pop-ups) and per hour, which tracker companies were blocked and on which sites, what those trackers were for, and the addresses of whole pages Moat refused to load, with the list that stopped each one. None of it is synced, exported in a backup, or sent anywhere.</li><li>When a list stops a whole page, Moat shows its own block page in that tab and remembers, for that browser session only, which address the tab was sent there for. "Open anyway" uses that to let the site through for one visit; the exception ends when you leave the site, close the tab, or close the browser.</li><li>The popup's manual "Clear site data…" button deletes the active tab's own cookies, IndexedDB, local storage, and service workers, on your device, only when you click it twice to confirm. Nothing about this is sent anywhere – it's a local deletion, not a network request.</li></ul><h2 id="what-reaches-the-network-and-when" class="">What reaches the network, and when</h2><ol><li>**A roughly once-a-day check for updated ad-redirect domains and emergency filter fixes.** Moat's background service worker fetches a small set of static files from this project's GitHub Pages site (<code>samuelabhinav37.github.io/moat/live</code>): a signed <code>manifest.json</code> (plus its <code>manifest.json.sig</code>), a list of known ad-redirect domains for the popup/redirect firewall, an emergency "quick fixes" block/allow channel, and a "cosmetic fixes" channel of element-hiding selectors – those three empty by default (see the README), there to patch filter breakage faster than a full store release allows – and <code>security-domains.json</code>, today's copy of the phishing, malicious-URL and scam domain lists that are also bundled (about 0.5 MB compressed), so newly reported phishing sites are blocked within a day instead of at the next release. It can only add blocks. Moat verifies each file against a SHA-256 hash in the manifest, and the manifest itself against a bundled Ed25519 public key, before applying anything; a failed check means Moat keeps its bundled baseline. These are plain file downloads -- no data about you, your browsing, or your device is sent beyond what any HTTP request inherently includes (your IP address, to GitHub's CDN, the same as loading any web page).</li><li><b>DNS resolution for CNAME-uncloaking, off by default.</b> If you turn on "Catch hidden trackers" in Settings, Moat looks up the canonical (CNAME) name of hostnames your browser contacts, so it can tell whether a tracker is disguising itself behind a site's own subdomain – checked only for hostnames that already look like a subdomain of the page you're on, not every request. On Firefox, this uses your browser's normal, already-configured DNS resolver – Moat does not run or contact any resolver of its own. Chrome has no equivalent API for extensions, so there Moat instead sends the candidate hostname to Cloudflare's public DNS-over-HTTPS resolver (<code>cloudflare-dns.com</code>) – a third party sees that narrow, filtered set of hostnames, though never your full browsing history or which page you were on. Nothing is looked up for a site you have paused. Either way, this never runs at all unless you explicitly enable it.</li><li><b>Warn about leaked passwords, off by default.</b> If you turn on "Warn about leaked passwords" in Settings, Moat checks a password you type into a page against Have I Been Pwned's Pwned Passwords database, using HIBP's k-anonymity API: your password is hashed (SHA-1) on your device, and only the <b>first 5 characters of that hash</b> are ever sent to <code>api.pwnedpasswords.com</code> – never the full hash, and never the password itself. This is a request to a third party (HIBP), not to Moat – Moat's own developer never sees it. Off unless you explicitly enable it.</li><li><b>Opt-in settings sync, off by default.</b> If you turn on "Sync across devices" in Settings, your settings (excluding the per-install fingerprint-noise seed) are mirrored to <code>browser.storage.sync</code> – your browser vendor's own sync service (Google's for Chrome, Mozilla's for Firefox), using whichever account you're already signed into there, not a server Moat runs. This is what lets a fresh install seed itself from an existing synced copy. Off unless you explicitly enable it.</li><li>**Enterprise-managed Athena integration – not available to you at all unless your organization deployed it.** This has no Settings toggle and cannot be turned on by a user; it only activates when an organization's own device-management policy (<code>chrome.storage.managed</code>) provisions it, pointing at that organization's own self-hosted Athena instance – never at any server Moat's developer operates. When active, it sends minimized security events for requests already blocked by Moat's malicious-URL, phishing, scam, and badware filter lists, and for popup/redirect-firewall catches: a category, a risk tier, a timestamp, and the domain involved (already public – it comes straight from Moat's own openly-published filter data) or, for a "Report mistake" override, the already-policy-known hostname Athena itself named plus the user's bounded report reason. It never sends the full URL, page content, email content, or browsing history that triggered the block. If you use a personal or open-source install of Moat, this section does not apply to you – nothing about it can activate without your organization's own IT policy.</li></ol><p>This same integration also periodically <b>receives</b> a domain-block policy from that organization's own Athena instance (a signed list of domains to block, applied the same way Moat's own bundled filter lists are) – a separate, inbound request to the same organization-controlled server as the outbound events above, never to any server Moat's developer operates. The response is signature-verified before anything in it is applied; a policy that doesn't verify is discarded.</p><ol><li><b>Problem reports, only when you press Send.</b> "Report a problem…" in the popup (or "Report a problem" in Settings) opens a page inside Moat. Nothing is sent until you press Send, and "What will be sent" shows the whole report first. A report contains: the site's name (the full page address only if you tick "Include the full page address"), which problem you chose, whether pausing Moat fixed it, your note if you wrote one, Moat's version, your browser and its major version (for example "Chrome 141"), your blocking level, and the names of the filter lists you have on. Nothing else: no browsing history, no cookies, no other tabs. It goes to Moat's report service, a Cloudflare Worker that files it as an issue in a private GitHub repository that only Moat's developer can read. The service keeps no logs. The only thing it stores is how many reports it filed today, a single number with nothing about you, so a flood of fake reports stops at a daily limit. Your IP address reaches Cloudflare, as with any web request; the service uses it only to limit how many reports one address can send a minute, and never passes it on. If you'd rather, the same page can copy the report or open it as a public GitHub issue instead.</li></ol><p>Nothing else in Moat makes a network request. In particular: the full filter lists and cosmetic-hiding rules that block ads and trackers are bundled into the extension at build time (see the project's README for exactly which lists), not fetched live – only the files in item 1 above are, and those only patch or refresh the bundled baseline.</p><h2 id="permissions" class="">Permissions</h2><p>See the <a href="https://github.com/Samuelabhinav37/moat/blob/master/docs/overview.md#permissions" target="_blank" rel="noopener">permissions table</a> for what each requested browser permission is used for and why.</p><h2 id="changes-to-this-policy" class="">Changes to this policy</h2><p>If what Moat collects or transmits ever changes, this document will be updated in the same pull request as the code change, and the version history is public in this repository's commit log.</p><h2 id="contact" class="">Contact</h2><p>Questions or concerns: open an issue on this project's GitHub repository.</p></div>
+  </details>
+</section></main></div>
+<script>document.querySelector("[data-tocm]")?.addEventListener("change", (e) => { const t = document.getElementById(e.target.value); if (!t) return; if (t.tagName === "DETAILS") t.open = true; t.scrollIntoView(); });</script></body></html>

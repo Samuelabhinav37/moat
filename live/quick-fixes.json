@@ -1,0 +1,42 @@
+[
+  {
+    "urlFilter": "||unlimitedadblocker.pro^",
+    "resourceTypes": ["main_frame", "sub_frame"],
+    "action": "block"
+  },
+  {
+    "urlFilter": "||adblockerpremium.online^",
+    "resourceTypes": ["main_frame", "sub_frame"],
+    "action": "block"
+  },
+  {
+    "urlFilter": "||krilovane.info^",
+    "resourceTypes": ["main_frame", "sub_frame"],
+    "action": "block"
+  },
+  {
+    "urlFilter": "?*=*Y2JpZnJhbWU9",
+    "resourceTypes": ["xmlhttprequest", "script", "ping", "other"],
+    "action": "block"
+  },
+  {
+    "urlFilter": "?*=*NiaWZyYW1lP",
+    "resourceTypes": ["xmlhttprequest", "script", "ping", "other"],
+    "action": "block"
+  },
+  {
+    "urlFilter": "?*=*jYmlmcmFtZT",
+    "resourceTypes": ["xmlhttprequest", "script", "ping", "other"],
+    "action": "block"
+  },
+  {
+    "urlFilter": "||bzynecajutcjj.website^",
+    "resourceTypes": ["sub_frame", "xmlhttprequest", "script", "ping", "other"],
+    "action": "block"
+  },
+  {
+    "urlFilter": "||dfnahgnmooktg.online^",
+    "resourceTypes": ["sub_frame", "xmlhttprequest", "script", "ping", "other"],
+    "action": "block"
+  }
+]
