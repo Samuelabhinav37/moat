@@ -1,8 +1,8 @@
 {
-  "sequence": 1791653199,
-  "generated": "2026-10-10T17:26:39.000Z",
+  "sequence": 1791653596,
+  "generated": "2026-10-10T17:33:16.000Z",
   "files": {
-    "redirect-domains.json": "d3328b3ee7b2b017f69c78ed07d61396c36c53a9ea716883f056f1d6afe68f72",
+    "redirect-domains.json": "8c83ee73cffd3ff6d864c47a6bbfb90d0a1c2747efd693ec402f67b301ab93e0",
     "quick-fixes.json": "7c97923ca5e73dacb08be1ed8e3b59b07a88dcf3c8a352c1a137e8ede51c7dd3",
     "cosmetic-fixes.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
     "youtube-quick-fixes.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
