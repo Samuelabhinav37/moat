@@ -97,8 +97,8 @@
   .film .play:hover .disc { transform: scale(1.06); background: #fff; }
   .film .lab span { color: rgba(255, 255, 255, .7); font-weight: 500; margin-left: 6px; }
   .film.playing .play, .film.playing .poster { display: none; }
-  /* hero scene (unused): the page Moat keeps clean, Kai in front, cookies kept outside */
-  .scene { position: relative; margin: 72px auto 0; max-width: 1140px; aspect-ratio: 16 / 8.6; border-radius: 30px; overflow: hidden; container-type: inline-size;
+  /* closing scene: the page Moat keeps clean, Kai in front, cookies kept outside */
+  .scene { position: relative; margin: 64px auto 0; text-align: left; max-width: 1140px; aspect-ratio: 16 / 8.6; border-radius: 30px; overflow: hidden; container-type: inline-size;
     background: radial-gradient(70% 70% at 50% 35%, rgba(63, 111, 209, .22), transparent 70%), linear-gradient(180deg, #07090f, #0b1020); }
   .scene .window { position: absolute; left: 50%; top: 9%; width: 58cqw; translate: -50% 0; border-radius: 1.4cqw; overflow: hidden; background: #fff;
     box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 0 0 .5cqw rgba(63, 111, 209, .25), 0 0 6cqw rgba(63, 111, 209, .35), 0 4cqw 8cqw -2cqw rgba(0, 0, 0, .8); }
@@ -734,12 +734,25 @@
 
   <!-- ============ CLOSING ============ -->
   <section class="closing wrap">
-    <div class="kai float" data-kai id="cta-kai" aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
     <h2 data-reveal>Try Moat today.</h2>
     <p data-reveal style="--i:1">Free on the Chrome Web Store. No account needed.</p>
     <div class="ctas" data-reveal style="--i:2">
       <a class="btn btn-blue" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
       <a class="more" href="https://github.com/Samuelabhinav37/moat">View the source</a>
+    </div>
+    <!-- The whole idea in one picture: a clean page, Kai in front, and the
+         cookies (the things Moat blocks) kept outside. Now and then one
+         drifts closer, Kai watches it, and it fades away. -->
+    <div class="scene" id="scene" data-reveal style="--i:3">
+      <div class="window" aria-hidden="true">
+        <div class="bar"><i></i><i></i><i></i><span>dailypost.example</span></div>
+        <img src="shots/v4/dailypost-after-1200.webp" width="1200" height="750" alt="" loading="lazy">
+      </div>
+      <span class="out o1 float" aria-hidden="true"><img class="char" src="characters/crumb.webp" width="712" height="720" alt=""></span>
+      <span class="out o2 float" aria-hidden="true"><img class="char" src="characters/blare.webp" width="577" height="720" alt=""></span>
+      <span class="out o3 float" aria-hidden="true"><img class="char" src="characters/popsy.webp" width="490" height="720" alt=""></span>
+      <span class="out o4 float" aria-hidden="true"><img class="char" src="characters/nag.webp" width="612" height="720" alt=""></span>
+      <div class="kai float" data-kai id="cta-kai" style="--d:-2s" aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
     </div>
   </section>
 

@@ -121,4 +121,22 @@
       v.play().catch(function () {});
     });
   }
+  // ---- closing scene: cookies drift up to the page now and then, and fade ------
+  var scene = document.getElementById("scene");
+  if (scene && !reduce) {
+    var outs = [].slice.call(scene.querySelectorAll(".out"));
+    var kaiEl = scene.querySelector("[data-kai]");
+    var kai = window.MoatLife && kaiEl ? window.MoatLife.kai(kaiEl) : null;
+    loop(scene, async function () {
+      await sleep(2400 + Math.random() * 1800);
+      var o = outs[Math.floor(Math.random() * outs.length)];
+      if (getComputedStyle(o).display === "none") return;
+      if (kai) { kai.target = o; kai.setMood("focus"); }
+      o.classList.add("near"); await sleep(1200);
+      o.classList.remove("near"); o.classList.add("handled");
+      if (kai) { kai.setMood("happy", 1400); kai.target = null; }
+      await sleep(2600);
+      o.classList.remove("handled");
+    });
+  }
 })();

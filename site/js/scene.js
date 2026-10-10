@@ -157,7 +157,7 @@
   var ctaKaiEl = document.getElementById("cta-kai");
   if (ctaKaiEl) {
     var ck = L.kai(ctaKaiEl);
-    ctaKaiEl.parentElement.querySelectorAll(".btn").forEach(function (b) {
+    ctaKaiEl.closest("section").querySelectorAll(".btn").forEach(function (b) {
       b.addEventListener("pointerenter", function () { ck.target = b; ck.setMood("happy"); ck.hop(); });
       b.addEventListener("pointerleave", function () { ck.target = null; ck.setMood(""); });
     });
