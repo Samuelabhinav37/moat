@@ -14,53 +14,40 @@ collects or transmits, and keep it in sync with `PRIVACY.md` and
 Screenshots, promo tile and marquee live in `store-assets/` (see its README for which file
 goes in which slot and how to rebuild them).
 
-## Short description (≤132 chars — CWS "summary" / AMO "summary")
+## Short description (CWS "summary")
 
-> Ad blocker and popup firewall with no account and no telemetry. Blocking runs on your device. Manifest V3, open source.
+The Chrome Web Store takes the summary from the manifest's description (`extDescription` in
+`src/_locales/*/messages.json`), so it can't be edited in the dashboard:
 
-(119 chars.)
+> Blocks ads, trackers and pop-up tabs, with no nag screens.
 
 ## Full description
 
-Moat is an ad blocker and popup/redirect firewall that keeps to itself: no
-server, no account, no telemetry, no crash reporting. Everything it does runs
-on your device, against pages already in your browser, and its developer
-receives nothing about you unless you send a problem report yourself. It is built for Manifest V3 from
-day one — not a stripped-down port of an older extension.
+Moat stops ads, trackers and hijacked pop-ups before they load, so pages arrive clean and quick.
+It needs no account, sends no analytics, and does its blocking inside your browser.
 
-**What it does**
+WHAT IT DOES
+• Blocks ads and trackers with about 314,000 built-in filters, matched by Chrome's own blocking engine.
+• Closes pop-up tabs and redirects that hijack your clicks, including ads in embedded video players.
+• Answers cookie banners for you, with optional cookies turned off.
+• Stops phishing, malware and scam pages before they open, using lists that update every day.
+• Hides the empty boxes ads leave behind, and anything else you point at with "Hide something on this page".
+• Shows who tried to track you this week and why, the sites with the most blocks, and a Safety check that says whether everything that keeps you safe is on.
+• Pause it on one site with a single switch. Every other site stays protected.
+• Choose Light, Balanced (the default) or Strict. Extras like cross-site cookie blocking and leaked-password warnings each have their own switch.
 
-- Blocks ads and trackers using bundled AdGuard/EasyList filter data and
-  Ghostery's TrackerDB — compiled into the extension, matched by the browser's
-  own `declarativeNetRequest` engine.
-- Shuts hijacked popups and redirect tabs silently, with a baseline domain list
-  plus a small daily-refreshed slice.
-- Hides leftover ad boxes and empty containers with cosmetic filtering.
-- Auto-rejects cookie-consent banners, and grays out YouTube video ads it
-  can't block.
-- Optional, all off by default: fingerprint resistance, a feed ad scanner, a
-  leaked-password check (via Have I Been Pwned's
-  k-anonymity API — a 5-character hash prefix, never the password), a filter
-  that hides low-quality content-farm results on Google, Bing and DuckDuckGo,
-  and tracker CNAME-uncloaking.
+PRIVATE BY DESIGN
+• No account, no analytics, no crash reports.
+• Blocking happens in your browser. The pages you visit aren't sent anywhere to be checked.
+• Once a day Moat downloads small signed files of filter fixes and danger lists from a public GitHub Pages address. Moat checks their signature before using them, and the download carries nothing about you.
+• Two optional features use outside services: leaked-password warnings send a 5-character hash prefix to Have I Been Pwned (never the password), and "Uncloak disguised trackers" looks up tracker hostnames with a public DNS resolver. Both are off until you turn them on.
+• A problem report reaches the developer only when you choose to send one, and you see what's in it first.
 
-**What leaves your device**
+WHY IT NEEDS ACCESS TO ALL SITES
+An ad blocker has to see a page's requests to block them. Moat uses that access only to block and hide content, never to read or send page content.
 
-Roughly once a day Moat downloads a few small signed files from a public
-GitHub Pages URL: filter fixes and today's phishing, malware and scam domain
-lists. It's a plain file fetch that carries nothing about you. Two opt-in
-features talk to third parties (Have I Been Pwned; a public DNS resolver),
-never to Moat. A problem report goes to Moat only when you choose to send
-one. There is nothing else. Full disclosure:
-https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md
-
-**Why `<all_urls>`**
-
-A content blocker has to see requests on every site to block them; there is no
-narrower permission that does the job. Moat uses it only for blocking and
-element-hiding, never to read or transmit page content.
-
-Source (GPL-3.0): https://github.com/Samuelabhinav37/moat
+Free and open source (GPL-3.0): https://github.com/Samuelabhinav37/moat
+Privacy policy: https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md
 
 ---
 
