@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.265
+
+### Changed
+- **The welcome tour looks like Moat's website.** Bigger, calmer type, one glowing stage for each
+  step's picture, and round buttons. Kai floats beside the steps, and the two cookies sitting on
+  weather.com's ad (Crumb, the tracker, and Blare, the ad) fade away when you switch Moat on.
+
 ## 0.11.264
 
 ### Changed
