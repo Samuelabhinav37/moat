@@ -54,18 +54,16 @@
     img.style.filter = "saturate(" + (.3 + .7 * v).toFixed(2) + ") blur(" + ((1 - v) * 7).toFixed(1) + "px) drop-shadow(0 18px 24px rgba(0,0,0,.55))";
     img.style.scale = (.9 + .1 * v).toFixed(3);
   };
-  var blare = document.getElementById("blare-side");
-  slider(document.getElementById("compare"), 50, true, function (v) { if (blare) fade(blare.firstElementChild, v, .15); });
 
-  // the closing scene: slide toward "With Moat" and the cookies go
+  // "Just the page you came for": slide toward "With Moat" and the cookies go
   var cmp2 = document.getElementById("compare2");
   if (cmp2) {
-    var scene = document.getElementById("scene"), hint = document.getElementById("scene-hint");
-    var outs = [].slice.call(scene.querySelectorAll(".out .char"));
-    var kaiEl = scene.querySelector("[data-kai]"), happy = false;
+    var diff = document.getElementById("scene-diff"), hint = document.getElementById("scene-hint");
+    var diffOuts = [].slice.call(diff.querySelectorAll(".out .char"));
+    var diffKai = diff.querySelector("[data-kai]"), happy = false;
     slider(cmp2, 100, false, function (v) {
-      outs.forEach(function (img) { fade(img, v, 0); });
-      var kai = window.MoatLife && kaiEl ? window.MoatLife.kai(kaiEl) : null;
+      diffOuts.forEach(function (img) { fade(img, v, 0); });
+      var kai = window.MoatLife && diffKai ? window.MoatLife.kai(diffKai) : null;
       if (kai && v < .08 && !happy) { happy = true; kai.setMood("happy", 1800); kai.hop(); }
       if (v > .3) happy = false;
     }, function () { if (hint) hint.classList.add("gone"); });
@@ -134,6 +132,24 @@
       film.appendChild(v); film.classList.add("playing");
       v.addEventListener("ended", function () { v.remove(); film.classList.remove("playing"); play.focus(); });
       v.play().catch(function () {});
+    });
+  }
+  // ---- closing scene: cookies drift up to the page now and then, and fade ------
+  var scene = document.getElementById("scene");
+  if (scene && !reduce) {
+    var outs = [].slice.call(scene.querySelectorAll(".out"));
+    var kaiEl = scene.querySelector("[data-kai]");
+    var kai = window.MoatLife && kaiEl ? window.MoatLife.kai(kaiEl) : null;
+    loop(scene, async function () {
+      await sleep(2400 + Math.random() * 1800);
+      var o = outs[Math.floor(Math.random() * outs.length)];
+      if (getComputedStyle(o).display === "none") return;
+      if (kai) { kai.target = o; kai.setMood("focus"); }
+      o.classList.add("near"); await sleep(1200);
+      o.classList.remove("near"); o.classList.add("handled");
+      if (kai) { kai.setMood("happy", 1400); kai.target = null; }
+      await sleep(2600);
+      o.classList.remove("handled");
     });
   }
 })();

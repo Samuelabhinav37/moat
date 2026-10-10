@@ -478,22 +478,27 @@
       <h2 data-reveal>Just the page<br>you came for.</h2>
       <p data-reveal style="--i:1">About 310,000 filter rules run on every site. On this page, Moat stopped <b>4 ads and 3 trackers</b> before any of them loaded.</p>
     </div>
-    <div class="stagewide" data-reveal>
-      <div class="blare-side float" id="blare-side" aria-hidden="true"><img class="char" src="characters/blare.webp" width="577" height="720" alt=""></div>
-      <div class="laptop">
-        <div class="lid">
-          <div class="screen compare" id="compare">
-            <img src="shots/v4/dailypost-after.webp" srcset="shots/v4/dailypost-after-1200.webp 1200w, shots/v4/dailypost-after.webp 2400w" sizes="(max-width: 1000px) 92vw, 920px" width="2400" height="1500" alt="The Daily Post with Moat: the article starts right under the menu, with no ads.">
-            <img class="before" src="shots/v4/dailypost-before.webp" srcset="shots/v4/dailypost-before-1200.webp 1200w, shots/v4/dailypost-before.webp 2400w" sizes="(max-width: 1000px) 92vw, 920px" width="2400" height="1500" alt="The same page without Moat: a large mattress ad above the article, a travel ad beside it and a bank ad pinned to the bottom.">
-            <span class="lbl l">Without Moat</span><span class="lbl r">With Moat</span>
-            <div class="handle" aria-hidden="true"><div class="knob"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6-6 6 6 6M15 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-            <input class="range" type="range" min="0" max="100" value="50" aria-label="Compare the page without Moat and with Moat" aria-valuetext="Half and half">
-          </div>
+    <!-- The page with its ads, the cookies
+         (the things Moat blocks) crowding round, and Kai in front. Slide
+         toward "With Moat" and the ads and the cookies go. -->
+    <div class="scene" id="scene-diff" data-reveal>
+      <div class="window">
+        <div class="bar" aria-hidden="true"><i></i><i></i><i></i><span>dailypost.example</span></div>
+        <div class="screen compare" id="compare2">
+          <img src="shots/v4/dailypost-after-1200.webp" width="1200" height="750" alt="The Daily Post with Moat: no ads." loading="lazy">
+          <img class="before" src="shots/v4/dailypost-before-1200.webp" width="1200" height="750" alt="The Daily Post without Moat: ads above, beside and below the article." loading="lazy">
+          <div class="handle" aria-hidden="true"><div class="knob"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6-6 6 6 6M15 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+          <input class="range" type="range" min="0" max="100" value="100" aria-label="Slide to switch Moat on and watch the cookies go" aria-valuetext="Without Moat">
         </div>
-        <div class="base" aria-hidden="true"></div>
       </div>
+      <span class="out o1 float" aria-hidden="true"><img class="char" src="characters/crumb.webp" width="712" height="720" alt=""></span>
+      <span class="out o2 float" aria-hidden="true"><img class="char" src="characters/blare.webp" width="577" height="720" alt=""></span>
+      <span class="out o3 float" aria-hidden="true"><img class="char" src="characters/popsy.webp" width="490" height="720" alt=""></span>
+      <span class="out o4 float" aria-hidden="true"><img class="char" src="characters/nag.webp" width="612" height="720" alt=""></span>
+      <p class="scene-hint" id="scene-hint" aria-hidden="true">Slide to switch Moat on</p>
+      <div class="kai float" data-kai style="--d:-2s" aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
     </div>
-    <p class="cap">Drag to compare. The Daily Post is a demo site. The blocking is real Moat.</p>
+    <p class="cap">The Daily Post is a demo site. The blocking is real Moat.</p>
   </section>
 
   <!-- ============ TRACKERS ============ -->
@@ -746,24 +751,18 @@
       <a class="btn btn-blue" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
       <a class="more" href="https://github.com/Samuelabhinav37/moat">View the source</a>
     </div>
-    <!-- The whole idea in one picture: the page with its ads, the cookies
-         (the things Moat blocks) crowding round, and Kai in front. Slide
-         toward "With Moat" and the ads and the cookies go. -->
+    <!-- The whole idea in one picture: a clean page, Kai in front, and the
+         cookies (the things Moat blocks) kept outside. Now and then one
+         drifts closer, Kai watches it, and it fades away. -->
     <div class="scene" id="scene" data-reveal style="--i:3">
-      <div class="window">
-        <div class="bar" aria-hidden="true"><i></i><i></i><i></i><span>dailypost.example</span></div>
-        <div class="screen compare" id="compare2">
-          <img src="shots/v4/dailypost-after-1200.webp" width="1200" height="750" alt="The Daily Post with Moat: no ads." loading="lazy">
-          <img class="before" src="shots/v4/dailypost-before-1200.webp" width="1200" height="750" alt="The Daily Post without Moat: ads above, beside and below the article." loading="lazy">
-          <div class="handle" aria-hidden="true"><div class="knob"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6-6 6 6 6M15 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-          <input class="range" type="range" min="0" max="100" value="100" aria-label="Slide to switch Moat on and watch the cookies go" aria-valuetext="Without Moat">
-        </div>
+      <div class="window" aria-hidden="true">
+        <div class="bar"><i></i><i></i><i></i><span>dailypost.example</span></div>
+        <img src="shots/v4/dailypost-after-1200.webp" width="1200" height="750" alt="" loading="lazy">
       </div>
       <span class="out o1 float" aria-hidden="true"><img class="char" src="characters/crumb.webp" width="712" height="720" alt=""></span>
       <span class="out o2 float" aria-hidden="true"><img class="char" src="characters/blare.webp" width="577" height="720" alt=""></span>
       <span class="out o3 float" aria-hidden="true"><img class="char" src="characters/popsy.webp" width="490" height="720" alt=""></span>
       <span class="out o4 float" aria-hidden="true"><img class="char" src="characters/nag.webp" width="612" height="720" alt=""></span>
-      <p class="scene-hint" id="scene-hint" aria-hidden="true">Slide to switch Moat on</p>
       <div class="kai float" data-kai id="cta-kai" style="--d:-2s" aria-hidden="true"><img src="characters/kai-face.webp" width="438" height="525" alt=""></div>
     </div>
   </section>
