@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.268
+
+### Changed
+- **Kai is in the corner of Settings, ready to help.** Press Kai at the bottom right for a quick
+  line about the screen you're on and a few buttons that do something there: check your setup,
+  show how the levels work, hide something on a page, or open the right help topic. If Moat is
+  off, Kai offers to turn it back on.
+- **Clearer explanations.** Settings that were hard to follow now say what they do for you first,
+  in plain words: hiding your IP address, trackers that disguise themselves, leaked-password
+  checks, device protection and the rule limit. Moat's writing rules are in docs/VOICE.md.
+
 ## 0.11.267
 
 ### Fixed

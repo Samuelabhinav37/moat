@@ -181,7 +181,7 @@
     "message": "Mantener privada tu dirección IP"
   },
   "optionsWebrtcToggleHint": {
-    "message": "Impide que las páginas descubran tu IP real mediante funciones de videollamada, incluso con una VPN."
+    "message": "Impide que las páginas averigüen tu dirección IP real, que muestra más o menos dónde estás. Funciona aunque uses una VPN."
   },
   "optionsFingerprintToggleLabel": {
     "message": "Impedir que los sitios reconozcan tu dispositivo"
@@ -214,7 +214,7 @@
     "message": "No disponible en este navegador."
   },
   "optionsCnameChromeDohHint": {
-    "message": "En Chrome, Moat pregunta a Cloudflare adónde apuntan de verdad los rastreadores ocultos. Puede pasar por alto el primero de un sitio. Firefox lo hace por sí mismo y en privado."
+    "message": "Para encontrarlos en Chrome, Moat pregunta a Cloudflare adónde llevan de verdad las direcciones de un sitio. Puede pasar por alto el primero de cada sitio. Firefox lo comprueba solo, así que no se pregunta nada."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Aún no verificado."
@@ -229,7 +229,7 @@
     "message": "ejemplo.com"
   },
   "optionsFilterBudgetWarning": {
-    "message": "Algunas listas de filtros de Moat no se pudieron activar. Los navegadores limitan cuántas reglas de bloqueo pueden usar todas las extensiones juntas. Otro bloqueador o extensión de privacidad puede agotar ese límite. Desactiva una de ellas o desactiva una lista aquí."
+    "message": "Algunas listas de Moat no pudieron activarse. Tu navegador limita cuántas reglas de bloqueo comparten todas las extensiones, y otro bloqueador puede estar usando la mayoría. Desactívalo, o desactiva una lista aquí."
   },
   "optionsFilterBudgetDetail": {
     "message": "Tu navegador dice que quedan $COUNT$ reglas para todas tus extensiones juntas. ¿Sigue bajo tras desactivar otras extensiones y recargar Moat? Desactiva una lista aquí. Molestias y Avisos de cookies son buenas para empezar.",
@@ -457,13 +457,13 @@
     "message": "Hace más difícil que los sitios reconozcan tu dispositivo."
   },
   "optionsFingerprintCaution": {
-    "message": "Puede fallar a veces con un CAPTCHA o la verificación de un banco. Si un sitio falla, desactívalo primero."
+    "message": "De vez en cuando esto interfiere con una comprobación de «No soy un robot» o con la verificación de dispositivo de un banco. Si un sitio falla, desactiva esto primero."
   },
   "optionsCnameDrawerDesc": {
     "message": "Encuentra rastreadores que se esconden tras la propia dirección de un sitio."
   },
   "optionsSearchSlopDrawerDesc": {
-    "message": "Quita de tus resultados de búsqueda los sitios conocidos de contenido basura."
+    "message": "Pliega los sitios de baja calidad hechos para posicionarse en los resultados de búsqueda."
   },
   "optionsSearchSlopCaution": {
     "message": "Cada grupo oculto queda a un clic, tras un enlace «Mostrar»."
@@ -502,10 +502,10 @@
     "message": "Usar el propio modo de camuflaje de Firefox"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Activa un modo de camuflaje más profundo, integrado directamente en Firefox. Llega más lejos de lo que Moat puede por sí solo: tamaño de ventana, fuentes, zona horaria y más."
+    "message": "Activa la protección de dispositivo propia de Firefox, más fuerte. Cubre más de lo que Moat puede, como el tamaño de ventana, las fuentes y la zona horaria."
   },
   "optionsFirefoxRFPCaution": {
-    "message": "Puede ser más disruptivo que la propia protección de huella digital de Moat descrita arriba. Cambia el comportamiento real del navegador, no solo lo que un sitio puede ver, así que conviene probarlo unos días antes de confiar en él."
+    "message": "Esto cambia cómo funciona el propio Firefox, no solo lo que ven las páginas, así que puede romper más que la protección de dispositivo de Moat de arriba. Pruébalo unos días antes de confiar en él."
   },
   "optionsFirefoxFPIToggleLabel": {
     "message": "Evita que los rastreadores te vinculen entre sitios"
@@ -514,7 +514,7 @@
     "message": "Mantiene separados los datos almacenados de cada sitio, para que el mismo rastreador incrustado en dos sitios distintos no pueda relacionar lo que vio en cada uno."
   },
   "optionsFirefoxFPICaution": {
-    "message": "Puede impedir iniciar sesión con una cuenta de Google o Facebook en un sitio de terceros. Si un inicio de sesión deja de funcionar, pausa esto primero."
+    "message": "Puede impedir iniciar sesión con Google o Facebook en otros sitios. Si un inicio de sesión deja de funcionar, desactiva esto primero."
   },
   "optionsGrayscaleMetricLabel": {
     "message": "anuncios atenuados hoy"
@@ -1494,22 +1494,22 @@
     "message": "Mientras te desplazas, Moat busca la etiqueta Patrocinado en las publicaciones y las quita de tu feed."
   },
   "explainLeakedPassword": {
-    "message": "Moat compara un fragmento corto y cifrado de la contraseña que escribes con filtraciones conocidas. Tu contraseña nunca sale de tu ordenador."
+    "message": "Cuando escribes una contraseña, Moat compara un trozo corto y cifrado con contraseñas filtradas en brechas de datos anteriores. La contraseña nunca sale de tu ordenador."
   },
   "explainCookies": {
     "message": "Un rastreador deja una cookie en un sitio para reconocerte en el siguiente. Moat impide que los sitios compartan esas cookies."
   },
   "explainWebrtc": {
-    "message": "Las funciones de videollamada pueden mostrar a una página tu dirección IP real, incluso con una VPN. Moat la mantiene oculta."
+    "message": "Las funciones de videollamada pueden revelar a una página tu IP real, que muestra más o menos dónde estás, incluso con VPN. Moat la mantiene oculta."
   },
   "explainFingerprint": {
     "message": "Los sitios pueden reconocerte por detalles como tu pantalla, tus fuentes y tu tarjeta gráfica. Moat cambia un poco esos detalles, y de forma distinta en cada sitio."
   },
   "explainCname": {
-    "message": "Algunos rastreadores se esconden tras la propia dirección del sitio. Moat comprueba a dónde apunta de verdad esa dirección y la bloquea si es un rastreador."
+    "message": "Algunos rastreadores se disfrazan con la dirección del propio sitio. Moat comprueba adónde lleva de verdad y la bloquea si es un rastreador."
   },
   "explainSearchSlop": {
-    "message": "Los resultados de granjas de contenido conocidas se pliegan tras un enlace Mostrar, así que siguen a un clic."
+    "message": "Los resultados de sitios de baja calidad hechos para posicionarse en buscadores se pliegan tras un enlace Mostrar, a un clic de distancia."
   },
   "explainPermissionGuard": {
     "message": "Se detienen las páginas que piden tu cámara, micrófono o ubicación nada más cargar. Permite un sitio desde la ventana de Moat cuando confíes en él."
@@ -1781,7 +1781,7 @@
     "message": "Es un rastreador, así que Moat lo bloquea"
   },
   "explainStepSlop1": {
-    "message": "Aparece un resultado de una granja de contenido"
+    "message": "Aparece un resultado de baja calidad"
   },
   "explainStepSlop2": {
     "message": "Moat lo pliega tras un enlace Mostrar"
@@ -3047,7 +3047,7 @@
     "description": "Settings Help panel."
   },
   "helpStepOffHere": {
-    "message": "Desactiva Moat aquí",
+    "message": "Pausa Moat en este sitio",
     "description": "Settings Help panel."
   },
   "helpStepReload": {
@@ -3497,5 +3497,74 @@
   },
   "checkupApplied": {
     "message": "Protección actualizada. Se aplica a las páginas que abras o recargues."
+  },
+  "kaiOpen": {
+    "message": "Pregunta a Kai"
+  },
+  "kaiClose": {
+    "message": "Cerrar"
+  },
+  "kaiAllHelp": {
+    "message": "Toda la ayuda"
+  },
+  "kaiOff": {
+    "message": "Moat está desactivado ahora mismo, así que los anuncios y rastreadores cargan en todos los sitios."
+  },
+  "kaiTurnOn": {
+    "message": "Activar Moat"
+  },
+  "kaiOverview": {
+    "message": "Esta es tu semana de un vistazo. ¿Reviso tu configuración?"
+  },
+  "kaiCheckup": {
+    "message": "Revisar mi configuración"
+  },
+  "kaiIsWorking": {
+    "message": "¿Funciona Moat?"
+  },
+  "kaiProtection": {
+    "message": "¿No sabes qué nivel elegir? Equilibrado va bien para la mayoría."
+  },
+  "kaiShowLevels": {
+    "message": "Muéstrame los niveles"
+  },
+  "kaiSiteBroke": {
+    "message": "Un sitio dejó de funcionar"
+  },
+  "kaiExceptions": {
+    "message": "Pausa un sitio en el que confías u oculta algo que se les escapó a las listas."
+  },
+  "kaiHideSomething": {
+    "message": "Ocultar algo"
+  },
+  "kaiMissing": {
+    "message": "Falta algo"
+  },
+  "kaiTrackers": {
+    "message": "Estas son las empresas que intentaron seguirte esta semana."
+  },
+  "kaiHowItWorks": {
+    "message": "Cómo funciona el bloqueo"
+  },
+  "kaiSites": {
+    "message": "Aquí es donde más bloqueé. Si alguno falla, ponme en pausa ahí."
+  },
+  "kaiSecurity": {
+    "message": "Detengo las páginas de estafa y phishing conocidas antes de que se abran."
+  },
+  "kaiRealSite": {
+    "message": "Se bloqueó un sitio real"
+  },
+  "kaiAbout": {
+    "message": "Aquí está todo lo que envío y quién lo recibe."
+  },
+  "kaiCheckYourself": {
+    "message": "Compruébalo tú"
+  },
+  "kaiReport": {
+    "message": "Informar de un problema"
+  },
+  "kaiBackup": {
+    "message": "Guarda tu configuración en un archivo o mantenla igual en tus otros ordenadores."
   }
 }

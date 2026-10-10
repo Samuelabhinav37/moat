@@ -23,6 +23,7 @@ import { openPauseMenu } from "./pauseMenu";
 import { pauseEnd, pauseEndLabel, type PauseLength } from "../shared/pauseDuration";
 import { initNavMode } from "./navMode";
 import { TOPICS, initHelpPanel } from "./helpPanel";
+import { initKaiGuide } from "./kaiGuide";
 import { LEVELS, openCheckup, type Level } from "./checkup";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
 import { buildKpi, buildTopCard, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
@@ -150,6 +151,38 @@ const helpPanel = initHelpPanel(document, {
   report: () => void browser.tabs.create({ url: browser.runtime.getURL("report.html") }),
   docsUrl: "https://samuelabhinav37.github.io/moat/#faq",
   testPageUrl: "https://d3ward.github.io/toolz/adblock.html",
+});
+// Kai in the bottom-right corner: a line about this screen and buttons
+// that act on it (kaiGuide.ts).
+const clickFirstVisible = (selector: string) =>
+  Array.from(document.querySelectorAll<HTMLElement>(selector)).find((node) => !node.closest(".dash-off") && node.offsetParent !== null)?.click();
+initKaiGuide(document, {
+  t: tFallback,
+  currentScreen: () => pageFromHash(window.location.hash),
+  isOff: () => document.getElementById("ov-status")?.dataset.state === "off",
+  turnOn: () => void setSettings({ enabled: true }).then(() => render()),
+  openHelp: () => helpPanel.open(),
+  lines: {
+    overview: { say: ["kaiOverview", "This is your week at a glance. Want me to check your setup?"], actions: [
+      { label: ["kaiCheckup", "Check my setup"], run: () => document.getElementById("checkup-start")?.click() },
+      { label: ["kaiIsWorking", "Is Moat working?"], run: () => helpPanel.openTopic("verify") }] },
+    protection: { say: ["kaiProtection", "Not sure which level to pick? Balanced suits most people."], actions: [
+      { label: ["kaiShowLevels", "Show me the levels"], run: () => clickFirstVisible(".page-title-line .ex-info") },
+      { label: ["kaiSiteBroke", "A site broke"], run: () => helpPanel.openTopic("load") }] },
+    exceptions: { say: ["kaiExceptions", "Pause a site you trust, or hide something the lists missed."], actions: [
+      { label: ["kaiHideSomething", "Hide something"], run: () => document.getElementById("pick-element-button")?.click() },
+      { label: ["kaiMissing", "Something's missing"], run: () => helpPanel.openTopic("missing") }] },
+    backup: { say: ["kaiBackup", "Save your settings to a file, or keep them the same on your other computers."], actions: [] },
+    trackers: { say: ["kaiTrackers", "These are the companies that tried to follow you this week."], actions: [
+      { label: ["kaiHowItWorks", "How blocking works"], run: () => helpPanel.openTopic("how") }] },
+    sites: { say: ["kaiSites", "Here's where I blocked the most. If one of these acts up, pause me there."], actions: [
+      { label: ["kaiSiteBroke", "A site broke"], run: () => helpPanel.openTopic("load") }] },
+    security: { say: ["kaiSecurity", "I stop known scam and phishing pages before they open."], actions: [
+      { label: ["kaiRealSite", "A real site was blocked"], run: () => helpPanel.openTopic("danger") }] },
+    about: { say: ["kaiAbout", "Everything I ever send is listed here, and who receives it."], actions: [
+      { label: ["kaiCheckYourself", "Check it yourself"], run: () => helpPanel.openTopic("verify") },
+      { label: ["kaiReport", "Report a problem"], run: () => void browser.tabs.create({ url: browser.runtime.getURL("report.html") }) }] },
+  },
 });
 initNavMode(window, {
   collapse: tFallback("navCollapse", "Collapse menu"),

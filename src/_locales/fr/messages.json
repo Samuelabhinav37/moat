@@ -181,7 +181,7 @@
     "message": "Garder votre adresse IP privée"
   },
   "optionsWebrtcToggleHint": {
-    "message": "Empêche les pages de trouver votre vraie adresse IP via les fonctions d'appel vidéo, même derrière un VPN."
+    "message": "Empêche les pages de trouver votre vraie adresse IP, qui indique à peu près où vous êtes. Fonctionne même avec un VPN."
   },
   "optionsFingerprintToggleLabel": {
     "message": "Empêcher les sites de reconnaître votre appareil"
@@ -214,7 +214,7 @@
     "message": "Non disponible dans ce navigateur."
   },
   "optionsCnameChromeDohHint": {
-    "message": "Sur Chrome, Moat demande à Cloudflare où mènent vraiment les traceurs cachés. Il peut rater le premier sur un site. Firefox le fait lui-même, en privé."
+    "message": "Pour les trouver dans Chrome, Moat demande à Cloudflare où mènent vraiment les adresses d'un site. Il peut manquer le premier sur chaque site. Firefox vérifie cela lui-même, rien n'est demandé."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Pas encore vérifié."
@@ -229,7 +229,7 @@
     "message": "exemple.com"
   },
   "optionsFilterBudgetWarning": {
-    "message": "Certaines listes de filtres de Moat n’ont pas pu s’activer. Les navigateurs limitent le nombre de règles de blocage que toutes les extensions peuvent utiliser ensemble. Un autre bloqueur ou une extension de confidentialité peut épuiser cette limite. Désactive-en une, ou désactive une liste ici."
+    "message": "Certaines listes de Moat n'ont pas pu s'activer. Votre navigateur limite le nombre de règles de blocage partagées par toutes les extensions, et un autre bloqueur en utilise peut-être la plupart. Désactivez-le, ou désactivez une liste ici."
   },
   "optionsFilterBudgetDetail": {
     "message": "Votre navigateur indique qu’il reste $COUNT$ règles pour toutes vos extensions ensemble. Toujours bas après avoir désactivé d’autres extensions et rechargé Moat ? Désactivez une liste ici. Nuisances et Bandeaux cookies sont de bons premiers choix.",
@@ -457,13 +457,13 @@
     "message": "Rend plus difficile pour les sites de reconnaître votre appareil."
   },
   "optionsFingerprintCaution": {
-    "message": "Peut parfois bloquer un CAPTCHA ou la vérification d'une banque. Si un site dysfonctionne, désactivez ceci d'abord."
+    "message": "De temps en temps, cela gêne une vérification « Je ne suis pas un robot » ou le contrôle d'appareil d'une banque. Si un site pose problème, désactivez d'abord cette option."
   },
   "optionsCnameDrawerDesc": {
     "message": "Trouve les traqueurs qui se cachent derrière l'adresse même d'un site."
   },
   "optionsSearchSlopDrawerDesc": {
-    "message": "Retire de vos résultats de recherche les fermes de contenu connues."
+    "message": "Replie les sites de faible qualité conçus pour les résultats de recherche."
   },
   "optionsSearchSlopCaution": {
     "message": "Chaque lot masqué reste à un clic, derrière un lien « Afficher »."
@@ -502,10 +502,10 @@
     "message": "Utiliser le mode de camouflage propre à Firefox"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Active un mode de camouflage plus poussé, intégré directement à Firefox. Il va plus loin que ce que Moat peut faire seul : taille de fenêtre, polices, fuseau horaire et plus."
+    "message": "Active la protection de l'appareil propre à Firefox, plus forte. Elle couvre plus que Moat, comme la taille de fenêtre, les polices et le fuseau horaire."
   },
   "optionsFirefoxRFPCaution": {
-    "message": "Peut être plus perturbant que la propre protection d'empreinte de Moat ci-dessus. Elle modifie le comportement réel du navigateur, pas seulement ce qu'un site peut voir, donc mieux vaut l'essayer quelques jours avant d'en dépendre."
+    "message": "Cela change le fonctionnement de Firefox lui-même, pas seulement ce que voient les pages, et peut donc casser plus que la protection de l'appareil de Moat ci-dessus. Essayez-le quelques jours avant de compter dessus."
   },
   "optionsFirefoxFPIToggleLabel": {
     "message": "Empêcher les traceurs de vous relier entre les sites"
@@ -514,7 +514,7 @@
     "message": "Garde les données stockées de chaque site séparées, afin que le même traceur intégré sur deux sites différents ne puisse pas relier ce qu'il a vu sur chacun."
   },
   "optionsFirefoxFPICaution": {
-    "message": "Peut empêcher la connexion avec un compte Google ou Facebook sur un site tiers. Si une connexion cesse de fonctionner, mettez d'abord ceci en pause."
+    "message": "Peut empêcher la connexion avec Google ou Facebook sur d'autres sites. Si une connexion ne marche plus, désactivez d'abord cette option."
   },
   "optionsGrayscaleMetricLabel": {
     "message": "publicités estompées aujourd'hui"
@@ -1494,22 +1494,22 @@
     "message": "Pendant que vous faites défiler, Moat repère la mention Sponsorisé et retire ces publications de votre fil."
   },
   "explainLeakedPassword": {
-    "message": "Moat compare un court fragment brouillé du mot de passe saisi avec des fuites connues. Votre mot de passe ne quitte jamais votre ordinateur."
+    "message": "Quand vous tapez un mot de passe, Moat compare un court fragment chiffré avec des mots de passe divulgués lors de fuites passées. Le mot de passe lui-même ne quitte jamais votre ordinateur."
   },
   "explainCookies": {
     "message": "Un traqueur dépose un cookie sur un site pour vous reconnaître sur le suivant. Moat empêche les sites de partager ces cookies."
   },
   "explainWebrtc": {
-    "message": "Les fonctions d’appel vidéo peuvent montrer votre vraie adresse IP à une page, même derrière un VPN. Moat la garde cachée."
+    "message": "Les fonctions d'appel vidéo peuvent révéler à une page votre vraie adresse IP, qui indique à peu près où vous êtes, même derrière un VPN. Moat la cache."
   },
   "explainFingerprint": {
     "message": "Les sites peuvent vous reconnaître grâce à votre écran, vos polices et votre carte graphique. Moat modifie légèrement ces détails, et différemment sur chaque site."
   },
   "explainCname": {
-    "message": "Certains traqueurs se cachent derrière l’adresse du site lui-même. Moat vérifie où cette adresse mène vraiment et la bloque si c’est un traqueur."
+    "message": "Certains traqueurs se déguisent avec l'adresse du site lui-même. Moat vérifie où mène vraiment cette adresse et la bloque si c'est un traqueur."
   },
   "explainSearchSlop": {
-    "message": "Les résultats des fermes de contenu connues sont repliés derrière un lien Afficher, toujours à un clic."
+    "message": "Les résultats de sites de faible qualité conçus pour les moteurs de recherche se replient derrière un lien Afficher, à un clic."
   },
   "explainPermissionGuard": {
     "message": "Les pages qui demandent votre caméra, votre micro ou votre position dès le chargement sont arrêtées. Autorisez un site depuis la fenêtre de Moat quand vous lui faites confiance."
@@ -1781,7 +1781,7 @@
     "message": "C’est un traceur, donc Moat le bloque"
   },
   "explainStepSlop1": {
-    "message": "Un résultat de ferme à contenu apparaît"
+    "message": "Un résultat de faible qualité apparaît"
   },
   "explainStepSlop2": {
     "message": "Moat le replie derrière un lien Afficher"
@@ -3047,7 +3047,7 @@
     "description": "Settings Help panel."
   },
   "helpStepOffHere": {
-    "message": "Désactivez Moat ici",
+    "message": "Mettez Moat en pause sur ce site",
     "description": "Settings Help panel."
   },
   "helpStepReload": {
@@ -3497,5 +3497,74 @@
   },
   "checkupApplied": {
     "message": "Protection mise à jour. Elle s'applique aux pages que vous ouvrez ou rechargez."
+  },
+  "kaiOpen": {
+    "message": "Demander à Kai"
+  },
+  "kaiClose": {
+    "message": "Fermer"
+  },
+  "kaiAllHelp": {
+    "message": "Toute l'aide"
+  },
+  "kaiOff": {
+    "message": "Moat est désactivé en ce moment, donc les publicités et traqueurs se chargent sur chaque site."
+  },
+  "kaiTurnOn": {
+    "message": "Activer Moat"
+  },
+  "kaiOverview": {
+    "message": "Voici votre semaine en un coup d'œil. Je vérifie vos réglages ?"
+  },
+  "kaiCheckup": {
+    "message": "Vérifier mes réglages"
+  },
+  "kaiIsWorking": {
+    "message": "Moat fonctionne ?"
+  },
+  "kaiProtection": {
+    "message": "Vous hésitez sur le niveau ? Équilibré convient à la plupart."
+  },
+  "kaiShowLevels": {
+    "message": "Montrez-moi les niveaux"
+  },
+  "kaiSiteBroke": {
+    "message": "Un site ne marche plus"
+  },
+  "kaiExceptions": {
+    "message": "Mettez en pause un site de confiance, ou masquez ce que les listes ont manqué."
+  },
+  "kaiHideSomething": {
+    "message": "Masquer quelque chose"
+  },
+  "kaiMissing": {
+    "message": "Il manque quelque chose"
+  },
+  "kaiTrackers": {
+    "message": "Voici les entreprises qui ont tenté de vous suivre cette semaine."
+  },
+  "kaiHowItWorks": {
+    "message": "Comment fonctionne le blocage"
+  },
+  "kaiSites": {
+    "message": "Voici où j'ai le plus bloqué. Si l'un d'eux pose problème, mettez-moi en pause là."
+  },
+  "kaiSecurity": {
+    "message": "J'arrête les pages d'arnaque et d'hameçonnage connues avant leur ouverture."
+  },
+  "kaiRealSite": {
+    "message": "Un vrai site a été bloqué"
+  },
+  "kaiAbout": {
+    "message": "Tout ce que j'envoie est listé ici, avec le destinataire."
+  },
+  "kaiCheckYourself": {
+    "message": "Vérifiez vous-même"
+  },
+  "kaiReport": {
+    "message": "Signaler un problème"
+  },
+  "kaiBackup": {
+    "message": "Enregistrez vos réglages dans un fichier, ou gardez-les identiques sur vos autres ordinateurs."
   }
 }

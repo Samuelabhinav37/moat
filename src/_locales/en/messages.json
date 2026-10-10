@@ -183,7 +183,7 @@
     "message": "Keep your IP address private"
   },
   "optionsWebrtcToggleHint": {
-    "message": "Stops pages finding your real IP address through video-call features, even behind a VPN."
+    "message": "Keeps pages from finding your real IP address, which shows roughly where you are. Works even when you use a VPN."
   },
   "optionsFingerprintToggleLabel": {
     "message": "Stop sites recognizing your device"
@@ -216,7 +216,7 @@
     "message": "Not available in this browser."
   },
   "optionsCnameChromeDohHint": {
-    "message": "On Chrome, Moat asks Cloudflare where hidden trackers really point. It can miss the first one on a site. Firefox does this privately by itself."
+    "message": "To find these on Chrome, Moat asks Cloudflare where a site's addresses really lead. It can miss the first one on each site. Firefox checks this itself, so nothing is asked."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Not checked yet."
@@ -231,7 +231,7 @@
     "message": "example.com"
   },
   "optionsFilterBudgetWarning": {
-    "message": "Some of Moat's filter lists couldn't turn on. Browsers limit how many blocking rules all extensions can use together. Another ad blocker or privacy extension can use up that limit. Turn one of them off, or turn off a list here."
+    "message": "Some of Moat's lists couldn't turn on. Your browser caps how many blocking rules all extensions can share, and another ad blocker may be using most of them. Turn that one off, or turn off a list here."
   },
   "optionsFilterBudgetDetail": {
     "message": "Your browser says $COUNT$ rules are left for all your extensions together. Still low after turning off other extensions and reloading Moat? Turn off a list here. Annoyances and Cookie Notices are good ones to try first.",
@@ -459,13 +459,13 @@
     "message": "Makes it harder for sites to recognize your device."
   },
   "optionsFingerprintCaution": {
-    "message": "Can occasionally break a CAPTCHA or a bank's device check. If a site misbehaves, turn this off first."
+    "message": "Now and then this trips up an \"I'm not a robot\" check or a bank's device check. If a site acts up, turn this off first."
   },
   "optionsCnameDrawerDesc": {
     "message": "Finds trackers that hide behind a website's own address."
   },
   "optionsSearchSlopDrawerDesc": {
-    "message": "Filters known content-farm sites out of your search results."
+    "message": "Folds away low-quality sites built to rank in search results."
   },
   "optionsSearchSlopCaution": {
     "message": "Each hidden batch stays one click away behind a \"Show\" link."
@@ -504,10 +504,10 @@
     "message": "Use Firefox's own device-disguise mode"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Turns on a deeper device-disguise mode built into Firefox itself. It reaches further than Moat can on its own: window size, fonts, timezone, and more."
+    "message": "Turns on Firefox's own, stronger device protection. It covers more than Moat can, such as window size, fonts and time zone."
   },
   "optionsFirefoxRFPCaution": {
-    "message": "Can be more disruptive than Moat's own fingerprint protection above. It changes real browser behavior, not just what a page can see, so it's worth trying for a few days before relying on it."
+    "message": "This changes how Firefox itself behaves, not just what pages see, so it can break more than Moat's device protection above. Try it for a few days before you rely on it."
   },
   "optionsFirefoxFPIToggleLabel": {
     "message": "Stop trackers linking you across sites"
@@ -516,7 +516,7 @@
     "message": "Keeps every site's stored data separate, so the same tracker embedded on two different sites can't connect what it saw on each."
   },
   "optionsFirefoxFPICaution": {
-    "message": "Can break logging in with a Google or Facebook account on a third-party site. If a login stops working, pause this first."
+    "message": "Can break signing in with Google or Facebook on other sites. If a sign-in stops working, turn this off first."
   },
   "optionsGrayscaleMetricLabel": {
     "message": "ads dimmed today"
@@ -1502,7 +1502,7 @@
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainLeakedPassword": {
-    "message": "Moat checks a short scrambled piece of a password you type against known breaches. Your password itself never leaves your computer.",
+    "message": "When you type a password, Moat checks a short scrambled piece of it against passwords leaked in past data breaches. The password itself never leaves your computer.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainCookies": {
@@ -1510,7 +1510,7 @@
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainWebrtc": {
-    "message": "Video-call features can show a page your real IP address, even behind a VPN. Moat keeps it hidden.",
+    "message": "Video-call features can tell a page your real IP address, which shows roughly where you are, even behind a VPN. Moat keeps it hidden.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainFingerprint": {
@@ -1518,11 +1518,11 @@
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainCname": {
-    "message": "Some trackers hide behind the site's own address. Moat looks up where that address really points and blocks it if it's a tracker.",
+    "message": "Some trackers use the site's own address as a disguise. Moat checks where that address really leads and blocks it if it's a tracker.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainSearchSlop": {
-    "message": "Results from known content farms fold away behind a Show link, so they're still one click away.",
+    "message": "Results from low-quality sites built to rank in search fold away behind a Show link, so they're still one click away.",
     "description": "Caption under the animated \"How it works\" picture for one setting in Settings. One or two plain sentences."
   },
   "explainPermissionGuard": {
@@ -1876,7 +1876,7 @@
     "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
   },
   "explainStepSlop1": {
-    "message": "A content-farm result shows up",
+    "message": "A low-quality result shows up",
     "description": "Settings > How it works: one step of the animated picture, shown under it while that part plays. Short, no final full stop."
   },
   "explainStepSlop2": {
@@ -3208,7 +3208,7 @@
     "description": "Settings Help panel."
   },
   "helpStepOffHere": {
-    "message": "Turn Moat off here",
+    "message": "Pause Moat on this site",
     "description": "Settings Help panel."
   },
   "helpStepReload": {
@@ -3658,5 +3658,74 @@
   },
   "checkupApplied": {
     "message": "Protection updated. It applies to pages you open or reload."
+  },
+  "kaiOpen": {
+    "message": "Ask Kai"
+  },
+  "kaiClose": {
+    "message": "Close"
+  },
+  "kaiAllHelp": {
+    "message": "All help"
+  },
+  "kaiOff": {
+    "message": "Moat is off right now, so ads and trackers load on every site."
+  },
+  "kaiTurnOn": {
+    "message": "Turn Moat on"
+  },
+  "kaiOverview": {
+    "message": "This is your week at a glance. Want me to check your setup?"
+  },
+  "kaiCheckup": {
+    "message": "Check my setup"
+  },
+  "kaiIsWorking": {
+    "message": "Is Moat working?"
+  },
+  "kaiProtection": {
+    "message": "Not sure which level to pick? Balanced suits most people."
+  },
+  "kaiShowLevels": {
+    "message": "Show me the levels"
+  },
+  "kaiSiteBroke": {
+    "message": "A site broke"
+  },
+  "kaiExceptions": {
+    "message": "Pause a site you trust, or hide something the lists missed."
+  },
+  "kaiHideSomething": {
+    "message": "Hide something"
+  },
+  "kaiMissing": {
+    "message": "Something's missing"
+  },
+  "kaiTrackers": {
+    "message": "These are the companies that tried to follow you this week."
+  },
+  "kaiHowItWorks": {
+    "message": "How blocking works"
+  },
+  "kaiSites": {
+    "message": "Here's where I blocked the most. If one of these acts up, pause me there."
+  },
+  "kaiSecurity": {
+    "message": "I stop known scam and phishing pages before they open."
+  },
+  "kaiRealSite": {
+    "message": "A real site was blocked"
+  },
+  "kaiAbout": {
+    "message": "Everything I ever send is listed here, and who receives it."
+  },
+  "kaiCheckYourself": {
+    "message": "Check it yourself"
+  },
+  "kaiReport": {
+    "message": "Report a problem"
+  },
+  "kaiBackup": {
+    "message": "Save your settings to a file, or keep them the same on your other computers."
   }
 }

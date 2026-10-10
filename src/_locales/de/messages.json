@@ -181,7 +181,7 @@
     "message": "Deine IP-Adresse privat halten"
   },
   "optionsWebrtcToggleHint": {
-    "message": "Verhindert, dass Seiten deine echte IP-Adresse über Videoanruf-Funktionen herausfinden, auch hinter einem VPN."
+    "message": "Verhindert, dass Seiten deine echte IP-Adresse herausfinden, die ungefähr verrät, wo du bist. Funktioniert auch mit VPN."
   },
   "optionsFingerprintToggleLabel": {
     "message": "Verhindern, dass Websites dein Gerät erkennen"
@@ -214,7 +214,7 @@
     "message": "In diesem Browser nicht verfügbar."
   },
   "optionsCnameChromeDohHint": {
-    "message": "In Chrome fragt Moat Cloudflare, wohin versteckte Tracker wirklich zeigen. Den ersten auf einer Website kann es verpassen. Firefox macht das selbst und privat."
+    "message": "Um sie in Chrome zu finden, fragt Moat Cloudflare, wohin die Adressen einer Website wirklich führen. Den ersten Tracker einer Website kann es verpassen. Firefox prüft das selbst, dort wird nichts gefragt."
   },
   "optionsLiveStatusNotChecked": {
     "message": "Noch nicht geprüft."
@@ -229,7 +229,7 @@
     "message": "beispiel.de"
   },
   "optionsFilterBudgetWarning": {
-    "message": "Einige Filterlisten von Moat konnten nicht eingeschaltet werden. Browser begrenzen, wie viele Blockierregeln alle Erweiterungen zusammen nutzen dürfen. Ein anderer Werbeblocker oder eine Datenschutz-Erweiterung kann dieses Limit ausschöpfen. Schalte eine davon aus oder schalte hier eine Liste aus."
+    "message": "Einige Listen von Moat konnten nicht eingeschaltet werden. Dein Browser begrenzt, wie viele Blockierregeln sich alle Erweiterungen teilen, und ein anderer Werbeblocker nutzt vielleicht die meisten davon. Schalte ihn aus oder hier eine Liste ab."
   },
   "optionsFilterBudgetDetail": {
     "message": "Dein Browser meldet noch $COUNT$ Regeln für alle Erweiterungen zusammen. Immer noch wenig, nachdem du andere Erweiterungen ausgeschaltet und Moat neu geladen hast? Schalte hier eine Liste aus. Störfaktoren und Cookie-Hinweise eignen sich zuerst.",
@@ -457,13 +457,13 @@
     "message": "Macht es Websites schwerer, dein Gerät zu erkennen."
   },
   "optionsFingerprintCaution": {
-    "message": "Kann gelegentlich ein CAPTCHA oder die Geräteprüfung einer Bank stören. Wenn eine Website Probleme macht, schalte das zuerst aus."
+    "message": "Hin und wieder stört das eine „Ich bin kein Roboter“-Prüfung oder die Geräteprüfung einer Bank. Wenn eine Website Probleme macht, schalte das zuerst aus."
   },
   "optionsCnameDrawerDesc": {
     "message": "Findet Tracker, die sich hinter der eigenen Adresse einer Website verstecken."
   },
   "optionsSearchSlopDrawerDesc": {
-    "message": "Filtert bekannte Content-Farmen aus deinen Suchergebnissen."
+    "message": "Klappt minderwertige Seiten weg, die nur für Suchergebnisse gebaut sind."
   },
   "optionsSearchSlopCaution": {
     "message": "Jede ausgeblendete Gruppe bleibt einen Klick entfernt hinter einem „Anzeigen“-Link."
@@ -502,10 +502,10 @@
     "message": "Firefox' eigenen Tarnmodus verwenden"
   },
   "optionsFirefoxRFPToggleHint": {
-    "message": "Aktiviert einen tiefergehenden Tarnmodus, der direkt in Firefox eingebaut ist. Er greift weiter als Moat es allein kann: Fenstergröße, Schriftarten, Zeitzone und mehr."
+    "message": "Schaltet den eigenen, stärkeren Geräteschutz von Firefox ein. Er deckt mehr ab als Moat, etwa Fenstergröße, Schriften und Zeitzone."
   },
   "optionsFirefoxRFPCaution": {
-    "message": "Kann stärker eingreifen als Moats eigener Fingerprinting-Schutz oben. Er ändert echtes Browser-Verhalten, nicht nur das, was eine Seite sehen kann, also am besten ein paar Tage ausprobieren, bevor du dich darauf verlässt."
+    "message": "Das ändert, wie Firefox selbst arbeitet, nicht nur, was Seiten sehen, und kann daher mehr stören als der Geräteschutz von Moat darüber. Probiere es ein paar Tage aus, bevor du dich darauf verlässt."
   },
   "optionsFirefoxFPIToggleLabel": {
     "message": "Verhindert, dass Tracker dich seitenübergreifend verknüpfen"
@@ -514,7 +514,7 @@
     "message": "Hält die gespeicherten Daten jeder Website getrennt, sodass derselbe Tracker auf zwei verschiedenen Websites nicht verbinden kann, was er auf jeder gesehen hat."
   },
   "optionsFirefoxFPICaution": {
-    "message": "Kann die Anmeldung mit einem Google- oder Facebook-Konto auf einer Drittanbieter-Website verhindern. Wenn eine Anmeldung nicht mehr funktioniert, pausiere zuerst diese Funktion."
+    "message": "Kann die Anmeldung mit Google oder Facebook auf anderen Websites stören. Wenn eine Anmeldung nicht mehr klappt, schalte das zuerst aus."
   },
   "optionsGrayscaleMetricLabel": {
     "message": "abgedunkelte Anzeigen heute"
@@ -1494,22 +1494,22 @@
     "message": "Beim Scrollen sucht Moat nach der Kennzeichnung Gesponsert und nimmt diese Beiträge aus deinem Feed."
   },
   "explainLeakedPassword": {
-    "message": "Moat prüft ein kurzes, verschlüsseltes Stück deines Passworts gegen bekannte Datenlecks. Dein Passwort selbst verlässt nie deinen Computer."
+    "message": "Wenn du ein Passwort eingibst, vergleicht Moat ein kurzes verschlüsseltes Stück davon mit Passwörtern aus früheren Datenlecks. Das Passwort selbst verlässt deinen Computer nie."
   },
   "explainCookies": {
     "message": "Ein Tracker hinterlässt auf einer Seite ein Cookie, um dich auf der nächsten wiederzuerkennen. Moat verhindert, dass Seiten diese Cookies teilen."
   },
   "explainWebrtc": {
-    "message": "Videoanruf-Funktionen können einer Seite deine echte IP-Adresse zeigen, sogar mit VPN. Moat hält sie verborgen."
+    "message": "Videoanruf-Funktionen können einer Seite deine echte IP-Adresse verraten, die ungefähr zeigt, wo du bist, sogar mit VPN. Moat hält sie verborgen."
   },
   "explainFingerprint": {
     "message": "Seiten können dich an Details wie Bildschirm, Schriftarten und Grafikkarte erkennen. Moat verändert diese Details ein wenig, und auf jeder Website anders."
   },
   "explainCname": {
-    "message": "Manche Tracker verstecken sich hinter der eigenen Adresse der Seite. Moat prüft, wohin diese Adresse wirklich führt, und blockiert sie, wenn es ein Tracker ist."
+    "message": "Manche Tracker tarnen sich mit der Adresse der Website selbst. Moat prüft, wohin diese Adresse wirklich führt, und blockiert sie, wenn es ein Tracker ist."
   },
   "explainSearchSlop": {
-    "message": "Ergebnisse bekannter Content-Farmen werden hinter einem Anzeigen-Link eingeklappt und bleiben so einen Klick entfernt."
+    "message": "Ergebnisse von minderwertigen Seiten, die nur für Suchmaschinen gebaut sind, klappen hinter einen Anzeigen-Link weg und bleiben einen Klick entfernt."
   },
   "explainPermissionGuard": {
     "message": "Seiten, die gleich beim Laden nach Kamera, Mikrofon oder Standort fragen, werden gestoppt. Erlaube eine Seite im Moat-Fenster, wenn du ihr vertraust."
@@ -1781,7 +1781,7 @@
     "message": "Es ist ein Tracker, also blockiert Moat ihn"
   },
   "explainStepSlop1": {
-    "message": "Ein Ergebnis einer Content-Farm erscheint"
+    "message": "Ein minderwertiges Ergebnis erscheint"
   },
   "explainStepSlop2": {
     "message": "Moat klappt es hinter einen Anzeigen-Link"
@@ -3047,7 +3047,7 @@
     "description": "Settings Help panel."
   },
   "helpStepOffHere": {
-    "message": "Moat hier ausschalten",
+    "message": "Moat auf dieser Website pausieren",
     "description": "Settings Help panel."
   },
   "helpStepReload": {
@@ -3497,5 +3497,74 @@
   },
   "checkupApplied": {
     "message": "Schutz aktualisiert. Gilt für Seiten, die du öffnest oder neu lädst."
+  },
+  "kaiOpen": {
+    "message": "Kai fragen"
+  },
+  "kaiClose": {
+    "message": "Schließen"
+  },
+  "kaiAllHelp": {
+    "message": "Alle Hilfethemen"
+  },
+  "kaiOff": {
+    "message": "Moat ist gerade aus, also laden Werbung und Tracker auf jeder Website."
+  },
+  "kaiTurnOn": {
+    "message": "Moat einschalten"
+  },
+  "kaiOverview": {
+    "message": "Das ist deine Woche auf einen Blick. Soll ich deine Einstellungen prüfen?"
+  },
+  "kaiCheckup": {
+    "message": "Einstellungen prüfen"
+  },
+  "kaiIsWorking": {
+    "message": "Funktioniert Moat?"
+  },
+  "kaiProtection": {
+    "message": "Unsicher, welche Stufe? Ausgewogen passt für die meisten."
+  },
+  "kaiShowLevels": {
+    "message": "Stufen zeigen"
+  },
+  "kaiSiteBroke": {
+    "message": "Eine Website geht nicht"
+  },
+  "kaiExceptions": {
+    "message": "Pausiere eine Website, der du vertraust, oder blende aus, was die Listen übersehen."
+  },
+  "kaiHideSomething": {
+    "message": "Etwas ausblenden"
+  },
+  "kaiMissing": {
+    "message": "Etwas fehlt"
+  },
+  "kaiTrackers": {
+    "message": "Das sind die Firmen, die dir diese Woche folgen wollten."
+  },
+  "kaiHowItWorks": {
+    "message": "Wie Blockieren funktioniert"
+  },
+  "kaiSites": {
+    "message": "Hier habe ich am meisten blockiert. Macht eine davon Probleme, pausiere mich dort."
+  },
+  "kaiSecurity": {
+    "message": "Ich stoppe bekannte Betrugs- und Phishing-Seiten, bevor sie sich öffnen."
+  },
+  "kaiRealSite": {
+    "message": "Eine echte Website wurde blockiert"
+  },
+  "kaiAbout": {
+    "message": "Alles, was ich je sende, steht hier, und wer es bekommt."
+  },
+  "kaiCheckYourself": {
+    "message": "Selbst prüfen"
+  },
+  "kaiReport": {
+    "message": "Problem melden"
+  },
+  "kaiBackup": {
+    "message": "Speichere deine Einstellungen in einer Datei oder halte sie auf deinen anderen Computern gleich."
   }
 }
