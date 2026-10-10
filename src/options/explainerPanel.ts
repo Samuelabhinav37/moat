@@ -236,17 +236,42 @@ export function helpSceneFor(rowId: string): string | null {
   return ROWS_WITHOUT_HELP.has(rowId) ? null : sceneFor(rowId);
 }
 
+/** Kai, Moat's mascot, who "says" each caption (decoration only). */
+function kaiAvatar(): HTMLElement {
+  const kai = document.createElement("span");
+  kai.className = "ex-kai";
+  kai.setAttribute("aria-hidden", "true");
+  const img = document.createElement("img");
+  img.src = "characters/kai.webp";
+  img.alt = "";
+  kai.append(img, Object.assign(document.createElement("i"), { className: "lid l" }), Object.assign(document.createElement("i"), { className: "lid r" }));
+  return kai;
+}
+
+/** A short nod from the Kai beside `captionEl`, as the caption changes. */
+function kaiNod(captionEl: HTMLElement): void {
+  const kai = captionEl.parentElement?.querySelector<HTMLElement>(".ex-kai");
+  if (!kai) return;
+  kai.classList.remove("talk");
+  void kai.offsetWidth;
+  kai.classList.add("talk");
+}
+
 function fillPicture(target: HTMLElement, sceneId: string, t: Translate, captionEl?: HTMLElement): void {
   const scene = buildScene(sceneId);
   const step = buildStepLine(sceneId, scene, t);
   if (captionEl) {
     target.replaceChildren(scene, ...(step ? [step] : []));
     captionEl.textContent = caption(sceneId, t);
+    kaiNod(captionEl);
     return;
   }
+  const say = document.createElement("div");
+  say.className = "ex-say";
   const text = document.createElement("p");
   text.textContent = caption(sceneId, t);
-  target.replaceChildren(scene, ...(step ? [step] : []), text);
+  say.append(kaiAvatar(), text);
+  target.replaceChildren(scene, ...(step ? [step] : []), say);
 }
 
 const SVG_NS = "http://www.w3.org/2000/svg";

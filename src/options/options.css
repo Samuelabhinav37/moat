@@ -4410,12 +4410,11 @@ body[data-nav="icons"].nav-open .dash-nav a:hover::after {
   }
 }
 
-/* ---------- Kai and the cookies on Overview ----------
+/* ---------- Kai on Overview and in "How it works" ----------
    Same art and calm motion as the website: Kai floats and blinks beside
    the protection status (and looks worried when protection is off or the
-   lists failed); under the week chart each cookie stands for what Moat
-   stopped, with the week's count. Decoration only (aria-hidden), all
-   still with reduced motion. */
+   lists failed), and explains each "How it works" picture in a speech
+   bubble. Decoration only (aria-hidden), still with reduced motion. */
 .ov-hero {
   display: flex; align-items: center; gap: 18px; padding: 14px 20px 14px 16px; border-radius: 20px;
   background: radial-gradient(70% 140% at 0% 50%, rgba(63, 111, 209, .32), transparent 70%), var(--card);
@@ -4436,27 +4435,27 @@ body[data-nav="icons"].nav-open .dash-nav a:hover::after {
 @keyframes ov-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
 @keyframes ov-blink { 0%, 94%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
 
-.ov-cast { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
-.ov-cast:empty { display: none; }
-.ov-cookie {
-  display: flex; align-items: center; gap: 12px; padding: 12px 14px 12px 10px; border-radius: 16px;
-  background: radial-gradient(90% 120% at 0% 100%, var(--glow), transparent 70%), rgba(255, 255, 255, .03);
-  box-shadow: inset 0 0 0 1px var(--hairline, rgba(255, 255, 255, .08));
-  transition: transform .3s cubic-bezier(.66, 0, .2, 1);
-}
-:root[data-theme="light"] .ov-cookie { background: radial-gradient(90% 120% at 0% 100%, var(--glow), transparent 70%), rgba(0, 0, 0, .02); }
-.ov-cookie:hover { transform: translateY(-2px); }
-.ov-cookie img { flex: none; width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .35)); animation: ov-float 6s ease-in-out infinite; animation-delay: var(--d, 0s); }
-.ov-cookie b { display: block; font-size: 20px; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.ov-cookie span { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
-.ov-cookie b.state { font-size: 16px; text-transform: capitalize; }
-.ov-cookie.off b.state { color: var(--muted); }
-
 .ov-empty-block:not([hidden]) { display: grid; grid-template-columns: 72px 1fr; column-gap: 18px; align-items: center; justify-items: start; margin-top: 8px; }
 .ov-empty-block .ov-empty { margin: 0; align-self: end; }
 .ov-empty-block .check-moat { grid-column: 2; margin-top: 10px; align-self: start; }
 .ov-empty-kai { grid-row: span 2; width: 72px; height: auto; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .4)); animation: ov-float 6.5s ease-in-out infinite; }
 
-@media (max-width: 900px) { .ov-cast { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 480px) { .ov-hero { gap: 12px; padding: 12px 14px 12px 10px; } .ov-kai { width: 44px; } }
-@media (prefers-reduced-motion: reduce) { .ov-kai, .ov-kai .lid, .ov-cookie img, .ov-empty-kai { animation: none; } .ov-cookie { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .ov-kai, .ov-kai .lid, .ov-empty-kai, .ex-kai, .ex-kai .lid { animation: none; } }
+
+/* Kai explains: the "How it works" caption is Kai's speech bubble. Kai
+   nods when the caption changes (.talk, set by explainerPanel.ts). */
+.ex-say { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; align-items: end; margin-top: 16px; }
+.ex-kai { position: relative; width: 48px; animation: ov-float 6.5s ease-in-out infinite; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .4)); }
+.ex-kai img { width: 100%; height: auto; display: block; }
+.ex-kai .lid { position: absolute; top: 50.6%; height: 16%; background: #0c0d11; border-radius: 30%; transform: scaleY(0); transform-origin: 50% 0; animation: ov-blink 5.2s infinite; }
+.ex-kai .lid.l { left: 37.1%; width: 18.4%; }
+.ex-kai .lid.r { left: 63.8%; width: 18%; }
+.ex-kai.talk img { animation: ex-nod .5s ease-in-out; }
+@keyframes ex-nod { 30% { transform: rotate(-7deg) translateY(-2px); } 70% { transform: rotate(4deg); } }
+.ex-say .ex-caption, .ex-say p { position: relative; margin: 0 0 10px; padding: 11px 14px; border-radius: 14px 14px 14px 4px; background: var(--page); color: var(--fg); font-size: 13.5px; line-height: 1.5; }
+.ex-say .ex-caption::before, .ex-say p::before { content: ""; position: absolute; left: -6px; bottom: 6px; border: 6px solid transparent; border-right-color: var(--page); border-left: 0; }
+/* On phones the picture sits on --page already, so the bubble takes the card colour. */
+.ex-inline-body .ex-say p { background: var(--card); margin: 0 0 6px; }
+.ex-inline-body .ex-say p::before { border-right-color: var(--card); }
+.ex-inline-body .ex-say { margin-top: 12px; }
