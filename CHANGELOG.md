@@ -9,6 +9,10 @@ All notable changes to this project are documented here. Format loosely follows
 - **A fake "Ad Blocker Premium" pop-up is blocked.** Ad networks were opening a page dressed as
   the Chrome Web Store that pushes an extension. Moat now blocks that page and the tracker behind
   it. This reached installed copies through the daily fixes before this release.
+- **Adcash pop-unders can't slip back in on a new domain.** When Moat blocks Adcash's loader, it
+  falls back to a fresh random domain and asks there for the pop-up, hiding the request in
+  scrambled text. Moat now recognises those requests whatever the domain. This is what opened the
+  fake "Ad Blocker Premium" page from a sports streaming site.
 - **The block page names pop-up lists.** A page Moat stopped because it's a known pop-up or
   redirect domain now says "Pop-up ads", instead of saying the list wasn't known and treating the
   site as possibly dangerous.

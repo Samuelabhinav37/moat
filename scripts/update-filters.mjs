@@ -12,6 +12,7 @@ import { consolidateSiblingRules } from "./lib/consolidateSiblingRules.mjs";
 import { buildServerSideAnalyticsRules } from "./lib/serverSideAnalyticsRules.mjs";
 import { buildCircumventionServiceRules } from "./lib/circumventionServiceRules.mjs";
 import { buildRetryLoopStubRules, retryLoopStubResources } from "./lib/retryLoopStubRules.mjs";
+import { buildPopunderNetworkRules } from "./lib/popunderNetworkRules.mjs";
 import { dropSiteBreakingHeaderRules } from "./lib/siteBreakingHeaderRules.mjs";
 import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
 import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
@@ -471,15 +472,18 @@ manifestEntries.push({
 // measured).
 const ownRetryLoopStubRules = buildRetryLoopStubRules();
 for (const resource of retryLoopStubResources()) neededRedirectResources.add(resource);
-writeFileSync(join(outDir, "ruleset_ads-extra.json"), JSON.stringify(ownRetryLoopStubRules));
+// Plus pop-under networks that dodge blocking on fresh random domains
+// (scripts/lib/popunderNetworkRules.mjs says what each one matches and why).
+const ownAdsExtraRules = [...ownRetryLoopStubRules, ...withIdOffset(buildPopunderNetworkRules(), ownRetryLoopStubRules.length)];
+writeFileSync(join(outDir, "ruleset_ads-extra.json"), JSON.stringify(ownAdsExtraRules));
 manifestEntries.push({
   id: "ruleset_ads-extra",
   group: "ads",
   category: "ads",
-  name: "Moat: Ads filter (retry-loop fixes)",
+  name: "Moat: Ads filter (retry-loop and pop-under fixes)",
   enabled: true,
   file: "ruleset_ads-extra.json",
-  ruleCount: ownRetryLoopStubRules.length,
+  ruleCount: ownAdsExtraRules.length,
 });
 
 // Third-party, not sourced from AdGuard: HaGeZi's "Fake" list (GPL-3.0 --
