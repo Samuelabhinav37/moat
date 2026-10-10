@@ -313,14 +313,14 @@ say ""
 say "With all 7 secrets set, trigger a BETA dry run (CWS trusted testers +"
 say "AMO unlisted) before going stable -- this is what the channel input is for."
 if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
-  if confirm "Run: gh workflow run publish.yml -f ref=${RELEASE_TAG} -f targets=both -f channel=beta ?"; then
-    gh workflow run publish.yml -f ref="${RELEASE_TAG}" -f targets=both -f channel=beta \
+  if confirm "Run: gh workflow run publish.yml --ref ${RELEASE_TAG} -f targets=both -f channel=beta ?"; then
+    gh workflow run publish.yml --ref "${RELEASE_TAG}" -f targets=both -f channel=beta \
       && say "  triggered. Watch it: gh run watch" \
       || warn "trigger failed -- run it from the repo's Actions tab instead"
   fi
 else
   note "gh not ready -- trigger it from the Actions tab on GitHub instead:"
-  note "  Actions → Publish to stores → Run workflow → ref=${RELEASE_TAG}, channel=beta"
+  note "  Actions → Publish to stores → Run workflow → Use workflow from: ${RELEASE_TAG}, channel=beta"
 fi
 
 # ── Stage 7: publish the draft GitHub release ─────────────────────────────

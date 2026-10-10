@@ -15,10 +15,13 @@ name: Publish to stores
 
 on:
   workflow_dispatch:
+    # Run it from the tag: "Use workflow from" -> v0.11.54 in the Actions tab,
+    # or `gh workflow run publish.yml --ref v0.11.54`. The jobs then run in
+    # that tag's own context and check out exactly that tag. Taking the tag as
+    # an input instead ran its code with the default branch's cache scope,
+    # where it could poison caches other workflows restore (CodeQL
+    # actions/cache-poisoning).
     inputs:
-      ref:
-        description: "Tag to publish (e.g. v0.11.54). Must match package.json."
-        required: true
       targets:
         description: "Which stores to submit to"
         type: choice
@@ -39,9 +42,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Only from a release tag
+        if: ${{ github.ref_type != 'tag' }}
+        run: |
+          echo "::error::Run this workflow from a release tag (Use workflow from: vX.Y.Z), not from $GITHUB_REF_NAME"
+          exit 1
+
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          ref: ${{ inputs.ref }}
           persist-credentials: false
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -50,13 +58,11 @@ jobs:
           # No npm cache: a release build must not restore anything another
           # workflow could have written (CodeQL actions/cache-poisoning).
 
-      - name: Verify the ref matches package.json
-        env:
-          REF: ${{ inputs.ref }}
+      - name: Verify the tag matches package.json
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
-          if [ "v$PKG_VERSION" != "$REF" ]; then
-            echo "::error::input ref $REF does not match package.json v$PKG_VERSION"
+          if [ "v$PKG_VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json v$PKG_VERSION"
             exit 1
           fi
 
@@ -139,7 +145,6 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          ref: ${{ inputs.ref }}
           persist-credentials: false
           sparse-checkout: package-lock.json
           sparse-checkout-cone-mode: false

@@ -35,7 +35,8 @@
    changed.
 7. Review the draft release's attached zips and checksums, then publish it.
 8. Submit to the stores — either by hand, or via the **Publish to stores** workflow
-   (`.github/workflows/publish.yml`, `workflow_dispatch`), which rebuilds from the tag,
+   (`.github/workflows/publish.yml`, `workflow_dispatch`; pick the tag under **Use workflow
+   from**, or `gh workflow run publish.yml --ref vX.Y.Z`), which rebuilds from the tag,
    re-runs the full gate, and submits `chrome.zip` / `firefox.zip` for review. It is a
    deliberate manual trigger, never automatic on a tag, and each store step **skips cleanly
    if its credentials are absent** — so it stays dormant until you set these repository
