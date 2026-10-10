@@ -4,6 +4,7 @@
 // bridge.ts (see GUARD_CONNECT_EVENT in types.ts).
 import { GUARD_CONNECT_EVENT, type GuardBlockKind, type GuardBlockReport, type PopupGuardConfig } from "../types";
 import { isAuthPopupUrl } from "./authPopup";
+import { isFrameEscape, type FrameContext } from "./frameEscape";
 import { isPlausibleTrigger } from "./isPlausibleTrigger";
 import { createPopupRateLimiter } from "./popupRateLimit";
 import { maskRealm, nativeGetter, nativeMethod } from "./nativeToString";
@@ -94,6 +95,22 @@ document.addEventListener(
   true
 );
 
+/** Where this frame sits, for the frame-escape check. */
+function frameContext(): FrameContext {
+  let isTop = true;
+  try {
+    isTop = window.top === window;
+  } catch {
+    isTop = false;
+  }
+  return {
+    href: location.href,
+    isTop,
+    ancestorOrigins: location.ancestorOrigins ? Array.from(location.ancestorOrigins) : [],
+    referrer: document.referrer,
+  };
+}
+
 /** Whether the page may open a new window right now, from window.open or
  * anything that does the same job (a script-clicked new-tab link the click
  * listener can't see, a form submitted to a new tab, a frame's open()).
@@ -106,6 +123,12 @@ function mayOpenWindow(url: unknown, kind: GuardBlockKind): boolean {
   // click limit (some flows open a second window after an error), no rate
   // limit. Still needs the browser's own live user gesture.
   if (active && isAuthPopupUrl(url as Parameters<typeof window.open>[0], location.href)) return true;
+  // An ad frame embedded from another site can't open a third site, even
+  // on a real click on a real button (frameEscape.ts has the measured case).
+  if (isFrameEscape(url as string | URL | undefined, frameContext())) {
+    report(kind, typeof url === "string" ? url : url instanceof URL ? url.href : null);
+    return false;
+  }
   const recentTrusted = lastTrustedClick !== null && performance.now() - lastTrustedClick.time < TRUST_WINDOW_MS;
   const plausible = recentTrusted && isPlausibleTrigger(lastTrustedClick!.target);
   const freshClick = recentTrusted && !lastTrustedClick!.consumed;

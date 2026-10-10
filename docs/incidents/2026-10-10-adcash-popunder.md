@@ -75,11 +75,22 @@ tab opened or the user's own tab changed would tell them apart.
   ads" instead of "list not known".
 - `scripts/check-chrome-load.mjs`: fails on any bundled regex Chrome won't run.
 
+## Follow-up: the click the firewall trusted (0.11.275)
+
+The user confirmed the pop-up opened when they pressed **play** in the player. That click was
+genuine and landed on a real control, so the click-shape checks allowed it, and Adcash opened its
+window on the back of it from the `xstream.st` frame. 0.11.275 adds a rule for exactly that
+position: a frame embedded from another site may only open windows to its own site or to the
+page's site (`src/content/frameEscape.ts`). Checked in Chrome with a local two-site page: on
+0.11.274 a real click in the cross-site frame opened a third site; on 0.11.275 it's blocked, while
+the frame's own site, the page's site, a sign-in page and the page's own pop-ups still open. The
+pop-up red-team suite stays at 9/9 blocked and 4/4 legitimate opens.
+
 ## Still open
 
 - **Tab-under protection.** Detect a cross-site frame navigating the top window right after a
   click, and send the tab back. Needs care: sign-in and payment flows navigate the top window from
-  frames legitimately.
+  frames legitimately. (Pop-ups from such frames are covered since 0.11.275.)
 - **Other pop-under networks.** PropellerAds/Monetag, HilltopAds, Clickadu and Adsterra use the
   same retry-on-a-new-domain approach. Each needs the same kind of payload signature, found the same
   way: load a streaming site without Moat, capture what the fallback requests carry.

@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.275
+
+### Fixed
+- **Ads inside video players can't open pop-ups on your click.** An ad running in a player embedded
+  from another site could wait for you to press play, then open its own pop-up as if you'd asked
+  for it. A frame from another site can now only open windows to its own site or the page you're
+  on. Sign-in pop-ups and embeds that open their own service, like YouTube or PayPal, still work.
+
 ## 0.11.274
 
 ### Fixed
