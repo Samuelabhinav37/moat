@@ -47,7 +47,7 @@ WHY IT NEEDS ACCESS TO ALL SITES
 An ad blocker has to see a page's requests to block them. Moat uses that access only to block and hide content, never to read or send page content.
 
 Free and open source (GPL-3.0): https://github.com/Samuelabhinav37/moat
-Privacy policy: https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md
+Privacy policy: https://samuelabhinav37.github.io/moat/privacy/
 
 ---
 
@@ -70,9 +70,9 @@ Privacy policy: https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md
 
 **Privacy policy URL**
 
-> https://github.com/Samuelabhinav37/moat/blob/master/PRIVACY.md
+> https://samuelabhinav37.github.io/moat/privacy/
 
-(Link the policy itself, not the landing page, so a reviewer lands on it directly.)
+(The policy itself on Moat's website, built from PRIVACY.md by `npm run site:privacy`. Not the GitHub file view: GitHub answers the store's link checker with an error, so the store calls it "not reachable".)
 
 **Single purpose description**
 

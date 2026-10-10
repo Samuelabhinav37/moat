@@ -30,6 +30,8 @@ jobs:
       - run: npm run validate:rules
       - run: npm run typecheck
       - run: npm run lint
+      # The website's privacy page (the store's privacy URL) must match PRIVACY.md.
+      - run: npm run site:privacy -- --check
       - run: npm test
       - run: npm run build
       # web-ext lint only validates Firefox; this loads dist/chrome into Chrome

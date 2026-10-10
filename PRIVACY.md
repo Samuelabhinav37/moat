@@ -170,7 +170,7 @@ patch or refresh the bundled baseline.
 
 ## Permissions
 
-See the [Permissions table in the README](README.md#permissions) for what
+See the [permissions table](docs/overview.md#permissions) for what
 each requested browser permission is used for and why.
 
 ## Changes to this policy

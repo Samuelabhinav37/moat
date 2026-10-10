@@ -31,6 +31,7 @@
     "check:chrome-load": "node scripts/check-chrome-load.mjs",
     "store:capture": "node scripts/store-images/capture.mjs",
     "store:build": "node scripts/store-images/build.mjs",
+    "site:privacy": "node scripts/site-privacy.mjs",
     "smoke": "node scripts/live-smoke.mjs",
     "release:check": "node scripts/release-check.mjs",
     "smoke:firefox": "node scripts/firefox-smoke.mjs"
