@@ -50,6 +50,12 @@ async function hydrateLiveFromStorage(): Promise<void> {
   }
 }
 
+/** Whether `hostname` (or a parent) is a known pop-up or redirect domain,
+ * bundled or live. The block page uses it to name the list. */
+export async function isKnownRedirectHost(hostname: string): Promise<boolean> {
+  return matchesKnownRedirectDomain(hostname, await loadRedirectDomains());
+}
+
 /** Replaces (not merges) the live slice of the tab safety net's domain set.
  * liveUpdates.ts fetches the *current, full* list on every refresh, not a
  * diff -- merging into a Set forever would mean a domain removed upstream

@@ -13,6 +13,7 @@
 // Firefox has no getMatchedRules and reports a refused load differently, so
 // it keeps its own error page for now.
 import browser from "webextension-polyfill";
+import { isKnownRedirectHost } from "./popupGuard";
 import { LIVE_SECURITY_ID_START, LIVE_SECURITY_KEY, MAX_LIVE_SECURITY_RULES } from "./liveSecurityRules";
 import type { PageBlocked } from "./liveBlocks";
 import { readMatchedRules } from "./matchStats";
@@ -108,6 +109,9 @@ export async function resolveBlock(block: PageBlocked): Promise<{ list: string; 
   const manifest = await loadRulesetManifest().catch(() => []);
   const adGroup = await adGroupFor(block.url, manifest).catch(() => null);
   if (adGroup) return { list: adGroup, kind: "ads" };
+  // Pop-up and redirect domains, including Moat's own scam-lander list and
+  // the live ones, block whole pages too (liveRedirectRules.ts).
+  if (hostname && (await isKnownRedirectHost(hostname).catch(() => false))) return { list: "popups", kind: "ads" };
   const match = await findPageMatch(block);
   if (!match) return { list: UNKNOWN_LIST, kind: "unknown" };
   const live = match.rulesetId === "_dynamic" && match.ruleId >= LIVE_SECURITY_ID_START && match.ruleId < LIVE_SECURITY_ID_START + MAX_LIVE_SECURITY_RULES;
