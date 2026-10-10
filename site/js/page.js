@@ -64,8 +64,12 @@
     var diffKai = diff.querySelector("[data-kai]"), happy = false;
     slider(cmp2, 100, true, function (v) {
       diffOuts.forEach(function (img) { fade(img, v, 0); });
+      // Kai's face follows the slider: annoyed while the ads are up,
+      // happy once the page is clean, plain in between.
       var kai = window.MoatLife && diffKai ? window.MoatLife.kai(diffKai) : null;
-      if (kai && v < .08 && !happy) { happy = true; kai.setMood("happy", 1800); kai.hop(); }
+      if (!kai) return;
+      var mood = v > .6 ? "focus" : v < .08 ? "happy" : "";
+      if (mood !== kai.mood) { kai.setMood(mood); if (mood === "happy" && !happy) { happy = true; kai.hop(); } }
       if (v > .3) happy = false;
     }, function () { if (hint) hint.classList.add("gone"); }, "sweep-clean", 0);
   }
