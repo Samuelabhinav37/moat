@@ -639,7 +639,7 @@ describe("Overview: the week in a sentence, and a calm sidebar", () => {
 
   it("names the company seen most under the title, with the totals in the chart's legend and no percentage cards", async () => {
     await renderOptions(undefined, week(Date.now()));
-    expect(document.getElementById("page-lead")?.textContent).toMatch(/^Google tracked you on the most sites\./);
+    expect(document.getElementById("page-lead")?.textContent).toMatch(/^Google tried to track you on more sites than any other company\./);
     expect(document.querySelector("#ov-chart .ovc-legend")?.textContent).toContain("Trackers30");
     expect(document.getElementById("ov-kpis")).toBeNull();
   });

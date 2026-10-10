@@ -935,13 +935,13 @@
     "message": "Moat vérifie chacun sur votre appareil"
   },
   "tourHow2Sub": {
-    "message": "Il compare chaque requête à des centaines de milliers de règles issues de listes de filtres publiques. Rien ne quitte votre appareil."
+    "message": "Il vérifie chacune avec environ 310 000 règles issues de listes publiques de publicités et de traqueurs. Rien ne quitte votre appareil."
   },
   "tourHow3Title": {
     "message": "Ce qui correspond ne se charge jamais"
   },
   "tourHow3Sub": {
-    "message": "Ni tout ce que cela aurait chargé ensuite."
+    "message": "Donc rien de ce qu'ils auraient chargé ensuite ne se charge non plus."
   },
   "tourHow4Title": {
     "message": "Les restes sont nettoyés"
@@ -953,7 +953,7 @@
     "message": "Épingle Moat à côté de la barre d’adresse"
   },
   "tourPinLede": {
-    "message": "Son icône montre alors ce que chaque page a tenté de charger, et vous pouvez le mettre en pause sur un site en un clic."
+    "message": "Son icône montre alors combien de publicités et de traqueurs chaque page a tenté de charger, et vous pouvez le mettre en pause sur un site en un clic."
   },
   "tourPinStep1": {
     "message": "Cliquez sur la pièce de puzzle dans votre barre d’outils."
@@ -1104,7 +1104,7 @@
     "message": "Analyse du comportement"
   },
   "tourReqFirstParty": {
-    "message": "Traqueur sur le propre domaine de weather.com"
+    "message": "Traqueur sous l'adresse même de weather.com"
   },
   "tourReqMonitoring": {
     "message": "Enregistrement de session"
@@ -2380,7 +2380,7 @@
     "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
   },
   "ovSummaryCompany": {
-    "message": "$COMPANY$ vous a pisté sur le plus de sites.",
+    "message": "$COMPANY$ a tenté de vous suivre sur plus de sites que toute autre entreprise.",
     "placeholders": {
       "company": {
         "content": "$1",
@@ -2390,7 +2390,7 @@
     "description": "Overview subtitle, first sentence: the tracker company seen on the most sites this week."
   },
   "ovSummarySite": {
-    "message": "$SITE$ est le site où Moat a le plus bloqué.",
+    "message": "C'est sur $SITE$ que Moat a le plus bloqué.",
     "placeholders": {
       "site": {
         "content": "$1",
@@ -3513,58 +3513,58 @@
   "kaiTurnOn": {
     "message": "Activer Moat"
   },
-  "kaiOverview": {
-    "message": "Voici votre semaine en un coup d'œil. Je vérifie vos réglages ?"
+  "kaiAsk": {
+    "message": "Bonjour, je suis Kai. Que cherchez-vous ?"
   },
-  "kaiCheckup": {
-    "message": "Vérifier mes réglages"
+  "kaiAnotherQuestion": {
+    "message": "Poser une autre question"
   },
-  "kaiIsWorking": {
+  "kaiQPause": {
+    "message": "Comment mettre Moat en pause sur un site ?"
+  },
+  "kaiAPause": {
+    "message": "Sur le site, cliquez sur l'icône Moat à côté de la barre d'adresse et désactivez son interrupteur. Vous pouvez aussi ajouter un site ici, dans Exceptions et En pause."
+  },
+  "kaiQLevel": {
+    "message": "Où changer ce que Moat bloque ?"
+  },
+  "kaiALevel": {
+    "message": "Dans Protection, choisissez un niveau. Équilibré convient à la plupart."
+  },
+  "kaiQBlocked": {
+    "message": "Où voir ce que Moat a bloqué ?"
+  },
+  "kaiABlocked": {
+    "message": "L'aperçu montre votre semaine. Traqueurs montre qui a tenté de vous suivre, et Sites où."
+  },
+  "kaiQHide": {
+    "message": "Comment masquer un élément sur une page ?"
+  },
+  "kaiAHide": {
+    "message": "Sur la page, cliquez sur l'icône Moat et choisissez Masquer un élément de cette page. Tout ce que vous avez masqué est listé ici."
+  },
+  "kaiQBlock": {
+    "message": "Comment toujours bloquer un site ?"
+  },
+  "kaiABlock": {
+    "message": "Saisissez le site sous Toujours bloquer et appuyez sur Bloquer."
+  },
+  "kaiQBackup": {
+    "message": "Comment garder mes réglages sur un autre ordinateur ?"
+  },
+  "kaiABackup": {
+    "message": "Dans Sauvegarde et synchro, enregistrez une sauvegarde ou activez la synchro."
+  },
+  "kaiQBroken": {
+    "message": "Un site ne fonctionne pas"
+  },
+  "kaiABroken": {
+    "message": "Réglons cela étape par étape."
+  },
+  "kaiQWorking": {
     "message": "Moat fonctionne ?"
   },
-  "kaiProtection": {
-    "message": "Vous hésitez sur le niveau ? Équilibré convient à la plupart."
-  },
-  "kaiShowLevels": {
-    "message": "Montrez-moi les niveaux"
-  },
-  "kaiSiteBroke": {
-    "message": "Un site ne marche plus"
-  },
-  "kaiExceptions": {
-    "message": "Mettez en pause un site de confiance, ou masquez ce que les listes ont manqué."
-  },
-  "kaiHideSomething": {
-    "message": "Masquer quelque chose"
-  },
-  "kaiMissing": {
-    "message": "Il manque quelque chose"
-  },
-  "kaiTrackers": {
-    "message": "Voici les entreprises qui ont tenté de vous suivre cette semaine."
-  },
-  "kaiHowItWorks": {
-    "message": "Comment fonctionne le blocage"
-  },
-  "kaiSites": {
-    "message": "Voici où j'ai le plus bloqué. Si l'un d'eux pose problème, mettez-moi en pause là."
-  },
-  "kaiSecurity": {
-    "message": "J'arrête les pages d'arnaque et d'hameçonnage connues avant leur ouverture."
-  },
-  "kaiRealSite": {
-    "message": "Un vrai site a été bloqué"
-  },
-  "kaiAbout": {
-    "message": "Tout ce que j'envoie est listé ici, avec le destinataire."
-  },
-  "kaiCheckYourself": {
-    "message": "Vérifiez vous-même"
-  },
-  "kaiReport": {
-    "message": "Signaler un problème"
-  },
-  "kaiBackup": {
-    "message": "Enregistrez vos réglages dans un fichier, ou gardez-les identiques sur vos autres ordinateurs."
+  "kaiAWorking": {
+    "message": "Voici comment vérifier."
   }
 }

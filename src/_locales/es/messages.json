@@ -935,13 +935,13 @@
     "message": "Moat revisa cada una en tu dispositivo"
   },
   "tourHow2Sub": {
-    "message": "Compara cada petición con cientos de miles de reglas de listas de filtros públicas. Nada sale de tu dispositivo."
+    "message": "Comprueba cada una con unas 310.000 reglas de listas públicas de anuncios y rastreadores. Nada sale de tu dispositivo."
   },
   "tourHow3Title": {
     "message": "Lo que coincide nunca se carga"
   },
   "tourHow3Sub": {
-    "message": "Tampoco lo que eso habría cargado después."
+    "message": "Así que tampoco carga nada de lo que habrían traído después."
   },
   "tourHow4Title": {
     "message": "Se limpian los restos"
@@ -953,7 +953,7 @@
     "message": "Fija Moat junto a la barra de direcciones"
   },
   "tourPinLede": {
-    "message": "Así su icono muestra cuánto intentó cargar cada página, y puedes pausarlo en un sitio con un clic."
+    "message": "Así su icono muestra cuántos anuncios y rastreadores intentó cargar cada página, y puedes pausarlo en un sitio con un clic."
   },
   "tourPinStep1": {
     "message": "Haz clic en la pieza de puzle de tu barra de herramientas."
@@ -1104,7 +1104,7 @@
     "message": "Análisis de comportamiento"
   },
   "tourReqFirstParty": {
-    "message": "Rastreador en el propio dominio de weather.com"
+    "message": "Rastreador con la propia dirección de weather.com"
   },
   "tourReqMonitoring": {
     "message": "Grabación de sesiones"
@@ -2380,7 +2380,7 @@
     "description": "Overview: hint beside the week chart. Works with a mouse, a tap or the keyboard, so don't say 'hover'."
   },
   "ovSummaryCompany": {
-    "message": "$COMPANY$ te rastreó en más sitios.",
+    "message": "$COMPANY$ intentó rastrearte en más sitios que cualquier otra empresa.",
     "placeholders": {
       "company": {
         "content": "$1",
@@ -2390,7 +2390,7 @@
     "description": "Overview subtitle, first sentence: the tracker company seen on the most sites this week."
   },
   "ovSummarySite": {
-    "message": "En $SITE$ se bloqueó más.",
+    "message": "Moat bloqueó más en $SITE$.",
     "placeholders": {
       "site": {
         "content": "$1",
@@ -3513,58 +3513,58 @@
   "kaiTurnOn": {
     "message": "Activar Moat"
   },
-  "kaiOverview": {
-    "message": "Esta es tu semana de un vistazo. ¿Reviso tu configuración?"
+  "kaiAsk": {
+    "message": "Hola, soy Kai. ¿Qué buscas?"
   },
-  "kaiCheckup": {
-    "message": "Revisar mi configuración"
+  "kaiAnotherQuestion": {
+    "message": "Preguntar otra cosa"
   },
-  "kaiIsWorking": {
+  "kaiQPause": {
+    "message": "¿Cómo pauso Moat en un sitio?"
+  },
+  "kaiAPause": {
+    "message": "En el sitio, haz clic en el icono de Moat junto a la barra de direcciones y desactiva su interruptor. También puedes añadir un sitio aquí, en Excepciones y En pausa."
+  },
+  "kaiQLevel": {
+    "message": "¿Dónde cambio cuánto bloquea Moat?"
+  },
+  "kaiALevel": {
+    "message": "En Protección, elige un nivel. Equilibrado va bien para la mayoría."
+  },
+  "kaiQBlocked": {
+    "message": "¿Dónde veo lo que bloqueó Moat?"
+  },
+  "kaiABlocked": {
+    "message": "Resumen muestra tu semana. Rastreadores muestra quién intentó seguirte y Sitios muestra dónde."
+  },
+  "kaiQHide": {
+    "message": "¿Cómo oculto algo en una página?"
+  },
+  "kaiAHide": {
+    "message": "En la página, haz clic en el icono de Moat y elige Ocultar algo en esta página. Todo lo que ocultaste aparece aquí."
+  },
+  "kaiQBlock": {
+    "message": "¿Cómo bloqueo siempre un sitio?"
+  },
+  "kaiABlock": {
+    "message": "Escribe el sitio en Bloquear siempre y pulsa Bloquear."
+  },
+  "kaiQBackup": {
+    "message": "¿Cómo llevo mi configuración a otro ordenador?"
+  },
+  "kaiABackup": {
+    "message": "En Copia y sincronización, guarda un archivo de copia o activa la sincronización."
+  },
+  "kaiQBroken": {
+    "message": "Un sitio no funciona"
+  },
+  "kaiABroken": {
+    "message": "Vamos a arreglarlo paso a paso."
+  },
+  "kaiQWorking": {
     "message": "¿Funciona Moat?"
   },
-  "kaiProtection": {
-    "message": "¿No sabes qué nivel elegir? Equilibrado va bien para la mayoría."
-  },
-  "kaiShowLevels": {
-    "message": "Muéstrame los niveles"
-  },
-  "kaiSiteBroke": {
-    "message": "Un sitio dejó de funcionar"
-  },
-  "kaiExceptions": {
-    "message": "Pausa un sitio en el que confías u oculta algo que se les escapó a las listas."
-  },
-  "kaiHideSomething": {
-    "message": "Ocultar algo"
-  },
-  "kaiMissing": {
-    "message": "Falta algo"
-  },
-  "kaiTrackers": {
-    "message": "Estas son las empresas que intentaron seguirte esta semana."
-  },
-  "kaiHowItWorks": {
-    "message": "Cómo funciona el bloqueo"
-  },
-  "kaiSites": {
-    "message": "Aquí es donde más bloqueé. Si alguno falla, ponme en pausa ahí."
-  },
-  "kaiSecurity": {
-    "message": "Detengo las páginas de estafa y phishing conocidas antes de que se abran."
-  },
-  "kaiRealSite": {
-    "message": "Se bloqueó un sitio real"
-  },
-  "kaiAbout": {
-    "message": "Aquí está todo lo que envío y quién lo recibe."
-  },
-  "kaiCheckYourself": {
-    "message": "Compruébalo tú"
-  },
-  "kaiReport": {
-    "message": "Informar de un problema"
-  },
-  "kaiBackup": {
-    "message": "Guarda tu configuración en un archivo o mantenla igual en tus otros ordenadores."
+  "kaiAWorking": {
+    "message": "Así puedes comprobarlo."
   }
 }

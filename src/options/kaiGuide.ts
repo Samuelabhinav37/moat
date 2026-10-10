@@ -1,30 +1,33 @@
 // Kai, Moat's guide, in the bottom-right corner of Settings (as on the
-// website). Pressing Kai opens a small card: one line about the screen
-// you're on, and two or three buttons that do something there (start the
-// checkup, show how levels work, hide something on a page, open the right
-// help topic). When protection is off, Kai says so first and offers to
-// turn it back on. Kai blinks but doesn't float: a looping float made
-// Settings stutter (see the note in options.css). DOM calls only.
+// website). Pressing Kai opens a card of plain questions ("How do I pause
+// Moat on a site?"). Picking one makes Kai answer in a sentence or two and
+// takes you there: the right screen opens and the control is outlined for
+// a moment. When protection is off, Kai says so first. Kai is the only
+// Kai on the page: it hides while the "How it works" drawer (where Kai
+// explains the picture) or Help is open. Kai blinks but doesn't float: a
+// looping float made Settings stutter (see the note in options.css).
 import type { Translate } from "./overviewView";
 
-export interface KaiAction {
-  label: [string, string];
-  run: () => void;
-}
-
-export interface KaiLine {
-  say: [string, string];
-  actions: KaiAction[];
+export interface KaiQuestion {
+  id: string;
+  ask: [string, string];
+  answer: [string, string];
+  /** Where to take the reader: a hash to open, then an element to outline. */
+  hash?: string;
+  target?: string;
+  /** Instead of taking you somewhere, do this (open a help topic). */
+  run?: () => void;
 }
 
 export interface KaiOptions {
   t: Translate;
   currentScreen: () => string;
-  /** True when protection is switched off. */
   isOff: () => boolean;
   turnOn: () => void;
   openHelp: () => void;
-  lines: Record<string, KaiLine>;
+  questions: KaiQuestion[];
+  /** Question ids to list first on each screen. */
+  firstOn: Record<string, string[]>;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(doc: Document, tag: K, className = "", text?: string): HTMLElementTagNameMap[K] {
@@ -34,7 +37,7 @@ function el<K extends keyof HTMLElementTagNameMap>(doc: Document, tag: K, classN
   return node;
 }
 
-/** Kai's head with two eyelids that blink (decoration only). */
+/** Kai with two eyelids that blink (decoration only). */
 function kaiFace(doc: Document): HTMLElement {
   const face = el(doc, "span", "kai-face");
   face.setAttribute("aria-hidden", "true");
@@ -45,22 +48,36 @@ function kaiFace(doc: Document): HTMLElement {
   return face;
 }
 
+/** Scrolls an element into view and outlines it for a moment. */
+export function pointAt(doc: Document, selector: string): boolean {
+  const target = Array.from(doc.querySelectorAll<HTMLElement>(selector)).find((node) => !node.closest(".dash-off, [hidden]"));
+  if (!target) return false;
+  const reduced = doc.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  target.scrollIntoView?.({ behavior: reduced ? "auto" : "smooth", block: "center" });
+  target.classList.remove("kai-here");
+  void target.offsetWidth;
+  target.classList.add("kai-here");
+  doc.defaultView?.setTimeout(() => target.classList.remove("kai-here"), 2600);
+  return true;
+}
+
 export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => void; close: () => void; isOpen: () => boolean } {
   const { t } = options;
+  const win = doc.defaultView ?? window;
   const root = el(doc, "div", "kai-guide");
   const card = el(doc, "div", "kai-card");
   card.id = "kai-card";
   card.hidden = true;
   card.setAttribute("role", "dialog");
-  card.setAttribute("aria-label", "Kai");
+  card.setAttribute("aria-label", t("kaiOpen", "Ask Kai"));
   const say = el(doc, "p", "kai-say");
   say.setAttribute("aria-live", "polite");
-  const actions = el(doc, "div", "kai-actions");
+  const list = el(doc, "div", "kai-list");
   const close = el(doc, "button", "kai-close");
   close.type = "button";
   close.setAttribute("aria-label", t("kaiClose", "Close"));
   close.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>';
-  card.append(close, say, actions);
+  card.append(close, say, list);
 
   const button = el(doc, "button", "kai-button");
   button.type = "button";
@@ -73,36 +90,61 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
   doc.body.append(root);
 
   const isOpen = () => !card.hidden;
-  const actionButton = (label: [string, string], run: () => void, primary = false) => {
-    const b = el(doc, "button", primary ? "kai-act primary" : "kai-act", t(label[0], label[1]));
+  const chip = (label: string, onClick: () => void, className = "kai-q") => {
+    const b = el(doc, "button", className, label);
     b.type = "button";
-    b.addEventListener("click", () => {
-      hide();
-      run();
-    });
+    b.addEventListener("click", onClick);
     return b;
   };
 
-  const fill = () => {
+  const showQuestions = () => {
     if (options.isOff()) {
       say.textContent = t("kaiOff", "Moat is off right now, so ads and trackers load on every site.");
-      actions.replaceChildren(actionButton(["kaiTurnOn", "Turn Moat on"], options.turnOn, true), actionButton(["kaiAllHelp", "All help"], options.openHelp));
+      list.replaceChildren(
+        chip(t("kaiTurnOn", "Turn Moat on"), () => {
+          hide();
+          options.turnOn();
+        }, "kai-q primary")
+      );
       return;
     }
-    const line = options.lines[options.currentScreen()] ?? options.lines.overview!;
-    say.textContent = t(line.say[0], line.say[1]);
-    actions.replaceChildren(
-      ...line.actions.map((a, i) => actionButton(a.label, a.run, i === 0)),
-      actionButton(["kaiAllHelp", "All help"], options.openHelp)
+    say.textContent = t("kaiAsk", "Hi, I'm Kai. What are you looking for?");
+    const first = options.firstOn[options.currentScreen()] ?? [];
+    const ordered = [...options.questions].sort((a, b) => {
+      const ia = first.indexOf(a.id), ib = first.indexOf(b.id);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    list.replaceChildren(
+      ...ordered.map((q) => chip(t(q.ask[0], q.ask[1]), () => answer(q))),
+      chip(t("kaiAllHelp", "All help"), () => {
+        hide();
+        options.openHelp();
+      }, "kai-q quiet")
     );
   };
 
+  const answer = (q: KaiQuestion) => {
+    say.textContent = t(q.answer[0], q.answer[1]);
+    list.replaceChildren(chip(t("kaiAnotherQuestion", "Ask something else"), showQuestions, "kai-q quiet"));
+    if (q.run) {
+      hide();
+      q.run();
+      return;
+    }
+    if (q.hash && win.location.hash !== q.hash) win.location.hash = q.hash;
+    if (q.target) {
+      const target = q.target;
+      // The screen changes on hashchange; point once it has drawn.
+      win.setTimeout(() => pointAt(doc, target), 250);
+    }
+  };
+
   const show = () => {
-    fill();
+    showQuestions();
     card.hidden = false;
     root.classList.add("open");
     button.setAttribute("aria-expanded", "true");
-    (actions.querySelector("button") as HTMLButtonElement | null)?.focus();
+    (list.querySelector("button") as HTMLButtonElement | null)?.focus();
   };
   const hide = () => {
     if (card.hidden) return;
@@ -122,11 +164,11 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
       button.focus();
     }
   });
+  // composedPath, not contains: a question's button is replaced by the
+  // answer before the click reaches the document.
   doc.addEventListener("click", (event) => {
-    if (isOpen() && !root.contains(event.target as Node)) hide();
+    if (isOpen() && !event.composedPath().includes(root)) hide();
   });
-  // A new screen gets its own line next time Kai is opened.
-  (doc.defaultView ?? window).addEventListener("hashchange", hide);
 
   return { open: show, close: hide, isOpen };
 }

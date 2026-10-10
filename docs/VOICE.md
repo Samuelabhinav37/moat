@@ -26,10 +26,25 @@ Every new string should pass these checks.
    not "all"; say what it does, not what it guarantees.
 8. **No dashes as a crutch.** Use a full stop or "and" instead.
 
+## Summaries built from data
+
+A sentence made from numbers or names must still mean something to someone
+who glances at it for five seconds.
+
+- Say who did what: "Google tried to track you on more sites than any other
+  company", not "Google tracked you on the most sites".
+- Name Moat as the one acting: "Moat blocked the most on news.example", not
+  "news.example had the most blocked".
+- Every number has its unit and period: "4 ads and 3 trackers blocked", not
+  "7 things".
+
 ## Kai
 
 Kai is Moat's guide. Kai speaks in the first person, briefly and warmly, and
 always offers something to do next. One or two sentences, then buttons.
+In Settings, Kai answers "where is it?" questions and takes you there. Only
+one Kai is on screen at a time. Kai refers to the toolbar button as "the Moat
+icon", never "my icon".
 
 - Good: "Not sure which level to pick? Balanced suits most people."
 - Not: "Hey there! 👋 Choosing a protection level can be tricky, but don't

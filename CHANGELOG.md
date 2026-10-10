@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.269
+
+### Changed
+- **Kai answers "where is it?"** Press Kai at the bottom right and pick a question, like "How do I
+  pause Moat on a site?". Kai answers in a sentence and takes you there, with the right control
+  outlined for a moment. There's only one Kai on screen now, without the circle around it.
+- **Clearer sentences.** Overview's summary now says what it means: "Google tried to track you on
+  more sites than any other company. Moat blocked the most on news.example." A few lines in the
+  welcome tour are plainer too.
+
 ## 0.11.268
 
 ### Changed

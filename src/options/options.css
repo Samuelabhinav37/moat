@@ -4513,19 +4513,11 @@ body { font-family: var(--font); font-size: 15px; letter-spacing: -0.008em; -web
 /* the big week number gets the site's weight */
 .ov-big { letter-spacing: -0.035em; font-weight: 600; }
 
-/* empty lists: Kai instead of a grey icon circle */
+/* empty lists: icon and text, a little roomier */
 .empty-card { gap: 16px; padding: 8px 0; }
-.empty-card .empty-icon { width: 52px; height: 62px; border-radius: 0; background: url("characters/kai.webp") center / contain no-repeat; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .35)); }
-.empty-card .empty-icon svg { display: none; }
 .empty-card b { font-size: 15.5px; }
 
-/* Exceptions: Kai explains each empty list in a speech bubble (the same
-   pattern as "How it works"), and adding a site is a roomier field with a
-   blue pill button. */
-.empty-card { align-items: flex-end; }
-.empty-card > div { position: relative; margin-bottom: 8px; padding: 12px 16px; border-radius: 16px 16px 16px 4px; background: var(--panel-2); max-width: 520px; }
-.empty-card > div::before { content: ""; position: absolute; left: -7px; bottom: 7px; border: 7px solid transparent; border-right-color: var(--panel-2); border-left: 0; }
-.empty-card span { line-height: 1.45; }
+/* Exceptions: adding a site is a roomier field with a blue pill button. */
 .add-row input, .add-row select { min-height: 44px; border-radius: 12px; background: var(--panel-2); border-color: transparent; padding: 10px 14px; font-size: 15px; }
 .add-row input:focus-visible, .add-row select:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 0; }
 .add-row > button { min-height: 44px; border-radius: 980px; padding: 0 22px; background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
@@ -4547,31 +4539,35 @@ body { font-family: var(--font); font-size: 15px; letter-spacing: -0.008em; -web
 /* ---------- Kai, the guide in the corner (kaiGuide.ts) ---------- */
 .kai-guide { position: fixed; right: 24px; bottom: 24px; z-index: 30; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; pointer-events: none; }
 .kai-guide > * { pointer-events: auto; }
-.kai-button { width: 64px; height: 64px; padding: 0; border: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
-  background: radial-gradient(circle at 50% 35%, #26324f, #10141f 70%); box-shadow: 0 0 0 1px rgba(111, 155, 224, .35), 0 12px 30px -8px rgba(0, 0, 0, .6), 0 0 24px -4px rgba(63, 111, 209, .55); transition: transform .2s var(--ease), box-shadow .2s; }
-:root[data-theme="light"] .kai-button { background: radial-gradient(circle at 50% 35%, #ffffff, #e8edf8 70%); box-shadow: 0 0 0 1px rgba(53, 99, 199, .25), 0 12px 30px -10px rgba(30, 40, 70, .35); }
-.kai-button:hover { transform: translateY(-2px); }
-.kai-button:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 4px; }
-.kai-face { position: relative; width: 44px; display: block; margin-top: 2px; }
+.kai-button { width: 72px; height: auto; padding: 0; border: 0; background: none; cursor: pointer; transition: transform .2s var(--ease); }
+.kai-button:hover { transform: translateY(-3px); }
+.kai-button:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 6px; border-radius: 16px; }
+.kai-face { position: relative; width: 72px; display: block; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .5)); }
 .kai-face img { width: 100%; height: auto; display: block; }
 .kai-face .lid { position: absolute; top: 50.6%; height: 16%; background: #0c0d11; border-radius: 30%; transform: scaleY(0); transform-origin: 50% 0; animation: ov-blink 5.2s infinite; }
 .kai-face .lid.l { left: 37.1%; width: 18.4%; }
 .kai-face .lid.r { left: 63.8%; width: 18%; }
 .kai-guide.open .kai-face .lid { animation: none; transform: scaleY(.45); transform-origin: 50% 100%; border-radius: 50% 50% 20% 20% / 90% 90% 10% 10%; }
-.kai-card { position: relative; width: min(340px, calc(100vw - 32px)); padding: 18px 18px 16px; border-radius: 20px 20px 6px 20px; background: var(--panel); box-shadow: 0 0 0 1px var(--line-2), 0 24px 60px -20px rgba(0, 0, 0, .7); animation: kai-in .22s var(--ease); }
+.kai-card { position: relative; width: min(360px, calc(100vw - 32px)); max-height: calc(100vh - 140px); overflow-y: auto; padding: 18px 18px 16px; border-radius: 20px 20px 6px 20px; background: var(--panel); box-shadow: 0 0 0 1px var(--line-2), 0 24px 60px -20px rgba(0, 0, 0, .7); animation: kai-in .22s var(--ease); }
 .kai-card[hidden] { display: none; }
 @keyframes kai-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
 .kai-say { margin: 0 28px 14px 0; font-size: 15px; line-height: 1.45; font-weight: 500; color: var(--fg); }
-.kai-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.kai-act { border: 0; border-radius: 980px; padding: 8px 14px; background: var(--panel-2); color: var(--fg); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
-.kai-act:hover { background: var(--panel-3); }
-.kai-act.primary { background: var(--blue); color: #fff; }
-.kai-act.primary:hover { background: var(--blue-deep); }
+.kai-list { display: grid; gap: 6px; }
+.kai-q { text-align: left; border: 0; border-radius: 12px; padding: 10px 12px; background: var(--panel-2); color: var(--fg); font: inherit; font-size: 14px; font-weight: 500; line-height: 1.35; cursor: pointer; }
+.kai-q:hover { background: var(--panel-3); }
+.kai-q.primary { background: var(--blue); color: #fff; font-weight: 600; text-align: center; border-radius: 980px; }
+.kai-q.primary:hover { background: var(--blue-deep); }
+.kai-q.quiet { background: none; color: var(--blue-lt); font-weight: 600; padding: 8px 4px 2px; }
+.kai-q.quiet:hover { text-decoration: underline; background: none; }
+/* where Kai points: a soft outline for a moment */
+.kai-here { outline: 2px solid var(--blue-lt); outline-offset: 4px; border-radius: 14px; animation: kai-here 2.6s var(--ease) both; }
+@keyframes kai-here { 0% { outline-color: transparent; } 12%, 70% { outline-color: var(--blue-lt); } 100% { outline-color: transparent; } }
 .kai-close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--muted); display: grid; place-items: center; cursor: pointer; }
 .kai-close:hover { background: var(--panel-2); color: var(--fg); }
 .kai-close svg { width: 16px; height: 16px; }
 /* Out of the way when Help or the "How it works" drawer is open. */
 body:has(#help-panel:not([hidden])) .kai-guide { display: none; }
-@media (min-width: 900px) { body:has(#explainer:not([hidden])) .kai-guide { right: calc(var(--drawer, 380px) + 24px); } }
-@media (max-width: 600px) { .kai-guide { right: 16px; bottom: 16px; } .kai-button { width: 54px; height: 54px; } .kai-face { width: 36px; } }
-@media (prefers-reduced-motion: reduce) { .kai-face .lid, .kai-card { animation: none; } .kai-button { transition: none; } }
+/* One Kai at a time: the drawer's Kai explains the picture. */
+body:has(#explainer:not([hidden])) .kai-guide { display: none; }
+@media (max-width: 600px) { .kai-guide { right: 12px; bottom: 12px; } .kai-button, .kai-face { width: 56px; } }
+@media (prefers-reduced-motion: reduce) { .kai-face .lid, .kai-card, .kai-here { animation: none; } .kai-button { transition: none; } }

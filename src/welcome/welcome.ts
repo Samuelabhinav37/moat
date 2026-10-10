@@ -72,7 +72,7 @@ const REQUESTS: [host: string, what: string, loaded: boolean][] = [
   ["securepubads.g.doubleclick.net", t("tourReqAdServer", "Google ad server"), false],
   ["micro.rubiconproject.com", t("tourReqAuction", "Ad auction"), false],
   ["api.lab.amplitude.com", t("tourReqAnalytics", "Behavior analytics"), false],
-  ["mparticle.weather.com", t("tourReqFirstParty", "Tracker on weather.com's own domain"), false],
+  ["mparticle.weather.com", t("tourReqFirstParty", "Tracker using weather.com's own address"), false],
   ["js-agent.newrelic.com", t("tourReqMonitoring", "Session monitoring"), false],
   ["weather-channel.solutions.cdn.optable.co", t("tourReqAudience", "Audience data for advertisers"), false],
 ];

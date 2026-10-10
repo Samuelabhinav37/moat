@@ -152,36 +152,33 @@ const helpPanel = initHelpPanel(document, {
   docsUrl: "https://samuelabhinav37.github.io/moat/#faq",
   testPageUrl: "https://d3ward.github.io/toolz/adblock.html",
 });
-// Kai in the bottom-right corner: a line about this screen and buttons
-// that act on it (kaiGuide.ts).
-const clickFirstVisible = (selector: string) =>
-  Array.from(document.querySelectorAll<HTMLElement>(selector)).find((node) => !node.closest(".dash-off") && node.offsetParent !== null)?.click();
+// Kai in the bottom-right corner: plain questions; each answer opens the
+// right screen and outlines the control (kaiGuide.ts).
 initKaiGuide(document, {
   t: tFallback,
   currentScreen: () => pageFromHash(window.location.hash),
   isOff: () => document.getElementById("ov-status")?.dataset.state === "off",
   turnOn: () => void setSettings({ enabled: true }).then(() => render()),
   openHelp: () => helpPanel.open(),
-  lines: {
-    overview: { say: ["kaiOverview", "This is your week at a glance. Want me to check your setup?"], actions: [
-      { label: ["kaiCheckup", "Check my setup"], run: () => document.getElementById("checkup-start")?.click() },
-      { label: ["kaiIsWorking", "Is Moat working?"], run: () => helpPanel.openTopic("verify") }] },
-    protection: { say: ["kaiProtection", "Not sure which level to pick? Balanced suits most people."], actions: [
-      { label: ["kaiShowLevels", "Show me the levels"], run: () => clickFirstVisible(".page-title-line .ex-info") },
-      { label: ["kaiSiteBroke", "A site broke"], run: () => helpPanel.openTopic("load") }] },
-    exceptions: { say: ["kaiExceptions", "Pause a site you trust, or hide something the lists missed."], actions: [
-      { label: ["kaiHideSomething", "Hide something"], run: () => document.getElementById("pick-element-button")?.click() },
-      { label: ["kaiMissing", "Something's missing"], run: () => helpPanel.openTopic("missing") }] },
-    backup: { say: ["kaiBackup", "Save your settings to a file, or keep them the same on your other computers."], actions: [] },
-    trackers: { say: ["kaiTrackers", "These are the companies that tried to follow you this week."], actions: [
-      { label: ["kaiHowItWorks", "How blocking works"], run: () => helpPanel.openTopic("how") }] },
-    sites: { say: ["kaiSites", "Here's where I blocked the most. If one of these acts up, pause me there."], actions: [
-      { label: ["kaiSiteBroke", "A site broke"], run: () => helpPanel.openTopic("load") }] },
-    security: { say: ["kaiSecurity", "I stop known scam and phishing pages before they open."], actions: [
-      { label: ["kaiRealSite", "A real site was blocked"], run: () => helpPanel.openTopic("danger") }] },
-    about: { say: ["kaiAbout", "Everything I ever send is listed here, and who receives it."], actions: [
-      { label: ["kaiCheckYourself", "Check it yourself"], run: () => helpPanel.openTopic("verify") },
-      { label: ["kaiReport", "Report a problem"], run: () => void browser.tabs.create({ url: browser.runtime.getURL("report.html") }) }] },
+  questions: [
+    { id: "pause", ask: ["kaiQPause", "How do I pause Moat on a site?"], answer: ["kaiAPause", "On the site, click the Moat icon next to the address bar and turn off its switch. You can also add a site here, under Exceptions and Paused."], hash: "#paused", target: "#add-input" },
+    { id: "level", ask: ["kaiQLevel", "Where do I change how much Moat blocks?"], answer: ["kaiALevel", "Under Protection, pick a level. Balanced suits most people."], hash: "#blocking", target: "#level-cards" },
+    { id: "blocked", ask: ["kaiQBlocked", "Where do I see what Moat blocked?"], answer: ["kaiABlocked", "Overview shows your week. Trackers shows who tried to follow you, and Sites shows where."], hash: "#overview", target: ".ov-week" },
+    { id: "hide", ask: ["kaiQHide", "How do I hide something on a page?"], answer: ["kaiAHide", "On the page, click the Moat icon and choose Hide something on this page. Everything you hid is listed here."], hash: "#hidden", target: "#pick-element-button" },
+    { id: "block", ask: ["kaiQBlock", "How do I always block a site?"], answer: ["kaiABlock", "Type the site under Always block and press Block."], hash: "#rules", target: "#custom-block-input" },
+    { id: "backup", ask: ["kaiQBackup", "How do I keep my settings on another computer?"], answer: ["kaiABackup", "Under Backup and sync, save a backup file or turn on sync."], hash: "#backup", target: "#a-backup" },
+    { id: "broken", ask: ["kaiQBroken", "A site isn't working"], answer: ["kaiABroken", "Let's fix it step by step."], run: () => helpPanel.openTopic("load") },
+    { id: "working", ask: ["kaiQWorking", "Is Moat working?"], answer: ["kaiAWorking", "Here's how to check."], run: () => helpPanel.openTopic("verify") },
+  ],
+  firstOn: {
+    overview: ["blocked", "working"],
+    protection: ["level", "broken"],
+    exceptions: ["pause", "hide", "block"],
+    backup: ["backup"],
+    trackers: ["blocked"],
+    sites: ["pause", "broken"],
+    security: ["broken"],
+    about: ["working"],
   },
 });
 initNavMode(window, {
@@ -2235,8 +2232,9 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
 }
 
 /** The week in a sentence or two, under the page title, the way Screen
- * Time's weekly report opens: "Google tracked you on the most sites.
- * jack-reacher.fandom.com had the most blocked." Nothing to say yet keeps
+ * Time's weekly report opens: "Google tried to track you on more sites
+ * than any other company. Moat blocked the most on news.example."
+ * Nothing to say yet keeps
  * the usual subtitle. */
 function renderOverviewSummary(usage: UsageSummaryResponse): void {
   const lead = document.querySelector<HTMLElement>('.dash-nav a[data-page="overview"] .nav-lead');
@@ -2245,8 +2243,8 @@ function renderOverviewSummary(usage: UsageSummaryResponse): void {
   const company = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count)[0];
   const site = usage.topSites[0];
   const parts: string[] = [];
-  if (company) parts.push(tFallback("ovSummaryCompany", `${company.company} tracked you on the most sites.`, company.company));
-  if (site) parts.push(tFallback("ovSummarySite", `${site.hostname} had the most blocked.`, site.hostname));
+  if (company) parts.push(tFallback("ovSummaryCompany", `${company.company} tried to track you on more sites than any other company.`, company.company));
+  if (site) parts.push(tFallback("ovSummarySite", `Moat blocked the most on ${site.hostname}.`, site.hostname));
   lead.textContent = parts.length ? parts.join(" ") : lead.dataset.default;
   if (pageFromHash(location.hash) === "overview") document.getElementById("page-lead")!.textContent = lead.textContent;
 }
