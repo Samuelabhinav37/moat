@@ -110,6 +110,17 @@
   .scene .window .screen { aspect-ratio: 16 / 10; border-radius: 0; }
   .scene .window .compare .knob { width: 3.2cqw; height: 3.2cqw; left: -1.6cqw; margin-top: -1.6cqw; min-width: 30px; min-height: 30px; }
   .scene .out .char { transition: none; }
+  /* the laptop slider moves on transforms only (no clip-path or left), so
+     a sweep or a drag is composited instead of repainted every frame */
+  #compare2 .before-wrap { position: absolute; inset: 0; overflow: hidden; transform: translate3d(calc(var(--x) - 100%), 0, 0); will-change: transform; }
+  #compare2 .before-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; transform: translate3d(calc(100% - var(--x)), 0, 0); will-change: transform; }
+  #compare2 .handle { left: 0; right: 0; width: auto; transform: translate3d(var(--x), 0, 0); will-change: transform; }
+  .lapstage .out .char { will-change: opacity, transform; transform-origin: 50% 100%; filter: none; }
+  /* a static ground shadow instead of a drop-shadow filter, which had to be
+     redrawn on every frame of the fade */
+  .lapstage .out::after { content: ""; position: absolute; left: 14%; right: 14%; bottom: -4%; height: 10%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .55), transparent); z-index: -1; opacity: var(--shade, 1); }
+  .lapstage .kai { filter: none !important; }
+  .lapstage .kai::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: -6%; height: 9%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .6), transparent); z-index: -1; }
   /* laptop with the cast around it */
   .lapstage { position: relative; margin: 72px auto 0; max-width: 1140px; padding: 30px 90px 40px; container-type: inline-size; }
   .lapstage .laptop { max-width: 900px; }
@@ -525,7 +536,7 @@
         <div class="lid">
           <div class="screen compare" id="compare2">
             <img src="shots/v4/dailypost-after.webp" srcset="shots/v4/dailypost-after-1200.webp 1200w, shots/v4/dailypost-after.webp 2400w" sizes="(max-width: 1000px) 92vw, 900px" width="2400" height="1500" alt="The Daily Post with Moat: the article starts right under the menu, with no ads.">
-            <img class="before" src="shots/v4/dailypost-before.webp" srcset="shots/v4/dailypost-before-1200.webp 1200w, shots/v4/dailypost-before.webp 2400w" sizes="(max-width: 1000px) 92vw, 900px" width="2400" height="1500" alt="The same page without Moat: a large mattress ad above the article, a travel ad beside it and a bank ad pinned to the bottom.">
+            <div class="before-wrap"><img class="before-img" src="shots/v4/dailypost-before.webp" srcset="shots/v4/dailypost-before-1200.webp 1200w, shots/v4/dailypost-before.webp 2400w" sizes="(max-width: 1000px) 92vw, 900px" width="2400" height="1500" alt="The same page without Moat: a large mattress ad above the article, a travel ad beside it and a bank ad pinned to the bottom."></div>
             <span class="lbl l">Without Moat</span><span class="lbl r">With Moat</span>
             <div class="handle" aria-hidden="true"><div class="knob"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6-6 6 6 6M15 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
             <input class="range" type="range" min="0" max="100" value="100" aria-label="Slide to switch Moat on and watch the cookies go" aria-valuetext="Without Moat">

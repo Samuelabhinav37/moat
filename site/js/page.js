@@ -22,56 +22,73 @@
     watch(el, function (v) { on = v; if (v) go(); }, .45);
   };
 
-  // ---- before/after sliders. `paint(v)` gets the share of the page shown
-  // without Moat (1 = all ads, 0 = clean) as the slider moves or sweeps.
-  var slider = function (cmp, start, sweep, paint, onTake, sweepClass, end) {
-    sweepClass = sweepClass || "sweep"; end = end === undefined ? start : end;
-    if (!cmp) return;
-    var range = cmp.querySelector(".range"), taken = false;
-    var x = function () { return parseFloat(getComputedStyle(cmp).getPropertyValue("--x")) || start; };
-    var set = function (v) {
-      cmp.style.setProperty("--x", v + "%");
-      range.setAttribute("aria-valuetext", v < 10 ? "With Moat" : v > 90 ? "Without Moat" : Math.round(v) + "% without Moat");
-      paint(v / 100);
-    };
-    var take = function () { if (taken) return; taken = true; cmp.classList.remove(sweepClass); set(range.value); if (onTake) onTake(); };
-    ["pointerdown", "keydown", "touchstart"].forEach(function (t) { range.addEventListener(t, take, { passive: true }); });
-    range.addEventListener("input", function () { take(); set(range.value); });
-    set(start);
-    if (sweep && !reduce && window.CSS && CSS.registerProperty) {
-      var swept = false;
-      watch(cmp, function (v) {
-        if (!v || swept || taken) return;
-        swept = true; cmp.classList.add(sweepClass); if (onTake) onTake();
-        var t0 = performance.now();
-        var tick = function (t) { paint(x() / 100); if (t - t0 < 4400 && cmp.classList.contains(sweepClass)) requestAnimationFrame(tick); };
-        requestAnimationFrame(tick);
-      }, .5);
-      cmp.addEventListener("animationend", function () { if (!taken) { cmp.classList.remove(sweepClass); set(end); range.value = end; } });
-    }
-  };
-  var fade = function (img, v, min) {
-    img.style.opacity = (min + (1 - min) * v).toFixed(3);
-    img.style.filter = "saturate(" + (.3 + .7 * v).toFixed(2) + ") blur(" + ((1 - v) * 7).toFixed(1) + "px) drop-shadow(0 18px 24px rgba(0,0,0,.55))";
-    img.style.scale = (.9 + .1 * v).toFixed(3);
-  };
-
-  // "Just the page you came for": slide toward "With Moat" and the cookies go
+  // ---- the laptop slider. `paint(v)` gets the share of the page shown
+  // without Moat (1 = all ads, 0 = clean). The sweep is driven here, frame
+  // by frame, so the slider, the cookies and Kai always agree: no CSS
+  // animation to read back and no end event to wait for.
   var cmp2 = document.getElementById("compare2");
   if (cmp2) {
     var diff = document.getElementById("scene-diff"), hint = document.getElementById("scene-hint");
+    var range2 = cmp2.querySelector(".range");
     var diffOuts = [].slice.call(diff.querySelectorAll(".out .char"));
-    var diffKai = diff.querySelector("[data-kai]"), happy = false;
-    slider(cmp2, 100, true, function (v) {
-      diffOuts.forEach(function (img) { fade(img, v, 0); });
+    var diffKai = diff.querySelector("[data-kai]"), happy = false, lastMood = null;
+    var paint = function (v) {
+      // opacity and transform only: both stay on the compositor
+      for (var i = 0; i < diffOuts.length; i++) {
+        diffOuts[i].style.opacity = v.toFixed(3);
+        diffOuts[i].style.transform = "scale(" + (.86 + .14 * v).toFixed(3) + ")";
+        diffOuts[i].parentNode.style.setProperty("--shade", v.toFixed(3));
+      }
       // Kai's face follows the slider: annoyed while the ads are up,
       // happy once the page is clean, plain in between.
       var kai = window.MoatLife && diffKai ? window.MoatLife.kai(diffKai) : null;
       if (!kai) return;
       var mood = v > .6 ? "focus" : v < .08 ? "happy" : "";
-      if (mood !== kai.mood) { kai.setMood(mood); if (mood === "happy" && !happy) { happy = true; kai.hop(); } }
+      if (mood !== lastMood) { lastMood = mood; kai.setMood(mood); if (mood === "happy" && !happy) { happy = true; kai.hop(); } }
       if (v > .3) happy = false;
-    }, function () { if (hint) hint.classList.add("gone"); }, "sweep-clean", 0);
+    };
+    // `quiet`: during the sweep, leave the form control alone (writing its
+    // value every frame forces a layout); it's synced when the sweep ends.
+    var set = function (pct, quiet) {
+      cmp2.style.setProperty("--x", pct + "%");
+      if (!quiet) {
+        range2.value = String(Math.round(pct));
+        range2.setAttribute("aria-valuetext", pct < 10 ? "With Moat" : pct > 90 ? "Without Moat" : Math.round(pct) + "% without Moat");
+      }
+      paint(pct / 100);
+    };
+    var sweeping = 0, taken = false;
+    var take = function () {
+      if (sweeping) { cancelAnimationFrame(sweeping); sweeping = 0; set(parseFloat(cmp2.style.getPropertyValue("--x")) || 0); }
+      taken = true;
+      if (hint) hint.classList.add("gone");
+    };
+    ["pointerdown", "keydown", "touchstart"].forEach(function (t) { range2.addEventListener(t, take, { passive: true }); });
+    range2.addEventListener("input", function () { take(); set(Number(range2.value)); });
+    set(100);
+    if (!reduce) {
+      var swept = false;
+      watch(cmp2, function (v) {
+        if (!v || swept || taken) return;
+        swept = true;
+        if (hint) hint.classList.add("gone");
+        var dur = 3200, t0 = 0;
+        var ease = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+        var frame = function (now) {
+          var t = Math.min(1, Math.max(0, (now - t0) / dur));
+          set(100 * (1 - ease(t)), t < 1);
+          sweeping = t < 1 ? requestAnimationFrame(frame) : 0;
+        };
+        // wait for both screenshots to be decoded, so the first frames
+        // don't stall on it
+        var imgs = [].slice.call(cmp2.querySelectorAll("img"));
+        Promise.all(imgs.map(function (im) { return im.decode ? im.decode().catch(function () {}) : null; })).then(function () {
+          if (taken) return;
+          t0 = performance.now() + 350;
+          sweeping = requestAnimationFrame(frame);
+        });
+      }, .5);
+    }
   }
 
   var feature = function (id) { return document.getElementById(id); };
