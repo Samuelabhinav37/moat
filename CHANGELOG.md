@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.274
+
+### Fixed
+- **A fake "Ad Blocker Premium" pop-up is blocked.** Ad networks were opening a page dressed as
+  the Chrome Web Store that pushes an extension. Moat now blocks that page and the tracker behind
+  it. This reached installed copies through the daily fixes before this release.
+- **The block page names pop-up lists.** A page Moat stopped because it's a known pop-up or
+  redirect domain now says "Pop-up ads", instead of saying the list wasn't known and treating the
+  site as possibly dangerous.
+
 ## 0.11.273
 
 ### Fixed
