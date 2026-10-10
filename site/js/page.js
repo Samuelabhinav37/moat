@@ -24,7 +24,8 @@
 
   // ---- before/after sliders. `paint(v)` gets the share of the page shown
   // without Moat (1 = all ads, 0 = clean) as the slider moves or sweeps.
-  var slider = function (cmp, start, sweep, paint, onTake) {
+  var slider = function (cmp, start, sweep, paint, onTake, sweepClass, end) {
+    sweepClass = sweepClass || "sweep"; end = end === undefined ? start : end;
     if (!cmp) return;
     var range = cmp.querySelector(".range"), taken = false;
     var x = function () { return parseFloat(getComputedStyle(cmp).getPropertyValue("--x")) || start; };
@@ -33,7 +34,7 @@
       range.setAttribute("aria-valuetext", v < 10 ? "With Moat" : v > 90 ? "Without Moat" : Math.round(v) + "% without Moat");
       paint(v / 100);
     };
-    var take = function () { if (taken) return; taken = true; cmp.classList.remove("sweep"); set(range.value); if (onTake) onTake(); };
+    var take = function () { if (taken) return; taken = true; cmp.classList.remove(sweepClass); set(range.value); if (onTake) onTake(); };
     ["pointerdown", "keydown", "touchstart"].forEach(function (t) { range.addEventListener(t, take, { passive: true }); });
     range.addEventListener("input", function () { take(); set(range.value); });
     set(start);
@@ -41,12 +42,12 @@
       var swept = false;
       watch(cmp, function (v) {
         if (!v || swept || taken) return;
-        swept = true; cmp.classList.add("sweep");
+        swept = true; cmp.classList.add(sweepClass); if (onTake) onTake();
         var t0 = performance.now();
-        var tick = function (t) { paint(x() / 100); if (t - t0 < 4000 && cmp.classList.contains("sweep")) requestAnimationFrame(tick); };
+        var tick = function (t) { paint(x() / 100); if (t - t0 < 4400 && cmp.classList.contains(sweepClass)) requestAnimationFrame(tick); };
         requestAnimationFrame(tick);
       }, .5);
-      cmp.addEventListener("animationend", function () { if (!taken) { cmp.classList.remove("sweep"); set(start); } });
+      cmp.addEventListener("animationend", function () { if (!taken) { cmp.classList.remove(sweepClass); set(end); range.value = end; } });
     }
   };
   var fade = function (img, v, min) {
@@ -61,12 +62,12 @@
     var diff = document.getElementById("scene-diff"), hint = document.getElementById("scene-hint");
     var diffOuts = [].slice.call(diff.querySelectorAll(".out .char"));
     var diffKai = diff.querySelector("[data-kai]"), happy = false;
-    slider(cmp2, 100, false, function (v) {
+    slider(cmp2, 100, true, function (v) {
       diffOuts.forEach(function (img) { fade(img, v, 0); });
       var kai = window.MoatLife && diffKai ? window.MoatLife.kai(diffKai) : null;
       if (kai && v < .08 && !happy) { happy = true; kai.setMood("happy", 1800); kai.hop(); }
       if (v > .3) happy = false;
-    }, function () { if (hint) hint.classList.add("gone"); });
+    }, function () { if (hint) hint.classList.add("gone"); }, "sweep-clean", 0);
   }
 
   var feature = function (id) { return document.getElementById(id); };

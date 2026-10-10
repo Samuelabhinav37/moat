@@ -183,6 +183,9 @@
   .compare .lbl.l { left: 2.5%; } .compare .lbl.r { right: 2.5%; }
   @property --x { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
   .compare.sweep { animation: sweep 3.4s var(--ease) .3s both; }
+  /* the laptop: start with the ads, slide all the way to Moat, and stay */
+  .compare.sweep-clean { animation: sweepClean 3.6s cubic-bezier(.65, 0, .35, 1) .5s both; }
+  @keyframes sweepClean { 0%, 12% { --x: 100%; } 80%, 100% { --x: 0%; } }
   @keyframes sweep { 0% { --x: 100%; } 45% { --x: 0%; } 100% { --x: 50%; } }
   .blare-side { position: absolute; left: -2%; bottom: 6%; width: 150px; z-index: 6; pointer-events: none; }
   .blare-side .char { width: 100%; transition: none; }
@@ -508,7 +511,6 @@
   <section id="difference" class="wrap">
     <div class="head">
       <h2 data-reveal>Just the page<br>you came for.</h2>
-      <p data-reveal style="--i:1">About 310,000 filter rules run on every site. On this page, Moat stopped <b>4 ads and 3 trackers</b> before any of them loaded.</p>
     </div>
     <!-- The page in a laptop, with its ads; the cookies (the things Moat
          blocks) crowd round it and Kai stands in front. Slide toward "With
@@ -540,7 +542,6 @@
   <section id="trackers" class="wrap">
     <div class="head">
       <h2 data-reveal>Nobody follows<br>you around.</h2>
-      <p data-reveal style="--i:1">Ad companies use trackers to follow you from site to site and build a profile. Moat blocks them before they load, then shows you who tried.</p>
     </div>
     <div class="feature" id="f-trackers" data-reveal style="--glow: rgba(214, 140, 60, .32)">
       <div class="who">
@@ -568,7 +569,6 @@
   <section id="banners" class="wrap">
     <div class="head">
       <h2 data-reveal>Cookie banners,<br>answered for you.</h2>
-      <p data-reveal style="--i:1">Moat opens the banner's settings and turns off every cookie the site lets you refuse. Then it saves and closes the banner. You don't have to do a thing.</p>
     </div>
     <div class="feature flip" id="f-banners" data-reveal style="--glow: rgba(230, 190, 60, .26)">
       <div class="who">
@@ -595,7 +595,6 @@
   <section id="popups" class="wrap">
     <div class="head">
       <h2 data-reveal>No surprise tabs.</h2>
-      <p data-reveal style="--i:1">Some sites open a new tab when you click anywhere on the page. It's often a fake prize or a fake virus warning. Moat closes it before it can load.</p>
     </div>
     <div class="feature" id="f-popups" data-reveal style="--glow: rgba(190, 90, 220, .26)">
       <div class="who">
