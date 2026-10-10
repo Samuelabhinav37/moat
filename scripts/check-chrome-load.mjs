@@ -9,8 +9,9 @@
 // downloaded once into .cache/chrome-for-testing (or CHROME_PATH if set).
 // Checks: the service worker starts, its manifest version matches
 // package.json, static rulesets got enabled, and the popup, options and
-// logger and welcome pages open without a script error.
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+// logger and welcome pages open without a script error, and Chrome accepts
+// every regexFilter in the bundled rulesets.
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -91,6 +92,29 @@ try {
     failures.push(`manifest version ${state.version} doesn't match package.json ${expectedVersion}`);
   }
   if (state.rulesets === 0) failures.push("no static rulesets are enabled");
+
+  // Chrome drops a static rule whose regex it can't run (most often RE2's
+  // 2 KB "memoryLimitExceeded", from counted repeats like {24}) without any
+  // error, so the rule just never fires. It happened to Moat's own Adcash
+  // rule in 0.11.274 before release; ask Chrome about every one.
+  const regexRules = [];
+  const rulesDir = join(extensionDir, "rules");
+  for (const file of readdirSync(rulesDir).filter((f) => f.startsWith("ruleset_") && f.endsWith(".json"))) {
+    for (const rule of JSON.parse(readFileSync(join(rulesDir, file), "utf8"))) {
+      const c = rule.condition ?? {};
+      if (c.regexFilter) regexRules.push({ file, id: rule.id, regex: c.regexFilter, isCaseSensitive: c.isUrlFilterCaseSensitive ?? false });
+    }
+  }
+  const unsupported = await worker.evaluate(async (rules) => {
+    const out = [];
+    for (const r of rules) {
+      const result = await chrome.declarativeNetRequest.isRegexSupported({ regex: r.regex, isCaseSensitive: r.isCaseSensitive });
+      if (!result.isSupported) out.push(`${r.file} rule ${r.id}: ${result.reason}`);
+    }
+    return out;
+  }, regexRules);
+  console.log(`Regex rules: ${regexRules.length} checked, ${unsupported.length} Chrome would drop`);
+  for (const line of unsupported) failures.push(`regex rule Chrome won't run: ${line}`);
 
   for (const name of PAGES) {
     const page = await browser.newPage();
