@@ -11,8 +11,10 @@ All notable changes to this project are documented here. Format loosely follows
   Kai stays still in Settings, which keeps scrolling smooth.
 
 ### Changed
-- **Settings look like Moat's website.** Calmer neutral colours, bigger page titles, softer cards
-  with more room, and round buttons. Empty lists show Kai with a short note.
+- **Settings and the popup look like Moat's website.** Calmer neutral colours, bigger page titles,
+  softer cards with more room, and round buttons. Empty lists on Exceptions show Kai explaining
+  what goes there, adding a site is a bigger field with a blue button, and About drops the box
+  around its boxes.
 
 ## 0.11.266
 
