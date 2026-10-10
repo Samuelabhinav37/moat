@@ -106,22 +106,19 @@
     });
   }
 
-  // ---- hero: cookies drift up to the page now and then, and fade away -----------
-  var scene = document.getElementById("film");
-  if (scene && !reduce) {
-    var outs = [].slice.call(scene.querySelectorAll(".out"));
-    var kaiEl = scene.querySelector("[data-kai]");
-    var kai = window.MoatLife && kaiEl ? window.MoatLife.kai(kaiEl) : null;
-    loop(scene, async function () {
-      await sleep(2600 + Math.random() * 1800);
-      var o = outs[Math.floor(Math.random() * outs.length)];
-      if (getComputedStyle(o).display === "none") return;
-      if (kai) { kai.target = o; kai.setMood("focus"); }
-      o.classList.add("near"); await sleep(1200);
-      o.classList.remove("near"); o.classList.add("handled");
-      if (kai) { kai.setMood("happy", 1400); kai.target = null; }
-      await sleep(2600);
-      o.classList.remove("handled");
+  // ---- the film: plays on click, with sound; phones get 720p ---------------------
+  var film = document.getElementById("film"), play = document.getElementById("play");
+  if (film && play) {
+    watch(film, function (v) { if (v) film.classList.add("in-view"); }, .3);
+    play.addEventListener("click", function () {
+      var v = document.createElement("video");
+      v.src = matchMedia("(max-width: 900px)").matches ? "media/moat-film-720.mp4" : "media/moat-film.mp4";
+      v.controls = true; v.playsInline = true; v.autoplay = true; v.preload = "auto";
+      v.poster = "media/moat-film-poster.webp";
+      v.setAttribute("aria-label", "Moat film");
+      film.appendChild(v); film.classList.add("playing");
+      v.addEventListener("ended", function () { v.remove(); film.classList.remove("playing"); play.focus(); });
+      v.play().catch(function () {});
     });
   }
 })();

@@ -1,5 +1,4 @@
 // The page's scenes, using the characters from life.js:
-// - the promo film: a play button over the hero scene once data-src is set;
 // - How to use it: Kai talks through each task while a cursor clicks
 //   through real Moat screens, and watches that cursor as it goes;
 // - reveals on scroll, and Kai cheering at the closing install button.
@@ -22,31 +21,6 @@
     }, { threshold: .2 });
     rev.forEach(function (el) { rio.observe(el); });
   } else rev.forEach(function (el) { el.classList.add("in"); });
-
-  // ---- the promo film, once it has an address ------------------------------------
-  var film = document.getElementById("film");
-  if (film && film.dataset.src) {
-    var src = film.dataset.src;
-    var yt = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/.exec(src);
-    var btn = document.createElement("button");
-    btn.className = "play-btn"; btn.type = "button"; btn.setAttribute("aria-label", "Play the Moat video");
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5Z"/></svg>';
-    film.appendChild(btn);
-    btn.addEventListener("click", function () {
-      var player;
-      if (yt) {
-        player = document.createElement("iframe");
-        player.src = "https://www.youtube-nocookie.com/embed/" + yt[1] + "?autoplay=1&rel=0";
-        player.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
-        player.title = "Moat video";
-      } else {
-        player = document.createElement("video");
-        player.src = src; player.controls = true; player.autoplay = true; player.playsInline = true;
-        if (film.dataset.poster) player.poster = film.dataset.poster;
-      }
-      film.appendChild(player); btn.remove();
-    });
-  }
 
   // ---- How to use it -----------------------------------------------------------------
   // Each task is a list of steps: Kai says the line, the step lights up, the
