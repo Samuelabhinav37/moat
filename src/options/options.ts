@@ -2132,6 +2132,46 @@ function levelLabel(preset: PresetName | "custom"): string {
   }
 }
 
+/** Under the week chart: each cookie and what it stands for, with the
+ * week's count (Crumb trackers, Blare ads, Popsy pop-ups). Moat doesn't
+ * count cookie banners, so Nag shows whether answering them is on. */
+function renderOverviewCast(settings: Settings, columns: DayColumn[], week: number): void {
+  const cast = document.getElementById("ov-cast");
+  if (!cast) return;
+  cast.replaceChildren();
+  if (week === 0) return;
+  const sum = (k: "ads" | "trackers" | "popups") => columns.reduce((n, c) => n + c.kinds[k], 0);
+  const card = (art: string, glow: string, value: string, label: string, delay: string, extra = "") => {
+    const el = document.createElement("div");
+    el.className = "ov-cookie" + extra;
+    el.style.setProperty("--glow", glow);
+    el.style.setProperty("--d", delay);
+    const img = document.createElement("img");
+    img.src = `characters/${art}.webp`;
+    img.alt = "";
+    img.setAttribute("aria-hidden", "true");
+    const text = document.createElement("div");
+    const b = document.createElement("b");
+    b.textContent = value;
+    if (extra.includes("state")) b.className = "state";
+    const span = document.createElement("span");
+    span.textContent = label;
+    text.append(b, span);
+    el.append(img, text);
+    return el;
+  };
+  const banners = settings.cookieBannerAutoReject;
+  cast.append(
+    card("crumb", "rgba(214, 140, 60, .22)", sum("trackers").toLocaleString(), tFallback("ovKindTrackersTitle", "Trackers"), "-1s"),
+    card("blare", "rgba(229, 72, 77, .18)", sum("ads").toLocaleString(), tFallback("ovKindAdsTitle", "Ads"), "-2.6s"),
+    card("popsy", "rgba(190, 90, 220, .2)", sum("popups").toLocaleString(), tFallback("ovKindPopupsTitle", "Pop-ups"), "-4s"),
+    card("nag", "rgba(230, 190, 60, .18)", banners ? tFallback("commonOn", "on") : tFallback("commonOff", "off"), tFallback("popupOverrideCookieBanner", "Reject cookie banners"), "-1.8s", banners ? " state-row" : " state-row off"),
+  );
+  // the Nag value is a state word, not a number
+  const nagValue = cast.lastElementChild?.querySelector("b");
+  if (nagValue) nagValue.className = "state";
+}
+
 /** The week at a glance, from the same local counts the Trackers list
  * reads: usage.sparkline is 7 daily totals, oldest first, ending today. */
 let overviewPeriod: "this" | "last" = "this";
@@ -2195,6 +2235,7 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   });
   const chart = document.getElementById("ov-chart") as HTMLElement;
   chart.replaceChildren(...(week > 0 ? [buildWeekChart(document, columns, tFallback)] : []));
+  renderOverviewCast(settings, columns, week);
 
   renderOverviewSummary(usage);
   renderSecurityDot(usage);

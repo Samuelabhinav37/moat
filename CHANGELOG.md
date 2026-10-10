@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.266
+
+### Changed
+- **Kai and the cookies on Overview.** Kai sits beside the protection status, calm when Moat is on
+  and worried when it's off or the lists couldn't update. Under the week's chart, each cookie
+  stands for what Moat stopped: Crumb for trackers, Blare for ads, Popsy for pop-ups, with the
+  week's count, and Nag shows whether cookie banners are answered for you. An empty week shows Kai
+  next to the "browse a few sites" note.
+
 ## 0.11.265
 
 ### Changed

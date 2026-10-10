@@ -209,6 +209,8 @@ function copyStaticAssets() {
   cpSync(resolve(root, "src/welcome/welcome.html"), resolve(outDir, "welcome.html"));
   cpSync(resolve(root, "src/report/report.html"), resolve(outDir, "report.html"));
   cpSync(resolve(root, "src/welcome/img"), resolve(outDir, "welcome", "img"), { recursive: true });
+  // Kai and the cookies, for the settings pages (small copies of the site's art).
+  cpSync(resolve(root, "src/ui/characters"), resolve(outDir, "characters"), { recursive: true });
   cpSync(resolve(root, "src/managed_schema.json"), resolve(outDir, "managed_schema.json"));
 
   // GPL-3.0 and every bundled third party's own license terms (AdGuard/uBlock
