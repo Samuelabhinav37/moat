@@ -97,7 +97,7 @@ document.addEventListener(
 
 /** Where this frame sits, for the frame-escape check. */
 function frameContext(): FrameContext {
-  let isTop = true;
+  let isTop: boolean;
   try {
     isTop = window.top === window;
   } catch {
