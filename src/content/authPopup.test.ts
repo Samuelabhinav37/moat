@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isAuthPopupUrl } from "./authPopup";
+import { authPopupKind, isAuthPopupUrl } from "./authPopup";
 
 const base = "https://teams.microsoft.com/v2/";
 
@@ -18,6 +18,47 @@ describe("isAuthPopupUrl", () => {
     ]) {
       expect(isAuthPopupUrl(url, base), url).toBe(true);
     }
+  });
+
+  it("accepts the sign-ins the field report found blocked, and payment pages", () => {
+    for (const url of [
+      "https://auth.openai.com/authorize?client_id=x",
+      "https://claude.ai/oauth/authorize?code=true",
+      "https://api.workos.com/user_management/authorize?client_id=x",
+      "https://authkit.cline.bot/oauth2/authorize?client_id=x",
+      "https://acme.authkit.app/sign-in",
+      "https://accounts.openrouter.ai/sign-in?redirect_url=x",
+      "https://abc.supabase.co/auth/v1/authorize?provider=github",
+      "https://moat-test.firebaseapp.com/__/auth/handler?apiKey=x",
+      "https://login.myapp.example/__/auth/handler",
+      "https://accounts.spotify.com/authorize",
+      "https://www.notion.so/login",
+      "https://api.notion.com/v1/oauth/authorize?client_id=x",
+      "https://hooks.stripe.com/3d_secure_2/hosted?x=1",
+      "https://pay.klarna.com/eu/abc",
+      "https://cdn.plaid.com/link/v2/stable/link.html",
+      "https://sso.unknown-idp.example/authorize?client_id=x&response_type=code",
+      "https://idp.example/saml?SAMLRequest=abc",
+    ]) {
+      expect(isAuthPopupUrl(url, base), url).toBe(true);
+    }
+  });
+
+  it("doesn't take ordinary pages on those hosts or lookalike paths", () => {
+    expect(isAuthPopupUrl("https://claude.ai/new", base)).toBe(false);
+    expect(isAuthPopupUrl("https://www.notion.so/some-page-123", base)).toBe(false);
+    expect(isAuthPopupUrl("https://accounts.example.com/profile", base)).toBe(false);
+    expect(isAuthPopupUrl("https://authkit.example.com/pricing", base)).toBe(false);
+    expect(isAuthPopupUrl("https://ads.example/click?client_id=x", base)).toBe(false);
+  });
+
+  it("tells named providers from pages recognised only by their shape, which any site could copy", () => {
+    expect(authPopupKind("https://auth.openai.com/authorize?client_id=x", base)).toBe("known");
+    expect(authPopupKind("https://cdn.plaid.com/link/v2/stable/link.html", base)).toBe("known");
+    expect(authPopupKind("https://accounts.openrouter.ai/sign-in", base)).toBe("pattern");
+    expect(authPopupKind("https://moat-test.firebaseapp.com/__/auth/handler", base)).toBe("pattern");
+    expect(authPopupKind("https://popunder.example/go?client_id=1&response_type=code", base)).toBe("pattern");
+    expect(authPopupKind("https://ads.example/popunder", base)).toBeNull();
   });
 
   it("accepts a URL object", () => {

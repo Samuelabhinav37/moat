@@ -9,7 +9,18 @@
 // click-shape checks let it through. A YouTube embed opening youtube.com, a
 // PayPal button opening paypal.com, or a sign-in frame opening its own
 // provider all stay allowed: they open their own site.
+//
+// Payment and bank widgets are the exception: Plaid's "Connect your bank"
+// opens the bank's own sign-in, and a card check opens the bank's 3-D Secure
+// page, both third sites by design (field report 2026-10-14). Frames from
+// these sites may open anywhere; the other pop-up checks still apply.
 import { siteOf } from "../shared/siteOf";
+
+/** Sites whose embedded frames open other sites' pages as their job. */
+export const PAYMENT_WIDGET_SITES: ReadonlySet<string> = new Set([
+  "plaid.com", "stripe.com", "stripe.network", "paypal.com", "paypalobjects.com", "klarna.com", "klarnaservices.com",
+  "adyen.com", "braintreegateway.com", "braintree-api.com", "checkout.com", "affirm.com", "afterpay.com",
+]);
 
 export interface FrameContext {
   /** This frame's address. */
@@ -48,7 +59,7 @@ export function isFrameEscape(target: string | URL | undefined | null, ctx: Fram
   // to the other checks rather than guessed at.
   if (!frameHost || !topSite) return false;
   const frameSite = siteOf(frameHost);
-  if (frameSite === topSite) return false;
+  if (frameSite === topSite || PAYMENT_WIDGET_SITES.has(frameSite)) return false;
   const raw = target === undefined || target === null ? "" : String(target).trim();
   if (raw === "" || raw === "about:blank") return true;
   const targetHost = hostOf(raw, ctx.href);

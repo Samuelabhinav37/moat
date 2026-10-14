@@ -19,6 +19,13 @@ describe("topSiteOf", () => {
 });
 
 describe("isFrameEscape", () => {
+  it("lets a payment or bank widget open the bank's own page", () => {
+    const plaid: FrameContext = { href: "https://cdn.plaid.com/link/v2/stable/link.html", isTop: false, ancestorOrigins: ["https://app.budget.example"], referrer: "" };
+    expect(isFrameEscape("https://secure.examplebank.com/oauth/authorize?x=1", plaid)).toBe(false);
+    const threeDs: FrameContext = { href: "https://js.stripe.com/v3/three-ds-2-challenge.html", isTop: false, ancestorOrigins: ["https://shop.example"], referrer: "" };
+    expect(isFrameEscape("https://acs.examplebank.com/challenge", threeDs)).toBe(false);
+  });
+
   it("stops a cross-site frame opening a third site, the Adcash case", () => {
     expect(isFrameEscape("https://adblockerpremium.online/premium.php?gv=x", player)).toBe(true);
     expect(isFrameEscape("https://browserpro.online/opera/1056/", player)).toBe(true);

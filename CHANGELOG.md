@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.282
+
+### Fixed
+- **Sign-in pop-ups just work.** Signing in to OpenAI, Claude, Notion, Spotify and apps built on
+  WorkOS, Clerk, Firebase, Supabase, Stytch or Descope no longer gets stopped by the pop-up
+  firewall. Any standard sign-in request is recognised, a second sign-in window after an error
+  opens, and sign-ins no longer use up a page's pop-up allowance.
+- **Payment and bank windows open.** Plaid's "connect your bank", card checks (3-D Secure), PayPal,
+  Klarna, Adyen and Braintree can open the windows they need, even from inside a checkout frame.
+- **A site can open its own pages** in a new window without using up the allowance.
+
+Pop-up ads are blocked as before, including ones disguised as a sign-in.
+
 ## 0.11.281
 
 ### Fixed

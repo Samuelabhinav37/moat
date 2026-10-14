@@ -3,8 +3,9 @@
 // only ever talks back to the extension over a private MessagePort from
 // bridge.ts (see GUARD_CONNECT_EVENT in types.ts).
 import { GUARD_CONNECT_EVENT, type GuardBlockKind, type GuardBlockReport, type PopupGuardConfig } from "../types";
-import { isAuthPopupUrl } from "./authPopup";
-import { isFrameEscape, type FrameContext } from "./frameEscape";
+import { authPopupKind } from "./authPopup";
+import { isFrameEscape, topSiteOf, type FrameContext } from "./frameEscape";
+import { siteOf } from "../shared/siteOf";
 import { isPlausibleTrigger } from "./isPlausibleTrigger";
 import { createPopupRateLimiter } from "./popupRateLimit";
 import { maskRealm, nativeGetter, nativeMethod } from "./nativeToString";
@@ -115,6 +116,24 @@ function frameContext(): FrameContext {
   };
 }
 
+/** True when `url` is an http(s) page on this frame's own site, and this
+ * frame is the top page or on the top page's site. */
+function opensSameSite(url: unknown): boolean {
+  const raw = typeof url === "string" ? url.trim() : url instanceof URL ? url.href : "";
+  if (!raw || raw === "about:blank") return false;
+  let target: URL;
+  try {
+    target = new URL(raw, location.href);
+  } catch {
+    return false;
+  }
+  if (target.protocol !== "http:" && target.protocol !== "https:") return false;
+  const ownSite = siteOf(location.hostname);
+  const ctx = frameContext();
+  if (!ctx.isTop && topSiteOf(ctx) !== ownSite) return false;
+  return siteOf(target.hostname) === ownSite;
+}
+
 /** Whether the page may open a new window right now, from window.open or
  * anything that does the same job (a script-clicked new-tab link the click
  * listener can't see, a form submitted to a new tab, a frame's open()).
@@ -123,19 +142,31 @@ function mayOpenWindow(url: unknown, kind: GuardBlockKind): boolean {
   if (siteDisabled) return true;
 
   const active = navigator.userActivation?.isActive ?? false;
-  // A sign-in page the user asked for: no click-shape checks, no one-per-
-  // click limit (some flows open a second window after an error), no rate
-  // limit. Still needs the browser's own live user gesture.
-  if (active && isAuthPopupUrl(url as Parameters<typeof window.open>[0], location.href)) return true;
+  const recentTrusted = lastTrustedClick !== null && performance.now() - lastTrustedClick.time < TRUST_WINDOW_MS;
+  // A sign-in or payment page the user asked for: no click-shape checks, no
+  // one-per-click limit (some flows open a second window after an error), no
+  // rate limit. Still needs the browser's own live user gesture, or a real
+  // click in the last few seconds: Chrome uses the gesture up on the first
+  // window, and a retry right after needs a second.
+  const authKind = authPopupKind(url as Parameters<typeof window.open>[0], location.href);
+  if ((active || recentTrusted) && authKind === "known") return true;
   // An ad frame embedded from another site can't open a third site, even
   // on a real click on a real button (frameEscape.ts has the measured case).
   if (isFrameEscape(url as string | URL | undefined, frameContext())) {
     report(kind, typeof url === "string" ? url : url instanceof URL ? url.href : null);
     return false;
   }
-  const recentTrusted = lastTrustedClick !== null && performance.now() - lastTrustedClick.time < TRUST_WINDOW_MS;
   const plausible = recentTrusted && isPlausibleTrigger(lastTrustedClick!.target);
   const freshClick = recentTrusted && !lastTrustedClick!.consumed;
+
+  // A page shaped like a sign-in: any site could copy the shape, so only
+  // after a real click on a real control, and never out of an ad frame
+  // (the rule above). It needs no fresh click and doesn't count toward the
+  // allowance below. Chrome's own blocker still needs a live gesture.
+  if (authKind === "pattern" && (active || recentTrusted) && plausible) return true;
+  // The site opening its own pages (a second window from one click, a help
+  // page next to a form): same, with a live gesture.
+  if (active && plausible && opensSameSite(url)) return true;
 
   // Checked last, and only consumes the click if everything else already
   // passed: a large-but-genuinely-visible element (a real modal's close
