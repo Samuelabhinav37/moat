@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("webextension-polyfill", () => ({ default: {} }));
 
-const { forgetLive, getBlockedHosts, getLiveCount, isCountableBlock, isStandInRedirect, recordError, resetLive } = await import("./liveBlocks");
+const { blockedAddress, forgetLive, getBlockedHosts, getLiveCount, getPageHost, isCountableBlock, isStandInRedirect, recordError, resetLive } = await import("./liveBlocks");
 
 const blocked = (over: Partial<{ tabId: number; type: string; error: string; timeStamp: number; url: string }> = {}) => ({
   tabId: 3,
@@ -31,9 +31,9 @@ describe("per-tab live count", () => {
   it("counts, resets on a new page, and reports each counted tab", () => {
     const counted: number[] = [];
     resetLive(3, 1000);
-    recordError(blocked(), (t) => counted.push(t));
-    recordError(blocked({ type: "image" }), (t) => counted.push(t));
-    recordError(blocked({ error: "net::ERR_ABORTED" }), (t) => counted.push(t));
+    recordError(blocked({ url: "https://ads.example/a.js" }), (t) => counted.push(t));
+    recordError(blocked({ type: "image", url: "https://ads.example/p.gif" }), (t) => counted.push(t));
+    recordError(blocked({ error: "net::ERR_ABORTED", url: "https://ads.example/b.js" }), (t) => counted.push(t));
     expect(getLiveCount(3)).toBe(2);
     expect(counted).toEqual([3, 3]);
     resetLive(3, 5000);
@@ -44,10 +44,32 @@ describe("per-tab live count", () => {
 
   it("keeps the new page's blocks when they arrive before its reset", () => {
     resetLive(3, 1000);
-    recordError(blocked({ timeStamp: 1500 }), () => {}); // previous page
-    recordError(blocked({ timeStamp: 5200 }), () => {}); // new page, reported early
+    recordError(blocked({ timeStamp: 1500, url: "https://ads.example/old" }), () => {}); // previous page
+    recordError(blocked({ timeStamp: 5200, url: "https://ads.example/new" }), () => {}); // new page, reported early
     resetLive(3, 5000); // the new page's commit reaches the worker late
     expect(getLiveCount(3)).toBe(1);
+  });
+
+  it("counts a blocked address once however often the page retries it, whatever the query", () => {
+    const counted: number[] = [];
+    resetLive(3, 1000);
+    for (let i = 0; i < 100; i++) recordError(blocked({ timeStamp: 2000 + i, url: `https://chatgpt.com/ces/v1/t?n=${i}` }), (t) => counted.push(t));
+    recordError(blocked({ timeStamp: 3000, url: "https://chatgpt.com/ces/v1/p" }), (t) => counted.push(t));
+    expect(getLiveCount(3)).toBe(2);
+    expect(counted).toHaveLength(2);
+  });
+
+  it("remembers the page's own host", () => {
+    resetLive(3, 1000, "https://chatgpt.com/c/123");
+    expect(getPageHost(3)).toBe("chatgpt.com");
+  });
+});
+
+describe("blockedAddress", () => {
+  it("is host and path, without query or fragment", () => {
+    expect(blockedAddress("https://a.example/x/y?z=1#f")).toBe("a.example/x/y");
+    expect(blockedAddress("not a url")).toBeNull();
+    expect(blockedAddress(undefined)).toBeNull();
   });
 });
 
@@ -70,6 +92,7 @@ describe("blocked hosts and pages", () => {
     recordError(blocked({ tabId: 7, url: "https://stats.g.doubleclick.net/y" }), () => {});
     recordError(blocked({ tabId: 7, url: "https://www.google-analytics.com/collect" }), () => {});
     recordError(blocked({ tabId: 7, url: "not a url" }), () => {});
+    recordError(blocked({ tabId: 7, url: "https://www.google-analytics.com/collect?v=2" }), () => {});
     expect(Object.fromEntries(getBlockedHosts(7))).toEqual({ "stats.g.doubleclick.net": 2, "www.google-analytics.com": 1 });
     expect(getLiveCount(7)).toBe(4);
     resetLive(7, 5000);

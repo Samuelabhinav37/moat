@@ -31,6 +31,12 @@ describe("tallyHosts", () => {
       purposes: { advertising: 3, site_analytics: 3 },
     });
   });
+
+  it("counts the page's own site as its analytics, known to TrackerDB or not", () => {
+    const tally = tallyHosts(table, new Map([["ab.chatgpt.com", 2], ["chatgpt.com", 1], ["stats.g.doubleclick.net", 1]]), "chatgpt.com");
+    expect(tally.purposes).toEqual({ site_analytics: 3, advertising: 1 });
+    expect(tally.trackers).toBe(3);
+  });
 });
 
 describe("splitKinds", () => {
@@ -41,6 +47,12 @@ describe("splitKinds", () => {
   it("keeps the rule-based count when it says more, and never goes past the total", () => {
     expect(splitKinds(10, { ads: 2, trackers: 7, popups: 1 }, { trackers: 3 })).toEqual({ ads: 2, trackers: 7, popups: 1 });
     expect(splitKinds(3, { ads: 0, trackers: 0, popups: 1 }, { trackers: 9 })).toEqual({ ads: 0, trackers: 2, popups: 1 });
+  });
+
+  it("scales retried matches down to the page's distinct total, keeping their shares", () => {
+    // 100 matches from one retried tracker and 10 ad matches; 4 distinct addresses.
+    expect(splitKinds(4, { ads: 10, trackers: 100, popups: 0 }, { trackers: 1 })).toEqual({ ads: 0, trackers: 4, popups: 0 });
+    expect(splitKinds(10, { ads: 50, trackers: 50, popups: 0 }, { trackers: 0 })).toEqual({ ads: 5, trackers: 5, popups: 0 });
   });
 });
 

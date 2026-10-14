@@ -16,7 +16,7 @@ import {
 } from "./matchStats";
 import { recordBlockKinds, recordBlockedTotal, recordCompanyMatches, recordPurposes } from "./usageStats";
 import { NOTHING_RECORDED, unrecorded, type Recorded } from "../shared/statsDelta";
-import { forgetLive, getBlockedHosts, getLiveCount, resetLive, type PageBlocked } from "./liveBlocks";
+import { forgetLive, getBlockedHosts, getLiveCount, getPageHost, isLiveCounting, resetLive, type PageBlocked } from "./liveBlocks";
 import { explainBlockedPage } from "./blockedPage";
 import { splitKinds, tallyHosts } from "../shared/trackerDomains";
 import { loadTrackerTable, trackerTableNow } from "./trackerTable";
@@ -27,7 +27,7 @@ export type { Breakdown };
  * included: trackers from the blocked hosts' own domains (quota-free) or the
  * matched rules, whichever says more (shared/trackerDomains.ts splitKinds). */
 function sortedBreakdown(tabId: number): Breakdown {
-  const tally = tallyHosts(trackerTableNow(), getBlockedHosts(tabId));
+  const tally = tallyHosts(trackerTableNow(), getBlockedHosts(tabId), getPageHost(tabId));
   return splitKinds(staticTotal(tabId), getBreakdown(tabId), tally);
 }
 
@@ -39,10 +39,19 @@ export function combinedBreakdown(tabId: number): Breakdown {
 }
 
 /** Companies behind the page's blocks: from the blocked hosts' domains and
- * from the matched rules, the larger count for each. */
+ * from the matched rules, the larger count for each. Matched rules count
+ * every retry, so they're scaled down to the page's total first. */
 export function combinedCompanyBreakdown(tabId: number): Record<string, number> {
-  const merged = { ...getCompanyBreakdown(tabId) };
-  for (const [company, count] of Object.entries(tallyHosts(trackerTableNow(), getBlockedHosts(tabId)).companies)) {
+  const ruleBased = getCompanyBreakdown(tabId);
+  const b = getBreakdown(tabId);
+  const ruleSum = b.ads + b.trackers + b.popups;
+  const scale = ruleSum > staticTotal(tabId) && ruleSum > 0 ? staticTotal(tabId) / ruleSum : 1;
+  const merged: Record<string, number> = {};
+  for (const [company, count] of Object.entries(ruleBased)) {
+    const scaled = Math.round(count * scale);
+    if (scaled > 0) merged[company] = scaled;
+  }
+  for (const [company, count] of Object.entries(tallyHosts(trackerTableNow(), getBlockedHosts(tabId), getPageHost(tabId)).companies)) {
     merged[company] = Math.max(merged[company] ?? 0, count);
   }
   return merged;
@@ -54,12 +63,13 @@ export function onPageBlocked(block: PageBlocked): void {
   void explainBlockedPage(block);
 }
 
-/** Network blocks on the current page: the live count, or the rule-based
- * count when that's higher (redirect stand-ins are matched rules but not
- * refused requests). */
+/** Network blocks on the current page: each blocked address once (the live
+ * count, stand-in swaps included). Only where requests can't be watched,
+ * the matched rules, which count every retry. */
 function staticTotal(tabId: number): number {
+  if (isLiveCounting()) return getLiveCount(tabId);
   const b = getBreakdown(tabId);
-  return Math.max(getLiveCount(tabId), b.ads + b.trackers + b.popups);
+  return b.ads + b.trackers + b.popups;
 }
 
 export function combinedTotal(tabId: number): number {
@@ -88,7 +98,23 @@ export function onLiveBlock(tabId: number): void {
   );
 }
 
+// The tab shown in each window. Only those badges are painted; a tab is
+// painted when it's shown (Privacy Badger does the same). Empty until the
+// first activation or the startup query: then every tab paints.
+const shownTabs = new Map<number, number>();
+
+/** Called when a tab is shown in its window: notes it and paints its badge. */
+export function onTabShown(tabId: number, windowId: number): void {
+  shownTabs.set(windowId, tabId);
+  void paint(tabId);
+}
+
+function isShown(tabId: number): boolean {
+  return shownTabs.size === 0 || [...shownTabs.values()].includes(tabId);
+}
+
 async function paint(tabId: number): Promise<void> {
+  if (!isShown(tabId)) return;
   const text = combinedTotal(tabId) > 0 ? String(combinedTotal(tabId)) : "";
   try {
     await browser.action.setBadgeText({ tabId, text });
@@ -119,11 +145,34 @@ const recordedKindsByTab = new Map<number, Recorded>();
 // The same, for tracker purposes (the Settings Trackers page).
 const recordedPurposesByTab = new Map<number, Recorded>();
 
-export function resetForNavigation(tabId: number, pageStart?: number): void {
+// The path each tab's page is on, so a single-page app's in-place change of
+// address can tell a new page (new path) from a new query or state.
+const pathByTab = new Map<number, string>();
+
+function pathOf(url: string | undefined): string | null {
+  try {
+    return url ? new URL(url).origin + new URL(url).pathname : null;
+  } catch {
+    return null;
+  }
+}
+
+/** A single-page app changed its address without loading a page
+ * (webNavigation.onHistoryStateUpdated, top frame). A new path is a new page
+ * to count from; a new query or state on the same path isn't. */
+export function onSamePageNavigation(tabId: number, url: string, timeStamp: number): void {
+  const path = pathOf(url);
+  if (!path || pathByTab.get(tabId) === path) return;
+  resetForNavigation(tabId, timeStamp, url);
+}
+
+export function resetForNavigation(tabId: number, pageStart?: number, pageUrl?: string): void {
+  const path = pathOf(pageUrl);
+  if (path) pathByTab.set(tabId, path);
   recordedByTab.delete(tabId);
   recordedKindsByTab.delete(tabId);
   recordedPurposesByTab.delete(tabId);
-  resetLive(tabId, pageStart);
+  resetLive(tabId, pageStart, pageUrl);
   resetCount(tabId);
   resetBreakdown(tabId, pageStart);
   void paint(tabId);
@@ -142,7 +191,7 @@ export async function refreshStaticBreakdown(tabId: number, hostname: string): P
   recordedByTab.set(tabId, fresh.next);
   if (fresh.total > 0) void recordBlockedTotal(hostname, fresh.total);
   if (Object.keys(fresh.counts).length > 0) void recordCompanyMatches(hostname, fresh.counts);
-  const purposes = unrecorded(recordedPurposesByTab.get(tabId) ?? NOTHING_RECORDED, 0, tallyHosts(trackerTableNow(), getBlockedHosts(tabId)).purposes);
+  const purposes = unrecorded(recordedPurposesByTab.get(tabId) ?? NOTHING_RECORDED, 0, tallyHosts(trackerTableNow(), getBlockedHosts(tabId), getPageHost(tabId)).purposes);
   recordedPurposesByTab.set(tabId, purposes.next);
   if (Object.keys(purposes.counts).length > 0) void recordPurposes(purposes.counts);
   const b = sortedBreakdown(tabId);
@@ -156,6 +205,7 @@ export async function refreshStaticBreakdown(tabId: number, hostname: string): P
 }
 
 export function forgetTab(tabId: number): void {
+  pathByTab.delete(tabId);
   recordedByTab.delete(tabId);
   recordedKindsByTab.delete(tabId);
   recordedPurposesByTab.delete(tabId);

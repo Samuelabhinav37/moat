@@ -9,6 +9,10 @@
 // carry the request's URL: the blocked hosts are kept per page so
 // blockStats.ts can sort them by company and purpose from their domain
 // (shared/trackerDomains.ts), quota-free.
+//
+// Each blocked address (host and path, without the query) counts once per
+// page. A page retrying a blocked request counted every attempt: ChatGPT's
+// own telemetry showed 1,136 "blocked" in a day (field report 2026-10-14).
 import browser from "webextension-polyfill";
 import { clearTabFromMaps } from "./tabMapCleanup";
 
@@ -22,17 +26,18 @@ export interface ErrorDetails {
   url?: string;
 }
 
-// When each counted block happened, per tab. Times rather than a plain
-// counter because the "new page" reset (webNavigation.onCommitted) can reach
-// the worker after the new page's first blocks already did; resetting then
-// keeps every block at or after the page's start instead of wiping them.
-const blockTimesByTab = new Map<number, number[]>();
+// Each distinct blocked address on the tab's page -> when it was first
+// blocked. Times because the "new page" reset (webNavigation.onCommitted)
+// can reach the worker after the new page's first blocks already did;
+// resetting then keeps every block at or after the page's start instead of
+// wiping them.
+const addressesByTab = new Map<number, Map<string, number>>();
 const pageStartByTab = new Map<number, number>();
-// A page that blocks thousands of requests doesn't need thousands of times.
-const MAX_TIMES_PER_TAB = 10000;
-// Blocked request hosts on the current page -> how many. Bounded like the rest.
-const hostsByTab = new Map<number, Map<string, number>>();
-const MAX_HOSTS_PER_TAB = 500;
+// A page that blocks thousands of addresses doesn't need thousands kept.
+const MAX_ADDRESSES_PER_TAB = 10000;
+// The page's own host name, for telling its own analytics from a third
+// party's (shared/trackerDomains.ts).
+const pageHostByTab = new Map<number, string>();
 
 /** A refused page load: which tab, which page, and when. */
 export interface PageBlocked {
@@ -46,22 +51,32 @@ export function isBlockedPage(details: ErrorDetails): boolean {
   return details.error === BLOCKED_BY_EXTENSION && details.tabId >= 0 && details.type === "main_frame";
 }
 
-/** Blocked request hosts on the tab's current page, and how many each. */
-export function getBlockedHosts(tabId: number): ReadonlyMap<string, number> {
-  return hostsByTab.get(tabId) ?? new Map();
+/** The address a block counts under: host and path, no query or fragment.
+ * Null for a URL that can't be read. Exported for tests. */
+export function blockedAddress(url: string | undefined): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    return `${parsed.hostname}${parsed.pathname}`;
+  } catch {
+    return null;
+  }
 }
 
-function addHost(tabId: number, url: string | undefined): void {
-  let host: string;
-  try {
-    host = url ? new URL(url).hostname : "";
-  } catch {
-    host = "";
+/** Blocked request hosts on the tab's current page, and how many distinct
+ * addresses each. */
+export function getBlockedHosts(tabId: number): ReadonlyMap<string, number> {
+  const hosts = new Map<string, number>();
+  for (const address of addressesByTab.get(tabId)?.keys() ?? []) {
+    const slash = address.indexOf("/");
+    if (slash > 0) hosts.set(address.slice(0, slash), (hosts.get(address.slice(0, slash)) ?? 0) + 1);
   }
-  if (!host) return;
-  const hosts = hostsByTab.get(tabId) ?? new Map<string, number>();
-  if (hosts.has(host) || hosts.size < MAX_HOSTS_PER_TAB) hosts.set(host, (hosts.get(host) ?? 0) + 1);
-  hostsByTab.set(tabId, hosts);
+  return hosts;
+}
+
+/** The tab's page host name, as last committed or changed in place. */
+export function getPageHost(tabId: number): string | undefined {
+  return pageHostByTab.get(tabId);
 }
 
 /** A refused sub-resource of a real tab's current page. A refused top-level
@@ -72,26 +87,37 @@ export function isCountableBlock(details: ErrorDetails, pageStart: number | unde
   return pageStart === undefined || details.timeStamp >= pageStart;
 }
 
-export function getLiveCount(tabId: number): number {
-  return blockTimesByTab.get(tabId)?.length ?? 0;
+let liveCounting = false;
+
+/** Whether refused requests are being counted here (webRequest is available).
+ * When they are, the distinct count is the page's total. */
+export function isLiveCounting(): boolean {
+  return liveCounting;
 }
 
-/** Called when a tab's top frame commits a new page (webNavigation timeStamp). */
-export function resetLive(tabId: number, pageStart?: number): void {
-  // Hosts have no times; a new page starts their tally again.
-  hostsByTab.delete(tabId);
+/** Distinct addresses blocked on the tab's current page. */
+export function getLiveCount(tabId: number): number {
+  return addressesByTab.get(tabId)?.size ?? 0;
+}
+
+/** Called when a tab's top frame commits a new page, or a single-page app
+ * moves to a new path (webNavigation timeStamp, and the new address). */
+export function resetLive(tabId: number, pageStart?: number, pageUrl?: string): void {
+  const host = blockedAddress(pageUrl)?.split("/")[0];
+  if (host) pageHostByTab.set(tabId, host);
+  else if (pageUrl !== undefined) pageHostByTab.delete(tabId);
   if (pageStart === undefined) {
-    clearTabFromMaps(tabId, blockTimesByTab, pageStartByTab);
+    clearTabFromMaps(tabId, addressesByTab, pageStartByTab);
     return;
   }
   pageStartByTab.set(tabId, pageStart);
-  const kept = (blockTimesByTab.get(tabId) ?? []).filter((time) => time >= pageStart);
-  if (kept.length > 0) blockTimesByTab.set(tabId, kept);
-  else blockTimesByTab.delete(tabId);
+  const kept = new Map([...(addressesByTab.get(tabId) ?? [])].filter(([, time]) => time >= pageStart));
+  if (kept.size > 0) addressesByTab.set(tabId, kept);
+  else addressesByTab.delete(tabId);
 }
 
 export function forgetLive(tabId: number): void {
-  clearTabFromMaps(tabId, blockTimesByTab, pageStartByTab, hostsByTab);
+  clearTabFromMaps(tabId, addressesByTab, pageStartByTab, pageHostByTab);
 }
 
 /** Exported for tests; the listener below is the only other caller. */
@@ -101,10 +127,12 @@ export function recordError(details: ErrorDetails, onCounted: (tabId: number) =>
     return;
   }
   if (!isCountableBlock(details, pageStartByTab.get(details.tabId))) return;
-  const times = blockTimesByTab.get(details.tabId) ?? [];
-  if (times.length < MAX_TIMES_PER_TAB) times.push(details.timeStamp);
-  blockTimesByTab.set(details.tabId, times);
-  addHost(details.tabId, details.url);
+  // A request without a readable address still counts, once per moment.
+  const address = blockedAddress(details.url) ?? `?${details.timeStamp}`;
+  const addresses = addressesByTab.get(details.tabId) ?? new Map<string, number>();
+  if (addresses.has(address) || addresses.size >= MAX_ADDRESSES_PER_TAB) return;
+  addresses.set(address, details.timeStamp);
+  addressesByTab.set(details.tabId, addresses);
   onCounted(details.tabId);
 }
 
@@ -123,6 +151,7 @@ export function isStandInRedirect(redirectUrl: string): boolean {
 export function startLiveBlockCounting(onCounted: (tabId: number) => void, onPageBlocked?: (block: PageBlocked) => void): void {
   const webRequest = browser.webRequest;
   if (!webRequest?.onErrorOccurred) return;
+  liveCounting = true;
   webRequest.onErrorOccurred.addListener((details) => recordError(details as unknown as ErrorDetails, onCounted, onPageBlocked), { urls: ["<all_urls>"] });
   webRequest.onBeforeRedirect?.addListener(
     (details) => {

@@ -35,6 +35,14 @@ const STUB_HOST = "cdn-media.brightline.tv";
 const STUB_SITE = "www.cnn.com";
 const stubHits = [];
 const NEWS = "news.moat-smoke.test";
+// A single-page app that retries one blocked beacon, like ChatGPT's telemetry.
+const SPA = "app.moat-smoke.test";
+function spaPage() {
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Smoke app</title></head><body><h1>App</h1><script>
+    window.beacon = (n) => Promise.all(Array.from({ length: n }, (_, i) => fetch("http://${AD_HOST}/pagead/beacon?n=" + i + "&t=" + Date.now()).catch(() => {})));
+    window.beacon(40);
+  </script></body></html>`;
+}
 const LONG = "a-really-long-subdomain-for-checking.popup-width.moat-smoke.test";
 const adHits = [];
 
@@ -101,6 +109,7 @@ const server = createServer((req, res) => {
     return res.end(req.url.endsWith(".js") ? "window.__adLoaded = true;" : "<body style='background:#fc0'>AD</body>");
   }
   res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+  if (host === SPA) return res.end(spaPage());
   if (host === "widget.moat-smoke.test") return res.end("<!doctype html><p>A third-party widget, like a Cloudflare check.</p>");
   if (host === STUB_SITE) return res.end(stubSitePage());
   res.end(host === "athlonoutdoors.com" ? proceduralPage() : newsPage());
@@ -287,6 +296,22 @@ try {
   check("popup still counts after the rate limit is used up", afterQuota >= 2, `${afterQuota} blocked`);
   await popup.close();
   await quotaPage.close();
+
+  // A single-page app retrying one blocked beacon 40 times counts it once,
+  // and moving to a new path starts the count again (0.11.280).
+  const spa = await load(`http://${SPA}/`, 2500);
+  popup = await openPopup(sw);
+  const retried = await popup.evaluate(() => Number(document.getElementById("count")?.textContent));
+  await popup.close();
+  check("a retried blocked request counts once", retried === 1, `${retried} blocked after 40 retries`);
+  await spa.bringToFront();
+  await spa.evaluate(() => { history.pushState({}, "", "/chat/2"); return window.beacon(5); });
+  await sleep(1500);
+  popup = await openPopup(sw);
+  const afterRoute = await popup.evaluate(() => Number(document.getElementById("count")?.textContent));
+  await popup.close();
+  check("a single-page app's new page counts from zero", afterRoute === 1, `${afterRoute} blocked on the new page`);
+  await spa.close();
 
   // 7. Pause on the site, from the popup's own switch.
   await news.bringToFront();

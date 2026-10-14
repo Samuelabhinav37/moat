@@ -4,6 +4,8 @@ import {
   onPageBlocked,
   forgetTab,
   refreshStaticBreakdown,
+  onSamePageNavigation,
+  onTabShown,
   resetForNavigation,
 } from "./blockStats";
 import {
@@ -115,12 +117,21 @@ browser.tabs.onRemoved.addListener((tabId) => {
 // Track which normal web page the user last had focused, so the Settings
 // "Trackers" tab -- itself an extension page with no page of its own -- can
 // ask about it (see lastNormalTab.ts). onActivated has no url, so fetch it.
-browser.tabs.onActivated.addListener(({ tabId }) => {
+browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
+  // Only the shown tab's badge is painted (blockStats.ts); paint this one now.
+  onTabShown(tabId, windowId);
   void browser.tabs
     .get(tabId)
     .then((tab) => noteTabUrl(tabId, tab?.url))
     .catch(() => {});
 });
+// The tab shown in every window, for the badge.
+void browser.tabs
+  .query({ active: true })
+  .then((tabs) => {
+    for (const tab of tabs) if (tab.id !== undefined) onTabShown(tab.id, tab.windowId ?? -1);
+  })
+  .catch(() => {});
 // Seed it once at startup with the currently-focused tab.
 void browser.tabs
   .query({ active: true, lastFocusedWindow: true })
@@ -142,7 +153,7 @@ startCookieClobber();
 
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0) return;
-  resetForNavigation(details.tabId, details.timeStamp);
+  resetForNavigation(details.tabId, details.timeStamp, details.url);
   resetHeuristicFiring(details.tabId);
   void endProceed(details.tabId, details.url);
   // Inject the bundled + user cosmetic CSS as a user-origin stylesheet from
@@ -150,6 +161,13 @@ browser.webNavigation.onCommitted.addListener((details) => {
   // thread. Fires early enough to be roughly document_start-class; no-ops
   // when protection is off/paused for this host.
   void injectCosmeticsForCommit(details.tabId, details.url);
+});
+
+// A single-page app (ChatGPT, Gmail, YouTube) changes pages without loading
+// one: a new path starts the page's count again (blockStats.ts).
+browser.webNavigation.onHistoryStateUpdated.addListener((details) => {
+  if (details.frameId !== 0) return;
+  onSamePageNavigation(details.tabId, details.url, details.timeStamp);
 });
 
 // Fires with the ORIGINAL requested URL, before declarativeNetRequest's

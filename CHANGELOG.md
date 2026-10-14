@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.280
+
+### Fixed
+- **Counts are honest.** Moat counts each blocked address once per page. A page that keeps retrying
+  a blocked request used to add one each time, which made ChatGPT show over a thousand blocks a day.
+  The badge, popup and weekly totals now agree.
+- **Single-page apps count each page.** Moving to a new page in an app like ChatGPT, Gmail or
+  YouTube starts the count again, the way loading a new page does.
+- **A site's own analytics is called analytics.** Blocked requests to the site you're on are shown
+  as its analytics, not as "utilities".
+
+### Changed
+- **The badge is painted only for the tab you're looking at,** and updates when you switch tabs.
+
 ## 0.11.279
 
 ### Fixed
