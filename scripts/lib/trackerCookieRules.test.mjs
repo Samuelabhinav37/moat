@@ -54,6 +54,11 @@ describe("buildTrackerCookieRules", () => {
     expect(out.entities).toEqual([["google.com", "youtube.com"]]);
   });
 
+  it("also strips a yellowlisted host under a tracker Privacy Badger would block", () => {
+    const out = buildTrackerCookieRules({ cookieblock: ["c.com"], entities: [], block: ["tracker.com"], yellowlist: ["fonts.tracker.com", "unrelated.com"] }, psl);
+    expect(out.hosts).toEqual(["c.com", "fonts.tracker.com"]);
+  });
+
   it("numbers rules from the id given, below every allowance and pause", () => {
     expect(rules.map((r) => r.id)).toEqual(rules.map((_, i) => 10 + i));
     expect(TRACKER_COOKIE_PRIORITY).toBeLessThan(COMPAT_ALLOW_PRIORITY);

@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.278
+
+### Added
+- **About 1,900 more trackers blocked.** Moat now also blocks the trackers Privacy Badger's crawler
+  saw following people across sites that Moat's lists missed. Of Privacy Badger's 3,098, Moat now
+  blocks 3,066, up from 1,223. They're blocked only inside other sites' pages, never on a company's
+  own sites. Ones that sites need lose their cookies instead. Video and social embeds, sign-in
+  buttons like "Continue with Facebook", and fraud checks at checkout keep working. They're part of
+  the Trackers list, so one switch still covers them.
+
 ## 0.11.277
 
 ### Changed

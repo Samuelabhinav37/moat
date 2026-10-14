@@ -20,6 +20,7 @@ import { buildOisdRules } from "./lib/oisdRules.mjs";
 import { buildCompatAllowRules } from "./lib/compatAllowRules.mjs";
 import { buildLoopbackRules } from "./lib/loopbackRules.mjs";
 import { buildTrackerCookieRules } from "./lib/trackerCookieRules.mjs";
+import { buildPbTrackerRules } from "./lib/pbTrackerRules.mjs";
 import { GPC_SITE_FIXES } from "../src/shared/gpcSiteFixes.ts";
 import { plainBlockedDomains, isBlockedByDomainChain } from "./lib/blockedDomains.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
@@ -799,6 +800,36 @@ oisdChunkList.forEach(({ rules: chunkRules, countAs, suffix }, index) => {
   });
   writeFileSync(join(outDir, file), JSON.stringify(chunkRules));
 });
+
+// Privacy Badger's crawler-found trackers that the lists above don't already
+// block (scripts/lib/pbTrackerRules.mjs). In the "trackers" group, so the
+// Trackers switch covers them too. Checked against every group on in the
+// default preset (ads, trackers, oisd) so no domain is blocked twice.
+const pbAlreadyBlocked = new Set(
+  manifestEntries
+    .filter((entry) => ["ads", "trackers", "oisd"].includes(entry.group))
+    .flatMap((entry) => [...plainBlockedDomains(JSON.parse(readFileSync(join(outDir, entry.file), "utf8")), { allowResourceTypes: true, allowThirdParty: true })])
+);
+const pbTrackers = buildPbTrackerRules(privacyBadger, {
+  alreadyBlocked: pbAlreadyBlocked,
+  psl,
+  companyOf: (domain) => (trackerDb ? lookupCompany(domain, trackerDb) : null),
+});
+writeFileSync(join(outDir, "ruleset_pb-trackers.json"), JSON.stringify(pbTrackers.rules));
+manifestEntries.push({
+  id: "ruleset_pb-trackers",
+  group: "trackers",
+  category: "ads",
+  name: "Moat: Tracking Protection filter (Privacy Badger)",
+  enabled: true,
+  file: "ruleset_pb-trackers.json",
+  ruleCount: pbTrackers.rules.length,
+});
+for (const [id, company] of pbTrackers.companies) (ruleCompanies["ruleset_pb-trackers"] ??= {})[id] = company;
+console.log(
+  `Privacy Badger trackers: ${pbTrackers.domains.length} domains in ${pbTrackers.rules.length} rules; left out ` +
+    Object.entries(pbTrackers.skipped).map(([why, list]) => `${list.length} ${why}`).join(", ")
+);
 
 // Move every security ruleset into its own priority band, above a paused
 // site's allowAllRequests rule and the user's "Never block" rules (see

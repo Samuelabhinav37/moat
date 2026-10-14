@@ -51,6 +51,12 @@ export const KEEP_COOKIES_HOSTS = [
   "razorpay.com", "afterpay.com", "quadpay.com", "authorize.net", "pay.google.com",
   "checkout.google.com", "connect.breadpayments.com", "pay.naver.com", "pay.usbank.com",
   "paymentinstruments.mp.microsoft.com", "securepay.constantcontact.com",
+  // Fraud checks at checkout and sign-in: blocked, a real order can be
+  // refused. Privacy Badger blocks several of these (pbTrackerRules.mjs
+  // leaves them alone too; field A/B 2026-10-14, Riskified on DoorDash).
+  "riskified.com", "sift.com", "siftscience.com", "forter.com", "signifyd.com", "kount.net",
+  "iovation.com", "incognia.com", "nsureapi.com", "sardine.ai", "seon.io", "seondf.com",
+  "fpjscdn.net", "cloudpayments.ru",
   // Bot checks and CAPTCHAs.
   "arkoselabs.com", "captcha-delivery.com", "px-cdn.net", "px-cloud.net", "hcaptcha.com",
   "recaptcha.net", "mtcaptcha.com", "online-metrix.net", "captcha.qcloud.com", "captcha.qq.com",
@@ -69,15 +75,19 @@ function coveredBy(host, list) {
 }
 
 /**
- * @param {object} data Privacy Badger data (privacyBadgerData.mjs): cookieblock and entities.
+ * @param {object} data Privacy Badger data (privacyBadgerData.mjs): cookieblock, entities, and
+ *   block with yellowlist (yellowlisted hosts under a blocked tracker).
  * @param {object} psl from loadPsl().
  * @param {number} firstId
  * @returns {{ rules: object[], hosts: string[], keep: string[], entities: string[][] }} the
  *   rules; the hosts they strip, the kept hosts under them, and the company groups they
  *   exclude (for the script-cookie guard, src/content/cookieClobber.ts).
  */
-export function buildTrackerCookieRules({ cookieblock, entities }, psl, firstId = 1) {
-  const hosts = cookieblock.filter((host) => !coveredBy(host, KEEP_COOKIES_HOSTS)).sort();
+export function buildTrackerCookieRules({ cookieblock, entities, block = [], yellowlist = [] }, psl, firstId = 1) {
+  // Privacy Badger strips a yellowlisted host's cookies when it's under a
+  // tracker it would otherwise block (pbTrackerRules.mjs leaves it unblocked).
+  const yellowTrackers = yellowlist.filter((host) => coveredBy(host, block));
+  const hosts = [...new Set([...cookieblock, ...yellowTrackers])].filter((host) => !coveredBy(host, KEEP_COOKIES_HOSTS)).sort();
   const owners = entityLookup(entities);
   // One rule per owning company that has other sites; everything else shares one rule.
   const byOwner = new Map();

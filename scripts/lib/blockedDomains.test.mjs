@@ -27,6 +27,12 @@ describe("plainBlockedDomains", () => {
     const rules = [block({ urlFilter: "||d.example^", resourceTypes: ["script"] })];
     expect([...plainBlockedDomains(rules, { allowResourceTypes: true })]).toEqual(["d.example"]);
   });
+
+  it("counts third-party-only rules only when asked to", () => {
+    const rules = [block({ requestDomains: ["t.example"], domainType: "thirdParty" }), block({ requestDomains: ["f.example"], domainType: "firstParty" })];
+    expect([...plainBlockedDomains(rules)]).toEqual([]);
+    expect([...plainBlockedDomains(rules, { allowThirdParty: true })]).toEqual(["t.example"]);
+  });
 });
 
 describe("isBlockedByDomainChain", () => {

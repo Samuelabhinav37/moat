@@ -197,7 +197,9 @@ the Global Privacy Control signal breaks checkout or booking
 (`src/data/pbconfig.json` `sitefixes.gpc`, in `src/shared/gpcSiteFixes.ts`),
 and follows its approach of leaving localhost alone (`data/dnr/ignore.json`).
 Its cookie-blocked tracker list and company site groups (`seed.json`,
-`multiDomainFirstParties`) are vendored into `rules/privacy-badger.json` by
-`scripts/vendor-privacy-badger.mjs` and build the Tracker cookies list; the
+`multiDomainFirstParties`), its crawler's tracker list, yellowlist, site fixes
+and embed domains (`pbconfig.json`, `socialwidgets.json`) are vendored into `rules/privacy-badger.json` by
+`scripts/vendor-privacy-badger.mjs` and build the Tracker cookies list and
+`ruleset_pb-trackers` (`scripts/lib/pbTrackerRules.mjs`); the
 script-cookie guard (`src/content/cookieClobber.ts`) follows its
 `clobbercookie.js`.

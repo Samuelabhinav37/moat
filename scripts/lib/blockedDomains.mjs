@@ -18,15 +18,19 @@ const SIMPLE_URL_FILTER = /^\|\|([a-z0-9.-]+)\^$/;
  *   resourceTypes list. Off for pruning (such a rule may block fewer request
  *   types than the rule being pruned); on for uncloaking, where "this domain
  *   is a known tracker" is the only question.
+ * @param {boolean} [opts.allowThirdParty] - also count rules limited to
+ *   third-party requests. For pbTrackerRules.mjs, whose own rules are
+ *   third-party only, so such a rule already covers them.
  * @returns {Set<string>}
  */
-export function plainBlockedDomains(rules, { allowResourceTypes = false } = {}) {
+export function plainBlockedDomains(rules, { allowResourceTypes = false, allowThirdParty = false } = {}) {
   const allowedKeys = new Set(["urlFilter", "requestDomains", ...(allowResourceTypes ? ["resourceTypes"] : [])]);
   const domains = new Set();
   for (const rule of rules) {
     if (rule.action?.type !== "block") continue;
     const condition = rule.condition ?? {};
-    if (Object.keys(condition).some((key) => !allowedKeys.has(key))) continue;
+    const thirdPartyOnly = allowThirdParty && condition.domainType === "thirdParty";
+    if (Object.keys(condition).some((key) => !allowedKeys.has(key) && !(thirdPartyOnly && key === "domainType"))) continue;
     if (condition.urlFilter !== undefined) {
       const match = SIMPLE_URL_FILTER.exec(condition.urlFilter);
       // A urlFilter that isn't a bare domain anchor narrows the rule, even
