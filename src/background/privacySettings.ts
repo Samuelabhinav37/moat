@@ -63,11 +63,16 @@ export async function applyPrivacySettings(settings: Settings): Promise<void> {
     "disable_non_proxied_udp"
   );
 
+  // The browser-wide cookie block only while Moat is on: with Moat switched
+  // off, the browser's own cookie setting comes back (field report
+  // 2026-10-14: it stayed on with Moat off and kept breaking sign-ins).
+  // A pause can't exempt one site from it, which its toggle says.
+  const blockCookies = settings.enabled && settings.blockThirdPartyCookies;
   const websites = privacy.websites as (typeof privacy.websites & ChromeThirdPartyCookies) | undefined;
   if (websites?.thirdPartyCookiesAllowed) {
-    await applyOrClear(websites.thirdPartyCookiesAllowed, settings.blockThirdPartyCookies, false);
+    await applyOrClear(websites.thirdPartyCookiesAllowed, blockCookies, false);
   } else {
-    await applyOrClear(websites?.cookieConfig, settings.blockThirdPartyCookies, {
+    await applyOrClear(websites?.cookieConfig, blockCookies, {
       behavior: "reject_third_party",
     });
   }

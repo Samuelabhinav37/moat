@@ -172,10 +172,10 @@
     "message": "Verwaltet durch deine Organisation"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Websiteübergreifende Cookies blockieren"
+    "message": "Alle websiteübergreifenden Cookies blockieren"
   },
   "optionsCookiesToggleHint": {
-    "message": "Verhindert, dass Websites dir von einer Seite zur nächsten folgen."
+    "message": "Gilt für deinen ganzen Browser, auch auf pausierten Websites, und kann Anmeldungen stören."
   },
   "optionsWebrtcToggleLabel": {
     "message": "Deine IP-Adresse privat halten"
@@ -848,7 +848,7 @@
     "message": "Alles aus Leicht, dazu Tracker, Tracking in Links und gefälschte Anmeldeseiten. Empfohlen."
   },
   "levelStrictDesc": {
-    "message": "Alles aus Ausgewogen, dazu Cookie-Banner und Social-Media-Buttons. Außerdem erkennen Websites dein Gerät schwerer, Cookies über Websites hinweg werden blockiert und deine IP-Adresse bleibt bei Videoanrufen privat. Einige Websites funktionieren vielleicht nicht."
+    "message": "Alles aus Ausgewogen, dazu Cookie-Banner und Social-Media-Buttons. Außerdem erkennen Websites dein Gerät schwerer und deine IP-Adresse bleibt bei Videoanrufen privat. Einige Websites funktionieren vielleicht nicht."
   },
   "levelCustomNote": {
     "message": "Du nutzt deine eigene Auswahl an Filterlisten."
@@ -2195,6 +2195,14 @@
   },
   "listTrackersDesc": {
     "message": "Analyse- und Werbetechnik-Skripte.",
+    "description": "Filter list: what it stops."
+  },
+  "listTrackerCookiesName": {
+    "message": "Tracker-Cookies",
+    "description": "Filter list name."
+  },
+  "listTrackerCookiesDesc": {
+    "message": "Nötige Dienste laden ohne ihre Tracking-Cookies.",
     "description": "Filter list: what it stops."
   },
   "listUrlTrackingName": {

@@ -19,6 +19,7 @@ import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
 import { buildOisdRules } from "./lib/oisdRules.mjs";
 import { buildCompatAllowRules } from "./lib/compatAllowRules.mjs";
 import { buildLoopbackRules } from "./lib/loopbackRules.mjs";
+import { buildTrackerCookieRules } from "./lib/trackerCookieRules.mjs";
 import { GPC_SITE_FIXES } from "../src/shared/gpcSiteFixes.ts";
 import { plainBlockedDomains, isBlockedByDomainChain } from "./lib/blockedDomains.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
@@ -51,7 +52,8 @@ const liveFilterSources = [];
 
 // The Tranco top 10,000: the danger lists below never block one of these
 // as a whole site (scripts/lib/popularSites.mjs).
-const popularSites = await loadPopularSites(await loadPsl());
+const psl = await loadPsl();
+const popularSites = await loadPopularSites(psl);
 function logPopularDrops(name, dropped) {
   if (dropped.length > 0) console.log(`  ${name}: left out ${dropped.length} popular site(s): ${dropped.join(", ")}`);
 }
@@ -323,6 +325,34 @@ manifestEntries.push({
   file: "ruleset_privacy-headers.json",
   ruleCount: ownPrivacyRules.length,
 });
+
+// Tracker cookies: Privacy Badger's cookie-blocked domains load without their
+// cookies (scripts/lib/trackerCookieRules.mjs, data from
+// scripts/vendor-privacy-badger.mjs, which runs first in filters:update).
+// Its own "tracker-cookies" group, on in every preset, so it follows Moat's
+// on/off and a site's pause like any list. The hosts it covers also go to
+// tracker-cookie-hosts.json, for the guard against cookies set by script
+// (src/background/cookieClobber.ts).
+// Read from the committed copy: this script empties rules/dnr/ first.
+const privacyBadger = JSON.parse(readFileSync(join(root, "rules", "privacy-badger.json"), "utf8"));
+const trackerCookies = buildTrackerCookieRules(privacyBadger, psl);
+writeFileSync(join(outDir, "ruleset_tracker-cookies.json"), JSON.stringify(trackerCookies.rules));
+manifestEntries.push({
+  id: "ruleset_tracker-cookies",
+  group: "tracker-cookies",
+  // Listed under Tracking by its label (src/options/filterListLabels.ts);
+  // "ads" is the category the tracker lists use too.
+  category: "ads",
+  name: "Tracker cookies (Privacy Badger)",
+  enabled: true,
+  file: "ruleset_tracker-cookies.json",
+  ruleCount: trackerCookies.rules.length,
+});
+writeFileSync(
+  join(outDir, "tracker-cookie-hosts.json"),
+  JSON.stringify({ hosts: trackerCookies.hosts, keep: trackerCookies.keep, entities: trackerCookies.entities })
+);
+console.log(`tracker cookies: ${trackerCookies.hosts.length} hosts stripped of cookies in ${trackerCookies.rules.length} rules`);
 
 // Our own rules, not sourced from AdGuard: domain-scoped tracking-param
 // stripping for gaps identified against ClearURLs

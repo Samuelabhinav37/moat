@@ -15,6 +15,10 @@
 //   the page's first script runs (a static script only learns about a pause
 //   after the page's inline scripts already ran).
 //
+// - cookie-clobber.js         MAIN world, every frame, only the trackers whose
+//   cookies Moat strips, while Moat and the "tracker-cookies" list are on.
+//   Stops their script setting cookies (background/cookieClobber.ts).
+//
 // element-picker.js is handled separately (popup.ts injects it with
 // scripting.executeScript on click -- it has no setting, it's a one-shot
 // manual action). youtube-ad-dimmer.js / feed-ad-scanner.js stay static:
@@ -26,13 +30,17 @@
 import browser from "webextension-polyfill";
 import type { Settings } from "../types";
 import { LOOPBACK_MATCH_PATTERNS } from "../shared/loopback";
+import { loadTrackerCookieData } from "./cookieClobber";
 
 export interface OptionalScript {
   id: string;
   /** A script, or a stylesheet (`css`). */
   js?: string;
   css?: string;
-  matches: string[];
+  /** Fixed, or built from the bundled data. */
+  matches: string[] | ((data: ReconcileData) => string[]);
+  /** Every frame, not just the top page. */
+  allFrames?: boolean;
   runAt: "document_start" | "document_end" | "document_idle";
   /** The page's own JavaScript world instead of the extension's isolated one. */
   world?: "MAIN";
@@ -48,17 +56,31 @@ export interface ReconcileData {
    * early-cosmetics-excepted.css (scripts/lib/earlyCosmetics.mjs), or null
    * if the list couldn't be read. */
   earlyExceptionDomains: string[] | null;
+  /** The trackers whose cookies Moat strips (rules/tracker-cookie-hosts.json),
+   * or null if the list couldn't be read. */
+  trackerCookieHosts: string[] | null;
+  /** Sign-in and payment hosts under those, which keep their cookies. */
+  trackerCookieKeep: string[];
 }
 
-const NO_DATA: ReconcileData = { earlyExceptionDomains: null };
+const NO_DATA: ReconcileData = { earlyExceptionDomains: null, trackerCookieHosts: null, trackerCookieKeep: [] };
 
-async function loadReconcileData(): Promise<ReconcileData> {
+async function loadEarlyExceptionDomains(): Promise<string[] | null> {
   try {
     const list = (await (await fetch(browser.runtime.getURL("rules/early-cosmetics-exclude.json"))).json()) as unknown;
-    return { earlyExceptionDomains: Array.isArray(list) ? list.filter((d): d is string => typeof d === "string") : null };
+    return Array.isArray(list) ? list.filter((d): d is string => typeof d === "string") : null;
   } catch {
-    return NO_DATA;
+    return null;
   }
+}
+
+async function loadReconcileData(): Promise<ReconcileData> {
+  const [earlyExceptionDomains, trackerCookies] = await Promise.all([loadEarlyExceptionDomains(), loadTrackerCookieData()]);
+  return {
+    earlyExceptionDomains,
+    trackerCookieHosts: trackerCookies?.hosts ?? null,
+    trackerCookieKeep: trackerCookies?.keep ?? [],
+  };
 }
 
 /** A domain and its subdomains as a match pattern, or null if it can't be one. */
@@ -86,6 +108,13 @@ function earlyExceptedPatterns(settings: Settings, data: ReconcileData): string[
     if (pattern) patterns.add(pattern);
   }
   return [...patterns].sort();
+}
+
+/** Match patterns for the trackers whose cookies Moat strips. The frame's
+ * own address: the script itself skips the page's own company, and the
+ * worker lifts it on paused pages. */
+function trackerCookiePatterns(data: ReconcileData): string[] {
+  return [...new Set((data.trackerCookieHosts ?? []).map(domainPattern).filter((p): p is string => p !== null))].sort();
 }
 
 export const OPTIONAL_SCRIPTS: OptionalScript[] = [
@@ -129,6 +158,18 @@ export const OPTIONAL_SCRIPTS: OptionalScript[] = [
     world: "MAIN",
     wants: (s) => s.enabled,
     excludeMatches: pausedSitePatterns,
+  },
+  {
+    id: "moat-cookie-clobber",
+    js: "cookie-clobber.js",
+    matches: trackerCookiePatterns,
+    allFrames: true,
+    runAt: "document_start",
+    world: "MAIN",
+    wants: (s, d) => s.enabled && s.filterGroups["tracker-cookies"] !== false && trackerCookiePatterns(d).length > 0,
+    // Exact hosts: a pattern for a kept host's subdomains could reach back
+    // into a stripped one's.
+    excludeMatches: (_s, d) => [...new Set(d.trackerCookieKeep.filter((h) => domainPattern(h)).map((h) => `*://${h}/*`))].sort(),
   },
 ];
 
@@ -203,11 +244,11 @@ export async function reconcileOptionalContentScripts(settings: Settings): Promi
           id: s.id,
           ...(s.js ? { js: [s.js] } : {}),
           ...(s.css ? { css: [s.css] } : {}),
-          matches: s.matches,
+          matches: typeof s.matches === "function" ? s.matches(data) : s.matches,
           ...(excludeMatches.length > 0 ? { excludeMatches } : {}),
           runAt: s.runAt,
           ...(s.world ? { world: s.world } : {}),
-          allFrames: false,
+          allFrames: s.allFrames ?? false,
           // Survive a browser restart so an enabled feature still runs on
           // the first page load after one, without waiting for the worker
           // to wake; reapplySettings reconciles any drift on the next wake.

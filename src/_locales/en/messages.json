@@ -174,10 +174,10 @@
     "message": "Managed by your organization"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Block cross-site cookies"
+    "message": "Block all cross-site cookies"
   },
   "optionsCookiesToggleHint": {
-    "message": "Stops sites following you from one website to the next."
+    "message": "Applies to your whole browser, even sites you paused, and can break sign-ins."
   },
   "optionsWebrtcToggleLabel": {
     "message": "Keep your IP address private"
@@ -850,7 +850,7 @@
     "message": "Everything in Light, plus trackers, tracking added to links, and fake login sites. Recommended."
   },
   "levelStrictDesc": {
-    "message": "Everything in Balanced, plus cookie banners and social media buttons. It also makes your device harder for sites to recognize, blocks cross-site cookies and keeps your IP address private in video calls. A few sites may break."
+    "message": "Everything in Balanced, plus cookie banners and social media buttons. It also makes your device harder for sites to recognize and keeps your IP address private in video calls. A few sites may break."
   },
   "levelCustomNote": {
     "message": "You're using your own mix of filter lists.",
@@ -2356,6 +2356,14 @@
   },
   "listTrackersDesc": {
     "message": "Analytics and ad-tech scripts.",
+    "description": "Filter list: what it stops."
+  },
+  "listTrackerCookiesName": {
+    "message": "Tracker cookies",
+    "description": "Filter list name."
+  },
+  "listTrackerCookiesDesc": {
+    "message": "Needed services load without their tracking cookies.",
     "description": "Filter list: what it stops."
   },
   "listUrlTrackingName": {

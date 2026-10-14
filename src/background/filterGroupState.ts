@@ -36,6 +36,7 @@ const IMPORTANCE = [
   "scam",
   "badware",
   "trackers",
+  "tracker-cookies",
   "popups",
   "url-tracking",
   "oisd",

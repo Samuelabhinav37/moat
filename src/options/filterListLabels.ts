@@ -20,6 +20,7 @@ export const LIST_LABELS: Record<string, ListLabel> = {
   popups: { section: "ads", nameKey: "listPopupsName", name: "Pop-up ads", descKey: "listPopupsDesc", desc: "New tabs and pop-unders.", icon: "popup" },
   oisd: { section: "ads", nameKey: "listOisdName", name: "Extra ad and tracker sites", descKey: "listOisdDesc", desc: "Catches what the lists above miss.", icon: "globe" },
   trackers: { section: "tracking", nameKey: "listTrackersName", name: "Trackers", descKey: "listTrackersDesc", desc: "Analytics and ad-tech scripts.", icon: "tracker" },
+  "tracker-cookies": { section: "tracking", nameKey: "listTrackerCookiesName", name: "Tracker cookies", descKey: "listTrackerCookiesDesc", desc: "Needed services load without their tracking cookies.", icon: "cookie" },
   "url-tracking": { section: "tracking", nameKey: "listUrlTrackingName", name: "Tracking in links", descKey: "listUrlTrackingDesc", desc: "Strips click IDs from links.", icon: "link" },
   "phishing-urls": { section: "security", nameKey: "listPhishingName", name: "Phishing", descKey: "listPhishingDesc", desc: "Fake sign-in pages.", icon: "phishing" },
   scam: { section: "security", nameKey: "listScamName", name: "Scams", descKey: "listScamDesc", desc: "Fake shops and giveaways.", icon: "scam" },

@@ -1,6 +1,6 @@
 {
   "name": "moat",
-  "version": "0.11.276",
+  "version": "0.11.277",
   "private": true,
   "license": "GPL-3.0",
   "description": "Free ad blocker for Chrome and Firefox. Stops ads, trackers and pop-ups before they load. No account, no telemetry.",
@@ -19,7 +19,7 @@
     "build:chrome": "node scripts/build.mjs chrome",
     "build:firefox": "node scripts/build.mjs firefox",
     "build": "npm run build:chrome && npm run build:firefox",
-    "filters:update": "node scripts/update-filters.mjs && node scripts/pack-rules.mjs && node scripts/build-ad-rules.mjs && node scripts/update-cosmetics.mjs && node scripts/vendor-consent-rules.mjs && node scripts/vendor-cname-list.mjs && node scripts/update-live-manifest.mjs && node scripts/validate-rules.mjs",
+    "filters:update": "node scripts/vendor-privacy-badger.mjs && node scripts/update-filters.mjs && node scripts/pack-rules.mjs && node scripts/build-ad-rules.mjs && node scripts/update-cosmetics.mjs && node scripts/vendor-consent-rules.mjs && node scripts/vendor-cname-list.mjs && node scripts/update-live-manifest.mjs && node scripts/validate-rules.mjs",
     "validate:rules": "node scripts/validate-rules.mjs",
     "check:rule-packing": "node scripts/check-rule-packing.mjs",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.scripts.json",

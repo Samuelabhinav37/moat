@@ -73,6 +73,16 @@ describe("applyPrivacySettings", () => {
     expect(thirdPartyCookiesAllowed.set).not.toHaveBeenCalled();
   });
 
+  it("hands the browser's cookie setting back while Moat is off, even with the toggle on", async () => {
+    const thirdPartyCookiesAllowed = { set: vi.fn(() => Promise.resolve()), clear: vi.fn(() => Promise.resolve()) };
+    setPrivacy({ websites: { thirdPartyCookiesAllowed } });
+
+    await applyPrivacySettings({ ...baseSettings, enabled: false, blockThirdPartyCookies: true });
+
+    expect(thirdPartyCookiesAllowed.set).not.toHaveBeenCalled();
+    expect(thirdPartyCookiesAllowed.clear).toHaveBeenCalledWith({});
+  });
+
   it("falls back to Firefox's cookieConfig when thirdPartyCookiesAllowed doesn't exist", async () => {
     const cookieConfig = { set: vi.fn(() => Promise.resolve()), clear: vi.fn(() => Promise.resolve()) };
     setPrivacy({ websites: { cookieConfig } });

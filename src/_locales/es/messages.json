@@ -172,10 +172,10 @@
     "message": "Administrado por tu organización"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Bloquear cookies entre sitios"
+    "message": "Bloquear todas las cookies entre sitios"
   },
   "optionsCookiesToggleHint": {
-    "message": "Impide que los sitios te sigan de una web a otra."
+    "message": "Se aplica a todo tu navegador, incluso en sitios en pausa, y puede impedir iniciar sesión."
   },
   "optionsWebrtcToggleLabel": {
     "message": "Mantener privada tu dirección IP"
@@ -848,7 +848,7 @@
     "message": "Todo lo de Ligero, más rastreadores, rastreo añadido a los enlaces y sitios de inicio de sesión falsos. Recomendado."
   },
   "levelStrictDesc": {
-    "message": "Todo lo de Equilibrado, más avisos de cookies y botones de redes sociales. Además hace que a los sitios les cueste más reconocer tu dispositivo, bloquea las cookies entre sitios y mantiene privada tu dirección IP en las videollamadas. Algunos sitios pueden fallar."
+    "message": "Todo lo de Equilibrado, más avisos de cookies y botones de redes sociales. Además hace que a los sitios les cueste más reconocer tu dispositivo y mantiene privada tu dirección IP en las videollamadas. Algunos sitios pueden fallar."
   },
   "levelCustomNote": {
     "message": "Estás usando tu propia combinación de listas de filtros."
@@ -2195,6 +2195,14 @@
   },
   "listTrackersDesc": {
     "message": "Scripts de analítica y publicidad.",
+    "description": "Filter list: what it stops."
+  },
+  "listTrackerCookiesName": {
+    "message": "Cookies de rastreo",
+    "description": "Filter list name."
+  },
+  "listTrackerCookiesDesc": {
+    "message": "Los servicios necesarios cargan sin sus cookies de rastreo.",
     "description": "Filter list: what it stops."
   },
   "listUrlTrackingName": {

@@ -172,10 +172,10 @@
     "message": "Géré par votre organisation"
   },
   "optionsCookiesToggleLabel": {
-    "message": "Bloquer les cookies intersites"
+    "message": "Bloquer tous les cookies intersites"
   },
   "optionsCookiesToggleHint": {
-    "message": "Empêche les sites de vous suivre d'un site web à l'autre."
+    "message": "S'applique à tout votre navigateur, même sur les sites en pause, et peut bloquer les connexions."
   },
   "optionsWebrtcToggleLabel": {
     "message": "Garder votre adresse IP privée"
@@ -848,7 +848,7 @@
     "message": "Tout ce que fait Léger, plus les traceurs, le pistage ajouté aux liens et les faux sites de connexion. Recommandé."
   },
   "levelStrictDesc": {
-    "message": "Tout ce que fait Équilibré, plus les bandeaux cookies et les boutons de réseaux sociaux. Rend aussi votre appareil plus difficile à reconnaître, bloque les cookies entre sites et garde votre adresse IP privée lors des appels vidéo. Quelques sites peuvent ne plus marcher."
+    "message": "Tout ce que fait Équilibré, plus les bandeaux cookies et les boutons de réseaux sociaux. Rend aussi votre appareil plus difficile à reconnaître et garde votre adresse IP privée lors des appels vidéo. Quelques sites peuvent ne plus marcher."
   },
   "levelCustomNote": {
     "message": "Vous utilisez votre propre choix de listes de filtres."
@@ -2195,6 +2195,14 @@
   },
   "listTrackersDesc": {
     "message": "Scripts d'analyse et de publicité ciblée.",
+    "description": "Filter list: what it stops."
+  },
+  "listTrackerCookiesName": {
+    "message": "Cookies de traçage",
+    "description": "Filter list name."
+  },
+  "listTrackerCookiesDesc": {
+    "message": "Les services nécessaires se chargent sans leurs cookies de traçage.",
     "description": "Filter list: what it stops."
   },
   "listUrlTrackingName": {

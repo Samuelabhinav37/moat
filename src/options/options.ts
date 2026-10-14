@@ -276,10 +276,10 @@ const PROTECTIONS: ProtectionDef[] = [
     id: "cookies",
     settingKey: "blockThirdPartyCookies",
     group: "privacy",
-    titleKey: ["optionsCookiesToggleLabel", "Block cross-site cookies"],
+    titleKey: ["optionsCookiesToggleLabel", "Block all cross-site cookies"],
     descKey: [
       "optionsCookiesToggleHint",
-      "Stops sites following you from one website to the next.",
+      "Applies to your whole browser, even sites you paused, and can break sign-ins.",
     ],
   },
   {
@@ -1136,7 +1136,7 @@ const PRESET_HINTS: Record<PresetName | "custom", { key: string; fallback: strin
   standard: { key: "levelBalancedDesc", fallback: "Everything in Light, plus trackers, tracking added to links, and phishing sites. Recommended." },
   strict: {
     key: "levelStrictDesc",
-    fallback: "Everything in Balanced, plus cookie notices, social buttons, fingerprinting and third-party cookies. A few sites may not work right.",
+    fallback: "Everything in Balanced, plus cookie notices, social buttons and fingerprinting. A few sites may not work right.",
   },
   custom: { key: "presetHintCustom", fallback: "A mix you've set up yourself." },
 };
@@ -1233,7 +1233,7 @@ const levelNoteReset = document.getElementById("level-note-reset") as HTMLButton
 
 // Names for the parts of a level that a hand-picked mix can change.
 const PRIVACY_NAMES: Record<string, [string, string]> = {
-  blockThirdPartyCookies: ["optionsCookiesToggleLabel", "Block cross-site cookies"],
+  blockThirdPartyCookies: ["optionsCookiesToggleLabel", "Block all cross-site cookies"],
   webrtcLeakProtection: ["optionsWebrtcToggleLabel", "Keep your IP address private"],
   fingerprintResistance: ["optionsFingerprintToggleLabel", "Stop sites recognizing your device"],
 };
@@ -1242,7 +1242,7 @@ function levelName(level: string): string {
   return document.querySelector(`#level-cards .level[data-level="${level}"] .level-name`)?.textContent ?? level;
 }
 
-/** "Balanced, plus Block cross-site cookies and without Trackers." */
+/** "Balanced, plus Block all cross-site cookies and without Trackers." */
 function changesSentence(settings: Settings): { base: PresetName; text: string; count: number } {
   const diff = presetDifference(settings);
   const name = (key: string): string => {
@@ -2968,7 +2968,7 @@ function stopRow(stop: UsageSummaryResponse["pageStops"][number], loud: boolean)
 const LEVEL_DESC: Record<Level, [string, string]> = {
   lite: ["levelLightDesc", "Blocks ads, pop-ups, and dangerous sites like scams and malware. Trackers still load, so sites that depend on them keep working."],
   standard: ["levelBalancedDesc", "Everything in Light, plus trackers, tracking added to links, and fake login sites. Recommended."],
-  strict: ["levelStrictDesc", "Everything in Balanced, plus cookie banners and social media buttons. It also makes your device harder for sites to recognize, blocks cross-site cookies and keeps your IP address private in video calls. A few sites may break."],
+  strict: ["levelStrictDesc", "Everything in Balanced, plus cookie banners and social media buttons. It also makes your device harder for sites to recognize and keeps your IP address private in video calls. A few sites may break."],
 };
 const CHECKUP_PRIVACY = ["cookies", "webrtc"];
 const CHECKUP_ANNOYANCES = ["consentReject", "grayscale", "feedScan", "searchSlop"];

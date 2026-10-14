@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.277
+
+### Changed
+- **Moat blocks tracker cookies, not every cross-site cookie.** A new list, Tracker cookies, lets
+  services that pages need, like video players, load without their tracking cookies. It follows
+  Moat's switch and your paused sites like every other list. The list comes from Privacy Badger.
+- **"Block all cross-site cookies" is an advanced option and off.** It changes the whole browser,
+  even sites you paused, and broke sign-ins. Strict no longer turns it on, and updating turns it
+  off once so Chrome goes back to your own setting. It now only applies while Moat is on.
+
 ## 0.11.276
 
 ### Fixed

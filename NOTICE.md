@@ -196,3 +196,8 @@ Source: [EFForg/privacybadger](https://github.com/EFForg/privacybadger)
 the Global Privacy Control signal breaks checkout or booking
 (`src/data/pbconfig.json` `sitefixes.gpc`, in `src/shared/gpcSiteFixes.ts`),
 and follows its approach of leaving localhost alone (`data/dnr/ignore.json`).
+Its cookie-blocked tracker list and company site groups (`seed.json`,
+`multiDomainFirstParties`) are vendored into `rules/privacy-badger.json` by
+`scripts/vendor-privacy-badger.mjs` and build the Tracker cookies list; the
+script-cookie guard (`src/content/cookieClobber.ts`) follows its
+`clobbercookie.js`.

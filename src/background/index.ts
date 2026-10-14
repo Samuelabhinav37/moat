@@ -10,9 +10,11 @@ import {
   applyFreshInstallDefaults,
   getEffectiveSettings,
   reapplySettings,
+  runMigrations,
   seedFromSyncIfEmpty,
   setSettings,
 } from "./settings";
+import { startCookieClobber } from "./cookieClobber";
 import { recordUpdateSeen } from "./updateNotice";
 import { maybeOpenFirstRunTour } from "./firstRunTour";
 import { initPopupGuard } from "./popupGuard";
@@ -52,6 +54,7 @@ initAthenaIntegration(getManagedPolicy);
 async function initializeSettings(reason?: Runtime.OnInstalledReason): Promise<void> {
   await seedFromSyncIfEmpty();
   if (reason === "install") await applyFreshInstallDefaults();
+  if (reason === "update") await runMigrations();
   await reapplySettings();
   // Sweeps any customRuleStats.ts entry whose underlying rule no longer
   // exists in Settings (an import, or a managed-policy change, that
@@ -133,6 +136,9 @@ startLiveBlockCounting(onLiveBlock, onPageBlocked);
 
 // Top level too: the response headers arrive before the page's guard asks.
 startFrameCspTracking();
+
+// Tracker frames whose cookies Moat strips can't set them by script either.
+startCookieClobber();
 
 browser.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0) return;

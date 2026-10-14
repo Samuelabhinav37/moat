@@ -91,6 +91,7 @@ const {
   seedFromSyncIfEmpty,
   applyFreshInstallDefaults,
   importCustomRules,
+  runMigrations,
 } = await import("./settings");
 const { PRESETS } = await import("../shared/filterPresets");
 
@@ -139,6 +140,29 @@ describe("getSettings", () => {
     const settings = await getSettings();
     expect(settings.enabled).toBe(false);
     expect(settings.disabledSites).toEqual([]); // untouched field still defaulted
+  });
+});
+
+describe("runMigrations", () => {
+  it("hands the browser's cookie setting back once, on update", async () => {
+    await setSettings({ blockThirdPartyCookies: true });
+    await runMigrations();
+    expect((await getSettings()).blockThirdPartyCookies).toBe(false);
+  });
+
+  it("runs once: turning the browser-wide block back on afterwards sticks", async () => {
+    await runMigrations();
+    await setSettings({ blockThirdPartyCookies: true });
+    await runMigrations();
+    expect((await getSettings()).blockThirdPartyCookies).toBe(true);
+  });
+
+  it("leaves everything else alone", async () => {
+    await setSettings({ blockThirdPartyCookies: true, webrtcLeakProtection: true, disabledSites: ["example.com"] });
+    await runMigrations();
+    const settings = await getSettings();
+    expect(settings.webrtcLeakProtection).toBe(true);
+    expect(settings.disabledSites).toEqual(["example.com"]);
   });
 });
 

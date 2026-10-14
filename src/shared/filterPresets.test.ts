@@ -64,14 +64,21 @@ describe("presetPatch", () => {
     expect(patch.filterGroups?.["cookie-notices"]).toBe(false);
   });
 
-  it("strict enables every group and every privacy toggle", () => {
+  it("strict enables every group and every privacy toggle but the browser-wide cookie block", () => {
     const patch = presetPatch("strict");
     for (const group of ALL_TOGGLEABLE_GROUPS) {
       expect(patch.filterGroups?.[group]).toBe(true);
     }
     expect(patch.webrtcLeakProtection).toBe(true);
-    expect(patch.blockThirdPartyCookies).toBe(true);
+    // It broke sign-ins and ignored pause; tracker-cookies covers cookies instead.
+    expect(patch.blockThirdPartyCookies).toBe(false);
     expect(patch.fingerprintResistance).toBe(true);
+  });
+
+  it("every level strips tracker cookies", () => {
+    for (const name of ["lite", "essential", "standard", "strict"] as const) {
+      expect(presetPatch(name).filterGroups?.["tracker-cookies"]).toBe(true);
+    }
   });
 });
 

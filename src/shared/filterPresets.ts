@@ -19,6 +19,7 @@ export const ALL_TOGGLEABLE_GROUPS = [
   "cookie-notices",
   "annoyances",
   "oisd",
+  "tracker-cookies",
 ] as const;
 
 // oisd is on in every preset. It used to be missing from this file entirely,
@@ -26,7 +27,11 @@ export const ALL_TOGGLEABLE_GROUPS = [
 // uncounted, and pushed the fresh-install preset past Chrome's rule limit.
 // The build now prunes the ~70% of it the ads lists already cover, and
 // scripts/validate-rules.mjs fails if "standard" stops fitting.
-const SECURITY_AND_ADS = ["ads", "oisd", "popups", "malicious-urls", "phishing-urls", "scam", "badware"];
+// tracker-cookies (Privacy Badger's cookie-blocked domains load without
+// their cookies) is in every level: it breaks nothing it doesn't have to,
+// and a group missing from older settings reads as on, so leaving it out of
+// a level would mark everyone on that level "Customized".
+const SECURITY_AND_ADS = ["ads", "oisd", "popups", "malicious-urls", "phishing-urls", "scam", "badware", "tracker-cookies"];
 
 // Same as essential, minus phishing-urls (Moat's single largest security
 // list at ~64,600 rules). Not a hand-picked ideal blocklist -- it's the
@@ -70,7 +75,10 @@ export const PRESETS: Record<"lite" | "essential" | "standard" | "strict", Prese
   strict: {
     filterGroups: groupMap(ALL_TOGGLEABLE_GROUPS),
     webrtcLeakProtection: true,
-    blockThirdPartyCookies: true,
+    // Not Chrome's browser-wide cookie block any more: it broke sign-ins and
+    // ignored pause (field report 2026-10-14). The tracker-cookies list
+    // covers cookies in every level instead.
+    blockThirdPartyCookies: false,
     fingerprintResistance: true,
   },
 };

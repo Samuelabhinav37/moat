@@ -193,6 +193,28 @@ export function applyFreshInstallDefaults(): Promise<void> {
   });
 }
 
+// One-time changes to settings saved by an older version, each run once
+// per install and remembered under this key.
+const MIGRATIONS_KEY = "migrations";
+
+/** Runs any one-time settings changes this install hasn't had yet. Called on
+ * every extension update (index.ts). */
+export async function runMigrations(): Promise<void> {
+  const stored = (await browser.storage.local.get(MIGRATIONS_KEY))[MIGRATIONS_KEY] as Record<string, boolean> | undefined;
+  const done = { ...stored };
+  // 0.11.277: "Block cross-site cookies" used to flip the browser's own
+  // cookie setting, for every site, even paused ones and with Moat off, and
+  // Strict turned it on. It broke sign-ins (field report 2026-10-14). The
+  // tracker-cookies list now covers cookies by default, so hand the
+  // browser's setting back; the option stays for anyone who turns it on
+  // again, now that it says what it does.
+  if (!done.browserWideCookies) {
+    await mutateSettings((current) => (current.blockThirdPartyCookies ? { blockThirdPartyCookies: false } : null));
+    done.browserWideCookies = true;
+  }
+  await browser.storage.local.set({ [MIGRATIONS_KEY]: done });
+}
+
 export function setSettings(patch: Partial<Settings>): Promise<Settings> {
   return mutateSettings(() => patch);
 }

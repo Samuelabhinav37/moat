@@ -44,6 +44,7 @@ const ENTRIES = [
   ["search-slop-filter", "src/content/searchSlopFilterEntry.ts"],
   ["consent-rejector", "src/content/consentRejector.ts"],
   ["leaked-password-check", "src/content/leakedPasswordCheck.ts"],
+  ["cookie-clobber", "src/content/cookieClobber.ts"],
   ["popup", "src/popup/popup.ts"],
   ["options", "src/options/options.ts"],
   ["logger", "src/logger/logger.ts"],
@@ -76,12 +77,21 @@ mkdirSync(outDir, { recursive: true });
 // these run in parallel rather than one at a time -- logLevel: "warn" keeps
 // interleaved output from different entries rare (only warnings, not the
 // normal per-file build log) in the common case where nothing warns.
+// cookie-clobber.js decides at document start, before it could fetch
+// anything, so the company groups it needs are inlined (src/content/cookieClobber.ts).
+const trackerCookieHostsFile = resolve(root, "rules", "dnr", "tracker-cookie-hosts.json");
+const trackerOwners = existsSync(trackerCookieHostsFile) ? JSON.parse(readFileSync(trackerCookieHostsFile, "utf8")).entities : [];
+const entryDefines = {
+  "cookie-clobber": { __MOAT_TRACKER_OWNERS__: JSON.stringify(trackerOwners) },
+};
+
 await Promise.all(
   ENTRIES.map(([name, entry]) =>
     build({
       root,
       configFile: false,
       logLevel: "warn",
+      define: entryDefines[name],
       resolve: {
         alias: { "webextension-polyfill": polyfillPath },
       },
@@ -152,6 +162,7 @@ function copyStaticAssets() {
     "uncloak-domains.json",
     "uncounted-rules.json",
     "ad-rules.json",
+    "tracker-cookie-hosts.json",
     ...cosmeticsFiles,
   ]) {
     cpSync(resolve(rulesDir, file), resolve(outDir, "rules", file));

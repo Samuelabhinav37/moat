@@ -86,7 +86,7 @@ describe("planReconcile", () => {
 
 describe("the early stylesheet for selectors some sites except", () => {
   const EXCEPTED = "moat-early-cosmetics-excepted";
-  const data = { earlyExceptionDomains: ["shop.example", "ebay.*", "news.example"] };
+  const data = { earlyExceptionDomains: ["shop.example", "ebay.*", "news.example"], trackerCookieHosts: null, trackerCookieKeep: [] };
 
   it("registers it leaving out the excepting sites and the paused ones", () => {
     const { register } = planReconcile(settings({ disabledSites: ["weather.com"] }), [], data);
@@ -97,8 +97,8 @@ describe("the early stylesheet for selectors some sites except", () => {
   });
 
   it("never registers it, and drops it, when the list of sites couldn't be read", () => {
-    expect(planReconcile(DEFAULT_SETTINGS, [], { earlyExceptionDomains: null }).register.map((s) => s.id)).not.toContain(EXCEPTED);
-    expect(planReconcile(DEFAULT_SETTINGS, [{ id: EXCEPTED }], { earlyExceptionDomains: null }).unregisterIds).toContain(EXCEPTED);
+    expect(planReconcile(DEFAULT_SETTINGS, [], { earlyExceptionDomains: null, trackerCookieHosts: null, trackerCookieKeep: [] }).register.map((s) => s.id)).not.toContain(EXCEPTED);
+    expect(planReconcile(DEFAULT_SETTINGS, [{ id: EXCEPTED }], { earlyExceptionDomains: null, trackerCookieHosts: null, trackerCookieKeep: [] }).unregisterIds).toContain(EXCEPTED);
   });
 });
 
@@ -189,5 +189,27 @@ describe("reconcileOptionalContentScripts", () => {
     expect(scripting.getRegisteredContentScripts).toHaveBeenCalledWith({
       ids: OPTIONAL_SCRIPTS.map((s) => s.id),
     });
+  });
+});
+
+describe("cookie-clobber registration", () => {
+  const CLOBBER = "moat-cookie-clobber";
+  const data = { earlyExceptionDomains: null, trackerCookieHosts: ["youtube.com", "cdn.example.net"], trackerCookieKeep: ["accounts.youtube.com"] };
+  const clobber = OPTIONAL_SCRIPTS.find((s) => s.id === CLOBBER)!;
+
+  it("runs in every frame of the stripped trackers, before their scripts, in the page's world", () => {
+    expect(clobber).toMatchObject({ allFrames: true, runAt: "document_start", world: "MAIN" });
+    expect(typeof clobber.matches === "function" && clobber.matches(data)).toEqual(["*://*.cdn.example.net/*", "*://*.youtube.com/*"]);
+    expect(clobber.excludeMatches?.(DEFAULT_SETTINGS, data)).toEqual(["*://accounts.youtube.com/*"]);
+  });
+
+  it("follows Moat's switch and the tracker-cookies list", () => {
+    expect(clobber.wants(settings({}), data)).toBe(true);
+    expect(clobber.wants(settings({ enabled: false }), data)).toBe(false);
+    expect(clobber.wants(settings({ filterGroups: { ...DEFAULT_SETTINGS.filterGroups, "tracker-cookies": false } }), data)).toBe(false);
+  });
+
+  it("isn't registered without its host list", () => {
+    expect(clobber.wants(settings({}), { ...data, trackerCookieHosts: null })).toBe(false);
   });
 });
