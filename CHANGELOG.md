@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.276
+
+### Fixed
+- **Signing in from the terminal works with Moat on.** Tools like Claude Code finish signing in on a
+  page at localhost. Moat now leaves localhost and 127.0.0.1 alone: nothing blocked, no headers
+  changed, no page scripts. Local development servers get the same treatment.
+- **Checkout and booking work on sites that break with Global Privacy Control.** Moat no longer
+  sends the signal to the few sites where it's known to break things, like Costco and Delta. The
+  list comes from Privacy Badger.
+
 ## 0.11.275
 
 ### Fixed

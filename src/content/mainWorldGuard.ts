@@ -8,6 +8,8 @@ import { isFrameEscape, type FrameContext } from "./frameEscape";
 import { isPlausibleTrigger } from "./isPlausibleTrigger";
 import { createPopupRateLimiter } from "./popupRateLimit";
 import { maskRealm, nativeGetter, nativeMethod } from "./nativeToString";
+import { matchesDomainOrSubdomain } from "../shared/domainChain";
+import { GPC_SITE_FIXES } from "../shared/gpcSiteFixes";
 
 declare global {
   interface Navigator {
@@ -27,7 +29,9 @@ declare global {
 // an accessor on Navigator.prototype. An own data property on the navigator
 // object is something no browser has, and bot-detection scripts list
 // navigator's own properties to spot exactly that kind of edit.
-if (navigator.globalPrivacyControl !== true) {
+// Not on the few sites where GPC breaks checkout or booking
+// (shared/gpcSiteFixes.ts), the same sites the header skips.
+if (navigator.globalPrivacyControl !== true && !matchesDomainOrSubdomain(location.hostname, GPC_SITE_FIXES)) {
   try {
     Object.defineProperty(Navigator.prototype, "globalPrivacyControl", {
       get: nativeGetter("globalPrivacyControl", undefined, () => true),

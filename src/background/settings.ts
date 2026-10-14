@@ -20,6 +20,7 @@ import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
 import { exportSettings, validateImportedSettings } from "./settingsPortability";
 import { isSafeCosmeticSelector } from "../shared/selectorSafety";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
+import { isLoopbackHost } from "../shared/loopback";
 import { recordRuleCreated, recordRuleRemoved } from "./customRuleStats";
 
 // Deliberately a separate storage.local key, not part of Settings/STORAGE_KEY
@@ -226,6 +227,8 @@ export async function reapplySettings(options: { force?: boolean } = {}): Promis
 }
 
 export async function isSiteDisabled(hostname: string): Promise<boolean> {
+  // Loopback pages count as paused for good: see src/shared/loopback.ts.
+  if (isLoopbackHost(hostname)) return true;
   const settings = await getEffectiveSettings();
   return !settings.enabled || matchesDomainOrSubdomain(hostname, settings.disabledSites);
 }

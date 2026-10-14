@@ -10,16 +10,19 @@ const scripting = vi.hoisted(() => ({
 vi.mock("webextension-polyfill", () => ({ default: { scripting } }));
 
 import { OPTIONAL_SCRIPTS, pausedSitePatterns, planReconcile, reconcileOptionalContentScripts } from "./optionalContentScripts";
+import { LOOPBACK_MATCH_PATTERNS } from "../shared/loopback";
 
 const settings = (patch: Partial<Settings>): Settings => ({ ...DEFAULT_SETTINGS, ...patch });
 const CONSENT = "moat-consent-rejector";
 const LEAKED = "moat-leaked-password-check";
 const ADMIRAL = "moat-admiral-guard";
 const EARLY = "moat-early-cosmetics";
+// Paused-site patterns always include this computer's own addresses.
+const withLoopback = (patterns: string[]): string[] => [...patterns, ...LOOPBACK_MATCH_PATTERNS].sort();
 // The Admiral guard and the early stylesheet are registered whenever Moat is
 // on, with no sites paused.
-const ADMIRAL_NONE_PAUSED = { id: ADMIRAL, excludeMatches: [] };
-const EARLY_NONE_PAUSED = { id: EARLY, excludeMatches: [] };
+const ADMIRAL_NONE_PAUSED = { id: ADMIRAL, excludeMatches: withLoopback([]) };
+const EARLY_NONE_PAUSED = { id: EARLY, excludeMatches: withLoopback([]) };
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -69,7 +72,7 @@ describe("planReconcile", () => {
       register: [expect.objectContaining({ id: EARLY }), expect.objectContaining({ id: ADMIRAL })],
       unregisterIds: [EARLY, ADMIRAL],
     });
-    const excluded = ["*://*.weather.com/*"];
+    const excluded = withLoopback(["*://*.weather.com/*"]);
     expect(planReconcile(paused, [CONSENT, { id: ADMIRAL, excludeMatches: excluded }, { id: EARLY, excludeMatches: excluded }])).toEqual({
       register: [],
       unregisterIds: [],
@@ -88,11 +91,9 @@ describe("the early stylesheet for selectors some sites except", () => {
   it("registers it leaving out the excepting sites and the paused ones", () => {
     const { register } = planReconcile(settings({ disabledSites: ["weather.com"] }), [], data);
     const script = register.find((s) => s.id === EXCEPTED)!;
-    expect(script.excludeMatches!(settings({ disabledSites: ["weather.com"] }), data)).toEqual([
-      "*://*.news.example/*",
-      "*://*.shop.example/*",
-      "*://*.weather.com/*",
-    ]);
+    expect(script.excludeMatches!(settings({ disabledSites: ["weather.com"] }), data)).toEqual(
+      withLoopback(["*://*.news.example/*", "*://*.shop.example/*", "*://*.weather.com/*"])
+    );
   });
 
   it("never registers it, and drops it, when the list of sites couldn't be read", () => {
@@ -103,11 +104,15 @@ describe("the early stylesheet for selectors some sites except", () => {
 
 describe("pausedSitePatterns", () => {
   it("covers each paused site and its subdomains, skipping anything that isn't a host", () => {
-    expect(pausedSitePatterns(settings({ disabledSites: ["weather.com", "10.0.0.1", "bad host/", "Shop.Example.org"] }))).toEqual([
-      "*://*.shop.example.org/*",
-      "*://*.weather.com/*",
-      "*://10.0.0.1/*",
-    ]);
+    expect(pausedSitePatterns(settings({ disabledSites: ["weather.com", "10.0.0.1", "bad host/", "Shop.Example.org"] }))).toEqual(
+      withLoopback(["*://*.shop.example.org/*", "*://*.weather.com/*", "*://10.0.0.1/*"])
+    );
+  });
+
+  it("always leaves out localhost and 127.0.0.1, even with nothing paused", () => {
+    expect(pausedSitePatterns(DEFAULT_SETTINGS)).toEqual(
+      expect.arrayContaining(["*://localhost/*", "*://*.localhost/*", "*://127.0.0.1/*", "*://[::1]/*"])
+    );
   });
 });
 
@@ -133,6 +138,7 @@ describe("reconcileOptionalContentScripts", () => {
         world: "MAIN",
         allFrames: false,
         persistAcrossSessions: true,
+        excludeMatches: withLoopback([]),
       },
     ]);
     expect(scripting.registerContentScripts).toHaveBeenCalledWith([
@@ -143,6 +149,7 @@ describe("reconcileOptionalContentScripts", () => {
         runAt: "document_start",
         allFrames: false,
         persistAcrossSessions: true,
+        excludeMatches: withLoopback([]),
       },
     ]);
     expect(scripting.unregisterContentScripts).not.toHaveBeenCalled();
@@ -167,7 +174,7 @@ describe("reconcileOptionalContentScripts", () => {
     await reconcileOptionalContentScripts(settings({ disabledSites: ["weather.com"] }));
     expect(scripting.unregisterContentScripts).toHaveBeenCalledWith({ ids: [EARLY, ADMIRAL] });
     expect(scripting.registerContentScripts).toHaveBeenCalledWith([
-      expect.objectContaining({ id: ADMIRAL, excludeMatches: ["*://*.weather.com/*"] }),
+      expect.objectContaining({ id: ADMIRAL, excludeMatches: withLoopback(["*://*.weather.com/*"]) }),
     ]);
   });
 

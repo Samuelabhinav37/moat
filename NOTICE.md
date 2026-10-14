@@ -188,3 +188,11 @@ from this package. The Settings page shows each mark unaltered, only beside the
 name of the site or service it stands for, to say which site a setting acts on or
 who receives data. Moat is not affiliated with or endorsed by any of them. All
 product names, logos and trademarks are the property of their respective owners.
+
+## Privacy Badger data -- GPL-3.0
+
+Source: [EFForg/privacybadger](https://github.com/EFForg/privacybadger)
+(Electronic Frontier Foundation), GPL-3.0. Moat uses its list of sites where
+the Global Privacy Control signal breaks checkout or booking
+(`src/data/pbconfig.json` `sitefixes.gpc`, in `src/shared/gpcSiteFixes.ts`),
+and follows its approach of leaving localhost alone (`data/dnr/ignore.json`).

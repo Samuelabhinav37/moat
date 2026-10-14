@@ -18,6 +18,8 @@ import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
 import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
 import { buildOisdRules } from "./lib/oisdRules.mjs";
 import { buildCompatAllowRules } from "./lib/compatAllowRules.mjs";
+import { buildLoopbackRules } from "./lib/loopbackRules.mjs";
+import { GPC_SITE_FIXES } from "../src/shared/gpcSiteFixes.ts";
 import { plainBlockedDomains, isBlockedByDomainChain } from "./lib/blockedDomains.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
 import { loadPsl } from "./lib/publicSuffixList.mjs";
@@ -285,6 +287,10 @@ const ownPrivacyRules = [
         "webbundle",
         "other",
       ],
+      // Sites where GPC breaks checkout or booking (src/shared/gpcSiteFixes.ts):
+      // neither their own requests nor anything their pages load.
+      excludedRequestDomains: GPC_SITE_FIXES,
+      excludedInitiatorDomains: GPC_SITE_FIXES,
     },
   },
   // There used to be a rule 2 here that removed the Referer header from
@@ -299,6 +305,9 @@ const ownPrivacyRules = [
   // Allow rules for bot-defense sensors, CAPTCHA widgets and Google Sign-In
   // that bundled lists block -- see scripts/lib/compatAllowRules.mjs.
   ...buildCompatAllowRules(100),
+  // Localhost and 127.0.0.1 left alone: terminal sign-in callbacks and local
+  // dev servers -- see scripts/lib/loopbackRules.mjs.
+  ...buildLoopbackRules(200),
 ];
 writeFileSync(join(outDir, "ruleset_privacy-headers.json"), JSON.stringify(ownPrivacyRules));
 manifestEntries.push({

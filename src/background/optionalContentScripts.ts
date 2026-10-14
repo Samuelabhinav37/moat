@@ -25,6 +25,7 @@
 // optimisation, the guard is the correctness boundary.
 import browser from "webextension-polyfill";
 import type { Settings } from "../types";
+import { LOOPBACK_MATCH_PATTERNS } from "../shared/loopback";
 
 export interface OptionalScript {
   id: string;
@@ -67,11 +68,13 @@ function domainPattern(site: string): string | null {
   return /^[0-9.]+$/.test(host) ? `*://${host}/*` : `*://*.${host}/*`;
 }
 
-/** Match patterns for the paused sites and their subdomains. Anything that
- * can't be a valid pattern is skipped: one bad pattern fails the whole
- * registration. */
+/** Match patterns for the paused sites and their subdomains, plus this
+ * computer's own addresses, which count as paused for good
+ * (shared/loopback.ts). Anything that can't be a valid pattern is skipped:
+ * one bad pattern fails the whole registration. */
 export function pausedSitePatterns(settings: Settings): string[] {
-  return settings.disabledSites.map(domainPattern).filter((p): p is string => p !== null).sort();
+  const paused = settings.disabledSites.map(domainPattern).filter((p): p is string => p !== null);
+  return [...new Set([...paused, ...LOOPBACK_MATCH_PATTERNS])].sort();
 }
 
 /** Paused sites plus every site that makes an exception for one of the

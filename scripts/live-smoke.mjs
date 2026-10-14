@@ -307,6 +307,14 @@ try {
   await news.close();
   await pageChecks("after unpausing");
 
+  // 7b. This computer's own pages (a terminal sign-in's callback, a dev
+  // server) are left alone, like a paused site (src/shared/loopback.ts).
+  adHits.length = 0;
+  const local = await load(`http://localhost:${port}/`, 2500);
+  check("localhost page: nothing blocked", adHits.length > 0, `${adHits.length} ad requests reached the server`);
+  check("localhost page: element hiding off", await visible(local, "#ad_banner"));
+  await local.close();
+
   // 8. "Never block" beats the ad lists.
   await send(extId, { type: "add-custom-domain", field: "customAllowedDomains", hostname: AD_HOST });
   adHits.length = 0;
