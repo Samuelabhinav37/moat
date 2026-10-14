@@ -40,6 +40,12 @@ describe("isAllowedSecurityHost", () => {
     expect(isAllowedSecurityHost("paypal.com.account-check.example")).toBe(true);
     expect(isAllowedSecurityHost("g00gle.com")).toBe(true);
   });
+
+  it("never blocks a link host every customer of an email service shares, but does block one sender's", () => {
+    expect(isAllowedSecurityHost("click.pstmrk.it")).toBe(false);
+    expect(isAllowedSecurityHost("a.rs6.net")).toBe(false);
+    expect(isAllowedSecurityHost("u106654694.ct.sendgrid.net")).toBe(true);
+  });
 });
 
 describe("cleanSecurityDomains", () => {

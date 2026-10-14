@@ -170,6 +170,14 @@ function baseManifest() {
         run_at: "document_idle",
       },
       {
+        // Scoped to Gmail and Google Docs -- see content/googleLinkCleaner.ts.
+        // Links in messages and documents go straight to where they lead,
+        // not through Google's redirect. Follows "Tracking in links".
+        matches: ["https://mail.google.com/*", "https://docs.google.com/*"],
+        js: ["google-link-cleaner.js"],
+        run_at: "document_idle",
+      },
+      {
         // Scoped to Instagram + LinkedIn + YouTube -- see
         // content/feedAdScanner.ts. No-ops immediately unless "Aggressively
         // remove sponsored posts" is on (off by default).

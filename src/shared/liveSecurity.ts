@@ -8,6 +8,7 @@
 // security band, next to the bundled lists they refresh, and never remove
 // or override anything bundled. The guardrails below bound what a bad or
 // compromised upstream list could do to "block a site that shouldn't be".
+import { isSharedLinkHost } from "./sharedLinkHosts";
 
 /** Filter groups a live list refreshes, and where each comes from. The
  * bundled rulesets for these groups come from the same upstream lists
@@ -50,12 +51,13 @@ const PROTECTED = new Set(PROTECTED_DOMAINS);
 const HOST = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 
 /** A host name a security list may block: well formed, not an IP address,
- * not a protected site. (Public suffixes are dropped by the publisher,
- * which has the Public Suffix List.) */
+ * not a protected site, not a link host every customer of an email or
+ * link service shares (sharedLinkHosts.ts). (Public suffixes are dropped by
+ * the publisher, which has the Public Suffix List.) */
 export function isAllowedSecurityHost(domain: string): boolean {
   if (domain.length > 253 || !HOST.test(domain)) return false;
   const bare = domain.startsWith("www.") ? domain.slice(4) : domain;
-  return !PROTECTED.has(bare);
+  return !PROTECTED.has(bare) && !isSharedLinkHost(bare);
 }
 
 /** Host names from a hosts-style or plain domain list: one per line,

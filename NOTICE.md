@@ -202,4 +202,7 @@ and embed domains (`pbconfig.json`, `socialwidgets.json`) are vendored into `rul
 `scripts/vendor-privacy-badger.mjs` and build the Tracker cookies list and
 `ruleset_pb-trackers` (`scripts/lib/pbTrackerRules.mjs`); the
 script-cookie guard (`src/content/cookieClobber.ts`) follows its
-`clobbercookie.js`.
+`clobbercookie.js`. The wrapped-link skip and Google click-ping rules
+(`scripts/lib/linkRules.mjs`) follow its `data/dnr/bypass_redirects.json` and
+`data/dnr/gen204.json` (mv3-chrome branch), and the Gmail and Docs link
+cleaner (`src/content/googleLinkCleaner.ts`) its `js/firstparties/google.js`.

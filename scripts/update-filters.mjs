@@ -21,6 +21,7 @@ import { buildCompatAllowRules } from "./lib/compatAllowRules.mjs";
 import { buildLoopbackRules } from "./lib/loopbackRules.mjs";
 import { buildTrackerCookieRules } from "./lib/trackerCookieRules.mjs";
 import { buildPbTrackerRules } from "./lib/pbTrackerRules.mjs";
+import { buildLinkSkipRules, withoutSharedLinkBlocks } from "./lib/linkRules.mjs";
 import { GPC_SITE_FIXES } from "../src/shared/gpcSiteFixes.ts";
 import { plainBlockedDomains, isBlockedByDomainChain } from "./lib/blockedDomains.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
@@ -411,6 +412,21 @@ manifestEntries.push({
   ruleCount: ownUrlTrackingRules.length,
 });
 
+// Wrapped links whose destination is written plainly go straight there, and
+// Google's click pings are blocked (scripts/lib/linkRules.mjs). Same group:
+// it's the "Tracking in links" switch.
+const linkSkipRules = buildLinkSkipRules();
+writeFileSync(join(outDir, "ruleset_link-skip.json"), JSON.stringify(linkSkipRules));
+manifestEntries.push({
+  id: "ruleset_link-skip",
+  group: "url-tracking",
+  category: "ads",
+  name: "Moat: URL Tracking filter (wrapped links)",
+  enabled: true,
+  file: "ruleset_link-skip.json",
+  ruleCount: linkSkipRules.length,
+});
+
 // Our own rules, not sourced from AdGuard: plain block rules for a handful
 // of error-reporting and social ad/conversion endpoints the bundled lists
 // verifiably miss (docs/research/competitive-gap-audit.md, section 3f).
@@ -740,10 +756,9 @@ liveFilterSources.push({ name: "oisd", url: OISD_URL, text: oisdText, itemCount:
 // Chrome's ~330,000 static-rule limit, so Chrome dropped the tracker lists
 // on every new install (fixed 0.11.130). Only `ads` is pruned against:
 // it's never off in a preset, so turning another group off can't silently
-// take oisd coverage with it. One real difference: oisd rules also block
-// top-level navigation (main_frame) and the ads rules don't, so typing a
-// pruned ad domain into the address bar is no longer blocked. Requests from
-// pages (the ads themselves) are blocked exactly as before.
+// take oisd coverage with it. Neither blocks top-level navigation
+// (main_frame) since 0.11.279 (scripts/lib/linkRules.mjs), so pruning
+// changes nothing that's blocked.
 const adsBlockedDomains = new Set(
   manifestEntries
     .filter((entry) => entry.group === "ads")
@@ -838,15 +853,24 @@ console.log(
 // blocked. Adding one offset to every rule keeps each list's own internal
 // ordering (its exceptions still beat its blocks). validate-rules.mjs checks
 // the bands.
+//
+// The same pass drops whole-site blocks of link hosts every customer of an
+// email or link service shares (scripts/lib/linkRules.mjs).
 let shiftedSecurityRules = 0;
+let sharedLinkBlocksDropped = 0;
 for (const entry of manifestEntries.filter((e) => e.category === "security")) {
   const path = join(outDir, entry.file);
-  const rules = JSON.parse(readFileSync(path, "utf8"));
+  const all = JSON.parse(readFileSync(path, "utf8"));
+  const kept = all.map(withoutSharedLinkBlocks);
+  sharedLinkBlocksDropped += kept.filter((rule, i) => rule !== all[i]).length;
+  const rules = kept.filter(Boolean);
+  entry.ruleCount = rules.length;
   for (const rule of rules) rule.priority = (rule.priority ?? 1) + SECURITY_PRIORITY_OFFSET;
   shiftedSecurityRules += rules.length;
   writeFileSync(path, JSON.stringify(rules));
 }
 console.log(`Security rulesets: ${shiftedSecurityRules} rules moved into the security priority band`);
+console.log(`Security rulesets: ${sharedLinkBlocksDropped} whole-site block(s) of shared link hosts left out`);
 
 writeFileSync(
   join(outDir, "manifest.json"),

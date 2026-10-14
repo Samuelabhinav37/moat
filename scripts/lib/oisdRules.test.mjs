@@ -18,9 +18,9 @@ describe("buildOisdRules", () => {
     expect(rule.condition.urlFilter).toBe("||bad-one.example^");
   });
 
-  it("includes main_frame -- these domains have no legitimate direct-navigation use case", () => {
+  it("never blocks a page you open yourself, only what pages load (frames included)", () => {
     const [rule] = buildOisdRules(["bad-one.example"]);
-    expect(rule.condition.resourceTypes).toContain("main_frame");
+    expect(rule.condition.resourceTypes).not.toContain("main_frame");
     expect(rule.condition.resourceTypes).toContain("sub_frame");
   });
 

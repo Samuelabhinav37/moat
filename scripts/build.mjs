@@ -45,6 +45,7 @@ const ENTRIES = [
   ["consent-rejector", "src/content/consentRejector.ts"],
   ["leaked-password-check", "src/content/leakedPasswordCheck.ts"],
   ["cookie-clobber", "src/content/cookieClobber.ts"],
+  ["google-link-cleaner", "src/content/googleLinkCleaner.ts"],
   ["popup", "src/popup/popup.ts"],
   ["options", "src/options/options.ts"],
   ["logger", "src/logger/logger.ts"],

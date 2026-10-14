@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.279
+
+### Fixed
+- **Links in emails open where they lead.** Links from Discord, Amazon SES, Postmark, X and other
+  email services go through a click tracker first, and Moat showed its block page instead. Ad and
+  tracker lists no longer block a page you open yourself. They still block trackers inside pages.
+- **One bad email doesn't block a whole email service.** Phishing lists sometimes named a link
+  host that every customer of a service shares, like Postmark's, which blocked every email link
+  from it as dangerous. Moat now blocks only the sender's own address and the bad page itself.
+  Phishing and scam sites are blocked as before.
+
+### Added
+- **Google's link wrapping is skipped.** A link wrapped by Google (in search, Gmail or Docs) goes
+  straight to where it leads, so Google doesn't learn about the click. In Gmail and Docs, Moat
+  rewrites the links in place. Google's click pings are blocked too. This is part of "Tracking in
+  links", and the method comes from Privacy Badger.
+
 ## 0.11.278
 
 ### Added

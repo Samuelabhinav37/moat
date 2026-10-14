@@ -18,9 +18,9 @@ describe("buildPeterLoweRules", () => {
     expect(rule.condition.urlFilter).toBe("||ad-server-one.example^");
   });
 
-  it("includes main_frame -- an ad-server domain has no legitimate direct-navigation use case", () => {
+  it("never blocks a page you open yourself, only what pages load (frames included)", () => {
     const [rule] = buildPeterLoweRules(["ad-server-one.example"]);
-    expect(rule.condition.resourceTypes).toContain("main_frame");
+    expect(rule.condition.resourceTypes).not.toContain("main_frame");
     expect(rule.condition.resourceTypes).toContain("sub_frame");
   });
 

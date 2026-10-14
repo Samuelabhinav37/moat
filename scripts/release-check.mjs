@@ -180,6 +180,31 @@ async function sendFromOptions(browser, id, message) {
     record("a phishing domain only in today's list is blocked", outcome.matchedRules.some((m) => m.rulesetId === "_dynamic"), fresh);
   } else record("a phishing domain only in today's list is blocked", true, "every live domain is also bundled today");
 
+  // Links in email reach where they lead (scripts/lib/linkRules.mjs): no ad
+  // or tracker list blocks the page, a plainly written destination is
+  // skipped to, and the security lists still block a phishing page.
+  const actionOf = new Map();
+  for (const e of JSON.parse(readFileSync(join(ext, "rules", "rulesets.json"), "utf8"))) {
+    for (const r of JSON.parse(readFileSync(join(ext, "rules", e.file), "utf8"))) actionOf.set(`${e.id}#${r.id}`, r.action.type);
+  }
+  const outcomeOf = async (url, type) =>
+    (await worker.evaluate((url, type) => chrome.declarativeNetRequest.testMatchOutcome({ url, type, tabId: -1, initiator: type === "main_frame" ? undefined : "https://news.example.org" }), url, type))
+      .matchedRules.map((m) => (m.rulesetId === "_dynamic" ? "block" : actionOf.get(`${m.rulesetId}#${m.ruleId}`)));
+  const emailLinks = [
+    "https://click.discord.com/ls/click?upn=abc",
+    "https://zz9check.r.us-east-1.awstrack.me/L0/https:%2F%2Fexample.com%2F/1/abc",
+    "https://t.co/AbCdEf123",
+    "https://click.pstmrk.it/3s/example.com%2F/abc",
+    "https://u1.ct.sendgrid.net/ls/click?upn=abc",
+  ];
+  const pageBlocked = [];
+  for (const link of emailLinks) if ((await outcomeOf(link, "main_frame")).includes("block")) pageBlocked.push(link);
+  record("links in email aren't blocked as pages", pageBlocked.length === 0, pageBlocked.join(" ") || `${emailLinks.length} checked`);
+  record("an email click-tracker is still blocked inside pages", (await outcomeOf("https://click.discord.com/ls/click?upn=abc", "image")).includes("block"));
+  record("a plainly wrapped Google link goes straight to its destination", (await outcomeOf("https://www.google.com/url?q=https://example.com/&sa=D", "main_frame")).includes("redirect"));
+  const phishing = [...bundled].find((d) => d.includes(".") && !d.startsWith("www."));
+  record("a known phishing site is still blocked as a page", phishing !== undefined && (await outcomeOf(`https://${phishing}/`, "main_frame")).includes("block"), phishing);
+
   // Settings.
   const settings = watch(await browser.newPage());
   await settings.setViewport({ width: 1440, height: 1000 });

@@ -3,12 +3,14 @@
 // fetch step) into DNR block rules. A long-running (since 2003), small,
 // hand-curated ad-server list -- independent redundancy alongside AdGuard's
 // own Ads/Tracking filters and HaGeZi Fake, same "more than one
-// maintainer's list" reasoning as scamBlocklistRules.mjs. Same resourceTypes
-// shape as that file too: these are ad/tracking server domains with no
-// legitimate direct-navigation use case, so main_frame/sub_frame are
-// included rather than excluded (contrast circumventionServiceRules.mjs,
-// whose domains are legitimate ad-tech vendors a direct navigation should
-// still resolve to).
+// maintainer's list" reasoning as scamBlocklistRules.mjs.
+//
+// Everything but main_frame: a page you open yourself is never blocked by an
+// ad or tracker list. The list has about 150 email click-trackers
+// (click.discord.com, awstrack.me, t.co...), and blocking those as pages put
+// Moat's block page between people and the links in their email (field
+// report 2026-10-14). Opened as a page, the link goes through the tracker to
+// where it leads, and the security lists still check that destination.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -28,7 +30,7 @@ function domainBlockRule(id, domain) {
     condition: {
       urlFilter: `||${domain}^`,
       resourceTypes: [
-        "main_frame", "sub_frame", "stylesheet", "script", "image", "font",
+        "sub_frame", "stylesheet", "script", "image", "font",
         "object", "xmlhttprequest", "ping", "csp_report", "media", "websocket", "other",
       ],
     },

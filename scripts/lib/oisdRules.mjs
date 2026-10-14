@@ -8,9 +8,12 @@
 // scamBlocklistRules.mjs/peterLoweRules.mjs are: at ~56,000 domains it's
 // large enough, and broad/aggressive enough by design, that a user who hits
 // a real breakage from it should be able to turn it off on its own without
-// also giving up core tracker/ad blocking. Same resourceTypes shape as
-// scamBlocklistRules.mjs for the same reason: these domains have no
-// legitimate direct-navigation use case.
+// also giving up core tracker/ad blocking.
+//
+// Everything but main_frame, like peterLoweRules.mjs and for the same
+// reason: about 500 of its domains are email click-trackers, and a page you
+// open yourself is never blocked by an ad or tracker list. Dangerous sites
+// are the security lists' job; they keep blocking pages.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -30,7 +33,7 @@ function domainBlockRule(id, domain) {
     condition: {
       urlFilter: `||${domain}^`,
       resourceTypes: [
-        "main_frame", "sub_frame", "stylesheet", "script", "image", "font",
+        "sub_frame", "stylesheet", "script", "image", "font",
         "object", "xmlhttprequest", "ping", "csp_report", "media", "websocket", "other",
       ],
     },
