@@ -20,6 +20,13 @@ describe("buildRetryLoopStubRules", () => {
     expect(isRetryLoopStubRule({ ...rule, condition: { ...rule.condition, initiatorDomains: ["cnn.com", "evil.example"] } })).toBe(false);
   });
 
+  it("answers only the site each stub was measured on, and only fetch/XHR", () => {
+    for (const stub of RETRY_LOOP_STUBS) {
+      expect(stub.initiatorDomains?.length, stub.urlFilter).toBeGreaterThan(0);
+      expect(stub.resourceTypes).toEqual(["xmlhttprequest"]);
+    }
+  });
+
   it("gives every rule a unique id", () => {
     const ids = buildRetryLoopStubRules().map((r) => r.id);
     expect(new Set(ids).size).toBe(ids.length);

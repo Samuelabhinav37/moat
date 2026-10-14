@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.281
+
+### Fixed
+- **Sites stop retrying what Moat blocks.** DoorDash, LinkedIn, Notion, weather.com and ChatGPT
+  kept re-sending their own blocked telemetry, dozens of times a page. Moat now answers those
+  requests with an empty reply on those sites, so they stop asking. Nothing reaches the trackers.
+
 ## 0.11.280
 
 ### Fixed

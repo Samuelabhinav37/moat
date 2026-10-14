@@ -20,6 +20,52 @@ export const RETRY_LOOP_STUBS = [
     initiatorDomains: ["cnn.com"],
     resource: "noopjson.json",
   },
+  // Field probe, 14 Oct 2026 (.cache/opt/field/retry-probe.mjs, 30 s per
+  // page with Moat on): sites' own telemetry retried when blocked. Each
+  // stand-in was checked to cut the requests, not just answer them; Spotify's
+  // and Stripe's events weren't retries (same count answered), so they stay
+  // blocked.
+  {
+    // doordash.com: 66 tries in 8 s.
+    urlFilter: "||doordash.com/iguazu-edge/",
+    resourceTypes: ["xmlhttprequest"],
+    initiatorDomains: ["doordash.com"],
+    resource: "noopjson.json",
+  },
+  {
+    // linkedin.com: 32 tries in 28 s.
+    urlFilter: "||www.linkedin.com/li/track",
+    resourceTypes: ["xmlhttprequest"],
+    initiatorDomains: ["linkedin.com"],
+    resource: "noopjson.json",
+  },
+  {
+    // notion.com: 12 tries in 14 s (Statsig). ChatGPT uses Statsig the same
+    // way; the field report's 1,136 blocks a day were these and ces below.
+    urlFilter: "||exp.notion.com/v1/rgstr",
+    resourceTypes: ["xmlhttprequest"],
+    initiatorDomains: ["notion.com", "notion.so"],
+    resource: "noopjson.json",
+  },
+  {
+    urlFilter: "||ab.chatgpt.com/v1/rgstr",
+    resourceTypes: ["xmlhttprequest"],
+    initiatorDomains: ["chatgpt.com"],
+    resource: "noopjson.json",
+  },
+  {
+    urlFilter: "||chatgpt.com/ces/",
+    resourceTypes: ["xmlhttprequest"],
+    initiatorDomains: ["chatgpt.com"],
+    resource: "noopjson.json",
+  },
+  {
+    // weather.com: 9 tries in 26 s (Amplitude experiments).
+    urlFilter: "||api.lab.amplitude.com/sdk/v2/vardata",
+    resourceTypes: ["xmlhttprequest"],
+    initiatorDomains: ["weather.com"],
+    resource: "noopjson.json",
+  },
 ];
 
 export const RETRY_LOOP_STUB_PRIORITY = 1001;
