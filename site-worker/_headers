@@ -1,0 +1,25 @@
+# Moat's site headers. The moat-site Worker serves samuelabhinav.com/moat*
+# ahead of the portfolio's Pages project, so the portfolio's own headers
+# and CSP never reach these pages. No inline script, no third parties.
+/moat/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self' https://moat-reports.samuelabhinav37.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Cache-Control: public, max-age=300
+
+/moat/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/moat/media/*
+  Cache-Control: public, max-age=604800
+
+/moat/characters/*
+  Cache-Control: public, max-age=604800
+
+/moat/shots/*
+  Cache-Control: public, max-age=604800

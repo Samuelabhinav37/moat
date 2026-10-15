@@ -1,7 +1,7 @@
 name: Publish live channel
 
-# Copies live/ (and the landing page in site/, if present) to the gh-pages
-# branch so src/background/liveUpdates.ts can fetch it from GitHub Pages --
+# Copies live/ to the gh-pages branch, with redirect pages from the old
+# website address to samuelabhinav.com/moat/ (scripts/site-redirects.mjs), so src/background/liveUpdates.ts can fetch it from GitHub Pages --
 # 10-minute cache, Cloudflare-fronted, no rate limit, no AUP problem, and a
 # push propagates in minutes. Replaces the jsDelivr @master path (up to a
 # 7-day cache + a flaky manual purge).
@@ -16,7 +16,7 @@ on:
     branches: [master]
     paths:
       - "live/**"
-      - "site/**"
+      - "scripts/site-redirects.mjs"
       - ".github/workflows/publish-live.yml"
   workflow_dispatch:
 
@@ -57,7 +57,7 @@ jobs:
           rm -rf .deploy && mkdir -p .deploy/live
           cp live/*.json .deploy/live/
           [ -f live/manifest.json.sig ] && cp live/manifest.json.sig .deploy/live/
-          [ -d site ] && cp -r site/. .deploy/
+          node scripts/site-redirects.mjs .deploy
           touch .deploy/.nojekyll
 
           cd .deploy

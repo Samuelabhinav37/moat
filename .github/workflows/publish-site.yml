@@ -1,0 +1,59 @@
+name: Publish website
+
+# Builds Moat's website (scripts/site-build.mjs) and deploys it to the
+# moat-site Worker, which serves samuelabhinav.com/moat/ (site-worker/).
+# What's New, Privacy and Licenses come from CHANGELOG.md, PRIVACY.md and
+# NOTICE.md, so a release or a policy change republishes them.
+#
+# One-time setup: a CLOUDFLARE_API_TOKEN repo secret with
+# "Workers Scripts: Edit" on the account and "Workers Routes: Edit" on the
+# samuelabhinav.com zone, and CLOUDFLARE_ACCOUNT_ID as a repo variable.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "site/**"
+      - "site-worker/**"
+      - "scripts/site-build.mjs"
+      - "scripts/site/**"
+      - "scripts/docs/**"
+      - "src/docs/**"
+      - "src/ui/theme.css"
+      - "src/ui/components.css"
+      - "CHANGELOG.md"
+      - "PRIVACY.md"
+      - "NOTICE.md"
+      - ".github/workflows/publish-site.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-site
+  cancel-in-progress: true
+
+jobs:
+  publish-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          # What's New dates come from the version commits.
+          fetch-depth: 400
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+      - run: npm run site:build
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4.151.0 deploy -c site-worker/wrangler.toml

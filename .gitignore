@@ -1,5 +1,6 @@
 node_modules/
 dist/
+site-dist/
 rules/dnr/
 rules/dnr-unpacked/
 rules/redirect-resources/

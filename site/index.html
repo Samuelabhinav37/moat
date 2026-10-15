@@ -1,23 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Moat</title>
-<meta name="description" content="Moat is a free, open-source ad blocker for Chrome. It stops ads, trackers and hijacked pop-ups before they load. No account, no telemetry, and blocking runs in your browser.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Moat: ads gone, privacy kept">
-<meta property="og:description" content="A free, open-source ad blocker for Chrome. No account, no telemetry, and blocking runs in your browser.">
-<meta property="og:url" content="https://samuelabhinav37.github.io/moat/">
-<meta property="og:image" content="https://samuelabhinav37.github.io/moat/og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23030307'/%3E%3Cline x1='24' y1='8' x2='16' y2='16' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Cline x1='16' y1='16' x2='9' y2='25' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Cline x1='16' y1='16' x2='5.5' y2='11' stroke='rgba(255,255,255,.55)' stroke-width='2'/%3E%3Ccircle cx='24' cy='8' r='4' fill='%23fff'/%3E%3Ccircle cx='16' cy='16' r='2.8' fill='rgba(255,255,255,.85)'/%3E%3Ccircle cx='9' cy='25' r='2.2' fill='rgba(255,255,255,.7)'/%3E%3Ccircle cx='5.5' cy='11' r='2' fill='rgba(255,255,255,.62)'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-<script>document.documentElement.classList.add("js");</script>
+<!--@head-->
 <style>
   /* Moat's site, after Apple's Safari page in dark: one idea per section
      (a 64px headline, a 24px grey paragraph, one visual), real product
@@ -26,38 +10,6 @@
      deals with something. Each cookie appears next to the feature it
      stands for, so the characters explain the product instead of
      decorating it. */
-  :root {
-    --bg: #000; --tile: #161617; --tile-2: #1d1d1f;
-    --ink: #f5f5f7; --soft: #86868b; --soft-2: #a1a1a6; --line: rgba(255, 255, 255, .1);
-    --blue: #3f6fd1; --blue-deep: #2f57ad; --link: #2997ff;
-    --ease: cubic-bezier(.66, 0, .2, 1);
-    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "Segoe UI", sans-serif;
-    color-scheme: dark;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-padding-top: 64px; overflow-x: clip; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.47; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-  h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -0.015em; }
-  p { margin: 0; }
-  a { color: var(--link); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  :focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 6px; }
-  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-  .wrap { max-width: 1140px; margin-left: auto; margin-right: auto; padding-left: 32px; padding-right: 32px; }
-  .more::after { content: " ›"; }
-
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 980px; font-weight: 500; font-size: 17px; padding: 12px 24px; text-decoration: none !important; transition: background .24s cubic-bezier(.4, 0, .6, 1); white-space: nowrap; }
-  .btn-blue { background: var(--blue); color: #fff; }
-  .btn-blue:hover { background: var(--blue-deep); }
-  .btn-sm { font-size: 13px; padding: 5px 13px; }
-
-  .nav { position: sticky; top: 0; z-index: 30; background: rgba(22, 22, 23, .8); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--line); }
-  .nav .wrap { display: flex; align-items: center; gap: 28px; height: 52px; }
-  .logo { display: inline-flex; align-items: center; gap: 9px; color: var(--ink); font-size: 19px; font-weight: 600; text-decoration: none !important; }
-  .logo svg { width: 24px; height: 24px; }
-  .nav-links { display: flex; gap: 26px; margin-left: auto; }
-  .nav-links a { color: var(--soft-2); font-size: 13px; transition: color .24s; }
-  .nav-links a:hover { color: var(--ink); text-decoration: none; }
 
   /* motion: Apple's single fade-up, once */
   .js [data-reveal] { opacity: 0; transform: translateY(20px); transition: opacity .66s var(--ease), transform .66s var(--ease); transition-delay: calc(var(--i, 0) * 90ms); }
@@ -393,27 +345,9 @@
 
   /* ---- FAQ + footer (kept from before, restyled) ------------------------------------------------ */
   #faq { padding-top: 150px; }
-  .faq-title { font-size: clamp(32px, 4vw, 48px); }
-  .faq { margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; border-radius: 28px; background: var(--tile); padding: 12px 40px; }
-  .faq details { border-bottom: 1px solid var(--line); padding: 22px 0 20px; }
-  .faq-col details:last-child { border-bottom: 0; }
-  .faq summary { cursor: pointer; list-style: none; display: flex; gap: 12px; align-items: flex-start; font-size: 17px; font-weight: 600; }
-  .faq summary::-webkit-details-marker { display: none; }
-  .faq summary::after { content: ""; margin-left: auto; width: 20px; height: 20px; flex: none; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--soft); background: linear-gradient(var(--soft), var(--soft)) center / 9px 1.5px no-repeat, linear-gradient(var(--soft), var(--soft)) center / 1.5px 9px no-repeat; }
-  .faq details[open] summary::after { background: linear-gradient(var(--soft), var(--soft)) center / 9px 1.5px no-repeat; }
-  .faq details p { margin-top: 10px; font-size: 16px; line-height: 1.55; color: var(--soft); max-width: 60ch; }
-  footer { margin-top: 120px; border-top: 1px solid var(--line); padding: 56px 0 40px; font-size: 13px; color: var(--soft); }
-  .foot-top { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; padding-bottom: 40px; border-bottom: 1px solid var(--line); }
-  footer .logo { font-size: 17px; }
-  .foot-cols { display: grid; grid-template-columns: repeat(3, minmax(140px, auto)); gap: 24px 64px; }
-  .foot-cols h4 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: var(--ink); }
-  .foot-cols a { display: block; margin-bottom: 10px; color: var(--soft); font-size: 13px; }
-  .foot-cols a:hover { color: var(--ink); text-decoration: none; }
-  .foot-bottom { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 22px; }
 
 
   @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
     .float, .moat-water { animation: none; }
     .js [data-reveal] { opacity: 1; transform: none; transition: none; }
     .compare.sweep { animation: none; }
@@ -431,14 +365,9 @@
     .howto { grid-template-columns: 1fr; gap: 28px; }
     .howstage { order: -1; }
     .howto-strip { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(170px, 36%); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
-    .faq { grid-template-columns: 1fr; padding: 8px 24px; }
-    .faq-col:first-child details:last-child { border-bottom: 1px solid var(--line); }
     .blare-side { display: none; }
   }
   @media (max-width: 680px) {
-    .wrap { padding-left: 20px; padding-right: 20px; }
-    .nav-links { display: none; }
-    .nav .btn { margin-left: auto; }
     section { padding-top: 100px; }
     .hero { padding-top: 48px; }
     .scene { aspect-ratio: 4 / 3.8; border-radius: 22px; }
@@ -465,31 +394,14 @@
     .guide { padding: 64px 20px 28px; border-radius: 26px; }
     .guide .peek { left: 24px; top: -60px; width: 90px; }
     .howto-strip { grid-auto-columns: 62%; }
-    .foot-cols { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
 <body>
 
-<!-- Install buttons: every element with data-store links to the Chrome
-     Web Store listing. TODO(launch): the listing URL isn't known yet, so
-     they point at GitHub releases. Replace each data-store href with the
-     store URL before publishing. -->
-<nav class="nav" aria-label="Main">
-  <div class="wrap">
-    <a class="logo" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#030307" stroke="rgba(255,255,255,.18)"/><line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="#fff"/><circle cx="16" cy="16" r="2.8" fill="rgba(255,255,255,.85)"/><circle cx="9" cy="25" r="2.2" fill="rgba(255,255,255,.7)"/><circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)"/></svg>Moat</a>
-    <div class="nav-links">
-      <a href="#difference">Overview</a>
-      <a href="#trackers">Trackers</a>
-      <a href="#banners">Cookie banners</a>
-      <a href="#how">How to use it</a>
-      <a href="#privacy">Privacy</a>
-    </div>
-    <a class="btn btn-blue btn-sm" data-store href="https://github.com/Samuelabhinav37/moat/releases">Add to Chrome</a>
-  </div>
-</nav>
+<!--@nav:overview-->
 
-<main id="top">
+<main id="main">
   <!-- ============ HERO ============ -->
   <header class="hero wrap">
     <img class="app-icon" data-reveal src="icons/logo.svg" width="76" height="76" alt="">
@@ -810,44 +722,11 @@
   </section>
 
   <div class="wrap">
-<section id="faq">
-    <div class="container">
-      <h2 class="faq-title">Frequently asked questions</h2>
-      <div class="faq">
-        <div class="faq-col">
-          <details id="faq-free"><summary>Is Moat free?</summary><p>Yes. Moat is free and open source under GPL-3.0. There's no paid tier, no premium unlock and no subscription.</p></details>
-          <details id="faq-what"><summary>What does Moat block?</summary><p>Ads, trackers, hijacked pop-up tabs and cookie banners, out of the box. Device protection and leaked-password warnings are switches in Settings.</p></details>
-          <details id="faq-data"><summary>Does Moat collect my data?</summary><p>No. Blocking runs on your device, and there's no account and no analytics. Once a day it downloads small, signed files of filter fixes and security lists, and those requests carry nothing about you. Two optional switches go online when you turn them on: hidden-tracker detection asks Cloudflare where an address really points, and leaked-password warnings send a short scrambled piece of the password to Have I Been Pwned. The only time anything reaches Moat's developer is a problem report you write and send yourself, after seeing exactly what it contains.</p></details>
-          <details id="faq-money"><summary>How does Moat make money?</summary><p>It doesn't. Moat is an open-source project that runs very little online, so there's little to pay for. Nothing you do is sold, and it doesn't show "acceptable" ads.</p></details>
-        </div>
-        <div class="faq-col">
-          <details id="faq-how"><summary>How does Moat work?</summary><p>Filter lists run inside the browser's own blocking engine, so ads and trackers are stopped before they load. Small signed updates arrive once a day. <a href="https://github.com/Samuelabhinav37/moat/blob/master/docs/design-notes.md">Read the technical details</a>.</p></details>
-          <details id="faq-perm"><summary>Why does it ask to read every site?</summary><p>An ad blocker has to see a page's requests to block them, on every site you visit. Moat reads pages on your computer only and never sends their content anywhere.</p></details>
-          <details id="faq-pause"><summary>Can I pause it on one site?</summary><p>Yes. Click the Moat icon on that site and turn off its switch. Everywhere else stays protected. <a href="#how">Kai shows you how</a>.</p></details>
-          <details id="faq-firefox"><summary>Does it work in Firefox?</summary><p>Yes. Moat is built from one codebase for Chrome and Firefox. For now, Firefox users <a href="https://github.com/Samuelabhinav37/moat#install--build">build it from source</a>.</p></details>
-          <details id="faq-store"><summary>Where do I get it?</summary><p>From the <a data-store href="https://github.com/Samuelabhinav37/moat/releases">Chrome Web Store</a>. It's free. You can also <a href="https://github.com/Samuelabhinav37/moat#install--build">build it from source</a> on GitHub.</p></details>
-        </div>
-      </div>
-    </div>
-  </section>
+<!--@faq-->
   </div>
 </main>
 
-<div class="wrap">
-<footer>
-  <div>
-    <div class="foot-top">
-      <a class="logo" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#030307" stroke="rgba(255,255,255,.18)"/><line x1="24" y1="8" x2="16" y2="16" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="9" y2="25" stroke="rgba(255,255,255,.55)" stroke-width="2"/><line x1="16" y1="16" x2="5.5" y2="11" stroke="rgba(255,255,255,.55)" stroke-width="2"/><circle cx="24" cy="8" r="4" fill="#fff"/><circle cx="16" cy="16" r="2.8" fill="rgba(255,255,255,.85)"/><circle cx="9" cy="25" r="2.2" fill="rgba(255,255,255,.7)"/><circle cx="5.5" cy="11" r="2" fill="rgba(255,255,255,.62)"/></svg>Moat</a>
-      <div class="foot-cols" role="navigation" aria-label="Footer">
-        <div><h4>Product</h4><a href="#features">Features</a><a href="#how">How to use it</a><a href="#privacy">Privacy</a><a href="#faq">FAQ</a></div>
-        <div><h4>Resources</h4><a href="https://github.com/Samuelabhinav37/moat/blob/master/CHANGELOG.md">Changelog</a><a href="privacy/">Privacy policy</a><a href="https://github.com/Samuelabhinav37/moat/actions/workflows/ci.yml">Build status</a><a href="https://github.com/Samuelabhinav37/moat#install--build">Build from source</a></div>
-        <div><h4>Project</h4><a href="https://github.com/Samuelabhinav37/moat">GitHub</a><a href="https://github.com/Samuelabhinav37/moat/blob/master/LICENSE">GPL-3.0 license</a><a href="https://github.com/Samuelabhinav37/moat/issues">Report an issue</a></div>
-      </div>
-    </div>
-    <div class="foot-bottom"><span>© 2026 Moat</span><span>Free and open source.</span></div>
-  </div>
-</footer>
-</div>
+<!--@footer:overview-->
 
 <script src="js/life.js"></script>
 <script src="js/scene.js"></script>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!--@head-->
+<style>
+  .s-hero { padding-top: 76px; text-align: center; }
+  .s-hero h1 { font-size: clamp(44px, 6.4vw, 72px); line-height: 1.05; letter-spacing: -0.03em; }
+  .s-hero p { margin: 18px auto 0; max-width: 560px; font-size: clamp(19px, 1.9vw, 24px); line-height: 1.34; font-weight: 600; color: var(--soft); }
+  .tiles { margin-top: 64px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .tile { border-radius: 26px; background: var(--tile); padding: 32px 30px; scroll-margin-top: 80px; }
+  .tile h2 { font-size: 24px; line-height: 1.2; }
+  .tile p { margin-top: 10px; font-size: 17px; line-height: 1.45; color: var(--soft); font-weight: 500; }
+  .tile ol { margin: 16px 0 0; padding: 0; list-style: none; counter-reset: st; }
+  .tile li { counter-increment: st; display: grid; grid-template-columns: 26px 1fr; gap: 10px; padding: 6px 0; font-size: 16px; color: var(--soft-2); }
+  .tile li::before { content: counter(st); width: 26px; height: 26px; border-radius: 50%; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+  .tile li b { color: var(--ink); font-weight: 600; }
+  .tile .more { display: inline-block; margin-top: 14px; font-size: 17px; }
+  #faq { padding-top: 120px; }
+  .contact { margin-top: 120px; text-align: center; }
+  .contact h2 { font-size: clamp(32px, 4vw, 48px); }
+  .contact p { margin: 14px auto 0; max-width: 600px; font-size: 19px; color: var(--soft); font-weight: 600; }
+  .contact .more { display: inline-block; margin-top: 14px; font-size: 19px; }
+  @media (max-width: 1000px) { .tiles { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<!--@nav:support-->
+
+<main id="main">
+  <header class="s-hero wrap">
+    <h1>Moat Support</h1>
+    <p>Fix a site that looks wrong, report a problem, or find an answer.</p>
+  </header>
+
+  <div class="tiles wrap">
+    <section class="tile" id="fix">
+      <h2>A site looks broken</h2>
+      <p>Pause Moat on that one site. Everywhere else stays protected.</p>
+      <ol>
+        <li><span>Click the <b>Moat icon</b> in the toolbar.</span></li>
+        <li><span>Turn off the switch for <b>this site</b>.</span></li>
+        <li><span>The page reloads without Moat.</span></li>
+      </ol>
+      <a class="more" href="/moat/#how">See it in action</a>
+    </section>
+    <section class="tile" id="report">
+      <h2>Report a problem</h2>
+      <p>Tell us about ads that got through or a page Moat broke. Fixes reach everyone in the daily filter update.</p>
+      <ol>
+        <li><span>On that site, click the <b>Moat icon</b>.</span></li>
+        <li><span>Choose <b>Report a problem</b> and pick what went wrong.</span></li>
+        <li><span>Press <b>Send</b>. You see every field before it goes.</span></li>
+      </ol>
+      <a class="more" href="/moat/privacy/#what-reaches-the-network-and-when">What a report contains</a>
+    </section>
+    <section class="tile" id="feedback">
+      <h2>Send feedback</h2>
+      <p>After you've used Moat for a while, it asks once how it's going. You can always tell us more on GitHub.</p>
+      <ol>
+        <li><span>Answer the one question in the <b>Moat</b> menu, or skip it.</span></li>
+        <li><span>Add a note if you like. It's optional.</span></li>
+      </ol>
+      <a class="more" href="https://github.com/Samuelabhinav37/moat/issues">Open GitHub issues</a>
+    </section>
+  </div>
+
+  <div class="wrap">
+<!--@faq-->
+  </div>
+
+  <section class="contact wrap">
+    <h2>Still stuck?</h2>
+    <p>Search existing issues or open a new one. We read every report, but we can't reply to each one.</p>
+    <a class="more" href="https://github.com/Samuelabhinav37/moat/issues/new">Open an issue on GitHub</a>
+  </section>
+</main>
+
+<!--@footer:support-->
+</body>
+</html>

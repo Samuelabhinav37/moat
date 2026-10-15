@@ -1,0 +1,18 @@
+# Moat's website at samuelabhinav.com/moat/. Static files only: the Worker
+# has no script, Cloudflare serves site-dist/ directly. Build it first with
+# `npm run site:build`, then deploy with `npx wrangler deploy -c site-worker/wrangler.toml`
+# (CI does both in .github/workflows/publish-site.yml).
+#
+# The route takes /moat* away from the portfolio's Pages project; every
+# other path on samuelabhinav.com still goes to the portfolio.
+name = "moat-site"
+compatibility_date = "2026-10-01"
+workers_dev = false
+routes = [
+  { pattern = "samuelabhinav.com/moat*", zone_name = "samuelabhinav.com" },
+]
+
+[assets]
+directory = "../site-dist"
+html_handling = "auto-trailing-slash"
+not_found_handling = "404-page"
