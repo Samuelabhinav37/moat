@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.285
+
+### Changed
+- **Settings icons move a little.** Point at a page in the Settings sidebar and its icon moves once:
+  the sliders slide, the hand waves, the box lid lifts, the radar sweeps, the globe turns and a tick
+  draws in the shield. Nothing moves when your system asks for reduced motion.
+
 ## 0.11.284
 
 ### Changed

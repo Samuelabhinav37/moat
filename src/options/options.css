@@ -1741,6 +1741,50 @@ body {
   color: #fff;
   box-shadow: none;
 }
+/* One small motion per icon on hover or keyboard focus, the same
+   language as Cluster's sidebar: the tiles shift, the sliders slide, the
+   hand waves, the lid lifts, the radar sweeps, the globe turns, a tick
+   draws in the shield, the dot of the i hops. Off with reduced motion. */
+.dash-nav svg * {
+  transform-box: fill-box;
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.dash-nav a:is(:hover, :focus-visible) .ni-up { transform: translateY(-1.5px); }
+.dash-nav a:is(:hover, :focus-visible) .ni-down { transform: translateY(1.5px); }
+/* The knobs cover the line under them, so they can slide along it. */
+.dash-nav .ni-knob-l, .dash-nav .ni-knob-r { fill: var(--tile); }
+.dash-nav a[aria-current="page"] :is(.ni-knob-l, .ni-knob-r) { fill: var(--tile-current); }
+.dash-nav a:is(:hover, :focus-visible) .ni-knob-l { transform: translateX(-5px); }
+.dash-nav a:is(:hover, :focus-visible) .ni-knob-r { transform: translateX(5px); }
+.dash-nav .ni-hand-wave { transform-origin: 50% 100%; }
+.dash-nav a:is(:hover, :focus-visible) .ni-hand-wave { transform: rotate(-12deg); }
+.dash-nav .ni-lid { transform-origin: 0% 100%; }
+.dash-nav a:is(:hover, :focus-visible) .ni-lid { transform: translateY(-1.5px) rotate(-10deg); }
+.dash-nav .ni-sweep {
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dash-nav a:is(:hover, :focus-visible) .ni-sweep { transform: rotate(360deg); }
+.dash-nav .ni-meridian { transition-duration: 0.5s; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+.dash-nav a:is(:hover, :focus-visible) .ni-meridian { transform: scaleX(0.3); }
+.dash-nav a:is(:hover, :focus-visible) .ni-tick {
+  stroke-dasharray: 9;
+  animation: ni-draw 0.45s ease both;
+}
+@keyframes ni-draw {
+  from { stroke-dashoffset: 9; }
+  to { stroke-dashoffset: 0; }
+}
+.dash-nav a:is(:hover, :focus-visible) .ni-dot { transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) {
+  .dash-nav svg *,
+  .dash-nav a:is(:hover, :focus-visible) svg * {
+    transition: none;
+    animation: none;
+    transform: none;
+  }
+}
 /* Something was stopped since you last opened Security. */
 .dash-nav .nav-dot {
   width: 8px;
