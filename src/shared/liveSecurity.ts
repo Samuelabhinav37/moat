@@ -8,7 +8,7 @@
 // security band, next to the bundled lists they refresh, and never remove
 // or override anything bundled. The guardrails below bound what a bad or
 // compromised upstream list could do to "block a site that shouldn't be".
-import { isSharedLinkHost } from "./sharedLinkHosts";
+import { isSharedLinkHost } from "./sharedLinkHosts.ts";
 
 /** Filter groups a live list refreshes, and where each comes from. The
  * bundled rulesets for these groups come from the same upstream lists
