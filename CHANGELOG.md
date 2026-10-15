@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.284
+
+### Changed
+- **Moat's website moved to samuelabhinav.com/moat.** Moat's links now open the new site: the
+  update notice opens What's New at the new version, and Settings opens the Privacy policy and
+  Support there. The old address forwards to the new one. The privacy policy and changelog are no
+  longer copied inside the extension; the licenses still are.
+
+### Fixed
+- **"Moat updated" shows again after an update.** Moat marked each new version as already seen the
+  moment it installed, so the notice never appeared.
+
 ## 0.11.283
 
 ### Changed

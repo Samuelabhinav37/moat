@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -37,5 +37,15 @@ describe("document pages", () => {
   it("puts the current version on the changelog", () => {
     const version = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
     expect(page("changelog.html")).toContain(`<span class="ver">${version}</span>`);
+  });
+
+  it("ships only Licenses in the extension, with Privacy and Changelog linking to the website", () => {
+    const ext = mkdtempSync(join(tmpdir(), "moat-docs-ext-"));
+    buildDocs(root, ext, { pages: ["licenses"], links: { privacy: "https://samuelabhinav.com/moat/privacy/", changelog: "https://samuelabhinav.com/moat/whats-new/" } });
+    expect(readdirSync(ext)).toEqual(["licenses.html"]);
+    const html = readFileSync(join(ext, "licenses.html"), "utf8");
+    expect(html).toMatch(/href="https:\/\/samuelabhinav\.com\/moat\/privacy\/"\s+target="_blank" rel="noopener"/);
+    expect(html).toContain('href="https://samuelabhinav.com/moat/whats-new/"');
+    expect(html).not.toContain('href="privacy.html"');
   });
 });

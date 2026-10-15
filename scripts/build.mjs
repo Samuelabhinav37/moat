@@ -10,6 +10,7 @@ import { basename, dirname, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { buildManifest } from "./manifest.ts";
 import { buildDocs } from "./docs/buildDocs.mjs";
+import { SITE_URLS } from "../src/shared/siteUrls.ts";
 import { buildTrackerDomains } from "./lib/trackerDomains.mjs";
 import { buildAdHosts, buildSecurityHosts } from "./lib/securityHosts.mjs";
 import { buildEarlyCosmetics } from "./lib/earlyCosmetics.mjs";
@@ -235,9 +236,10 @@ function copyStaticAssets() {
   // live only in the source repository -- see NOTICE.md's own header.
   cpSync(resolve(root, "LICENSE"), resolve(outDir, "LICENSE"));
   cpSync(resolve(root, "NOTICE.md"), resolve(outDir, "NOTICE.md"));
-  // The same files as readable pages: privacy.html, changelog.html, licenses.html.
+  // The licenses as a readable page, shipped with the package. Privacy and
+  // What's New live on the website (scripts/site-build.mjs builds them).
   cpSync(resolve(root, "src/docs/doc.css"), resolve(outDir, "doc.css"));
-  buildDocs(root, outDir);
+  buildDocs(root, outDir, { pages: ["licenses"], links: { privacy: SITE_URLS.privacy, changelog: SITE_URLS.whatsNew } });
 
   writeFileSync(resolve(outDir, "manifest.json"), JSON.stringify(buildManifest(target), null, 2));
 }

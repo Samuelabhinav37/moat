@@ -1,11 +1,11 @@
 <p align="center">
-  <a href="https://samuelabhinav37.github.io/moat/"><img src="docs/images/readme-hero.webp" width="900" alt="Moat. Ads gone. Privacy kept. A free ad blocker for Chrome and Firefox. It stops ads, trackers and hijacked pop-ups before they load. Free, no account, open source. Beside it, Moat's popup over a clean news page: 7 blocked on this page."></a>
+  <a href="https://samuelabhinav.com/moat/"><img src="docs/images/readme-hero.webp" width="900" alt="Moat. Ads gone. Privacy kept. A free ad blocker for Chrome and Firefox. It stops ads, trackers and hijacked pop-ups before they load. Free, no account, open source. Beside it, Moat's popup over a clean news page: 7 blocked on this page."></a>
 </p>
 
 <p align="center">
   <a href="#install"><img src="docs/images/btn-chrome.png" height="52" alt="Download for Chrome"></a>&nbsp;
   <a href="#install"><img src="docs/images/btn-firefox.png" height="52" alt="Download for Firefox"></a>&nbsp;
-  <a href="https://samuelabhinav37.github.io/moat/"><img src="docs/images/btn-site.png" height="52" alt="Visit the website"></a>
+  <a href="https://samuelabhinav.com/moat/"><img src="docs/images/btn-site.png" height="52" alt="Visit the website"></a>
 </p>
 
 <p align="center">
@@ -136,7 +136,7 @@ Click the Moat icon, then **Report a problem**, or
 copy within a day, without an update. Security problems go
 [here, privately](https://github.com/Samuelabhinav37/moat/security/advisories/new).
 
-More answers are in the [website FAQ](https://samuelabhinav37.github.io/moat/#faq).
+More answers are in the [website FAQ](https://samuelabhinav.com/moat/support/#faq).
 
 ## For developers
 

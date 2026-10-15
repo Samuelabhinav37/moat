@@ -6,7 +6,7 @@
 // (see settings.ts), and mixing them into Settings would leak transient
 // state into a file the user might save/share.
 import browser from "webextension-polyfill";
-import { shouldShowUpdateNotice } from "../shared/updateNoticeLogic";
+import { lastSeenAfterInstalled, shouldShowUpdateNotice } from "../shared/updateNoticeLogic";
 
 export { shouldShowUpdateNotice };
 
@@ -34,11 +34,11 @@ async function setUiState(patch: Partial<UiState>): Promise<void> {
  * lastSeenVersion; the popup itself owns dismissing the notice once shown
  * (dismissUpdateNotice below) and the onboarding flag is unrelated to
  * install/update events entirely (see dismissOnboarding). */
-export async function recordUpdateSeen(): Promise<void> {
+export async function recordUpdateSeen(reason: string): Promise<void> {
   const currentVersion = browser.runtime.getManifest().version;
   const { lastSeenVersion } = await getUiState();
-  if (lastSeenVersion === currentVersion) return; // already recorded, avoid a redundant write
-  await setUiState({ lastSeenVersion: currentVersion });
+  const next = lastSeenAfterInstalled(reason, lastSeenVersion, currentVersion);
+  if (next !== undefined) await setUiState({ lastSeenVersion: next });
 }
 
 export interface PopupUiNotices {

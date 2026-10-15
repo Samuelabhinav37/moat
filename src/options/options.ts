@@ -16,6 +16,7 @@ import { initDashboard, pageFromHash, showTab } from "./dashboard";
 import { buildExplainer, helpSceneFor, initExplainerPanel } from "./explainerPanel";
 import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
+import { SITE_URLS } from "../shared/siteUrls";
 import { optionalFlowsOn } from "../shared/networkFlows";
 import { initSettingsSearch, revealSetting } from "./settingsSearch";
 import { readCachedChoice, rememberTheme } from "../ui/theme";
@@ -151,7 +152,7 @@ const helpPanel = initHelpPanel(document, {
   t: tFallback,
   currentScreen: () => pageFromHash(window.location.hash),
   report: () => void browser.tabs.create({ url: browser.runtime.getURL("report.html") }),
-  docsUrl: "https://samuelabhinav37.github.io/moat/#faq",
+  docsUrl: SITE_URLS.faq,
   testPageUrl: "https://d3ward.github.io/toolz/adblock.html",
 });
 // Kai in the bottom-right corner: plain questions; each answer opens the

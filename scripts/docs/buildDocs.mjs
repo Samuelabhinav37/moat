@@ -8,7 +8,11 @@ import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { buildPrivacyBody, PRIVACY_TOC } from "./privacyPage.mjs";
 
-export function buildDocs(REPO, outDir) {
+// `pages` picks which pages to write. `links` sends a nav entry somewhere else:
+// the extension ships only Licenses and links Privacy and Changelog to the
+// website (scripts/build.mjs); the website builds all three (scripts/site-build.mjs).
+export function buildDocs(REPO, outDir, { pages = ["privacy", "changelog", "licenses"], links = {} } = {}) {
+const want = (id) => pages.includes(id);
 const write = (name, html) => writeFileSync(join(outDir, name), html);
 const md = (p) => readFileSync(join(REPO, p), "utf8").replace(/\r/g, "");
 // Dates come from git when it is there; a build from a source zip simply has none.
@@ -79,7 +83,7 @@ const NAV = [["privacy.html", "privacy", "Privacy policy", "shield"], ["changelo
 function page({ id, title, lead, meta, body, toc = [] }) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} · Moat</title><link rel="stylesheet" href="components.css"><link rel="stylesheet" href="doc.css"><script src="theme-boot.js"></script></head><body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="bar moat-header"><a class="back" href="options.html#about">${ic("back", 16)}Settings</a><a class="moat-brand" href="options.html#about" aria-label="Moat settings">${LOGO}<span>Moat</span></a><nav class="docnav" aria-label="Documents">${NAV.map(([href, k, l, i]) => `<a href="${href}" ${k === id ? 'aria-current="page"' : ""}>${ic(i, 16)}<span>${l}</span></a>`).join("")}<a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener">${ic("code", 16)}<span>Source code</span>${ic("ext", 13)}<span class="sr">(opens GitHub)</span></a></nav></header>
+<header class="bar moat-header"><a class="back" href="options.html#about">${ic("back", 16)}Settings</a><a class="moat-brand" href="options.html#about" aria-label="Moat settings">${LOGO}<span>Moat</span></a><nav class="docnav" aria-label="Documents">${NAV.map(([href, k, l, i]) => { const to = links[k] ?? href; const ext = /^https?:/.test(to); return `<a href="${to}" ${k === id ? 'aria-current="page"' : ""}${ext ? ' target="_blank" rel="noopener"' : ""}>${ic(i, 16)}<span>${l}</span>${ext ? ic("ext", 13) : ""}</a>`; }).join("")}<a href="https://github.com/Samuelabhinav37/moat" target="_blank" rel="noopener">${ic("code", 16)}<span>Source code</span>${ic("ext", 13)}<span class="sr">(opens GitHub)</span></a></nav></header>
 <div class="wrap ${toc.length ? "has-toc" : ""}">
 ${toc.length ? `<aside class="toc"><div class="toc-h">On this page</div>${toc.map(([tid, t]) => `<a href="#${tid}" data-toc="${tid}">${t}</a>`).join("")}</aside>` : ""}
 <main id="main" tabindex="-1"><div class="head"><h1>${title}</h1>${lead ? `<p class="lead">${lead}</p>` : ""}${meta ? `<div class="meta">${meta}</div>` : ""}</div><div class="lang-note" id="lang-note" data-doc="${id}" role="note" hidden></div>${toc.length ? `<label class="toc-m"><span>On this page</span><select data-tocm>${toc.map(([tid, t]) => `<option value="${tid}">${t}</option>`).join("")}</select></label>` : ""}${body}</main></div>
@@ -87,7 +91,7 @@ ${toc.length ? `<aside class="toc"><div class="toc-h">On this page</div>${toc.ma
 }
 
 // ---------- Privacy ----------
-{
+if (want("privacy")) {
   const src = md("PRIVACY.md").replace(/^# .*\n/, "");
   const updated = git(["log", "-1", "--format=%cs", "--", "PRIVACY.md"]).trim();
   const version = JSON.parse(readFileSync(join(REPO, "package.json"), "utf8")).version;
@@ -97,7 +101,7 @@ ${toc.length ? `<aside class="toc"><div class="toc-h">On this page</div>${toc.ma
 }
 
 // ---------- Changelog ----------
-{
+if (want("changelog")) {
   // Dates come from the version's commit. Headings come from the entry itself:
   // its first bold lead ("Pages no longer jump ..."), which then isn't repeated
   // in the bullet. Commit subjects ("Procedural cosmetics: ...") are for developers.
@@ -122,7 +126,7 @@ ${toc.length ? `<aside class="toc"><div class="toc-h">On this page</div>${toc.ma
 }
 
 // ---------- Licenses ----------
-{
+if (want("licenses")) {
   const src = md("NOTICE.md"); const intro = src.split("\n---\n")[0].replace(/^# .*\n/, "");
   const items = src.split(/\n## /).slice(1).map((s) => { const head = s.split("\n")[0]; const [name, lic] = head.split(/ -- /); const text = s.slice(s.indexOf("\n")).trim(); const srcLink = (text.match(/\[[^\]]+\]\((https?:[^)]+)\)/) || [])[1]; return { name: name.replace(/`/g, "").trim(), lic: (lic || "").trim(), text, srcLink }; });
   const kind = (l) => (/no stated/i.test(l) ? "warn" : /NC/.test(l) ? "nc" : /GPL/.test(l) ? "gpl" : /MIT|MPL|CC0|Apache|BSD/.test(l) ? "perm" : "other");

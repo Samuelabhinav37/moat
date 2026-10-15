@@ -78,7 +78,7 @@ void initializeSettings();
 // (see filterPresets.ts); on every other reason, initializeSettings behaves
 // the same as the unconditional call above.
 browser.runtime.onInstalled.addListener((details) => {
-  void recordUpdateSeen();
+  void recordUpdateSeen(details.reason);
   void initializeSettings(details.reason);
   void maybeOpenFirstRunTour(details.reason);
 });

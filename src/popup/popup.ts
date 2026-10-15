@@ -18,6 +18,7 @@ import { buildSiteIcon, faviconUrl } from "../options/siteIcon";
 import { readCachedChoice, rememberTheme } from "../ui/theme";
 import { pauseEnd, pauseEndLabel, type PauseLength } from "../shared/pauseDuration";
 import { getUsageSummary } from "../background/usageStats";
+import { whatsNewUrl } from "../shared/siteUrls";
 
 // Firefox for Android opens the action popup as a full-width panel with no
 // toolbar anchor, so Moat's fixed 260px column reads as a narrow strip. Give
@@ -62,6 +63,7 @@ async function renderUiNotices(): Promise<void> {
       `Moat updated to version ${notices.updateVersion}.`,
       notices.updateVersion
     );
+    (document.getElementById("update-changelog-link") as HTMLAnchorElement).href = whatsNewUrl(notices.updateVersion);
     updateNotice.hidden = false;
     void browser.runtime.sendMessage({ type: "dismiss-update-notice" });
   }

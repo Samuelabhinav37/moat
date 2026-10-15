@@ -111,7 +111,7 @@ export function buildPrivacyBody({ fullHtml }) {
   <div class="pv-h"><h2>Changes and questions</h2></div>
   <div class="pv-grid two">
     <div class="pv-tile"><b>When this changes</b><p>This page changes in the same update as any change to what Moat sends. Every edit is public in the project's history.</p><a href="https://github.com/Samuelabhinav37/moat/commits/master/PRIVACY.md" target="_blank" rel="noopener">See every change ${ic("ext", 12)}</a></div>
-    <div class="pv-tile"><b>Questions</b><p>Open an issue on Moat's GitHub page, or use Report a problem in Moat.</p><a href="https://github.com/Samuelabhinav37/moat/issues" target="_blank" rel="noopener">Ask on GitHub ${ic("ext", 12)}</a></div>
+    <div class="pv-tile"><b>Questions</b><p>See Moat Support, or use Report a problem in Moat.</p><a href="https://samuelabhinav.com/moat/support/" target="_blank" rel="noopener">Moat Support ${ic("ext", 12)}</a></div>
   </div>
 </section>
 

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { PRESETS } from "../src/shared/filterPresets.ts";
+import { SITE } from "../src/shared/siteUrls.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rulesManifestPath = join(__dirname, "..", "rules", "dnr", "manifest.json");
@@ -56,7 +57,7 @@ function baseManifest() {
     name: "__MSG_extName__",
     short_name: "__MSG_extName__",
     description: "__MSG_extDescription__",
-    homepage_url: "https://github.com/Samuelabhinav37/moat",
+    homepage_url: SITE,
     version: packageVersion,
     icons,
     action: {
