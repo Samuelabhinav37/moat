@@ -25,9 +25,14 @@ export async function recordInstallTime(reason: string): Promise<void> {
   if (reason === "install" || state.installedAt === undefined) await write({ installedAt: Date.now() });
 }
 
-/** A report was sent, a site was paused or a page was stopped. */
+/** A report was sent, a site was paused or a page was stopped. Best effort:
+ * callers don't wait for it, so it never rejects. */
 export async function noteTrouble(): Promise<void> {
-  await write({ lastTroubleAt: Date.now() });
+  try {
+    await write({ lastTroubleAt: Date.now() });
+  } catch {
+    // Storage unavailable: the check-in just won't know about this moment.
+  }
 }
 
 /** Days in Moat's 14-day usage history with anything blocked. */
