@@ -23,6 +23,8 @@ const withLoopback = (patterns: string[]): string[] => [...patterns, ...LOOPBACK
 // on, with no sites paused.
 const ADMIRAL_NONE_PAUSED = { id: ADMIRAL, excludeMatches: withLoopback([]) };
 const EARLY_NONE_PAUSED = { id: EARLY, excludeMatches: withLoopback([]) };
+// The cookie-banner rejector leaves paused sites out too (0.11.283).
+const CONSENT_NONE_PAUSED = { id: CONSENT, excludeMatches: withLoopback([]) };
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -46,7 +48,7 @@ describe("planReconcile", () => {
 
   it("is a no-op when registration already matches the settings", () => {
     const on = settings({ cookieBannerAutoReject: true, leakedPasswordCheck: true });
-    const { register, unregisterIds } = planReconcile(on, [CONSENT, LEAKED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
+    const { register, unregisterIds } = planReconcile(on, [CONSENT_NONE_PAUSED, LEAKED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
     expect(register).toEqual([]);
     expect(unregisterIds).toEqual([]);
   });
@@ -68,19 +70,19 @@ describe("planReconcile", () => {
 
   it("re-registers the paused-site-aware ones when the paused sites change, and not otherwise", () => {
     const paused = settings({ disabledSites: ["weather.com"] });
-    expect(planReconcile(paused, [CONSENT, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED])).toEqual({
-      register: [expect.objectContaining({ id: EARLY }), expect.objectContaining({ id: ADMIRAL })],
-      unregisterIds: [EARLY, ADMIRAL],
+    expect(planReconcile(paused, [CONSENT_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED])).toEqual({
+      register: [expect.objectContaining({ id: CONSENT }), expect.objectContaining({ id: EARLY }), expect.objectContaining({ id: ADMIRAL })],
+      unregisterIds: [CONSENT, EARLY, ADMIRAL],
     });
     const excluded = withLoopback(["*://*.weather.com/*"]);
-    expect(planReconcile(paused, [CONSENT, { id: ADMIRAL, excludeMatches: excluded }, { id: EARLY, excludeMatches: excluded }])).toEqual({
+    expect(planReconcile(paused, [{ id: CONSENT, excludeMatches: excluded }, { id: ADMIRAL, excludeMatches: excluded }, { id: EARLY, excludeMatches: excluded }])).toEqual({
       register: [],
       unregisterIds: [],
     });
   });
 
   it("drops the Admiral guard and the early stylesheet while Moat is off everywhere", () => {
-    expect(planReconcile(settings({ enabled: false }), [CONSENT, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]).unregisterIds).toEqual([EARLY, ADMIRAL]);
+    expect(planReconcile(settings({ enabled: false }), [CONSENT_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]).unregisterIds).toEqual([EARLY, ADMIRAL]);
   });
 });
 
@@ -163,16 +165,19 @@ describe("reconcileOptionalContentScripts", () => {
   });
 
   it("does nothing when the registration already matches", async () => {
-    scripting.getRegisteredContentScripts.mockResolvedValue([{ id: CONSENT }, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
+    scripting.getRegisteredContentScripts.mockResolvedValue([CONSENT_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
     await reconcileOptionalContentScripts(settings({ cookieBannerAutoReject: true }));
     expect(scripting.registerContentScripts).not.toHaveBeenCalled();
     expect(scripting.unregisterContentScripts).not.toHaveBeenCalled();
   });
 
   it("leaves paused sites out of the Admiral guard", async () => {
-    scripting.getRegisteredContentScripts.mockResolvedValue([{ id: CONSENT }, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
+    scripting.getRegisteredContentScripts.mockResolvedValue([CONSENT_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
     await reconcileOptionalContentScripts(settings({ disabledSites: ["weather.com"] }));
-    expect(scripting.unregisterContentScripts).toHaveBeenCalledWith({ ids: [EARLY, ADMIRAL] });
+    expect(scripting.unregisterContentScripts).toHaveBeenCalledWith({ ids: [CONSENT, EARLY, ADMIRAL] });
+    expect(scripting.registerContentScripts).toHaveBeenCalledWith([
+      expect.objectContaining({ id: CONSENT, excludeMatches: withLoopback(["*://*.weather.com/*"]) }),
+    ]);
     expect(scripting.registerContentScripts).toHaveBeenCalledWith([
       expect.objectContaining({ id: ADMIRAL, excludeMatches: withLoopback(["*://*.weather.com/*"]) }),
     ]);

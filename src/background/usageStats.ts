@@ -34,14 +34,43 @@ async function readState(): Promise<UsageStatsState> {
 // change.
 let pending: Promise<unknown> = Promise.resolve();
 
+// A page load records several things a moment apart (its total, kinds,
+// companies, purposes, then the late re-read). They're collected and
+// written together once things go quiet, one storage write instead of four
+// to eight per page. The worker lives far longer than this delay.
+const FLUSH_DELAY_MS = 2000;
+let queued: { updater: (current: UsageStatsState, when: number) => UsageStatsState; when: number }[] = [];
+let waiters: { resolve: () => void; reject: (error: unknown) => void }[] = [];
+let flushTimer: ReturnType<typeof setTimeout> | null = null;
+
 function mutate(updater: (current: UsageStatsState, when: number) => UsageStatsState): Promise<void> {
-  const when = Date.now();
+  queued.push({ updater, when: Date.now() });
+  const done = new Promise<void>((resolve, reject) => waiters.push({ resolve, reject }));
+  flushTimer ??= setTimeout(() => void flushUsageStats().catch(() => {}), FLUSH_DELAY_MS);
+  return done;
+}
+
+/** Writes every queued update now, in one read and one write. Exported for
+ * getUsageSummary and tests. */
+export function flushUsageStats(): Promise<void> {
+  if (flushTimer !== null) clearTimeout(flushTimer);
+  flushTimer = null;
+  const batch = queued;
+  const batchWaiters = waiters;
+  queued = [];
+  waiters = [];
   const result = pending.then(async () => {
+    if (batch.length === 0) return;
     const current = await readState();
-    const next = pruneOldDays(updater(current, when), when);
+    let next = current;
+    for (const { updater, when } of batch) next = pruneOldDays(updater(next, when), when);
     if (next !== current) await browser.storage.local.set({ [USAGE_STATS_KEY]: next });
   });
   pending = result.catch(() => {});
+  result.then(
+    () => batchWaiters.forEach((w) => w.resolve()),
+    (error: unknown) => batchWaiters.forEach((w) => w.reject(error))
+  );
   return result;
 }
 
@@ -70,6 +99,7 @@ export function recordSignalEvent(signal: UsageSignal, hostname: string, count =
 }
 
 export async function getUsageSummary(): Promise<UsageSummaryResponse> {
+  await flushUsageStats().catch(() => {});
   const state = await readState();
   return summarize(state, Date.now());
 }

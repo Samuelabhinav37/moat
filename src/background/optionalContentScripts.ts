@@ -124,6 +124,7 @@ export const OPTIONAL_SCRIPTS: OptionalScript[] = [
     matches: ["<all_urls>"],
     runAt: "document_idle",
     wants: (s) => s.cookieBannerAutoReject,
+    excludeMatches: pausedSitePatterns,
   },
   {
     id: "moat-leaked-password-check",

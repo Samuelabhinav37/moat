@@ -22,6 +22,10 @@
 // but unlike feedAdScanner.ts's continuous per-scroll scanning, this always
 // stops itself: either it successfully rejects something, or the time
 // budget below runs out.
+//
+// The full rules (about 140 KB) load only once one of their platforms is on
+// the page (consent/presence.ts); until 0.11.283 every page fetched and
+// parsed them.
 import browser from "webextension-polyfill";
 import { getEffectiveSettingsHere, isDisabled } from "./siteDisabled";
 import { effectiveValue } from "../shared/perSiteOverrides";
@@ -30,6 +34,12 @@ import { runHeuristicFallback } from "./consent/heuristicFallback";
 import { looksLikeConsentNode } from "./consent/consentNode";
 import type { RuleSet } from "./consent/types";
 import { STORAGE_KEY, type RecordUsageSignalMessage } from "../types";
+import type { Cmp } from "./consent/cmp";
+import { platformPresent, type ConsentPresence } from "./consent/presence";
+
+/** Every platform's present-matcher targets (scripts/lib/consentPresence.mjs),
+ * inlined at build time: the full rules load only when one is on the page. */
+declare const __MOAT_CONSENT_PRESENCE__: ConsentPresence;
 
 function reportRejected(): void {
   const message: RecordUsageSignalMessage = {
@@ -61,8 +71,11 @@ async function fetchRuleSet(): Promise<RuleSet> {
 // setting. null when nothing is currently watching.
 let activeCleanup: (() => void) | null = null;
 
-function watchAndReject(ruleSet: RuleSet): void {
-  const cmps = buildCmps(ruleSet);
+function watchAndReject(): void {
+  // Built from the rules once a platform shows up; until then, and on pages
+  // without one, only the heuristic fallback runs (as it did whenever no
+  // platform matched).
+  let cmps: Cmp[] | null = null;
   let stopped = false;
   let attemptInFlight = false;
   let observer: MutationObserver | null = null;
@@ -82,7 +95,8 @@ function watchAndReject(ruleSet: RuleSet): void {
     if (stopped || attemptInFlight) return;
     attemptInFlight = true;
     try {
-      const result = await runConsentRejection(cmps);
+      if (cmps === null && platformPresent(__MOAT_CONSENT_PRESENCE__)) cmps = buildCmps(await fetchRuleSet());
+      const result = cmps ? await runConsentRejection(cmps) : { handled: false };
       if (result.handled) {
         reportRejected();
         cleanup();
@@ -122,8 +136,7 @@ function watchAndReject(ruleSet: RuleSet): void {
 async function start(): Promise<void> {
   if (activeCleanup) return; // already watching
   if (!(await isEnabled())) return;
-  const ruleSet = await fetchRuleSet();
-  watchAndReject(ruleSet);
+  watchAndReject();
 }
 
 async function run(): Promise<void> {

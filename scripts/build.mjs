@@ -13,6 +13,7 @@ import { buildDocs } from "./docs/buildDocs.mjs";
 import { buildTrackerDomains } from "./lib/trackerDomains.mjs";
 import { buildAdHosts, buildSecurityHosts } from "./lib/securityHosts.mjs";
 import { buildEarlyCosmetics } from "./lib/earlyCosmetics.mjs";
+import { buildConsentPresence } from "./lib/consentPresence.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
@@ -82,8 +83,15 @@ mkdirSync(outDir, { recursive: true });
 // anything, so the company groups it needs are inlined (src/content/cookieClobber.ts).
 const trackerCookieHostsFile = resolve(root, "rules", "dnr", "tracker-cookie-hosts.json");
 const trackerOwners = existsSync(trackerCookieHostsFile) ? JSON.parse(readFileSync(trackerCookieHostsFile, "utf8")).entities : [];
+// consent-rejector.js loads the full cookie-banner rules only when one of
+// their platforms is on the page (scripts/lib/consentPresence.mjs).
+const consentRulesFile = resolve(root, "rules", "dnr", "consent-rules.json");
+const consentPresence = buildConsentPresence(existsSync(consentRulesFile) ? JSON.parse(readFileSync(consentRulesFile, "utf8")) : {});
 const entryDefines = {
   "cookie-clobber": { __MOAT_TRACKER_OWNERS__: JSON.stringify(trackerOwners) },
+  "consent-rejector": { __MOAT_CONSENT_PRESENCE__: JSON.stringify(consentPresence) },
+  // The ad-network list src/content/adCollapse.ts collapses the leftover space of.
+  "cosmetic-filter": { __MOAT_AD_NETWORKS__: readFileSync(resolve(root, "rules", "ad-networks.json"), "utf8") },
 };
 
 await Promise.all(
@@ -160,7 +168,6 @@ function copyStaticAssets() {
     "company-info.json",
     "consent-rules.json",
     "cname-cloak-destinations.json",
-    "uncloak-domains.json",
     "uncounted-rules.json",
     "ad-rules.json",
     "tracker-cookie-hosts.json",
@@ -194,11 +201,8 @@ function copyStaticAssets() {
   if (adHosts.length > 4.5 * 1024 * 1024) throw new Error(`rules/ad-hosts.json is ${adHosts.length} bytes, over the 4.5MB ceiling`);
   writeFileSync(resolve(outDir, "rules", "ad-hosts.json"), adHosts);
 
-  // Hand-curated, checked into the repo (not generated into rules/dnr): the
-  // ad-network domain list src/content/adCollapse.ts uses to collapse the
-  // empty space a blocked ad iframe/img leaves behind.
-  cpSync(resolve(root, "rules", "ad-networks.json"), resolve(outDir, "rules", "ad-networks.json"));
-  // Same idea, for src/content/searchSlopFilter.ts's curated low-quality
+  // Hand-curated, checked into the repo (not generated into rules/dnr), for
+  // src/content/searchSlopFilter.ts's curated low-quality
   // search-result domain list.
   cpSync(resolve(root, "rules", "seo-spam-domains.json"), resolve(outDir, "rules", "seo-spam-domains.json"));
 

@@ -53,16 +53,9 @@ function watchCustomRuleMatches(effective: Settings): void {
   window.setTimeout(report, CUSTOM_RULE_CHECK_DELAY_MS);
 }
 
-// The curated ad-network domain list adCollapse.ts uses. Best-effort: an
-// empty set just means the collapse pass no-ops.
-async function readAdNetworks(): Promise<Set<string>> {
-  try {
-    const list = (await (await fetch(browser.runtime.getURL("rules/ad-networks.json"))).json()) as unknown;
-    return Array.isArray(list) ? new Set(list.filter((d): d is string => typeof d === "string")) : new Set();
-  } catch {
-    return new Set();
-  }
-}
+// The curated ad-network domain list adCollapse.ts uses (rules/ad-networks.json),
+// inlined at build time (scripts/build.mjs): it was fetched on every page.
+declare const __MOAT_AD_NETWORKS__: string[];
 
 async function run(): Promise<void> {
   const effective = await getEffectiveSettingsHere();
@@ -83,7 +76,7 @@ async function run(): Promise<void> {
     })
     .catch(() => {});
 
-  startAdCollapse(window, await readAdNetworks());
+  startAdCollapse(window, new Set(__MOAT_AD_NETWORKS__));
   watchCustomRuleMatches(effective);
 
   startSurveyor(

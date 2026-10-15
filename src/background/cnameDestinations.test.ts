@@ -17,7 +17,17 @@ const {
 
 const FILES: Record<string, unknown> = {
   "test://rules/cname-cloak-destinations.json": ["cloak.example"],
-  "test://rules/uncloak-domains.json": { trackers: ["tracker.example"], ads: ["ads.example"] },
+  "test://rules/rulesets.json": [
+    { id: "ruleset_trackers", group: "trackers", file: "ruleset_trackers.json" },
+    { id: "ruleset_ads", group: "ads", file: "ruleset_ads.json" },
+    { id: "ruleset_scam", group: "scam", file: "ruleset_scam.json" },
+  ],
+  // A plain domain block counts; one limited to a site doesn't (it blocks less than the whole domain).
+  "test://rules/ruleset_trackers.json": [
+    { id: 1, action: { type: "block" }, condition: { urlFilter: "||tracker.example^" } },
+    { id: 2, action: { type: "block" }, condition: { urlFilter: "||narrow.example^", initiatorDomains: ["one.example"] } },
+  ],
+  "test://rules/ruleset_ads.json": [{ id: 1, action: { type: "block" }, condition: { requestDomains: ["ads.example"], resourceTypes: ["script"] } }],
 };
 
 const fetchMock = vi.fn(async (url: string) => ({ json: async () => FILES[url] }));
@@ -64,6 +74,8 @@ describe("loadCloakDestinations", () => {
     expect(isCnameCloakDestination("eu.collect.tracker.example", set)).toBe(true);
     expect(isCnameCloakDestination("x.cloak.example", set)).toBe(true);
     expect(isCnameCloakDestination("cdn.harmless.example", set)).toBe(false);
+    expect(isCnameCloakDestination("x.narrow.example", set)).toBe(false);
+    expect(set.has("ads.example")).toBe(true);
   });
 
   it("stops using the tracker list once Trackers is turned off", async () => {
@@ -76,14 +88,15 @@ describe("loadCloakDestinations", () => {
     expect(set.has("ads.example")).toBe(true);
   });
 
-  it("loads the files once while the lists stay the same, even for a burst of requests", async () => {
+  it("reads the files once while the lists stay the same, even for a burst of requests", async () => {
     setUncloakSettings(settings({}));
     await Promise.all([loadCloakDestinations(), loadCloakDestinations(), loadCloakDestinations()]);
     await loadCloakDestinations();
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    // The cloak list, the ruleset list, and the two rulesets that are on.
+    expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 
-  it("skips the big domain file when neither list is on", async () => {
+  it("reads no rulesets when neither list is on", async () => {
     setUncloakSettings(settings({ filterGroups: { trackers: false, ads: false } }));
     await loadCloakDestinations();
     expect(fetchMock).toHaveBeenCalledTimes(1);

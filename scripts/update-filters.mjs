@@ -877,13 +877,10 @@ writeFileSync(
   JSON.stringify(manifestEntries, null, 2)
 );
 
-// The tracker and ad domains CNAME uncloaking checks a disguised subdomain's
-// real address against (src/background/cnameDestinations.ts), the way uBlock
-// Origin re-applies its own filters to the uncloaked name. Needed because no
-// browser lets an extension ask its static rulesets "would this URL match?"
-// outside development (declarativeNetRequest.testMatchOutcome). Kept per
-// group so turning Trackers or Ads off in Settings turns it off here too.
-// Only loaded at runtime when the opt-in uncloaking setting is on.
+// The tracker and ad lists' plainly blocked domains, per group. A build input
+// for scripts/build-ad-rules.mjs only: since 0.11.283 it isn't shipped, and
+// CNAME uncloaking reads the same domains from the rulesets themselves
+// (src/background/cnameDestinations.ts, src/shared/blockedDomains.ts).
 const UNCLOAK_GROUPS = ["trackers", "ads"];
 const uncloakDomains = Object.fromEntries(
   UNCLOAK_GROUPS.map((group) => {

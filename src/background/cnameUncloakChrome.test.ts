@@ -108,7 +108,8 @@ describe("the Chrome uncloaking listener", () => {
   // address is one of Moat's own tracker domains (not on the CNAME list).
   const FILES: Record<string, unknown> = {
     "test://rules/cname-cloak-destinations.json": ["cloak.example"],
-    "test://rules/uncloak-domains.json": { trackers: ["tracker.example"], ads: [] },
+    "test://rules/rulesets.json": [{ id: "ruleset_trackers", group: "trackers", file: "ruleset_trackers.json" }],
+    "test://rules/ruleset_trackers.json": [{ id: 1, action: { type: "block" }, condition: { urlFilter: "||tracker.example^" } }],
   };
   const fetchMock = vi.fn(async (url: string) => {
     if (url.startsWith("https://cloudflare-dns.com/")) {

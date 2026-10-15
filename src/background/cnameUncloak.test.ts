@@ -22,7 +22,8 @@ const { resetCnameDestinationsForTest } = await import("./cnameDestinations");
 
 const FILES: Record<string, unknown> = {
   "test://rules/cname-cloak-destinations.json": ["cloak.example"],
-  "test://rules/uncloak-domains.json": { trackers: ["tracker.example"], ads: [] },
+  "test://rules/rulesets.json": [{ id: "ruleset_trackers", group: "trackers", file: "ruleset_trackers.json" }],
+    "test://rules/ruleset_trackers.json": [{ id: 1, action: { type: "block" }, condition: { urlFilter: "||tracker.example^" } }],
 };
 
 function settings(overrides: Partial<Settings> = {}): Settings {

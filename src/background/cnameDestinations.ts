@@ -4,14 +4,17 @@
 //
 // A disguised address is blocked when it's a known CNAME-cloak destination
 // (rules/cname-cloak-destinations.json, AdGuard's list) OR a domain Moat's own
-// tracker/ad lists already block (rules/uncloak-domains.json) -- the second
-// half is how uBlock Origin does it: re-apply your normal filters to the
-// uncloaked name. Only the lists you have on count, so turning Trackers off
-// in Settings turns it off here too.
+// tracker/ad lists already block, read from those rulesets themselves the
+// first time it's needed (shared/blockedDomains.ts) -- the second half is how
+// uBlock Origin does it: re-apply your normal filters to the uncloaked name.
+// Only the lists you have on count, so turning Trackers off in Settings turns
+// it off here too.
 import browser from "webextension-polyfill";
 import type { Settings } from "../types";
 import { effectiveFilterGroupState } from "./filterGroupState";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
+import { plainBlockedDomains, type DnrRuleLike } from "../shared/blockedDomains";
+import type { RulesetManifestEntry } from "../shared/rulesetManifest";
 
 export const UNCLOAK_GROUPS = ["trackers", "ads"] as const;
 export type UncloakDomains = Partial<Record<(typeof UNCLOAK_GROUPS)[number], string[]>>;
@@ -48,11 +51,28 @@ export function isPagePaused(pageHostname: string): boolean {
 
 let cached: { key: string; set: Set<string> } | null = null;
 // One in-flight build at a time, so a burst of requests right after the
-// setting is turned on doesn't parse the 3.7 MB file once per request.
+// setting is turned on doesn't read the rulesets once per request.
 let building: { key: string; promise: Promise<Set<string>> } | null = null;
 
 async function fetchJson<T>(path: string): Promise<T> {
   return (await (await fetch(browser.runtime.getURL(path))).json()) as T;
+}
+
+/** The plainly blocked domains of each uncloak group that's on, from the
+ * bundled rulesets (rules/rulesets.json lists which files belong to which). */
+async function readUncloakDomains(groupsOn: readonly string[]): Promise<UncloakDomains> {
+  const manifest = await fetchJson<RulesetManifestEntry[]>("rules/rulesets.json");
+  const byGroup: UncloakDomains = {};
+  for (const group of UNCLOAK_GROUPS) {
+    if (!groupsOn.includes(group)) continue;
+    const domains = new Set<string>();
+    for (const entry of manifest.filter((e) => e.group === group)) {
+      const rules = await fetchJson<DnrRuleLike[]>(`rules/${entry.file}`);
+      for (const domain of plainBlockedDomains(rules, { allowResourceTypes: true })) domains.add(domain);
+    }
+    byGroup[group] = [...domains];
+  }
+  return byGroup;
 }
 
 export function loadCloakDestinations(): Promise<Set<string>> {
@@ -64,8 +84,8 @@ export function loadCloakDestinations(): Promise<Set<string>> {
   const promise = (async () => {
     const [cnameList, byGroup] = await Promise.all([
       fetchJson<string[]>("rules/cname-cloak-destinations.json"),
-      // Skip the big file entirely when neither list is on.
-      groupsOn.length > 0 ? fetchJson<UncloakDomains>("rules/uncloak-domains.json") : Promise.resolve({}),
+      // Nothing to read when neither list is on.
+      groupsOn.length > 0 ? readUncloakDomains(groupsOn) : Promise.resolve({}),
     ]);
     const set = buildDestinationSet(cnameList, byGroup, groupsOn);
     cached = { key, set };

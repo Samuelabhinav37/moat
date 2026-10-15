@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.283
+
+### Changed
+- **Lighter on every page.** The cookie-banner rules (about 140 KB) now load only on pages that show
+  a banner they know, instead of on every page. Moat's list of ad networks is built in rather than
+  fetched each time. Usage stats are saved once per page instead of several times.
+- **A smaller download.** Moat no longer ships a 3.7 MB copy of its tracker and ad lists. The
+  optional CNAME uncloaking reads the lists themselves when you turn it on.
+- **Paused sites skip the cookie-banner check entirely.**
+
 ## 0.11.282
 
 ### Fixed
