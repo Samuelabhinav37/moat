@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.289
+
+### Changed
+- **Kai, redesigned.** Kai now faces you, with a live face: it blinks, looks at your pointer,
+  smiles, thinks and talks. In Settings it stays in the corner at the same size, with "Ask Kai"
+  above it, and opens a chat of plain questions. Kai answers, then "Show me" opens the right
+  screen and outlines the control. A new question answers whether Moat collects your data.
+  Kai draws nothing while it is still, so Settings stays as smooth as before.
+- Kai also speaks the "How it works" pictures and welcomes you on the first-run tour.
+
 ## 0.11.288
 
 ### Changed

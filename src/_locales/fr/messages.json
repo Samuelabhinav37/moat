@@ -3581,6 +3581,24 @@
   "kaiNeedHelp": {
     "message": "Besoin d'aide ?"
   },
+  "kaiStatus": {
+    "message": "Là pour vous aider avec Moat"
+  },
+  "kaiThinking": {
+    "message": "Réflexion"
+  },
+  "kaiShowMe": {
+    "message": "Montrez-moi"
+  },
+  "kaiStart": {
+    "message": "Commencer"
+  },
+  "kaiQData": {
+    "message": "Moat collecte-t-il mes données ?"
+  },
+  "kaiAData": {
+    "message": "Non. Le blocage s'exécute sur votre appareil, sans compte et sans statistiques. Les mises à jour quotidiennes des listes ne contiennent rien sur vous."
+  },
   "optionsImportRisksTitle": {
     "message": "N'applique ceci que si tu as créé le fichier toi-même."
   },

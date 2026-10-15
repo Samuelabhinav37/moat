@@ -3581,6 +3581,24 @@
   "kaiNeedHelp": {
     "message": "Brauchst du Hilfe?"
   },
+  "kaiStatus": {
+    "message": "Hilft dir mit Moat"
+  },
+  "kaiThinking": {
+    "message": "Denkt nach"
+  },
+  "kaiShowMe": {
+    "message": "Zeig es mir"
+  },
+  "kaiStart": {
+    "message": "Los geht's"
+  },
+  "kaiQData": {
+    "message": "Sammelt Moat meine Daten?"
+  },
+  "kaiAData": {
+    "message": "Nein. Das Blockieren läuft auf deinem Gerät, ohne Konto und ohne Analysen. Die täglichen Listen-Updates enthalten nichts über dich."
+  },
   "optionsImportRisksTitle": {
     "message": "Wende das nur an, wenn du die Datei selbst erstellt hast."
   },

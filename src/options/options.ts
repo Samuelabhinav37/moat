@@ -172,6 +172,7 @@ initKaiGuide(document, {
     { id: "backup", ask: ["kaiQBackup", "How do I keep my settings on another computer?"], answer: ["kaiABackup", "Under Backup and sync, save a backup file or turn on sync."], hash: "#backup", target: "#a-backup" },
     { id: "broken", ask: ["kaiQBroken", "A site isn't working"], answer: ["kaiABroken", "Let's fix it step by step."], run: () => helpPanel.openTopic("load") },
     { id: "working", ask: ["kaiQWorking", "Is Moat working?"], answer: ["kaiAWorking", "Here's how to check."], run: () => helpPanel.openTopic("verify") },
+    { id: "data", ask: ["kaiQData", "Does Moat collect my data?"], answer: ["kaiAData", "No. Blocking runs on your device, with no account and no analytics. The daily list updates carry nothing about you."] },
   ],
   firstOn: {
     overview: ["blocked", "working"],
@@ -181,7 +182,7 @@ initKaiGuide(document, {
     trackers: ["blocked"],
     sites: ["pause", "broken"],
     security: ["broken"],
-    about: ["working"],
+    about: ["working", "data"],
   },
 });
 initNavMode(window, {

@@ -3581,6 +3581,24 @@
   "kaiNeedHelp": {
     "message": "¿Necesitas ayuda?"
   },
+  "kaiStatus": {
+    "message": "Aquí para ayudarte con Moat"
+  },
+  "kaiThinking": {
+    "message": "Pensando"
+  },
+  "kaiShowMe": {
+    "message": "Muéstramelo"
+  },
+  "kaiStart": {
+    "message": "Empezar"
+  },
+  "kaiQData": {
+    "message": "¿Moat recopila mis datos?"
+  },
+  "kaiAData": {
+    "message": "No. El bloqueo funciona en tu dispositivo, sin cuenta y sin analíticas. Las actualizaciones diarias de las listas no llevan nada sobre ti."
+  },
   "optionsImportRisksTitle": {
     "message": "Aplícalo solo si creaste el archivo tú."
   },

@@ -3742,6 +3742,24 @@
   "kaiNeedHelp": {
     "message": "Need help?"
   },
+  "kaiStatus": {
+    "message": "Here to help with Moat"
+  },
+  "kaiThinking": {
+    "message": "Thinking"
+  },
+  "kaiShowMe": {
+    "message": "Show me"
+  },
+  "kaiStart": {
+    "message": "Start"
+  },
+  "kaiQData": {
+    "message": "Does Moat collect my data?"
+  },
+  "kaiAData": {
+    "message": "No. Blocking runs on your device, with no account and no analytics. The daily list updates carry nothing about you."
+  },
   "optionsImportRisksTitle": {
     "message": "Only apply this if you made the file yourself."
   },
