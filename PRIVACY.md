@@ -145,14 +145,18 @@ only to an organization's own infrastructure, never to Moat's developer.
    in it is applied; a policy that doesn't verify is discarded.
 
 6. **Problem reports, only when you press Send.** "Report a problem…" in
-   the popup (or "Report a problem" in Settings) opens a page inside Moat.
-   Nothing is sent until you press Send, and "What will be sent" shows the
-   whole report first. A report contains: the site's name (the full page
-   address only if you tick "Include the full page address"), which
-   problem you chose, whether pausing Moat fixed it, your note if you
-   wrote one, Moat's version, your browser and its major version (for
-   example "Chrome 141"), your blocking level, and the names of the filter
-   lists you have on. Nothing else: no browsing history, no cookies, no
+   the popup opens a short form right there (Settings and "More options"
+   open the same form as a page inside Moat). Nothing is sent until you
+   press Send, and "What will be sent" shows the whole report first. A
+   report contains: the site's name (the full page address only if you
+   tick "Include the full page address"), which problem you chose, whether
+   pausing Moat fixed it, your note if you wrote one, Moat's version, your
+   browser and its major version (for example "Chrome 141"), your blocking
+   level, and the names of the filter lists you have on. It also lists the
+   names of up to 30 other sites Moat blocked on that page (names only,
+   like "ads.example.net", never full addresses), unless you untick
+   "Include the addresses Moat blocked here". Those names are what makes a
+   report fixable. Nothing else: no browsing history, no cookies, no
    other tabs. It goes to Moat's report service, a Cloudflare Worker that
    files it as an issue in a private GitHub repository that only Moat's
    developer can read. The service keeps no logs. The only thing it stores

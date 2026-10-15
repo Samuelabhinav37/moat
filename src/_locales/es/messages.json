@@ -3974,5 +3974,34 @@
   },
   "levelOffNote": {
     "message": "Moat está desactivado, así que no se bloquea nada."
+  },
+  "popupReportBack": {
+    "message": "Atrás",
+    "description": "Button that leaves the popup's report panel."
+  },
+  "popupReportMore": {
+    "message": "Más opciones",
+    "description": "Opens the full report page (copy, GitHub, typed site)."
+  },
+  "popupReportSupport": {
+    "message": "Soporte de Moat",
+    "description": "Link to the website's Support page after a report is sent."
+  },
+  "popupReportPausedHint": {
+    "message": "Moat está en pausa aquí y la página se recargó. Compruébala y responde arriba.",
+    "description": "After pausing and reloading from the popup's report panel."
+  },
+  "popupReportSendFailed": {
+    "message": "No se pudo enviar. Inténtalo de nuevo o usa Más opciones para copiarlo.",
+    "description": "Sending from the popup's report panel failed."
+  },
+  "reportIncludeBlocked": {
+    "message": "Incluir las direcciones que Moat bloqueó aquí ($COUNT$)",
+    "description": "Checkbox in the report. $COUNT$ is how many host names.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   }
 }

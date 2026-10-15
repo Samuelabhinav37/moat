@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.286
+
+### Changed
+- **Report a problem without leaving the popup.** "Report a problem…" now opens a short form in
+  the popup itself: pick what's wrong, add a note if you like, and press Send. No new tab. "More
+  options" still opens the full report page for copying a report or opening it on GitHub.
+- **Reports name the sites Moat blocked on that page.** Up to 30 host names (never full
+  addresses), shown in "What will be sent" before you send. Untick the box to leave them out.
+  They're what makes a report fixable. The privacy policy says so.
+
 ## 0.11.285
 
 ### Changed

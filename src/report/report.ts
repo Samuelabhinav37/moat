@@ -8,6 +8,7 @@ import browser from "webextension-polyfill";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { formatReport, reportLines, reportTitle, validateReport, type PauseAnswer, type ReportCategory } from "../shared/problemReport";
 import { REPORT_ENDPOINT, REPORT_GITHUB_NEW_ISSUE } from "../shared/reportEndpoint";
+import { sendReport } from "./sendReport";
 import { detectPreset } from "../shared/filterPresets";
 import { getEffectiveSettings } from "../background/settings";
 import { browserLabel, buildReport, hostnameFromInput, type ReportEnvironment } from "./reportForm";
@@ -29,6 +30,7 @@ const note = $<HTMLTextAreaElement>("note");
 const noteCount = $("note-count");
 const includeUrlRow = $("include-url-row");
 const includeUrl = $<HTMLInputElement>("include-url");
+const includeBlocked = $<HTMLInputElement>("include-blocked");
 const pageUrlEl = $("page-url");
 const previewText = $("preview-text");
 const sendButton = $<HTMLButtonElement>("send");
@@ -45,6 +47,7 @@ const siteParam = query.get("site") ?? "";
 const falseAlarm = query.get("reason") === "false-alarm";
 let tabHostname = "";
 let pageUrl: string | null = null;
+let blockedHosts: string[] = [];
 let env: ReportEnvironment = { moatVersion: browser.runtime.getManifest().version, browser: browserLabel(navigator.userAgent), level: "custom", lists: [] };
 
 function checked(name: string): string | null {
@@ -60,6 +63,8 @@ function currentReport() {
       includeUrl: includeUrl.checked,
       note: note.value,
       pausingFixes: (checked("pause") ?? "untried") as PauseAnswer,
+      blockedHosts,
+      includeBlocked: includeBlocked.checked,
     },
     env
   );
@@ -85,9 +90,15 @@ function showFallbacks(): void {
 async function init(): Promise<void> {
   const [settings, context] = await Promise.all([
     getEffectiveSettings(),
-    browser.runtime.sendMessage({ type: "get-report-context" } satisfies GetReportContextMessage) as Promise<ReportContextResponse>,
+    browser.runtime.sendMessage({ type: "get-report-context", ...(tabId !== null ? { tabId } : {}) } satisfies GetReportContextMessage) as Promise<ReportContextResponse>,
   ]);
   env = { ...env, level: detectPreset(settings), lists: context.enabledFilterGroups };
+  blockedHosts = context.blockedHosts ?? [];
+  if (blockedHosts.length) {
+    $("include-blocked-label").textContent = t("reportIncludeBlocked", `Include the addresses Moat blocked here (${blockedHosts.length})`, String(blockedHosts.length));
+    $("blocked-list").textContent = blockedHosts.join(", ");
+    $("include-blocked-row").hidden = false;
+  }
 
   if (tabId !== null) {
     try {
@@ -168,15 +179,9 @@ form.addEventListener("submit", async (event) => {
   sendButton.disabled = true;
   setStatus(t("reportSending", "Sending…"));
   try {
-    const response = await fetch(REPORT_ENDPOINT, {
-      method: "POST",
-      headers: { "content-type": "application/json", "x-moat-report": "1" },
-      body: JSON.stringify(currentReport()),
-    });
-    const body = (await response.json().catch(() => ({}))) as { id?: string; error?: string };
-    if (!response.ok || !body.id) throw new Error(response.status === 429 ? "busy" : body.error ?? String(response.status));
+    const id = await sendReport(currentReport());
     form.hidden = true;
-    $("done-ref").textContent = body.id;
+    $("done-ref").textContent = id;
     $("done").hidden = false;
   } catch (error) {
     sendButton.disabled = false;

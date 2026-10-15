@@ -19,6 +19,7 @@ import { readCachedChoice, rememberTheme } from "../ui/theme";
 import { pauseEnd, pauseEndLabel, type PauseLength } from "../shared/pauseDuration";
 import { getUsageSummary } from "../background/usageStats";
 import { whatsNewUrl } from "../shared/siteUrls";
+import { initReportPanel } from "./reportPanel";
 
 // Firefox for Android opens the action popup as a full-width panel with no
 // toolbar anchor, so Moat's fixed 260px column reads as a narrow strip. Give
@@ -534,26 +535,7 @@ freshStartButton.addEventListener("click", async () => {
   }
 });
 
-document.getElementById("report-problem")?.addEventListener("click", async (event) => {
-  const button = event.currentTarget as HTMLButtonElement;
-  try {
-    // Moat's own report page, for the site in this tab (report/report.ts):
-    // no GitHub account needed, and nothing is sent until Send is pressed.
-    const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
-    const query = tab?.id !== undefined ? `?tab=${tab.id}` : "";
-    await browser.tabs.create({ url: browser.runtime.getURL(`report.html${query}`) });
-    window.close();
-  } catch {
-    // A dead click here (background unreachable, tab creation blocked)
-    // otherwise leaves the user with zero feedback -- flash the failure
-    // in place on the button they just pressed rather than staying silent.
-    button.textContent = getMessageOrFallback(
-      (key) => browser.i18n.getMessage(key),
-      "popupReportError",
-      "Couldn't open the report page. Try again."
-    );
-  }
-});
+initReportPanel(document);
 
 void render().catch(() => {
   document.getElementById("site-card")!.textContent = getMessageOrFallback(

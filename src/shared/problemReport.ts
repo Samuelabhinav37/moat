@@ -8,6 +8,7 @@ export const REPORT_VERSION = 1;
 export const MAX_NOTE_LENGTH = 2000;
 export const MAX_URL_LENGTH = 2000;
 export const MAX_LISTS = 40;
+export const MAX_BLOCKED_HOSTS = 30;
 
 export const REPORT_CATEGORIES = ["ads", "broken", "cookie", "other"] as const;
 export type ReportCategory = (typeof REPORT_CATEGORIES)[number];
@@ -32,6 +33,9 @@ export interface ProblemReport {
   lists: string[];
   /** Whether pausing Moat on the site fixed it. */
   pausingFixes: PauseAnswer;
+  /** Host names Moat blocked on that page (no paths), only when the person
+   * left "Include the addresses Moat blocked" ticked. */
+  blockedHosts?: string[];
 }
 
 // A plain host name: labels of letters, digits and hyphens, at least one dot,
@@ -46,6 +50,17 @@ const LIST_NAME = /^[\p{L}\p{N} .,()'&+/-]{1,80}$/u;
 
 export function isHostname(value: unknown): value is string {
   return typeof value === "string" && HOSTNAME.test(value);
+}
+
+/** The hosts a report may carry from a page's blocked requests: real host
+ * names only, most-blocked first (then by name), at most MAX_BLOCKED_HOSTS. */
+export function topBlockedHosts(counts: ReadonlyMap<string, number>): string[] {
+  return [...counts]
+    .map(([host, n]) => [host.toLowerCase(), n] as const)
+    .filter(([host]) => isHostname(host))
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, MAX_BLOCKED_HOSTS)
+    .map(([host]) => host);
 }
 
 /** Checks something claimed to be a report, field by field. Returns the
@@ -80,6 +95,8 @@ export function validateReport(input: unknown): { ok: true; report: ProblemRepor
   )
     return { ok: false, error: "lists" };
   if (!(PAUSE_ANSWERS as readonly unknown[]).includes(r.pausingFixes)) return { ok: false, error: "pausingFixes" };
+  if (r.blockedHosts !== undefined && (!Array.isArray(r.blockedHosts) || r.blockedHosts.length > MAX_BLOCKED_HOSTS || !r.blockedHosts.every(isHostname)))
+    return { ok: false, error: "blockedHosts" };
   const report: ProblemReport = {
     v: REPORT_VERSION,
     category: r.category as ReportCategory,
@@ -92,6 +109,7 @@ export function validateReport(input: unknown): { ok: true; report: ProblemRepor
     pausingFixes: r.pausingFixes as PauseAnswer,
   };
   if (typeof r.url === "string") report.url = r.url;
+  if (Array.isArray(r.blockedHosts) && r.blockedHosts.length) report.blockedHosts = r.blockedHosts as string[];
   return { ok: true, report };
 }
 
@@ -116,6 +134,7 @@ export function reportLines(report: ProblemReport): string {
     `Does pausing Moat fix it: ${{ yes: "Yes", no: "No", untried: "Not tried" }[report.pausingFixes]}`,
     `Moat: ${report.moatVersion} on ${report.browser}, level ${report.level}`,
     `Lists on: ${report.lists.length ? report.lists.join(", ") : "none"}`,
+    ...(report.blockedHosts ? [`Blocked on this page: ${report.blockedHosts.join(", ")}`] : []),
     `Note: ${report.note.trim() || "(none)"}`,
   ].join("\n");
 }
@@ -132,6 +151,9 @@ export function formatReport(report: ProblemReport): string {
     `**Does pausing Moat fix it:** ${{ yes: "Yes", no: "No", untried: "Not tried" }[report.pausingFixes]}`,
     `**Moat:** ${report.moatVersion} on ${report.browser}, level \`${report.level}\``,
     `**Lists on:** ${report.lists.length ? report.lists.join(", ") : "none"}`,
+    ...(report.blockedHosts
+      ? ["", `<details><summary>Blocked on this page (${report.blockedHosts.length})</summary>`, "", "```text", ...report.blockedHosts, "```", "", "</details>"]
+      : []),
     "",
     "**Note:**",
     "```text",

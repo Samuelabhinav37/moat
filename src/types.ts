@@ -365,6 +365,8 @@ export interface GetLogEntriesMessage {
 
 export interface GetReportContextMessage {
   type: "get-report-context";
+  /** The tab the report is about, for the addresses Moat blocked there. */
+  tabId?: number;
 }
 
 export interface ExportSettingsMessage {
@@ -400,6 +402,9 @@ export interface ReportContextResponse {
    * per-request match data, which is Chrome-only via getMatchedRules -- this
    * stays cheap and identical on both browsers). */
   enabledFilterGroups: string[];
+  /** Hosts Moat blocked on that tab's current page, most-blocked first, at
+   * most 30. Empty where Moat can't watch requests or no tab was given. */
+  blockedHosts: string[];
 }
 
 /** One heuristic's per-page-load state for the Diagnostics page (DR-16):

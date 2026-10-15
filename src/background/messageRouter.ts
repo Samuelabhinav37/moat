@@ -2,6 +2,8 @@
 // the popup, Settings, the logger and the content scripts lands here.
 // Split out of index.ts so it can be tested on its own
 // (messageRouter.test.ts); index.ts registers it.
+import { getBlockedHosts } from "./liveBlocks";
+import { topBlockedHosts } from "../shared/problemReport";
 import browser, { type Runtime } from "webextension-polyfill";
 import {
   combinedBreakdown,
@@ -360,6 +362,7 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
         return {
           hostname: hostnameOf(tab?.url),
           enabledFilterGroups: lists.filter((l) => state[l.group]).map((l) => l.name),
+          blockedHosts: typeof message.tabId === "number" ? topBlockedHosts(getBlockedHosts(message.tabId)) : [],
         };
       })();
     }

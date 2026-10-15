@@ -41,7 +41,7 @@ const CONNECTIONS = [
     ["Your settings are copied to your browser's own sync, under the account you're already signed into. Moat runs no server for this."]],
   ["flag", "Problem reports", "The site, what went wrong, your note, Moat's version and settings", "Moat's developer, privately", "When you press Send", "send",
     ["Nothing is sent until you press Send, and the report page shows you the whole report first.",
-     "It includes the site's name (the full address only if you tick that box), the problem you picked, whether pausing helped, your note, Moat's version, your browser and its major version, your blocking level and which lists are on. Nothing else.",
+     "It includes the site's name (the full address only if you tick that box), the problem you picked, whether pausing helped, your note, Moat's version, your browser and its major version, your blocking level and which lists are on. It also names up to 30 sites Moat blocked on that page, unless you untick that box. Nothing else.",
      "It goes through a Cloudflare Worker that keeps no logs into a private GitHub repository only Moat's developer can read. Your IP address is used only to limit how many reports one address can send a minute."]],
   ["building", "Organization security events", "A category, risk level, time and blocked domain", "Your organization's own server", "Set up by your IT team", "org",
     ["This can't be turned on by a person. It only exists when an organization's device-management policy sets it up, pointing at that organization's own server, never Moat's developer.",

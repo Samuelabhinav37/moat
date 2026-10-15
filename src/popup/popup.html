@@ -439,6 +439,52 @@
         background: rgba(224, 177, 111, 0.22);
         color: var(--caution);
       }
+      /* Report a problem, inside the popup (reportPanel.ts). */
+      .report-panel { padding: 2px 0 4px; }
+      .rp-head { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+      .rp-back { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border: 0; border-radius: 8px; background: none; color: var(--t2); cursor: pointer; }
+      .rp-back:hover { background: var(--s1); color: var(--t1); }
+      .rp-back svg { width: 18px; height: 18px; }
+      .rp-head h2 { margin: 0; font-size: 14px; font-weight: 600; color: var(--t1); min-width: 0; }
+      .rp-host { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--t3); font-size: 11.5px; font-weight: 500; }
+      .report-panel:has(.rp-done:not([hidden])) .rp-head h2 { visibility: hidden; }
+      .rp-cats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .rp-cat { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 10px; background: var(--s1); color: var(--t2); font-size: 12px; font-weight: 600; line-height: 1.3; cursor: pointer; box-shadow: inset 0 0 0 1px transparent; transition: background 0.15s, box-shadow 0.15s; }
+      .rp-cat:hover { background: var(--s2); color: var(--t1); }
+      .rp-cat input { position: absolute; opacity: 0; pointer-events: none; }
+      .rp-cat svg { width: 20px; height: 20px; }
+      .rp-cat:has(input:checked) { background: var(--s2); color: var(--t1); box-shadow: inset 0 0 0 1.5px #3f6fd1; }
+      .rp-cat:has(input:focus-visible) { outline: 2px solid #3f6fd1; outline-offset: 2px; }
+      .rp-pause { margin: 12px 0 0; padding: 0; border: 0; }
+      .rp-pause legend { padding: 0; margin-bottom: 6px; font-size: 11.5px; color: var(--t2); }
+      .rp-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+      .rp-chips label { position: relative; }
+      .rp-chips input { position: absolute; opacity: 0; pointer-events: none; }
+      .rp-chips span { display: inline-block; padding: 4px 10px; border-radius: 980px; background: var(--s1); color: var(--t2); font-size: 11.5px; cursor: pointer; }
+      .rp-chips input:checked + span { background: var(--t1); color: var(--bg); font-weight: 600; }
+      .rp-chips input:focus-visible + span { outline: 2px solid #3f6fd1; outline-offset: 2px; }
+      .rp-link { margin-top: 6px; padding: 0; border: 0; background: none; color: var(--t3); font-size: 11px; text-decoration: underline; cursor: pointer; }
+      .rp-link:hover { color: var(--t1); }
+      #rp-note { display: block; width: 100%; box-sizing: border-box; margin-top: 12px; padding: 8px 10px; border: 1px solid var(--edge); border-radius: 8px; background: var(--s1); color: var(--t1); font: inherit; font-size: 12px; resize: vertical; }
+      .rp-check { display: flex; align-items: flex-start; gap: 7px; margin-top: 8px; font-size: 11.5px; color: var(--t2); cursor: pointer; }
+      .rp-check input { margin: 1px 0 0; }
+      .rp-preview { margin-top: 10px; font-size: 11.5px; color: var(--t2); }
+      .rp-preview summary { cursor: pointer; }
+      .rp-preview pre { margin: 6px 0; padding: 8px; border-radius: 8px; background: var(--s1); color: var(--t2); font-size: 10.5px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 140px; overflow: auto; }
+      .rp-preview p { margin: 0; color: var(--t3); font-size: 10.5px; }
+      .rp-status { margin: 8px 0 0; font-size: 11.5px; color: var(--t2); }
+      .rp-status:empty { display: none; }
+      .rp-status.error { color: var(--caution); }
+      .rp-send { width: 100%; margin-top: 10px; padding: 9px 10px; border: 0; border-radius: 8px; background: #3f6fd1; color: #fff; font-weight: 600; font-size: 12.5px; cursor: pointer; }
+      .rp-send:hover:not(:disabled) { background: #2f57ad; }
+      .rp-send:disabled { opacity: 0.45; cursor: default; }
+      .rp-more { display: block; margin-top: 10px; text-align: center; color: var(--t3); font-size: 11.5px; }
+      .rp-more:hover { color: var(--t1); }
+      .rp-done { padding: 10px 4px 4px; text-align: center; color: var(--t2); font-size: 12px; }
+      .rp-done svg { width: 34px; height: 34px; color: var(--on); }
+      .rp-done h3 { margin: 6px 0 8px; font-size: 14px; color: var(--t1); }
+      .rp-done p { margin: 0 0 6px; }
+      .rp-done a { color: var(--t1); font-weight: 600; }
       /* Moat's website look: the same neutral surfaces and type as Settings. */
       :root { --bg: #161618; --card: #1f1f22; --border: #303034; --hairline: #26262a; }
       :root[data-theme="light"] { --bg: #f5f5f7; --card: #ffffff; --border: #e3e3e8; --hairline: #ececf0; }
@@ -581,6 +627,48 @@
 
     <a href="#" class="week-link" id="week-link" hidden></a>
     </main>
+
+    <section class="report-panel" id="report-panel" hidden aria-labelledby="rp-title">
+      <div class="rp-head">
+        <button type="button" class="rp-back" id="rp-back" aria-label="Back" data-i18n-aria-label="popupReportBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg></button>
+        <h2 id="rp-title"><span data-i18n="reportWhatLabel">What's wrong?</span> <span class="rp-host" id="rp-host"></span></h2>
+      </div>
+      <form id="rp-form" novalidate>
+        <div class="rp-cats" role="radiogroup" aria-labelledby="rp-title">
+          <label class="rp-cat"><input type="radio" name="rp-cat" value="ads" /><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h3l6 4V6L7 10zM16.5 9.5a3.5 3.5 0 010 5" /></svg><span data-i18n="reportCategoryAds">Ads still showing</span></label>
+          <label class="rp-cat"><input type="radio" name="rp-cat" value="broken" /><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4zM4 9h16M10 13l4 4M14 13l-4 4" /></svg><span data-i18n="reportCategoryBroken">Site broken or won't load</span></label>
+          <label class="rp-cat"><input type="radio" name="rp-cat" value="cookie" /><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 11-8-8 3 3 0 004 4 3 3 0 004 4z" /><path d="M9 10h.01M14 15h.01M9 15h.01" /></svg><span data-i18n="reportCategoryCookie">Cookie banner still showing</span></label>
+          <label class="rp-cat"><input type="radio" name="rp-cat" value="other" /><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h.01M12 12h.01M18 12h.01" /></svg><span data-i18n="reportCategoryOther">Something else</span></label>
+        </div>
+        <fieldset class="rp-pause">
+          <legend data-i18n="reportPauseLabel">Does pausing Moat on this site fix it?</legend>
+          <div class="rp-chips">
+            <label><input type="radio" name="rp-pause" value="yes" /><span data-i18n="reportPauseYes">Yes</span></label>
+            <label><input type="radio" name="rp-pause" value="no" /><span data-i18n="reportPauseNo">No</span></label>
+            <label><input type="radio" name="rp-pause" value="untried" checked /><span data-i18n="reportPauseUntried">Haven't tried</span></label>
+          </div>
+          <button type="button" class="rp-link" id="rp-pause-now" data-i18n="reportPauseNow">Pause Moat here and reload the page</button>
+        </fieldset>
+        <textarea id="rp-note" rows="2" maxlength="2000" placeholder="Anything else? (optional)" data-i18n-placeholder="reportNoteLabel"></textarea>
+        <label class="rp-check" id="rp-blocked-row" hidden><input type="checkbox" id="rp-blocked" checked /><span id="rp-blocked-label"></span></label>
+        <label class="rp-check"><input type="checkbox" id="rp-url" /><span data-i18n="reportIncludeUrl">Include the full page address</span></label>
+        <details class="rp-preview">
+          <summary data-i18n="reportPreview">What will be sent</summary>
+          <pre id="rp-preview"></pre>
+          <p data-i18n="reportPreviewHint">It goes to Moat's developer as a private report, never to the site. The report service doesn't store your IP address.</p>
+        </details>
+        <p class="rp-status" id="rp-status" role="status"></p>
+        <button type="submit" class="rp-send" id="rp-send" disabled data-i18n="reportSend">Send report</button>
+        <a href="#" class="rp-more" id="rp-more" data-i18n="popupReportMore">More options</a>
+      </form>
+      <div class="rp-done" id="rp-done" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M8 12.5l2.5 2.5L16 9.5" /></svg>
+        <h3 data-i18n="reportDoneTitle">Thanks, your report was sent</h3>
+        <p><span data-i18n="reportDoneRef">Reference:</span> <b id="rp-done-ref"></b></p>
+        <p data-i18n="reportDoneHint">Most site fixes reach every Moat install within a day, without an update.</p>
+        <a id="rp-support" href="https://samuelabhinav.com/moat/support/" target="_blank" rel="noopener" data-i18n="popupReportSupport">Moat Support</a>
+      </div>
+    </section>
 
     <script src="popup.js"></script>
   </body>

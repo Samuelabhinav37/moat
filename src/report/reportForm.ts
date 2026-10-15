@@ -1,7 +1,7 @@
 // Pure pieces of the report page (report.ts): turning the form into a
 // report, and naming the browser. Kept apart so they're testable without the
 // page or the extension APIs.
-import { REPORT_VERSION, type PauseAnswer, type ProblemReport, type ReportCategory } from "../shared/problemReport";
+import { MAX_BLOCKED_HOSTS, REPORT_VERSION, type PauseAnswer, type ProblemReport, type ReportCategory } from "../shared/problemReport";
 
 /** "Chrome 141", "Firefox 144", "Edge 141": the browser and its major version only. */
 export function browserLabel(userAgent: string): string {
@@ -26,6 +26,9 @@ export interface ReportFormState {
   includeUrl: boolean;
   note: string;
   pausingFixes: PauseAnswer;
+  /** Hosts Moat blocked on the page, sent only when includeBlocked is set. */
+  blockedHosts?: string[];
+  includeBlocked?: boolean;
 }
 
 export interface ReportEnvironment {
@@ -48,6 +51,7 @@ export function buildReport(form: ReportFormState, env: ReportEnvironment): Prob
     pausingFixes: form.pausingFixes,
   };
   if (form.includeUrl && form.pageUrl) report.url = form.pageUrl;
+  if (form.includeBlocked && form.blockedHosts?.length) report.blockedHosts = form.blockedHosts.slice(0, MAX_BLOCKED_HOSTS);
   return report;
 }
 
