@@ -25,6 +25,9 @@ describe("buildTrackerCookieRules", () => {
     }
   });
 
+  // The rule whose requestDomains list has this exact domain as one of its entries.
+  const ruleFor = (domain) => rules.find((r) => r.condition.requestDomains.some((d) => d === domain));
+
   it("keeps cookies for sign-in and payment hosts", () => {
     expect(hosts).not.toContain("accounts.google.com");
     expect(hosts).not.toContain("stripe.com");
@@ -32,13 +35,13 @@ describe("buildTrackerCookieRules", () => {
   });
 
   it("leaves a company's own sites out, so google.com and youtube.com aren't third parties to each other", () => {
-    const google = rules.find((r) => r.condition.requestDomains.includes("youtube.com"));
+    const google = ruleFor("youtube.com");
     expect(google.condition.requestDomains).toEqual(expect.arrayContaining(["youtube.com", "maps.google.com"]));
     expect(google.condition.excludedInitiatorDomains).toEqual(["google.com", "youtube.com", "blogger.com"]);
   });
 
   it("puts domains without a company group together, with no initiator exclusions", () => {
-    const rest = rules.find((r) => r.condition.requestDomains.includes("cdn.example.net"));
+    const rest = ruleFor("cdn.example.net");
     expect(rest.condition.requestDomains).toEqual(["cdn.example.net", "widgets.example.co.uk"]);
     expect(rest.condition.excludedInitiatorDomains).toBeUndefined();
   });
