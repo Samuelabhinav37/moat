@@ -9,6 +9,7 @@ import { SITE_URLS } from "../shared/siteUrls";
 import { getEffectiveSettings } from "../background/settings";
 import { browserLabel, buildReport, type ReportEnvironment } from "../report/reportForm";
 import { sendReport } from "../report/sendReport";
+import { noteTrouble } from "../background/checkin";
 import type { GetReportContextMessage, ReportContextResponse, ToggleSiteMessage } from "../types";
 
 const t = (key: string, fallback: string, subs?: string | string[]) =>
@@ -120,6 +121,7 @@ export function initReportPanel(doc: Document): void {
     setStatus(t("reportSending", "Sending…"));
     try {
       const id = await sendReport(result.report);
+      void noteTrouble();
       form.hidden = true;
       $("rp-done-ref").textContent = id;
       $("rp-done").hidden = false;

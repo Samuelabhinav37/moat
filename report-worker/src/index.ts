@@ -4,12 +4,18 @@
 // issue in the private moat-reports repository. A second report for the same
 // site and problem adds a comment to the open issue instead of a new one.
 //
+// Two short answers come in the same way (src/shared/feedback.ts): the
+// popup's check-in (POST /checkin, from Moat itself) and the uninstall page's
+// one question (POST /goodbye, from samuelabhinav.com/moat/goodbye/). Each
+// joins one issue per ISO week, "Check-ins 2026-W42" and "Goodbyes 2026-W42".
+//
 // What it keeps: one number, how many reports it filed today (DailyCap
 // below), so a flood can't run through the GitHub token's limits or fill
 // the repository. No logs (observability is off in wrangler.toml), nothing
 // about the sender. The caller's IP address is only passed to the rate
 // limiter as a key and never written anywhere by this code.
 import { formatReport, reportTitle, validateReport, type ProblemReport } from "../../src/shared/problemReport";
+import { formatCheckin, formatGoodbye, isoWeek, validateCheckin, validateGoodbye } from "../../src/shared/feedback";
 
 export interface RateLimiter {
   limit(options: { key: string }): Promise<{ success: boolean }>;
@@ -36,6 +42,8 @@ export interface Env {
   DAILY_CAP: CapNamespace;
   /** Reports filed per UTC day before the service answers "busy". */
   DAILY_REPORT_LIMIT: string;
+  /** Check-ins and goodbyes together, per UTC day. */
+  DAILY_FEEDBACK_LIMIT?: string;
 }
 
 /** Counts reports per UTC day across every Cloudflare location (one
@@ -63,18 +71,22 @@ export class DailyCap {
 }
 
 const DEFAULT_DAILY_LIMIT = 150;
+const DEFAULT_FEEDBACK_LIMIT = 300;
 
-/** Takes one of today's report slots; false when they're used up. */
-async function takeDailySlot(env: Env, now: Date): Promise<boolean> {
-  const limit = Number(env.DAILY_REPORT_LIMIT) || DEFAULT_DAILY_LIMIT;
-  const stub = env.DAILY_CAP.get(env.DAILY_CAP.idFromName("reports"));
+/** Takes one of today's slots ("reports", or "feedback" for check-ins and
+ * goodbyes); false when they're used up. */
+async function takeDailySlot(env: Env, now: Date, counter: "reports" | "feedback" = "reports"): Promise<boolean> {
+  const limit = counter === "reports" ? Number(env.DAILY_REPORT_LIMIT) || DEFAULT_DAILY_LIMIT : Number(env.DAILY_FEEDBACK_LIMIT) || DEFAULT_FEEDBACK_LIMIT;
+  const stub = env.DAILY_CAP.get(env.DAILY_CAP.idFromName(counter));
   const res = await stub.fetch(`https://daily-cap/take?day=${now.toISOString().slice(0, 10)}&limit=${limit}`);
   return res.ok && ((await res.json()) as { ok?: boolean }).ok === true;
 }
 
 const MAX_BODY_BYTES = 16 * 1024;
-// Only Moat's own extension pages send reports.
+// Only Moat's own extension pages send reports and check-ins.
 const EXTENSION_ORIGIN = /^(?:chrome-extension|moz-extension):\/\/[a-z0-9-]{1,64}$/;
+// The uninstall page is a web page: only Moat's own site may send goodbyes.
+const SITE_ORIGIN = "https://samuelabhinav.com";
 
 function json(body: unknown, status: number, origin: string | null): Response {
   const headers: Record<string, string> = { "content-type": "application/json", "cache-control": "no-store" };
@@ -143,7 +155,38 @@ export async function fileReport(report: ProblemReport, env: Env, fetchImpl: typ
   return ((await created.json()) as { number: number }).number;
 }
 
+const WEEKLY = {
+  checkin: { title: "Check-ins", label: "checkin" },
+  goodbye: { title: "Goodbyes", label: "goodbye" },
+} as const;
+
+/** Adds an answer to this week's issue for its kind, opening the issue the
+ * first time. Returns the issue number. */
+export async function fileWeekly(kind: keyof typeof WEEKLY, text: string, env: Env, fetchImpl: typeof fetch = fetch, now: Date = new Date()): Promise<number> {
+  const week = isoWeek(now);
+  const { title, label: kindLabel } = WEEKLY[kind];
+  const weekLabel = label(`${kindLabel}:${week}`);
+  const query = `repo:${env.REPORTS_REPO} is:issue label:"${weekLabel}"`;
+  const search = await github(env, fetchImpl, `/search/issues?q=${encodeURIComponent(query)}&per_page=1`);
+  if (search.ok) {
+    const existing = ((await search.json()) as { items?: { number: number }[] }).items?.[0]?.number;
+    if (existing) {
+      const comment = await github(env, fetchImpl, `/repos/${env.REPORTS_REPO}/issues/${existing}/comments`, { method: "POST", body: JSON.stringify({ body: text }) });
+      if (!comment.ok) throw new Error(`comment ${comment.status}`);
+      return existing;
+    }
+  }
+  const created = await github(env, fetchImpl, `/repos/${env.REPORTS_REPO}/issues`, {
+    method: "POST",
+    body: JSON.stringify({ title: `${title} ${week}`, body: text, labels: [kindLabel, weekLabel] }),
+  });
+  if (!created.ok) throw new Error(`create ${created.status}`);
+  return ((await created.json()) as { number: number }).number;
+}
+
 export async function handle(request: Request, env: Env, fetchImpl: typeof fetch = fetch, now: Date = new Date()): Promise<Response> {
+  const path = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
+  if (path === "/checkin" || path === "/goodbye") return handleFeedback(path === "/checkin" ? "checkin" : "goodbye", request, env, fetchImpl, now);
   const origin = request.headers.get("origin");
   const allowed = origin !== null && EXTENSION_ORIGIN.test(origin) ? origin : null;
   if (request.method === "OPTIONS") {
@@ -176,6 +219,42 @@ export async function handle(request: Request, env: Env, fetchImpl: typeof fetch
   try {
     const number = await fileReport(report, env, fetchImpl);
     return json({ id: `R-${number}` }, 200, allowed);
+  } catch {
+    return json({ error: "upstream" }, 502, allowed);
+  }
+}
+
+/** POST /checkin (from Moat's popup) and POST /goodbye (from the uninstall
+ * page). The same checks as a report: origin, header, size, schema, rate
+ * limits, a daily cap. */
+async function handleFeedback(kind: "checkin" | "goodbye", request: Request, env: Env, fetchImpl: typeof fetch, now: Date): Promise<Response> {
+  const origin = request.headers.get("origin");
+  const allowed = origin !== null && (kind === "checkin" ? EXTENSION_ORIGIN.test(origin) : origin === SITE_ORIGIN) ? origin : null;
+  if (request.method === "OPTIONS") {
+    return allowed ? new Response(null, { status: 204, headers: corsHeaders(allowed) }) : new Response(null, { status: 403 });
+  }
+  if (request.method !== "POST") return json({ error: "method" }, 405, allowed);
+  if (!allowed || request.headers.get("x-moat-report") !== "1") return json({ error: "origin" }, 403, allowed);
+  const text = await request.text();
+  if (text.length > 4096) return json({ error: "too large" }, 413, allowed);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return json({ error: "json" }, 400, allowed);
+  }
+  const checked = kind === "checkin" ? validateCheckin(parsed) : validateGoodbye(parsed);
+  if (!checked.ok) return json({ error: checked.error }, 400, allowed);
+  const formatted = "score" in checked.value ? formatCheckin(checked.value) : formatGoodbye(checked.value);
+
+  const ip = request.headers.get("cf-connecting-ip") ?? "unknown";
+  if (!(await env.IP_LIMITER.limit({ key: `ip:${ip}` })).success) return json({ error: "busy" }, 429, allowed);
+  if (!(await env.ALL_LIMITER.limit({ key: "all" })).success) return json({ error: "busy" }, 429, allowed);
+  if (!(await takeDailySlot(env, now, "feedback"))) return json({ error: "busy" }, 429, allowed);
+
+  try {
+    await fileWeekly(kind, formatted, env, fetchImpl, now);
+    return json({ ok: true }, 200, allowed);
   } catch {
     return json({ error: "upstream" }, 502, allowed);
   }

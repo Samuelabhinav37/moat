@@ -4164,5 +4164,81 @@
         "content": "$1"
       }
     }
+  },
+  "checkinQuestion": {
+    "message": "How is Moat working for you?",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "checkinGreat": {
+    "message": "Great",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "checkinOkay": {
+    "message": "Okay",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "checkinPoor": {
+    "message": "Not well",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "checkinNotePlaceholder": {
+    "message": "Anything to tell us? (optional)",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "checkinSend": {
+    "message": "Send",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "checkinRate": {
+    "message": "Rate Moat in the store",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "checkinLater": {
+    "message": "Not now",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "checkinNever": {
+    "message": "Don't ask again",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "checkinThanks": {
+    "message": "Thanks. It helps decide what to fix next.",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "checkinSendFailed": {
+    "message": "Couldn't send. Try again later.",
+    "description": "The popup's check-in question (checkinCard.ts)."
+  },
+  "optionsDisclosureCheckinName": {
+    "message": "Check-in question",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "optionsDisclosureCheckinSent": {
+    "message": "Only when you answer: your answer, your note, Moat's version, your browser and weeks installed. No site.",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "optionsDisclosureCheckinRecipient": {
+    "message": "Moat's developer, privately",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "optionsDisclosureCheckinWhen": {
+    "message": "when you answer",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "optionsDisclosureGoodbyeName": {
+    "message": "Uninstall page",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "optionsDisclosureGoodbyeSent": {
+    "message": "When you remove Moat, a page on Moat's website asks why. Its address carries only the version.",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "optionsDisclosureGoodbyeRecipient": {
+    "message": "samuelabhinav.com",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "optionsDisclosureGoodbyeWhen": {
+    "message": "when you remove Moat",
+    "description": "Settings > About, 'What leaves your device'."
   }
 }

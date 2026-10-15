@@ -11,6 +11,8 @@ const I = {
   key: '<circle cx="8" cy="15" r="3.5"/><path d="M10.5 12.5L19 4M16 7l2 2M13.8 9.2l2 2"/>',
   sync: '<path d="M20 11a8 8 0 00-14.5-4M4 13a8 8 0 0014.5 4M5 3v4h4M19 21v-4h-4"/>',
   flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',
+  wave: '<path d="M8 11V5.5a1.5 1.5 0 013 0V10M11 9.5V4a1.5 1.5 0 013 0v6M14 9.5V5.5a1.5 1.5 0 013 0v7.5c0 4-2.5 7-6.5 7-2.5 0-4-1.5-5.5-4l-2-3.5a1.5 1.5 0 012.6-1.5L8 13"/>',
   building: '<path d="M4 20.5V6l8-3v17.5M12 9h6a2 2 0 012 2v9.5M2.5 20.5h19M7.5 8.5h1.5M7.5 12h1.5M7.5 15.5h1.5"/>',
   sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
   bars: '<path d="M6 20V11M12 20V5M18 20v-6"/>',
@@ -43,6 +45,13 @@ const CONNECTIONS = [
     ["Nothing is sent until you press Send, and the report page shows you the whole report first.",
      "It includes the site's name (the full address only if you tick that box), the problem you picked, whether pausing helped, your note, Moat's version, your browser and its major version, your blocking level and which lists are on. It also names up to 30 sites Moat blocked on that page, unless you untick that box. Nothing else.",
      "It goes through a Cloudflare Worker that keeps no logs into a private GitHub repository only Moat's developer can read. Your IP address is used only to limit how many reports one address can send a minute."]],
+  ["chat", "Check-in question", "Your answer, your note, Moat's version, your browser and how many weeks Moat has been installed", "Moat's developer, privately", "Only when you answer", "send",
+    ["After Moat has been in use for a while, the popup asks once how it's working for you. It asks at most three times a year, and never right after something went wrong.",
+     "Nothing is sent unless you tap an answer and press Send. The answer never includes a site or anything about your browsing.",
+     "It goes through the same Cloudflare Worker as problem reports, into the same private repository."]],
+  ["wave", "Uninstall page", "The Moat version, in the page's address", "samuelabhinav.com", "When you remove Moat", "on",
+    ["When you remove Moat, your browser opens a page on Moat's website asking why. Moat itself is gone by then.",
+     "The page's address carries only the version you removed. Answering is optional: your answer and note go to Moat's developer, privately. Nothing else."]],
   ["building", "Organization security events", "A category, risk level, time and blocked domain", "Your organization's own server", "Set up by your IT team", "org",
     ["This can't be turned on by a person. It only exists when an organization's device-management policy sets it up, pointing at that organization's own server, never Moat's developer.",
      "It never sends full addresses, page content or browsing history. If you installed Moat yourself, this doesn't apply to you."]],
@@ -78,7 +87,7 @@ export function buildPrivacyBody({ fullHtml }) {
 </section>
 
 <section class="pv-sec" id="connections">
-  <div class="pv-h"><h2>Every connection Moat makes</h2><p>Six in total. Only the first is on by default, and it carries nothing about you.</p></div>
+  <div class="pv-h"><h2>Every connection Moat makes</h2><p>Eight in total. Two happen without you asking: the daily list download, and the page that opens after you remove Moat. Neither carries anything about you.</p></div>
   <div class="pv-table" role="list">
     <div class="pv-head" aria-hidden="true"><span></span><span>What</span><span>What's sent</span><span>Who receives it</span><span>When</span><span></span></div>
     ${CONNECTIONS.map(([icon, name, sent, who, when, st, detail]) => `

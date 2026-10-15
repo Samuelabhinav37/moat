@@ -28,6 +28,7 @@ const PAGES = {
   "index.html": { title: "Moat", description: "Moat is a free, open-source ad blocker for Chrome. It stops ads, trackers and hijacked pop-ups before they load. No account, no telemetry, and blocking runs in your browser.", path: BASE },
   "support/index.html": { title: "Moat Support", description: "Fix a site that looks wrong, report a problem, or find an answer about Moat.", path: `${BASE}support/` },
   "404.html": { title: "Page not found · Moat", description: "This page isn't part of Moat's site.", path: `${BASE}404.html` },
+  "goodbye/index.html": { title: "Moat is removed", description: "Tell us why you removed Moat. One question, optional.", path: `${BASE}goodbye/`, unlisted: true },
 };
 
 function fill(html, meta) {
@@ -96,7 +97,7 @@ export function buildSite() {
   write(join(OUT, "css", "docs.css"), ["src/ui/theme.css", "src/ui/components.css", "src/docs/doc.css", "site/_parts/docs-site.css"].map((p) => read(join(root, p))).join("\n"));
   write(join(OUT, "js", "docs.js"), transformSync(read(join(root, "src", "docs", "docs.ts")), { loader: "ts", format: "esm", minify: true }).code);
 
-  const pages = [BASE, ...Object.values(PAGES).map((m) => m.path).filter((p) => !p.endsWith("404.html") && p !== BASE), ...Object.values(DOCS).map((d) => `${BASE}${d.out.replace(/index\.html$/, "")}`)];
+  const pages = [BASE, ...Object.values(PAGES).filter((m) => !m.unlisted).map((m) => m.path).filter((p) => !p.endsWith("404.html") && p !== BASE), ...Object.values(DOCS).map((d) => `${BASE}${d.out.replace(/index\.html$/, "")}`)];
   write(join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${ORIGIN}${p}</loc></url>`).join("\n")}\n</urlset>\n`);
   cpSync(join(root, "site-worker", "_headers"), join(DIST, "_headers"));
 

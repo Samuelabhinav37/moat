@@ -166,6 +166,27 @@ only to an organization's own infrastructure, never to Moat's developer.
    a minute, and never passes it on. If you'd rather, the same page can
    copy the report or open it as a public GitHub issue instead.
 
+7. **The check-in, only when you answer.** After Moat has been installed
+   for ten days and in use on at least five of them, the popup asks once
+   "How is Moat working for you?" It asks at most three times a year, at
+   least two weeks apart, never in the three days after you sent a report,
+   paused a site or Moat stopped a page, and never again after you choose
+   "Don't ask again". Nothing is sent unless you tap an answer and press
+   Send. Then it sends your answer (Great, Okay or Not well), your note if
+   you wrote one, Moat's version, your browser and its major version, and
+   how many whole weeks Moat has been installed. No site, no address,
+   nothing about your browsing. It goes through the same report service as
+   problem reports, into the same private repository. The dates Moat uses
+   to decide when to ask stay on your device.
+
+8. **The uninstall page.** When you remove Moat, your browser opens
+   samuelabhinav.com/moat/goodbye/ with the removed version in the address
+   (for example `?v=0.11.287`), and nothing else about you or your
+   install. The page asks one optional question. If you answer, it sends
+   your reason, your note if you wrote one, and that version to the same
+   report service. The website runs no analytics and loads nothing from
+   anyone else.
+
 Nothing else in Moat makes a network request. In particular: the full
 filter lists and cosmetic-hiding rules that block ads and trackers are
 bundled into the extension at build time (see the project's README for

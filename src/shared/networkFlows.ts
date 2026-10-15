@@ -5,7 +5,7 @@
 
 import type { Settings } from "../types";
 
-export type FlowId = "blocking" | "stats" | "updates" | "hidden" | "breach" | "sync" | "reports" | "org";
+export type FlowId = "blocking" | "stats" | "updates" | "hidden" | "breach" | "sync" | "reports" | "checkin" | "goodbye" | "org";
 
 export interface FlowContext {
   /** Firefox resolves hidden trackers with its own DNS; only Chrome asks Cloudflare. */
@@ -44,6 +44,10 @@ export const NETWORK_FLOWS: readonly NetworkFlow[] = [
   { id: "breach", optional: true, recipient: "api.pwnedpasswords.com", applies: always, on: (settings) => settings.leakedPasswordCheck },
   { id: "sync", optional: true, recipient: "browser.storage.sync", applies: always, on: (settings) => settings.syncEnabled },
   { id: "reports", optional: false, recipient: "Moat's developer", applies: (ctx) => ctx.reports, on: () => false },
+  // Only when someone answers the popup's question; uses the report service.
+  { id: "checkin", optional: false, recipient: "Moat's developer", applies: (ctx) => ctx.reports, on: () => false },
+  // The page the browser opens after Moat is removed (background/index.ts).
+  { id: "goodbye", optional: false, recipient: "samuelabhinav.com", applies: always, on: () => false },
   { id: "org", optional: false, recipient: "Athena", applies: (ctx) => ctx.managed, on: (_settings, ctx) => ctx.managed },
 ];
 

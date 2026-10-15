@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.287
+
+### Added
+- **Moat asks how it's going, rarely.** After ten days, on a site, the popup asks once "How is
+  Moat working for you?" with three answers and an optional note. It asks at most three times a
+  year, at least two weeks apart, never in the days after something went wrong, and never again
+  after "Don't ask again". Nothing is sent unless you answer. The answer carries no site.
+- **A short question after removing Moat.** The browser opens samuelabhinav.com/moat/goodbye/,
+  which asks why, with one optional answer. Its address carries only the version.
+
 ## 0.11.286
 
 ### Changed

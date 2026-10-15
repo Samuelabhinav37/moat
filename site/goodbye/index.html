@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!--@head-->
+<meta name="robots" content="noindex">
+<style>
+  .bye { max-width: 640px; padding-top: 96px; text-align: center; }
+  .bye h1 { font-size: clamp(40px, 6vw, 64px); line-height: 1.05; letter-spacing: -0.03em; }
+  .bye > p { margin: 16px auto 0; max-width: 520px; font-size: clamp(19px, 1.9vw, 22px); line-height: 1.38; font-weight: 600; color: var(--soft); }
+  .bye form { margin-top: 48px; text-align: left; border-radius: 26px; background: var(--tile); padding: 30px; }
+  .bye fieldset { margin: 0; padding: 0; border: 0; }
+  .bye legend { padding: 0; font-size: 19px; font-weight: 600; }
+  .reasons { margin-top: 16px; display: grid; gap: 8px; }
+  .reasons label { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 14px; background: rgba(255, 255, 255, .05); color: var(--soft-2); font-size: 17px; cursor: pointer; transition: background .2s, color .2s; }
+  .reasons label:hover { background: rgba(255, 255, 255, .09); color: var(--ink); }
+  .reasons label:has(input:checked) { background: rgba(63, 111, 209, .22); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--blue); }
+  .reasons input { accent-color: var(--blue); width: 17px; height: 17px; margin: 0; }
+  .bye textarea { display: block; width: 100%; margin-top: 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255, 255, 255, .04); color: var(--ink); font: inherit; font-size: 16px; resize: vertical; }
+  .bye .fine { margin-top: 12px; font-size: 13px; color: var(--soft); }
+  .bye .btn { margin-top: 20px; width: 100%; }
+  .bye .btn:disabled { opacity: .45; cursor: default; }
+  .bye .status { margin-top: 12px; font-size: 15px; color: var(--soft); }
+  .bye .status:empty { display: none; }
+  .thanks { margin-top: 48px; border-radius: 26px; background: var(--tile); padding: 40px 30px; }
+  .thanks h2 { font-size: 28px; }
+  .thanks p { margin-top: 10px; color: var(--soft); font-size: 17px; }
+  .back { margin-top: 36px; font-size: 17px; color: var(--soft); }
+</style>
+</head>
+<body>
+<!--@nav:-->
+<main id="main" class="bye wrap">
+  <h1>Moat is removed.</h1>
+  <p>Thanks for trying it. If you have a moment, tell us why you removed it.</p>
+
+  <form id="bye-form" novalidate>
+    <fieldset>
+      <legend>What made you remove Moat?</legend>
+      <div class="reasons">
+        <label><input type="radio" name="reason" value="broke-sites"> It broke sites</label>
+        <label><input type="radio" name="reason" value="missed-ads"> It missed ads</label>
+        <label><input type="radio" name="reason" value="slow"> It slowed my browser</label>
+        <label><input type="radio" name="reason" value="switched"> I switched to another blocker</label>
+        <label><input type="radio" name="reason" value="other"> Something else</label>
+      </div>
+    </fieldset>
+    <textarea id="bye-note" rows="3" maxlength="1000" placeholder="Anything else? (optional)" aria-label="Anything else? (optional)"></textarea>
+    <p class="fine">We get your answer, your note and the Moat version. Nothing else.</p>
+    <button class="btn btn-blue" id="bye-send" type="submit" disabled>Send</button>
+    <p class="status" id="bye-status" role="status"></p>
+  </form>
+
+  <div class="thanks" id="bye-thanks" hidden>
+    <h2>Thank you.</h2>
+    <p>Every answer is read. It helps decide what to fix next.</p>
+  </div>
+
+  <p class="back">Changed your mind? <a href="/moat/">Get Moat again</a></p>
+</main>
+<!--@footer:-->
+<script src="/moat/js/goodbye.js" defer></script>
+</body>
+</html>

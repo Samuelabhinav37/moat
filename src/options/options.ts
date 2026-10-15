@@ -141,7 +141,7 @@ function tFallback(key: string, fallback: string, substitutions?: string | strin
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));
 const explainerPanel = initExplainerPanel(document, tFallback);
 // Problem reports only appear as a data flow in builds that can send them.
-(document.getElementById("flow-reports") as HTMLElement | null)?.toggleAttribute("hidden", !REPORT_ENDPOINT);
+for (const id of ["flow-reports", "flow-checkin"]) (document.getElementById(id) as HTMLElement | null)?.toggleAttribute("hidden", !REPORT_ENDPOINT);
 // Who receives each About data flow, by logo as well as name.
 for (const [flow, brand] of [["updates", "github"], ["breach", "haveibeenpwned"]] as const) {
   const to = document.querySelector<HTMLElement>(`.flow-row[data-flow="${flow}"] .flow-to`);

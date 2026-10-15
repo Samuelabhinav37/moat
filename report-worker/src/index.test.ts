@@ -143,3 +143,55 @@ describe("report service", () => {
     expect(gh.calls).toHaveLength(0);
   });
 });
+
+describe("check-ins and goodbyes", () => {
+  const checkin = { v: 1, score: "great", note: "Quiet and fast.", moatVersion: "0.11.287", browser: "Chrome 141", weeksSinceInstall: 2 };
+  const goodbye = { v: 1, reason: "switched", note: "", moatVersion: "0.11.287" };
+  const NOW = new Date(Date.UTC(2026, 9, 15));
+  const to = (path: string, body: unknown, origin: string) =>
+    new Request(`https://moat-reports.example.workers.dev${path}`, {
+      method: "POST",
+      headers: { origin, "x-moat-report": "1", "content-type": "application/json", "cf-connecting-ip": "203.0.113.7" },
+      body: JSON.stringify(body),
+    });
+
+  it("opens this week's check-in issue for the first answer", async () => {
+    const gh = fakeGithub();
+    const res = await handle(to("/checkin", checkin, ORIGIN), env(), gh.impl, NOW);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+    const create = gh.calls.find((c) => c.method === "POST")!;
+    expect(create.body).toEqual({ title: "Check-ins 2026-W42", body: "**Great** · Moat 0.11.287 on Chrome 141 · week 2\n```text\nQuiet and fast.\n```", labels: ["checkin", "checkin:2026-W42"] });
+  });
+
+  it("adds later answers to the same issue", async () => {
+    const gh = fakeGithub(9);
+    await handle(to("/checkin", checkin, ORIGIN), env(), gh.impl, NOW);
+    expect(gh.calls.filter((c) => c.method === "POST").map((c) => c.url)).toEqual(["https://api.github.com/repos/owner/moat-reports/issues/9/comments"]);
+  });
+
+  it("takes check-ins only from Moat and goodbyes only from samuelabhinav.com", async () => {
+    const gh = fakeGithub();
+    expect((await handle(to("/checkin", checkin, "https://samuelabhinav.com"), env(), gh.impl, NOW)).status).toBe(403);
+    expect((await handle(to("/goodbye", goodbye, ORIGIN), env(), gh.impl, NOW)).status).toBe(403);
+    expect((await handle(to("/goodbye", goodbye, "https://evil.example"), env(), gh.impl, NOW)).status).toBe(403);
+    const ok = await handle(to("/goodbye", goodbye, "https://samuelabhinav.com"), env(), gh.impl, NOW);
+    expect(ok.status).toBe(200);
+    expect(ok.headers.get("access-control-allow-origin")).toBe("https://samuelabhinav.com");
+    expect(gh.calls.find((c) => c.method === "POST")!.body).toMatchObject({ title: "Goodbyes 2026-W42", labels: ["goodbye", "goodbye:2026-W42"] });
+  });
+
+  it("answers the goodbye page's preflight", async () => {
+    const res = await handle(new Request("https://moat-reports.example.workers.dev/goodbye", { method: "OPTIONS", headers: { origin: "https://samuelabhinav.com" } }), env());
+    expect(res.status).toBe(204);
+  });
+
+  it("rejects bad answers and stops at the daily cap", async () => {
+    const gh = fakeGithub();
+    expect((await handle(to("/checkin", { ...checkin, score: "10/10" }, ORIGIN), env(), gh.impl, NOW)).status).toBe(400);
+    const capped = env({ DAILY_FEEDBACK_LIMIT: "1" });
+    expect((await handle(to("/checkin", checkin, ORIGIN), capped, gh.impl, NOW)).status).toBe(200);
+    expect((await handle(to("/checkin", checkin, ORIGIN), capped, gh.impl, NOW)).status).toBe(429);
+    expect((await handle(post(report), capped, gh.impl, NOW)).status).toBe(200);
+  });
+});

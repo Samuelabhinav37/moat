@@ -269,12 +269,14 @@ describe("About Moat (DR-13)", () => {
     expect(document.getElementById("about-flows-summary")?.textContent).toMatch(/nothing about your browsing leaves/);
   });
 
-  it("lists the 6 data flows with their current state, and the version", async () => {
+  it("lists the data flows with their current state, and the version", async () => {
     await renderOptions();
 
     // Problem reports only show as a data flow once the report service is set up,
     // and organization events only under an organization's policy.
-    expect(document.querySelectorAll("#about-flows .flow-row:not([hidden])").length).toBe(REPORT_ENDPOINT ? 7 : 6);
+    // The uninstall page always shows; the check-in shares the report service.
+    expect(document.querySelectorAll("#about-flows .flow-row:not([hidden])").length).toBe(REPORT_ENDPOINT ? 9 : 7);
+    expect(document.getElementById("flow-checkin")?.hidden).toBe(!REPORT_ENDPOINT);
     expect(document.getElementById("flow-reports")?.hidden).toBe(!REPORT_ENDPOINT);
     expect(document.getElementById("flow-org")?.hidden).toBe(true);
     expect(document.getElementById("flow-hidden")?.hidden).toBe(false);

@@ -9,6 +9,7 @@ import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { formatReport, reportLines, reportTitle, validateReport, type PauseAnswer, type ReportCategory } from "../shared/problemReport";
 import { REPORT_ENDPOINT, REPORT_GITHUB_NEW_ISSUE } from "../shared/reportEndpoint";
 import { sendReport } from "./sendReport";
+import { noteTrouble } from "../background/checkin";
 import { detectPreset } from "../shared/filterPresets";
 import { getEffectiveSettings } from "../background/settings";
 import { browserLabel, buildReport, hostnameFromInput, type ReportEnvironment } from "./reportForm";
@@ -180,6 +181,7 @@ form.addEventListener("submit", async (event) => {
   setStatus(t("reportSending", "Sending…"));
   try {
     const id = await sendReport(currentReport());
+    void noteTrouble();
     form.hidden = true;
     $("done-ref").textContent = id;
     $("done").hidden = false;

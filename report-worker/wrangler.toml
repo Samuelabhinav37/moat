@@ -14,6 +14,8 @@ enabled = false
 REPORTS_REPO = "Samuelabhinav37/moat-reports"
 # Reports filed per UTC day before the service answers "busy" (DailyCap).
 DAILY_REPORT_LIMIT = "150"
+# Check-ins and goodbyes together, per UTC day.
+DAILY_FEEDBACK_LIMIT = "300"
 
 # One exact, global count of today's reports. Keeps only that number.
 [[durable_objects.bindings]]

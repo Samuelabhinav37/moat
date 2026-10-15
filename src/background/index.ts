@@ -18,6 +18,8 @@ import {
 } from "./settings";
 import { startCookieClobber } from "./cookieClobber";
 import { recordUpdateSeen } from "./updateNotice";
+import { recordInstallTime } from "./checkin";
+import { goodbyeUrl } from "../shared/siteUrls";
 import { maybeOpenFirstRunTour } from "./firstRunTour";
 import { initPopupGuard } from "./popupGuard";
 import { initLiveUpdates } from "./liveUpdates";
@@ -77,8 +79,15 @@ void initializeSettings();
 // update be detected) and seeds the "standard" filter-group defaults
 // (see filterPresets.ts); on every other reason, initializeSettings behaves
 // the same as the unconditional call above.
+// After Moat is removed the browser opens one page asking why (optional).
+// Set on every start, so it always names the version that was installed.
+void Promise.resolve()
+  .then(() => browser.runtime.setUninstallURL(goodbyeUrl(browser.runtime.getManifest().version)))
+  .catch(() => {});
+
 browser.runtime.onInstalled.addListener((details) => {
   void recordUpdateSeen(details.reason);
+  void recordInstallTime(details.reason);
   void initializeSettings(details.reason);
   void maybeOpenFirstRunTour(details.reason);
 });

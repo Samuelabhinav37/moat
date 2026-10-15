@@ -15,7 +15,21 @@ export const SITE_URLS = {
   licenses: `${SITE}licenses/`,
 } as const;
 
+/** The page the browser opens after Moat is removed: one optional question.
+ * It carries only the version, nothing that identifies the install. */
+export function goodbyeUrl(version: string): string {
+  return `${SITE}goodbye/?v=${encodeURIComponent(version)}`;
+}
+
 /** What's New, scrolled to one version's entry (ids are v0-11-284). */
 export function whatsNewUrl(version: string): string {
   return `${SITE_URLS.whatsNew}#v${version.replace(/\./g, "-")}`;
+}
+
+// The store listings' review pages. Empty until each listing exists; the
+// check-in's "Rate Moat" link stays hidden while its browser's is empty.
+export const STORE_REVIEW = { chrome: "", firefox: "" } as const;
+
+export function storeReviewUrl(userAgent: string): string {
+  return /Firefox\//.test(userAgent) ? STORE_REVIEW.firefox : STORE_REVIEW.chrome;
 }

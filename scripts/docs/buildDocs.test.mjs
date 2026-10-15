@@ -29,7 +29,7 @@ describe("document pages", () => {
   it("names every connection on the privacy page the way Settings › About does", () => {
     const en = JSON.parse(readFileSync(join(root, "src/_locales/en/messages.json"), "utf8"));
     const html = page("privacy.html");
-    for (const key of ["optionsDisclosureUpdatesName", "optionsDisclosureCnameName", "optionsDisclosureBreachName", "optionsDisclosureSyncName", "optionsDisclosureReportsName", "optionsDisclosureOrgName"]) {
+    for (const key of ["optionsDisclosureUpdatesName", "optionsDisclosureCnameName", "optionsDisclosureBreachName", "optionsDisclosureSyncName", "optionsDisclosureReportsName", "optionsDisclosureCheckinName", "optionsDisclosureGoodbyeName", "optionsDisclosureOrgName"]) {
       expect(html, key).toContain(en[key].message);
     }
   });

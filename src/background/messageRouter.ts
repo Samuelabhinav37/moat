@@ -3,6 +3,7 @@
 // Split out of index.ts so it can be tested on its own
 // (messageRouter.test.ts); index.ts registers it.
 import { getBlockedHosts } from "./liveBlocks";
+import { noteTrouble } from "./checkin";
 import { topBlockedHosts } from "../shared/problemReport";
 import browser, { type Runtime } from "webextension-polyfill";
 import {
@@ -228,6 +229,8 @@ export function handleMessage(raw: unknown, sender: Runtime.MessageSender): Prom
       const until = message.until;
       if (until !== undefined && (typeof until !== "number" || !Number.isFinite(until) || until <= Date.now() || until > Date.now() + 366 * 864e5)) return undefined;
       const from = PAUSE_SOURCES.includes(message.from as PauseSource) ? message.from : undefined;
+      // Pausing a site means something was wrong there: not the moment for the check-in.
+      if (message.disabled === true) void noteTrouble();
       return setSiteDisabled(message.hostname, message.disabled === true, until, from).then(() => undefined);
     }
 

@@ -5,6 +5,10 @@ import { applyStaticI18n } from "../shared/i18n";
 import { CUSTOM_LIST, POLICY_LIST, UNKNOWN_LIST, destinationIn, parseBlockedPageQuery, type BlockKind } from "../shared/blockedPage";
 import { LIST_LABELS } from "../options/filterListLabels";
 import type { OpenBlockedPageMessage } from "../types";
+import { noteTrouble } from "../background/checkin";
+
+// A stopped page is a bad moment for the check-in question.
+void noteTrouble().catch(() => {});
 
 const msg = (key: string, fallback: string, subs?: string | string[]): string => browser.i18n.getMessage(key, subs) || fallback;
 applyStaticI18n(document, (key, subs) => browser.i18n.getMessage(key, subs));

@@ -20,6 +20,7 @@ import { pauseEnd, pauseEndLabel, type PauseLength } from "../shared/pauseDurati
 import { getUsageSummary } from "../background/usageStats";
 import { whatsNewUrl } from "../shared/siteUrls";
 import { initReportPanel } from "./reportPanel";
+import { maybeShowCheckin } from "./checkinCard";
 
 // Firefox for Android opens the action popup as a full-width panel with no
 // toolbar anchor, so Moat's fixed 260px column reads as a narrow strip. Give
@@ -348,6 +349,8 @@ async function render(): Promise<void> {
   }
 
   reportButton.hidden = false;
+  // Not on top of an update notice or the first-run card.
+  void maybeShowCheckin(document, () => !document.getElementById("update-notice")!.hidden || !document.getElementById("onboarding-card")!.hidden).catch(() => {});
   // The actual http(s)-only guard lives in freshStart.ts and runs again at
   // click time against the tab's real URL -- status.hostname here is only
   // used to decide whether to show the button at all, same condition that
