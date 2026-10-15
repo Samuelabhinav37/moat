@@ -66,10 +66,12 @@ with one click.
 
 ## Install
 
-Moat is on its way to the Chrome Web Store and Firefox Add-ons. Until then it takes about a minute
-to install from here.
+**Chrome, Edge or Brave:** install Moat from the
+[Chrome Web Store](https://chromewebstore.google.com/detail/moat/milopilhjmgnbeiieepbiggdobnofbjb).
 
-**Chrome, Edge or Brave**
+Moat is on its way to Firefox Add-ons. Until then it takes about a minute to install from here.
+
+**From source (any Chromium browser)**
 
 1. Download **`chrome.zip`** from the [latest release](https://github.com/Samuelabhinav37/moat/releases/latest)
    and unzip it.

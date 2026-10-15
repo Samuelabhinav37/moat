@@ -4,9 +4,9 @@
 export const ORIGIN = "https://samuelabhinav.com";
 export const BASE = "/moat/";
 export const REPO = "https://github.com/Samuelabhinav37/moat";
-// TODO(launch): the Chrome Web Store listing URL isn't known yet. Until it is,
-// every data-store link points at GitHub releases.
-export const STORE = `${REPO}/releases`;
+// The Chrome Web Store listing. scripts/site-build.mjs points every
+// data-store link on every page here, so it changes in one place.
+export const STORE = "https://chromewebstore.google.com/detail/moat/milopilhjmgnbeiieepbiggdobnofbjb";
 
 export const PAGES = {
   overview: { href: BASE, label: "Overview" },

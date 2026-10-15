@@ -14,7 +14,7 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { transformSync } from "esbuild";
 import { buildDocs } from "./docs/buildDocs.mjs";
-import { BASE, ORIGIN, footer, head, nav } from "./site/chrome.mjs";
+import { BASE, ORIGIN, STORE, footer, head, nav } from "./site/chrome.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = join(root, "site");
@@ -84,7 +84,7 @@ export function buildSite() {
 
   for (const [rel, meta] of Object.entries(PAGES)) {
     const p = join(OUT, rel);
-    write(p, fill(read(p), meta));
+    write(p, fill(read(p), meta).replace(/(data-store href=")[^"]*"/g, `$1${STORE}"`));
   }
 
   const tmp = mkdtempSync(join(tmpdir(), "moat-site-"));

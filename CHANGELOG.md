@@ -3,6 +3,12 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.288
+
+### Changed
+- **Moat is on the Chrome Web Store.** The check-in's "Rate Moat in the store" link now opens its
+  reviews there, and every "Add to Chrome" button on the website opens the listing.
+
 ## 0.11.287
 
 ### Added

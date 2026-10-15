@@ -26,9 +26,9 @@ export function whatsNewUrl(version: string): string {
   return `${SITE_URLS.whatsNew}#v${version.replace(/\./g, "-")}`;
 }
 
-// The store listings' review pages. Empty until each listing exists; the
-// check-in's "Rate Moat" link stays hidden while its browser's is empty.
-export const STORE_REVIEW = { chrome: "", firefox: "" } as const;
+// The store listings' review pages. Firefox's is empty until its Add-ons
+// listing exists; the check-in's "Rate Moat" link stays hidden there.
+export const STORE_REVIEW = { chrome: "https://chromewebstore.google.com/detail/moat/milopilhjmgnbeiieepbiggdobnofbjb/reviews", firefox: "" } as const;
 
 export function storeReviewUrl(userAgent: string): string {
   return /Firefox\//.test(userAgent) ? STORE_REVIEW.firefox : STORE_REVIEW.chrome;
