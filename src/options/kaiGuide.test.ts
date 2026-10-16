@@ -8,7 +8,7 @@ function setup(screen = "overview", off = false) {
   const turnOn = vi.fn();
   const openHelp = vi.fn();
   const help = vi.fn();
-  document.body.innerHTML = '<div id="pause-box">pause here</div><a data-nav-link data-page="exceptions"><span class="nav-name">Exceptions</span></a><input type="checkbox" id="opt">';
+  document.body.innerHTML = '<div id="pause-box">pause here</div><a data-nav-link data-page="exceptions"><span class="nav-name">Exceptions</span></a>';
   const questions: KaiQuestion[] = [
     { id: "level", ask: ["a", "Where do I change the level?"], answer: ["b", "Protection, then Level."], hash: "#blocking" },
     { id: "pause", ask: ["c", "How do I pause a site?"], answer: ["d", "Exceptions, then Paused."], hash: "#paused", target: "#pause-box" },
@@ -64,12 +64,14 @@ describe("Kai's guide", () => {
   });
 
   it("comes back only when you look stuck: a rage click", () => {
-    setup();
+    const { kai } = setup();
     const guide = document.querySelector(".kai-guide")!;
     const tag = document.querySelector(".kg-tag")!;
     vi.advanceTimersByTime(13000);
     expect(guide.classList.contains("tag-on")).toBe(false);
-    const click = () => document.getElementById("pause-box")!.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: 50, clientY: 50, detail: 1 }));
+    // (the watcher only counts the person's own clicks; the e2e covers real
+    // ones, .cache/opt/field/kai-bubble-e2e.mjs)
+    const click = () => kai.watch!.click(50, 50);
     click(); vi.advanceTimersByTime(150); click(); vi.advanceTimersByTime(150); click();
     expect(guide.classList.contains("tag-on")).toBe(true);
     expect(tag.textContent).toBe("Something not working? Ask me.");
@@ -78,10 +80,9 @@ describe("Kai's guide", () => {
   });
 
   it("names the screen when a switch keeps flipping, and never nudges while the chat is open", () => {
-    const { open, button } = setup("exceptions");
+    const { open, button, kai } = setup("exceptions");
     vi.advanceTimersByTime(13000);
-    const box = document.getElementById("opt") as HTMLInputElement;
-    const flip = () => box.dispatchEvent(new Event("change", { bubbles: true }));
+    const flip = () => kai.watch!.flip("opt");
     open();
     flip(); flip(); flip();
     const guide = document.querySelector(".kai-guide")!;

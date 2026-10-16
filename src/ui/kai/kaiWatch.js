@@ -215,13 +215,14 @@
     return api;
   }
 
-  /* Wire a page's events to the watcher. */
+  /* Wire a page's events to the watcher. Only the person's own input
+     counts (isTrusted): clicks a script fires are not struggle. */
   function attach(win, api, kaiEl, L) {
     var doc = win.document;
     var mine = function (el) { return !!(kaiEl && el && el.nodeType && kaiEl.contains(el)); };
     doc.addEventListener('click', function (e) {
       var t = e.target;
-      if (mine(t) || e.detail === 0) return; // keyboard "clicks" aren't struggle
+      if (!e.isTrusted || mine(t) || e.detail === 0) return; // keyboard "clicks" aren't struggle
       var sel = win.getSelection && String(win.getSelection() || '');
       // tapping a stepper fast or triple-clicking to select text is on purpose
       if (!sel && !(t.closest && t.closest(STEPPERS))) api.click(e.clientX, e.clientY);
@@ -231,8 +232,11 @@
       if (!sel && looksClickable(t) && !(t.closest && t.closest(INTERACTIVE))) checkDead();
     }, true);
     // a dead click: nothing on the page changed, no navigation, no scroll
+    // (one check at a time)
+    var checking = false;
     function checkDead() {
-      if (!win.MutationObserver) return;
+      if (!win.MutationObserver || checking) return;
+      checking = true;
       var href = win.location.href, y = win.scrollY, changed = false;
       var mo = new win.MutationObserver(function (list) {
         for (var i = 0; i < list.length; i++) if (!mine(list[i].target)) { changed = true; mo.disconnect(); return; }
@@ -240,16 +244,17 @@
       mo.observe(doc.documentElement, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class', 'hidden', 'open', 'aria-expanded', 'aria-selected', 'aria-checked', 'aria-pressed'] });
       setTimeout(function () {
         mo.disconnect();
+        checking = false;
         if (!changed && win.location.href === href && win.scrollY === y && !doc.hidden) api.dead();
       }, L.deadWaitMs);
     }
     function looksClickable(el) {
       try { return el.nodeType === 1 && win.getComputedStyle(el).cursor === 'pointer'; } catch (e) { return false; }
     }
-    doc.addEventListener('keydown', function () { api.key(); }, true);
+    doc.addEventListener('keydown', function (e) { if (e.isTrusted) api.key(); }, true);
     doc.addEventListener('change', function (e) {
       var t = e.target;
-      if (!t || mine(t) || !t.matches || !t.matches('input[type="checkbox"], input[type="radio"], select')) return;
+      if (!e.isTrusted || !t || mine(t) || !t.matches || !t.matches('input[type="checkbox"], input[type="radio"], select')) return;
       api.flip(t.id || t.name || cssPath(t));
     }, true);
     var ticking = false, last = null;
@@ -266,6 +271,7 @@
     // hovering a control a while, then leaving without a click
     var over = null, overAt = 0, pressed = false;
     doc.addEventListener('pointerover', function (e) {
+      if (!e.isTrusted) return;
       if (e.pointerType && e.pointerType !== 'mouse') return;
       var c = e.target && e.target.closest && e.target.closest('a[href], button, [role="button"], [role="tab"], select, summary');
       if (c && mine(c)) c = null;

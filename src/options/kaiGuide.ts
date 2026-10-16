@@ -22,7 +22,7 @@
 import "../ui/kai/kaiLife.js";
 import "../ui/kai/kaiWatch.js";
 import type { KaiInstance } from "../ui/kai/kaiLife";
-import type { KaiNudgeKind } from "../ui/kai/kaiWatch";
+import type { KaiNudgeKind, KaiWatch } from "../ui/kai/kaiWatch";
 import type { Translate } from "./overviewView";
 
 export interface KaiQuestion {
@@ -95,7 +95,7 @@ export function pointAt(doc: Document, selector: string): boolean {
   return true;
 }
 
-export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => void; close: () => void; isOpen: () => boolean } {
+export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => void; close: () => void; isOpen: () => boolean; watch: KaiWatch | undefined } {
   const { t } = options;
   const win = doc.defaultView ?? window;
   const reduced = win.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
@@ -422,5 +422,5 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
     if (isOpen() && !event.composedPath().includes(root)) hide();
   });
 
-  return { open: show, close: hide, isOpen };
+  return { open: show, close: hide, isOpen, watch };
 }
