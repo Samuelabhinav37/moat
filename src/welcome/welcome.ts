@@ -10,6 +10,11 @@ import { watchPinState, type ActionLike, type PinState } from "./pinState";
 import { getEffectiveSettings } from "../background/settings";
 import { detectPreset, presetDifference, presetPatch, type PresetName } from "../shared/filterPresets";
 import type { SetSettingsPatchMessage } from "../types";
+import "../ui/kai/kaiLife.js";
+
+// Kai floats beside the steps and follows the pointer (the full engine:
+// this page is quiet, unlike Settings, so Kai may float here).
+const kai = window.Kai?.(document.getElementById("kai") as HTMLElement, { src: "characters/", imgWidth: 320, auto: true, sleepAfter: 600000 });
 
 const getMessage = (key: string, subs?: string | string[]) => browser.i18n.getMessage(key, subs);
 const t = (key: string, fallback: string, subs?: string | string[]) => getMessageOrFallback(getMessage, key, fallback, subs);
@@ -206,10 +211,10 @@ function setMoat(on: boolean): void {
   if (on) cheer();
 }
 
-/** Kai squints happily for a moment. */
+/** Kai cheers for a moment. */
 function cheer(): void {
-  $("kai").classList.add("happy");
-  setTimeout(() => $("kai").classList.remove("happy"), 1600);
+  kai?.setMood("joyful", 1600);
+  kai?.do("hop");
 }
 
 $("on").addEventListener("click", () => setMoat(true));

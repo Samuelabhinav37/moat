@@ -156,8 +156,9 @@ const helpPanel = initHelpPanel(document, {
   testPageUrl: "https://d3ward.github.io/toolz/adblock.html",
 });
 // Kai in the bottom-right corner: plain questions; each answer opens the
-// right screen and outlines the control (kaiGuide.ts).
-initKaiGuide(document, {
+// right screen and outlines the control (kaiGuide.ts). It also reacts to
+// what happens here: protection off and on, a paused site, a milestone.
+const kaiGuide = initKaiGuide(document, {
   t: tFallback,
   currentScreen: () => pageFromHash(window.location.hash),
   isOff: () => document.getElementById("ov-status")?.dataset.state === "off",
@@ -172,6 +173,7 @@ initKaiGuide(document, {
     { id: "backup", ask: ["kaiQBackup", "How do I keep my settings on another computer?"], answer: ["kaiABackup", "Under Backup and sync, save a backup file or turn on sync."], hash: "#backup", target: "#a-backup" },
     { id: "broken", ask: ["kaiQBroken", "A site isn't working"], answer: ["kaiABroken", "Let's fix it step by step."], run: () => helpPanel.openTopic("load") },
     { id: "working", ask: ["kaiQWorking", "Is Moat working?"], answer: ["kaiAWorking", "Here's how to check."], run: () => helpPanel.openTopic("verify") },
+    { id: "data", ask: ["kaiQData", "Does Moat collect my data?"], answer: ["kaiAData", "No. Blocking runs on your device, with no account and no analytics. The daily list updates carry nothing about you."] },
   ],
   firstOn: {
     overview: ["blocked", "working"],
@@ -181,7 +183,7 @@ initKaiGuide(document, {
     trackers: ["blocked"],
     sites: ["pause", "broken"],
     security: ["broken"],
-    about: ["working"],
+    about: ["working", "data"],
   },
 });
 initNavMode(window, {
@@ -1067,6 +1069,7 @@ function renderOverviewStatus(): void {
   if (!overviewSettings) return;
   const state = !overviewSettings.enabled ? "off" : overviewLiveStatus && !overviewLiveStatus.ok ? "failed" : "on";
   ovStatus.dataset.state = state;
+  kaiGuide.protection(state === "off");
   const title = document.getElementById("ov-status-title") as HTMLElement;
   const msg = document.getElementById("ov-status-msg") as HTMLElement;
   msg.hidden = ovStatusAction.hidden = state === "on";
@@ -2110,6 +2113,7 @@ addButton.addEventListener("click", async () => {
   await setSiteDisabled(hostname, true, pauseEnd(length, Date.now()), "exceptions");
   addInput.value = "";
   await rerenderSiteList();
+  kaiGuide.moment({ name: "paused" });
 });
 
 addInput.addEventListener("keydown", (event) => {
@@ -2227,6 +2231,21 @@ function levelLabel(preset: PresetName | "custom"): string {
   }
 }
 
+/** Kai is proud once when this week's total passes 1,000, 10,000 or
+ * 100,000, only while Overview is on screen. Remembered per week. */
+const KAI_MILESTONES = [1000, 10000, 100000];
+function celebrateWeek(week: number): void {
+  if (pageFromHash(window.location.hash) !== "overview") return;
+  const reached = KAI_MILESTONES.filter((m) => week >= m).pop();
+  if (!reached) return;
+  const weekNo = Math.floor(Date.now() / (7 * 86400000));
+  let seen = { w: -1, m: 0 };
+  try { seen = { ...seen, ...JSON.parse(localStorage.getItem("moat-kai-milestone") ?? "{}") }; } catch { /* first time */ }
+  if (seen.w === weekNo && seen.m >= reached) return;
+  try { localStorage.setItem("moat-kai-milestone", JSON.stringify({ w: weekNo, m: reached })); } catch { /* still fine */ }
+  kaiGuide.moment({ name: "milestone", count: reached });
+}
+
 /** The week at a glance, from the same local counts the Trackers list
  * reads: usage.sparkline is 7 daily totals, oldest first, ending today. */
 let overviewPeriod: "this" | "last" = "this";
@@ -2245,6 +2264,7 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   const dailyKinds = last ? last.dailyKinds : usage.dailyKinds;
   const week = days.reduce((sum, n) => sum + n, 0);
   document.getElementById("ov-week-total")!.textContent = week.toLocaleString();
+  if (!last) celebrateWeek(week);
   document.getElementById("ov-week-empty")!.hidden = week > 0;
   (document.querySelector(".ov-hint") as HTMLElement).hidden = week === 0;
   const preset = detectPreset(settings);

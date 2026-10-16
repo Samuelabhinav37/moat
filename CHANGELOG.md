@@ -3,6 +3,42 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.291
+
+### Changed
+- **Kai has more character.** Kai now has a voice: short, honest and a little playful, and
+  openly a robot. It says hello at most once a day, "Welcome back." on a later day, and
+  nothing when you come back the same day.
+- Kai reacts to what you do. It looks worried while Moat is off and breathes out with
+  "Back on guard." when it's back on. It looks away when you pause a site, gets a little proud
+  when the week passes 1,000 blocked, and nods when you change a setting.
+- "Show me" now has Kai look at the spot first, then the outline appears.
+- Reopening the chat within 10 minutes keeps the conversation.
+
+## 0.11.290
+
+### Changed
+- **Kai's bubble only shows when it helps.** Kai says hello once per visit, then "Ask Kai",
+  then the bubble folds away and Kai waits in the corner. It comes back when you look stuck:
+  clicking the same spot again and again, clicking something that does nothing, going back
+  and forth between two screens, flipping the same switch, or searching around without
+  clicking. At most once per screen, a minute apart and three times a visit, never while you
+  type, and Kai stays quiet once you've passed it by twice.
+
+### Fixed
+- Kai no longer jumps sideways when it says hello. The bubble now grows up and to the left
+  from Kai's head, and Kai stays exactly where it is.
+
+## 0.11.289
+
+### Changed
+- **Kai, redesigned.** Kai now faces you, with a live face: it blinks, looks at your pointer,
+  smiles, thinks and talks. In Settings it stays in the corner at the same size, with "Ask Kai"
+  above it, and opens a chat of plain questions. Kai answers, then "Show me" opens the right
+  screen and outlines the control. A new question answers whether Moat collects your data.
+  Kai draws nothing while it is still, so Settings stays as smooth as before.
+- Kai also speaks the "How it works" pictures and welcomes you on the first-run tour.
+
 ## 0.11.288
 
 ### Changed

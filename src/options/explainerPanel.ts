@@ -6,6 +6,8 @@
 // for it while it's open). On phones it opens the picture inside the row.
 
 import { SCREEN_SCENES, buildScene, hasScene } from "./explainers";
+import { makeKai } from "./kaiGuide";
+import type { KaiInstance } from "../ui/kai/kaiLife";
 
 type Translate = (key: string, fallback: string) => string;
 
@@ -236,25 +238,35 @@ export function helpSceneFor(rowId: string): string | null {
   return ROWS_WITHOUT_HELP.has(rowId) ? null : sceneFor(rowId);
 }
 
-/** Kai, Moat's mascot, who "says" each caption (decoration only). */
-function kaiAvatar(): HTMLElement {
-  const kai = document.createElement("span");
-  kai.className = "ex-kai";
-  kai.setAttribute("aria-hidden", "true");
-  const img = document.createElement("img");
-  img.src = "characters/kai.webp";
-  img.alt = "";
-  kai.append(img, Object.assign(document.createElement("i"), { className: "lid l" }), Object.assign(document.createElement("i"), { className: "lid r" }));
+/** The live Kai in each ".ex-kai" spot, made the first time it speaks. */
+const kais = new WeakMap<HTMLElement, KaiInstance>();
+function kaiIn(spot: HTMLElement): KaiInstance {
+  let kai = kais.get(spot);
+  if (!kai) {
+    kai = makeKai(spot, 160);
+    kais.set(spot, kai);
+  }
   return kai;
 }
 
-/** A short nod from the Kai beside `captionEl`, as the caption changes. */
+/** How long Kai's mouth moves for a caption. */
+const talkFor = (text: string) => Math.min(2600, 400 + text.length * 18);
+
+/** Kai, Moat's mascot, who "says" each caption (decoration only). */
+function kaiAvatar(): HTMLElement {
+  const spot = document.createElement("span");
+  spot.className = "ex-kai";
+  spot.setAttribute("aria-hidden", "true");
+  return spot;
+}
+
+/** The Kai beside `captionEl` nods and talks as the caption changes. */
 function kaiNod(captionEl: HTMLElement): void {
-  const kai = captionEl.parentElement?.querySelector<HTMLElement>(".ex-kai");
-  if (!kai) return;
-  kai.classList.remove("talk");
-  void kai.offsetWidth;
-  kai.classList.add("talk");
+  const spot = captionEl.parentElement?.querySelector<HTMLElement>(".ex-kai");
+  if (!spot) return;
+  const kai = kaiIn(spot);
+  kai.do("nod");
+  kai.talk(talkFor(captionEl.textContent ?? ""));
 }
 
 function fillPicture(target: HTMLElement, sceneId: string, t: Translate, captionEl?: HTMLElement): void {
@@ -270,8 +282,10 @@ function fillPicture(target: HTMLElement, sceneId: string, t: Translate, caption
   say.className = "ex-say";
   const text = document.createElement("p");
   text.textContent = caption(sceneId, t);
-  say.append(kaiAvatar(), text);
+  const spot = kaiAvatar();
+  say.append(spot, text);
   target.replaceChildren(scene, ...(step ? [step] : []), say);
+  kaiIn(spot).talk(talkFor(text.textContent));
 }
 
 const SVG_NS = "http://www.w3.org/2000/svg";
