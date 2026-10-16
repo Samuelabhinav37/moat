@@ -11,8 +11,18 @@
 // Settings stutter, see options.css). It is the only Kai on the page: it
 // hides while the "How it works" drawer (where Kai explains the picture) or
 // Help is open. DOM calls only.
+//
+// The bubble above Kai floats on its own, pinned over Kai's right edge
+// (options.css), so a long hello grows it up and to the left and Kai never
+// moves. When it shows is kaiWatch.js's call: the hello once per visit,
+// then "Ask Kai", then it folds away and only comes back when you look
+// stuck (rage or dead clicks, back and forth between screens, flipping a
+// switch, hunting without clicking), or as "Need help?" when the pointer
+// comes near Kai.
 import "../ui/kai/kaiLife.js";
+import "../ui/kai/kaiWatch.js";
 import type { KaiInstance } from "../ui/kai/kaiLife";
+import type { KaiNudgeKind } from "../ui/kai/kaiWatch";
 import type { Translate } from "./overviewView";
 
 export interface KaiQuestion {
@@ -116,10 +126,11 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
   body.append(log);
   panel.append(head, body);
 
-  // Kai in the corner with "Ask Kai" above it; the bubble also carries the
-  // hello when Settings opens and "Need help?" when the pointer comes near.
+  // Kai in the corner with the bubble above it.
   const launch = el(doc, "div", "kg-launch");
-  const tag = el(doc, "button", "kg-tag", t("kaiOpen", "Ask Kai"));
+  const tag = el(doc, "button", "kg-tag");
+  const tagText = el(doc, "span", "kg-tag-text", t("kaiOpen", "Ask Kai"));
+  tag.append(tagText);
   tag.type = "button";
   tag.tabIndex = -1;
   tag.setAttribute("aria-hidden", "true");
@@ -268,7 +279,9 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
     panel.hidden = false;
     root.classList.add("open");
     button.setAttribute("aria-expanded", "true");
-    hideNudge();
+    hint = false;
+    watch?.opened();
+    tagFold();
     kai.do("wave");
     // Each time it opens, Kai starts afresh with this screen's questions.
     log.replaceChildren();
@@ -286,28 +299,76 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
     status.textContent = statusText;
   };
 
-  let nudgeTimer = 0;
-  const showNudge = (text: string, ms: number) => {
-    if (isOpen()) return;
-    tag.textContent = text;
-    root.classList.add("nudging");
-    win.clearTimeout(nudgeTimer);
-    if (ms) nudgeTimer = win.setTimeout(hideNudge, ms);
+  // The bubble: new words fade in while the bubble eases to its new width.
+  let swapTimer = 0;
+  let sizeTimer = 0;
+  let hint = false;
+  const tagSay = (text: string) => {
+    win.clearTimeout(swapTimer);
+    win.clearTimeout(sizeTimer);
+    if (!root.classList.contains("tag-on") || reduced) {
+      tagText.textContent = text;
+      tag.style.width = "";
+      root.classList.add("tag-on");
+      return;
+    }
+    if (tagText.textContent === text) return;
+    tag.classList.add("swap");
+    swapTimer = win.setTimeout(() => {
+      const from = tag.offsetWidth;
+      tag.style.width = "";
+      tagText.textContent = text;
+      const to = tag.offsetWidth;
+      tag.style.width = `${from}px`;
+      void tag.offsetWidth;
+      tag.style.width = `${to}px`;
+      tag.classList.remove("swap");
+      sizeTimer = win.setTimeout(() => { tag.style.width = ""; }, 320);
+    }, 130);
   };
-  const hideNudge = () => {
-    tag.textContent = t("kaiOpen", "Ask Kai");
-    root.classList.remove("nudging");
-    win.clearTimeout(nudgeTimer);
+  const tagFold = () => {
+    win.clearTimeout(swapTimer);
+    root.classList.remove("tag-on");
+    tag.classList.remove("swap");
   };
+  const react: Record<KaiNudgeKind, () => void> = {
+    welcome: () => { kai.setMood("happy", 2200); kai.do("wave"); },
+    stuck: () => { kai.setMood("curious", 2400); kai.do("tilt"); },
+    looking: () => { kai.do("lookAround"); win.setTimeout(() => { kai.lookAt(null); kai.setMood("happy", 1600); }, 900); },
+    unsure: () => { kai.setMood("curious", 2400); kai.do("tilt"); },
+  };
+  // Help and the "How it works" drawer hide Kai (display: none in options.css)
+  const hidden = () => win.getComputedStyle(root).display === "none";
+  const watch = win.KaiWatch?.({
+    win,
+    kaiEl: root,
+    isOpen: () => isOpen() || hidden(),
+    show: (kind, text) => { hint = false; tagSay(text); react[kind](); },
+    hide: () => { if (!hint) tagFold(); },
+    text: {
+      welcome: t("kaiOpen", "Ask Kai"),
+      stuck: t("kaiNudgeStuck", "Something not working? Ask me."),
+      looking: t("kaiNudgeLooking", "Looking for something?"),
+      unsure: t("kaiNudgeUnsure", "Not sure what that does?"),
+      named: t("kaiNudgeNamed", "Need help with {name}?"),
+    },
+    sectionName: (id) => (id === "overview" ? "" : doc.querySelector(`[data-nav-link][data-page="${CSS.escape(id)}"] .nav-name`)?.textContent?.trim() ?? ""),
+    storageKey: "moat-kai-watch",
+  });
+  const onScreen = () => watch?.section(options.currentScreen());
+  onScreen();
+  win.addEventListener("hashchange", () => win.setTimeout(onScreen, 50));
   tag.addEventListener("click", show);
-  // Hello: Kai smiles, waves and says hi once, as Settings opens.
+  // Hello: once per visit, Kai smiles, waves and says hi; then the bubble
+  // says "Ask Kai" for a moment and folds away.
   win.setTimeout(() => {
-    kai.setMood("happy", 2200);
-    kai.do("wave");
-    showNudge(t("kaiHello", "Hi! I'm Kai. Ask me if you need anything."), 4200);
+    if (!watch) return tagSay(t("kaiOpen", "Ask Kai"));
+    if (!watch.welcome(t("kaiHello", "Hi! I'm Kai. Ask me if you need anything."), 8000)) return;
+    win.setTimeout(() => { if (watch.isShowing() === "welcome") tagSay(t("kaiOpen", "Ask Kai")); }, 4200);
   }, 700);
   // Near: when the pointer comes within reach, Kai looks at it and offers
-  // help. Checked at most once a frame, and only reads Kai's own box.
+  // help (not counted as a nudge). Checked at most once a frame, and only
+  // reads Kai's own box.
   let near = false;
   let pending = false;
   let px = 0;
@@ -326,11 +387,14 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
       if (isOpen()) return;
       if (!near && d < 170) {
         near = true;
-        kai.setMood("happy", 1500);
-        showNudge(t("kaiNeedHelp", "Need help?"), 0);
+        if (!watch?.isShowing()) {
+          hint = true;
+          kai.setMood("happy", 1500);
+          tagSay(t("kaiNeedHelp", "Need help?"));
+        }
       } else if (near && d > 260) {
         near = false;
-        hideNudge();
+        if (hint) { hint = false; tagFold(); }
       }
     });
   }, { passive: true });

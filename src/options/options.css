@@ -4192,27 +4192,33 @@ body { font-family: var(--font); font-size: 15px; letter-spacing: -0.008em; -web
    in Settings' own colours, so both themes follow. */
 .kai-guide { position: fixed; right: 24px; bottom: 18px; z-index: 30; pointer-events: none; }
 .kai-guide > * { pointer-events: auto; }
-.kg-launch { display: flex; flex-direction: column; align-items: center; }
-.kai-button { padding: 0; border: 0; background: none; cursor: pointer; border-radius: 16px; }
+.kg-launch { --kg-kai: 72px; position: relative; width: var(--kg-kai); }
+.kai-button { display: block; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 16px; }
 .kai-button:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 4px; }
-.kg-kai.kai { --kai-w: 72px; }
-/* "Ask Kai" (or the hello) above Kai's head, pointing down at it */
+.kg-kai.kai { --kai-w: var(--kg-kai); }
+/* The bubble above Kai's head (the hello, "Ask Kai", "Need help?"). It is
+   out of the layout, pinned to Kai's right edge with its tail over Kai's
+   head: longer text grows it up and to the left and Kai stays put. It
+   shows only while .tag-on is set (kaiGuide.ts / kaiWatch.js). */
 .kg-tag {
-  position: relative; margin-bottom: 2px; max-width: min(240px, calc(100vw - 48px));
+  position: absolute; right: 0; bottom: calc(100% + 8px);
+  box-sizing: border-box; width: max-content; min-width: 100%; max-width: min(240px, calc(100vw - 48px));
   padding: 6px 12px; border: 1px solid var(--line-2); border-radius: 12px;
   background: var(--panel); color: var(--fg); font: inherit; font-size: 13px; font-weight: 600; line-height: 1.35; white-space: normal; text-align: center;
   box-shadow: 0 8px 20px rgba(0, 0, 0, .3); cursor: pointer;
-  transition: opacity .25s ease, transform .3s var(--ease), border-color .2s ease;
-  animation: kg-tag-in .5s cubic-bezier(.2, .9, .3, 1.2) .6s both;
+  transform-origin: calc(100% - var(--kg-kai) / 2) calc(100% + 6px);
+  opacity: 0; transform: translateY(6px) scale(.85); pointer-events: none;
+  transition: opacity .22s ease, transform .32s cubic-bezier(.2, .9, .3, 1.2), border-color .2s ease, width .3s var(--ease);
 }
 .kg-tag::after {
-  content: ""; position: absolute; left: 50%; bottom: -5px; width: 9px; height: 9px; margin-left: -5px;
+  content: ""; position: absolute; right: calc(var(--kg-kai) / 2 - 5px); bottom: -5px; width: 9px; height: 9px;
   background: var(--panel); border-right: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); transform: rotate(45deg);
 }
-.kg-launch:hover .kg-tag, .kai-guide.nudging .kg-tag { border-color: var(--blue-lt); }
-.kg-launch:hover .kg-tag { transform: translateY(-2px); }
-.kai-guide.open .kg-tag { opacity: 0; transform: translateY(6px) scale(.9); pointer-events: none; animation: none; }
-@keyframes kg-tag-in { from { opacity: 0; transform: translateY(6px) scale(.9); } }
+.kg-tag-text { display: block; transition: opacity .13s ease; }
+.kg-tag.swap .kg-tag-text { opacity: 0; }
+.kai-guide.tag-on .kg-tag { opacity: 1; transform: none; pointer-events: auto; }
+.kai-guide.tag-on .kg-launch:hover .kg-tag { border-color: var(--blue-lt); transform: translateY(-2px); }
+.kai-guide.open .kg-tag { opacity: 0; transform: translateY(6px) scale(.85); pointer-events: none; }
 
 /* the chat, above Kai */
 .kg-panel {
@@ -4270,9 +4276,9 @@ body { font-family: var(--font); font-size: 15px; letter-spacing: -0.008em; -web
 body:has(#help-panel:not([hidden])) .kai-guide { display: none; }
 /* One Kai at a time: the drawer's Kai explains the picture. */
 body:has(#explainer:not([hidden])) .kai-guide { display: none; }
-@media (max-width: 600px) { .kai-guide { right: 12px; bottom: 10px; } .kg-kai.kai { --kai-w: 56px; } .kg-panel { bottom: 100px; } }
+@media (max-width: 600px) { .kai-guide { right: 12px; bottom: 10px; } .kg-launch { --kg-kai: 56px; } .kg-panel { bottom: 100px; } }
 @media (prefers-reduced-motion: reduce) {
-  .kg-tag, .kg-panel, .kg-msg, .kg-msg.typing i, .kai-list, .kai-here { animation: none; transition: none; }
+  .kg-tag, .kg-tag-text, .kg-panel, .kg-msg, .kg-msg.typing i, .kai-list, .kai-here { animation: none; transition: none; }
   .kai-guide.thinking .kg-panel::before { animation: none; }
 }
 /* Permission chips read as buttons: an empty circle when off, a filled

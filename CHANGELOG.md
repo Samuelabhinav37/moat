@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.290
+
+### Changed
+- **Kai's bubble only shows when it helps.** Kai says hello once per visit, then "Ask Kai",
+  then the bubble folds away and Kai waits in the corner. It comes back when you look stuck:
+  clicking the same spot again and again, clicking something that does nothing, going back
+  and forth between two screens, flipping the same switch, or searching around without
+  clicking. At most once per screen, a minute apart and three times a visit, never while you
+  type, and Kai stays quiet once you've passed it by twice.
+
+### Fixed
+- Kai no longer jumps sideways when it says hello. The bubble now grows up and to the left
+  from Kai's head, and Kai stays exactly where it is.
+
 ## 0.11.289
 
 ### Changed

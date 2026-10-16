@@ -8,7 +8,7 @@ function setup(screen = "overview", off = false) {
   const turnOn = vi.fn();
   const openHelp = vi.fn();
   const help = vi.fn();
-  document.body.innerHTML = '<div id="pause-box">pause here</div>';
+  document.body.innerHTML = '<div id="pause-box">pause here</div><a data-nav-link data-page="exceptions"><span class="nav-name">Exceptions</span></a><input type="checkbox" id="opt">';
   const questions: KaiQuestion[] = [
     { id: "level", ask: ["a", "Where do I change the level?"], answer: ["b", "Protection, then Level."], hash: "#blocking" },
     { id: "pause", ask: ["c", "How do I pause a site?"], answer: ["d", "Exceptions, then Paused."], hash: "#paused", target: "#pause-box" },
@@ -30,6 +30,7 @@ function setup(screen = "overview", off = false) {
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => {
   vi.useRealTimers();
+  sessionStorage.clear();
   document.body.replaceChildren();
   location.hash = "";
 });
@@ -43,13 +44,54 @@ describe("Kai's guide", () => {
     expect(button.getAttribute("aria-label")).toBe("Ask Kai");
   });
 
-  it("says hello in the bubble once, then goes back to Ask Kai", () => {
+  it("says hello once per visit, then Ask Kai, then folds the bubble away", () => {
     setup();
     const tag = document.querySelector(".kg-tag")!;
+    const guide = document.querySelector(".kai-guide")!;
     vi.advanceTimersByTime(800);
     expect(tag.textContent).toBe("Hi! I'm Kai. Ask me if you need anything.");
+    expect(guide.classList.contains("tag-on")).toBe(true);
     vi.advanceTimersByTime(5000);
     expect(tag.textContent).toBe("Ask Kai");
+    expect(guide.classList.contains("tag-on")).toBe(true);
+    vi.advanceTimersByTime(4000);
+    expect(guide.classList.contains("tag-on")).toBe(false);
+    // Settings opened again in the same visit: no second hello
+    document.body.replaceChildren();
+    setup();
+    vi.advanceTimersByTime(2000);
+    expect(document.querySelector(".kai-guide")!.classList.contains("tag-on")).toBe(false);
+  });
+
+  it("comes back only when you look stuck: a rage click", () => {
+    setup();
+    const guide = document.querySelector(".kai-guide")!;
+    const tag = document.querySelector(".kg-tag")!;
+    vi.advanceTimersByTime(13000);
+    expect(guide.classList.contains("tag-on")).toBe(false);
+    const click = () => document.getElementById("pause-box")!.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: 50, clientY: 50, detail: 1 }));
+    click(); vi.advanceTimersByTime(150); click(); vi.advanceTimersByTime(150); click();
+    expect(guide.classList.contains("tag-on")).toBe(true);
+    expect(tag.textContent).toBe("Something not working? Ask me.");
+    vi.advanceTimersByTime(7100);
+    expect(guide.classList.contains("tag-on")).toBe(false);
+  });
+
+  it("names the screen when a switch keeps flipping, and never nudges while the chat is open", () => {
+    const { open, button } = setup("exceptions");
+    vi.advanceTimersByTime(13000);
+    const box = document.getElementById("opt") as HTMLInputElement;
+    const flip = () => box.dispatchEvent(new Event("change", { bubbles: true }));
+    open();
+    flip(); flip(); flip();
+    const guide = document.querySelector(".kai-guide")!;
+    expect(guide.classList.contains("tag-on")).toBe(false);
+    button.click();
+    vi.advanceTimersByTime(500);
+    flip(); flip(); flip();
+    // opening the chat makes Kai twice as patient, but this is the first nudge
+    expect(guide.classList.contains("tag-on")).toBe(true);
+    expect(document.querySelector(".kg-tag")!.textContent).toBe("Need help with Exceptions?");
   });
 
   it("greets, then lists four questions with this screen's first, more, and All help", () => {

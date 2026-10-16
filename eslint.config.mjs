@@ -5,7 +5,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist/**", "coverage/**", "node_modules/**", "rules/**", "site/**", "site-dist/**", ".cache/**", "**/.wrangler/**", "store-assets/**", "src/ui/kai/kaiLife.js"] },
+  { ignores: ["dist/**", "coverage/**", "node_modules/**", "rules/**", "site/**", "site-dist/**", ".cache/**", "**/.wrangler/**", "store-assets/**", "src/ui/kai/kaiLife.js", "src/ui/kai/kaiWatch.js"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

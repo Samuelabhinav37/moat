@@ -3581,6 +3581,18 @@
   "kaiNeedHelp": {
     "message": "Besoin d'aide ?"
   },
+  "kaiNudgeStuck": {
+    "message": "Quelque chose ne marche pas ? Demande-moi."
+  },
+  "kaiNudgeLooking": {
+    "message": "Tu cherches quelque chose ?"
+  },
+  "kaiNudgeUnsure": {
+    "message": "Tu ne sais pas à quoi ça sert ?"
+  },
+  "kaiNudgeNamed": {
+    "message": "Besoin d'aide avec {name} ?"
+  },
   "kaiStatus": {
     "message": "Là pour vous aider avec Moat"
   },
