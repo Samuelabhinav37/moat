@@ -1,6 +1,3 @@
-/* Kai's engine, copied from the portfolio (samuel-portfolio-site,
-   public/scripts/kai-life.js), where Kai is designed and tested. Edit it
-   there and copy it here; do not change this copy on its own. */
 /* Kai, front-facing, alive. One small engine for every Kai on the site.
 
    Layers (see src/styles/kai.css): antenna behind the head, the head image,
@@ -19,7 +16,12 @@
 
    Usage: const kai = new Kai(el, { auto: true });
           kai.setMood('happy', 1500); kai.do('hop'); kai.talk(1200);
-          kai.think(true); kai.react('found' | 'miss' | 'hello' | 'joke'); */
+          kai.think(true); kai.react('found' | 'miss' | 'hello' | 'joke');
+          kai.pointAt(el) glances at el and leans the antenna toward it.
+
+   How Kai moves (the character guide's motion rules): respond, don't
+   perform; one beat per moment (wind-up, action, settle, under ~1.5 s);
+   the eyes carry the feeling; never act while you type. */
 (function () {
   'use strict';
   var NS = 'http://www.w3.org/2000/svg';
@@ -57,6 +59,12 @@
     shy:      { open: 1,    top: .08, slant: 0,   bottom: .42, scale: .98,  gy: 30, gx: -40, mouth: 'smile', blush: 1 },
     sleepy:   { open: .9,   top: .56, slant: -8,  bottom: .1,  scale: .98,  gy: 22,  mouth: 'flat', dim: 1 },
     asleep:   { open: .9,   top: .93, slant: -4,  bottom: .12, scale: .98,  gy: 26,  mouth: 'flat', dim: 1 },
+    // chin up, eyes smiling: a milestone it's pleased about
+    proud:    { open: 1,    top: .14, slant: 0,   bottom: .6,  scale: 1.04, gy: -16, mouth: 'smile' },
+    // a squint with one eye smaller: something looks off
+    suspicious:{ open: .96, top: .4,  slant: 5,   bottom: .2,  scale: .97,  gy: 2,  gx: 18, mouth: 'flat', asym: -.07 },
+    // a soft sad slant and an unsteady mouth: something is actually wrong
+    worried:  { open: 1.04, top: .24, slant: -14, bottom: .04, scale: .9,   gy: 14,  mouth: 'wobble', asym: .03 },
   };
 
   /* Actions: one-shot motions keyed over p in 0..1. Each returns body
@@ -108,6 +116,39 @@
                 var w = Math.sin(p * PI * 6) * (1 - p);
                 return { rot: 7 * w, gx: 50 * Math.sin(p * PI * 8), gy: 30 * Math.cos(p * PI * 8), top: .2, mood: 'curious' };
               } },
+    // "got it": one small quick dip
+    nodSmall: { dur: 440, fn: function (p) { var d = bump(p, 0, 1); return { dy: .012 * d, sy: 1 - .025 * d, gy: 18 * d }; } },
+    // "not sure": a lift, a tilt with eyes up to one side, the antenna droops
+    shrug:    { dur: 1400, fn: function (p) {
+                var lift = bump(p, 0, .3), h = hold(p, .2, .78);
+                return { dy: -.02 * lift, sy: 1 + .03 * lift, rot: 7 * h, gx: 34 * h, gy: -26 * h, ant: -24 * h, mood: 'curious' };
+              } },
+    // dips out of sight a little and pops back up, pleased
+    peek:     { dur: 1150, kick: 10, fn: function (p) {
+                var down = hold(p, .25, .45), pop = bump(p, .45, .8);
+                return { dy: .07 * down - .04 * pop, sy: 1 - .05 * down + .04 * pop, top: .3 * down, mood: p > .45 ? 'happy' : 'curious' };
+              } },
+    // looks at something (see pointAt) and leans its antenna toward it
+    point:    { dur: 1150, fn: function (p, k) {
+                var h = hold(p, .18, .78), d = (k && k.pointDir) || { x: 1, y: 0 };
+                return { gx: 82 * d.x * h, gy: 52 * d.y * h, rot: 3.5 * d.x * h, ant: 24 * d.x * h, mood: 'curious' };
+              } },
+    // a breath out: sinks, eyes half close, then brightens
+    relief:   { dur: 1500, fn: function (p) {
+                var a = hold(p, .12, .55);
+                return { top: .42 * a, sy: 1 - .05 * a, sx: 1 + .03 * a, dy: .016 * a, mouthO: .45 * bump(p, .06, .5), mood: p > .55 ? 'happy' : 'neutral' };
+              } },
+    // puffs up a little, chin up
+    puff:     { dur: 1300, kick: -10, fn: function (p) { var h = hold(p, .22, .72); return { sx: 1 + .05 * h, sy: 1 + .05 * h, dy: -.02 * h, mood: 'proud' }; } },
+    // waves toward the side, as if seeing someone off
+    bye:      { dur: 1700, fn: function (p) {
+                var h = hold(p, .12, .8);
+                return { rot: -6 * h + 3 * Math.sin(p * PI * 5) * h, ant: 30 * Math.sin(p * PI * 6) * h, gx: -50 * h, mood: 'happy' };
+              } },
+    // closes one eye and looks away: "I won't watch there"
+    lookAway: { dur: 1600, fn: function (p) { var h = hold(p, .2, .82); return { winkR: h, gx: -46 * h, gy: 8 * h, rot: -3 * h, mood: 'happy' }; } },
+    // narrows the eyes at something
+    squint:   { dur: 1700, fn: function (p) { var h = hold(p, .2, .8); return { gx: 26 * h, rot: 3 * h, mood: 'suspicious' }; } },
   };
 
   function el(tag, attrs, parent) {
@@ -244,7 +285,7 @@
   };
   Kai.prototype.do = function (name) {
     var A = ACTIONS[name]; if (!A) return;
-    if (REDUCED) { if (A.fn(.5).mood) this.setMood(A.fn(.5).mood, A.dur); return; }
+    if (REDUCED) { var mid = A.fn(.5, this) || {}; if (mid.mood) this.setMood(mid.mood, A.dur); return; }
     if (this.action && this.action.name !== 'blink') { if (this.queue.length < 2) this.queue.push(name); return; }
     this.action = { name: name, A: A, t0: performance.now() };
     if (A.kick) this.antV += A.kick;
@@ -258,6 +299,17 @@
     this.start();
   };
   Kai.prototype.lookAt = function (target) { this.gazeTarget = target; this.start(); };
+  /* Glance at an element (or {x, y}) and lean the antenna toward it, as a
+     wind-up before something happens there ("Show me"). */
+  Kai.prototype.pointAt = function (target) {
+    var r = this.root.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, px, py;
+    if (target && target.getBoundingClientRect) { var b = target.getBoundingClientRect(); px = b.left + b.width / 2; py = b.top + b.height / 2; }
+    else if (target) { px = target.x; py = target.y; }
+    else { px = cx - 1; py = cy - 1; }
+    var dx = px - cx, dy = py - cy, d = Math.hypot(dx, dy) || 1;
+    this.pointDir = { x: dx / d, y: dy / d };
+    this.do('point');
+  };
   /* Nothing left to move: no action, blink, talk or thinking, and the eyes,
      face, lean and antenna have arrived. Only calm Kais stop on this. */
   Kai.prototype.settled = function (now) {
@@ -278,7 +330,7 @@
     this.think(false);
     var talkMs = Math.min(3200, 500 + (replyLen || 60) * 22);
     if (kind === 'found') { this.lightAntenna(); this.setMood('happy', talkMs + 800); this.do('nod'); this.talk(talkMs); }
-    else if (kind === 'miss') { this.setMood('curious', talkMs + 600); this.do('tilt'); this.talk(talkMs); }
+    else if (kind === 'miss') { this.setMood('curious', talkMs + 600); this.do('shrug'); this.talk(talkMs); }
     else if (kind === 'hello') { this.setMood('happy', talkMs + 600); this.do('wave'); this.talk(talkMs); }
     else if (kind === 'joke') { this.do('wink'); this.talk(talkMs); }
     else this.talk(talkMs);
@@ -309,7 +361,7 @@
     if (this.action) {
       var p = (now - this.action.t0) / this.action.A.dur;
       if (p >= 1) { this.action = null; var next = this.queue.shift(); if (next) this.do(next); }
-      else o = this.action.A.fn(p) || {};
+      else o = this.action.A.fn(p, this) || {};
     }
     var mood = MOODS[o.mood || this.mood] || MOODS.neutral;
     if (this._shown !== mood) {   // blush and dimming follow the mood on screen, set by an action or not

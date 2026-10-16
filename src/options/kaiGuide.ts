@@ -73,7 +73,7 @@ function closeIcon(doc: Document): SVGSVGElement {
 /** A Kai that does nothing, where the engine can't run (tests without it). */
 const STILL_KAI: Omit<KaiInstance, "root"> = {
   mood: "neutral", thinking: false,
-  setMood() {}, do() {}, blink() {}, lookAt() {}, talk() {}, think() {}, lightAntenna() {}, react() {},
+  setMood() {}, do() {}, blink() {}, lookAt() {}, pointAt() {}, talk() {}, think() {}, lightAntenna() {}, react() {},
 };
 
 /** The live Kai inside `host`, or a still one if the engine isn't there. */
@@ -82,20 +82,43 @@ export function makeKai(host: HTMLElement, imgWidth: 160 | 320 | 640 = 320): Kai
   return factory ? factory(host, { src: "characters/", imgWidth, calm: true }) : { ...STILL_KAI, root: host };
 }
 
-/** Scroll to `selector` and outline it briefly (the ring Kai leaves). */
-export function pointAt(doc: Document, selector: string): boolean {
+/** Scroll to `selector` and outline it briefly (the ring Kai leaves).
+ * With `kai`, Kai first looks at the spot and leans its antenna toward it,
+ * and the ring follows a beat later (anticipation, then the action). */
+export function pointAt(doc: Document, selector: string, kai?: KaiInstance): boolean {
   const target = doc.querySelector<HTMLElement>(selector);
   if (!target) return false;
-  const reduced = doc.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  const win = doc.defaultView;
+  const reduced = win?.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
   target.scrollIntoView?.({ behavior: reduced ? "auto" : "smooth", block: "center" });
-  target.classList.remove("kai-here");
-  void target.offsetWidth;
-  target.classList.add("kai-here");
-  doc.defaultView?.setTimeout(() => target.classList.remove("kai-here"), 2600);
+  const ring = () => {
+    target.classList.remove("kai-here");
+    void target.offsetWidth;
+    target.classList.add("kai-here");
+    win?.setTimeout(() => target.classList.remove("kai-here"), 2600);
+  };
+  if (!kai || reduced || !win) { ring(); return true; }
+  win.setTimeout(() => kai.pointAt(target), 380);
+  win.setTimeout(ring, 680);
   return true;
 }
 
-export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => void; close: () => void; isOpen: () => boolean; watch: KaiWatch | undefined } {
+/** Things that happened in Settings that Kai reacts to (kai-character.md). */
+export type KaiMoment = { name: "off" } | { name: "on" } | { name: "paused" } | { name: "milestone"; count: number };
+
+export interface KaiGuide {
+  open: () => void;
+  close: () => void;
+  isOpen: () => boolean;
+  watch: KaiWatch | undefined;
+  /** Kai reacts, and says a short line when it can. */
+  moment: (m: KaiMoment) => void;
+  /** Protection on or off, as the Overview banner shows it. The first call
+   * only sets Kai's face; a change after that is a moment. */
+  protection: (off: boolean) => void;
+}
+
+export function initKaiGuide(doc: Document, options: KaiOptions): KaiGuide {
   const { t } = options;
   const win = doc.defaultView ?? window;
   const reduced = win.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
@@ -248,7 +271,7 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
               if (q.hash && win.location.hash !== q.hash) win.location.hash = q.hash;
               const target = q.target;
               // The screen changes on hashchange; point once it has drawn.
-              if (target) win.setTimeout(() => pointAt(doc, target), 250);
+              if (target) win.setTimeout(() => pointAt(doc, target, kai), 250);
             })
           : null;
       say(t(q.answer[0], q.answer[1]), go, () => {
@@ -283,15 +306,22 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
     watch?.opened();
     tagFold();
     kai.do("wave");
-    // Each time it opens, Kai starts afresh with this screen's questions.
+    // Back within 10 minutes: the conversation is still there. Otherwise
+    // Kai starts afresh with this screen's questions.
+    if (log.childElementCount && Date.now() - closedAt < 10 * 60000) {
+      win.setTimeout(() => panel.querySelector<HTMLButtonElement>(".kai-q, .kg-go")?.focus(), wait(400));
+      return;
+    }
     log.replaceChildren();
     asked.clear();
     busy = false;
     greet();
     win.setTimeout(() => panel.querySelector<HTMLButtonElement>(".kai-q, .kg-go")?.focus(), wait(400));
   };
+  let closedAt = 0;
   const hide = () => {
     if (panel.hidden) return;
+    closedAt = Date.now();
     panel.hidden = true;
     root.classList.remove("open", "thinking");
     button.setAttribute("aria-expanded", "false");
@@ -333,6 +363,8 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
   };
   const react: Record<KaiNudgeKind, () => void> = {
     welcome: () => { kai.setMood("happy", 2200); kai.do("wave"); },
+    back: () => { kai.do("peek"); },
+    say: () => {},
     stuck: () => { kai.setMood("curious", 2400); kai.do("tilt"); },
     looking: () => { kai.do("lookAround"); win.setTimeout(() => { kai.lookAt(null); kai.setMood("happy", 1600); }, 900); },
     unsure: () => { kai.setMood("curious", 2400); kai.do("tilt"); },
@@ -347,10 +379,11 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
     hide: () => { if (!hint) tagFold(); },
     text: {
       welcome: t("kaiOpen", "Ask Kai"),
-      stuck: t("kaiNudgeStuck", "Something not working? Ask me."),
-      looking: t("kaiNudgeLooking", "Looking for something?"),
-      unsure: t("kaiNudgeUnsure", "Not sure what that does?"),
-      named: t("kaiNudgeNamed", "Need help with {name}?"),
+      back: t("kaiBack", "Welcome back."),
+      stuck: t("kaiNudgeStuck", "Hmm. Want me to take a look?"),
+      looking: t("kaiNudgeLooking", "Looking for something? I know my way around."),
+      unsure: t("kaiNudgeUnsure", "Not sure what that does? I can explain."),
+      named: t("kaiNudgeNamed", "Need a hand with {name}?"),
     },
     sectionName: (id) => (id === "overview" ? "" : doc.querySelector(`[data-nav-link][data-page="${CSS.escape(id)}"] .nav-name`)?.textContent?.trim() ?? ""),
     storageKey: "moat-kai-watch",
@@ -359,11 +392,15 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
   onScreen();
   win.addEventListener("hashchange", () => win.setTimeout(onScreen, 50));
   tag.addEventListener("click", show);
-  // Hello: once per visit, Kai smiles, waves and says hi; then the bubble
-  // says "Ask Kai" for a moment and folds away.
+  // Hello: at most once a day Kai smiles, waves and says hi (or says Moat
+  // is off, if it is); then the bubble says "Ask Kai" for a moment and folds
+  // away. A later day gets "Welcome back.", the same day nothing.
   win.setTimeout(() => {
     if (!watch) return tagSay(t("kaiOpen", "Ask Kai"));
-    if (!watch.welcome(t("kaiHello", "Hi! I'm Kai. Ask me if you need anything."), 8000)) return;
+    const hello = options.isOff()
+      ? t("kaiOff", "Heads up. Moat is off, so ads and trackers are getting through.")
+      : t("kaiHello", "Hi, I'm Kai. I'm small, but I know Moat inside out.");
+    if (watch.welcome(hello, 8000) !== "welcome") return;
     win.setTimeout(() => { if (watch.isShowing() === "welcome") tagSay(t("kaiOpen", "Ask Kai")); }, 4200);
   }, 700);
   // Near: when the pointer comes within reach, Kai looks at it and offers
@@ -390,7 +427,7 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
         if (!watch?.isShowing()) {
           hint = true;
           kai.setMood("happy", 1500);
-          tagSay(t("kaiNeedHelp", "Need help?"));
+          tagSay(t("kaiNeedHelp", "Need a hand?"));
         }
       } else if (near && d > 260) {
         near = false;
@@ -422,5 +459,47 @@ export function initKaiGuide(doc: Document, options: KaiOptions): { open: () => 
     if (isOpen() && !event.composedPath().includes(root)) hide();
   });
 
-  return { open: show, close: hide, isOpen, watch };
+  // "Got it": a small nod when a setting changes, once per control per visit.
+  const nodded = new Set<string>();
+  const gotIt = (control: Element | null) => {
+    if (!control || root.contains(control) || isOpen()) return;
+    const id = control.id || control.getAttribute("name") || control.getAttribute("aria-label") || "";
+    if (!id || nodded.has(id)) return;
+    nodded.add(id);
+    kai.do("nodSmall");
+  };
+  doc.addEventListener("change", (event) => {
+    if (event.isTrusted) gotIt(event.target as Element | null);
+  });
+  doc.addEventListener("click", (event) => {
+    if (event.isTrusted) gotIt((event.target as Element | null)?.closest?.('[role="switch"]') ?? null);
+  });
+
+  const lines: Record<KaiMoment["name"], (m: KaiMoment) => string> = {
+    off: () => t("kaiOff", "Heads up. Moat is off, so ads and trackers are getting through."),
+    on: () => t("kaiMomentOn", "Back on guard."),
+    paused: () => t("kaiMomentPaused", "Paused. I'll look away there."),
+    milestone: (m) => {
+      const count = m.name === "milestone" ? m.count.toLocaleString() : "";
+      return t("kaiMomentMilestone", `That's ${count} blocked this week.`, count);
+    },
+  };
+  const moment = (m: KaiMoment) => {
+    if (m.name === "off") kai.setMood("worried");
+    else if (m.name === "on") { kai.setMood("neutral"); kai.do("relief"); }
+    else if (m.name === "paused") kai.do("lookAway");
+    else { kai.do("puff"); kai.lightAntenna(1800); }
+    // the words come once the move has started (relief is a breath out first)
+    win.setTimeout(() => { hint = false; watch?.say(lines[m.name](m)); }, m.name === "on" ? wait(500) : 0);
+  };
+  let protectionOff: boolean | null = null;
+  const protection = (off: boolean) => {
+    if (protectionOff === off) return;
+    const first = protectionOff === null;
+    protectionOff = off;
+    if (first) { if (off) kai.setMood("worried"); return; }
+    moment({ name: off ? "off" : "on" });
+  };
+
+  return { open: show, close: hide, isOpen, watch, moment, protection };
 }

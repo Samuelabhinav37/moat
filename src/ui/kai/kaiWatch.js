@@ -1,6 +1,8 @@
 /* Kai's watcher: when the bubble above Kai shows, and what it says.
 
-   "Ask Kai" greets you once per visit for a few seconds, then folds away.
+   "Ask Kai" greets you for a few seconds, then folds away: the full hello
+   at most once a day, a short "Welcome back." on a later day, and nothing
+   when you come back the same day.
    Kai stays in the corner. The bubble comes back only when you look stuck,
    using the signals session-replay tools call frustration signals:
      stuck   3 clicks on one spot within a second (a rage click), or two
@@ -28,16 +30,19 @@
        sectionName(id),           // optional: a screen's name for the text
        storageKey, limits, now    // optional
      });
-     w.welcome(text?, ms?)   once per visit
+     w.welcome(text?, ms?)   once a day (returns 'welcome', 'back' or false)
+     w.say(text, ms?)        a short line after something you did (not a nudge)
      w.section(id, t?)       the screen changed (t replays an earlier visit)
      w.opened()              the chat was opened
-   kind passed to show is 'welcome' | 'stuck' | 'looking' | 'unsure'. */
+   kind passed to show is 'welcome' | 'back' | 'say' | 'stuck' | 'looking' |
+   'unsure'. Only the last three are nudges (counted, and ignorable). */
 (function (global) {
   'use strict';
 
   var LIMITS = {
     welcomeMs: 8000, showMs: 7000, graceMs: 1500,
     gapMs: 60000, firstGapMs: 12000, perSession: 3, quietAfterIgnored: 2,
+    helloEveryMs: 20 * 3600000, sayMs: 3200,
     rageClicks: 3, rageMs: 1000, ragePx: 30,
     deadClicks: 2, deadMs: 8000, deadWaitMs: 700,
     loopMs: 20000, hopCount: 5, hopMs: 30000,
@@ -47,12 +52,14 @@
   };
   var TEXT = {
     welcome: 'Ask Kai',
-    stuck: 'Something not working? Ask me.',
-    looking: 'Looking for something?',
-    unsure: 'Not sure what that does?',
-    named: 'Need help with {name}?'
+    back: 'Welcome back.',
+    stuck: 'Hmm. Want me to take a look?',
+    looking: 'Looking for something? I know my way around.',
+    unsure: 'Not sure what that does? I can explain.',
+    named: 'Need a hand with {name}?'
   };
   var INTERACTIVE = 'a[href], button, input, select, textarea, label, summary, [role="button"], [role="switch"], [role="tab"], [role="link"], [role="menuitem"], [role="checkbox"], [role="option"], [contenteditable=""], [contenteditable="true"], [onclick]';
+  var NUDGE = { stuck: 1, looking: 1, unsure: 1 };
   var STEPPERS = 'input, select, textarea, [role="spinbutton"], [role="slider"], [contenteditable=""], [contenteditable="true"]';
 
   function KaiWatch(opts) {
@@ -69,9 +76,12 @@
       return { n: 0, ignored: 0, opened: false, last: 0, welcomed: false };
     }
     function save() { try { win.sessionStorage.setItem(key, JSON.stringify(S)); } catch (e) {} }
+    // when the hello was last said, across visits (local storage)
+    function lastHello() { try { return +win.localStorage.getItem(key + '-hello') || 0; } catch (e) { return 0; } }
+    function saidHello() { try { win.localStorage.setItem(key + '-hello', String(now())); } catch (e) {} }
 
     var started = now();
-    var showing = null, hideTimer = 0, retryTimer = 0, shownAt = 0;
+    var showing = null, hideTimer = 0, retryTimer = 0, shownAt = 0, shownFor = 0;
     var stopped = false, lastKey = -1e9, lastAct = -1e9;
     var clicks = [], dead = [], sections = [], flips = {}, nudged = {};
     var reversals = [], hesitations = [], scrolls = [];
@@ -90,8 +100,8 @@
       if (current != null && nudged[current]) return 'no';
       var t = now(), gap = S.opened ? L.gapMs * 2 : L.gapMs;
       if (S.last && t - S.last < gap) return 'no';
-      if (typing() || (showing && showing !== 'welcome')) return 'no';
-      if (t - started < L.firstGapMs || showing === 'welcome') return 'later';
+      if (typing() || (showing && NUDGE[showing])) return 'no';
+      if (t - started < L.firstGapMs || showing) return 'later';
       return 'ok';
     }
     function textFor(kind) {
@@ -103,7 +113,7 @@
       var v = verdict();
       if (v === 'later') {
         clearTimeout(retryTimer);
-        var wait = Math.max(started + L.firstGapMs - now(), showing === 'welcome' ? L.welcomeMs - (now() - shownAt) : 0, 0) + 50;
+        var wait = Math.max(started + L.firstGapMs - now(), showing ? shownFor - (now() - shownAt) : 0, 0) + 50;
         retryTimer = setTimeout(function () { if (verdict() === 'ok') go(kind); }, wait);
         return true;
       }
@@ -118,9 +128,9 @@
     }
     function put(kind, text, ms) {
       clearTimeout(hideTimer);
-      showing = kind; shownAt = now();
+      showing = kind; shownAt = now(); shownFor = ms;
       if (opts.show) opts.show(kind, text);
-      hideTimer = setTimeout(function () { fold(kind !== 'welcome'); }, ms);
+      hideTimer = setTimeout(function () { fold(!!NUDGE[kind]); }, ms);
     }
     // fold the bubble; a nudge that folds without being taken was ignored
     function fold(ignored) {
@@ -134,7 +144,7 @@
     // a click elsewhere: the welcome folds at once, a nudge after a moment
     function acted() {
       lastAct = now(); reversals = []; hesitations = [];
-      if (showing === 'welcome') fold(false);
+      if (showing && !NUDGE[showing]) { if (now() - shownAt > 300) fold(false); }
       else if (showing && now() - shownAt > L.graceMs) fold(true);
     }
     // scrolling up and down or hovering without clicking, for half a minute
@@ -151,7 +161,19 @@
       welcome: function (text, ms) {
         if (stopped || S.welcomed || (opts.isOpen && opts.isOpen())) return false;
         S.welcomed = true; save();
+        var last = lastHello();
+        if (last && now() - last < L.helloEveryMs) return false;
+        saidHello();
+        if (last) { put('back', T.back, Math.min(ms || L.welcomeMs, 4000)); return 'back'; }
         put('welcome', text || T.welcome, ms || L.welcomeMs);
+        return 'welcome';
+      },
+      /* A short line after something the person did ("Back on guard."). Not
+         a nudge: never counted or ignored, but never over a nudge either. */
+      say: function (text, ms) {
+        if (stopped || !text || (opts.isOpen && opts.isOpen())) return false;
+        if (showing && NUDGE[showing]) return false;
+        put('say', text, ms || L.sayMs);
         return true;
       },
       /* A pointer click at x, y (not inside Kai). */
@@ -211,7 +233,7 @@
       state: function () { return { n: S.n, ignored: S.ignored, opened: S.opened, welcomed: S.welcomed, showing: showing }; }
     };
 
-    if (win) attach(win, api, opts.kaiEl, L);
+    if (win && win.document) attach(win, api, opts.kaiEl, L);
     return api;
   }
 

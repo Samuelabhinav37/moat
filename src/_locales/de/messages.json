@@ -3516,7 +3516,7 @@
     "message": "Alle Hilfethemen"
   },
   "kaiOff": {
-    "message": "Moat ist gerade aus, also laden Werbung und Tracker auf jeder Website."
+    "message": "Achtung. Moat ist aus, Werbung und Tracker kommen durch."
   },
   "kaiTurnOn": {
     "message": "Moat einschalten"
@@ -3576,22 +3576,40 @@
     "message": "So prüfst du es."
   },
   "kaiHello": {
-    "message": "Hallo! Ich bin Kai. Frag mich, wenn du etwas brauchst."
+    "message": "Hallo, ich bin Kai. Ich bin klein, aber Moat kenne ich in- und auswendig."
   },
   "kaiNeedHelp": {
     "message": "Brauchst du Hilfe?"
   },
   "kaiNudgeStuck": {
-    "message": "Klappt etwas nicht? Frag mich."
+    "message": "Hm. Soll ich mal nachsehen?"
   },
   "kaiNudgeLooking": {
-    "message": "Suchst du etwas?"
+    "message": "Suchst du etwas? Ich kenne mich hier aus."
   },
   "kaiNudgeUnsure": {
-    "message": "Nicht sicher, was das macht?"
+    "message": "Nicht sicher, was das macht? Ich erkläre es dir."
   },
   "kaiNudgeNamed": {
-    "message": "Brauchst du Hilfe bei {name}?"
+    "message": "Soll ich dir bei {name} helfen?"
+  },
+  "kaiBack": {
+    "message": "Willkommen zurück."
+  },
+  "kaiMomentOn": {
+    "message": "Wieder auf Wache."
+  },
+  "kaiMomentPaused": {
+    "message": "Pausiert. Dort schaue ich weg."
+  },
+  "kaiMomentMilestone": {
+    "message": "Schon $COUNT$ blockiert diese Woche.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
   },
   "kaiStatus": {
     "message": "Hilft dir mit Moat"

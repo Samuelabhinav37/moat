@@ -3,12 +3,14 @@
 
 export type KaiMood =
   | "neutral" | "happy" | "joyful" | "curious" | "thinking" | "focused"
-  | "surprised" | "scared" | "sad" | "shy" | "sleepy" | "asleep";
+  | "surprised" | "scared" | "sad" | "shy" | "sleepy" | "asleep"
+  | "proud" | "suspicious" | "worried";
 
 export type KaiAction =
   | "blink" | "wink" | "hop" | "nod" | "shake" | "tilt" | "wave" | "wiggle"
   | "stretch" | "yawn" | "startle" | "celebrate" | "lookAround" | "shy"
-  | "glitch" | "dizzy";
+  | "glitch" | "dizzy"
+  | "nodSmall" | "shrug" | "peek" | "point" | "relief" | "puff" | "bye" | "lookAway" | "squint";
 
 export interface KaiOptions {
   /** Folder holding kai-body.w{160,320,640}.webp and kai-antenna.*, with a trailing slash. */
@@ -35,6 +37,8 @@ export interface KaiInstance {
   do(action: KaiAction): void;
   blink(double?: boolean): void;
   lookAt(target: Element | { x: number; y: number } | null): void;
+  /** Glance at a spot and lean the antenna toward it (before "Show me"). */
+  pointAt(target: Element | { x: number; y: number } | null): void;
   talk(ms?: number): void;
   think(on: boolean): void;
   lightAntenna(ms?: number): void;

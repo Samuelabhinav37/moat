@@ -3516,7 +3516,7 @@
     "message": "Toute l'aide"
   },
   "kaiOff": {
-    "message": "Moat est désactivé en ce moment, donc les publicités et traqueurs se chargent sur chaque site."
+    "message": "Attention. Moat est désactivé, les pubs et les traqueurs passent."
   },
   "kaiTurnOn": {
     "message": "Activer Moat"
@@ -3576,22 +3576,40 @@
     "message": "Voici comment vérifier."
   },
   "kaiHello": {
-    "message": "Salut ! Je suis Kai. Demande-moi si tu as besoin de quelque chose."
+    "message": "Salut, je suis Kai. Je suis petit, mais je connais Moat par cœur."
   },
   "kaiNeedHelp": {
     "message": "Besoin d'aide ?"
   },
   "kaiNudgeStuck": {
-    "message": "Quelque chose ne marche pas ? Demande-moi."
+    "message": "Hmm. Tu veux que je regarde ?"
   },
   "kaiNudgeLooking": {
-    "message": "Tu cherches quelque chose ?"
+    "message": "Tu cherches quelque chose ? Je connais le chemin."
   },
   "kaiNudgeUnsure": {
-    "message": "Tu ne sais pas à quoi ça sert ?"
+    "message": "Tu ne sais pas à quoi ça sert ? Je t'explique."
   },
   "kaiNudgeNamed": {
-    "message": "Besoin d'aide avec {name} ?"
+    "message": "Un coup de main avec {name} ?"
+  },
+  "kaiBack": {
+    "message": "Re-bonjour."
+  },
+  "kaiMomentOn": {
+    "message": "De retour en garde."
+  },
+  "kaiMomentPaused": {
+    "message": "En pause. Là-bas, je regarde ailleurs."
+  },
+  "kaiMomentMilestone": {
+    "message": "Déjà $COUNT$ bloqués cette semaine.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
   },
   "kaiStatus": {
     "message": "Là pour vous aider avec Moat"

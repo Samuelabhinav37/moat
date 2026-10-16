@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.291
+
+### Changed
+- **Kai has more character.** Kai now has a voice: short, honest and a little playful, and
+  openly a robot. It says hello at most once a day, "Welcome back." on a later day, and
+  nothing when you come back the same day.
+- Kai reacts to what you do. It looks worried while Moat is off and breathes out with
+  "Back on guard." when it's back on. It looks away when you pause a site, gets a little proud
+  when the week passes 1,000 blocked, and nods when you change a setting.
+- "Show me" now has Kai look at the spot first, then the outline appears.
+- Reopening the chat within 10 minutes keeps the conversation.
+
 ## 0.11.290
 
 ### Changed

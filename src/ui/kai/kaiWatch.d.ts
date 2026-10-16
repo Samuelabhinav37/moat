@@ -2,7 +2,7 @@
 // portfolio). Importing the module for its side effect defines
 // window.KaiWatch.
 
-export type KaiNudgeKind = "welcome" | "stuck" | "looking" | "unsure";
+export type KaiNudgeKind = "welcome" | "back" | "say" | "stuck" | "looking" | "unsure";
 
 export interface KaiWatchOptions {
   /** The window to watch; omit to feed signals by hand (tests). */
@@ -13,7 +13,7 @@ export interface KaiWatchOptions {
   hide?: () => void;
   /** True while the chat is open or Kai is hidden: no nudges then. */
   isOpen?: () => boolean;
-  text?: { welcome?: string; stuck?: string; looking?: string; unsure?: string; named?: string };
+  text?: { welcome?: string; back?: string; stuck?: string; looking?: string; unsure?: string; named?: string };
   /** A screen's name for "Need help with {name}?", or "" for none. */
   sectionName?: (id: string) => string;
   storageKey?: string;
@@ -22,7 +22,10 @@ export interface KaiWatchOptions {
 }
 
 export interface KaiWatch {
-  welcome(text?: string, ms?: number): boolean;
+  /** The hello at most once a day: "welcome", "back" (a later day) or false. */
+  welcome(text?: string, ms?: number): "welcome" | "back" | false;
+  /** A short line after something the person did; never a nudge. */
+  say(text: string, ms?: number): boolean;
   click(x: number, y: number): void;
   dead(): void;
   section(id: string, t?: number): void;

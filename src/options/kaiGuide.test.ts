@@ -31,6 +31,7 @@ beforeEach(() => vi.useFakeTimers());
 afterEach(() => {
   vi.useRealTimers();
   sessionStorage.clear();
+  localStorage.clear();
   document.body.replaceChildren();
   location.hash = "";
 });
@@ -49,7 +50,7 @@ describe("Kai's guide", () => {
     const tag = document.querySelector(".kg-tag")!;
     const guide = document.querySelector(".kai-guide")!;
     vi.advanceTimersByTime(800);
-    expect(tag.textContent).toBe("Hi! I'm Kai. Ask me if you need anything.");
+    expect(tag.textContent).toBe("Hi, I'm Kai. I'm small, but I know Moat inside out.");
     expect(guide.classList.contains("tag-on")).toBe(true);
     vi.advanceTimersByTime(5000);
     expect(tag.textContent).toBe("Ask Kai");
@@ -74,7 +75,7 @@ describe("Kai's guide", () => {
     const click = () => kai.watch!.click(50, 50);
     click(); vi.advanceTimersByTime(150); click(); vi.advanceTimersByTime(150); click();
     expect(guide.classList.contains("tag-on")).toBe(true);
-    expect(tag.textContent).toBe("Something not working? Ask me.");
+    expect(tag.textContent).toBe("Hmm. Want me to take a look?");
     vi.advanceTimersByTime(7100);
     expect(guide.classList.contains("tag-on")).toBe(false);
   });
@@ -92,7 +93,7 @@ describe("Kai's guide", () => {
     flip(); flip(); flip();
     // opening the chat makes Kai twice as patient, but this is the first nudge
     expect(guide.classList.contains("tag-on")).toBe(true);
-    expect(document.querySelector(".kg-tag")!.textContent).toBe("Need help with Exceptions?");
+    expect(document.querySelector(".kg-tag")!.textContent).toBe("Need a hand with Exceptions?");
   });
 
   it("greets, then lists four questions with this screen's first, more, and All help", () => {
@@ -129,7 +130,10 @@ describe("Kai's guide", () => {
     show.click();
     expect(location.hash).toBe("#paused");
     expect(panel.hidden).toBe(true);
+    // Kai looks at the spot first, then the ring appears
     vi.advanceTimersByTime(300);
+    expect(document.getElementById("pause-box")!.classList.contains("kai-here")).toBe(false);
+    vi.advanceTimersByTime(700);
     expect(document.getElementById("pause-box")!.classList.contains("kai-here")).toBe(true);
   });
 
@@ -180,5 +184,66 @@ describe("Kai's guide", () => {
     expect(panel.hidden).toBe(false);
     document.getElementById("pause-box")!.click();
     expect(panel.hidden).toBe(true);
+  });
+  it("says Welcome back on a later day, and nothing the same day", () => {
+    setup();
+    vi.advanceTimersByTime(9000);
+    document.body.replaceChildren();
+    sessionStorage.clear();
+    setup();
+    vi.advanceTimersByTime(1000);
+    expect(document.querySelector(".kai-guide")!.classList.contains("tag-on")).toBe(false);
+    document.body.replaceChildren();
+    sessionStorage.clear();
+    vi.setSystemTime(Date.now() + 21 * 3600000);
+    setup();
+    vi.advanceTimersByTime(1000);
+    expect(document.querySelector(".kg-tag")!.textContent).toBe("Welcome back.");
+  });
+
+  it("greets with the off line when Moat is off", () => {
+    setup("overview", true);
+    vi.advanceTimersByTime(800);
+    expect(document.querySelector(".kg-tag")!.textContent).toBe("Heads up. Moat is off, so ads and trackers are getting through.");
+  });
+
+  it("reacts when protection goes off and back on, but not to the first state", () => {
+    const { kai } = setup();
+    vi.advanceTimersByTime(9000);
+    const tag = () => document.querySelector(".kg-tag")!.textContent;
+    const on = () => document.querySelector(".kai-guide")!.classList.contains("tag-on");
+    kai.protection(false);
+    expect(on()).toBe(false);
+    kai.protection(true);
+    vi.advanceTimersByTime(10);
+    expect(tag()).toBe("Heads up. Moat is off, so ads and trackers are getting through.");
+    vi.advanceTimersByTime(4000);
+    kai.protection(false);
+    vi.advanceTimersByTime(600);
+    expect(tag()).toBe("Back on guard.");
+    vi.advanceTimersByTime(4000);
+    kai.moment({ name: "paused" });
+    vi.advanceTimersByTime(10);
+    expect(tag()).toBe("Paused. I'll look away there.");
+    vi.advanceTimersByTime(4000);
+    kai.moment({ name: "milestone", count: 1000 });
+    vi.advanceTimersByTime(10);
+    expect(tag()).toBe(`That's ${(1000).toLocaleString()} blocked this week.`);
+  });
+
+  it("keeps the conversation when reopened within 10 minutes", () => {
+    const { open, button, chip, said } = setup();
+    open();
+    chip("Does Moat collect my data?").click();
+    vi.advanceTimersByTime(2000);
+    const before = said();
+    button.click();
+    vi.advanceTimersByTime(5 * 60000);
+    open();
+    expect(said()).toEqual(before);
+    button.click();
+    vi.advanceTimersByTime(11 * 60000);
+    open();
+    expect(said()).toEqual(["Hi, I'm Kai. What are you looking for?"]);
   });
 });

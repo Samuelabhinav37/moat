@@ -22,7 +22,7 @@ afterEach(() => vi.useRealTimers());
 describe("kaiWatch", () => {
   it("welcomes once, then folds after 8 seconds without counting as ignored", () => {
     const { watch, shown } = setup();
-    expect(watch.welcome()).toBe(true);
+    expect(watch.welcome()).toBe("welcome");
     expect(watch.welcome()).toBe(false);
     tick(7999);
     expect(watch.isShowing()).toBe("welcome");
@@ -111,7 +111,42 @@ describe("kaiWatch", () => {
     let y = 0;
     watch.scroll(0);
     for (let i = 0; i < 5; i++) { for (let j = 0; j < 3; j++) { y += i % 2 ? -100 : 100; watch.scroll(y); } tick(1000); }
-    expect(shown.at(-1)).toEqual(["looking", "Need help with Sorting?"]);
+    expect(shown.at(-1)).toEqual(["looking", "Need a hand with Sorting?"]);
+  });
+
+  it("says the full hello once a day, Welcome back on a later day, nothing the same day", () => {
+    const store = (): Storage => {
+      const m = new Map<string, string>();
+      return { getItem: (k) => m.get(k) ?? null, setItem: (k, v) => { m.set(k, v); }, removeItem: (k) => { m.delete(k); }, clear: () => m.clear(), key: () => null, length: 0 };
+    };
+    const local = store();
+    const visit = () => setup({ win: { sessionStorage: store(), localStorage: local } as unknown as Window });
+    const first = visit();
+    expect(first.watch.welcome("Hi, I'm Kai.")).toBe("welcome");
+    expect(first.shown).toEqual([["welcome", "Hi, I'm Kai."]]);
+    tick(3 * 3600000);
+    const sameDay = visit();
+    expect(sameDay.watch.welcome("Hi, I'm Kai.")).toBe(false);
+    expect(sameDay.shown).toEqual([]);
+    tick(21 * 3600000);
+    const nextDay = visit();
+    expect(nextDay.watch.welcome("Hi, I'm Kai.")).toBe("back");
+    expect(nextDay.shown).toEqual([["back", "Welcome back."]]);
+  });
+
+  it("says a short line after something you did, never counting it as a nudge", () => {
+    const { watch, shown, setOpen } = setup();
+    expect(watch.say("Back on guard.")).toBe(true);
+    tick(3300);
+    expect(watch.isShowing()).toBeNull();
+    expect(watch.state()).toMatchObject({ n: 0, ignored: 0 });
+    setOpen(true);
+    expect(watch.say("Paused.")).toBe(false);
+    setOpen(false);
+    tick(13000);
+    flip3(watch, "x");
+    expect(watch.say("Undone.")).toBe(false); // a nudge is showing
+    expect(shown.map((s) => s[0])).toEqual(["say", "unsure"]);
   });
 
   it("forgets the hunting once you click", () => {
