@@ -3007,32 +3007,32 @@
     "description": "Tracker purpose."
   },
   "purposeAdvertisingDesc": {
-    "message": "Follow you from site to site to choose the ads you see",
-    "description": "Tracker purpose."
+    "message": "Pick the ads you see",
+    "description": "Trackers > Purpose: what advertising trackers do."
   },
   "purposeAnalytics": {
     "message": "Analytics",
     "description": "Tracker purpose."
   },
   "purposeAnalyticsDesc": {
-    "message": "Record what you click, read and scroll",
-    "description": "Tracker purpose."
+    "message": "Record what you click and read",
+    "description": "Trackers > Purpose: what analytics trackers do."
   },
   "purposeSocial": {
     "message": "Social",
     "description": "Tracker purpose."
   },
   "purposeSocialDesc": {
-    "message": "Tell social networks which pages you read",
-    "description": "Tracker purpose."
+    "message": "Tell social networks what you read",
+    "description": "Trackers > Purpose: what social trackers do."
   },
   "purposeChat": {
     "message": "Chat and support",
     "description": "Tracker purpose."
   },
   "purposeChatDesc": {
-    "message": "Chat boxes that also record the pages you view",
-    "description": "Tracker purpose."
+    "message": "Chat boxes that log the pages you view",
+    "description": "Trackers > Purpose: what chat trackers do."
   },
   "purposeVideo": {
     "message": "Video players",
@@ -3079,8 +3079,8 @@
     "description": "Tracker purpose."
   },
   "purposeMiscDesc": {
-    "message": "Trackers with no single purpose",
-    "description": "Tracker purpose."
+    "message": "Mixed or unknown",
+    "description": "Trackers > Purpose: trackers with no single purpose."
   },
   "helpClose": {
     "message": "Close help",
@@ -4634,5 +4634,89 @@
   "privacyFootPassword": {
     "message": "Only a short scrambled piece of a password is checked, never the password.",
     "description": "Protection > Permissions and passwords: footer under the group."
+  },
+  "pageLeadTrackers2": {
+    "message": "Who tried to follow you this week.",
+    "description": "Trackers: the page's one-line subtitle."
+  },
+  "insTopTrackers": {
+    "message": "Top trackers",
+    "description": "Trackers: title of the list of companies."
+  },
+  "insPurposeTitle": {
+    "message": "Purpose",
+    "description": "Trackers: title of the card that splits trackers by what they were for."
+  },
+  "insBusiestTitle": {
+    "message": "Busiest day",
+    "description": "Trackers: title of the week's bars."
+  },
+  "insWhatMostly": {
+    "message": "Mostly $PURPOSE$.",
+    "placeholders": {
+      "purpose": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    },
+    "description": "Trackers > Purpose: when one purpose is half or more."
+  },
+  "insWhatMost": {
+    "message": "More for $PURPOSE$ than anything else.",
+    "placeholders": {
+      "purpose": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    },
+    "description": "Trackers > Purpose: when the top purpose is under half."
+  },
+  "insBusiestLine": {
+    "message": "$DAY$, mostly between $FROM$ and $TO$.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Friday"
+      },
+      "from": {
+        "content": "$2",
+        "example": "6 PM"
+      },
+      "to": {
+        "content": "$3",
+        "example": "10 PM"
+      }
+    },
+    "description": "Trackers > Busiest day: the one line under the title."
+  },
+  "insBusiestOnly": {
+    "message": "$DAY$ was the busiest day.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Friday"
+      }
+    },
+    "description": "Trackers > Busiest day, when the hours aren't known."
+  },
+  "insSeenOnLine": {
+    "message": "On $SITES$",
+    "placeholders": {
+      "sites": {
+        "content": "$1",
+        "example": "Fandom and LinkedIn"
+      }
+    },
+    "description": "Trackers: under a company's name, the sites it was seen on."
+  },
+  "insMoreSites": {
+    "message": "$COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    },
+    "description": "Trackers: \"On Fandom, LinkedIn and 3 more\"."
   }
 }

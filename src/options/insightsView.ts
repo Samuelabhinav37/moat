@@ -13,16 +13,16 @@ function el<K extends keyof HTMLElementTagNameMap>(doc: Document, tag: K, classN
 
 /** TrackerDB purposes in plain words, with a one-line "what it does". */
 export const PURPOSES: Record<string, { key: string; name: string; descKey: string; desc: string }> = {
-  advertising: { key: "purposeAdvertising", name: "Advertising", descKey: "purposeAdvertisingDesc", desc: "Follow you from site to site to choose the ads you see" },
-  site_analytics: { key: "purposeAnalytics", name: "Analytics", descKey: "purposeAnalyticsDesc", desc: "Record what you click, read and scroll" },
-  social_media: { key: "purposeSocial", name: "Social", descKey: "purposeSocialDesc", desc: "Tell social networks which pages you read" },
-  customer_interaction: { key: "purposeChat", name: "Chat and support", descKey: "purposeChatDesc", desc: "Chat boxes that also record the pages you view" },
+  advertising: { key: "purposeAdvertising", name: "Advertising", descKey: "purposeAdvertisingDesc", desc: "Pick the ads you see" },
+  site_analytics: { key: "purposeAnalytics", name: "Analytics", descKey: "purposeAnalyticsDesc", desc: "Record what you click and read" },
+  social_media: { key: "purposeSocial", name: "Social", descKey: "purposeSocialDesc", desc: "Tell social networks what you read" },
+  customer_interaction: { key: "purposeChat", name: "Chat and support", descKey: "purposeChatDesc", desc: "Chat boxes that log the pages you view" },
   audio_video_player: { key: "purposeVideo", name: "Video players", descKey: "purposeVideoDesc", desc: "Video players that report what you watch" },
   consent: { key: "purposeConsent", name: "Consent tools", descKey: "purposeConsentDesc", desc: "Cookie banners that also track you" },
   hosting: { key: "purposeHosting", name: "Hosting", descKey: "purposeHostingDesc", desc: "Servers that deliver tracking scripts" },
   utilities: { key: "purposeUtilities", name: "Utilities", descKey: "purposeUtilitiesDesc", desc: "Page add-ons that also collect data" },
   pornvertising: { key: "purposeAdult", name: "Adult advertising", descKey: "purposeAdultDesc", desc: "Adult ad networks" },
-  misc: { key: "purposeMisc", name: "Other", descKey: "purposeMiscDesc", desc: "Trackers with no single purpose" },
+  misc: { key: "purposeMisc", name: "Other", descKey: "purposeMiscDesc", desc: "Mixed or unknown" },
 };
 
 export function purposeLabel(category: string, t: Translate): { name: string; desc: string } {
@@ -91,6 +91,18 @@ function siteButton(doc: Document, site: { hostname: string; icon: HTMLElement; 
   return li;
 }
 
+/** Where a company was seen, by site name: "On Fandom and LinkedIn", or
+ * "On Fandom, LinkedIn and 3 more" past two. */
+export function seenOnLine(r: Pick<ReachRow, "seenOn" | "sites">, t: Translate): string {
+  const names = [...new Set(r.seenOn.map((s) => siteName(s.hostname)))];
+  if (!names.length) return "";
+  const shown = names.slice(0, 2);
+  // Addresses not in seenOn still count; several addresses of one site don't.
+  const more = names.length - shown.length + Math.max(0, r.sites - r.seenOn.length);
+  const list = new Intl.ListFormat(undefined, { type: "conjunction" }).format(more ? [...shown, t("insMoreSites", `${more} more`, String(more))] : shown);
+  return t("insSeenOnLine", `On ${list}`, list);
+}
+
 /** One row per company, most sites first. A row opens to what the company
  * is and the sites it was on (most blocks first); each site opens its own
  * panel on Sites through `onSite`. */
@@ -104,23 +116,16 @@ export function buildReachRows(doc: Document, rows: ReachRow[], t: Translate, on
     const btn = el(doc, "button", "rr-btn");
     btn.type = "button";
     btn.setAttribute("aria-expanded", "false");
-    const pct = Math.round((r.sites / Math.max(r.ofSites, 1)) * 100);
     const text = el(doc, "span", "rr-text");
-    text.append(
-      el(doc, "span", "rr-name", r.company),
-      el(doc, "small", "rr-sub", t("insOnSites", `On ${r.sites} of your ${r.ofSites} sites`, [String(r.sites), String(r.ofSites)]))
-    );
-    const track = el(doc, "span", "rr-track");
-    track.setAttribute("aria-hidden", "true");
-    const fill = el(doc, "i");
-    fill.style.width = `${Math.max(2, pct)}%`;
-    fill.style.setProperty("--dl", `${Math.min(i, 8) * 50}ms`);
-    track.append(fill);
+    text.append(el(doc, "span", "rr-name", r.company));
+    const where = seenOnLine(r, t);
+    if (where) text.append(el(doc, "small", "rr-sub", where));
+    item.style.setProperty("--dl", `${Math.min(i, 8) * 40}ms`);
     const value = el(doc, "span", "rr-pct");
     value.append(el(doc, "b", "", r.blocks.toLocaleString()), el(doc, "small", "rr-blocked", t("insBlockedWord", "blocked")));
     const chev = el(doc, "span", "rr-chev");
     chev.setAttribute("aria-hidden", "true");
-    btn.append(r.icon, text, track, value, chev);
+    btn.append(r.icon, text, value, chev);
 
     const more = el(doc, "div", "rr-more");
     const inner = el(doc, "div", "rr-inner");
@@ -155,8 +160,9 @@ export function buildReachRows(doc: Document, rows: ReachRow[], t: Translate, on
 /** How many purposes get a row of their own; the rest join "Other". */
 export const PURPOSE_ROWS = 4;
 
-/** A row per purpose, largest first, each with its own bar: the share of
- * tracker blocks, and what that kind of tracker does in plain words. */
+/** Parts of a whole, the way iPhone Storage shows them: one bar split by
+ * purpose, then a row per purpose with its colour, what that kind of
+ * tracker does, and its share. Largest first; the rest join "Other". */
 export function buildPurposes(doc: Document, purposes: Record<string, number>, t: Translate): HTMLElement {
   const shares = purposeShares(purposes);
   const shown = shares.slice(0, PURPOSE_ROWS);
@@ -167,22 +173,27 @@ export function buildPurposes(doc: Document, purposes: Record<string, number>, t
     if (misc >= 0) shown[misc] = { category: "misc", count: shown[misc]!.count + extra.count, share: shown[misc]!.share + extra.share };
     else shown.push({ category: "misc", ...extra });
   }
+  // "Other" always last, so the colours read in order of size.
+  shown.sort((a, b) => Number(a.category === "misc") - Number(b.category === "misc") || b.share - a.share);
   const wrap = el(doc, "div", "purp");
+  const bar = el(doc, "div", "purp-bar");
+  bar.setAttribute("aria-hidden", "true");
+  const list = el(doc, "div", "purp-rows");
   shown.forEach((s, i) => {
     const label = purposeLabel(s.category, t);
     const pct = Math.round(s.share * 100);
+    const swatch = s.category === "misc" ? "misc" : String(i);
+    const seg = el(doc, "i", `purp-seg s-${swatch}`);
+    seg.style.flexGrow = String(Math.max(s.share, 0.01));
+    seg.style.setProperty("--dl", `${i * 70}ms`);
+    bar.append(seg);
     const row = el(doc, "div", "purp-row");
-    const top = el(doc, "div", "purp-top");
-    top.append(el(doc, "b", "", label.name), el(doc, "span", "purp-val", `${pct}%`));
-    const bar = el(doc, "span", "purp-track");
-    bar.setAttribute("aria-hidden", "true");
-    const fill = el(doc, "i");
-    fill.style.width = `${Math.max(1.5, pct)}%`;
-    fill.style.setProperty("--s", String(Math.min(i, 4)));
-    bar.append(fill);
-    row.append(top, bar, el(doc, "small", "", label.desc));
-    wrap.append(row);
+    const text = el(doc, "div", "purp-text");
+    text.append(el(doc, "b", "", label.name), el(doc, "small", "", label.desc));
+    row.append(el(doc, "span", `purp-key s-${swatch}`), text, el(doc, "span", "purp-val", `${pct}%`));
+    list.append(row);
   });
+  wrap.append(bar, list);
   return wrap;
 }
 
@@ -281,9 +292,14 @@ export function buildDays(doc: Document, days: DayData[], t: Translate, onSite?:
   return wrap;
 }
 
-/** "Friday was the busiest day." from the week's totals. */
-export function busiestDayPhrase(days: readonly { name: string; total: number }[], t: Translate): string {
-  const best = days.reduce<{ name: string; total: number } | null>((b, d) => (d.total > (b?.total ?? 0) ? d : b), null);
+/** "Friday, mostly between 6 PM and 10 PM." from the week's totals and that
+ * day's hours. */
+export function busiestDayPhrase(days: readonly { name: string; total: number; hours?: readonly number[] }[], t: Translate): string {
+  const best = days.reduce<{ name: string; total: number; hours?: readonly number[] } | null>((b, d) => (d.total > (b?.total ?? 0) ? d : b), null);
   if (!best) return t("insHeatEmpty", "No blocks yet this week");
-  return t("insBusiestDay", `${best.name} was the busiest day. Pick a day to see where.`, best.name);
+  const window = best.hours ? busiestWindow(best.hours) : { from: 0, count: 0 };
+  if (window.count <= 0) return t("insBusiestOnly", `${best.name} was the busiest day.`, best.name);
+  const from = hourLabel(window.from);
+  const to = hourLabel(window.from + 4);
+  return t("insBusiestLine", `${best.name}, mostly between ${from} and ${to}.`, [best.name, from, to]);
 }

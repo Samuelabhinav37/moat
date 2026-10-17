@@ -4731,3 +4731,34 @@ main.wrap { padding-bottom: 128px; }
   .setting-rows.inset .setting-icon { display: grid; }
 }
 .setting-rows.inset .setting-icon:not(.brand-tile) { width: 30px; height: 30px; background: linear-gradient(180deg, var(--tile-a), var(--tile-b)); color: #fff; }
+
+/* ---- Trackers, clarity pass ---- */
+/* Company rows: icon | name over where it was seen | blocked | chevron. */
+.rr-btn { grid-template-columns: 36px minmax(0, 1fr) auto 14px; }
+.rr-btn .site-icon { border-radius: 27%; }
+.rr { animation: rise 0.35s var(--ease) both; animation-delay: var(--dl, 0ms); }
+.rr-site .site-icon { border-radius: 27%; }
+.ttl-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.ttl-row p { margin: 0; color: var(--muted); }
+.ttl-row p b { color: var(--fg); }
+/* Purpose: one bar split by share, then a key per purpose. Blue, teal,
+   violet, amber, and grey for "Other". */
+.purp { display: grid; gap: 14px; }
+.purp-bar { display: flex; gap: 2px; height: 26px; overflow: hidden; border-radius: 7px; }
+.purp-seg { display: block; min-width: 4px; flex-basis: 0; transform-origin: left; animation: purp-grow 0.6s var(--ease) both; animation-delay: var(--dl, 0ms); }
+@keyframes purp-grow { from { transform: scaleX(0); } }
+.s-0 { background: #3987e5; }
+:root[data-theme="light"] .s-0 { background: #2a78d6; }
+.s-1 { background: #2fb5a8; }
+.s-2 { background: #8b6ff0; }
+.s-3 { background: #d69a2d; }
+.s-misc { background: var(--muted); }
+.purp-rows { display: grid; }
+.purp-row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 10px 0; }
+.purp-row + .purp-row { border-top: 1px solid var(--line); }
+.purp-key { width: 10px; height: 10px; border-radius: 3px; transform: translateY(1px); }
+.purp-text { display: grid; gap: 1px; }
+.purp-text b { font-weight: 500; }
+.purp-text small { color: var(--muted); font-size: 13px; }
+.purp-val { font-weight: 600; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .rr, .purp-seg { animation: none; } }

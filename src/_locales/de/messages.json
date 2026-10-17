@@ -2846,7 +2846,7 @@
     "description": "Tracker purpose."
   },
   "purposeAdvertisingDesc": {
-    "message": "Erstellt ein Profil, damit dir Werbung folgt",
+    "message": "Wählen die Werbung, die du siehst",
     "description": "Tracker purpose."
   },
   "purposeAnalytics": {
@@ -2854,7 +2854,7 @@
     "description": "Tracker purpose."
   },
   "purposeAnalyticsDesc": {
-    "message": "Zählt Besuche, Klicks und Scrollen",
+    "message": "Zeichnen auf, was du klickst und liest",
     "description": "Tracker purpose."
   },
   "purposeSocial": {
@@ -2862,7 +2862,7 @@
     "description": "Tracker purpose."
   },
   "purposeSocialDesc": {
-    "message": "Verrät sozialen Netzwerken, was du liest",
+    "message": "Verraten sozialen Netzwerken, was du liest",
     "description": "Tracker purpose."
   },
   "purposeChat": {
@@ -2870,7 +2870,7 @@
     "description": "Tracker purpose."
   },
   "purposeChatDesc": {
-    "message": "Protokolliert, was du ansiehst",
+    "message": "Chatfenster, die deine Seiten mitschreiben",
     "description": "Tracker purpose."
   },
   "purposeVideo": {
@@ -2918,7 +2918,7 @@
     "description": "Tracker purpose."
   },
   "purposeMiscDesc": {
-    "message": "Tracker ohne einzelnen Zweck",
+    "message": "Gemischt oder unbekannt",
     "description": "Tracker purpose."
   },
   "helpClose": {
@@ -4404,5 +4404,79 @@
   },
   "privacyFootPassword": {
     "message": "Geprüft wird nur ein kurzes verschlüsseltes Stück des Passworts, nie das Passwort selbst."
+  },
+  "pageLeadTrackers2": {
+    "message": "Wer dir diese Woche folgen wollte."
+  },
+  "insTopTrackers": {
+    "message": "Top-Tracker"
+  },
+  "insPurposeTitle": {
+    "message": "Zweck"
+  },
+  "insBusiestTitle": {
+    "message": "Aktivster Tag"
+  },
+  "insWhatMostly": {
+    "message": "Vor allem $PURPOSE$.",
+    "placeholders": {
+      "purpose": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    }
+  },
+  "insWhatMost": {
+    "message": "Mehr für $PURPOSE$ als für alles andere.",
+    "placeholders": {
+      "purpose": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    }
+  },
+  "insBusiestLine": {
+    "message": "$DAY$, vor allem zwischen $FROM$ und $TO$.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Friday"
+      },
+      "from": {
+        "content": "$2",
+        "example": "6 PM"
+      },
+      "to": {
+        "content": "$3",
+        "example": "10 PM"
+      }
+    }
+  },
+  "insBusiestOnly": {
+    "message": "$DAY$ war der aktivste Tag.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Friday"
+      }
+    }
+  },
+  "insSeenOnLine": {
+    "message": "Auf $SITES$",
+    "placeholders": {
+      "sites": {
+        "content": "$1",
+        "example": "Fandom and LinkedIn"
+      }
+    }
+  },
+  "insMoreSites": {
+    "message": "$COUNT$ weitere",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   }
 }

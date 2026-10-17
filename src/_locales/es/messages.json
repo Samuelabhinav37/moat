@@ -2846,7 +2846,7 @@
     "description": "Tracker purpose."
   },
   "purposeAdvertisingDesc": {
-    "message": "Crea un perfil para que los anuncios te sigan",
+    "message": "Eligen los anuncios que ves",
     "description": "Tracker purpose."
   },
   "purposeAnalytics": {
@@ -2854,7 +2854,7 @@
     "description": "Tracker purpose."
   },
   "purposeAnalyticsDesc": {
-    "message": "Cuenta visitas, clics y desplazamiento",
+    "message": "Registran lo que pulsas y lees",
     "description": "Tracker purpose."
   },
   "purposeSocial": {
@@ -2862,7 +2862,7 @@
     "description": "Tracker purpose."
   },
   "purposeSocialDesc": {
-    "message": "Cuenta a las redes sociales lo que lees",
+    "message": "Cuentan a las redes sociales lo que lees",
     "description": "Tracker purpose."
   },
   "purposeChat": {
@@ -2870,7 +2870,7 @@
     "description": "Tracker purpose."
   },
   "purposeChatDesc": {
-    "message": "Registra lo que miras",
+    "message": "Chats que registran las páginas que ves",
     "description": "Tracker purpose."
   },
   "purposeVideo": {
@@ -2918,7 +2918,7 @@
     "description": "Tracker purpose."
   },
   "purposeMiscDesc": {
-    "message": "Rastreadores sin un propósito único",
+    "message": "Mixtos o desconocidos",
     "description": "Tracker purpose."
   },
   "helpClose": {
@@ -4404,5 +4404,79 @@
   },
   "privacyFootPassword": {
     "message": "Solo se comprueba un trozo corto y cifrado de la contraseña, nunca la contraseña."
+  },
+  "pageLeadTrackers2": {
+    "message": "Quién intentó seguirte esta semana."
+  },
+  "insTopTrackers": {
+    "message": "Principales rastreadores"
+  },
+  "insPurposeTitle": {
+    "message": "Propósito"
+  },
+  "insBusiestTitle": {
+    "message": "Día con más actividad"
+  },
+  "insWhatMostly": {
+    "message": "Sobre todo $PURPOSE$.",
+    "placeholders": {
+      "purpose": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    }
+  },
+  "insWhatMost": {
+    "message": "Más para $PURPOSE$ que para cualquier otra cosa.",
+    "placeholders": {
+      "purpose": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    }
+  },
+  "insBusiestLine": {
+    "message": "$DAY$, sobre todo entre las $FROM$ y las $TO$.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Friday"
+      },
+      "from": {
+        "content": "$2",
+        "example": "6 PM"
+      },
+      "to": {
+        "content": "$3",
+        "example": "10 PM"
+      }
+    }
+  },
+  "insBusiestOnly": {
+    "message": "$DAY$ fue el día con más actividad.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Friday"
+      }
+    }
+  },
+  "insSeenOnLine": {
+    "message": "En $SITES$",
+    "placeholders": {
+      "sites": {
+        "content": "$1",
+        "example": "Fandom and LinkedIn"
+      }
+    }
+  },
+  "insMoreSites": {
+    "message": "$COUNT$ más",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   }
 }

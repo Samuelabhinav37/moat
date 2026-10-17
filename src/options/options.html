@@ -58,7 +58,7 @@
         <a href="#exceptions" data-page="exceptions" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ni-hand-wave" d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10M11 9.5V4a1.5 1.5 0 0 1 3 0v6M14 9.5V5.5a1.5 1.5 0 0 1 3 0v7.5c0 4-2.5 7-6.5 7-2.5 0-4-1.5-5.5-4l-2-3.5a1.5 1.5 0 0 1 2.6-1.5L8 13" /></svg><span class="nav-name" data-i18n="navExceptions">Exceptions</span><span class="nav-lead" hidden data-i18n="pageLeadExceptions2">Sites where Moat acts differently.</span><span class="count" id="nav-count-exceptions" hidden></span></a>
         <a href="#backup" data-page="backup" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ni-lid" d="M3.5 5h17v4h-17z" /><path d="M5 9v10h14V9M10 13h4" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span><span class="nav-lead" hidden data-i18n="optionsBackupDesc">Keep your settings, rules and paused sites safe, or carry them to another computer.</span></a>
         <p class="nav-group" data-i18n="navGroupInsights">Insights</p>
-        <a href="#trackers" data-page="trackers" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.5" /><path class="ni-sweep" d="m12 12 5.5-5.5" /></svg><span class="nav-name" data-i18n="navTrackers">Trackers</span><span class="nav-lead" hidden data-i18n="pageLeadTrackers">Who tried to follow you this week, and why</span></a>
+        <a href="#trackers" data-page="trackers" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.5" /><path class="ni-sweep" d="m12 12 5.5-5.5" /></svg><span class="nav-name" data-i18n="navTrackers">Trackers</span><span class="nav-lead" hidden data-i18n="pageLeadTrackers2">Who tried to follow you this week.</span></a>
         <a href="#sites" data-page="sites" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M3.5 12h17" /><path class="ni-meridian" d="M12 3.5c2.6 2.6 2.6 14.4 0 17M12 3.5c-2.6 2.6-2.6 14.4 0 17" /></svg><span class="nav-name" data-i18n="navInsightSites">Sites</span><span class="nav-lead" hidden data-i18n="pageLeadInsightSites">Where Moat blocked the most this week</span></a>
         <a href="#security" data-page="security" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.7-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.8-7.5-9.5V6z" /><path class="ni-tick" d="M9 12l2 2 4-4" /></svg><span class="nav-name" data-i18n="navSecurity">Security</span><span class="nav-dot" id="nav-dot-security" hidden></span><span class="nav-lead" hidden data-i18n="pageLeadSecurity">Your protection, and the pages Moat stopped</span></a>
         <div class="nav-sep" aria-hidden="true"></div>
@@ -152,18 +152,17 @@
 
         <!-- Insights (insightsView.ts) -->
         <section class="sec ins-sec" data-page="trackers">
-          <div class="ov-kpis" id="t-kpis"></div>
           <div class="ov-card">
-            <div class="ttl"><h2 data-i18n="insWhoTitle">Who tracks you</h2><p id="t-who-take"></p></div>
+            <div class="ttl ttl-row"><h2 data-i18n="insTopTrackers">Top trackers</h2><p id="t-who-take"></p></div>
             <div class="ins-list-box"><div id="t-who"><span class="skel-bar" aria-hidden="true"></span><span class="skel-bar" aria-hidden="true"></span><span class="skel-bar" aria-hidden="true" style="width: 60%"></span></div></div>
           </div>
           <div class="ins-two">
             <div class="ov-card">
-              <div class="ttl"><h2 data-i18n="insWhyTitle">Why they tracked you</h2><p id="t-what-take"></p></div>
+              <div class="ttl"><h2 data-i18n="insPurposeTitle">Purpose</h2><p id="t-what-take"></p></div>
               <div id="t-what"></div>
             </div>
             <div class="ov-card">
-              <div class="ttl"><h2 data-i18n="insWhenTitle">When they were busiest</h2><p id="t-when-take"></p></div>
+              <div class="ttl"><h2 data-i18n="insBusiestTitle">Busiest day</h2><p id="t-when-take"></p></div>
               <div id="t-when"></div>
             </div>
           </div>

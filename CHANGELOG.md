@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.295
+
+### Changed
+- **Trackers, simpler.** The two number cards are gone. The week's total sits on the list it
+  adds up ("Top trackers · 2,011 blocked"), and each company says where it was seen ("On
+  Fandom and LinkedIn") instead of "On 2 of your 7 sites". Google, Meta, TikTok and X show
+  their logos.
+- **Purpose** is one bar split by what the trackers were for, the way iPhone Storage shows
+  space, with a short line for each kind ("Pick the ads you see").
+- **Busiest day** says it in one line: "Friday, mostly between 6 PM and 10 PM."
+
 ## 0.11.294
 
 ### Changed

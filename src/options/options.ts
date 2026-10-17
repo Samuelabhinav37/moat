@@ -30,7 +30,7 @@ import { TOPICS, initHelpPanel } from "./helpPanel";
 import { initKaiGuide } from "./kaiGuide";
 import { LEVELS, openCheckup, type Level } from "./checkup";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
-import { buildHighlight, buildKpi, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
+import { buildHighlight, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
 import { buildDays, buildPurposes, buildReachRows, busiestDayPhrase, purposeLabel, purposeShares, type DayData } from "./insightsView";
 import { groupLabel, groupSites, type SiteGroup } from "./siteGroups";
 import { createSavedToast } from "./savedToast";
@@ -2144,40 +2144,21 @@ function setTakeaway(id: string, parts: (string | { bold: string })[]): void {
 
 async function renderInsights(settings: Settings, usage: UsageSummaryResponse): Promise<void> {
   const info = await loadCompanyInfo();
-  const prev = usage.previousWeek;
   const sitesThisWeek = Math.max(usage.weekSiteCount, 1);
-  const companies = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count);
+  // Most blocked first, the order the Highlights card uses.
+  const companies = [...usage.companiesThisWeek].sort((a, b) => b.count - a.count || b.hostnameCount - a.hostnameCount);
 
-  // Trackers
-  document.getElementById("t-kpis")?.replaceChildren(
-    buildKpi(document, tFallback("ovKpiTrackers", "Trackers blocked"), usage.weekKinds.trackers, changePercent(usage.weekKinds.trackers, prev?.kinds.trackers), usage.dailyKinds.slice(0, 6).map((d) => d.trackers), tFallback),
-    buildKpi(
-      document,
-      tFallback("insKpiCompanies", "Companies"),
-      companies.length,
-      null,
-      usage.companiesTrend.slice(0, 6),
-      tFallback,
-      tFallback("insKpiCompaniesNote", `on ${usage.trackerSiteCount} of the ${usage.weekSiteCount} sites you visited`, [String(usage.trackerSiteCount), String(usage.weekSiteCount)])
-    )
-  );
-  const top = companies[0];
-  setTakeaway(
-    "t-who-take",
-    top
-      ? [{ bold: top.company }, ` ${tFallback("insWhoTake", `was on ${Math.round((top.hostnameCount / sitesThisWeek) * 100)}% of the sites you visited. Pick a company to see where.`, String(Math.round((top.hostnameCount / sitesThisWeek) * 100)))}`]
-      : [tFallback("ovTopTrackersEmpty", "No tracker companies this week yet.")]
-  );
+  // Trackers: the week's total sits on the list it adds up.
+  setTakeaway("t-who-take", companies.length ? [{ bold: usage.weekKinds.trackers.toLocaleString() }, ` ${tFallback("insBlockedWord", "blocked")}`] : [tFallback("ovTopTrackersEmpty", "No tracker companies this week yet.")]);
   // Rows go straight into #t-who so the long-list search and "Show all"
   // attach once (inside the card), not on every render.
   const whoList = document.getElementById("t-who");
   const reach = buildReachRows(
     document,
     companies.map((c) => {
-      const host = companyHost(info, c.company);
       return {
         company: c.company,
-        icon: host ? siteIcon(host) : buildSiteIcon(document, c.company, null),
+        icon: companyIcon(c.company, info),
         sites: c.hostnameCount,
         ofSites: sitesThisWeek,
         blocks: c.count,
@@ -2195,12 +2176,14 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
     applyLongList(whoList, longListLabels);
   }
   const shares = purposeShares(usage.purposes);
-  setTakeaway(
-    "t-what-take",
-    shares[0]
-      ? [{ bold: `${Math.round(shares[0].share * 100)}%` }, ` ${tFallback("insWhatTake", `were for ${purposeLabel(shares[0].category, tFallback).name.toLowerCase()}.`, purposeLabel(shares[0].category, tFallback).name.toLowerCase())}`]
-      : [tFallback("insWhatEmpty", "Fills in as Moat blocks trackers.")]
-  );
+  const topPurpose = shares[0] ? purposeLabel(shares[0].category, tFallback).name.toLowerCase() : "";
+  setTakeaway("t-what-take", [
+    !shares[0]
+      ? tFallback("insWhatEmpty", "Fills in as Moat blocks trackers.")
+      : shares[0].share >= 0.5
+        ? tFallback("insWhatMostly", `Mostly ${topPurpose}.`, topPurpose)
+        : tFallback("insWhatMost", `More for ${topPurpose} than anything else.`, topPurpose),
+  ]);
   document.getElementById("t-what")?.replaceChildren(...(shares.length ? [buildPurposes(document, usage.purposes, tFallback)] : []));
   const days: DayData[] = [];
   for (let i = 6; i >= 0; i--) {
