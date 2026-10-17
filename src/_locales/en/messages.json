@@ -4816,5 +4816,87 @@
   "aboutLead2": {
     "message": "Your version, and what leaves your device.",
     "description": "About."
+  },
+  "popupBlockedHere": {
+    "message": "blocked on this page",
+    "description": "Popup: after the count (\"6 blocked on this page\"). Opens the split."
+  },
+  "popupHideSomething": {
+    "message": "Hide something",
+    "description": "Popup row: starts the element picker."
+  },
+  "popupReportShort": {
+    "message": "Report a problem",
+    "description": "Popup row: opens the report form."
+  },
+  "popupSiteSettings": {
+    "message": "Site settings",
+    "description": "Popup row: opens the settings for this site only."
+  },
+  "popupFromOne": {
+    "message": "From $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Popup: which tracker company the blocks here came from."
+  },
+  "popupFromTwo": {
+    "message": "From $A$ and $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      }
+    },
+    "description": "Popup: two tracker companies."
+  },
+  "popupFromThree": {
+    "message": "From $A$, $B$ and 1 other.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      }
+    },
+    "description": "Popup: three tracker companies."
+  },
+  "popupFromMany": {
+    "message": "From $A$, $B$ and $COUNT$ others.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      },
+      "count": {
+        "content": "$3",
+        "example": "3"
+      }
+    },
+    "description": "Popup: four or more tracker companies."
+  },
+  "popupWeekLink2": {
+    "message": "$TOTAL$ blocked this week ›",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "4,049"
+      }
+    },
+    "description": "Popup footer: opens Overview. The number shows in bold."
   }
 }

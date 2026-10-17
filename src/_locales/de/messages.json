@@ -4553,5 +4553,78 @@
   },
   "aboutLead2": {
     "message": "Deine Version und was dein Gerät verlässt."
+  },
+  "popupBlockedHere": {
+    "message": "auf dieser Seite blockiert"
+  },
+  "popupHideSomething": {
+    "message": "Etwas ausblenden"
+  },
+  "popupReportShort": {
+    "message": "Problem melden"
+  },
+  "popupSiteSettings": {
+    "message": "Seiteneinstellungen"
+  },
+  "popupFromOne": {
+    "message": "Von $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "popupFromTwo": {
+    "message": "Von $A$ und $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      }
+    }
+  },
+  "popupFromThree": {
+    "message": "Von $A$, $B$ und 1 weiteren.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      }
+    }
+  },
+  "popupFromMany": {
+    "message": "Von $A$, $B$ und $COUNT$ weiteren.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      },
+      "count": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "popupWeekLink2": {
+    "message": "$TOTAL$ diese Woche blockiert ›",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "4,049"
+      }
+    }
   }
 }

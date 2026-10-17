@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.298
+
+### Changed
+- **The popup, minimal.** It shows the site by name with its icon and Moat's switch, then one
+  line, "6 blocked on this page". Press it to see the ads, trackers and pop-ups, and who they
+  came from. Below that are the three things you use: Hide something, Report a problem and
+  Site settings. "4,049 blocked this week" at the bottom opens Overview, and the gear opens
+  Settings.
+
 ## 0.11.297
 
 ### Changed

@@ -4553,5 +4553,78 @@
   },
   "aboutLead2": {
     "message": "Tu versión y lo que sale de tu dispositivo."
+  },
+  "popupBlockedHere": {
+    "message": "bloqueados en esta página"
+  },
+  "popupHideSomething": {
+    "message": "Ocultar algo"
+  },
+  "popupReportShort": {
+    "message": "Informar de un problema"
+  },
+  "popupSiteSettings": {
+    "message": "Ajustes del sitio"
+  },
+  "popupFromOne": {
+    "message": "De $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "popupFromTwo": {
+    "message": "De $A$ y $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      }
+    }
+  },
+  "popupFromThree": {
+    "message": "De $A$, $B$ y 1 más.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      }
+    }
+  },
+  "popupFromMany": {
+    "message": "De $A$, $B$ y $COUNT$ más.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      },
+      "count": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "popupWeekLink2": {
+    "message": "$TOTAL$ bloqueados esta semana ›",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "4,049"
+      }
+    }
   }
 }
