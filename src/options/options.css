@@ -4426,3 +4426,240 @@ body:has(#explainer:not([hidden])) .kai-guide { display: none; }
 .level-note:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; color: var(--fg); }
 .level-note .ab-btn { padding: 6px 14px; font-size: 13.5px; }
 .level-mix { background: var(--panel-3); color: var(--muted); }
+
+/* =====================================================================
+   Clarity pass (0.11.292, 2026-10): Apple-style icons. Every glyph sits on
+   one blue tile with a soft top light (red only for danger). Site icons sit
+   on a rounded plate tinted with the icon's own colour (siteIcon.ts
+   plateTint), the way an app icon carries its brand colour. A site the
+   browser has no icon for gets a monogram tile, as Safari's Favorites do.
+   ===================================================================== */
+:root {
+  --tile-a: #6b97f2;
+  --tile-b: #3d68d4;
+  --tile-danger-a: #ff8a7a;
+  --tile-danger-b: #e5484d;
+  --tile-ok-a: #4fd18b;
+  --tile-ok-b: #1fa463;
+  --tile-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.18), 0 1px 2px rgba(0, 0, 0, 0.22);
+}
+.dash-nav a svg,
+.dash-nav a[aria-current="page"] svg,
+.setting-icon,
+.flow-icon,
+.empty-icon {
+  background: linear-gradient(180deg, var(--tile-a), var(--tile-b));
+  color: #fff;
+  box-shadow: var(--tile-shadow);
+}
+.dash-nav a:hover svg { color: #fff; }
+.dash-nav a svg { stroke-width: 2; }
+.dash-nav a[aria-current="page"] { background: var(--panel-2); }
+.dash-nav a[aria-current="page"]::before { display: none; }
+.setting-icon,
+.setting-row.is-on .setting-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--tile-a), var(--tile-b));
+}
+.setting-icon svg { width: 17px; height: 17px; stroke-width: 2; }
+/* A brand logo keeps its own colours, on a white plate like a site icon. */
+.setting-icon.brand-tile,
+.setting-row.is-on .setting-icon.brand-tile {
+  background: linear-gradient(180deg, #fff, #f1f1f4);
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 1px 2.5px rgba(0, 0, 0, 0.22);
+}
+.setting-icon.brand-tile svg { width: 18px; height: 18px; }
+.setting-icon.brand-stack svg { width: 12px; height: 12px; }
+.flow-icon { width: 30px; height: 30px; border-radius: 8px; }
+.flow-icon svg { width: 17px; height: 17px; stroke-width: 2; }
+.empty-icon { border-radius: 9px; }
+.tile-danger,
+.empty-icon.tile-danger { background: linear-gradient(180deg, var(--tile-danger-a), var(--tile-danger-b)); color: #fff; box-shadow: var(--tile-shadow); }
+.tile-ok { background: linear-gradient(180deg, var(--tile-ok-a), var(--tile-ok-b)); color: #fff; box-shadow: var(--tile-shadow); }
+
+.site-icon,
+.site-icon.has-img {
+  --plate: #fff;
+  border: 0;
+  border-radius: 27%;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--plate) 70%, #fff), var(--plate));
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 2.5px rgba(0, 0, 0, 0.22);
+}
+.site-icon img,
+.rule-site .site-icon img {
+  width: 66%;
+  height: 66%;
+  border-radius: 18%;
+  filter: drop-shadow(0 0.5px 0.5px rgba(0, 0, 0, 0.12));
+}
+.site-icon.light-img { --plate: #3a3a44; }
+/* Monogram: white letter on its hue, lit from the top. */
+.site-icon[data-hue],
+:root[data-theme="light"] .site-icon[data-hue] {
+  background: linear-gradient(180deg, hsl(var(--mono-h) 62% 62%), hsl(var(--mono-h) 55% 46%));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85em;
+  box-shadow: var(--tile-shadow);
+}
+/* Glyph tiles (glyphs.ts): blue, or red for danger. */
+.glyph-tile {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 27%;
+  background: linear-gradient(180deg, var(--tile-a), var(--tile-b));
+  color: #fff;
+  box-shadow: var(--tile-shadow);
+}
+.glyph-tile.tile-danger { background: linear-gradient(180deg, var(--tile-danger-a), var(--tile-danger-b)); }
+.glyph-tile.tile-ok { background: linear-gradient(180deg, var(--tile-ok-a), var(--tile-ok-b)); }
+.glyph-tile svg { width: 58%; height: 58%; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---- Overview, clarity pass ---- */
+/* Status: a shield tile, one line, and the level as a pop-up button. */
+.ov-hero,
+:root[data-theme="light"] .ov-hero {
+  padding: 18px 22px;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.ov-hero:has(.ov-status:not([data-state="on"])) { background: var(--card); box-shadow: inset 0 0 0 1px rgba(214, 160, 60, 0.35); }
+.ov-hero .ov-status { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ov-status-tile { width: 44px; height: 44px; border-radius: 12px; }
+.ov-status-tile svg { width: 24px; height: 24px; color: #fff; }
+.ov-status:not([data-state="on"]) .ov-status-tile { background: linear-gradient(180deg, #f5c060, #d99a1e); }
+.ov-status:not([data-state="on"]) .ov-status-tile .ov-status-warn { display: block; color: #fff; }
+.ov-status-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.ov-status-text b { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.ov-status-text .ov-status-msg { color: var(--muted); font-size: 14px; flex: none; }
+.ov-status-text a { color: var(--muted); font-size: 13.5px; font-weight: 500; justify-self: start; }
+.ov-status-text a:hover { color: var(--blue-lt); }
+.ov-status:not([data-state="on"]) .ov-status-on { display: none; }
+#ov-status-action { margin-left: 0; }
+
+/* Pop-up button and its menu (popMenu.ts). */
+.pop-wrap { position: relative; display: inline-flex; }
+.pop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 6px 10px 6px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--panel-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.pop-btn:hover { background: var(--panel-3); }
+.pop-btn[aria-expanded="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
+.pop-ud { width: 9px; height: 13px; fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.pop-menu {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  right: 0;
+  box-sizing: border-box;
+  width: min(300px, 86vw);
+  padding: 6px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--panel-2) 94%, transparent);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: 0 0 0 1px var(--line-2), 0 18px 50px rgba(0, 0, 0, 0.35);
+  transform-origin: top right;
+  animation: pop-in 0.18s var(--ease) both;
+}
+.pop-menu.closing { animation: pop-out 0.12s ease-in both; }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.94) translateY(-4px); } }
+@keyframes pop-out { to { opacity: 0; transform: scale(0.97); } }
+.pop-item {
+  white-space: normal;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 1px 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pop-item:hover,
+.pop-item:focus-visible { background: var(--blue); color: #fff; outline: none; }
+.pop-item:hover .pop-desc,
+.pop-item:focus-visible .pop-desc { color: rgba(255, 255, 255, 0.82); }
+.pop-mark { grid-row: span 2; padding-top: 3px; }
+.pop-mark svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.pop-item b { font-size: 14px; font-weight: 600; }
+.pop-desc { color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+
+/* Week card: the picker on top (Health), then the number with its unit,
+   then one comparison. */
+.ov-week .ov-period:not([hidden]) { display: flex; width: 100%; margin-bottom: 18px; position: relative; }
+.ov-week .ov-period button { flex: 1; transition: background 0.2s, color 0.2s, box-shadow 0.2s; }
+.ov-big { display: flex; align-items: baseline; gap: 8px; margin-top: 0; }
+.ov-unit { font-size: 20px; font-weight: 600; color: var(--muted); letter-spacing: -0.01em; }
+.ov-headline:not([hidden]) { display: flex; align-items: center; gap: 4px; margin: 8px 0 0; color: var(--muted); font-weight: 500; }
+.ov-arrow { font-weight: 700; }
+
+.ov-section-title { margin: 20px 0 -4px 4px; font-size: 20px; font-weight: 600; letter-spacing: -0.015em; }
+#page-lead:empty { display: none; }
+
+/* Highlights (overviewView.ts buildHighlight). */
+.ov-tops { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); align-items: stretch; }
+.ov-hl {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 22px;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: box-shadow 0.2s, transform 0.2s var(--ease);
+}
+.ov-hl:hover { box-shadow: inset 0 0 0 1px var(--line-2); }
+.ov-hl-kicker { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; }
+.ov-hl-kicker .glyph-tile { width: 22px; height: 22px; border-radius: 6px; }
+.ov-hl-kicker .glyph-tile svg { stroke-width: 2.3; }
+.ov-hl-say { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; text-wrap: balance; }
+.ov-hl-rows { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+.ov-hl-rows li { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 14px; animation: rise 0.4s var(--ease) both; animation-delay: var(--dl, 0ms); }
+.ov-hl-rows .site-icon,
+.ov-hl-rows .glyph-tile { width: 26px; height: 26px; border-radius: 7px; font-size: 11px; }
+.ov-hl-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-hl-value { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ov-hl-link { margin-top: auto; padding-top: 4px; color: var(--blue-lt); font-size: 14px; font-weight: 500; }
+
+/* The review card, as a settings row. */
+.ov-checkup { justify-content: flex-start; padding: 14px 18px; }
+.ov-checkup > div { flex: 1; min-width: 0; }
+.ov-checkup h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.ov-checkup p { font-size: 13.5px; }
+.ov-checkup .glyph-tile { width: 30px; height: 30px; border-radius: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pop-menu, .pop-menu.closing, .ov-hl-rows li { animation: none; }
+}
+
+/* Kai floats in the bottom right corner (kaiGuide.ts). Pages keep room for
+   it: wide windows keep a right gutter as wide as Kai, and every page ends
+   with enough space to scroll its last row above Kai, the way pages with a
+   floating button do. Menus open above Kai (z-index 60 over 30). */
+main.wrap { padding-bottom: 128px; }
+@media (min-width: 1100px) { main.wrap { padding-right: 128px; } }

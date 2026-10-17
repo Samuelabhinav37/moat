@@ -456,13 +456,25 @@ describe("About: connection states are plain text, with a way to change them", (
 describe("Overview status banner tells the truth", () => {
   const banner = () => document.getElementById("ov-status") as HTMLElement;
 
-  it("shows the level, a Change link and paused sites when on", async () => {
+  it("shows the level as a menu of the three levels, and paused sites, when on", async () => {
     await renderOptions({ enabled: true, disabledSites: ["a.example", "b.example"] });
 
     expect(banner().dataset.state).toBe("on");
+    expect(document.getElementById("ov-status-title")?.textContent).toBe("Moat is protecting you");
     expect(document.getElementById("ov-status-paused")?.textContent).toBe("Paused on 2 sites");
-    expect(document.getElementById("ov-status-change")?.getAttribute("href")).toBe("#blocking");
     expect(document.getElementById("ov-status-action")?.hidden).toBe(true);
+
+    const level = document.getElementById("ov-level") as HTMLButtonElement;
+    level.click();
+    expect(level.getAttribute("aria-expanded")).toBe("true");
+    const items = [...document.querySelectorAll<HTMLElement>(".pop-menu .pop-item")];
+    expect(items.map((item) => item.querySelector("b")?.textContent)).toEqual(["Light", "Balanced", "Strict"]);
+    // A customized level ("Strict, customized") ticks the level it came from.
+    const checked = items.filter((item) => item.getAttribute("aria-checked") === "true");
+    expect(checked).toHaveLength(1);
+    expect(document.getElementById("ov-status-level")?.textContent).toContain(checked[0]!.querySelector("b")!.textContent!);
+    items[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(level.getAttribute("aria-expanded")).toBe("false");
   });
 
   it("says protection is off, with a Turn on button", async () => {
@@ -589,7 +601,7 @@ describe("Sites: one row per site", () => {
     await renderOptions({ disabledSites: [] }, { usageStats: { days: { [date]: day } } });
     const rows = [...document.querySelectorAll<HTMLElement>("#s-rows .sr")];
     expect(rows).toHaveLength(1);
-    expect(rows[0]!.querySelector(".sr-name")?.textContent).toBe("news.example");
+    expect(rows[0]!.querySelector(".sr-name")?.textContent).toBe("News");
     expect(rows[0]!.querySelector(".sr-sub")?.textContent).toBe("15 ads · 33 trackers · 2 pop-ups");
     const open = rows[0]!.querySelector<HTMLButtonElement>(".sr-btn")!;
     open.click();
@@ -673,7 +685,7 @@ describe("Overview: this week or last week", () => {
 
   it("says the number from last week, and can show last week's chart", async () => {
     await renderOptions(undefined, twoWeeks());
-    expect(document.getElementById("ov-headline")?.textContent).toBe("70 last week");
+    expect(document.getElementById("ov-headline")?.textContent).toBe("↑200% more than the week before");
     expect(document.getElementById("ov-period")?.hidden).toBe(false);
 
     document.querySelector<HTMLButtonElement>('#ov-period [data-period="last"]')!.click();
@@ -696,7 +708,9 @@ describe("Overview: the week in a sentence, and a calm sidebar", () => {
 
   it("names the company seen most under the title, with the totals in the chart's legend and no percentage cards", async () => {
     await renderOptions(undefined, week(Date.now()));
-    expect(document.getElementById("page-lead")?.textContent).toMatch(/^Google tried to track you on more sites than any other company\./);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(document.querySelector("#ov-tops .ov-hl-say")?.textContent).toBe("Google tracked you the most.");
+    expect(document.getElementById("page-lead")?.textContent).toBe("");
     expect(document.querySelector("#ov-chart .ovc-legend")?.textContent).toContain("Trackers30");
     expect(document.getElementById("ov-kpis")).toBeNull();
   });

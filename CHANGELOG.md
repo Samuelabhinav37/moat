@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.292
+
+### Changed
+- **Overview, clearer.** The status card says "Moat is protecting you", and the level next to
+  it is a menu: press Balanced to pick Light, Balanced or Strict, each with one line on what it
+  adds. The week reads "4,046 blocked" with one comparison under it ("85% more than the week
+  before"), and the week picker sits on top of the chart. The sentence under the title is gone.
+- **Highlights.** Three short cards replace the three lists: who tracked you the most, which
+  site had the most blocked, and how many dangerous pages were stopped, each with its top three.
+- **Sites by name.** Lists say "Spotify" and "Fandom" instead of open.spotify.com and
+  jack-reacher.fandom.com. The full address is in the tooltip and in a site's details.
+- **Icons, polished.** Settings and the sidebar use one blue tile style, and red only for
+  danger. Site icons sit on a rounded plate tinted with the site's own colour. Google, Meta,
+  TikTok and X show their own logos. A page Moat stopped shows what kind of danger it was
+  (a fake sign-in page, a fake shop, malware) instead of a letter.
+- Kai keeps clear of the page: pages leave room for it in the corner, and menus open above it.
+
 ## 0.11.291
 
 ### Changed

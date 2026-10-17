@@ -61,7 +61,7 @@ describe("buildReachRows", () => {
     expect(node.querySelector<HTMLElement>(".rr")!.dataset.open).toBe("true");
     expect(btn.getAttribute("aria-expanded")).toBe("true");
     const site = node.querySelector<HTMLButtonElement>(".rr-site")!;
-    expect(site.textContent).toBe("fandom.com");
+    expect(site.textContent).toBe("Fandom");
     site.click();
     expect(opened).toEqual(["www.fandom.com"]);
     expect(node.querySelector(".rr-site-more")!.textContent).toBe("and 40 more");
@@ -83,7 +83,7 @@ describe("days", () => {
     expect(node.querySelectorAll(".day-bar")).toHaveLength(3);
     expect(node.querySelector('[aria-selected="true"]')!.getAttribute("aria-label")).toBe("Friday: 90");
     expect(node.querySelector(".days-line b")!.textContent).toBe("Friday");
-    expect(node.querySelector(".days-sites .rr-site")!.textContent).toBe("a.example90");
+    expect(node.querySelector(".days-sites .rr-site")!.textContent).toBe("A90");
     node.querySelectorAll<HTMLButtonElement>(".day-bar")[0]!.click();
     expect(node.querySelector(".days-line b")!.textContent).toBe("Monday");
   });

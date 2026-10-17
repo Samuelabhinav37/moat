@@ -261,3 +261,43 @@ export function buildTopCard(doc: Document, title: string, takeaway: string, row
   }
   return card;
 }
+
+export interface HighlightRow {
+  icon: HTMLElement;
+  name: string;
+  value: string;
+  /** The full address, for the tooltip, where the name is short. */
+  title?: string;
+}
+
+/** A Highlights card, the way Health's are built: a small category tile
+ * and name, one short headline, the top three, and a link to the page.
+ * `tile` is the category's glyph tile; `danger` marks the Security card. */
+export function buildHighlight(
+  doc: Document,
+  tile: HTMLElement,
+  kicker: string,
+  headline: string,
+  rows: HighlightRow[],
+  link: { href: string; label: string }
+): HTMLElement {
+  const card = el(doc, "div", "ov-hl");
+  const head = el(doc, "div", "ov-hl-kicker");
+  head.append(tile, el(doc, "span", "", kicker));
+  card.append(head, el(doc, "p", "ov-hl-say", headline));
+  if (rows.length) {
+    const list = el(doc, "ul", "ov-hl-rows");
+    rows.slice(0, 3).forEach((r, i) => {
+      const li = el(doc, "li");
+      li.style.setProperty("--dl", `${i * 60}ms`);
+      if (r.title) li.title = r.title;
+      li.append(r.icon, el(doc, "span", "ov-hl-name", r.name), el(doc, "span", "ov-hl-value", r.value));
+      list.append(li);
+    });
+    card.append(list);
+  }
+  const a = el(doc, "a", "ov-hl-link", `${link.label} ›`);
+  a.href = link.href;
+  card.append(a);
+  return card;
+}

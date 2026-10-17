@@ -52,7 +52,7 @@
         <div class="hp-body"></div>
       </aside>
       <nav class="dash-nav" id="dash-nav" aria-label="Settings" data-i18n-aria-label="settingsTitle">
-        <a href="#overview" data-page="overview" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6z" /><path class="ni-up" d="M14 4h6v4h-6z" /><path class="ni-down" d="M4 20h6v-3H4z" /></svg><span class="nav-name" data-i18n="navOverview">Overview</span><span class="nav-lead" hidden data-i18n="pageLeadOverview">What Moat did for you this week</span></a>
+        <a href="#overview" data-page="overview" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6z" /><path class="ni-up" d="M14 4h6v4h-6z" /><path class="ni-down" d="M4 20h6v-3H4z" /></svg><span class="nav-name" data-i18n="navOverview">Overview</span><span class="nav-lead" hidden></span></a>
         <p class="nav-group" data-i18n="navGroupSettings">Settings</p>
         <a href="#protection" data-page="protection" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 17h16" /><circle class="ni-knob-l" cx="15" cy="7" r="2" /><circle class="ni-knob-r" cx="9" cy="17" r="2" /></svg><span class="nav-name" data-i18n="navGroupProtection">Protection</span><span class="nav-lead" hidden data-i18n="pageLeadProtection">How much Moat blocks, and the extras on top</span></a>
         <a href="#exceptions" data-page="exceptions" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ni-hand-wave" d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10M11 9.5V4a1.5 1.5 0 0 1 3 0v6M14 9.5V5.5a1.5 1.5 0 0 1 3 0v7.5c0 4-2.5 7-6.5 7-2.5 0-4-1.5-5.5-4l-2-3.5a1.5 1.5 0 0 1 2.6-1.5L8 13" /></svg><span class="nav-name" data-i18n="navExceptions">Exceptions</span><span class="nav-lead" hidden data-i18n="pageLeadExceptions">Sites, parts of pages and rules where you made your own choice</span><span class="count" id="nav-count-exceptions" hidden></span></a>
@@ -108,33 +108,26 @@
           <!-- Real state (options.ts renderOverviewStatus): on, off, or lists that failed to update. -->
           <!-- a header element, not a div: .dash-solo hides a section's first div -->
           <header class="ov-hero">
-          <p class="ov-status" id="ov-status" data-state="on">
-            <svg class="ov-status-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-            <svg class="ov-status-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3zM12 10v4M12 17v.5" /></svg>
-            <b id="ov-status-title" data-i18n="ovStatusOn">Protection is on</b>
-            <span class="ov-status-on">
-              <span class="sep" aria-hidden="true">·</span>
-              <span id="ov-status-level"></span>
-              <a href="#blocking" id="ov-status-change" data-i18n="ovStatusChange">Change</a>
-              <span class="sep" id="ov-status-lists-sep" aria-hidden="true" hidden>·</span>
-              <span id="ov-status-lists" hidden></span>
-              <span class="sep" id="ov-status-paused-sep" aria-hidden="true" hidden>·</span>
-              <a href="#paused" id="ov-status-paused" hidden></a>
-            </span>
-            <span class="ov-status-msg" id="ov-status-msg" hidden></span>
+          <!-- Pressing the level opens a menu of the three levels (popMenu.ts). -->
+          <div class="ov-status" id="ov-status" data-state="on">
+            <span class="glyph-tile tile-ok ov-status-tile" aria-hidden="true"><svg class="ov-status-ok" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z" /><path d="M8.8 12.2l2.3 2.3 4.3-4.6" /></svg><svg class="ov-status-warn" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z" /><path d="M12 10v4.5M12 17.2v.01" /></svg></span>
+            <div class="ov-status-text">
+              <b id="ov-status-title" data-i18n="ovStatusProtecting">Moat is protecting you</b>
+              <span class="ov-status-msg" id="ov-status-msg" hidden></span>
+              <a href="#paused" class="ov-status-on" id="ov-status-paused" hidden></a>
+            </div>
+            <span class="ov-status-on pop-wrap"><button type="button" class="pop-btn" id="ov-level" aria-haspopup="menu" aria-expanded="false"><span class="pop-text" id="ov-status-level"></span><svg class="pop-ud" viewBox="0 0 10 14" aria-hidden="true"><path d="M2 5l3-3 3 3M2 9l3 3 3-3" /></svg></button></span>
             <button type="button" class="ab-btn" id="ov-status-action" hidden></button>
-          </p>
+          </div>
           </header>
           <div class="ov-card ov-week">
-            <div class="ov-week-head">
-              <h2 id="ov-week-title" data-i18n="ovWeekTitle">Blocked this week</h2>
-              <!-- Only offered once there is a last week to show (14 days are kept). -->
-              <div class="ov-period" id="ov-period" role="group" aria-label="Week" data-i18n-aria-label="ovPeriodGroup" hidden>
-                <button type="button" data-period="this" aria-pressed="true" data-i18n="ovPeriodThis">This week</button>
-                <button type="button" data-period="last" aria-pressed="false" data-i18n="ovPeriodLast">Last week</button>
-              </div>
+            <h2 class="sr-only" id="ov-week-title" data-i18n="ovWeekTitle">Blocked this week</h2>
+            <!-- Only offered once there is a last week to show (14 days are kept). -->
+            <div class="ov-period" id="ov-period" role="group" aria-label="Week" data-i18n-aria-label="ovPeriodGroup" hidden>
+              <button type="button" data-period="this" aria-pressed="true" data-i18n="ovPeriodThis">This week</button>
+              <button type="button" data-period="last" aria-pressed="false" data-i18n="ovPeriodLast">Last week</button>
             </div>
-            <div class="ov-big" id="ov-week-total"><span class="skel-bar skel-num" aria-hidden="true"></span></div>
+            <div class="ov-big"><span id="ov-week-total"><span class="skel-bar skel-num" aria-hidden="true"></span></span><span class="ov-unit" data-i18n="ovUnitBlocked">blocked</span></div>
             <p class="ov-headline" id="ov-headline"></p>
             <div id="ov-chart"></div>
             <span class="ov-sub ov-hint" data-i18n="ovHoverHint">Select a day for details</span>
@@ -144,15 +137,17 @@
             </div>
           </div>
           <!-- Grey stand-ins until the week has loaded (replaced by renderOverviewTops). -->
+          <h2 class="ov-section-title" data-i18n="ovHighlightsTitle">Highlights</h2>
+          <div class="ov-tops" id="ov-tops"><div class="ov-card skel-card" aria-hidden="true"><span class="skel-bar" style="width: 45%"></span><span class="skel-bar"></span><span class="skel-bar"></span><span class="skel-bar" style="width: 70%"></span></div><div class="ov-card skel-card" aria-hidden="true"><span class="skel-bar" style="width: 45%"></span><span class="skel-bar"></span><span class="skel-bar"></span><span class="skel-bar" style="width: 70%"></span></div><div class="ov-card skel-card" aria-hidden="true"><span class="skel-bar" style="width: 45%"></span><span class="skel-bar"></span><span class="skel-bar"></span><span class="skel-bar" style="width: 70%"></span></div></div>
           <!-- Guided checkup (checkup.ts): a few choices, one at a time. -->
           <div class="ov-card ov-checkup">
+            <span class="glyph-tile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5l2 5.5 5.5 2-5.5 2-2 5.5-2-5.5-5.5-2 5.5-2z" /><path d="M19 3v3M17.5 4.5h3" /></svg></span>
             <div>
-              <h2 data-i18n="checkupCardTitle">Review your protection</h2>
-              <p data-i18n="checkupCardLead">Three quick questions about how much Moat blocks. Nothing changes until you say Done.</p>
+              <h2 data-i18n="checkupCardTitle2">Make Moat fit how you browse</h2>
+              <p data-i18n="checkupCardLead2">Answer 3 quick questions and see the suggested settings.</p>
             </div>
             <button type="button" class="ab-btn" id="checkup-start" data-i18n="checkupStart">Start</button>
           </div>
-          <div class="ov-tops" id="ov-tops"><div class="ov-card skel-card" aria-hidden="true"><span class="skel-bar" style="width: 45%"></span><span class="skel-bar"></span><span class="skel-bar"></span><span class="skel-bar" style="width: 70%"></span></div><div class="ov-card skel-card" aria-hidden="true"><span class="skel-bar" style="width: 45%"></span><span class="skel-bar"></span><span class="skel-bar"></span><span class="skel-bar" style="width: 70%"></span></div><div class="ov-card skel-card" aria-hidden="true"><span class="skel-bar" style="width: 45%"></span><span class="skel-bar"></span><span class="skel-bar"></span><span class="skel-bar" style="width: 70%"></span></div></div>
         </section>
 
         <!-- Insights (insightsView.ts) -->

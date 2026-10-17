@@ -4127,5 +4127,107 @@
   "optionsDisclosureGoodbyeWhen": {
     "message": "quand vous retirez Moat",
     "description": "Settings > About, 'What leaves your device'."
+  },
+  "ovStatusProtecting": {
+    "message": "Moat vous protège"
+  },
+  "ovUnitBlocked": {
+    "message": "bloqués"
+  },
+  "ovHighlightsTitle": {
+    "message": "En bref"
+  },
+  "checkupCardTitle2": {
+    "message": "Adaptez Moat à votre navigation"
+  },
+  "checkupCardLead2": {
+    "message": "Répondez à 3 questions rapides et voyez les réglages suggérés."
+  },
+  "levelMenuLight": {
+    "message": "Bloque les pubs. Le moins de sites cassés."
+  },
+  "levelMenuBalanced": {
+    "message": "Bloque aussi les traqueurs. Idéal pour la plupart."
+  },
+  "levelMenuStrict": {
+    "message": "Masque aussi les bannières cookies. Certains sites peuvent casser."
+  },
+  "ovMoreThanBefore": {
+    "message": "$PERCENT$ % de plus que la semaine précédente",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "85"
+      }
+    }
+  },
+  "ovFewerThanBefore": {
+    "message": "$PERCENT$ % de moins que la semaine précédente",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "stopKindPhishing": {
+    "message": "Fausse page de connexion"
+  },
+  "stopKindScam": {
+    "message": "Faux magasin"
+  },
+  "stopKindMalware": {
+    "message": "Logiciel malveillant"
+  },
+  "stopKindAds": {
+    "message": "Page de pub"
+  },
+  "stopKindCustom": {
+    "message": "Sur une liste de blocage"
+  },
+  "stopKindDanger": {
+    "message": "Site dangereux"
+  },
+  "hlTrackersTop": {
+    "message": "$COMPANY$ vous a le plus traqué.",
+    "placeholders": {
+      "company": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "hlSitesTop": {
+    "message": "$SITE$ a eu le plus de blocages.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Fandom"
+      }
+    }
+  },
+  "hlAllTrackers": {
+    "message": "Tous les traqueurs"
+  },
+  "hlAllSites": {
+    "message": "Tous les sites"
+  },
+  "hlStopsOne": {
+    "message": "1 page dangereuse arrêtée."
+  },
+  "hlStopsMany": {
+    "message": "$COUNT$ pages dangereuses arrêtées.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "hlStopsNone": {
+    "message": "Aucune page dangereuse cette semaine."
+  },
+  "hlSecurityDetails": {
+    "message": "Détails"
   }
 }

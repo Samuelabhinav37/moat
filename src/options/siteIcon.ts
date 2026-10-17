@@ -13,6 +13,9 @@
 //   comparing against the icon Chrome gives for a site that can't exist.
 // - Some sites serve a white logo to dark themes (GitHub). On the usual
 //   white plate that's invisible, so a light icon gets a dark plate.
+//
+// Each icon sits on a rounded plate tinted with the icon's own colour, the
+// way an app icon carries its brand colour (plateTint).
 
 /** The site's first letter or digit, skipping a leading "www.". */
 export function siteInitial(hostname: string): string {
@@ -26,7 +29,8 @@ export function faviconUrl(hostname: string, getURL: (path: string) => string, s
   if (!supported) return null;
   const url = new URL(getURL("/_favicon/"));
   url.searchParams.set("pageUrl", `https://${hostname}/`);
-  url.searchParams.set("size", "32");
+  // 64 so the icon stays sharp on its plate on high-density screens.
+  url.searchParams.set("size", "64");
   return url.toString();
 }
 
@@ -83,6 +87,35 @@ export function isLightIcon(pixels: Uint8ClampedArray): boolean {
   return visible > 0 && light / visible > 0.8;
 }
 
+/** A light tint of the icon's main colour for its plate, or null for an
+ * icon that is all greys (it keeps the plain white plate). White and near
+ * black pixels are skipped, and colourful pixels count more. */
+export function plateTint(pixels: Uint8ClampedArray): string | null {
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let weight = 0;
+  let colourful = 0;
+  for (let i = 0; i < pixels.length; i += 4) {
+    if (pixels[i + 3]! < 160) continue;
+    const pr = pixels[i]!;
+    const pg = pixels[i + 1]!;
+    const pb = pixels[i + 2]!;
+    const max = Math.max(pr, pg, pb);
+    const sat = (max - Math.min(pr, pg, pb)) / 255;
+    if ((max > 235 && sat < 0.12) || max < 30) continue;
+    if (sat > 0.25) colourful++;
+    const w = 0.2 + sat;
+    r += pr * w;
+    g += pg * w;
+    b += pb * w;
+    weight += w;
+  }
+  if (!weight || !colourful) return null;
+  const mix = (c: number) => Math.round(c / weight + (255 - c / weight) * 0.84);
+  return `rgb(${mix(r)} ${mix(g)} ${mix(b)})`;
+}
+
 let defaultIcon: Promise<Uint8ClampedArray | null> | null = null;
 
 /** The pixels of Chrome's default globe, read once per page. */
@@ -108,6 +141,7 @@ export function monogramHue(name: string): number {
 }
 
 const verdicts = new Map<string, "globe" | "light" | "ok">();
+const tints = new Map<string, string | null>();
 
 export function buildSiteIcon(doc: Document, hostname: string, src: string | null): HTMLElement {
   const tile = doc.createElement("span");
@@ -137,6 +171,12 @@ export function buildSiteIcon(doc: Document, hostname: string, src: string | nul
           verdicts.set(src, verdict);
         }
         if (verdict === "globe") return;
+        if (verdict === "ok" && !tints.has(src)) {
+          const pixels = readPixels(doc, img);
+          tints.set(src, pixels ? plateTint(pixels) : null);
+        }
+        const tint = verdict === "ok" ? tints.get(src) : null;
+        if (tint) tile.style.setProperty("--plate", tint);
         tile.textContent = "";
         delete tile.dataset.hue;
         tile.classList.add("has-img");

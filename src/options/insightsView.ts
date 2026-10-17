@@ -1,6 +1,7 @@
 // Settings Insights pages: who tracked you (one row per company), why (a
 // row per purpose), and when (the week's days, each opening to where it
 // happened). DOM calls only, from the local weekly summary.
+import { siteName } from "../shared/siteName";
 import type { Translate } from "./overviewView";
 
 function el<K extends keyof HTMLElementTagNameMap>(doc: Document, tag: K, className = "", text?: string): HTMLElementTagNameMap[K] {
@@ -79,12 +80,12 @@ export function companyBlurb(company: string, description: string): string {
 /** A site as a small button that opens its panel on Sites. */
 function siteButton(doc: Document, site: { hostname: string; icon: HTMLElement; count?: number }, t: Translate, onSite?: (hostname: string) => void): HTMLLIElement {
   const li = el(doc, "li");
-  const name = site.hostname.replace(/^www\./, "");
+  const name = siteName(site.hostname);
   const open = el(doc, "button", "rr-site");
   open.type = "button";
   open.append(site.icon, el(doc, "span", "", name));
   if (site.count !== undefined) open.append(el(doc, "small", "", site.count.toLocaleString()));
-  open.title = t("insOpenSite", `See ${name} on Sites`, name);
+  open.title = t("insOpenSite", `See ${site.hostname.replace(/^www\./, "")} on Sites`, site.hostname.replace(/^www\./, ""));
   open.addEventListener("click", () => onSite?.(site.hostname));
   li.append(open);
   return li;

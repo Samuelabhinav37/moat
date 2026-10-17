@@ -4288,5 +4288,131 @@
   "optionsDisclosureGoodbyeWhen": {
     "message": "when you remove Moat",
     "description": "Settings > About, 'What leaves your device'."
+  },
+  "ovStatusProtecting": {
+    "message": "Moat is protecting you",
+    "description": "Overview status card title when protection is on."
+  },
+  "ovUnitBlocked": {
+    "message": "blocked",
+    "description": "Overview: the unit after the week's big number (\"4,046 blocked\")."
+  },
+  "ovHighlightsTitle": {
+    "message": "Highlights",
+    "description": "Overview: heading over the three Highlights cards."
+  },
+  "checkupCardTitle2": {
+    "message": "Make Moat fit how you browse",
+    "description": "Overview: the guided review card's title."
+  },
+  "checkupCardLead2": {
+    "message": "Answer 3 quick questions and see the suggested settings.",
+    "description": "Overview: the guided review card's one line."
+  },
+  "levelMenuLight": {
+    "message": "Blocks ads. Fewest broken sites.",
+    "description": "Overview level menu: one line under Light."
+  },
+  "levelMenuBalanced": {
+    "message": "Also blocks trackers. Best for most people.",
+    "description": "Overview level menu: one line under Balanced."
+  },
+  "levelMenuStrict": {
+    "message": "Also hides cookie banners. Some sites may break.",
+    "description": "Overview level menu: one line under Strict."
+  },
+  "ovMoreThanBefore": {
+    "message": "$PERCENT$% more than the week before",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "85"
+      }
+    },
+    "description": "Overview: under the week's total, after an up arrow."
+  },
+  "ovFewerThanBefore": {
+    "message": "$PERCENT$% fewer than the week before",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "12"
+      }
+    },
+    "description": "Overview: under the week's total, after a down arrow."
+  },
+  "stopKindPhishing": {
+    "message": "Fake sign-in page",
+    "description": "A stopped page from the phishing list, in a few words."
+  },
+  "stopKindScam": {
+    "message": "Fake shop",
+    "description": "A stopped page from the scam list, in a few words."
+  },
+  "stopKindMalware": {
+    "message": "Malware",
+    "description": "A stopped page from the malware lists, in a few words."
+  },
+  "stopKindAds": {
+    "message": "Ad page",
+    "description": "A stopped whole page that was an ad, in a few words."
+  },
+  "stopKindCustom": {
+    "message": "On a block list",
+    "description": "A stopped page from your own or your organization's block list."
+  },
+  "stopKindDanger": {
+    "message": "Dangerous site",
+    "description": "A stopped page on a danger list Moat couldn't name."
+  },
+  "hlTrackersTop": {
+    "message": "$COMPANY$ tracked you the most.",
+    "placeholders": {
+      "company": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Overview Highlights, Trackers card headline."
+  },
+  "hlSitesTop": {
+    "message": "$SITE$ had the most blocked.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Fandom"
+      }
+    },
+    "description": "Overview Highlights, Sites card headline."
+  },
+  "hlAllTrackers": {
+    "message": "All trackers",
+    "description": "Overview Highlights: link to Trackers."
+  },
+  "hlAllSites": {
+    "message": "All sites",
+    "description": "Overview Highlights: link to Sites."
+  },
+  "hlStopsOne": {
+    "message": "1 dangerous page stopped.",
+    "description": "Overview Highlights, Security card headline (one)."
+  },
+  "hlStopsMany": {
+    "message": "$COUNT$ dangerous pages stopped.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    },
+    "description": "Overview Highlights, Security card headline."
+  },
+  "hlStopsNone": {
+    "message": "No dangerous pages this week.",
+    "description": "Overview Highlights, Security card headline when nothing dangerous was stopped."
+  },
+  "hlSecurityDetails": {
+    "message": "Details",
+    "description": "Overview Highlights: link to Security."
   }
 }

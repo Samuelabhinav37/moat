@@ -4127,5 +4127,107 @@
   "optionsDisclosureGoodbyeWhen": {
     "message": "al quitar Moat",
     "description": "Settings > About, 'What leaves your device'."
+  },
+  "ovStatusProtecting": {
+    "message": "Moat te está protegiendo"
+  },
+  "ovUnitBlocked": {
+    "message": "bloqueados"
+  },
+  "ovHighlightsTitle": {
+    "message": "Destacados"
+  },
+  "checkupCardTitle2": {
+    "message": "Ajusta Moat a tu forma de navegar"
+  },
+  "checkupCardLead2": {
+    "message": "Responde 3 preguntas rápidas y mira los ajustes sugeridos."
+  },
+  "levelMenuLight": {
+    "message": "Bloquea anuncios. Menos sitios rotos."
+  },
+  "levelMenuBalanced": {
+    "message": "También bloquea rastreadores. Lo mejor para la mayoría."
+  },
+  "levelMenuStrict": {
+    "message": "También oculta avisos de cookies. Algunos sitios pueden fallar."
+  },
+  "ovMoreThanBefore": {
+    "message": "$PERCENT$ % más que la semana anterior",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "85"
+      }
+    }
+  },
+  "ovFewerThanBefore": {
+    "message": "$PERCENT$ % menos que la semana anterior",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "stopKindPhishing": {
+    "message": "Página de acceso falsa"
+  },
+  "stopKindScam": {
+    "message": "Tienda falsa"
+  },
+  "stopKindMalware": {
+    "message": "Malware"
+  },
+  "stopKindAds": {
+    "message": "Página de anuncios"
+  },
+  "stopKindCustom": {
+    "message": "En una lista de bloqueo"
+  },
+  "stopKindDanger": {
+    "message": "Sitio peligroso"
+  },
+  "hlTrackersTop": {
+    "message": "$COMPANY$ fue quien más te rastreó.",
+    "placeholders": {
+      "company": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "hlSitesTop": {
+    "message": "$SITE$ tuvo más bloqueos.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Fandom"
+      }
+    }
+  },
+  "hlAllTrackers": {
+    "message": "Todos los rastreadores"
+  },
+  "hlAllSites": {
+    "message": "Todos los sitios"
+  },
+  "hlStopsOne": {
+    "message": "1 página peligrosa detenida."
+  },
+  "hlStopsMany": {
+    "message": "$COUNT$ páginas peligrosas detenidas.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "hlStopsNone": {
+    "message": "Ninguna página peligrosa esta semana."
+  },
+  "hlSecurityDetails": {
+    "message": "Detalles"
   }
 }

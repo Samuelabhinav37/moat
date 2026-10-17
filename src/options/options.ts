@@ -12,9 +12,12 @@ import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
 import { applyBulkSelect, type BulkLabels } from "./bulkSelect";
 import { buildSiteIcon, faviconUrl } from "./siteIcon";
+import { buildGlyphTile, stopGlyph, type GlyphName } from "./glyphs";
+import { openPopMenu } from "./popMenu";
+import { siteName } from "../shared/siteName";
 import { initDashboard, pageFromHash, showTab } from "./dashboard";
 import { buildExplainer, helpSceneFor, initExplainerPanel } from "./explainerPanel";
-import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
+import { buildBrandLogo, buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { SITE_URLS } from "../shared/siteUrls";
 import { optionalFlowsOn } from "../shared/networkFlows";
@@ -27,7 +30,7 @@ import { TOPICS, initHelpPanel } from "./helpPanel";
 import { initKaiGuide } from "./kaiGuide";
 import { LEVELS, openCheckup, type Level } from "./checkup";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
-import { buildKpi, buildTopCard, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
+import { buildHighlight, buildKpi, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
 import { buildDays, buildPurposes, buildReachRows, busiestDayPhrase, purposeLabel, purposeShares, type DayData } from "./insightsView";
 import { groupLabel, groupSites, type SiteGroup } from "./siteGroups";
 import { createSavedToast } from "./savedToast";
@@ -1073,11 +1076,12 @@ function renderOverviewStatus(): void {
   const title = document.getElementById("ov-status-title") as HTMLElement;
   const msg = document.getElementById("ov-status-msg") as HTMLElement;
   msg.hidden = ovStatusAction.hidden = state === "on";
+  const pausedEl = document.getElementById("ov-status-paused") as HTMLElement;
+  pausedEl.hidden = true;
   if (state === "on") {
-    title.textContent = tFallback("ovStatusOn", "Protection is on");
+    title.textContent = tFallback("ovStatusProtecting", "Moat is protecting you");
     const paused = overviewSettings.disabledSites.length;
-    const pausedEl = document.getElementById("ov-status-paused") as HTMLElement;
-    pausedEl.hidden = (document.getElementById("ov-status-paused-sep") as HTMLElement).hidden = paused === 0;
+    pausedEl.hidden = paused === 0;
     pausedEl.textContent =
       paused === 1 ? tFallback("ovStatusPausedOne", "Paused on 1 site") : tFallback("ovStatusPausedMany", `Paused on ${paused} sites`, String(paused));
   } else if (state === "off") {
@@ -1100,20 +1104,39 @@ ovStatusAction.addEventListener("click", async () => {
   }
 });
 
+/** A failed update turns the banner into "Lists couldn't update"; when the
+ * lists were last updated is on Security's Safety check. */
 function renderOverviewListsAge(status: Awaited<ReturnType<typeof getLiveUpdateStatus>>): void {
   overviewLiveStatus = status;
   renderOverviewStatus();
-  const el = document.getElementById("ov-status-lists");
-  const sep = document.getElementById("ov-status-lists-sep");
-  if (!el || !sep) return;
-  const show = !!status?.ok;
-  el.hidden = sep.hidden = !show;
-  if (!show) return;
-  const minutes = Math.round((status!.timestamp - Date.now()) / 60_000);
-  const rel = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
-  const when = Math.abs(minutes) < 60 ? rel.format(minutes, "minute") : Math.abs(minutes) < 1440 ? rel.format(Math.round(minutes / 60), "hour") : rel.format(Math.round(minutes / 1440), "day");
-  el.textContent = tFallback("ovListsUpdated", `Lists updated ${when}`, when);
 }
+
+/** The level on Overview is a pop-up button: pressing it lists the three
+ * levels, each with one line on what it adds, and picking one applies it. */
+const ovLevel = document.getElementById("ov-level") as HTMLButtonElement;
+const LEVEL_MENU: Record<Level, [string, string]> = {
+  lite: ["levelMenuLight", "Blocks ads. Fewest broken sites."],
+  standard: ["levelMenuBalanced", "Also blocks trackers. Best for most people."],
+  strict: ["levelMenuStrict", "Also hides cookie banners. Some sites may break."],
+};
+ovLevel.addEventListener("click", () => {
+  if (ovLevel.getAttribute("aria-expanded") === "true") return;
+  const settings = overviewSettings;
+  if (!settings) return;
+  const preset = detectPreset(settings);
+  const current = (LEVELS as readonly string[]).includes(preset) ? (preset as Level) : preset === "custom" ? (presetDifference(settings).base as Level) : null;
+  openPopMenu(
+    document,
+    ovLevel,
+    tFallback("levelTitle", "Level"),
+    LEVELS.map((level) => ({ value: level, label: levelLabel(level), desc: tFallback(...LEVEL_MENU[level]) })),
+    current,
+    (level) => {
+      document.getElementById("ov-status-level")!.textContent = levelLabel(level);
+      void applyLevel(level);
+    }
+  );
+});
 
 // ---------- Filter Lists tab ----------
 
@@ -2273,27 +2296,27 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   overviewSettings = settings;
   renderOverviewStatus();
 
-  // "Up from 2,190 last week": the number itself, not a percentage that
-  // sounds like good or bad news. Nothing older than last week is kept.
+  // One comparison, the way Screen Time and Health say it: "↑ 85% more
+  // than the week before". The week itself is named once, by the picker
+  // above. Neutral either way: more blocked can just mean more browsing.
+  // Nothing older than last week is kept.
   const headline = document.getElementById("ov-headline")!;
   headline.replaceChildren();
-  if (last) {
-    headline.textContent = tFallback("ovLastWeekNote", "The 7 days before this week.");
-  } else if (week > 0) {
-    const before = usage.previousWeek?.total;
-    if (before) {
-      const n = document.createElement("b");
-      n.textContent = before.toLocaleString();
-      // Neutral either way: more blocked can just mean more browsing.
-      // The number goes in bold, so the sentence is split around a marker.
-      const MARK = "{n}";
-      const sentence = week >= before ? tFallback("ovUpFrom", `${MARK} last week`, MARK) : tFallback("ovDownFrom", `${MARK} last week`, MARK);
-      const [lead, tail] = sentence.split(MARK);
-      headline.append(document.createTextNode(lead ?? ""), n, document.createTextNode(tail ?? ""));
-    } else {
-      headline.textContent = tFallback("ovAcrossSites", `across ${usage.weekSiteCount} sites`, String(usage.weekSiteCount));
-    }
+  const change = last ? null : changePercent(week, usage.previousWeek?.total);
+  if (change !== null && change !== 0 && week > 0) {
+    const up = change > 0;
+    headline.append(
+      Object.assign(document.createElement("span"), { className: "ov-arrow", textContent: up ? "↑" : "↓" }),
+      document.createTextNode(
+        up
+          ? tFallback("ovMoreThanBefore", `${change}% more than the week before`, String(change))
+          : tFallback("ovFewerThanBefore", `${Math.abs(change)}% fewer than the week before`, String(Math.abs(change)))
+      )
+    );
+  } else if (!last && week > 0 && !usage.previousWeek) {
+    headline.textContent = tFallback("ovAcrossSites", `across ${usage.weekSiteCount} sites`, String(usage.weekSiteCount));
   }
+  headline.hidden = !headline.textContent;
 
   const todayLabel = tFallback("ovToday", "Today");
   const columns: DayColumn[] = days.map((total, i) => {
@@ -2313,27 +2336,8 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   const chart = document.getElementById("ov-chart") as HTMLElement;
   chart.replaceChildren(...(week > 0 ? [buildWeekChart(document, columns, tFallback)] : []));
 
-  renderOverviewSummary(usage);
   renderSecurityDot(usage);
   void renderOverviewTops(usage);
-}
-
-/** The week in a sentence or two, under the page title, the way Screen
- * Time's weekly report opens: "Google tried to track you on more sites
- * than any other company. Moat blocked the most on news.example."
- * Nothing to say yet keeps
- * the usual subtitle. */
-function renderOverviewSummary(usage: UsageSummaryResponse): void {
-  const lead = document.querySelector<HTMLElement>('.dash-nav a[data-page="overview"] .nav-lead');
-  if (!lead) return;
-  lead.dataset.default ??= lead.textContent ?? "";
-  const company = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count)[0];
-  const site = usage.topSites[0];
-  const parts: string[] = [];
-  if (company) parts.push(tFallback("ovSummaryCompany", `${company.company} tried to track you on more sites than any other company.`, company.company));
-  if (site) parts.push(tFallback("ovSummarySite", `Moat blocked the most on ${site.hostname}.`, site.hostname));
-  lead.textContent = parts.length ? parts.join(" ") : lead.dataset.default;
-  if (pageFromHash(location.hash) === "overview") document.getElementById("page-lead")!.textContent = lead.textContent;
 }
 
 const SECURITY_SEEN_KEY = "moat-security-seen";
@@ -2391,59 +2395,76 @@ document.addEventListener("click", (event) => {
   if ((event.target as HTMLElement).closest(".check-moat")) helpPanel.openTopic("verify");
 });
 
-/** Who tracks you most, Most blocked sites, Pages Moat stopped. */
+/** A tracker company's mark: its logo where Moat carries one, else its own
+ * site's icon from the browser's cache, else its first letter. */
+const COMPANY_BRANDS: Record<string, BrandId> = { Google: "google", Meta: "meta", Facebook: "meta", TikTok: "tiktok", ByteDance: "tiktok", X: "x", Twitter: "x" };
+function companyIcon(company: string, info: Record<string, CompanyInfo> | null): HTMLElement {
+  const brand = COMPANY_BRANDS[company];
+  if (brand) {
+    const tile = Object.assign(document.createElement("span"), { className: "site-icon has-img" });
+    tile.setAttribute("aria-hidden", "true");
+    tile.append(buildBrandLogo(document, brand, 16));
+    return tile;
+  }
+  const host = info ? companyHost(info, company) : "";
+  return host ? siteIcon(host) : buildSiteIcon(document, company, null);
+}
+
+/** A stopped page in a few words: what kind of page it was. */
+function stopKindName(stop: UsageSummaryResponse["pageStops"][number]): string {
+  switch (stopGlyph(stop.list, stop.kind)) {
+    case "phishing":
+      return tFallback("stopKindPhishing", "Fake sign-in page");
+    case "scam":
+      return tFallback("stopKindScam", "Fake shop");
+    case "malware":
+      return tFallback("stopKindMalware", "Malware");
+    case "blocked":
+      return stop.kind === "ads" ? tFallback("stopKindAds", "Ad page") : tFallback("stopKindCustom", "On a block list");
+    default:
+      return tFallback("stopKindDanger", "Dangerous site");
+  }
+}
+
+/** Highlights: the top three trackers, sites and stopped pages, each card
+ * with one short headline (Health's Highlights). */
 async function renderOverviewTops(usage: UsageSummaryResponse): Promise<void> {
   const info = await loadCompanyInfo();
-  const sites = Math.max(usage.weekSiteCount, 1);
-  const companies = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count).slice(0, 5);
-  const companyIcon = (company: string) => {
-    const url = info[company]?.url;
-    let host: string;
-    try {
-      host = url ? new URL(url).hostname : "";
-    } catch {
-      host = "";
-    }
-    return host ? siteIcon(host) : buildSiteIcon(document, company, null);
-  };
-  const ofSites = tFallback("ovOfSites", `of ${sites} sites`, String(sites));
-  const topSites = usage.topSites.slice(0, 5);
-  const maxSite = Math.max(...topSites.map((s) => s.count), 1);
-  const rel = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
-  const ago = (time: number) => {
-    const days = Math.round((time - Date.now()) / 86_400_000);
-    if (days !== 0) return rel.format(days, "day");
-    const hours = Math.round((time - Date.now()) / 3_600_000);
-    return hours !== 0 ? rel.format(hours, "hour") : rel.format(Math.round((time - Date.now()) / 60_000), "minute");
-  };
+  const companies = [...usage.companiesThisWeek].sort((a, b) => b.count - a.count || b.hostnameCount - a.hostnameCount);
+  const sites = groupSites(usage.topSites);
+  const danger = usage.pageStops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown");
+  const stops = [...danger, ...usage.pageStops.filter((s) => !danger.includes(s))];
+  const tile = (glyph: GlyphName, danger = false) => buildGlyphTile(document, glyph, danger ? "glyph-tile tile-danger" : "glyph-tile");
+  const top = companies[0];
+  const site = sites[0];
   document.getElementById("ov-tops")!.replaceChildren(
-    buildTopCard(
+    buildHighlight(
       document,
-      tFallback("ovTopTrackersTitle", "Who tracks you most"),
-      tFallback("ovTopTrackersSub", "Sites each company was on"),
-      companies.map((c) => ({
-        icon: companyIcon(c.company),
-        name: c.company,
-        value: c.hostnameCount.toLocaleString(),
-        sub: ofSites,
-        share: c.hostnameCount / sites,
-        title: (usage.companySites[c.company] ?? []).join(", "),
-      })),
-      tFallback("ovTopTrackersEmpty", "No tracker companies this week yet.")
+      tile("target"),
+      tFallback("navTrackers", "Trackers"),
+      top ? tFallback("hlTrackersTop", `${top.company} tracked you the most.`, top.company) : tFallback("ovTopTrackersEmpty", "No tracker companies this week yet."),
+      companies.slice(0, 3).map((c) => ({ icon: companyIcon(c.company, info), name: c.company, value: c.count.toLocaleString() })),
+      { href: "#trackers", label: tFallback("hlAllTrackers", "All trackers") }
     ),
-    buildTopCard(
+    buildHighlight(
       document,
-      tFallback("ovTopSitesTitle", "Most blocked sites"),
-      tFallback("ovTopSitesSub", "Ads, trackers and pop-ups stopped"),
-      topSites.map((s) => ({ icon: siteIcon(s.hostname), name: s.hostname.replace(/^www\./, ""), value: s.count.toLocaleString(), share: s.count / maxSite })),
-      tFallback("ovTopSitesEmpty", "Browse a few sites and they show up here.")
+      tile("globe"),
+      tFallback("navInsightSites", "Sites"),
+      site ? tFallback("hlSitesTop", `${siteName(site.site)} had the most blocked.`, siteName(site.site)) : tFallback("ovTopSitesEmpty", "Browse a few sites and they show up here."),
+      sites.slice(0, 3).map((g) => ({ icon: siteIcon(g.members[0]!.hostname), name: siteName(g.site), value: g.count.toLocaleString(), title: groupLabel(g) })),
+      { href: "#sites", label: tFallback("hlAllSites", "All sites") }
     ),
-    buildTopCard(
+    buildHighlight(
       document,
-      tFallback("ovTopStopsTitle", "Pages Moat stopped"),
-      tFallback("ovTopStopsSub", "Whole pages that never loaded"),
-      usage.pageStops.slice(0, 5).map((stop) => ({ icon: siteIcon(stop.hostname), name: stop.hostname, value: ago(stop.time), share: null, fullName: true })),
-      tFallback("ovTopStopsEmpty", "None this week.")
+      tile("shield", true),
+      tFallback("navSecurity", "Security"),
+      danger.length === 1
+        ? tFallback("hlStopsOne", "1 dangerous page stopped.")
+        : danger.length
+          ? tFallback("hlStopsMany", `${danger.length} dangerous pages stopped.`, String(danger.length))
+          : tFallback("hlStopsNone", "No dangerous pages this week."),
+      stops.slice(0, 3).map((stop) => ({ icon: stopIcon(stop), name: stopKindName(stop), value: relativeTime(stop.time), title: stop.hostname })),
+      { href: "#security", label: tFallback("hlSecurityDetails", "Details") }
     )
   );
 }
@@ -2566,7 +2587,7 @@ function renderSitesPage(settings: Settings, usage: UsageSummaryResponse): void 
   if (!host) return;
   const groups = groupSites(usage.topSites);
   const top = groups[0];
-  setTakeaway("s-take", top ? [{ bold: groupLabel(top) }, ` ${tFallback("insSitesTake", `had the most blocks this week: ${top.count.toLocaleString()}.`, top.count.toLocaleString())}`] : []);
+  setTakeaway("s-take", top ? [{ bold: siteName(top.site) },` ${tFallback("insSitesTake", `had the most blocks this week: ${top.count.toLocaleString()}.`, top.count.toLocaleString())}`] : []);
   if (!groups.length) {
     host.replaceChildren(emptyWithCheck(tFallback("insSitesEmpty", "No site has had anything blocked this week. Open a site you use often, then come back.")));
     return;
@@ -2638,7 +2659,7 @@ function siteSwitch(settings: Settings, hostnames: string[], labelId: string, na
 }
 
 function buildSiteRow(settings: Settings, group: SiteGroup<TopSite>): HTMLElement {
-  const name = groupLabel(group);
+  const name = siteName(group.site);
   const hostnames = group.members.map((m) => m.hostname);
   const item = document.createElement("div");
   item.className = "sr";
@@ -2655,6 +2676,7 @@ function buildSiteRow(settings: Settings, group: SiteGroup<TopSite>): HTMLElemen
   const text = document.createElement("span");
   text.className = "sr-text";
   const title = Object.assign(document.createElement("span"), { className: "sr-name", id: labelId, textContent: name });
+  open.title = groupLabel(group);
   const kinds = addKinds(group.members);
   const sub = kindsLine(kinds) || (group.members.length > 1 ? tFallback("siteAddresses", `${group.members.length} addresses`, String(group.members.length)) : "");
   text.append(title);
@@ -2960,13 +2982,20 @@ function stopWhy(stop: UsageSummaryResponse["pageStops"][number]): string {
   return stop.kind === "danger" ? `${tFallback(label.nameKey, label.name)}: ${tFallback(label.descKey, label.desc).replace(/\.$/, "").toLowerCase()}` : tFallback(label.nameKey, label.name);
 }
 
+/** A stopped page never loaded, so the browser has no icon for it: a tile
+ * that says what kind of page it was, red for a dangerous one. */
+function stopIcon(stop: UsageSummaryResponse["pageStops"][number]): HTMLElement {
+  const glyph = stopGlyph(stop.list, stop.kind);
+  return buildGlyphTile(document, glyph, glyph === "blocked" ? "glyph-tile" : "glyph-tile tile-danger");
+}
+
 function stopRow(stop: UsageSummaryResponse["pageStops"][number], loud: boolean): HTMLElement {
   const row = document.createElement("div");
   row.className = loud ? "stop-row loud" : "stop-row";
   const text = document.createElement("div");
   text.className = "stop-text";
   text.append(Object.assign(document.createElement("b"), { textContent: stop.hostname }), Object.assign(document.createElement("small"), { textContent: `${stopWhy(stop)} · ${relativeTime(stop.time)}` }));
-  row.append(siteIcon(stop.hostname), text);
+  row.append(stopIcon(stop), text);
   // A safe page on a danger list can't be allowed from here (the security
   // lists outrank "Never block", see rulePriorities.ts), so the fix is to
   // tell the developer. Your own list and your organization's aren't
