@@ -167,6 +167,20 @@ export function initKaiGuide(doc: Document, options: KaiOptions): KaiGuide {
   launch.append(tag, button);
   root.append(panel, launch);
   doc.body.append(root);
+  // Narrow windows have no gutter for Kai, so it steps aside while the page
+  // scrolls and comes back once it stops: whatever scrolled under its corner
+  // stays reachable. Not while the chat or the bubble is open (CSS).
+  const view = doc.defaultView;
+  let settle: ReturnType<typeof setTimeout> | undefined;
+  view?.addEventListener(
+    "scroll",
+    () => {
+      root.classList.add("kg-away");
+      clearTimeout(settle);
+      settle = setTimeout(() => root.classList.remove("kg-away"), 900);
+    },
+    { passive: true }
+  );
   const kai = makeKai(kaiHost);
 
   const isOpen = () => !panel.hidden;

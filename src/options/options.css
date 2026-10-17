@@ -4792,3 +4792,13 @@ details.bk-import > summary { color: var(--fg); }
 details.more.bk-import > summary { display: flex; margin-top: 0; font-weight: 500; }
 details.more.bk-import > summary::after { width: 7px; height: 7px; margin-left: auto; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); }
 details.more.bk-import[open] > summary::after { transform: rotate(45deg); }
+
+/* Kai on narrow windows (kaiGuide.ts): smaller, and out of the way while the
+   page scrolls. Wide windows keep a gutter for it instead. */
+.kai-guide { transition: transform 0.3s var(--ease), opacity 0.25s ease; }
+@media (max-width: 1099px) {
+  .kai-guide.kg-away:not(.open):not(.tag-on) { transform: translateY(calc(100% + 24px)); opacity: 0; pointer-events: none; }
+  .kai-guide.kg-away:not(.open):not(.tag-on) > * { pointer-events: none; }
+}
+@media (max-width: 700px) { .kg-launch { --kg-kai: 48px; } }
+@media (prefers-reduced-motion: reduce) { .kai-guide { transition: opacity 0.2s ease; } .kai-guide.kg-away:not(.open):not(.tag-on) { transform: none; } }

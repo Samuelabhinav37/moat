@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.299
+
+### Changed
+- **Kai stays out of the way.** On wide windows, pages keep a clear gutter for Kai. On narrow
+  ones Kai is smaller and steps aside while you scroll, then comes back once you stop, so
+  nothing under its corner is ever out of reach. It stays put while its chat or bubble is open.
+
 ## 0.11.298
 
 ### Changed
