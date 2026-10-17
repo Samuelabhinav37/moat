@@ -6,6 +6,7 @@
     <title data-i18n="tourPageTitle">Welcome to Moat</title>
     <link rel="stylesheet" href="theme.css" />
     <link rel="stylesheet" href="components.css" />
+    <link rel="stylesheet" href="kai.css" />
     <script src="theme-boot.js"></script>
     <style>
       /* First-run tour. Opened once, in its own tab, on a fresh install (see
@@ -236,18 +237,13 @@
         .popup { transform: scale(.8); transform-origin: top right; }
       }
 
-      /* Kai, Moat's mascot: blinks, bobs, and squints happily when Moat
-         cleans the page. The two cookies on the ad crumble when Moat is on.
-         Decoration only (aria-hidden), the text carries the tour. */
-      .kai { position: relative; width: 64px; margin-top: 28px; animation: kai-bob 3.2s ease-in-out infinite; }
-      .kai img { width: 100%; height: auto; display: block; }
-      .kai + .step-label { margin-top: 14px; }
-      .kai .lid { position: absolute; top: 50.6%; height: 16%; background: #0c0d11; border-radius: 30%; transform: scaleY(0); transform-origin: 50% 0; animation: kai-blink 4.6s infinite; }
-      .kai .lid.l { left: 37.1%; width: 18.4%; }
-      .kai .lid.r { left: 63.8%; width: 18%; }
-      .kai.happy .lid { animation: none; transform: scaleY(.5); transform-origin: 50% 100%; border-radius: 50% 50% 20% 20% / 90% 90% 10% 10%; }
-      @keyframes kai-bob { 50% { transform: translateY(-4px); } }
-      @keyframes kai-blink { 0%, 93%, 100% { transform: scaleY(0); } 95.5% { transform: scaleY(1); } }
+      /* Kai, Moat's mascot (../ui/kai, the live front-facing Kai): floats,
+         blinks, follows the pointer and cheers when Moat cleans the page.
+         The two cookies on the ad crumble when Moat is on. Decoration only
+         (aria-hidden), the text carries the tour. */
+      .wl-kai { margin-top: 22px; }
+      .wl-kai .kai { --kai-w: 64px; }
+      .wl-kai + .step-label { margin-top: 10px; }
 
       /* ---------- Moat's site look (samuelabhinav.com/moat) ----------
          Apple-style type and rhythm, one glowing stage tile, pill buttons, a
@@ -260,9 +256,9 @@
       :root[data-theme="light"] { --stage-bg: radial-gradient(80% 90% at 85% 0%, rgba(63, 111, 209, .22), transparent 60%), linear-gradient(160deg, #eef2fb 0%, #e6ebf7 100%); --stage-line: rgba(63, 111, 209, .18); }
       body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "Segoe UI", sans-serif; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; }
       .wrap { grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 64px; max-width: 1320px; padding: 36px 48px; }
-      .kai { width: 96px; margin-top: 30px; animation: kai-float 6.5s ease-in-out infinite; filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .45)); }
-      @keyframes kai-float { 0%, 100% { translate: 0 0; rotate: 0deg; } 50% { translate: 0 -7px; rotate: .8deg; } }
-      .kai + .step-label { margin-top: 18px; }
+      .wl-kai { margin-top: 24px; }
+      .wl-kai .kai { --kai-w: 96px; }
+      .wl-kai + .step-label { margin-top: 12px; }
       .step-label { font-size: 13px; letter-spacing: 0; text-transform: none; font-weight: 600; color: var(--muted); }
       h1 { font-size: clamp(32px, 3.2vw, 44px); line-height: 1.07; font-weight: 600; letter-spacing: -0.02em; margin: 8px 0 14px; }
       .lede { font-size: 19px; line-height: 1.38; font-weight: 600; color: var(--muted); }
@@ -315,7 +311,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
           <span data-i18n="tourBack">Back</span>
         </button>
-        <div class="kai" id="kai" aria-hidden="true"><img src="welcome/img/kai.webp" width="438" height="525" alt="" /><span class="lid l"></span><span class="lid r"></span></div>
+        <div class="wl-kai" aria-hidden="true"><div id="kai"></div></div>
         <div class="step-label" id="step-label">Step 1 of 5</div>
 
         <div data-step="1" class="active">

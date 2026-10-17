@@ -10,7 +10,7 @@ import type {
 import { buildFreshStartRemoval } from "./freshStart";
 import type { PopupUiNotices } from "../background/updateNotice";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
-import { PROTECTION_LEVEL_MESSAGE_KEY, protectionLevelForCount } from "../shared/protectionLevel";
+import { siteName } from "../shared/siteName";
 import { getEffectiveSettings } from "../background/settings";
 import { effectiveValue, OVERRIDABLE_KEYS, type OverridableSettingKey } from "../shared/perSiteOverrides";
 import { setBreakableHostname } from "./hostnameBreaks";
@@ -85,17 +85,17 @@ function renderCompanyBreakdown(companyBreakdown: Record<string, number>): void 
   // Name them, like Safari's Privacy Report: names make the protection real.
   const line = document.getElementById("company-line")!;
   line.hidden = entries.length === 0;
-  // The names say more than the generic "Lots of ads and trackers blocked".
-  document.getElementById("protection-level")!.hidden = entries.length > 0;
   const names = entries.map(([company]) => company);
   const msg = (key: string, fallback: string, subs: string[]) => getMessageOrFallback((k, s) => browser.i18n.getMessage(k, s), key, fallback, subs);
   line.textContent =
     names.length === 1
-      ? msg("popupCompaniesOne", `${names[0]} tried to track you here.`, [names[0]!])
+      ? msg("popupFromOne", `From ${names[0]}.`, [names[0]!])
       : names.length === 2
-        ? msg("popupCompaniesTwo", `${names[0]} and ${names[1]} tried to track you here.`, [names[0]!, names[1]!])
+        ? msg("popupFromTwo", `From ${names[0]} and ${names[1]}.`, [names[0]!, names[1]!])
         : names.length > 2
-          ? msg("popupCompaniesMany", `${names[0]}, ${names[1]} and ${names.length - 2} others tried to track you here.`, [names[0]!, names[1]!, String(names.length - 2)])
+          ? names.length === 3
+            ? msg("popupFromThree", `From ${names[0]}, ${names[1]} and 1 other.`, [names[0]!, names[1]!])
+            : msg("popupFromMany", `From ${names[0]}, ${names[1]} and ${names.length - 2} others.`, [names[0]!, names[1]!, String(names.length - 2)])
           : "";
   list.replaceChildren(
     ...entries.map(([company, count]) => {
@@ -314,22 +314,13 @@ async function render(): Promise<void> {
       String(status.unsorted)
     );
   }
-  // A qualitative read over the same real count shown numerically above it,
-  // not a new measurement -- see shared/protectionLevel.ts for why this
-  // isn't a before/after "grade" the way DuckDuckGo's is (Moat has no
-  // counterfactual "what this page would have loaded without protection").
-  const level = protectionLevelForCount(status.blockedOnTab);
-  document.getElementById("protection-level")!.textContent = getMessageOrFallback(
-    (key) => browser.i18n.getMessage(key),
-    PROTECTION_LEVEL_MESSAGE_KEY[level],
-    ""
-  );
   renderCompanyBreakdown(status.companyBreakdown);
 
   const hostnameEl = document.getElementById("hostname")!;
   const siteCard = document.getElementById("site-card")!;
   const toggle = document.getElementById("site-toggle") as HTMLInputElement;
   const stats = document.getElementById("stats")!;
+  const countToggle = document.getElementById("count-toggle") as HTMLButtonElement;
   const pausedBanner = document.getElementById("paused-banner")!;
   const pausedText = document.getElementById("paused-text")!;
   const siteState = document.getElementById("site-state")!;
@@ -343,6 +334,7 @@ async function render(): Promise<void> {
     // count, pause, hide or report here.
     siteCard.style.display = "none";
     stats.hidden = true;
+    countToggle.hidden = true;
     document.getElementById("internal-page-notice")!.hidden = false;
     document.getElementById("start-picker")!.hidden = true;
     return;
@@ -356,11 +348,12 @@ async function render(): Promise<void> {
   // used to decide whether to show the button at all, same condition that
   // already gates the whole site-card above.
   freshStartButton.hidden = false;
-  // The card shows the site the way people say it: no leading "www.",
-  // with its own icon from the browser's cache (Chrome) or its letter.
+  // The card names the site the way people say it ("Spotify" for
+  // open.spotify.com), with its own icon from the browser's cache (Chrome)
+  // or its letter. The address is the tooltip.
   const shownHost = status.hostname.replace(/^www\./i, "");
-  setBreakableHostname(hostnameEl, shownHost);
-  hostnameEl.title = status.hostname;
+  setBreakableHostname(hostnameEl, siteName(status.hostname));
+  hostnameEl.title = shownHost;
   const faviconsSupported = (browser.runtime.getManifest().permissions ?? []).includes("favicon");
   const icon = buildSiteIcon(document, status.hostname, faviconUrl(status.hostname, (path) => browser.runtime.getURL(path), faviconsSupported));
   icon.classList.add("site-favicon");
@@ -378,7 +371,8 @@ async function render(): Promise<void> {
   // Moat running until it reloads. Opened on an already-paused site, the
   // page loaded without Moat and there's nothing to reload.
   function setPaused(paused: boolean, justPaused = false): void {
-    stats.hidden = paused;
+    countToggle.hidden = paused;
+    stats.hidden = paused || countToggle.getAttribute("aria-expanded") !== "true";
     pausedBanner.hidden = !paused;
     reloadButton.hidden = !justPaused;
     if (paused) renderPausedSentence(pausedText, shownHost, justPaused);
@@ -424,6 +418,13 @@ async function render(): Promise<void> {
     setPaused(disabled || !status.enabled, disabled);
     if (disabled && status.enabled) showPauseLength(undefined);
     else pauseLength.hidden = true;
+  });
+
+  // "6 blocked on this page" opens to the split and the companies.
+  countToggle.addEventListener("click", () => {
+    const open = countToggle.getAttribute("aria-expanded") !== "true";
+    countToggle.setAttribute("aria-expanded", String(open));
+    stats.hidden = !open;
   });
 
   reloadButton.addEventListener("click", async () => {
@@ -554,7 +555,10 @@ void getUsageSummary()
     if (week <= 0) return;
     const link = document.getElementById("week-link") as HTMLAnchorElement;
     const total = week.toLocaleString();
-    link.textContent = getMessageOrFallback((k, s) => browser.i18n.getMessage(k, s), "popupWeekLink", `This week: ${total} blocked ›`, total);
+    // "4,049 blocked this week ›", the number in bold.
+    const MARK = "\u0001";
+    const [before = "", after = ""] = getMessageOrFallback((k, s) => browser.i18n.getMessage(k, s), "popupWeekLink2", `${MARK} blocked this week ›`, MARK).split(MARK);
+    link.replaceChildren(document.createTextNode(before), Object.assign(document.createElement("b"), { textContent: total }), document.createTextNode(after));
     link.hidden = false;
     link.addEventListener("click", (event) => {
       event.preventDefault();

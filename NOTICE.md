@@ -182,11 +182,12 @@ upstream repository above and keeping the dependency unmodified.
 ## Simple Icons -- CC0-1.0
 
 Source: [simple-icons/simple-icons](https://github.com/simple-icons/simple-icons) 16.33.0,
-CC0 1.0 Universal. The path data for the YouTube, Instagram, Cloudflare, Google,
-Firefox, GitHub and Have I Been Pwned marks in `src/options/brandIcons.ts` comes
-from this package. The Settings page shows each mark unaltered, only beside the
-name of the site or service it stands for, to say which site a setting acts on or
-who receives data. Moat is not affiliated with or endorsed by any of them. All
+CC0 1.0 Universal. The path data for the YouTube, Instagram, Cloudflare, Meta,
+TikTok, X, Google, Firefox, GitHub and Have I Been Pwned marks in
+`src/options/brandIcons.ts` comes from this package. The Settings page shows each
+mark unaltered, only beside the name of the site, service or tracker company it
+stands for, to say which site a setting acts on, who receives data, or which
+company tried to track you. Moat is not affiliated with or endorsed by any of them. All
 product names, logos and trademarks are the property of their respective owners.
 
 ## Privacy Badger data -- GPL-3.0

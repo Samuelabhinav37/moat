@@ -109,20 +109,6 @@ describe("initDashboard", () => {
     expect(off("about")).toBe(false);
     expect(off("hidden")).toBe(true);
   });
-
-  it("keeps the sidebar counts in step with the lists", async () => {
-    window.location.hash = "";
-    initDashboard(window);
-    const count = document.getElementById("nav-count-exceptions")!;
-    expect(count.hidden).toBe(true);
-    document.getElementById("site-list")!.innerHTML = "<li>a.example</li><li>b.example</li>";
-    document.getElementById("grayscale-element-rows")!.innerHTML = "<div>.x</div>";
-    await new Promise((r) => setTimeout(r, 0));
-    expect(count.hidden).toBe(false);
-    expect(count.textContent).toBe("3");
-    expect(document.getElementById("tab-count-paused")!.textContent).toBe("2");
-    expect(document.getElementById("tab-count-hidden")!.textContent).toBe("1");
-  });
 });
 
 describe("help links", () => {

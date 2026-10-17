@@ -10,11 +10,14 @@ import { detectPreset, presetDifference, presetPatch, type PresetName } from "..
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
-import { applyBulkSelect, type BulkLabels } from "./bulkSelect";
 import { buildSiteIcon, faviconUrl } from "./siteIcon";
-import { initDashboard, pageFromHash, showTab } from "./dashboard";
+import { buildGlyphTile, stopGlyph, type GlyphName } from "./glyphs";
+import { openPopMenu } from "./popMenu";
+import { buildExceptionRow, exceptionSites, matchesFilter, sharedNames, type ExceptionFilter, type ExceptionHandlers, type ExceptionLabels, type ExceptionSite, type SiteState } from "./exceptionsList";
+import { siteName } from "../shared/siteName";
+import { initDashboard, pageFromHash, tabFromHash } from "./dashboard";
 import { buildExplainer, helpSceneFor, initExplainerPanel } from "./explainerPanel";
-import { buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
+import { buildBrandLogo, buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
 import { SITE_URLS } from "../shared/siteUrls";
 import { optionalFlowsOn } from "../shared/networkFlows";
@@ -27,13 +30,11 @@ import { TOPICS, initHelpPanel } from "./helpPanel";
 import { initKaiGuide } from "./kaiGuide";
 import { LEVELS, openCheckup, type Level } from "./checkup";
 import { LIST_LABELS, SECTION_TITLES, groupLists } from "./filterListLabels";
-import { buildKpi, buildTopCard, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
+import { buildHighlight, buildWeekChart, changePercent, type DayColumn } from "./overviewView";
 import { buildDays, buildPurposes, buildReachRows, busiestDayPhrase, purposeLabel, purposeShares, type DayData } from "./insightsView";
 import { groupLabel, groupSites, type SiteGroup } from "./siteGroups";
 import { createSavedToast } from "./savedToast";
-import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
-import { customRuleStatKey, isStale } from "../shared/customRuleStats";
 import { validateImportedSettings } from "../background/settingsPortability";
 import { importRisks, summarizeSettingsImport } from "../shared/settingsDiff";
 import type {
@@ -43,7 +44,6 @@ import type {
   CheckForLiveUpdatesMessage,
   CompanyBreakdownResponse,
   CustomDomainListField,
-  CustomRuleStat,
   ExportSettingsMessage,
   FilterListMatchesResponse,
   GetCompanyBreakdownMessage,
@@ -70,8 +70,7 @@ import type {
 } from "../types";
 import { STORAGE_KEY } from "../types";
 import { joinCompanyBreakdown, type CompanyInfo } from "./trackerView";
-import { OVERRIDE_NAMES, siteOverrideEntries, type SiteOverrideEntry } from "./siteOverrides";
-import { describeSelector, type RuleKind } from "./ruleLabel";
+import { siteOverrideEntries, type SiteOverrideEntry } from "./siteOverrides";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { parseFilterListImport } from "../shared/filterListImport";
 import { MAX_STRING_LENGTH } from "../shared/importBounds";
@@ -126,7 +125,7 @@ async function removeGrayscaleRule(hostname: string, selector: string): Promise<
 async function sendAddCustomDomain(field: CustomDomainListField, hostname: string): Promise<boolean> {
   const message: AddCustomDomainMessage = { type: "add-custom-domain", field, hostname };
   const response = (await browser.runtime.sendMessage(message)) as AddCustomDomainResponse;
-  return response.ok;
+  return response?.ok === true;
 }
 
 async function sendRemoveCustomDomain(field: CustomDomainListField, hostname: string): Promise<void> {
@@ -156,22 +155,24 @@ const helpPanel = initHelpPanel(document, {
   testPageUrl: "https://d3ward.github.io/toolz/adblock.html",
 });
 // Kai in the bottom-right corner: plain questions; each answer opens the
-// right screen and outlines the control (kaiGuide.ts).
-initKaiGuide(document, {
+// right screen and outlines the control (kaiGuide.ts). It also reacts to
+// what happens here: protection off and on, a paused site, a milestone.
+const kaiGuide = initKaiGuide(document, {
   t: tFallback,
   currentScreen: () => pageFromHash(window.location.hash),
   isOff: () => document.getElementById("ov-status")?.dataset.state === "off",
   turnOn: () => void setSettings({ enabled: true }).then(() => render()),
   openHelp: () => helpPanel.open(),
   questions: [
-    { id: "pause", ask: ["kaiQPause", "How do I pause Moat on a site?"], answer: ["kaiAPause", "On the site, click the Moat icon next to the address bar and turn off its switch. You can also add a site here, under Exceptions and Paused."], hash: "#paused", target: "#add-input" },
+    { id: "pause", ask: ["kaiQPause", "How do I pause Moat on a site?"], answer: ["kaiAPause2", "On the site, click the Moat icon next to the address bar and turn off its switch. You can also press Add a site here."], hash: "#exceptions", target: "#ex-add-open" },
     { id: "level", ask: ["kaiQLevel", "Where do I change how much Moat blocks?"], answer: ["kaiALevel", "Under Protection, pick a level. Balanced suits most people."], hash: "#blocking", target: "#level-cards" },
     { id: "blocked", ask: ["kaiQBlocked", "Where do I see what Moat blocked?"], answer: ["kaiABlocked", "Overview shows your week. Trackers shows who tried to follow you, and Sites shows where."], hash: "#overview", target: ".ov-week" },
-    { id: "hide", ask: ["kaiQHide", "How do I hide something on a page?"], answer: ["kaiAHide", "On the page, click the Moat icon and choose Hide something on this page. Everything you hid is listed here."], hash: "#hidden", target: "#pick-element-button" },
-    { id: "block", ask: ["kaiQBlock", "How do I always block a site?"], answer: ["kaiABlock", "Type the site under Always block and press Block."], hash: "#rules", target: "#custom-block-input" },
+    { id: "hide", ask: ["kaiQHide", "How do I hide something on a page?"], answer: ["kaiAHide2", "On the page, click the Moat icon and choose Hide something. Sites where you hid something are listed here."], hash: "#exceptions", target: "#pick-element-button" },
+    { id: "block", ask: ["kaiQBlock", "How do I always block a site?"], answer: ["kaiABlock2", "Press Add a site, type the site and pick Always block."], hash: "#exceptions", target: "#ex-add-open" },
     { id: "backup", ask: ["kaiQBackup", "How do I keep my settings on another computer?"], answer: ["kaiABackup", "Under Backup and sync, save a backup file or turn on sync."], hash: "#backup", target: "#a-backup" },
     { id: "broken", ask: ["kaiQBroken", "A site isn't working"], answer: ["kaiABroken", "Let's fix it step by step."], run: () => helpPanel.openTopic("load") },
     { id: "working", ask: ["kaiQWorking", "Is Moat working?"], answer: ["kaiAWorking", "Here's how to check."], run: () => helpPanel.openTopic("verify") },
+    { id: "data", ask: ["kaiQData", "Does Moat collect my data?"], answer: ["kaiAData", "No. Blocking runs on your device, with no account and no analytics. The daily list updates carry nothing about you."] },
   ],
   firstOn: {
     overview: ["blocked", "working"],
@@ -181,7 +182,7 @@ initKaiGuide(document, {
     trackers: ["blocked"],
     sites: ["pause", "broken"],
     security: ["broken"],
-    about: ["working"],
+    about: ["working", "data"],
   },
 });
 initNavMode(window, {
@@ -436,10 +437,10 @@ const FEATURE_IDS = ["consentReject", "grayscale", "feedScan", "searchSlop"] as 
 
 // Privacy, split into three groups so a long screen reads as a few short
 // lists. Rows a browser doesn't have (the Firefox-only ones) just drop out.
-const PRIVACY_GROUPS: { key: string; fallback: string; ids: string[] }[] = [
+const PRIVACY_GROUPS: { key: string; fallback: string; ids: string[]; footer?: [string, string] }[] = [
   { key: "privacyGroupTracking", fallback: "Tracking", ids: ["cookies", "cname", "firefoxFirstPartyIsolate"] },
   { key: "privacyGroupDevice", fallback: "Your device", ids: ["fingerprint", "firefoxResistFingerprinting", "webrtc"] },
-  { key: "privacyGroupPermissions", fallback: "Permissions and passwords", ids: ["permissionGuard", "leakedPassword"] },
+  { key: "privacyGroupPermissions", fallback: "Permissions and passwords", ids: ["permissionGuard", "leakedPassword"], footer: ["privacyFootPassword", "Only a short scrambled piece of a password is checked, never the password."] },
 ];
 
 // 24x24 line icons, one per setting row. Built with createElementNS, never
@@ -499,7 +500,9 @@ function buildIcon(name: string): HTMLElement {
 
 /** Icon, title, one line of description, then a switch -- the one row shape
  * every setting on this page uses. `extra` goes under the description
- * (cautions, evidence, chips). */
+ * (cautions, evidence, chips). A `quiet` row shows only its title, the way
+ * iOS Settings does: the description is the title's tooltip and is still
+ * read out, and the (i) button's picture explains the rest. */
 function buildSettingRow(options: {
   icon: string;
   brands?: BrandId[];
@@ -509,6 +512,7 @@ function buildSettingRow(options: {
   on: boolean;
   extra?: HTMLElement[];
   control?: HTMLElement;
+  quiet?: boolean;
 }): HTMLElement {
   const row = document.createElement("div");
   row.className = options.on ? "setting-row is-on" : "setting-row";
@@ -533,8 +537,9 @@ function buildSettingRow(options: {
   }
   if (options.desc) {
     const desc = document.createElement("span");
-    desc.className = "setting-desc";
+    desc.className = options.quiet ? "setting-desc sr-only" : "setting-desc";
     desc.textContent = options.desc;
+    if (options.quiet) title.title = options.desc;
     text.append(desc);
   }
   if (options.extra) text.append(...options.extra);
@@ -569,10 +574,6 @@ const cnameChromeDohHint = tFallback(
 );
 
 const liveStatus = document.getElementById("live-status") as HTMLElement | null;
-const siteList = document.getElementById("site-list") as HTMLUListElement;
-const siteEmptyState = document.getElementById("site-empty-state") as HTMLElement;
-const addInput = document.getElementById("add-input") as HTMLInputElement;
-const addButton = document.getElementById("add-button") as HTMLButtonElement;
 
 // Set by the top-level render() below; read by the import preview and the
 // weekly tracker list so neither needs its own fetch.
@@ -611,12 +612,7 @@ function normalizeHostname(input: string): string | null {
   }
 }
 
-/** Shared by every removable list on this page: the paused-sites list, the
- * two custom block/allow lists, and the picker's two saved-rule lists.
- * rerenderSelf re-renders just this one list after a removal -- adding or
- * removing one entry doesn't need to tear down and rebuild every other
- * list plus the filter-groups checkboxes on the page too, which is what
- * calling the page-level render() here would do. */
+/** The search box and "Show all" on Sites' and Trackers' long lists. */
 const longListLabels: LongListLabels = {
   search: tFallback("listSearch", "Search"),
   showAll: (count) => tFallback("listShowAll", `Show all ${count}`, String(count)),
@@ -624,119 +620,12 @@ const longListLabels: LongListLabels = {
   noMatches: tFallback("listNoMatches", "No matches."),
 };
 
-/** How to put a removed entry back, and what the toast says meanwhile. */
-interface UndoRemoval<T> {
-  message: (item: T) => string;
-  restore: (item: T) => Promise<unknown>;
-}
-
-function offerUndo<T>(undo: UndoRemoval<T> | undefined, item: T, rerenderSelf: () => Promise<void>): void {
-  if (!undo) return;
-  savedToast.offerUndo(undo.message(item), tFallback("toastUndo", "Undo"), () => {
-    void undo.restore(item).then(rerenderSelf);
-  });
-}
-
 // Chrome only: the manifest asks for "favicon" there (see siteIcon.ts).
 const faviconsSupported = (browser.runtime.getManifest().permissions ?? []).includes("favicon");
 const siteIcon = (hostname: string) =>
   buildSiteIcon(document, hostname, faviconUrl(hostname, (path) => browser.runtime.getURL(path), faviconsSupported));
 
-/** Acting on several selected rows at once: the button's wording and what
- * the toast says afterwards. */
-interface BulkRemoval {
-  labels: BulkLabels;
-  done: (count: number) => string;
-}
-
-function renderRows<T>(
-  list: HTMLUListElement,
-  emptyState: HTMLElement,
-  items: T[],
-  formatLabel: (item: T) => string,
-  removeLabel: string,
-  onRemove: (item: T) => Promise<unknown>,
-  rerenderSelf: () => Promise<void>,
-  undo?: UndoRemoval<T>,
-  bulk?: BulkRemoval,
-  withIcons = false,
-  describe?: (item: T) => string | null
-): void {
-  emptyState.style.display = items.length ? "none" : "";
-  const rows = items.map((item) => {
-    const li = document.createElement("li");
-    const label = document.createElement("span");
-    label.textContent = formatLabel(item);
-    li.dataset.search = label.textContent;
-    const note = describe?.(item);
-    if (note) label.append(Object.assign(document.createElement("small"), { className: "row-note", textContent: note }));
-
-    const remove = document.createElement("button");
-    remove.textContent = removeLabel;
-    remove.addEventListener("click", async () => {
-      await onRemove(item);
-      await rerenderSelf();
-      offerUndo(undo, item, rerenderSelf);
-    });
-
-    if (withIcons) li.append(siteIcon(label.textContent));
-    li.append(label, remove);
-    return li;
-  });
-  list.replaceChildren(...rows);
-  applyLongList(list, longListLabels);
-  if (!bulk) return;
-  const keys = items.map(formatLabel);
-  applyBulkSelect(list, rows, keys, bulk.labels, async (chosenKeys) => {
-    const chosen = items.filter((_, i) => chosenKeys.includes(keys[i]!));
-    for (const item of chosen) await onRemove(item);
-    await rerenderSelf();
-    if (!undo) return;
-    savedToast.offerUndo(bulk.done(chosen.length), tFallback("toastUndo", "Undo"), () => {
-      void (async () => {
-        for (const item of chosen) await undo.restore(item);
-        await rerenderSelf();
-      })();
-    });
-  });
-}
-
-function renderDomainList(
-  list: HTMLUListElement,
-  emptyState: HTMLElement,
-  domains: string[],
-  removeLabel: string,
-  onRemove: (domain: string) => Promise<void>,
-  rerenderSelf: () => Promise<void>,
-  undo?: UndoRemoval<string>,
-  bulk?: BulkRemoval,
-  describe?: (domain: string) => string | null
-): void {
-  // By name, ignoring a leading "www.", so www.amazon.com sits with the a's.
-  const bare = (domain: string) => domain.replace(/^www\./i, "");
-  const sorted = [...domains].sort((a, b) => bare(a).localeCompare(bare(b)));
-  renderRows(list, emptyState, sorted, (domain) => domain, removeLabel, onRemove, rerenderSelf, undo, bulk, true, describe);
-}
-
-const bulkLabelsFor = (action: (count: number) => string): BulkLabels => ({
-  selectAll: tFallback("bulkSelectAll", "Select all"),
-  selectRow: (label) => tFallback("bulkSelectRow", `Select ${label}`, label),
-  selected: (count) => tFallback("bulkSelected", `${count} selected`, String(count)),
-  action,
-});
-const bulkResume: BulkRemoval = {
-  labels: bulkLabelsFor((count) => tFallback("bulkResume", `Resume ${count}`, String(count))),
-  done: (count) => tFallback("toastResumedMany", `Resumed ${count} sites`, String(count)),
-};
-const bulkRemove: BulkRemoval = {
-  labels: bulkLabelsFor((count) => tFallback("bulkRemove", `Remove ${count}`, String(count))),
-  done: (count) => tFallback("toastRemovedMany", `Removed ${count} sites`, String(count)),
-};
-
 // ---------- Changed for one site ----------
-
-const overrideList = document.getElementById("override-list") as HTMLUListElement;
-const overrideEmpty = document.getElementById("override-empty") as HTMLElement;
 
 async function setSiteOverrides(entry: SiteOverrideEntry, restore: boolean): Promise<void> {
   for (const { key, value } of entry.changes) {
@@ -748,75 +637,6 @@ async function setSiteOverrides(entry: SiteOverrideEntry, restore: boolean): Pro
     };
     await browser.runtime.sendMessage(message);
   }
-}
-
-/** One row per site: its icon and name, what was changed there ("Block
- * fingerprinting: Off"), and Reset, which puts every setting on that site
- * back to the usual one (with Undo). */
-function renderSiteOverrides(settings: Settings): void {
-  const entries = siteOverrideEntries(settings.perSiteOverrides);
-  overrideEmpty.style.display = entries.length ? "none" : "";
-  // The "Per site" tab only appears once something was changed for one site.
-  // Resetting the last one while it's open moves back to Paused.
-  const tabButton = document.getElementById("tab-persite");
-  if (tabButton) {
-    tabButton.hidden = entries.length === 0;
-    if (tabButton.hidden && tabButton.getAttribute("aria-selected") === "true" && pageFromHash(location.hash) === "exceptions") showTab("exceptions", "paused");
-  }
-  const on = tFallback("commonOn", "on");
-  const off = tFallback("commonOff", "off");
-  overrideList.replaceChildren(
-    ...entries.map((entry) => {
-      const li = document.createElement("li");
-      li.dataset.search = entry.hostname;
-      const text = document.createElement("div");
-      const host = document.createElement("span");
-      host.textContent = entry.hostname;
-      const changes = document.createElement("span");
-      changes.className = "override-changes";
-      changes.textContent = entry.changes
-        .map(({ key, value }) => `${tFallback(OVERRIDE_NAMES[key][0], OVERRIDE_NAMES[key][1])}: ${value ? on : off}`)
-        .join(" · ");
-      text.append(host, changes);
-      const reset = document.createElement("button");
-      reset.textContent = tFallback("popupOverrideReset", "Reset");
-      reset.setAttribute("aria-label", tFallback("overridesResetSite", `Reset ${entry.hostname}`, entry.hostname));
-      reset.addEventListener("click", async () => {
-        await setSiteOverrides(entry, false);
-        await render();
-        savedToast.offerUndo(tFallback("toastReset", `Reset ${entry.hostname}`, entry.hostname), tFallback("toastUndo", "Undo"), () => {
-          void setSiteOverrides(entry, true).then(() => render());
-        });
-      });
-      li.append(siteIcon(entry.hostname), text, reset);
-      return li;
-    })
-  );
-  applyLongList(overrideList, longListLabels);
-}
-
-const undoResume: UndoRemoval<string> = {
-  message: (hostname) => tFallback("toastResumed", `Moat is back on for ${hostname}`, hostname),
-  restore: (hostname) => setSiteDisabled(hostname, true),
-};
-
-function undoRemoveDomain(field: CustomDomainListField): UndoRemoval<string> {
-  return {
-    message: (domain) => tFallback("toastRemoved", `Removed ${domain}`, domain),
-    restore: (domain) => sendAddCustomDomain(field, domain),
-  };
-}
-
-interface RuleEntry {
-  hostname: string;
-  selector: string;
-}
-
-function undoRemoveRule(restore: (hostname: string, selector: string) => Promise<void>): UndoRemoval<RuleEntry> {
-  return {
-    message: (rule) => tFallback("toastRuleRemoved", `Removed an element on ${rule.hostname}`, rule.hostname),
-    restore: (rule) => restore(rule.hostname, rule.selector),
-  };
 }
 
 // ---------- Setting rows ----------
@@ -866,14 +686,15 @@ function buildProtectionRow(def: ProtectionDef, settings: Settings, usage: Usage
     const firefoxSupported = isCnameUncloakFirefoxSupported();
     const chromeSupported = isCnameUncloakChromeSupported();
     if (!firefoxSupported && !chromeSupported) extra.push(buildLine("setting-caution", cnameUnsupportedHint));
-    else if (chromeSupported) {
+    else if (chromeSupported && checked) {
+      // Who it asks, while it's on (About lists it too).
       const hint = buildLine("setting-desc", cnameChromeDohHint);
       prependBrand(hint, "cloudflare");
       extra.push(hint);
     }
   }
-  if (def.cautionKey) extra.push(buildLine("setting-caution", tFallback(...def.cautionKey)));
-  if (def.noteKey) extra.push(buildLine("setting-note", tFallback(...def.noteKey)));
+  // A caution matters once the setting is on: that's when it can trip a site up.
+  if (def.cautionKey && checked) extra.push(buildLine("setting-caution", tFallback(...def.cautionKey)));
   if (checked) {
     const evidence = evidenceTextFor(def, usage);
     if (evidence) extra.push(buildLine("setting-evidence", evidence));
@@ -892,6 +713,7 @@ function buildProtectionRow(def: ProtectionDef, settings: Settings, usage: Usage
     on: checked,
     extra,
     control,
+    quiet: true,
   });
   return row;
 }
@@ -951,11 +773,13 @@ function buildPermissionGuardRow(settings: Settings): HTMLElement {
     ),
     on: isAnyPermissionGuardOn(settings),
     extra: [chips],
+    quiet: true,
   });
 }
 
-/** A labelled group of setting rows in its own inset box (Protection page). */
-function buildInsetGroup(title: string, rows: HTMLElement[], note?: string): HTMLElement {
+/** A labelled group of setting rows in its own inset box (Protection page),
+ * with an optional one-line footer under it, as in iOS Settings. */
+function buildInsetGroup(title: string, rows: HTMLElement[], note?: string, footer?: string): HTMLElement {
   const group = document.createElement("div");
   group.className = "pgroup";
   const heading = document.createElement("p");
@@ -971,6 +795,7 @@ function buildInsetGroup(title: string, rows: HTMLElement[], note?: string): HTM
   box.className = "setting-rows inset";
   box.append(...rows);
   group.append(heading, box);
+  if (footer) group.append(Object.assign(document.createElement("p"), { className: "pgroup-foot", textContent: footer }));
   return group;
 }
 
@@ -995,7 +820,8 @@ function renderProtectionGroups(settings: Settings, usage: UsageSummaryResponse)
       if (def.id === "fingerprint" && settings.fingerprintResistance) rows.push(buildFingerprintRotateRow(settings));
     }
     if (!rows.length) continue;
-    privacyRows.push(buildInsetGroup(tFallback(group.key, group.fallback), rows));
+    const footer = group.footer ? tFallback(...group.footer) : undefined;
+    privacyRows.push(buildInsetGroup(tFallback(group.key, group.fallback), rows, undefined, footer));
   }
   protectionGroupsEl.replaceChildren(...privacyRows);
 }
@@ -1067,14 +893,16 @@ function renderOverviewStatus(): void {
   if (!overviewSettings) return;
   const state = !overviewSettings.enabled ? "off" : overviewLiveStatus && !overviewLiveStatus.ok ? "failed" : "on";
   ovStatus.dataset.state = state;
+  kaiGuide.protection(state === "off");
   const title = document.getElementById("ov-status-title") as HTMLElement;
   const msg = document.getElementById("ov-status-msg") as HTMLElement;
   msg.hidden = ovStatusAction.hidden = state === "on";
+  const pausedEl = document.getElementById("ov-status-paused") as HTMLElement;
+  pausedEl.hidden = true;
   if (state === "on") {
-    title.textContent = tFallback("ovStatusOn", "Protection is on");
+    title.textContent = tFallback("ovStatusProtecting", "Moat is protecting you");
     const paused = overviewSettings.disabledSites.length;
-    const pausedEl = document.getElementById("ov-status-paused") as HTMLElement;
-    pausedEl.hidden = (document.getElementById("ov-status-paused-sep") as HTMLElement).hidden = paused === 0;
+    pausedEl.hidden = paused === 0;
     pausedEl.textContent =
       paused === 1 ? tFallback("ovStatusPausedOne", "Paused on 1 site") : tFallback("ovStatusPausedMany", `Paused on ${paused} sites`, String(paused));
   } else if (state === "off") {
@@ -1097,20 +925,39 @@ ovStatusAction.addEventListener("click", async () => {
   }
 });
 
+/** A failed update turns the banner into "Lists couldn't update"; when the
+ * lists were last updated is on Security's Safety check. */
 function renderOverviewListsAge(status: Awaited<ReturnType<typeof getLiveUpdateStatus>>): void {
   overviewLiveStatus = status;
   renderOverviewStatus();
-  const el = document.getElementById("ov-status-lists");
-  const sep = document.getElementById("ov-status-lists-sep");
-  if (!el || !sep) return;
-  const show = !!status?.ok;
-  el.hidden = sep.hidden = !show;
-  if (!show) return;
-  const minutes = Math.round((status!.timestamp - Date.now()) / 60_000);
-  const rel = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
-  const when = Math.abs(minutes) < 60 ? rel.format(minutes, "minute") : Math.abs(minutes) < 1440 ? rel.format(Math.round(minutes / 60), "hour") : rel.format(Math.round(minutes / 1440), "day");
-  el.textContent = tFallback("ovListsUpdated", `Lists updated ${when}`, when);
 }
+
+/** The level on Overview is a pop-up button: pressing it lists the three
+ * levels, each with one line on what it adds, and picking one applies it. */
+const ovLevel = document.getElementById("ov-level") as HTMLButtonElement;
+const LEVEL_MENU: Record<Level, [string, string]> = {
+  lite: ["levelMenuLight", "Blocks ads. Fewest broken sites."],
+  standard: ["levelMenuBalanced", "Also blocks trackers. Best for most people."],
+  strict: ["levelMenuStrict", "Also hides cookie banners. Some sites may break."],
+};
+ovLevel.addEventListener("click", () => {
+  if (ovLevel.getAttribute("aria-expanded") === "true") return;
+  const settings = overviewSettings;
+  if (!settings) return;
+  const preset = detectPreset(settings);
+  const current = (LEVELS as readonly string[]).includes(preset) ? (preset as Level) : preset === "custom" ? (presetDifference(settings).base as Level) : null;
+  openPopMenu(
+    document,
+    ovLevel,
+    tFallback("levelTitle", "Level"),
+    LEVELS.map((level) => ({ value: level, label: levelLabel(level), desc: tFallback(...LEVEL_MENU[level]) })),
+    current,
+    (level) => {
+      document.getElementById("ov-status-level")!.textContent = levelLabel(level);
+      void applyLevel(level);
+    }
+  );
+});
 
 // ---------- Filter Lists tab ----------
 
@@ -1128,17 +975,11 @@ const filterCheckUpdates = document.getElementById("filter-check-updates") as HT
 // tFallback below) -- kept as one table so the two can't drift apart.
 const PRESET_HINTS: Record<PresetName | "custom", { key: string; fallback: string }> = {
   off: { key: "presetHintOff", fallback: "Nothing is blocked." },
-  // The three levels say exactly what their Blocking level cards say.
-  lite: {
-    key: "levelLightDesc",
-    fallback: "Blocks ads, pop-ups, and scam and malware sites. Trackers still load, so sites that depend on them keep working.",
-  },
+  // The three levels say exactly what their level cards say.
+  lite: { key: "levelMenuLight", fallback: "Blocks ads. Fewest broken sites." },
   essential: { key: "presetHintEssential", fallback: "Ads, popups, and known-malicious sites." },
-  standard: { key: "levelBalancedDesc", fallback: "Everything in Light, plus trackers, tracking added to links, and phishing sites. Recommended." },
-  strict: {
-    key: "levelStrictDesc",
-    fallback: "Everything in Balanced, plus cookie notices, social buttons and fingerprinting. A few sites may not work right.",
-  },
+  standard: { key: "levelMenuBalanced", fallback: "Also blocks trackers. Best for most people." },
+  strict: { key: "levelMenuStrict", fallback: "Also hides cookie banners. Some sites may break." },
   custom: { key: "presetHintCustom", fallback: "A mix you've set up yourself." },
 };
 
@@ -1447,206 +1288,187 @@ filterCheckUpdates.addEventListener("click", (event) => {
   void checkForFixes(filterCheckUpdates);
 });
 
-// ---------- Custom Rules tab ----------
+// ---------- Exceptions: one list of sites (exceptionsList.ts) ----------
 
-const customBlockList = document.getElementById("custom-block-list") as HTMLUListElement;
-const customBlockEmpty = document.getElementById("custom-block-empty") as HTMLElement;
-const customBlockInput = document.getElementById("custom-block-input") as HTMLInputElement;
-const customBlockAdd = document.getElementById("custom-block-add") as HTMLButtonElement;
-const customBlockAddStatus = document.getElementById("custom-block-add-status") as HTMLElement;
-
-const customAllowList = document.getElementById("custom-allow-list") as HTMLUListElement;
-const customAllowEmpty = document.getElementById("custom-allow-empty") as HTMLElement;
-const customAllowInput = document.getElementById("custom-allow-input") as HTMLInputElement;
-const customAllowAdd = document.getElementById("custom-allow-add") as HTMLButtonElement;
-const customAllowAddStatus = document.getElementById("custom-allow-add-status") as HTMLElement;
-
-// Both a locally-invalid hostname (empty, unparseable, or over
-// MAX_STRING_LENGTH -- see normalizeHostname) and a background rejection
-// (sendAddCustomDomain's { ok: false }) used to look identical to success:
-// the input cleared and the list re-rendered either way, with the domain
-// silently never added. Now both paths leave the input untouched and show
-// a real reason instead.
-async function addCustomDomain(field: CustomDomainListField, input: HTMLInputElement): Promise<void> {
-  const status = field === "customBlockedDomains" ? customBlockAddStatus : customAllowAddStatus;
-  const hostname = normalizeHostname(input.value);
-  if (!hostname) {
-    status.hidden = false;
-    status.textContent = tFallback("optionsAddDomainInvalid", "Enter a site address like example.com.");
-    return;
-  }
-  const ok = await sendAddCustomDomain(field, hostname);
-  if (!ok) {
-    status.hidden = false;
-    status.textContent = tFallback("optionsAddDomainFailed", "Couldn't add that domain. Try again.");
-    return;
-  }
-  status.hidden = true;
-  input.value = "";
-  await (field === "customBlockedDomains" ? rerenderCustomBlockList() : rerenderCustomAllowList());
-}
-
-customBlockAdd.addEventListener("click", () => addCustomDomain("customBlockedDomains", customBlockInput));
-customBlockInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") customBlockAdd.click();
-});
-
-customAllowAdd.addEventListener("click", () => addCustomDomain("customAllowedDomains", customAllowInput));
-customAllowInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") customAllowAdd.click();
-});
-
-const hiddenElementRows = document.getElementById("hidden-element-rows") as HTMLElement;
-const hiddenElementEmpty = document.getElementById("hidden-element-empty") as HTMLElement;
-const grayscaleElementRows = document.getElementById("grayscale-element-rows") as HTMLElement;
-const grayscaleElementEmpty = document.getElementById("grayscale-element-empty") as HTMLElement;
-const grayscaleElementBlock = document.getElementById("grayscale-element-block") as HTMLElement;
+const exRows = document.getElementById("ex-rows") as HTMLElement;
+const exEmpty = document.getElementById("ex-empty") as HTMLElement;
+const exSearch = document.getElementById("ex-search") as HTMLInputElement;
+const exFilterGroup = document.getElementById("ex-filter") as HTMLElement;
+const exAddForm = document.getElementById("ex-add-form") as HTMLFormElement;
+const exAddInput = document.getElementById("ex-add-input") as HTMLInputElement;
+const exAddState = document.getElementById("ex-add-state") as HTMLSelectElement;
+const exAddOpen = document.getElementById("ex-add-open") as HTMLButtonElement;
+const exAddStatus = document.getElementById("ex-add-status") as HTMLElement;
 const pickElementButton = document.getElementById("pick-element-button") as HTMLButtonElement;
 const pickElementStatus = document.getElementById("pick-element-status") as HTMLElement;
 
-const SVG_NS = "http://www.w3.org/2000/svg";
+/** Old links (#paused, #hidden, #rules) open the list filtered to match. */
+const FILTER_FOR_TAB: Record<string, ExceptionFilter> = { paused: "paused", hidden: "hidden", rules: "all" };
+let exFilter: ExceptionFilter = FILTER_FOR_TAB[tabFromHash(location.hash) ?? ""] ?? "all";
 
-/** Built via the DOM rather than an innerHTML template -- web-ext lint flags
- * any innerHTML assignment it can't statically prove is a literal, even a
- * safe hardcoded one, as UNSAFE_VAR_ASSIGNMENT. */
-function buildStaleTriangleIcon(): SVGSVGElement {
-  const icon = document.createElementNS(SVG_NS, "svg");
-  icon.setAttribute("viewBox", "0 0 16 16");
-  icon.setAttribute("fill", "none");
-  icon.setAttribute("stroke", "currentColor");
-  icon.setAttribute("stroke-width", "1.4");
-
-  const outline = document.createElementNS(SVG_NS, "path");
-  outline.setAttribute("d", "M8 1.5l7 12.5H1z");
-  outline.setAttribute("stroke-linejoin", "round");
-
-  const stem = document.createElementNS(SVG_NS, "path");
-  stem.setAttribute("d", "M8 6.2v3.4");
-  stem.setAttribute("stroke-linecap", "round");
-
-  const dot = document.createElementNS(SVG_NS, "circle");
-  dot.setAttribute("cx", "8");
-  dot.setAttribute("cy", "11.6");
-  dot.setAttribute("r", "0.7");
-  dot.setAttribute("fill", "currentColor");
-  dot.setAttribute("stroke", "none");
-
-  icon.append(outline, stem, dot);
-  return icon;
-}
-
-/** Shared by the picker's "Hide" and "Gray out" saved-rule lists -- both are
- * hostname -> selector[] maps, joined against customRuleStats.ts's separate
- * per-rule hit/staleness store (see the surface-redesign plan) keyed the
- * same way that module stores entries. */
-const RULE_KIND_NAMES: Record<RuleKind, readonly [string, string]> = {
-  image: ["pickerKindImage", "Image"],
-  frame: ["pickerKindFrame", "Embedded frame"],
-  video: ["pickerKindVideo", "Video"],
-  link: ["pickerKindLink", "Link"],
-  text: ["pickerKindText", "Text"],
-  box: ["pickerKindBox", "Box"],
+const exLabels: ExceptionLabels = {
+  menuLabel: (name) => tFallback("exMenuLabel", `What Moat does on ${name}`, name),
+  states: {
+    protected: { label: tFallback("exStateProtected", "Protected"), desc: tFallback("exStateProtectedDesc", "Moat's usual blocking.") },
+    paused: { label: tFallback("exStatePaused", "Paused"), desc: tFallback("exStatePausedDesc", "Ads and trackers load here.") },
+    block: { label: tFallback("exStateBlock", "Always block"), desc: tFallback("exStateBlockDesc", "Nothing from this site loads.") },
+    allow: { label: tFallback("exStateAllow", "Never block"), desc: tFallback("exStateAllowDesc", "Loads on every site you visit.") },
+  },
+  hidden: (n) => (n === 1 ? tFallback("exHiddenOne", "1 thing hidden") : tFallback("exHiddenMany", `${n} things hidden`, String(n))),
+  grayed: (n) => (n === 1 ? tFallback("exGrayedOne", "1 thing grayed out") : tFallback("exGrayedMany", `${n} things grayed out`, String(n))),
+  changed: (n) => (n === 1 ? tFallback("exChangedOne", "1 setting changed here") : tFallback("exChangedMany", `${n} settings changed here`, String(n))),
+  showAgain: tFallback("exShowAgain", "Show again"),
+  reset: tFallback("popupOverrideReset", "Reset"),
 };
 
-function ruleLabel(selector: string): string {
-  const { kind, name } = describeSelector(selector);
-  const kindName = tFallback(RULE_KIND_NAMES[kind][0], RULE_KIND_NAMES[kind][1]);
-  return name ? tFallback("ruleLabelNamed", `${kindName} “${name}”`, [kindName, name]) : kindName;
+/** Leaves one state for another: off the old list, onto the new one. */
+async function moveSite(hostname: string, from: SiteState, to: SiteState, pauseUntil?: number): Promise<void> {
+  if (from === "paused" && to !== "paused") await setSiteDisabled(hostname, false);
+  if (from === "block") await sendRemoveCustomDomain("customBlockedDomains", hostname);
+  if (from === "allow") await sendRemoveCustomDomain("customAllowedDomains", hostname);
+  if (to === "paused") await setSiteDisabled(hostname, true, pauseUntil, "exceptions");
+  if (to === "block") await sendAddCustomDomain("customBlockedDomains", hostname);
+  if (to === "allow") await sendAddCustomDomain("customAllowedDomains", hostname);
 }
 
-function buildRuleRow(
-  kind: "hide" | "gray",
-  hostname: string,
-  selector: string,
-  stats: Record<string, CustomRuleStat>,
-  onRemove: (hostname: string, selector: string) => Promise<unknown>,
-  rerenderSelf: () => Promise<void>,
-  undo?: UndoRemoval<RuleEntry>
-): HTMLElement {
-  const now = Date.now();
-  const stat = stats[customRuleStatKey(kind, hostname, selector)];
-  const stale = stat ? isStale(stat, now) : false;
-
-  const row = document.createElement("div");
-  row.className = "rule-row";
-  row.dataset.search = `${hostname} ${selector}`;
-
-  const main = document.createElement("div");
-  main.className = "rule-main";
-  // What it is in words ("Box “sponsor box”"), then the site, then the
-  // selector itself in small print for anyone who wants it.
-  const labelEl = document.createElement("span");
-  labelEl.className = stale ? "rule-label stale" : "rule-label";
-  labelEl.textContent = ruleLabel(selector);
-  const siteEl = document.createElement("span");
-  siteEl.className = "rule-site";
-  siteEl.append(siteIcon(hostname), document.createTextNode(hostname));
-  const selectorEl = document.createElement("span");
-  selectorEl.className = "rule-selector";
-  selectorEl.textContent = selector;
-  main.append(labelEl, siteEl, selectorEl);
-
-  const meta = document.createElement("div");
-  meta.className = "rule-meta";
-  if (stale) {
-    meta.append(
-      buildStaleTriangleIcon(),
-      document.createTextNode(
-        tFallback("optionsRuleStaleMeta", "Hasn't matched in 30 days. The site probably changed.")
-      )
-    );
-  } else if (stat) {
-    const days = Math.max(0, Math.floor((now - stat.createdAt) / 86_400_000));
-    const added =
-      days === 0
-        ? tFallback("optionsRuleAddedToday", "Added today")
-        : days === 1
-          ? tFallback("optionsRuleAddedYesterday", "Added yesterday")
-          : tFallback("optionsRuleAddedDaysAgo", `Added ${days} days ago`, String(days));
-    const hits =
-      stat.hitCount === 0
-        ? tFallback("optionsRuleHitsNone", "not seen on a page yet")
-        : stat.hitCount === 1
-          ? tFallback("optionsRuleHitsOnce", "hidden once since")
-          : tFallback("optionsRuleHitsCount", `hidden ${stat.hitCount} times since`, String(stat.hitCount));
-    meta.textContent = `${added} · ${hits}`;
-  }
-  if (stale || stat) main.append(meta);
-
-  // Stale-rule removal is immediate with no confirm dialog -- the rule is
-  // already doing nothing, so there's nothing a confirm step would protect
-  // against.
-  const remove = document.createElement("button");
-  remove.type = "button";
-  remove.className = stale ? "rule-remove stale-remove" : "rule-remove";
-  remove.textContent = tFallback("commonRemove", "Remove");
-  remove.addEventListener("click", async () => {
-    await onRemove(hostname, selector);
-    await rerenderSelf();
-    offerUndo(undo, { hostname, selector }, rerenderSelf);
+/** Changes what Moat does on a site, then offers Undo. Pausing asks for how
+ * long first, with the same menu as everywhere else. */
+function setSiteState(site: ExceptionSite, to: SiteState, anchor: HTMLElement): void {
+  const name = siteName(site.hostname);
+  const apply = (until?: number) =>
+    void (async () => {
+      const before = { state: site.state, until: lastSettings?.pausedUntil[site.hostname] };
+      await moveSite(site.hostname, site.state, to, until);
+      if (to === "paused") kaiGuide.moment({ name: "paused" });
+      await render();
+      savedToast.offerUndo(tFallback("exStateDone", `${name}: ${exLabels.states[to].label}`, [name, exLabels.states[to].label]), tFallback("toastUndo", "Undo"), () => {
+        void moveSite(site.hostname, to, before.state, before.until).then(() => render());
+      });
+    })();
+  if (to !== "paused") return apply();
+  openPauseMenu(document, anchor, pauseMenuLabels(name), (choice) => {
+    if (choice !== null) apply(pauseEnd(choice, Date.now()));
   });
-
-  row.append(main, remove);
-  return row;
 }
 
-function renderRuleGroup(
-  kind: "hide" | "gray",
-  container: HTMLElement,
-  emptyState: HTMLElement,
-  rules: Record<string, string[]>,
-  stats: Record<string, CustomRuleStat>,
-  onRemove: (hostname: string, selector: string) => Promise<unknown>,
-  rerenderSelf: () => Promise<void>,
-  undo?: UndoRemoval<RuleEntry>
-): void {
-  const rows = Object.entries(rules)
-    .flatMap(([hostname, selectors]) => selectors.map((selector) => ({ hostname, selector })))
-    .sort((a, b) => a.hostname.localeCompare(b.hostname));
-  emptyState.style.display = rows.length ? "none" : "";
-  container.replaceChildren(...rows.map((r) => buildRuleRow(kind, r.hostname, r.selector, stats, onRemove, rerenderSelf, undo)));
-  applyLongList(container, longListLabels);
+/** Brings back everything hidden or grayed out on a site, with Undo. */
+function showSiteAgain(site: ExceptionSite): void {
+  const settings = lastSettings;
+  if (!settings) return;
+  const hidden = [...(settings.customCosmeticRules[site.hostname] ?? [])];
+  const grayed = [...(settings.customGrayscaleRules[site.hostname] ?? [])];
+  void (async () => {
+    for (const selector of hidden) await removeCustomCosmeticRule(site.hostname, selector);
+    for (const selector of grayed) await removeGrayscaleRule(site.hostname, selector);
+    await render();
+    const name = siteName(site.hostname);
+    savedToast.offerUndo(tFallback("exShownAgain", `Showing everything on ${name} again`, name), tFallback("toastUndo", "Undo"), () => {
+      void (async () => {
+        for (const selector of hidden) await saveCosmeticRule(site.hostname, selector);
+        for (const selector of grayed) await saveGrayscaleRule(site.hostname, selector);
+        await render();
+      })();
+    });
+  })();
 }
+
+/** Puts a site's settings changed from Moat's icon back to the usual ones. */
+function resetSite(site: ExceptionSite): void {
+  const entry = lastSettings ? siteOverrideEntries(lastSettings.perSiteOverrides).find((e) => e.hostname === site.hostname) : undefined;
+  if (!entry) return;
+  void (async () => {
+    await setSiteOverrides(entry, false);
+    await render();
+    const name = siteName(site.hostname);
+    savedToast.offerUndo(tFallback("toastReset", `Reset ${name}`, name), tFallback("toastUndo", "Undo"), () => {
+      void setSiteOverrides(entry, true).then(() => render());
+    });
+  })();
+}
+
+function renderExceptions(settings: Settings): void {
+  const all = exceptionSites(settings, (h) => pausedNote(settings, h));
+  const count = document.getElementById("nav-count-exceptions");
+  if (count) {
+    count.textContent = all.length ? all.length.toLocaleString() : "";
+    count.hidden = all.length === 0;
+  }
+  const query = exSearch.value.trim().toLowerCase();
+  const shown = all.filter((site) => matchesFilter(site, exFilter) && (!query || `${siteName(site.hostname)} ${site.hostname}`.toLowerCase().includes(query)));
+  const shared = sharedNames(all);
+  const handlers: ExceptionHandlers = { setState: setSiteState, showAgain: showSiteAgain, reset: resetSite };
+  exRows.replaceChildren(...shown.map((site) => buildExceptionRow(document, site, exLabels, handlers, siteIcon, shared.has(siteName(site.hostname)))));
+  for (const button of exFilterGroup.querySelectorAll<HTMLButtonElement>("[data-filter]")) button.setAttribute("aria-pressed", String(button.dataset.filter === exFilter));
+  exEmpty.hidden = shown.length > 0;
+  const title = document.getElementById("ex-empty-title")!;
+  const hint = document.getElementById("ex-empty-hint")!;
+  if (!all.length) {
+    title.textContent = tFallback("exEmptyTitle", "No exceptions yet");
+    hint.textContent = tFallback("exEmptyHint", "Pause a site, hide part of a page or block a site, and it shows here.");
+  } else {
+    title.textContent = tFallback("listNoMatches", "No matches.");
+    hint.textContent = "";
+  }
+}
+
+exSearch.addEventListener("input", () => {
+  if (lastSettings) renderExceptions(lastSettings);
+});
+for (const button of exFilterGroup.querySelectorAll<HTMLButtonElement>("[data-filter]")) {
+  button.addEventListener("click", () => {
+    exFilter = button.dataset.filter as ExceptionFilter;
+    if (lastSettings) renderExceptions(lastSettings);
+  });
+}
+window.addEventListener("hashchange", () => {
+  const tab = tabFromHash(location.hash);
+  if (!tab || !FILTER_FOR_TAB[tab]) return;
+  exFilter = FILTER_FOR_TAB[tab]!;
+  if (lastSettings) renderExceptions(lastSettings);
+});
+
+function closeAddForm(): void {
+  exAddForm.hidden = true;
+  exAddOpen.hidden = false;
+  exAddOpen.setAttribute("aria-expanded", "false");
+  exAddStatus.hidden = true;
+}
+exAddOpen.addEventListener("click", () => {
+  exAddForm.hidden = false;
+  exAddOpen.hidden = true;
+  exAddOpen.setAttribute("aria-expanded", "true");
+  exAddInput.focus();
+});
+document.getElementById("ex-add-cancel")!.addEventListener("click", () => {
+  closeAddForm();
+  exAddOpen.focus();
+});
+exAddForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const hostname = normalizeHostname(exAddInput.value);
+  if (!hostname) {
+    exAddStatus.hidden = false;
+    exAddStatus.textContent = tFallback("optionsAddDomainInvalid", "Enter a site address like example.com.");
+    return;
+  }
+  const choice = exAddState.value;
+  void (async () => {
+    if (choice === "block" || choice === "allow") {
+      const ok = await sendAddCustomDomain(choice === "block" ? "customBlockedDomains" : "customAllowedDomains", hostname);
+      if (!ok) {
+        exAddStatus.hidden = false;
+        exAddStatus.textContent = tFallback("optionsAddDomainFailed", "Couldn't add that domain. Try again.");
+        return;
+      }
+    } else {
+      await setSiteDisabled(hostname, true, pauseEnd(choice as PauseLength, Date.now()), "exceptions");
+      kaiGuide.moment({ name: "paused" });
+    }
+    exAddInput.value = "";
+    closeAddForm();
+    await render();
+  })();
+});
 
 pickElementButton.addEventListener("click", async () => {
   pickElementStatus.hidden = true;
@@ -1721,7 +1543,7 @@ migrationImportButton.addEventListener("click", async () => {
   const response = (await browser.runtime.sendMessage(message)) as ImportCustomRulesResponse;
   migrationImportStatus.textContent = summarizeImportResult(response, parsed.skippedLines);
   migrationImportTextarea.value = "";
-  await Promise.all([rerenderCustomBlockList(), rerenderCustomAllowList(), rerenderHiddenElementList()]);
+  await render();
 });
 
 // ---------- About tab (DR-13) ----------
@@ -1868,28 +1690,6 @@ shortcutChangeButton.addEventListener("click", () => {
 
 // ---------- Render ----------
 
-// Each of these re-renders exactly one list from a fresh settings read,
-// rather than the whole page -- used as renderRows' rerenderSelf so
-// removing (or adding) one entry doesn't tear down and rebuild every other
-// list plus the filter-groups checkboxes too. getEffectiveSettings() (not
-// getSettings()) so a managed policy's forced disabledSites/
-// customBlockedDomains still shows correctly, matching what the full
-// render() below already does.
-async function rerenderSiteList(): Promise<void> {
-  const settings = await getEffectiveSettings();
-  renderDomainList(
-    siteList,
-    siteEmptyState,
-    settings.disabledSites,
-    tFallback("commonResume", "Resume"),
-    (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
-    rerenderSiteList,
-    undoResume,
-    bulkResume,
-    (hostname) => pausedNote(settings, hostname)
-  );
-}
-
 /** "Until 3:40 PM" for a timed pause; nothing for one that lasts. */
 function pausedUntilNote(until: number | undefined): string | null {
   if (until === undefined) return null;
@@ -1936,64 +1736,6 @@ function pauseMenuLabels(hostname: string) {
   };
 }
 
-async function rerenderCustomBlockList(): Promise<void> {
-  const settings = await getEffectiveSettings();
-  renderDomainList(
-    customBlockList,
-    customBlockEmpty,
-    settings.customBlockedDomains,
-    tFallback("commonRemove", "Remove"),
-    (domain) => sendRemoveCustomDomain("customBlockedDomains", domain),
-    rerenderCustomBlockList,
-    undoRemoveDomain("customBlockedDomains"),
-    bulkRemove
-  );
-}
-
-async function rerenderCustomAllowList(): Promise<void> {
-  const settings = await getEffectiveSettings();
-  renderDomainList(
-    customAllowList,
-    customAllowEmpty,
-    settings.customAllowedDomains,
-    tFallback("commonRemove", "Remove"),
-    (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
-    rerenderCustomAllowList,
-    undoRemoveDomain("customAllowedDomains"),
-    bulkRemove
-  );
-}
-
-async function rerenderHiddenElementList(): Promise<void> {
-  const [settings, stats] = await Promise.all([getEffectiveSettings(), getCustomRuleStats()]);
-  renderRuleGroup(
-    "hide",
-    hiddenElementRows,
-    hiddenElementEmpty,
-    settings.customCosmeticRules,
-    stats,
-    removeCustomCosmeticRule,
-    rerenderHiddenElementList,
-    undoRemoveRule(saveCosmeticRule)
-  );
-  grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
-}
-
-async function rerenderGrayscaleElementList(): Promise<void> {
-  const [settings, stats] = await Promise.all([getEffectiveSettings(), getCustomRuleStats()]);
-  renderRuleGroup(
-    "gray",
-    grayscaleElementRows,
-    grayscaleElementEmpty,
-    settings.customGrayscaleRules,
-    stats,
-    removeGrayscaleRule,
-    rerenderGrayscaleElementList,
-    undoRemoveRule(saveGrayscaleRule)
-  );
-  grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
-}
-
 async function render(): Promise<void> {
   const [settings, policy] = await Promise.all([getEffectiveSettings(), getManagedPolicy()]);
 
@@ -2007,19 +1749,7 @@ async function render(): Promise<void> {
   renderTheme(settings.theme);
   renderLiveStatus(await getLiveUpdateStatus(), await getYoutubeQuickFixesStatus());
 
-  renderDomainList(
-    siteList,
-    siteEmptyState,
-    settings.disabledSites,
-    tFallback("commonResume", "Resume"),
-    (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
-    rerenderSiteList,
-    undoResume,
-    bulkResume,
-    (hostname) => pausedNote(settings, hostname)
-  );
-
-  renderSiteOverrides(settings);
+  renderExceptions(settings);
 
   const filterGroupStatus = await getFilterGroupStatus();
   filterBudgetWarning.hidden = filterGroupStatus === null || filterGroupStatus.ok;
@@ -2053,68 +1783,10 @@ async function render(): Promise<void> {
   for (const input of filterListRows.querySelectorAll("input")) input.disabled = filtersLocked;
   renderLevels(detectPreset(settings), filtersLocked, settings);
 
-  renderDomainList(
-    customBlockList,
-    customBlockEmpty,
-    settings.customBlockedDomains,
-    tFallback("commonRemove", "Remove"),
-    (domain) => sendRemoveCustomDomain("customBlockedDomains", domain),
-    rerenderCustomBlockList,
-    undoRemoveDomain("customBlockedDomains"),
-    bulkRemove
-  );
-  renderDomainList(
-    customAllowList,
-    customAllowEmpty,
-    settings.customAllowedDomains,
-    tFallback("commonRemove", "Remove"),
-    (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
-    rerenderCustomAllowList,
-    undoRemoveDomain("customAllowedDomains"),
-    bulkRemove
-  );
-  const customRuleStats = await getCustomRuleStats();
-  renderRuleGroup(
-    "hide",
-    hiddenElementRows,
-    hiddenElementEmpty,
-    settings.customCosmeticRules,
-    customRuleStats,
-    removeCustomCosmeticRule,
-    rerenderHiddenElementList,
-    undoRemoveRule(saveCosmeticRule)
-  );
-  renderRuleGroup(
-    "gray",
-    grayscaleElementRows,
-    grayscaleElementEmpty,
-    settings.customGrayscaleRules,
-    customRuleStats,
-    removeGrayscaleRule,
-    rerenderGrayscaleElementList,
-    undoRemoveRule(saveGrayscaleRule)
-  );
-  // The "Grayed out" block only appears once someone has actually grayed
-  // something out -- most people never will, so it stays out of the way.
-  grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
-
   await renderBackupTab(settings);
   await renderAboutTab(policy, settings);
   explainerPanel.refresh();
 }
-
-addButton.addEventListener("click", async () => {
-  const hostname = normalizeHostname(addInput.value);
-  if (!hostname) return;
-  const length = (document.getElementById("add-length") as HTMLSelectElement).value as PauseLength;
-  await setSiteDisabled(hostname, true, pauseEnd(length, Date.now()), "exceptions");
-  addInput.value = "";
-  await rerenderSiteList();
-});
-
-addInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") addButton.click();
-});
 
 // ---------- Backup tab (DR-15) ----------
 
@@ -2128,21 +1800,8 @@ const importSettingsRisks = document.getElementById("import-settings-risks") as 
 const importSettingsRiskList = document.getElementById("import-settings-risk-list") as HTMLUListElement;
 const importSettingsApplyButton = document.getElementById("import-settings-apply-button") as HTMLButtonElement;
 const importSettingsCancelButton = document.getElementById("import-settings-cancel-button") as HTMLButtonElement;
-const exportHintEl = document.getElementById("export-hint") as HTMLElement;
 const backupMetricLastEl = document.getElementById("backup-metric-last") as HTMLElement;
 
-/** "Saves moat-settings-2026-09-29.json, a plain text file you can open and
- * read." as one message, with the file name set as code where the
- * translation puts $FILE$. */
-function renderExportHint(filename: string): void {
-  const MARK = "\u0001";
-  const sentence = tFallback("backupSavesFile", `Saves ${MARK}, a plain text file you can open and read.`, MARK);
-  const [before = "", after = ""] = sentence.split(MARK);
-  const code = document.createElement("code");
-  code.id = "export-filename";
-  code.textContent = filename;
-  exportHintEl.replaceChildren(before, code, after);
-}
 const syncRecipientEl = document.getElementById("sync-recipient") as HTMLElement;
 
 /** Same name the export button itself downloads -- so the hint above it and
@@ -2173,7 +1832,6 @@ syncToggle.addEventListener("change", async () => {
 });
 
 async function renderBackupTab(settings: Settings): Promise<void> {
-  renderExportHint(exportFilename());
   syncToggle.checked = settings.syncEnabled;
   syncRecipientEl.textContent = SYNC_VENDOR_NAME;
   prependBrand(syncRecipientEl, SYNC_VENDOR_BRAND);
@@ -2227,6 +1885,21 @@ function levelLabel(preset: PresetName | "custom"): string {
   }
 }
 
+/** Kai is proud once when this week's total passes 1,000, 10,000 or
+ * 100,000, only while Overview is on screen. Remembered per week. */
+const KAI_MILESTONES = [1000, 10000, 100000];
+function celebrateWeek(week: number): void {
+  if (pageFromHash(window.location.hash) !== "overview") return;
+  const reached = KAI_MILESTONES.filter((m) => week >= m).pop();
+  if (!reached) return;
+  const weekNo = Math.floor(Date.now() / (7 * 86400000));
+  let seen = { w: -1, m: 0 };
+  try { seen = { ...seen, ...JSON.parse(localStorage.getItem("moat-kai-milestone") ?? "{}") }; } catch { /* first time */ }
+  if (seen.w === weekNo && seen.m >= reached) return;
+  try { localStorage.setItem("moat-kai-milestone", JSON.stringify({ w: weekNo, m: reached })); } catch { /* still fine */ }
+  kaiGuide.moment({ name: "milestone", count: reached });
+}
+
 /** The week at a glance, from the same local counts the Trackers list
  * reads: usage.sparkline is 7 daily totals, oldest first, ending today. */
 let overviewPeriod: "this" | "last" = "this";
@@ -2245,6 +1918,7 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   const dailyKinds = last ? last.dailyKinds : usage.dailyKinds;
   const week = days.reduce((sum, n) => sum + n, 0);
   document.getElementById("ov-week-total")!.textContent = week.toLocaleString();
+  if (!last) celebrateWeek(week);
   document.getElementById("ov-week-empty")!.hidden = week > 0;
   (document.querySelector(".ov-hint") as HTMLElement).hidden = week === 0;
   const preset = detectPreset(settings);
@@ -2253,27 +1927,27 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   overviewSettings = settings;
   renderOverviewStatus();
 
-  // "Up from 2,190 last week": the number itself, not a percentage that
-  // sounds like good or bad news. Nothing older than last week is kept.
+  // One comparison, the way Screen Time and Health say it: "↑ 85% more
+  // than the week before". The week itself is named once, by the picker
+  // above. Neutral either way: more blocked can just mean more browsing.
+  // Nothing older than last week is kept.
   const headline = document.getElementById("ov-headline")!;
   headline.replaceChildren();
-  if (last) {
-    headline.textContent = tFallback("ovLastWeekNote", "The 7 days before this week.");
-  } else if (week > 0) {
-    const before = usage.previousWeek?.total;
-    if (before) {
-      const n = document.createElement("b");
-      n.textContent = before.toLocaleString();
-      // Neutral either way: more blocked can just mean more browsing.
-      // The number goes in bold, so the sentence is split around a marker.
-      const MARK = "{n}";
-      const sentence = week >= before ? tFallback("ovUpFrom", `${MARK} last week`, MARK) : tFallback("ovDownFrom", `${MARK} last week`, MARK);
-      const [lead, tail] = sentence.split(MARK);
-      headline.append(document.createTextNode(lead ?? ""), n, document.createTextNode(tail ?? ""));
-    } else {
-      headline.textContent = tFallback("ovAcrossSites", `across ${usage.weekSiteCount} sites`, String(usage.weekSiteCount));
-    }
+  const change = last ? null : changePercent(week, usage.previousWeek?.total);
+  if (change !== null && change !== 0 && week > 0) {
+    const up = change > 0;
+    headline.append(
+      Object.assign(document.createElement("span"), { className: "ov-arrow", textContent: up ? "↑" : "↓" }),
+      document.createTextNode(
+        up
+          ? tFallback("ovMoreThanBefore", `${change}% more than the week before`, String(change))
+          : tFallback("ovFewerThanBefore", `${Math.abs(change)}% fewer than the week before`, String(Math.abs(change)))
+      )
+    );
+  } else if (!last && week > 0 && !usage.previousWeek) {
+    headline.textContent = tFallback("ovAcrossSites", `across ${usage.weekSiteCount} sites`, String(usage.weekSiteCount));
   }
+  headline.hidden = !headline.textContent;
 
   const todayLabel = tFallback("ovToday", "Today");
   const columns: DayColumn[] = days.map((total, i) => {
@@ -2293,27 +1967,8 @@ function renderOverview(settings: Settings, usage: UsageSummaryResponse): void {
   const chart = document.getElementById("ov-chart") as HTMLElement;
   chart.replaceChildren(...(week > 0 ? [buildWeekChart(document, columns, tFallback)] : []));
 
-  renderOverviewSummary(usage);
   renderSecurityDot(usage);
   void renderOverviewTops(usage);
-}
-
-/** The week in a sentence or two, under the page title, the way Screen
- * Time's weekly report opens: "Google tried to track you on more sites
- * than any other company. Moat blocked the most on news.example."
- * Nothing to say yet keeps
- * the usual subtitle. */
-function renderOverviewSummary(usage: UsageSummaryResponse): void {
-  const lead = document.querySelector<HTMLElement>('.dash-nav a[data-page="overview"] .nav-lead');
-  if (!lead) return;
-  lead.dataset.default ??= lead.textContent ?? "";
-  const company = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count)[0];
-  const site = usage.topSites[0];
-  const parts: string[] = [];
-  if (company) parts.push(tFallback("ovSummaryCompany", `${company.company} tried to track you on more sites than any other company.`, company.company));
-  if (site) parts.push(tFallback("ovSummarySite", `Moat blocked the most on ${site.hostname}.`, site.hostname));
-  lead.textContent = parts.length ? parts.join(" ") : lead.dataset.default;
-  if (pageFromHash(location.hash) === "overview") document.getElementById("page-lead")!.textContent = lead.textContent;
 }
 
 const SECURITY_SEEN_KEY = "moat-security-seen";
@@ -2371,59 +2026,76 @@ document.addEventListener("click", (event) => {
   if ((event.target as HTMLElement).closest(".check-moat")) helpPanel.openTopic("verify");
 });
 
-/** Who tracks you most, Most blocked sites, Pages Moat stopped. */
+/** A tracker company's mark: its logo where Moat carries one, else its own
+ * site's icon from the browser's cache, else its first letter. */
+const COMPANY_BRANDS: Record<string, BrandId> = { Google: "google", Meta: "meta", Facebook: "meta", TikTok: "tiktok", ByteDance: "tiktok", X: "x", Twitter: "x" };
+function companyIcon(company: string, info: Record<string, CompanyInfo> | null): HTMLElement {
+  const brand = COMPANY_BRANDS[company];
+  if (brand) {
+    const tile = Object.assign(document.createElement("span"), { className: "site-icon has-img" });
+    tile.setAttribute("aria-hidden", "true");
+    tile.append(buildBrandLogo(document, brand, 16));
+    return tile;
+  }
+  const host = info ? companyHost(info, company) : "";
+  return host ? siteIcon(host) : buildSiteIcon(document, company, null);
+}
+
+/** A stopped page in a few words: what kind of page it was. */
+function stopKindName(stop: UsageSummaryResponse["pageStops"][number]): string {
+  switch (stopGlyph(stop.list, stop.kind)) {
+    case "phishing":
+      return tFallback("stopKindPhishing", "Fake sign-in page");
+    case "scam":
+      return tFallback("stopKindScam", "Fake shop");
+    case "malware":
+      return tFallback("stopKindMalware", "Malware");
+    case "blocked":
+      return stop.kind === "ads" ? tFallback("stopKindAds", "Ad page") : tFallback("stopKindCustom", "On a block list");
+    default:
+      return tFallback("stopKindDanger", "Dangerous site");
+  }
+}
+
+/** Highlights: the top three trackers, sites and stopped pages, each card
+ * with one short headline (Health's Highlights). */
 async function renderOverviewTops(usage: UsageSummaryResponse): Promise<void> {
   const info = await loadCompanyInfo();
-  const sites = Math.max(usage.weekSiteCount, 1);
-  const companies = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count).slice(0, 5);
-  const companyIcon = (company: string) => {
-    const url = info[company]?.url;
-    let host: string;
-    try {
-      host = url ? new URL(url).hostname : "";
-    } catch {
-      host = "";
-    }
-    return host ? siteIcon(host) : buildSiteIcon(document, company, null);
-  };
-  const ofSites = tFallback("ovOfSites", `of ${sites} sites`, String(sites));
-  const topSites = usage.topSites.slice(0, 5);
-  const maxSite = Math.max(...topSites.map((s) => s.count), 1);
-  const rel = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
-  const ago = (time: number) => {
-    const days = Math.round((time - Date.now()) / 86_400_000);
-    if (days !== 0) return rel.format(days, "day");
-    const hours = Math.round((time - Date.now()) / 3_600_000);
-    return hours !== 0 ? rel.format(hours, "hour") : rel.format(Math.round((time - Date.now()) / 60_000), "minute");
-  };
+  const companies = [...usage.companiesThisWeek].sort((a, b) => b.count - a.count || b.hostnameCount - a.hostnameCount);
+  const sites = groupSites(usage.topSites);
+  const danger = usage.pageStops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown");
+  const stops = [...danger, ...usage.pageStops.filter((s) => !danger.includes(s))];
+  const tile = (glyph: GlyphName, danger = false) => buildGlyphTile(document, glyph, danger ? "glyph-tile tile-danger" : "glyph-tile");
+  const top = companies[0];
+  const site = sites[0];
   document.getElementById("ov-tops")!.replaceChildren(
-    buildTopCard(
+    buildHighlight(
       document,
-      tFallback("ovTopTrackersTitle", "Who tracks you most"),
-      tFallback("ovTopTrackersSub", "Sites each company was on"),
-      companies.map((c) => ({
-        icon: companyIcon(c.company),
-        name: c.company,
-        value: c.hostnameCount.toLocaleString(),
-        sub: ofSites,
-        share: c.hostnameCount / sites,
-        title: (usage.companySites[c.company] ?? []).join(", "),
-      })),
-      tFallback("ovTopTrackersEmpty", "No tracker companies this week yet.")
+      tile("target"),
+      tFallback("navTrackers", "Trackers"),
+      top ? tFallback("hlTrackersTop", `${top.company} tracked you the most.`, top.company) : tFallback("ovTopTrackersEmpty", "No tracker companies this week yet."),
+      companies.slice(0, 3).map((c) => ({ icon: companyIcon(c.company, info), name: c.company, value: c.count.toLocaleString() })),
+      { href: "#trackers", label: tFallback("hlAllTrackers", "All trackers") }
     ),
-    buildTopCard(
+    buildHighlight(
       document,
-      tFallback("ovTopSitesTitle", "Most blocked sites"),
-      tFallback("ovTopSitesSub", "Ads, trackers and pop-ups stopped"),
-      topSites.map((s) => ({ icon: siteIcon(s.hostname), name: s.hostname.replace(/^www\./, ""), value: s.count.toLocaleString(), share: s.count / maxSite })),
-      tFallback("ovTopSitesEmpty", "Browse a few sites and they show up here.")
+      tile("globe"),
+      tFallback("navInsightSites", "Sites"),
+      site ? tFallback("hlSitesTop", `${siteName(site.site)} had the most blocked.`, siteName(site.site)) : tFallback("ovTopSitesEmpty", "Browse a few sites and they show up here."),
+      sites.slice(0, 3).map((g) => ({ icon: siteIcon(g.members[0]!.hostname), name: siteName(g.site), value: g.count.toLocaleString(), title: groupLabel(g) })),
+      { href: "#sites", label: tFallback("hlAllSites", "All sites") }
     ),
-    buildTopCard(
+    buildHighlight(
       document,
-      tFallback("ovTopStopsTitle", "Pages Moat stopped"),
-      tFallback("ovTopStopsSub", "Whole pages that never loaded"),
-      usage.pageStops.slice(0, 5).map((stop) => ({ icon: siteIcon(stop.hostname), name: stop.hostname, value: ago(stop.time), share: null, fullName: true })),
-      tFallback("ovTopStopsEmpty", "None this week.")
+      tile("shield", true),
+      tFallback("navSecurity", "Security"),
+      danger.length === 1
+        ? tFallback("hlStopsOne", "1 dangerous page stopped.")
+        : danger.length
+          ? tFallback("hlStopsMany", `${danger.length} dangerous pages stopped.`, String(danger.length))
+          : tFallback("hlStopsNone", "No dangerous pages this week."),
+      stops.slice(0, 3).map((stop) => ({ icon: stopIcon(stop), name: stopKindName(stop), value: relativeTime(stop.time), title: stop.hostname })),
+      { href: "#security", label: tFallback("hlSecurityDetails", "Details") }
     )
   );
 }
@@ -2458,40 +2130,21 @@ function setTakeaway(id: string, parts: (string | { bold: string })[]): void {
 
 async function renderInsights(settings: Settings, usage: UsageSummaryResponse): Promise<void> {
   const info = await loadCompanyInfo();
-  const prev = usage.previousWeek;
   const sitesThisWeek = Math.max(usage.weekSiteCount, 1);
-  const companies = [...usage.companiesThisWeek].sort((a, b) => b.hostnameCount - a.hostnameCount || b.count - a.count);
+  // Most blocked first, the order the Highlights card uses.
+  const companies = [...usage.companiesThisWeek].sort((a, b) => b.count - a.count || b.hostnameCount - a.hostnameCount);
 
-  // Trackers
-  document.getElementById("t-kpis")?.replaceChildren(
-    buildKpi(document, tFallback("ovKpiTrackers", "Trackers blocked"), usage.weekKinds.trackers, changePercent(usage.weekKinds.trackers, prev?.kinds.trackers), usage.dailyKinds.slice(0, 6).map((d) => d.trackers), tFallback),
-    buildKpi(
-      document,
-      tFallback("insKpiCompanies", "Companies"),
-      companies.length,
-      null,
-      usage.companiesTrend.slice(0, 6),
-      tFallback,
-      tFallback("insKpiCompaniesNote", `on ${usage.trackerSiteCount} of the ${usage.weekSiteCount} sites you visited`, [String(usage.trackerSiteCount), String(usage.weekSiteCount)])
-    )
-  );
-  const top = companies[0];
-  setTakeaway(
-    "t-who-take",
-    top
-      ? [{ bold: top.company }, ` ${tFallback("insWhoTake", `was on ${Math.round((top.hostnameCount / sitesThisWeek) * 100)}% of the sites you visited. Pick a company to see where.`, String(Math.round((top.hostnameCount / sitesThisWeek) * 100)))}`]
-      : [tFallback("ovTopTrackersEmpty", "No tracker companies this week yet.")]
-  );
+  // Trackers: the week's total sits on the list it adds up.
+  setTakeaway("t-who-take", companies.length ? [{ bold: usage.weekKinds.trackers.toLocaleString() }, ` ${tFallback("insBlockedWord", "blocked")}`] : [tFallback("ovTopTrackersEmpty", "No tracker companies this week yet.")]);
   // Rows go straight into #t-who so the long-list search and "Show all"
   // attach once (inside the card), not on every render.
   const whoList = document.getElementById("t-who");
   const reach = buildReachRows(
     document,
     companies.map((c) => {
-      const host = companyHost(info, c.company);
       return {
         company: c.company,
-        icon: host ? siteIcon(host) : buildSiteIcon(document, c.company, null),
+        icon: companyIcon(c.company, info),
         sites: c.hostnameCount,
         ofSites: sitesThisWeek,
         blocks: c.count,
@@ -2509,12 +2162,14 @@ async function renderInsights(settings: Settings, usage: UsageSummaryResponse): 
     applyLongList(whoList, longListLabels);
   }
   const shares = purposeShares(usage.purposes);
-  setTakeaway(
-    "t-what-take",
-    shares[0]
-      ? [{ bold: `${Math.round(shares[0].share * 100)}%` }, ` ${tFallback("insWhatTake", `were for ${purposeLabel(shares[0].category, tFallback).name.toLowerCase()}.`, purposeLabel(shares[0].category, tFallback).name.toLowerCase())}`]
-      : [tFallback("insWhatEmpty", "Fills in as Moat blocks trackers.")]
-  );
+  const topPurpose = shares[0] ? purposeLabel(shares[0].category, tFallback).name.toLowerCase() : "";
+  setTakeaway("t-what-take", [
+    !shares[0]
+      ? tFallback("insWhatEmpty", "Fills in as Moat blocks trackers.")
+      : shares[0].share >= 0.5
+        ? tFallback("insWhatMostly", `Mostly ${topPurpose}.`, topPurpose)
+        : tFallback("insWhatMost", `More for ${topPurpose} than anything else.`, topPurpose),
+  ]);
   document.getElementById("t-what")?.replaceChildren(...(shares.length ? [buildPurposes(document, usage.purposes, tFallback)] : []));
   const days: DayData[] = [];
   for (let i = 6; i >= 0; i--) {
@@ -2546,7 +2201,9 @@ function renderSitesPage(settings: Settings, usage: UsageSummaryResponse): void 
   if (!host) return;
   const groups = groupSites(usage.topSites);
   const top = groups[0];
-  setTakeaway("s-take", top ? [{ bold: groupLabel(top) }, ` ${tFallback("insSitesTake", `had the most blocks this week: ${top.count.toLocaleString()}.`, top.count.toLocaleString())}`] : []);
+  // How many sites, not a total: the per-site counts leave out blocks that
+  // no site could be named for, so they wouldn't add up to Overview's.
+  setTakeaway("s-take", top ? [groups.length === 1 ? tFallback("insSitesOne", "1 site") : tFallback("insSitesMany", `${groups.length} sites`, String(groups.length))] : []);
   if (!groups.length) {
     host.replaceChildren(emptyWithCheck(tFallback("insSitesEmpty", "No site has had anything blocked this week. Open a site you use often, then come back.")));
     return;
@@ -2556,8 +2213,7 @@ function renderSitesPage(settings: Settings, usage: UsageSummaryResponse): void 
     rows = Object.assign(document.createElement("div"), { id: "s-rows", className: "site-rows" });
     const box = Object.assign(document.createElement("div"), { className: "site-box" });
     box.append(rows);
-    const note = Object.assign(document.createElement("p"), { className: "ins-note", textContent: tFallback("insSitesNote", "Switching Moat off for a site pauses it. It then shows under Exceptions › Paused.") });
-    host.replaceChildren(box, note);
+    host.replaceChildren(box);
   }
   rows.replaceChildren(...groups.map((group) => buildSiteRow(settings, group)));
   applyLongList(rows, longListLabels);
@@ -2612,13 +2268,14 @@ function siteSwitch(settings: Settings, hostnames: string[], labelId: string, na
       });
     })
   );
+  wrap.title = tFallback("siteSwitchTip", "Turn off to pause Moat on this site");
   const until = paused ? pausedNote(settings, hostnames[0]!) : null;
   if (until) wrap.append(Object.assign(document.createElement("small"), { className: "row-note", textContent: until }));
   return wrap;
 }
 
 function buildSiteRow(settings: Settings, group: SiteGroup<TopSite>): HTMLElement {
-  const name = groupLabel(group);
+  const name = siteName(group.site);
   const hostnames = group.members.map((m) => m.hostname);
   const item = document.createElement("div");
   item.className = "sr";
@@ -2635,6 +2292,7 @@ function buildSiteRow(settings: Settings, group: SiteGroup<TopSite>): HTMLElemen
   const text = document.createElement("span");
   text.className = "sr-text";
   const title = Object.assign(document.createElement("span"), { className: "sr-name", id: labelId, textContent: name });
+  open.title = groupLabel(group);
   const kinds = addKinds(group.members);
   const sub = kindsLine(kinds) || (group.members.length > 1 ? tFallback("siteAddresses", `${group.members.length} addresses`, String(group.members.length)) : "");
   text.append(title);
@@ -2803,12 +2461,11 @@ function checkRow(state: CheckState, title: string, detail: string, action?: { l
   const row = document.createElement("div");
   row.className = "check-row";
   row.dataset.state = state;
-  const mark = document.createElement("span");
-  mark.className = "check-mark";
-  mark.setAttribute("aria-hidden", "true");
+  const mark = buildGlyphTile(document, state === "ok" ? "tick" : state === "warn" ? "warn" : "info", `glyph-tile check-tile${state === "ok" ? " tile-ok" : state === "warn" ? " tile-warn" : ""}`);
   const text = document.createElement("div");
   text.className = "check-text";
-  text.append(Object.assign(document.createElement("b"), { textContent: title }), Object.assign(document.createElement("small"), { textContent: detail }));
+  text.append(Object.assign(document.createElement("b"), { textContent: title }));
+  if (detail) text.append(Object.assign(document.createElement("small"), { textContent: detail }));
   row.append(mark, text);
   if (action) {
     const b = Object.assign(document.createElement("button"), { type: "button", className: state === "warn" ? "ab-btn primary" : "ab-btn", textContent: action.label });
@@ -2824,7 +2481,7 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
 
   rows.push(
     settings.enabled
-      ? checkRow("ok", tFallback("checkOnTitle", "Moat is on"), tFallback("checkOnDetail", "Pages are checked before they load."))
+      ? checkRow("ok", tFallback("checkOnTitle", "Moat is on"), "")
       : checkRow("warn", tFallback("checkOffTitle", "Moat is off"), tFallback("checkOffDetail", "Nothing is blocked, including dangerous sites."), {
           label: tFallback("checkTurnOn", "Turn on"),
           run: () => void setSettings({ enabled: true }).then(() => render()),
@@ -2839,7 +2496,7 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
           label: tFallback("checkTurnOn", "Turn on"),
           run: () => void setSettings({ filterGroups: { ...settings.filterGroups, ...Object.fromEntries(off.map((g) => [g, true])) } }).then(() => render()),
         })
-      : checkRow("ok", tFallback("checkListsOnTitle", "Dangerous-site lists are on"), tFallback("checkListsOnDetail", "Phishing, malware, scams and risky downloads."))
+      : checkRow("ok", tFallback("checkListsOnTitle", "Dangerous-site lists are on"), "")
   );
 
   if (live) {
@@ -2852,8 +2509,8 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
 
   rows.push(
     settings.leakedPasswordCheck
-      ? checkRow("ok", tFallback("checkPwOnTitle", "Leaked password warnings are on"), tFallback("checkPwOnDetail", "Moat warns if a password you type was in a data breach."))
-      : checkRow("info", tFallback("checkPwOffTitle", "Leaked password warnings are off"), tFallback("checkPwOffDetail", "Moat can warn when a password you type was in a data breach. Only a short code leaves your device."), {
+      ? checkRow("ok", tFallback("checkPwOnTitle", "Leaked password warnings are on"), "")
+      : checkRow("info", tFallback("checkPwOffTitle", "Leaked password warnings are off"), "", {
           label: tFallback("checkTurnOn", "Turn on"),
           run: () => void setSettings({ leakedPasswordCheck: true }).then(() => render()),
         })
@@ -2862,7 +2519,7 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
   const paused = settings.disabledSites.length;
   if (paused) {
     rows.push(
-      checkRow("info", (paused === 1 ? tFallback("checkPausedOne", "Paused on 1 site") : tFallback("checkPausedTitle", `Paused on ${paused} sites`, String(paused))), tFallback("checkPausedDetail", "Moat doesn't block ads or trackers there. Dangerous sites are still stopped."), {
+      checkRow("info", (paused === 1 ? tFallback("checkPausedOne", "Paused on 1 site") : tFallback("checkPausedTitle", `Paused on ${paused} sites`, String(paused))), tFallback("checkPausedDetail2", "Dangerous sites are still stopped there."), {
         label: tFallback("checkReview", "Review"),
         run: () => (location.hash = "paused"),
       })
@@ -2871,9 +2528,9 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
   const allowed = settings.customAllowedDomains.length;
   if (allowed) {
     rows.push(
-      checkRow("info", (allowed === 1 ? tFallback("checkAllowedOne", "1 site in Never block") : tFallback("checkAllowedTitle", `${allowed} sites in Never block`, String(allowed))), tFallback("checkAllowedDetail", "Ads and trackers load there. Dangerous sites are still stopped."), {
+      checkRow("info", (allowed === 1 ? tFallback("checkAllowedOne", "1 site in Never block") : tFallback("checkAllowedTitle", `${allowed} sites in Never block`, String(allowed))), tFallback("checkAllowedDetail2", "Dangerous sites are still stopped there."), {
         label: tFallback("checkReview", "Review"),
-        run: () => (location.hash = "rules"),
+        run: () => (location.hash = "exceptions"),
       })
     );
   }
@@ -2914,7 +2571,7 @@ function renderStops(stops: UsageSummaryResponse["pageStops"]): void {
     for (const stop of danger) group.append(stopRow(stop, true));
     parts.push(group);
     if (danger.some((s) => s.list === "phishing-urls" || s.list === "scam")) {
-      parts.push(Object.assign(document.createElement("p"), { className: "stop-tip", textContent: tFallback("secPhishTip", "If you typed a password or card number on one of these pages before Moat stopped it, change that password and tell your bank.") }));
+      parts.push(Object.assign(document.createElement("p"), { className: "stop-tip", textContent: tFallback("secPhishTip2", "Typed a password or card number on one of these? Change that password and tell your bank.") }));
     }
   }
   for (const [items, summary] of [
@@ -2940,13 +2597,21 @@ function stopWhy(stop: UsageSummaryResponse["pageStops"][number]): string {
   return stop.kind === "danger" ? `${tFallback(label.nameKey, label.name)}: ${tFallback(label.descKey, label.desc).replace(/\.$/, "").toLowerCase()}` : tFallback(label.nameKey, label.name);
 }
 
+/** A stopped page never loaded, so the browser has no icon for it: a tile
+ * that says what kind of page it was, red for a dangerous one. */
+function stopIcon(stop: UsageSummaryResponse["pageStops"][number]): HTMLElement {
+  const glyph = stopGlyph(stop.list, stop.kind);
+  return buildGlyphTile(document, glyph, glyph === "blocked" ? "glyph-tile" : "glyph-tile tile-danger");
+}
+
 function stopRow(stop: UsageSummaryResponse["pageStops"][number], loud: boolean): HTMLElement {
   const row = document.createElement("div");
   row.className = loud ? "stop-row loud" : "stop-row";
   const text = document.createElement("div");
   text.className = "stop-text";
-  text.append(Object.assign(document.createElement("b"), { textContent: stop.hostname }), Object.assign(document.createElement("small"), { textContent: `${stopWhy(stop)} · ${relativeTime(stop.time)}` }));
-  row.append(siteIcon(stop.hostname), text);
+  text.append(Object.assign(document.createElement("b"), { textContent: stop.hostname }), Object.assign(document.createElement("small"), { textContent: `${stopKindName(stop)} · ${relativeTime(stop.time)}` }));
+  text.title = stopWhy(stop);
+  row.append(stopIcon(stop), text);
   // A safe page on a danger list can't be allowed from here (the security
   // lists outrank "Never block", see rulePriorities.ts), so the fix is to
   // tell the developer. Your own list and your organization's aren't

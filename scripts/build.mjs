@@ -217,6 +217,7 @@ function copyStaticAssets() {
   });
   cpSync(resolve(root, "src/ui/theme.css"), resolve(outDir, "theme.css"));
   cpSync(resolve(root, "src/ui/components.css"), resolve(outDir, "components.css"));
+  cpSync(resolve(root, "src/ui/kai/kai.css"), resolve(outDir, "kai.css"));
   cpSync(resolve(root, "src/popup/popup.html"), resolve(outDir, "popup.html"));
   cpSync(resolve(root, "src/options/options.html"), resolve(outDir, "options.html"));
   cpSync(resolve(root, "src/options/options.css"), resolve(outDir, "options.css"));

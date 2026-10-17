@@ -4079,14 +4079,12 @@ body[data-nav="icons"].nav-open .dash-nav a:hover::after {
   }
 }
 
-/* ---------- Kai on Overview and in "How it works" ----------
-   Kai doesn't float here: a looping float on Overview pushed frames to
-   28ms (p95) against 7ms without, measured with .cache/opt/dash-raf.mjs.
-   Blinks and the nod are cheap.
-   Same art and calm motion as the website: Kai floats and blinks beside
-   the protection status (and looks worried when protection is off or the
-   lists failed), and explains each "How it works" picture in a speech
-   bubble. Decoration only (aria-hidden), still with reduced motion. */
+/* ---------- Kai in "How it works" ----------
+   Kai explains each picture in a speech bubble and talks as the caption
+   changes. It is the live Kai in calm mode: no float (a looping float on
+   Overview pushed frames to 28ms p95 against 7ms, measured with
+   .cache/opt/dash-raf.mjs) and no frames at all while it is still.
+   Decoration only (aria-hidden), still with reduced motion. */
 .ov-hero {
   display: flex; align-items: center; gap: 18px; padding: 14px 20px 14px 16px; border-radius: 20px;
   background: radial-gradient(70% 140% at 0% 50%, rgba(63, 111, 209, .32), transparent 70%), var(--card);
@@ -4095,35 +4093,19 @@ body[data-nav="icons"].nav-open .dash-nav a:hover::after {
 :root[data-theme="light"] .ov-hero { background: radial-gradient(70% 140% at 0% 50%, rgba(63, 111, 209, .14), transparent 70%), var(--card); }
 .ov-hero .ov-status, :root[data-theme="light"] .ov-hero .ov-status[data-state] { flex: 1; min-width: 0; margin: 0; border: 0; background: none; box-shadow: none; padding: 0; }
 .ov-hero:has(.ov-status:not([data-state="on"])) { background: radial-gradient(70% 140% at 0% 50%, rgba(214, 160, 60, .22), transparent 70%), var(--card); box-shadow: inset 0 0 0 1px rgba(214, 160, 60, .3); }
-.ov-kai { position: relative; flex: none; width: 58px; }
-.ov-kai img { width: 100%; height: auto; display: block; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .4)); }
-.ov-kai .lid { position: absolute; top: 50.6%; height: 16%; background: #0c0d11; border-radius: 30%; transform: scaleY(0); transform-origin: 50% 0; animation: ov-blink 5.2s infinite; }
-.ov-kai .lid.l { left: 37.1%; width: 18.4%; }
-.ov-kai .lid.r { left: 63.8%; width: 18%; }
-/* worried: heavy lids that slant inward */
-.ov-hero:has(.ov-status:not([data-state="on"])) .ov-kai .lid { animation: none; transform: scaleY(.45); }
-.ov-hero:has(.ov-status:not([data-state="on"])) .ov-kai .lid.l { rotate: -12deg; }
-.ov-hero:has(.ov-status:not([data-state="on"])) .ov-kai .lid.r { rotate: 12deg; }
-@keyframes ov-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-@keyframes ov-blink { 0%, 94%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
 
 .ov-empty-block:not([hidden]) { display: grid; justify-items: start; margin-top: 8px; }
 .ov-empty-block .ov-empty { margin: 0; }
 .ov-empty-block .check-moat { margin-top: 10px; }
 
-@media (max-width: 480px) { .ov-hero { gap: 12px; padding: 12px 14px 12px 10px; } .ov-kai { width: 44px; } }
-@media (prefers-reduced-motion: reduce) { .ov-kai, .ov-kai .lid, .ex-kai, .ex-kai .lid { animation: none; } }
+@media (max-width: 480px) { .ov-hero { gap: 12px; padding: 12px 14px 12px 10px; } }
+
 
 /* Kai explains: the "How it works" caption is Kai's speech bubble. Kai
    nods when the caption changes (.talk, set by explainerPanel.ts). */
 .ex-say { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; align-items: end; margin-top: 16px; }
-.ex-kai { position: relative; width: 48px; }
-.ex-kai img { width: 100%; height: auto; display: block; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .4)); }
-.ex-kai .lid { position: absolute; top: 50.6%; height: 16%; background: #0c0d11; border-radius: 30%; transform: scaleY(0); transform-origin: 50% 0; animation: ov-blink 5.2s infinite; }
-.ex-kai .lid.l { left: 37.1%; width: 18.4%; }
-.ex-kai .lid.r { left: 63.8%; width: 18%; }
-.ex-kai.talk img { animation: ex-nod .5s ease-in-out; }
-@keyframes ex-nod { 30% { transform: rotate(-7deg) translateY(-2px); } 70% { transform: rotate(4deg); } }
+.ex-kai { width: 48px; }
+.ex-kai .kai { --kai-w: 48px; }
 .ex-say .ex-caption, .ex-say p { position: relative; margin: 0 0 10px; padding: 11px 14px; border-radius: 14px 14px 14px 4px; background: var(--page); color: var(--fg); font-size: 13.5px; line-height: 1.5; }
 .ex-say .ex-caption::before, .ex-say p::before { content: ""; position: absolute; left: -6px; bottom: 6px; border: 6px solid transparent; border-right-color: var(--page); border-left: 0; }
 /* On phones the picture sits on --page already, so the bubble takes the card colour. */
@@ -4204,49 +4186,101 @@ body { font-family: var(--font); font-size: 15px; letter-spacing: -0.008em; -web
 .ab-name { font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
 .about-stack { gap: 16px; }
 
-/* ---------- Kai, the guide in the corner (kaiGuide.ts) ---------- */
-.kai-guide { position: fixed; right: 24px; bottom: 24px; z-index: 30; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; pointer-events: none; }
+/* ---------- Kai, the guide in the corner (kaiGuide.ts) ----------
+   Kai at its usual size with "Ask Kai" above it; the chat opens above Kai,
+   who stays below and does the talking. Same glass chat as the website,
+   in Settings' own colours, so both themes follow. */
+.kai-guide { position: fixed; right: 24px; bottom: 18px; z-index: 30; pointer-events: none; }
 .kai-guide > * { pointer-events: auto; }
-.kai-button { width: 72px; height: auto; padding: 0; border: 0; background: none; cursor: pointer; transition: transform .2s var(--ease); }
-.kai-button:hover { transform: translateY(-3px); }
-.kai-button:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 6px; border-radius: 16px; }
-.kai-face { position: relative; width: 72px; display: block; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .5)); }
-.kai-face img { width: 100%; height: auto; display: block; }
-.kai-face .lid { position: absolute; top: 50.6%; height: 16%; background: #0c0d11; border-radius: 30%; transform: scaleY(0); transform-origin: 50% 0; animation: ov-blink 5.2s infinite; }
-.kai-face .lid.l { left: 37.1%; width: 18.4%; }
-.kai-face .lid.r { left: 63.8%; width: 18%; }
-.kai-guide.open .kai-face .lid { animation: none; transform: scaleY(.45); transform-origin: 50% 100%; border-radius: 50% 50% 20% 20% / 90% 90% 10% 10%; }
-.kai-card { position: relative; width: min(360px, calc(100vw - 32px)); max-height: calc(100vh - 140px); overflow-y: auto; padding: 18px 18px 16px; border-radius: 20px 20px 6px 20px; background: var(--panel); box-shadow: 0 0 0 1px var(--line-2), 0 24px 60px -20px rgba(0, 0, 0, .7); animation: kai-in .22s var(--ease); }
-.kai-card[hidden] { display: none; }
-@keyframes kai-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
-.kai-say { margin: 0 28px 14px 0; font-size: 15px; line-height: 1.45; font-weight: 500; color: var(--fg); }
-.kai-list { display: grid; gap: 6px; }
-.kai-q { text-align: left; border: 0; border-radius: 12px; padding: 10px 12px; background: var(--panel-2); color: var(--fg); font: inherit; font-size: 14px; font-weight: 500; line-height: 1.35; cursor: pointer; }
-.kai-q:hover { background: var(--panel-3); }
-.kai-q.primary { background: var(--blue); color: #fff; font-weight: 600; text-align: center; border-radius: 980px; }
-.kai-q.primary:hover { background: var(--blue-deep); }
-.kai-q.quiet { background: none; color: var(--blue-lt); font-weight: 600; padding: 8px 4px 2px; }
-.kai-q.quiet:hover { text-decoration: underline; background: none; }
+.kg-launch { --kg-kai: 72px; position: relative; width: var(--kg-kai); }
+.kai-button { display: block; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 16px; }
+.kai-button:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 4px; }
+.kg-kai.kai { --kai-w: var(--kg-kai); }
+/* The bubble above Kai's head (the hello, "Ask Kai", "Need help?"). It is
+   out of the layout, pinned to Kai's right edge with its tail over Kai's
+   head: longer text grows it up and to the left and Kai stays put. It
+   shows only while .tag-on is set (kaiGuide.ts / kaiWatch.js). */
+.kg-tag {
+  position: absolute; right: 0; bottom: calc(100% + 8px);
+  box-sizing: border-box; width: max-content; min-width: 100%; max-width: min(240px, calc(100vw - 48px));
+  padding: 6px 12px; border: 1px solid var(--line-2); border-radius: 12px;
+  background: var(--panel); color: var(--fg); font: inherit; font-size: 13px; font-weight: 600; line-height: 1.35; white-space: normal; text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .3); cursor: pointer;
+  transform-origin: calc(100% - var(--kg-kai) / 2) calc(100% + 6px);
+  opacity: 0; transform: translateY(6px) scale(.85); pointer-events: none;
+  transition: opacity .22s ease, transform .32s cubic-bezier(.2, .9, .3, 1.2), border-color .2s ease, width .3s var(--ease);
+}
+.kg-tag::after {
+  content: ""; position: absolute; right: calc(var(--kg-kai) / 2 - 5px); bottom: -5px; width: 9px; height: 9px;
+  background: var(--panel); border-right: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); transform: rotate(45deg);
+}
+.kg-tag-text { display: block; transition: opacity .13s ease; }
+.kg-tag.swap .kg-tag-text { opacity: 0; }
+.kai-guide.tag-on .kg-tag { opacity: 1; transform: none; pointer-events: auto; }
+.kai-guide.tag-on .kg-launch:hover .kg-tag { border-color: var(--blue-lt); transform: translateY(-2px); }
+.kai-guide.open .kg-tag { opacity: 0; transform: translateY(6px) scale(.85); pointer-events: none; }
+
+/* the chat, above Kai */
+.kg-panel {
+  position: absolute; right: -4px; bottom: 124px;
+  width: min(360px, calc(100vw - 32px)); max-height: min(540px, calc(100vh - 170px));
+  display: flex; flex-direction: column; overflow: hidden;
+  border-radius: 24px; background: var(--panel); border: 1px solid var(--line);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .05);
+  transform-origin: calc(100% - 40px) 100%; animation: kg-open .4s cubic-bezier(.2, .9, .25, 1.05);
+}
+.kg-panel[hidden] { display: none; }
+@keyframes kg-open { from { opacity: 0; transform: scale(.6) translateY(10px); } }
+/* a thin light runs round the edge while Kai thinks */
+.kg-panel::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: conic-gradient(from var(--kg-sweep, 0deg), transparent 0 78%, var(--blue-lt) 88%, transparent 96%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0; transition: opacity .4s ease;
+}
+.kai-guide.thinking .kg-panel::before { opacity: 1; animation: kg-sweep 1.6s linear infinite; }
+@property --kg-sweep { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes kg-sweep { to { --kg-sweep: 360deg; } }
+.kg-head { display: flex; align-items: center; gap: 12px; padding: 14px 12px 12px 18px; border-bottom: 1px solid var(--line); }
+.kg-id { flex: 1; min-width: 0; }
+.kg-name { font-size: 16px; font-weight: 650; line-height: 1.2; color: var(--fg); }
+.kg-status { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
+.kg-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--on); }
+.kg-close { width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: var(--panel-2); color: var(--muted); display: grid; place-items: center; cursor: pointer; }
+.kg-close:hover { color: var(--fg); background: var(--panel-3); }
+.kg-close svg { width: 14px; height: 14px; }
+.kg-body { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 14px 14px; scrollbar-width: thin; }
+.kg-log { display: flex; flex-direction: column; gap: 10px; }
+.kg-msg { max-width: 88%; padding: 10px 14px; border-radius: 18px; font-size: 14.5px; line-height: 1.5; overflow-wrap: anywhere; animation: kg-in .3s var(--ease) both; }
+.kg-msg.kg-kai { align-self: flex-start; background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+.kg-msg.kg-me { align-self: flex-end; background: var(--blue); color: #fff; border-bottom-right-radius: 6px; }
+.kg-msg.typing { display: inline-flex; gap: 5px; padding: 14px 16px; }
+.kg-msg.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: kg-dot 1s ease-in-out infinite; }
+.kg-msg.typing i:nth-child(2) { animation-delay: .15s; }
+.kg-msg.typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes kg-dot { 0%, 100% { transform: translateY(0); opacity: .45; } 40% { transform: translateY(-4px); opacity: 1; } }
+@keyframes kg-in { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+.kg-go { display: flex; width: max-content; margin-top: 10px; padding: 6px 12px; border: 1px solid var(--blue-lt); border-radius: 980px; background: none; color: var(--blue-lt); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.kg-go:hover { background: var(--blue); border-color: var(--blue); color: #fff; }
+.kai-list { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; animation: kg-in .3s var(--ease) both; }
+.kai-q { text-align: left; border: 1px solid var(--line); border-radius: 14px; padding: 8px 13px; background: var(--panel-2); color: var(--fg); font: inherit; font-size: 14px; font-weight: 500; line-height: 1.35; cursor: pointer; }
+.kai-q:hover { background: var(--panel-3); border-color: var(--blue-lt); }
+.kai-q.quiet { background: none; border-style: dashed; color: var(--muted); }
+.kai-q.quiet:hover { color: var(--fg); }
+.kai-close:focus-visible, .kg-close:focus-visible, .kai-q:focus-visible, .kg-go:focus-visible { outline: 2px solid var(--blue-lt); outline-offset: 2px; }
 /* where Kai points: a soft outline for a moment */
 .kai-here { outline: 2px solid var(--blue-lt); outline-offset: 4px; border-radius: 14px; animation: kai-here 2.6s var(--ease) both; }
 @keyframes kai-here { 0% { outline-color: transparent; } 12%, 70% { outline-color: var(--blue-lt); } 100% { outline-color: transparent; } }
-.kai-close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--muted); display: grid; place-items: center; cursor: pointer; }
-.kai-close:hover { background: var(--panel-2); color: var(--fg); }
-.kai-close svg { width: 16px; height: 16px; }
 /* Out of the way when Help or the "How it works" drawer is open. */
 body:has(#help-panel:not([hidden])) .kai-guide { display: none; }
 /* One Kai at a time: the drawer's Kai explains the picture. */
 body:has(#explainer:not([hidden])) .kai-guide { display: none; }
-@media (max-width: 600px) { .kai-guide { right: 12px; bottom: 12px; } .kai-button, .kai-face { width: 56px; } }
-@media (prefers-reduced-motion: reduce) { .kai-face .lid, .kai-card, .kai-here { animation: none; } .kai-button { transition: none; } }
-/* Kai's hello and "Need help?" bubble */
-.kai-guide.happy .kai-face .lid { animation: none; transform: scaleY(.45); transform-origin: 50% 100%; border-radius: 50% 50% 20% 20% / 90% 90% 10% 10%; }
-.kai-guide.hello .kai-face { animation: kai-hello .9s var(--ease); }
-@keyframes kai-hello { 0% { transform: translateY(0); } 30% { transform: translateY(-10px) rotate(-6deg); } 60% { transform: translateY(0) rotate(4deg); } 100% { transform: none; } }
-.kai-nudge { position: relative; width: max-content; max-width: min(240px, calc(100vw - 48px)); white-space: normal; margin-right: 8px; padding: 10px 14px; border: 0; border-radius: 16px 16px 4px 16px; background: var(--panel); color: var(--fg); font: inherit; font-size: 14px; font-weight: 600; line-height: 1.35; text-align: left; cursor: pointer; box-shadow: 0 0 0 1px var(--line-2), 0 16px 40px -16px rgba(0, 0, 0, .7); animation: kai-in .22s var(--ease); }
-.kai-nudge[hidden] { display: none; }
-.kai-nudge:hover { background: var(--panel-2); }
-@media (prefers-reduced-motion: reduce) { .kai-nudge, .kai-guide.hello .kai-face { animation: none; } }
+@media (max-width: 600px) { .kai-guide { right: 12px; bottom: 10px; } .kg-launch { --kg-kai: 56px; } .kg-panel { bottom: 100px; } }
+@media (prefers-reduced-motion: reduce) {
+  .kg-tag, .kg-tag-text, .kg-panel, .kg-msg, .kg-msg.typing i, .kai-list, .kai-here { animation: none; transition: none; }
+  .kai-guide.thinking .kg-panel::before { animation: none; }
+}
 /* Permission chips read as buttons: an empty circle when off, a filled
    check when on, a hover state, and the press shows at once. */
 .permission-chips { gap: 8px; margin-top: 12px; }
@@ -4392,3 +4426,379 @@ body:has(#explainer:not([hidden])) .kai-guide { display: none; }
 .level-note:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; color: var(--fg); }
 .level-note .ab-btn { padding: 6px 14px; font-size: 13.5px; }
 .level-mix { background: var(--panel-3); color: var(--muted); }
+
+/* =====================================================================
+   Clarity pass (0.11.292, 2026-10): Apple-style icons. Every glyph sits on
+   one blue tile with a soft top light (red only for danger). Site icons sit
+   on a rounded plate tinted with the icon's own colour (siteIcon.ts
+   plateTint), the way an app icon carries its brand colour. A site the
+   browser has no icon for gets a monogram tile, as Safari's Favorites do.
+   ===================================================================== */
+:root {
+  --tile-a: #6b97f2;
+  --tile-b: #3d68d4;
+  --tile-danger-a: #ff8a7a;
+  --tile-danger-b: #e5484d;
+  --tile-ok-a: #4fd18b;
+  --tile-ok-b: #1fa463;
+  --tile-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.18), 0 1px 2px rgba(0, 0, 0, 0.22);
+}
+.dash-nav a svg,
+.dash-nav a[aria-current="page"] svg,
+.setting-icon,
+.flow-icon,
+.empty-icon {
+  background: linear-gradient(180deg, var(--tile-a), var(--tile-b));
+  color: #fff;
+  box-shadow: var(--tile-shadow);
+}
+.dash-nav a:hover svg { color: #fff; }
+.dash-nav a svg { stroke-width: 2; }
+.dash-nav a[aria-current="page"] { background: var(--panel-2); }
+.dash-nav a[aria-current="page"]::before { display: none; }
+.setting-icon,
+.setting-row.is-on .setting-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--tile-a), var(--tile-b));
+}
+.setting-icon svg { width: 17px; height: 17px; stroke-width: 2; }
+/* A brand logo keeps its own colours, on a white plate like a site icon. */
+.setting-icon.brand-tile,
+.setting-row.is-on .setting-icon.brand-tile {
+  background: linear-gradient(180deg, #fff, #f1f1f4);
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 1px 2.5px rgba(0, 0, 0, 0.22);
+}
+.setting-icon.brand-tile svg { width: 18px; height: 18px; }
+.setting-icon.brand-stack svg { width: 12px; height: 12px; }
+.flow-icon { width: 30px; height: 30px; border-radius: 8px; }
+.flow-icon svg { width: 17px; height: 17px; stroke-width: 2; }
+.empty-icon { border-radius: 9px; }
+.tile-danger,
+.empty-icon.tile-danger { background: linear-gradient(180deg, var(--tile-danger-a), var(--tile-danger-b)); color: #fff; box-shadow: var(--tile-shadow); }
+.tile-ok { background: linear-gradient(180deg, var(--tile-ok-a), var(--tile-ok-b)); color: #fff; box-shadow: var(--tile-shadow); }
+
+.site-icon,
+.site-icon.has-img {
+  --plate: #fff;
+  border: 0;
+  border-radius: 27%;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--plate) 70%, #fff), var(--plate));
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 2.5px rgba(0, 0, 0, 0.22);
+}
+.site-icon img,
+.rule-site .site-icon img {
+  width: 66%;
+  height: 66%;
+  border-radius: 18%;
+  filter: drop-shadow(0 0.5px 0.5px rgba(0, 0, 0, 0.12));
+}
+.site-icon.light-img { --plate: #3a3a44; }
+/* Monogram: white letter on its hue, lit from the top. */
+.site-icon[data-hue],
+:root[data-theme="light"] .site-icon[data-hue] {
+  background: linear-gradient(180deg, hsl(var(--mono-h) 62% 62%), hsl(var(--mono-h) 55% 46%));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85em;
+  box-shadow: var(--tile-shadow);
+}
+/* Glyph tiles (glyphs.ts): blue, or red for danger. */
+.glyph-tile {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 27%;
+  background: linear-gradient(180deg, var(--tile-a), var(--tile-b));
+  color: #fff;
+  box-shadow: var(--tile-shadow);
+}
+.glyph-tile.tile-danger { background: linear-gradient(180deg, var(--tile-danger-a), var(--tile-danger-b)); }
+.glyph-tile.tile-ok { background: linear-gradient(180deg, var(--tile-ok-a), var(--tile-ok-b)); }
+.glyph-tile svg { width: 58%; height: 58%; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---- Overview, clarity pass ---- */
+/* Status: a shield tile, one line, and the level as a pop-up button. */
+.ov-hero,
+:root[data-theme="light"] .ov-hero {
+  padding: 18px 22px;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.ov-hero:has(.ov-status:not([data-state="on"])) { background: var(--card); box-shadow: inset 0 0 0 1px rgba(214, 160, 60, 0.35); }
+.ov-hero .ov-status { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ov-status-tile { width: 44px; height: 44px; border-radius: 12px; }
+.ov-status-tile svg { width: 24px; height: 24px; color: #fff; }
+.ov-status:not([data-state="on"]) .ov-status-tile { background: linear-gradient(180deg, #f5c060, #d99a1e); }
+.ov-status:not([data-state="on"]) .ov-status-tile .ov-status-warn { display: block; color: #fff; }
+.ov-status-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.ov-status-text b { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.ov-status-text .ov-status-msg { color: var(--muted); font-size: 14px; flex: none; }
+.ov-status-text a { color: var(--muted); font-size: 13.5px; font-weight: 500; justify-self: start; }
+.ov-status-text a:hover { color: var(--blue-lt); }
+.ov-status:not([data-state="on"]) .ov-status-on { display: none; }
+#ov-status-action { margin-left: 0; }
+
+/* Pop-up button and its menu (popMenu.ts). */
+.pop-wrap { position: relative; display: inline-flex; }
+.pop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 6px 10px 6px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--panel-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.pop-btn:hover { background: var(--panel-3); }
+.pop-btn[aria-expanded="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
+.pop-ud { width: 9px; height: 13px; fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.pop-menu {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  right: 0;
+  box-sizing: border-box;
+  width: min(300px, 86vw);
+  padding: 6px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--panel-2) 94%, transparent);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: 0 0 0 1px var(--line-2), 0 18px 50px rgba(0, 0, 0, 0.35);
+  transform-origin: top right;
+  animation: pop-in 0.18s var(--ease) both;
+}
+.pop-menu.closing { animation: pop-out 0.12s ease-in both; }
+/* Near the bottom of the window the menu opens upward. */
+.pop-menu.up { top: auto; bottom: calc(100% + 6px); transform-origin: bottom right; }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.94) translateY(-4px); } }
+@keyframes pop-out { to { opacity: 0; transform: scale(0.97); } }
+.pop-item {
+  white-space: normal;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 1px 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pop-item:hover,
+.pop-item:focus-visible { background: var(--blue); color: #fff; outline: none; }
+.pop-item:hover .pop-desc,
+.pop-item:focus-visible .pop-desc { color: rgba(255, 255, 255, 0.82); }
+.pop-mark { grid-row: span 2; padding-top: 3px; }
+.pop-mark svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.pop-item b { font-size: 14px; font-weight: 600; }
+.pop-desc { color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+
+/* Week card: the picker on top (Health), then the number with its unit,
+   then one comparison. */
+.ov-week .ov-period:not([hidden]) { display: flex; width: 100%; margin-bottom: 18px; position: relative; }
+.ov-week .ov-period button { flex: 1; transition: background 0.2s, color 0.2s, box-shadow 0.2s; }
+.ov-big { display: flex; align-items: baseline; gap: 8px; margin-top: 0; }
+.ov-unit { font-size: 20px; font-weight: 600; color: var(--muted); letter-spacing: -0.01em; }
+.ov-headline:not([hidden]) { display: flex; align-items: center; gap: 4px; margin: 8px 0 0; color: var(--muted); font-weight: 500; }
+.ov-arrow { font-weight: 700; }
+
+.ov-section-title { margin: 20px 0 -4px 4px; font-size: 20px; font-weight: 600; letter-spacing: -0.015em; }
+#page-lead:empty { display: none; }
+
+/* Highlights (overviewView.ts buildHighlight). */
+.ov-tops { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); align-items: stretch; }
+.ov-hl {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 22px;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: box-shadow 0.2s, transform 0.2s var(--ease);
+}
+.ov-hl:hover { box-shadow: inset 0 0 0 1px var(--line-2); }
+.ov-hl-kicker { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; }
+.ov-hl-kicker .glyph-tile { width: 22px; height: 22px; border-radius: 6px; }
+.ov-hl-kicker .glyph-tile svg { stroke-width: 2.3; }
+.ov-hl-say { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; text-wrap: balance; }
+.ov-hl-rows { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+.ov-hl-rows li { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 14px; animation: rise 0.4s var(--ease) both; animation-delay: var(--dl, 0ms); }
+.ov-hl-rows .site-icon,
+.ov-hl-rows .glyph-tile { width: 26px; height: 26px; border-radius: 7px; font-size: 11px; }
+.ov-hl-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-hl-value { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ov-hl-link { margin-top: auto; padding-top: 4px; color: var(--blue-lt); font-size: 14px; font-weight: 500; }
+
+/* The review card, as a settings row. */
+.ov-checkup { justify-content: flex-start; padding: 14px 18px; }
+.ov-checkup > div { flex: 1; min-width: 0; }
+.ov-checkup h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.ov-checkup p { font-size: 13.5px; }
+.ov-checkup .glyph-tile { width: 30px; height: 30px; border-radius: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pop-menu, .pop-menu.closing, .ov-hl-rows li { animation: none; }
+}
+
+/* Kai floats in the bottom right corner (kaiGuide.ts). Pages keep room for
+   it: wide windows keep a right gutter as wide as Kai, and every page ends
+   with enough space to scroll its last row above Kai, the way pages with a
+   floating button do. Menus open above Kai (z-index 60 over 30). */
+main.wrap { padding-bottom: 128px; }
+@media (min-width: 1100px) { main.wrap { padding-right: 128px; } }
+
+/* ---- Exceptions: one list of sites (exceptionsList.ts) ---- */
+.ex-sec:not(.dash-off) { display: grid; gap: 14px; max-width: 900px; margin-top: 8px; }
+.ex-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.ex-search { flex: 1 1 260px; display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); color: var(--muted); }
+.ex-search svg { width: 15px; height: 15px; flex: none; }
+.ex-search input { flex: 1; min-width: 0; border: 0; background: none; color: var(--fg); font: inherit; font-size: 14px; outline: none; }
+.ex-search:focus-within { box-shadow: 0 0 0 2px var(--blue-lt); }
+.seg-ctl { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 2px; border-radius: 10px; background: var(--panel-2); }
+.seg-ctl button { min-height: 32px; padding: 0 13px; border: 0; border-radius: 8px; background: none; color: var(--muted); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s var(--ease), color 0.2s, box-shadow 0.2s; }
+.seg-ctl button:hover { color: var(--fg); }
+.seg-ctl button[aria-pressed="true"] { background: var(--panel-3); color: var(--fg); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
+.ex-group { border-radius: 16px; background: var(--card); box-shadow: inset 0 0 0 1px var(--line); }
+.ex-row { display: flex; align-items: center; gap: 14px; min-height: 60px; padding: 10px 16px; animation: rise 0.35s var(--ease) both; }
+.ex-row + .ex-row { box-shadow: inset 0 1px 0 var(--hairline, var(--line)); }
+.ex-row > .site-icon { width: 34px; height: 34px; font-size: 14px; }
+.ex-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.ex-name { overflow: hidden; font-size: 15px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.ex-sub { display: grid; gap: 1px; color: var(--muted); font-size: 13px; }
+.ex-link { padding: 0; border: 0; background: none; color: var(--blue-lt); font: inherit; font-weight: 500; cursor: pointer; }
+.ex-link:hover { text-decoration: underline; }
+.pop-btn-sm { min-height: 30px; padding: 4px 8px 4px 12px; border-radius: 8px; font-size: 13.5px; font-weight: 500; }
+.ex-row[data-state="paused"] .pop-btn-sm { color: var(--fg); }
+.ex-empty:not([hidden]) { display: flex; align-items: center; gap: 14px; padding: 18px 16px; }
+.ex-empty .glyph-tile { width: 34px; height: 34px; border-radius: 9px; }
+.ex-empty div { display: grid; gap: 2px; }
+.ex-empty b { font-weight: 600; }
+.ex-empty span { color: var(--muted); font-size: 13.5px; }
+.ex-add:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 16px; box-shadow: inset 0 1px 0 var(--line); animation: rise 0.25s var(--ease) both; }
+.ex-add input { flex: 1 1 200px; min-width: 0; min-height: 38px; padding: 0 12px; border: 0; border-radius: 10px; background: var(--panel-2); color: var(--fg); font: inherit; }
+.ex-add select { min-height: 38px; padding: 0 10px; border: 0; border-radius: 10px; background: var(--panel-2); color: var(--fg); font: inherit; font-size: 14px; }
+.ex-add button { min-height: 38px; padding: 0 16px; border-radius: 980px; font-weight: 600; }
+.ex-add button.primary { border-color: var(--blue); background: var(--blue); color: #fff; }
+.ex-foot { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 8px 10px; box-shadow: inset 0 1px 0 var(--line); }
+.ex-foot-btn { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: var(--blue-lt); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+.ex-foot-btn:hover { background: var(--panel-2); }
+.ex-foot-btn svg { width: 16px; height: 16px; }
+.ex-foot-btn[hidden] { display: none; }
+.ex-note { margin: 0 16px; color: var(--muted); font-size: 13px; }
+.ex-status { margin: 0 16px; }
+@media (max-width: 520px) {
+  .ex-row { flex-wrap: wrap; }
+  .ex-row .pop-wrap { margin-left: 48px; }
+}
+@media (prefers-reduced-motion: reduce) { .ex-row, .ex-add:not([hidden]) { animation: none; } }
+
+/* ---- Protection, clarity pass: iOS Settings rows (title and switch),
+   group labels above, a one-line footer below where one helps. ---- */
+.setting-rows.inset > .setting-row { grid-template-columns: 30px minmax(0, 1fr) auto; gap: 14px; min-height: 52px; padding: 10px 16px; }
+.setting-rows.inset .setting-title { font-weight: 500; font-size: 15px; }
+.setting-rows.inset .setting-caution,
+.setting-rows.inset .setting-evidence,
+.setting-rows.inset .setting-desc:not(.sr-only) { margin-top: 3px; font-size: 13px; }
+.pgroup .sub-h { margin: 22px 16px 8px; font-size: 13px; font-weight: 500; }
+.pgroup:first-child .sub-h { margin-top: 0; }
+.pgroup-foot { margin: 8px 16px 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.setting-row .switch { transition: transform 0.15s var(--ease); }
+.setting-row .switch:active { transform: scale(0.96); }
+.level { transition: box-shadow 0.2s var(--ease), background 0.2s var(--ease), transform 0.15s var(--ease); }
+.level:active:not(:disabled) { transform: scale(0.985); }
+.level-desc { font-size: 13.5px; }
+@media (max-width: 480px) {
+  .setting-rows.inset > .setting-row { grid-template-columns: 30px minmax(0, 1fr) auto; }
+  .setting-rows.inset .setting-icon { display: grid; }
+}
+.setting-rows.inset .setting-icon:not(.brand-tile) { width: 30px; height: 30px; background: linear-gradient(180deg, var(--tile-a), var(--tile-b)); color: #fff; }
+
+/* ---- Trackers, clarity pass ---- */
+/* Company rows: icon | name over where it was seen | blocked | chevron. */
+.rr-btn { grid-template-columns: 36px minmax(0, 1fr) auto 14px; }
+.rr-btn .site-icon { border-radius: 27%; }
+.rr { animation: rise 0.35s var(--ease) both; animation-delay: var(--dl, 0ms); }
+.rr-site .site-icon { border-radius: 27%; }
+.ttl-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.ttl-row p { margin: 0; color: var(--muted); }
+.ttl-row p b { color: var(--fg); }
+/* Purpose: one bar split by share, then a key per purpose. Blue, teal,
+   violet, amber, and grey for "Other". */
+.purp { display: grid; gap: 14px; }
+.purp-bar { display: flex; gap: 2px; height: 26px; overflow: hidden; border-radius: 7px; }
+.purp-seg { display: block; min-width: 4px; flex-basis: 0; transform-origin: left; animation: purp-grow 0.6s var(--ease) both; animation-delay: var(--dl, 0ms); }
+@keyframes purp-grow { from { transform: scaleX(0); } }
+.s-0 { background: #3987e5; }
+:root[data-theme="light"] .s-0 { background: #2a78d6; }
+.s-1 { background: #2fb5a8; }
+.s-2 { background: #8b6ff0; }
+.s-3 { background: #d69a2d; }
+.s-misc { background: var(--muted); }
+.purp-rows { display: grid; }
+.purp-row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 10px 0; }
+.purp-row + .purp-row { border-top: 1px solid var(--line); }
+.purp-key { width: 10px; height: 10px; border-radius: 3px; transform: translateY(1px); }
+.purp-text { display: grid; gap: 1px; }
+.purp-text b { font-weight: 500; }
+.purp-text small { color: var(--muted); font-size: 13px; }
+.purp-val { font-weight: 600; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .rr, .purp-seg { animation: none; } }
+
+/* ---- Security and Sites, clarity pass ---- */
+.check-row { grid-template-columns: 30px minmax(0, 1fr) auto; min-height: 52px; padding: 10px 4px; }
+.check-tile { width: 30px; height: 30px; border-radius: 8px; }
+.glyph-tile.tile-warn { background: linear-gradient(180deg, #f5c060, #d99a1e); }
+.check-text b { font-weight: 500; }
+.stop-row { grid-template-columns: 32px minmax(0, 1fr) auto; }
+.stop-row .glyph-tile { width: 32px; height: 32px; }
+.stop-text b { font-weight: 600; }
+@media (max-width: 520px) { .check-row { grid-template-columns: 30px minmax(0, 1fr); } }
+
+/* ---- Backup and sync, clarity pass: rows like iOS Settings ---- */
+.bk-rows { margin-bottom: 16px; }
+.bk-rows .ab-btn { padding: 7px 16px; font-size: 14px; }
+.bk-rows .ab-btn.primary { border-color: var(--blue); background: var(--blue); color: #fff; }
+.sync-row { margin-bottom: 16px; }
+.bk-import { padding: 0 16px; border-radius: 16px; background: var(--panel-2); box-shadow: inset 0 0 0 1px var(--line); }
+.bk-import > summary { display: flex; align-items: center; gap: 14px; min-height: 52px; color: var(--fg); font-weight: 500; cursor: pointer; list-style: none; }
+.bk-import > summary::-webkit-details-marker { display: none; }
+.bk-import > summary::after { content: ""; width: 7px; height: 7px; margin-left: auto; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); transition: transform 0.2s var(--ease); }
+.bk-import[open] > summary::after { transform: rotate(45deg); }
+.bk-import[open] { padding-bottom: 16px; }
+.bk-import .setting-icon { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(180deg, var(--tile-a), var(--tile-b)); color: #fff; }
+.bk-import .setting-icon svg { width: 17px; height: 17px; }
+details.bk-import > summary { color: var(--fg); }
+.ab-links a > svg:first-child { box-sizing: border-box; width: 26px; height: 26px; padding: 5px; border-radius: 7px; background: linear-gradient(180deg, var(--tile-a), var(--tile-b)); color: #fff; box-shadow: var(--tile-shadow); stroke-width: 2; }
+#migration-import.bk-import { margin-top: 0; }
+details.more.bk-import > summary { display: flex; margin-top: 0; font-weight: 500; }
+details.more.bk-import > summary::after { width: 7px; height: 7px; margin-left: auto; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); }
+details.more.bk-import[open] > summary::after { transform: rotate(45deg); }
+
+/* Kai on narrow windows (kaiGuide.ts): smaller, and out of the way while the
+   page scrolls. Wide windows keep a gutter for it instead. */
+.kai-guide { transition: transform 0.3s var(--ease), opacity 0.25s ease; }
+@media (max-width: 1099px) {
+  .kai-guide.kg-away:not(.open):not(.tag-on) { transform: translateY(calc(100% + 24px)); opacity: 0; pointer-events: none; }
+  .kai-guide.kg-away:not(.open):not(.tag-on) > * { pointer-events: none; }
+}
+@media (max-width: 700px) { .kg-launch { --kg-kai: 48px; } }
+@media (prefers-reduced-motion: reduce) { .kai-guide { transition: opacity 0.2s ease; } .kai-guide.kg-away:not(.open):not(.tag-on) { transform: none; } }

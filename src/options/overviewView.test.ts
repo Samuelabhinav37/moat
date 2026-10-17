@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { buildKpi, buildTopCard, buildWeekChart, changePercent, niceMax, type DayColumn } from "./overviewView";
+import { buildHighlight, buildWeekChart, changePercent, niceMax, type DayColumn } from "./overviewView";
 
 const t = (_key: string, fallback: string) => fallback;
 const day = (label: string, ads: number, trackers: number, popups: number, other = 0, today = false): DayColumn => ({ label, date: label, today, kinds: { ads, trackers, popups }, other });
@@ -83,28 +83,14 @@ describe("buildWeekChart", () => {
   });
 });
 
-describe("buildKpi / buildTopCard", () => {
-  it("shows the value, the change against last week, and a trend line", () => {
-    const card = buildKpi(document, "Ads blocked", 1982, 82, [1, 2, 3], t);
-    expect(card.querySelector(".ov-kpi-value")!.textContent).toBe("1,982");
-    expect(card.querySelector(".ov-kpi-delta")!.textContent).toBe("↑ 82% vs last week");
-    expect(card.querySelector("svg.ov-spark")).not.toBeNull();
-    expect(buildKpi(document, "Pop-ups", 0, null, [0, 0], t).querySelector(".ov-kpi-delta, svg")).toBeNull();
-  });
 
-  it("draws a count that never changed level through the middle, not along the top", () => {
-    const line = buildKpi(document, "Companies", 4, null, [4, 4, 4, 4], t).querySelector(".ov-spark-line")!.getAttribute("d")!;
-    expect(line).toBe("M0.0 22.0 L100.0 22.0 L200.0 22.0 L300.0 22.0");
-    const rising = buildKpi(document, "Trackers", 3, null, [1, 2, 3], t).querySelector(".ov-spark-line")!.getAttribute("d")!;
-    expect(rising.endsWith("300.0 6.0")).toBe(true); // the highest day still reaches the top
-  });
-
-  it("lists up to five rows with a bar, or says it's empty", () => {
+describe("buildHighlight", () => {
+  it("says one headline over at most three rows, with a link to the page", () => {
     const icon = () => document.createElement("span");
-    const card = buildTopCard(document, "Who tracks you most", "Sites each company was on", [{ icon: icon(), name: "Google", value: "41", sub: "of 58", share: 41 / 58 }], "None yet", { href: "#trackers", label: "All trackers" });
-    expect(card.querySelector(".ov-rank-name")!.textContent).toBe("Google");
-    expect(card.querySelector(".ov-rank-value")!.textContent).toBe("41of 58");
-    expect(card.querySelector<HTMLAnchorElement>(".ov-top-link")!.getAttribute("href")).toBe("#trackers");
-    expect(buildTopCard(document, "Pages Moat stopped", "", [], "None this week").querySelector(".ov-top-empty")!.textContent).toBe("None this week");
+    const card = buildHighlight(document, icon(), "Sites", "Fandom had the most blocked.", [1, 2, 3, 4].map((n) => ({ icon: icon(), name: `Site ${n}`, value: String(n) })), { href: "#sites", label: "All sites" });
+    expect(card.querySelector(".ov-hl-kicker")?.textContent).toBe("Sites");
+    expect(card.querySelector(".ov-hl-say")?.textContent).toBe("Fandom had the most blocked.");
+    expect(card.querySelectorAll(".ov-hl-rows li")).toHaveLength(3);
+    expect(card.querySelector<HTMLAnchorElement>(".ov-hl-link")?.getAttribute("href")).toBe("#sites");
   });
 });

@@ -3007,32 +3007,32 @@
     "description": "Tracker purpose."
   },
   "purposeAdvertisingDesc": {
-    "message": "Follow you from site to site to choose the ads you see",
-    "description": "Tracker purpose."
+    "message": "Pick the ads you see",
+    "description": "Trackers > Purpose: what advertising trackers do."
   },
   "purposeAnalytics": {
     "message": "Analytics",
     "description": "Tracker purpose."
   },
   "purposeAnalyticsDesc": {
-    "message": "Record what you click, read and scroll",
-    "description": "Tracker purpose."
+    "message": "Record what you click and read",
+    "description": "Trackers > Purpose: what analytics trackers do."
   },
   "purposeSocial": {
     "message": "Social",
     "description": "Tracker purpose."
   },
   "purposeSocialDesc": {
-    "message": "Tell social networks which pages you read",
-    "description": "Tracker purpose."
+    "message": "Tell social networks what you read",
+    "description": "Trackers > Purpose: what social trackers do."
   },
   "purposeChat": {
     "message": "Chat and support",
     "description": "Tracker purpose."
   },
   "purposeChatDesc": {
-    "message": "Chat boxes that also record the pages you view",
-    "description": "Tracker purpose."
+    "message": "Chat boxes that log the pages you view",
+    "description": "Trackers > Purpose: what chat trackers do."
   },
   "purposeVideo": {
     "message": "Video players",
@@ -3079,8 +3079,8 @@
     "description": "Tracker purpose."
   },
   "purposeMiscDesc": {
-    "message": "Trackers with no single purpose",
-    "description": "Tracker purpose."
+    "message": "Mixed or unknown",
+    "description": "Trackers > Purpose: trackers with no single purpose."
   },
   "helpClose": {
     "message": "Close help",
@@ -3677,7 +3677,7 @@
     "message": "All help"
   },
   "kaiOff": {
-    "message": "Moat is off right now, so ads and trackers load on every site."
+    "message": "Heads up. Moat is off, so ads and trackers are getting through."
   },
   "kaiTurnOn": {
     "message": "Turn Moat on"
@@ -3737,10 +3737,58 @@
     "message": "Here's how to check."
   },
   "kaiHello": {
-    "message": "Hi! I'm Kai. Ask me if you need anything."
+    "message": "Hi, I'm Kai. I'm small, but I know Moat inside out."
   },
   "kaiNeedHelp": {
-    "message": "Need help?"
+    "message": "Need a hand?"
+  },
+  "kaiNudgeStuck": {
+    "message": "Hmm. Want me to take a look?"
+  },
+  "kaiNudgeLooking": {
+    "message": "Looking for something? I know my way around."
+  },
+  "kaiNudgeUnsure": {
+    "message": "Not sure what that does? I can explain."
+  },
+  "kaiNudgeNamed": {
+    "message": "Need a hand with {name}?"
+  },
+  "kaiBack": {
+    "message": "Welcome back."
+  },
+  "kaiMomentOn": {
+    "message": "Back on guard."
+  },
+  "kaiMomentPaused": {
+    "message": "Paused. I'll look away there."
+  },
+  "kaiMomentMilestone": {
+    "message": "That's $COUNT$ blocked this week.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "kaiStatus": {
+    "message": "Here to help with Moat"
+  },
+  "kaiThinking": {
+    "message": "Thinking"
+  },
+  "kaiShowMe": {
+    "message": "Show me"
+  },
+  "kaiStart": {
+    "message": "Start"
+  },
+  "kaiQData": {
+    "message": "Does Moat collect my data?"
+  },
+  "kaiAData": {
+    "message": "No. Blocking runs on your device, with no account and no analytics. The daily list updates carry nothing about you."
   },
   "optionsImportRisksTitle": {
     "message": "Only apply this if you made the file yourself."
@@ -4240,5 +4288,615 @@
   "optionsDisclosureGoodbyeWhen": {
     "message": "when you remove Moat",
     "description": "Settings > About, 'What leaves your device'."
+  },
+  "ovStatusProtecting": {
+    "message": "Moat is protecting you",
+    "description": "Overview status card title when protection is on."
+  },
+  "ovUnitBlocked": {
+    "message": "blocked",
+    "description": "Overview: the unit after the week's big number (\"4,046 blocked\")."
+  },
+  "ovHighlightsTitle": {
+    "message": "Highlights",
+    "description": "Overview: heading over the three Highlights cards."
+  },
+  "checkupCardTitle2": {
+    "message": "Make Moat fit how you browse",
+    "description": "Overview: the guided review card's title."
+  },
+  "checkupCardLead2": {
+    "message": "Answer 3 quick questions and see the suggested settings.",
+    "description": "Overview: the guided review card's one line."
+  },
+  "levelMenuLight": {
+    "message": "Blocks ads. Fewest broken sites.",
+    "description": "Overview level menu: one line under Light."
+  },
+  "levelMenuBalanced": {
+    "message": "Also blocks trackers. Best for most people.",
+    "description": "Overview level menu: one line under Balanced."
+  },
+  "levelMenuStrict": {
+    "message": "Also hides cookie banners. Some sites may break.",
+    "description": "Overview level menu: one line under Strict."
+  },
+  "ovMoreThanBefore": {
+    "message": "$PERCENT$% more than the week before",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "85"
+      }
+    },
+    "description": "Overview: under the week's total, after an up arrow."
+  },
+  "ovFewerThanBefore": {
+    "message": "$PERCENT$% fewer than the week before",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "12"
+      }
+    },
+    "description": "Overview: under the week's total, after a down arrow."
+  },
+  "stopKindPhishing": {
+    "message": "Fake sign-in page",
+    "description": "A stopped page from the phishing list, in a few words."
+  },
+  "stopKindScam": {
+    "message": "Fake shop",
+    "description": "A stopped page from the scam list, in a few words."
+  },
+  "stopKindMalware": {
+    "message": "Malware",
+    "description": "A stopped page from the malware lists, in a few words."
+  },
+  "stopKindAds": {
+    "message": "Ad page",
+    "description": "A stopped whole page that was an ad, in a few words."
+  },
+  "stopKindCustom": {
+    "message": "On a block list",
+    "description": "A stopped page from your own or your organization's block list."
+  },
+  "stopKindDanger": {
+    "message": "Dangerous site",
+    "description": "A stopped page on a danger list Moat couldn't name."
+  },
+  "hlTrackersTop": {
+    "message": "$COMPANY$ tracked you the most.",
+    "placeholders": {
+      "company": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Overview Highlights, Trackers card headline."
+  },
+  "hlSitesTop": {
+    "message": "$SITE$ had the most blocked.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Fandom"
+      }
+    },
+    "description": "Overview Highlights, Sites card headline."
+  },
+  "hlAllTrackers": {
+    "message": "All trackers",
+    "description": "Overview Highlights: link to Trackers."
+  },
+  "hlAllSites": {
+    "message": "All sites",
+    "description": "Overview Highlights: link to Sites."
+  },
+  "hlStopsOne": {
+    "message": "1 dangerous page stopped.",
+    "description": "Overview Highlights, Security card headline (one)."
+  },
+  "hlStopsMany": {
+    "message": "$COUNT$ dangerous pages stopped.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    },
+    "description": "Overview Highlights, Security card headline."
+  },
+  "hlStopsNone": {
+    "message": "No dangerous pages this week.",
+    "description": "Overview Highlights, Security card headline when nothing dangerous was stopped."
+  },
+  "hlSecurityDetails": {
+    "message": "Details",
+    "description": "Overview Highlights: link to Security."
+  },
+  "pageLeadExceptions2": {
+    "message": "Sites where Moat acts differently.",
+    "description": "Exceptions: the page's one-line subtitle."
+  },
+  "exSearch": {
+    "message": "Search sites",
+    "description": "Exceptions: search box placeholder."
+  },
+  "exFilterLabel": {
+    "message": "Show",
+    "description": "Exceptions: label of the filter buttons."
+  },
+  "exFilterAll": {
+    "message": "All",
+    "description": "Exceptions filter."
+  },
+  "exFilterPaused": {
+    "message": "Paused",
+    "description": "Exceptions filter."
+  },
+  "exFilterHidden": {
+    "message": "Hidden",
+    "description": "Exceptions filter: sites with parts hidden or settings changed."
+  },
+  "exFilterBlocked": {
+    "message": "Blocked",
+    "description": "Exceptions filter: Always block."
+  },
+  "exFilterAllowed": {
+    "message": "Allowed",
+    "description": "Exceptions filter: Never block."
+  },
+  "exEmptyTitle": {
+    "message": "No exceptions yet",
+    "description": "Exceptions: empty list title."
+  },
+  "exEmptyHint": {
+    "message": "Pause a site, hide part of a page or block a site, and it shows here.",
+    "description": "Exceptions: empty list hint."
+  },
+  "exAddSite": {
+    "message": "Site",
+    "description": "Exceptions add form: label of the address field."
+  },
+  "exAddWhat": {
+    "message": "What Moat does there",
+    "description": "Exceptions add form: label of the choice."
+  },
+  "exAddPause": {
+    "message": "Pause until I turn it back on",
+    "description": "Exceptions add form choice."
+  },
+  "exAddPauseHour": {
+    "message": "Pause for 1 hour",
+    "description": "Exceptions add form choice."
+  },
+  "exAddPauseDay": {
+    "message": "Pause for 1 day",
+    "description": "Exceptions add form choice."
+  },
+  "exAddBlock": {
+    "message": "Always block",
+    "description": "Exceptions add form choice."
+  },
+  "exAddAllow": {
+    "message": "Never block",
+    "description": "Exceptions add form choice."
+  },
+  "exAdd": {
+    "message": "Add",
+    "description": "Exceptions add form button."
+  },
+  "exAddOpen": {
+    "message": "Add a site",
+    "description": "Exceptions: opens the add form."
+  },
+  "exHideSomething": {
+    "message": "Hide something on a page",
+    "description": "Exceptions: starts the element picker on the last tab."
+  },
+  "exPausedNote": {
+    "message": "Paused sites still block dangerous pages.",
+    "description": "Exceptions: one line under the list."
+  },
+  "exMenuLabel": {
+    "message": "What Moat does on $SITE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Spotify"
+      }
+    },
+    "description": "Exceptions: accessible name of a site's menu."
+  },
+  "exStateProtected": {
+    "message": "Protected",
+    "description": "Exceptions menu: Moat's usual blocking."
+  },
+  "exStateProtectedDesc": {
+    "message": "Moat's usual blocking.",
+    "description": "Exceptions menu: line under Protected."
+  },
+  "exStatePaused": {
+    "message": "Paused",
+    "description": "Exceptions menu."
+  },
+  "exStatePausedDesc": {
+    "message": "Ads and trackers load here.",
+    "description": "Exceptions menu: line under Paused."
+  },
+  "exStateBlock": {
+    "message": "Always block",
+    "description": "Exceptions menu."
+  },
+  "exStateBlockDesc": {
+    "message": "Nothing from this site loads.",
+    "description": "Exceptions menu: line under Always block."
+  },
+  "exStateAllow": {
+    "message": "Never block",
+    "description": "Exceptions menu."
+  },
+  "exStateAllowDesc": {
+    "message": "Loads on every site you visit.",
+    "description": "Exceptions menu: line under Never block."
+  },
+  "exHiddenOne": {
+    "message": "1 thing hidden",
+    "description": "Exceptions row: parts of the page hidden there."
+  },
+  "exHiddenMany": {
+    "message": "$COUNT$ things hidden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    },
+    "description": "Exceptions row."
+  },
+  "exGrayedOne": {
+    "message": "1 thing grayed out",
+    "description": "Exceptions row."
+  },
+  "exGrayedMany": {
+    "message": "$COUNT$ things grayed out",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    },
+    "description": "Exceptions row."
+  },
+  "exChangedOne": {
+    "message": "1 setting changed here",
+    "description": "Exceptions row: changed from Moat's icon for this site."
+  },
+  "exChangedMany": {
+    "message": "$COUNT$ settings changed here",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    },
+    "description": "Exceptions row."
+  },
+  "exShowAgain": {
+    "message": "Show again",
+    "description": "Exceptions row: brings back what was hidden on the site."
+  },
+  "exStateDone": {
+    "message": "$SITE$: $STATE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "state": {
+        "content": "$2",
+        "example": "Paused"
+      }
+    },
+    "description": "Toast after changing what Moat does on a site."
+  },
+  "exShownAgain": {
+    "message": "Showing everything on $SITE$ again",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Fandom"
+      }
+    },
+    "description": "Toast after Show again."
+  },
+  "kaiAPause2": {
+    "message": "On the site, click the Moat icon next to the address bar and turn off its switch. You can also press Add a site here.",
+    "description": "Kai's answer: how to pause a site."
+  },
+  "kaiAHide2": {
+    "message": "On the page, click the Moat icon and choose Hide something. Sites where you hid something are listed here.",
+    "description": "Kai's answer: how to hide something."
+  },
+  "kaiABlock2": {
+    "message": "Press Add a site, type the site and pick Always block.",
+    "description": "Kai's answer: how to always block a site."
+  },
+  "pageLeadProtection2": {
+    "message": "How much Moat blocks.",
+    "description": "Protection: the page's one-line subtitle."
+  },
+  "listsLead2": {
+    "message": "Turning a list on or off makes it your own mix.",
+    "description": "Protection > Lists: one line."
+  },
+  "privacyFootPassword": {
+    "message": "Only a short scrambled piece of a password is checked, never the password.",
+    "description": "Protection > Permissions and passwords: footer under the group."
+  },
+  "pageLeadTrackers2": {
+    "message": "Who tried to follow you this week.",
+    "description": "Trackers: the page's one-line subtitle."
+  },
+  "insTopTrackers": {
+    "message": "Top trackers",
+    "description": "Trackers: title of the list of companies."
+  },
+  "insPurposeTitle": {
+    "message": "Purpose",
+    "description": "Trackers: title of the card that splits trackers by what they were for."
+  },
+  "insBusiestTitle": {
+    "message": "Busiest day",
+    "description": "Trackers: title of the week's bars."
+  },
+  "insWhatMostly": {
+    "message": "Mostly $PURPOSE$.",
+    "placeholders": {
+      "purpose": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    },
+    "description": "Trackers > Purpose: when one purpose is half or more."
+  },
+  "insWhatMost": {
+    "message": "More for $PURPOSE$ than anything else.",
+    "placeholders": {
+      "purpose": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    },
+    "description": "Trackers > Purpose: when the top purpose is under half."
+  },
+  "insBusiestLine": {
+    "message": "$DAY$, mostly between $FROM$ and $TO$.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Friday"
+      },
+      "from": {
+        "content": "$2",
+        "example": "6 PM"
+      },
+      "to": {
+        "content": "$3",
+        "example": "10 PM"
+      }
+    },
+    "description": "Trackers > Busiest day: the one line under the title."
+  },
+  "insBusiestOnly": {
+    "message": "$DAY$ was the busiest day.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Friday"
+      }
+    },
+    "description": "Trackers > Busiest day, when the hours aren't known."
+  },
+  "insSeenOnLine": {
+    "message": "On $SITES$",
+    "placeholders": {
+      "sites": {
+        "content": "$1",
+        "example": "Fandom and LinkedIn"
+      }
+    },
+    "description": "Trackers: under a company's name, the sites it was seen on."
+  },
+  "insMoreSites": {
+    "message": "$COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    },
+    "description": "Trackers: \"On Fandom, LinkedIn and 3 more\"."
+  },
+  "checkPausedDetail2": {
+    "message": "Dangerous sites are still stopped there.",
+    "description": "Security > Safety check: under Paused on N sites."
+  },
+  "checkAllowedDetail2": {
+    "message": "Dangerous sites are still stopped there.",
+    "description": "Security > Safety check: under N sites in Never block."
+  },
+  "secPhishTip2": {
+    "message": "Typed a password or card number on one of these? Change that password and tell your bank.",
+    "description": "Security: under fake sign-in pages and scams that were stopped."
+  },
+  "insSitesTitle2": {
+    "message": "Most blocked",
+    "description": "Sites: title of the list of sites."
+  },
+  "pageLeadInsightSites2": {
+    "message": "Where Moat blocked the most this week.",
+    "description": "Sites: the page's one-line subtitle."
+  },
+  "pageLeadSecurity2": {
+    "message": "What keeps you safe, and what Moat stopped.",
+    "description": "Security: the page's one-line subtitle."
+  },
+  "siteSwitchTip": {
+    "message": "Turn off to pause Moat on this site",
+    "description": "Sites: tooltip on a site's switch."
+  },
+  "insSitesOne": {
+    "message": "1 site",
+    "description": "Sites: count on the list's title row."
+  },
+  "insSitesMany": {
+    "message": "$COUNT$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      }
+    },
+    "description": "Sites: count on the list's title row."
+  },
+  "backupSave": {
+    "message": "Save",
+    "description": "Backup and sync: the button on Save a backup."
+  },
+  "syncHint2": {
+    "message": "Settings only. No browsing data.",
+    "description": "Backup and sync: under Sync across devices."
+  },
+  "backupLead2": {
+    "message": "Keep your settings safe, or take them to another computer.",
+    "description": "Backup and sync: the page's one-line subtitle."
+  },
+  "importFromBlocker": {
+    "message": "Import from another blocker",
+    "description": "Backup and sync: opens the import box."
+  },
+  "importFromBlockerHint": {
+    "message": "Paste rules from uBlock Origin, AdGuard or a similar blocker.",
+    "description": "Backup and sync: one line in the import box."
+  },
+  "aboutSentBlocking": {
+    "message": "Runs on your device.",
+    "description": "About."
+  },
+  "aboutSentStats": {
+    "message": "Counts stay on your device.",
+    "description": "About."
+  },
+  "aboutSentUpdates": {
+    "message": "Downloads signed lists once a day. Sends nothing about you.",
+    "description": "About."
+  },
+  "aboutSentCname": {
+    "message": "Addresses that might be hidden trackers, just before they load.",
+    "description": "Settings > About: what the hidden-tracker check sends. Chrome only."
+  },
+  "aboutSentBreach": {
+    "message": "A short scrambled piece of a password, never the password.",
+    "description": "About."
+  },
+  "aboutSentReports": {
+    "message": "Only when you press Send, and you see all of it first.",
+    "description": "Settings > About, 'What leaves your device': the problem-report row."
+  },
+  "aboutSentCheckin": {
+    "message": "Only when you answer. Never a site.",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "aboutSentGoodbye": {
+    "message": "When you remove Moat, a page asks why. It gets only the version.",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "aboutLead2": {
+    "message": "Your version, and what leaves your device.",
+    "description": "About."
+  },
+  "popupBlockedHere": {
+    "message": "blocked on this page",
+    "description": "Popup: after the count (\"6 blocked on this page\"). Opens the split."
+  },
+  "popupHideSomething": {
+    "message": "Hide something",
+    "description": "Popup row: starts the element picker."
+  },
+  "popupReportShort": {
+    "message": "Report a problem",
+    "description": "Popup row: opens the report form."
+  },
+  "popupSiteSettings": {
+    "message": "Site settings",
+    "description": "Popup row: opens the settings for this site only."
+  },
+  "popupFromOne": {
+    "message": "From $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      }
+    },
+    "description": "Popup: which tracker company the blocks here came from."
+  },
+  "popupFromTwo": {
+    "message": "From $A$ and $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      }
+    },
+    "description": "Popup: two tracker companies."
+  },
+  "popupFromThree": {
+    "message": "From $A$, $B$ and 1 other.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      }
+    },
+    "description": "Popup: three tracker companies."
+  },
+  "popupFromMany": {
+    "message": "From $A$, $B$ and $COUNT$ others.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      },
+      "count": {
+        "content": "$3",
+        "example": "3"
+      }
+    },
+    "description": "Popup: four or more tracker companies."
+  },
+  "popupWeekLink2": {
+    "message": "$TOTAL$ blocked this week ›",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "4,049"
+      }
+    },
+    "description": "Popup footer: opens Overview. The number shows in bold."
   }
 }

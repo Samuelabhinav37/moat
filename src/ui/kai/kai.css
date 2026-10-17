@@ -1,0 +1,76 @@
+/* Kai's layers and face, copied from the portfolio
+   (samuel-portfolio-site, src/styles/kai.css). Edit it there and copy it here. */
+/* Kai, front-facing. Layers cut from one render (public/images/kai/):
+   the antenna sits behind the head and pivots at the shell, the head holds
+   the body image, the live SVG face and the glass glare. Every length is in
+   cqw of .kai, so one Kai scales from a 56px chat button to a hero.
+   Geometry comes from the source render: body 956 x 926, antenna top
+   37.87% of body width above it. public/scripts/kai-life.js drives it. */
+.kai {
+  --kai-eye: #f1f2f6;
+  --kai-glow: rgba(228, 236, 255, .9);
+  --kai-mouth: #565a62;
+  position: relative;
+  display: block;
+  width: var(--kai-w, 160px);
+  aspect-ratio: 100 / 146;
+  container-type: inline-size;
+  flex: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.kai-rig {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 134.73cqw;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+.kai-ant {
+  position: absolute;
+  left: 42.68cqw; top: 0;
+  width: 14.75cqw;
+  height: auto;
+  transform-origin: 48.9% 86.1%;
+  will-change: transform;
+  transition: filter .5s ease;
+}
+.kai-ant.lit { filter: drop-shadow(0 0 1.2cqw rgba(255, 244, 214, .95)) brightness(1.18); }
+.kai-head {
+  position: absolute;
+  left: 0; top: 37.87cqw;
+  width: 100cqw; height: 96.86cqw;
+}
+.kai-body { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.kai-face { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transition: opacity .6s ease; }
+.kai-face .eye { fill: var(--kai-eye); }
+.kai-face .bar { fill: var(--kai-mouth); }
+.kai-face .blush { fill: #ff8fa3; opacity: 0; transition: opacity .5s ease; }
+.kai.blushing .kai-face .blush { opacity: .32; }
+.kai.dim .kai-face { opacity: .55; }
+.kai.lite .kai-face .glowing { filter: none; }
+.kai-shadow {
+  position: absolute;
+  left: 18cqw; width: 64cqw;
+  top: 132cqw; height: 9cqw;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0));
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+.kai.on-light .kai-shadow { background: radial-gradient(closest-side, rgba(20, 24, 40, .28), rgba(20, 24, 40, 0)); }
+.kai-emote {
+  position: absolute;
+  left: 50%; top: 30cqw;
+  font: 600 13cqw/1 "Inter", system-ui, sans-serif;
+  color: #fff;
+  text-shadow: 0 0 2cqw rgba(200, 220, 255, .9);
+  pointer-events: none;
+  white-space: nowrap;
+  will-change: transform, opacity;
+}
+.kai-emote.small { font-size: 9cqw; }
+@media (prefers-reduced-motion: reduce) {
+  .kai-ant, .kai-face, .kai-face .blush { transition: none; }
+}

@@ -1,11 +1,10 @@
-// Settings Overview: the week's blocks as stacked columns, three number
-// cards with a trend line, and three short top-5 lists. Built with DOM calls
-// only (no innerHTML), from the local weekly summary (shared/usageStatsState).
+// Settings Overview: the week's blocks as stacked columns and three short
+// Highlights cards. Built with DOM calls only (no innerHTML), from the local
+// weekly summary (shared/usageStatsState).
 import type { BlockKinds } from "../types";
 
 export type Translate = (key: string, fallback: string, substitutions?: string | string[]) => string;
 
-const SVG_NS = "http://www.w3.org/2000/svg";
 const KINDS = ["ads", "trackers", "popups"] as const;
 
 function el<K extends keyof HTMLElementTagNameMap>(doc: Document, tag: K, className = "", text?: string): HTMLElementTagNameMap[K] {
@@ -163,101 +162,42 @@ export function buildWeekChart(doc: Document, days: DayColumn[], t: Translate): 
   return wrap;
 }
 
-function sparkline(doc: Document, values: number[]): SVGSVGElement {
-  const svg = doc.createElementNS(SVG_NS, "svg");
-  svg.setAttribute("class", "ov-spark");
-  svg.setAttribute("viewBox", "0 0 300 44");
-  svg.setAttribute("preserveAspectRatio", "none");
-  svg.setAttribute("aria-hidden", "true");
-  const max = Math.max(...values, 1);
-  const min = Math.min(...values, 0);
-  // A count that never changed (the same 4 companies every day) would sit on
-  // the top edge with the fill below it, reading as a solid box: draw it level
-  // through the middle instead.
-  const flat = values.every((v) => v === values[0]);
-  const pts = values.map((v, i) => [values.length > 1 ? (i * 300) / (values.length - 1) : 0, flat ? 22 : 6 + 32 * (1 - (v - min) / (max - min || 1))] as const);
-  const d = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
-  const area = doc.createElementNS(SVG_NS, "path");
-  area.setAttribute("class", "ov-spark-area");
-  area.setAttribute("d", `${d} L300 44 L0 44Z`);
-  const line = doc.createElementNS(SVG_NS, "path");
-  line.setAttribute("class", "ov-spark-line");
-  line.setAttribute("d", d);
-  line.setAttribute("vector-effect", "non-scaling-stroke");
-  svg.append(area, line);
-  return svg;
-}
-
-export function buildKpi(doc: Document, label: string, value: number, change: number | null, series: number[], t: Translate, note?: string): HTMLElement {
-  const card = el(doc, "div", "ov-kpi");
-  card.append(el(doc, "div", "ov-kpi-label", label));
-  const row = el(doc, "div", "ov-kpi-row");
-  row.append(el(doc, "span", "ov-kpi-value", value.toLocaleString()));
-  if (change !== null) {
-    const text = change >= 0 ? t("ovChangeUp", `↑ ${change}%`, String(change)) : t("ovChangeDown", `↓ ${Math.abs(change)}%`, String(Math.abs(change)));
-    const delta = el(doc, "span", "ov-kpi-delta");
-    delta.append(el(doc, "b", "", text), el(doc, "span", "ov-kpi-vs", ` ${t("ovVsLastWeek", "vs last week")}`));
-    row.append(delta);
-  }
-  // A plain sentence where a percentage would mean little ("on 4 of 7 sites").
-  if (note) row.append(el(doc, "span", "ov-kpi-delta", note));
-  card.append(row);
-  if (series.some((v) => v > 0)) card.append(sparkline(doc, series));
-  return card;
-}
-
-export interface RankRow {
+export interface HighlightRow {
   icon: HTMLElement;
   name: string;
   value: string;
-  sub?: string;
-  /** 0..1 share for the bar, or null for no bar. */
-  share: number | null;
+  /** The full address, for the tooltip, where the name is short. */
   title?: string;
-  /** Show the whole name, wrapping if needed. For the addresses of pages
-   * Moat stopped: a lookalike like "paypa1-secure.top" gives itself away
-   * at the end, which an ellipsis would cut. */
-  fullName?: boolean;
 }
 
-export function buildTopCard(doc: Document, title: string, takeaway: string, rows: RankRow[], empty: string, link?: { href: string; label: string }): HTMLElement {
-  const card = el(doc, "div", "ov-top");
-  const head = el(doc, "div", "ov-top-head");
-  head.append(el(doc, "h2", "", title), el(doc, "p", "", takeaway));
-  card.append(head);
-  if (!rows.length) {
-    card.append(el(doc, "p", "ov-top-empty", empty));
-  } else {
-    const list = el(doc, "ol", "ov-rank");
-    rows.forEach((r, i) => {
+/** A Highlights card, the way Health's are built: a small category tile
+ * and name, one short headline, the top three, and a link to the page.
+ * `tile` is the category's glyph tile; `danger` marks the Security card. */
+export function buildHighlight(
+  doc: Document,
+  tile: HTMLElement,
+  kicker: string,
+  headline: string,
+  rows: HighlightRow[],
+  link: { href: string; label: string }
+): HTMLElement {
+  const card = el(doc, "div", "ov-hl");
+  const head = el(doc, "div", "ov-hl-kicker");
+  head.append(tile, el(doc, "span", "", kicker));
+  card.append(head, el(doc, "p", "ov-hl-say", headline));
+  if (rows.length) {
+    const list = el(doc, "ul", "ov-hl-rows");
+    rows.slice(0, 3).forEach((r, i) => {
       const li = el(doc, "li");
+      li.style.setProperty("--dl", `${i * 60}ms`);
       if (r.title) li.title = r.title;
-      const text = el(doc, "div", "ov-rank-text");
-      text.append(el(doc, "span", r.fullName ? "ov-rank-name ov-rank-name--full" : "ov-rank-name", r.name));
-      // A full name takes the row's width; its value goes on a line below.
-      if (r.fullName) text.append(el(doc, "span", "ov-rank-note", r.value));
-      if (r.share !== null) {
-        const bar = el(doc, "span", "ov-rank-bar");
-        const fill = el(doc, "i");
-        fill.style.width = `${Math.max(2, Math.min(1, r.share) * 100)}%`;
-        fill.style.setProperty("--dl", `${i * 50}ms`);
-        bar.append(fill);
-        text.append(bar);
-      }
-      li.append(el(doc, "span", "ov-rank-pos", String(i + 1)), r.icon, text);
-      if (!r.fullName) {
-        const value = el(doc, "span", "ov-rank-value", r.value);
-        if (r.sub) value.append(el(doc, "small", "", r.sub));
-        li.append(value);
-      }
+      li.append(r.icon, el(doc, "span", "ov-hl-name", r.name), el(doc, "span", "ov-hl-value", r.value));
       list.append(li);
     });
     card.append(list);
   }
-  if (link) {
-    const a = el(doc, "a", "ov-top-link", `${link.label} ›`);
-    a.href = link.href;
-    card.append(a);
-  }
+  const a = el(doc, "a", "ov-hl-link", `${link.label} ›`);
+  a.href = link.href;
+  card.append(a);
   return card;
 }
