@@ -4718,5 +4718,47 @@
       }
     },
     "description": "Trackers: \"On Fandom, LinkedIn and 3 more\"."
+  },
+  "checkPausedDetail2": {
+    "message": "Dangerous sites are still stopped there.",
+    "description": "Security > Safety check: under Paused on N sites."
+  },
+  "checkAllowedDetail2": {
+    "message": "Dangerous sites are still stopped there.",
+    "description": "Security > Safety check: under N sites in Never block."
+  },
+  "secPhishTip2": {
+    "message": "Typed a password or card number on one of these? Change that password and tell your bank.",
+    "description": "Security: under fake sign-in pages and scams that were stopped."
+  },
+  "insSitesTitle2": {
+    "message": "Most blocked",
+    "description": "Sites: title of the list of sites."
+  },
+  "pageLeadInsightSites2": {
+    "message": "Where Moat blocked the most this week.",
+    "description": "Sites: the page's one-line subtitle."
+  },
+  "pageLeadSecurity2": {
+    "message": "What keeps you safe, and what Moat stopped.",
+    "description": "Security: the page's one-line subtitle."
+  },
+  "siteSwitchTip": {
+    "message": "Turn off to pause Moat on this site",
+    "description": "Sites: tooltip on a site's switch."
+  },
+  "insSitesOne": {
+    "message": "1 site",
+    "description": "Sites: count on the list's title row."
+  },
+  "insSitesMany": {
+    "message": "$COUNT$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      }
+    },
+    "description": "Sites: count on the list's title row."
   }
 }

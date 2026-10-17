@@ -16,10 +16,11 @@
 //
 // Each icon sits on a rounded plate tinted with the icon's own colour, the
 // way an app icon carries its brand colour (plateTint).
+import { siteName } from "../shared/siteName";
 
-/** The site's first letter or digit, skipping a leading "www.". */
+/** The first letter or digit of the site's name ("M" for store.manutd.com). */
 export function siteInitial(hostname: string): string {
-  const name = hostname.replace(/^www\./i, "");
+  const name = siteName(hostname);
   const match = name.match(/[\p{L}\p{N}]/u);
   return match ? match[0].toUpperCase() : "?";
 }

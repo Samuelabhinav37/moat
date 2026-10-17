@@ -2215,7 +2215,9 @@ function renderSitesPage(settings: Settings, usage: UsageSummaryResponse): void 
   if (!host) return;
   const groups = groupSites(usage.topSites);
   const top = groups[0];
-  setTakeaway("s-take", top ? [{ bold: siteName(top.site) },` ${tFallback("insSitesTake", `had the most blocks this week: ${top.count.toLocaleString()}.`, top.count.toLocaleString())}`] : []);
+  // How many sites, not a total: the per-site counts leave out blocks that
+  // no site could be named for, so they wouldn't add up to Overview's.
+  setTakeaway("s-take", top ? [groups.length === 1 ? tFallback("insSitesOne", "1 site") : tFallback("insSitesMany", `${groups.length} sites`, String(groups.length))] : []);
   if (!groups.length) {
     host.replaceChildren(emptyWithCheck(tFallback("insSitesEmpty", "No site has had anything blocked this week. Open a site you use often, then come back.")));
     return;
@@ -2225,8 +2227,7 @@ function renderSitesPage(settings: Settings, usage: UsageSummaryResponse): void 
     rows = Object.assign(document.createElement("div"), { id: "s-rows", className: "site-rows" });
     const box = Object.assign(document.createElement("div"), { className: "site-box" });
     box.append(rows);
-    const note = Object.assign(document.createElement("p"), { className: "ins-note", textContent: tFallback("insSitesNote", "Switching Moat off for a site pauses it. It then shows under Exceptions › Paused.") });
-    host.replaceChildren(box, note);
+    host.replaceChildren(box);
   }
   rows.replaceChildren(...groups.map((group) => buildSiteRow(settings, group)));
   applyLongList(rows, longListLabels);
@@ -2281,6 +2282,7 @@ function siteSwitch(settings: Settings, hostnames: string[], labelId: string, na
       });
     })
   );
+  wrap.title = tFallback("siteSwitchTip", "Turn off to pause Moat on this site");
   const until = paused ? pausedNote(settings, hostnames[0]!) : null;
   if (until) wrap.append(Object.assign(document.createElement("small"), { className: "row-note", textContent: until }));
   return wrap;
@@ -2473,12 +2475,11 @@ function checkRow(state: CheckState, title: string, detail: string, action?: { l
   const row = document.createElement("div");
   row.className = "check-row";
   row.dataset.state = state;
-  const mark = document.createElement("span");
-  mark.className = "check-mark";
-  mark.setAttribute("aria-hidden", "true");
+  const mark = buildGlyphTile(document, state === "ok" ? "tick" : state === "warn" ? "warn" : "info", `glyph-tile check-tile${state === "ok" ? " tile-ok" : state === "warn" ? " tile-warn" : ""}`);
   const text = document.createElement("div");
   text.className = "check-text";
-  text.append(Object.assign(document.createElement("b"), { textContent: title }), Object.assign(document.createElement("small"), { textContent: detail }));
+  text.append(Object.assign(document.createElement("b"), { textContent: title }));
+  if (detail) text.append(Object.assign(document.createElement("small"), { textContent: detail }));
   row.append(mark, text);
   if (action) {
     const b = Object.assign(document.createElement("button"), { type: "button", className: state === "warn" ? "ab-btn primary" : "ab-btn", textContent: action.label });
@@ -2494,7 +2495,7 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
 
   rows.push(
     settings.enabled
-      ? checkRow("ok", tFallback("checkOnTitle", "Moat is on"), tFallback("checkOnDetail", "Pages are checked before they load."))
+      ? checkRow("ok", tFallback("checkOnTitle", "Moat is on"), "")
       : checkRow("warn", tFallback("checkOffTitle", "Moat is off"), tFallback("checkOffDetail", "Nothing is blocked, including dangerous sites."), {
           label: tFallback("checkTurnOn", "Turn on"),
           run: () => void setSettings({ enabled: true }).then(() => render()),
@@ -2509,7 +2510,7 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
           label: tFallback("checkTurnOn", "Turn on"),
           run: () => void setSettings({ filterGroups: { ...settings.filterGroups, ...Object.fromEntries(off.map((g) => [g, true])) } }).then(() => render()),
         })
-      : checkRow("ok", tFallback("checkListsOnTitle", "Dangerous-site lists are on"), tFallback("checkListsOnDetail", "Phishing, malware, scams and risky downloads."))
+      : checkRow("ok", tFallback("checkListsOnTitle", "Dangerous-site lists are on"), "")
   );
 
   if (live) {
@@ -2522,8 +2523,8 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
 
   rows.push(
     settings.leakedPasswordCheck
-      ? checkRow("ok", tFallback("checkPwOnTitle", "Leaked password warnings are on"), tFallback("checkPwOnDetail", "Moat warns if a password you type was in a data breach."))
-      : checkRow("info", tFallback("checkPwOffTitle", "Leaked password warnings are off"), tFallback("checkPwOffDetail", "Moat can warn when a password you type was in a data breach. Only a short code leaves your device."), {
+      ? checkRow("ok", tFallback("checkPwOnTitle", "Leaked password warnings are on"), "")
+      : checkRow("info", tFallback("checkPwOffTitle", "Leaked password warnings are off"), "", {
           label: tFallback("checkTurnOn", "Turn on"),
           run: () => void setSettings({ leakedPasswordCheck: true }).then(() => render()),
         })
@@ -2532,7 +2533,7 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
   const paused = settings.disabledSites.length;
   if (paused) {
     rows.push(
-      checkRow("info", (paused === 1 ? tFallback("checkPausedOne", "Paused on 1 site") : tFallback("checkPausedTitle", `Paused on ${paused} sites`, String(paused))), tFallback("checkPausedDetail", "Moat doesn't block ads or trackers there. Dangerous sites are still stopped."), {
+      checkRow("info", (paused === 1 ? tFallback("checkPausedOne", "Paused on 1 site") : tFallback("checkPausedTitle", `Paused on ${paused} sites`, String(paused))), tFallback("checkPausedDetail2", "Dangerous sites are still stopped there."), {
         label: tFallback("checkReview", "Review"),
         run: () => (location.hash = "paused"),
       })
@@ -2541,9 +2542,9 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
   const allowed = settings.customAllowedDomains.length;
   if (allowed) {
     rows.push(
-      checkRow("info", (allowed === 1 ? tFallback("checkAllowedOne", "1 site in Never block") : tFallback("checkAllowedTitle", `${allowed} sites in Never block`, String(allowed))), tFallback("checkAllowedDetail", "Ads and trackers load there. Dangerous sites are still stopped."), {
+      checkRow("info", (allowed === 1 ? tFallback("checkAllowedOne", "1 site in Never block") : tFallback("checkAllowedTitle", `${allowed} sites in Never block`, String(allowed))), tFallback("checkAllowedDetail2", "Dangerous sites are still stopped there."), {
         label: tFallback("checkReview", "Review"),
-        run: () => (location.hash = "rules"),
+        run: () => (location.hash = "exceptions"),
       })
     );
   }
@@ -2584,7 +2585,7 @@ function renderStops(stops: UsageSummaryResponse["pageStops"]): void {
     for (const stop of danger) group.append(stopRow(stop, true));
     parts.push(group);
     if (danger.some((s) => s.list === "phishing-urls" || s.list === "scam")) {
-      parts.push(Object.assign(document.createElement("p"), { className: "stop-tip", textContent: tFallback("secPhishTip", "If you typed a password or card number on one of these pages before Moat stopped it, change that password and tell your bank.") }));
+      parts.push(Object.assign(document.createElement("p"), { className: "stop-tip", textContent: tFallback("secPhishTip2", "Typed a password or card number on one of these? Change that password and tell your bank.") }));
     }
   }
   for (const [items, summary] of [
@@ -2622,7 +2623,8 @@ function stopRow(stop: UsageSummaryResponse["pageStops"][number], loud: boolean)
   row.className = loud ? "stop-row loud" : "stop-row";
   const text = document.createElement("div");
   text.className = "stop-text";
-  text.append(Object.assign(document.createElement("b"), { textContent: stop.hostname }), Object.assign(document.createElement("small"), { textContent: `${stopWhy(stop)} · ${relativeTime(stop.time)}` }));
+  text.append(Object.assign(document.createElement("b"), { textContent: stop.hostname }), Object.assign(document.createElement("small"), { textContent: `${stopKindName(stop)} · ${relativeTime(stop.time)}` }));
+  text.title = stopWhy(stop);
   row.append(stopIcon(stop), text);
   // A safe page on a danger list can't be allowed from here (the security
   // lists outrank "Never block", see rulePriorities.ts), so the fix is to

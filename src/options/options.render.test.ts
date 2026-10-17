@@ -592,7 +592,9 @@ describe("Security: pages Moat stopped", () => {
     });
     const loud = [...document.querySelectorAll<HTMLElement>("#sec-list .stop-list-danger .stop-row")];
     expect(loud.map((r) => r.querySelector("b")?.textContent)).toEqual(["paypa1-secure.top", "old.example"]);
-    expect(loud[0]!.querySelector("small")?.textContent).toMatch(/^Phishing: fake sign-in pages · /);
+    expect(loud[0]!.querySelector("small")?.textContent).toMatch(/^Fake sign-in page · /);
+    expect(loud[0]!.querySelector<HTMLElement>(".stop-text")?.title).toMatch(/^Phishing: fake sign-in pages/);
+    expect(loud[0]!.querySelector(".glyph-tile.tile-danger")).not.toBeNull();
     expect(document.querySelector("#sec-list .stop-tip")).not.toBeNull();
     const folds = [...document.querySelectorAll<HTMLDetailsElement>("#sec-list .stop-fold")];
     expect(folds.map((f) => f.querySelector("summary")?.textContent)).toEqual(["1 ad or tracker page never loaded", "1 page on a block list you or your organization set"]);

@@ -4478,5 +4478,38 @@
         "example": "3"
       }
     }
+  },
+  "checkPausedDetail2": {
+    "message": "Los sitios peligrosos se siguen deteniendo allí."
+  },
+  "checkAllowedDetail2": {
+    "message": "Los sitios peligrosos se siguen deteniendo allí."
+  },
+  "secPhishTip2": {
+    "message": "¿Escribiste una contraseña o un número de tarjeta en una de estas? Cambia esa contraseña y avisa a tu banco."
+  },
+  "insSitesTitle2": {
+    "message": "Más bloqueados"
+  },
+  "pageLeadInsightSites2": {
+    "message": "Dónde bloqueó más Moat esta semana."
+  },
+  "pageLeadSecurity2": {
+    "message": "Lo que te protege y lo que Moat detuvo."
+  },
+  "siteSwitchTip": {
+    "message": "Desactívalo para pausar Moat en este sitio"
+  },
+  "insSitesOne": {
+    "message": "1 sitio"
+  },
+  "insSitesMany": {
+    "message": "$COUNT$ sitios",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   }
 }

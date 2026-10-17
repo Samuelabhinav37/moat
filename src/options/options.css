@@ -4762,3 +4762,13 @@ main.wrap { padding-bottom: 128px; }
 .purp-text small { color: var(--muted); font-size: 13px; }
 .purp-val { font-weight: 600; font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) { .rr, .purp-seg { animation: none; } }
+
+/* ---- Security and Sites, clarity pass ---- */
+.check-row { grid-template-columns: 30px minmax(0, 1fr) auto; min-height: 52px; padding: 10px 4px; }
+.check-tile { width: 30px; height: 30px; border-radius: 8px; }
+.glyph-tile.tile-warn { background: linear-gradient(180deg, #f5c060, #d99a1e); }
+.check-text b { font-weight: 500; }
+.stop-row { grid-template-columns: 32px minmax(0, 1fr) auto; }
+.stop-row .glyph-tile { width: 32px; height: 32px; }
+.stop-text b { font-weight: 600; }
+@media (max-width: 520px) { .check-row { grid-template-columns: 30px minmax(0, 1fr); } }

@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.296
+
+### Changed
+- **Security, shorter.** Safety check rows are a tile and a title: green when all is well,
+  amber when something needs a look, blue for something to know. Only rows with something to
+  do keep a line of text and a button.
+- Pages Moat stopped say what kind of page each was ("Fake sign-in page · 2 days ago"), with
+  the list's own words on hover. The tip under them is one short line.
+- **Sites** shows "Most blocked" with how many sites, and each site by name. The line about
+  pausing moved into the switch's tooltip.
+- A site with no icon gets the first letter of its name ("M" for Man Utd).
+
 ## 0.11.295
 
 ### Changed

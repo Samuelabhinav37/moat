@@ -26,6 +26,10 @@ export const GLYPHS = {
   shield: ["M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"],
   // A sparkle: the guided review.
   sparkle: ["M12 3.5l2 5.5 5.5 2-5.5 2-2 5.5-2-5.5-5.5-2 5.5-2z", "M19 3v3M17.5 4.5h3"],
+  // A tick, an exclamation mark and an i: Safety check's three states.
+  tick: ["M5.5 12.5l4.2 4.2L18.5 8"],
+  warn: ["M12 6.5v7", "M12 17.5v.01"],
+  info: ["M12 11v6", "M12 7.5v.01"],
   // Pause bars, an eye struck through, a tick in a circle: Exceptions.
   pause: ["M9 5v14M15 5v14"],
   hidden: ["M3 3l18 18", "M10.6 10.6a2 2 0 0 0 2.8 2.8", "M9.9 5.1A9.8 9.8 0 0 1 12 5c5 0 8.5 4.5 9.5 7a13 13 0 0 1-2.6 3.9", "M6.6 6.6C4.5 8 3.1 10 2.5 12c1 2.5 4.5 7 9.5 7 1.6 0 3-.4 4.3-1"],

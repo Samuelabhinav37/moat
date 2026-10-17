@@ -4478,5 +4478,38 @@
         "example": "3"
       }
     }
+  },
+  "checkPausedDetail2": {
+    "message": "Les sites dangereux y sont toujours arrêtés."
+  },
+  "checkAllowedDetail2": {
+    "message": "Les sites dangereux y sont toujours arrêtés."
+  },
+  "secPhishTip2": {
+    "message": "Vous avez saisi un mot de passe ou un numéro de carte sur l'une d'elles ? Changez ce mot de passe et prévenez votre banque."
+  },
+  "insSitesTitle2": {
+    "message": "Les plus bloqués"
+  },
+  "pageLeadInsightSites2": {
+    "message": "Où Moat a le plus bloqué cette semaine."
+  },
+  "pageLeadSecurity2": {
+    "message": "Ce qui vous protège, et ce que Moat a arrêté."
+  },
+  "siteSwitchTip": {
+    "message": "Désactivez pour mettre Moat en pause sur ce site"
+  },
+  "insSitesOne": {
+    "message": "1 site"
+  },
+  "insSitesMany": {
+    "message": "$COUNT$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   }
 }
