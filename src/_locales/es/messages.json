@@ -4395,5 +4395,14 @@
   },
   "kaiABlock2": {
     "message": "Pulsa Añadir un sitio, escribe el sitio y elige Bloquear siempre."
+  },
+  "pageLeadProtection2": {
+    "message": "Cuánto bloquea Moat."
+  },
+  "listsLead2": {
+    "message": "Activar o desactivar una lista crea tu propia mezcla."
+  },
+  "privacyFootPassword": {
+    "message": "Solo se comprueba un trozo corto y cifrado de la contraseña, nunca la contraseña."
   }
 }

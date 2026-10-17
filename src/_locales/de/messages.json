@@ -4395,5 +4395,14 @@
   },
   "kaiABlock2": {
     "message": "Tippe auf Seite hinzufügen, gib die Seite ein und wähle Immer blockieren."
+  },
+  "pageLeadProtection2": {
+    "message": "Wie viel Moat blockiert."
+  },
+  "listsLead2": {
+    "message": "Wenn du eine Liste ein- oder ausschaltest, wird es deine eigene Mischung."
+  },
+  "privacyFootPassword": {
+    "message": "Geprüft wird nur ein kurzes verschlüsseltes Stück des Passworts, nie das Passwort selbst."
   }
 }

@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.294
+
+### Changed
+- **Protection reads like iOS Settings.** Each row is an icon, a short title and a switch. What
+  a setting does is in its (i) picture and its tooltip, not under every row. A warning shows
+  only while its setting is on, when it can matter.
+- Level cards say one line each: Light blocks ads with the fewest broken sites, Balanced also
+  blocks trackers, Strict also hides cookie banners.
+- The intros under Level, Privacy and Annoyances are gone. Passwords get one footer line.
+
 ## 0.11.293
 
 ### Changed

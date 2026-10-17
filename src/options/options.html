@@ -54,7 +54,7 @@
       <nav class="dash-nav" id="dash-nav" aria-label="Settings" data-i18n-aria-label="settingsTitle">
         <a href="#overview" data-page="overview" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6z" /><path class="ni-up" d="M14 4h6v4h-6z" /><path class="ni-down" d="M4 20h6v-3H4z" /></svg><span class="nav-name" data-i18n="navOverview">Overview</span><span class="nav-lead" hidden></span></a>
         <p class="nav-group" data-i18n="navGroupSettings">Settings</p>
-        <a href="#protection" data-page="protection" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 17h16" /><circle class="ni-knob-l" cx="15" cy="7" r="2" /><circle class="ni-knob-r" cx="9" cy="17" r="2" /></svg><span class="nav-name" data-i18n="navGroupProtection">Protection</span><span class="nav-lead" hidden data-i18n="pageLeadProtection">How much Moat blocks, and the extras on top</span></a>
+        <a href="#protection" data-page="protection" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 17h16" /><circle class="ni-knob-l" cx="15" cy="7" r="2" /><circle class="ni-knob-r" cx="9" cy="17" r="2" /></svg><span class="nav-name" data-i18n="navGroupProtection">Protection</span><span class="nav-lead" hidden data-i18n="pageLeadProtection2">How much Moat blocks.</span></a>
         <a href="#exceptions" data-page="exceptions" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ni-hand-wave" d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10M11 9.5V4a1.5 1.5 0 0 1 3 0v6M14 9.5V5.5a1.5 1.5 0 0 1 3 0v7.5c0 4-2.5 7-6.5 7-2.5 0-4-1.5-5.5-4l-2-3.5a1.5 1.5 0 0 1 2.6-1.5L8 13" /></svg><span class="nav-name" data-i18n="navExceptions">Exceptions</span><span class="nav-lead" hidden data-i18n="pageLeadExceptions2">Sites where Moat acts differently.</span><span class="count" id="nav-count-exceptions" hidden></span></a>
         <a href="#backup" data-page="backup" data-nav-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ni-lid" d="M3.5 5h17v4h-17z" /><path d="M5 9v10h14V9M10 13h4" /></svg><span class="nav-name" data-i18n="tabBackup">Backup and sync</span><span class="nav-lead" hidden data-i18n="optionsBackupDesc">Keep your settings, rules and paused sites safe, or carry them to another computer.</span></a>
         <p class="nav-group" data-i18n="navGroupInsights">Insights</p>
@@ -247,7 +247,6 @@
           <section class="sec" data-page="protection" id="p-level">
             <div>
               <h2 data-i18n="levelTitle">Level</h2>
-              <p class="lead" data-i18n="levelLead">Balanced suits most people. Pick Strict for more privacy, or Light if sites keep breaking.</p>
             </div>
             <div>
               <div class="levels" id="level-cards" data-explain="levels" role="radiogroup" aria-labelledby="level-title-sr">
@@ -255,17 +254,17 @@
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="lite">
                   <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetLite">Light</span></span>
                   <span class="level-meter" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
-                  <span class="level-desc" data-i18n="levelLightDesc">Blocks ads, pop-ups, and dangerous sites like scams and malware. Trackers still load, so sites that depend on them keep working.</span>
+                  <span class="level-desc" data-i18n="levelMenuLight">Blocks ads. Fewest broken sites.</span>
                 </button>
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="standard">
                   <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetStandard">Balanced</span></span>
                   <span class="level-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
-                  <span class="level-desc" data-i18n="levelBalancedDesc">Everything in Light, plus trackers, tracking added to links, and fake login sites. Recommended.</span>
+                  <span class="level-desc" data-i18n="levelMenuBalanced">Also blocks trackers. Best for most people.</span>
                 </button>
                 <button type="button" class="level" role="radio" aria-checked="false" data-level="strict">
                   <span class="level-top"><span class="level-radio" aria-hidden="true"></span><span class="level-name" data-i18n="presetStrict">Strict</span></span>
                   <span class="level-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>
-                  <span class="level-desc" data-i18n="levelStrictDesc">Everything in Balanced, plus cookie banners and social media buttons. It also makes your device harder for sites to recognize and keeps your IP address private in video calls. A few sites may break.</span>
+                  <span class="level-desc" data-i18n="levelMenuStrict">Also hides cookie banners. Some sites may break.</span>
                 </button>
               </div>
               <p class="level-note" id="level-note" hidden><span></span> <button type="button" class="ab-btn" id="level-note-reset"></button></p>
@@ -280,7 +279,6 @@
             <section class="sec" data-page="protection" id="p-privacy">
               <div>
                 <h2 data-i18n="navPrivacy">Privacy</h2>
-                <p class="lead" data-i18n="advPrivacyLead">Extra protection against being followed and identified.</p>
               </div>
               <div class="pgroups" id="protection-groups"></div>
             </section>
@@ -291,7 +289,6 @@
             <section class="sec" data-page="protection" id="p-annoy">
               <div>
                 <h2 data-i18n="featuresTitle">Annoyances</h2>
-                <p class="lead" data-i18n="featuresLead">Clear away cookie banners, sponsored posts and other clutter. Turn on the ones you want.</p>
               </div>
               <div class="setting-rows inset" id="feature-rows"></div>
             </section>
@@ -302,7 +299,7 @@
             <section class="sec" data-page="protection" id="p-lists">
               <div>
                 <h2 data-i18n="secLists">Lists</h2>
-                <p class="lead" data-i18n="optionsIndividualListsHint">The lists behind your blocking level. Turning one on or off here makes it your own mix.</p>
+                <p class="lead" data-i18n="listsLead2">Turning a list on or off makes it your own mix.</p>
               </div>
               <div>
                 <div class="budget-warning" id="filter-budget-warning" hidden>

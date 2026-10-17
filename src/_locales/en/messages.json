@@ -4622,5 +4622,17 @@
   "kaiABlock2": {
     "message": "Press Add a site, type the site and pick Always block.",
     "description": "Kai's answer: how to always block a site."
+  },
+  "pageLeadProtection2": {
+    "message": "How much Moat blocks.",
+    "description": "Protection: the page's one-line subtitle."
+  },
+  "listsLead2": {
+    "message": "Turning a list on or off makes it your own mix.",
+    "description": "Protection > Lists: one line."
+  },
+  "privacyFootPassword": {
+    "message": "Only a short scrambled piece of a password is checked, never the password.",
+    "description": "Protection > Permissions and passwords: footer under the group."
   }
 }

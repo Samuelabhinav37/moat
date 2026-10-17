@@ -4710,3 +4710,24 @@ main.wrap { padding-bottom: 128px; }
   .ex-row .pop-wrap { margin-left: 48px; }
 }
 @media (prefers-reduced-motion: reduce) { .ex-row, .ex-add:not([hidden]) { animation: none; } }
+
+/* ---- Protection, clarity pass: iOS Settings rows (title and switch),
+   group labels above, a one-line footer below where one helps. ---- */
+.setting-rows.inset > .setting-row { grid-template-columns: 30px minmax(0, 1fr) auto; gap: 14px; min-height: 52px; padding: 10px 16px; }
+.setting-rows.inset .setting-title { font-weight: 500; font-size: 15px; }
+.setting-rows.inset .setting-caution,
+.setting-rows.inset .setting-evidence,
+.setting-rows.inset .setting-desc:not(.sr-only) { margin-top: 3px; font-size: 13px; }
+.pgroup .sub-h { margin: 22px 16px 8px; font-size: 13px; font-weight: 500; }
+.pgroup:first-child .sub-h { margin-top: 0; }
+.pgroup-foot { margin: 8px 16px 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.setting-row .switch { transition: transform 0.15s var(--ease); }
+.setting-row .switch:active { transform: scale(0.96); }
+.level { transition: box-shadow 0.2s var(--ease), background 0.2s var(--ease), transform 0.15s var(--ease); }
+.level:active:not(:disabled) { transform: scale(0.985); }
+.level-desc { font-size: 13.5px; }
+@media (max-width: 480px) {
+  .setting-rows.inset > .setting-row { grid-template-columns: 30px minmax(0, 1fr) auto; }
+  .setting-rows.inset .setting-icon { display: grid; }
+}
+.setting-rows.inset .setting-icon:not(.brand-tile) { width: 30px; height: 30px; background: linear-gradient(180deg, var(--tile-a), var(--tile-b)); color: #fff; }

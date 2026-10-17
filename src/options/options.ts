@@ -437,10 +437,10 @@ const FEATURE_IDS = ["consentReject", "grayscale", "feedScan", "searchSlop"] as 
 
 // Privacy, split into three groups so a long screen reads as a few short
 // lists. Rows a browser doesn't have (the Firefox-only ones) just drop out.
-const PRIVACY_GROUPS: { key: string; fallback: string; ids: string[] }[] = [
+const PRIVACY_GROUPS: { key: string; fallback: string; ids: string[]; footer?: [string, string] }[] = [
   { key: "privacyGroupTracking", fallback: "Tracking", ids: ["cookies", "cname", "firefoxFirstPartyIsolate"] },
   { key: "privacyGroupDevice", fallback: "Your device", ids: ["fingerprint", "firefoxResistFingerprinting", "webrtc"] },
-  { key: "privacyGroupPermissions", fallback: "Permissions and passwords", ids: ["permissionGuard", "leakedPassword"] },
+  { key: "privacyGroupPermissions", fallback: "Permissions and passwords", ids: ["permissionGuard", "leakedPassword"], footer: ["privacyFootPassword", "Only a short scrambled piece of a password is checked, never the password."] },
 ];
 
 // 24x24 line icons, one per setting row. Built with createElementNS, never
@@ -500,7 +500,9 @@ function buildIcon(name: string): HTMLElement {
 
 /** Icon, title, one line of description, then a switch -- the one row shape
  * every setting on this page uses. `extra` goes under the description
- * (cautions, evidence, chips). */
+ * (cautions, evidence, chips). A `quiet` row shows only its title, the way
+ * iOS Settings does: the description is the title's tooltip and is still
+ * read out, and the (i) button's picture explains the rest. */
 function buildSettingRow(options: {
   icon: string;
   brands?: BrandId[];
@@ -510,6 +512,7 @@ function buildSettingRow(options: {
   on: boolean;
   extra?: HTMLElement[];
   control?: HTMLElement;
+  quiet?: boolean;
 }): HTMLElement {
   const row = document.createElement("div");
   row.className = options.on ? "setting-row is-on" : "setting-row";
@@ -534,8 +537,9 @@ function buildSettingRow(options: {
   }
   if (options.desc) {
     const desc = document.createElement("span");
-    desc.className = "setting-desc";
+    desc.className = options.quiet ? "setting-desc sr-only" : "setting-desc";
     desc.textContent = options.desc;
+    if (options.quiet) title.title = options.desc;
     text.append(desc);
   }
   if (options.extra) text.append(...options.extra);
@@ -682,14 +686,15 @@ function buildProtectionRow(def: ProtectionDef, settings: Settings, usage: Usage
     const firefoxSupported = isCnameUncloakFirefoxSupported();
     const chromeSupported = isCnameUncloakChromeSupported();
     if (!firefoxSupported && !chromeSupported) extra.push(buildLine("setting-caution", cnameUnsupportedHint));
-    else if (chromeSupported) {
+    else if (chromeSupported && checked) {
+      // Who it asks, while it's on (About lists it too).
       const hint = buildLine("setting-desc", cnameChromeDohHint);
       prependBrand(hint, "cloudflare");
       extra.push(hint);
     }
   }
-  if (def.cautionKey) extra.push(buildLine("setting-caution", tFallback(...def.cautionKey)));
-  if (def.noteKey) extra.push(buildLine("setting-note", tFallback(...def.noteKey)));
+  // A caution matters once the setting is on: that's when it can trip a site up.
+  if (def.cautionKey && checked) extra.push(buildLine("setting-caution", tFallback(...def.cautionKey)));
   if (checked) {
     const evidence = evidenceTextFor(def, usage);
     if (evidence) extra.push(buildLine("setting-evidence", evidence));
@@ -708,6 +713,7 @@ function buildProtectionRow(def: ProtectionDef, settings: Settings, usage: Usage
     on: checked,
     extra,
     control,
+    quiet: true,
   });
   return row;
 }
@@ -767,11 +773,13 @@ function buildPermissionGuardRow(settings: Settings): HTMLElement {
     ),
     on: isAnyPermissionGuardOn(settings),
     extra: [chips],
+    quiet: true,
   });
 }
 
-/** A labelled group of setting rows in its own inset box (Protection page). */
-function buildInsetGroup(title: string, rows: HTMLElement[], note?: string): HTMLElement {
+/** A labelled group of setting rows in its own inset box (Protection page),
+ * with an optional one-line footer under it, as in iOS Settings. */
+function buildInsetGroup(title: string, rows: HTMLElement[], note?: string, footer?: string): HTMLElement {
   const group = document.createElement("div");
   group.className = "pgroup";
   const heading = document.createElement("p");
@@ -787,6 +795,7 @@ function buildInsetGroup(title: string, rows: HTMLElement[], note?: string): HTM
   box.className = "setting-rows inset";
   box.append(...rows);
   group.append(heading, box);
+  if (footer) group.append(Object.assign(document.createElement("p"), { className: "pgroup-foot", textContent: footer }));
   return group;
 }
 
@@ -811,7 +820,8 @@ function renderProtectionGroups(settings: Settings, usage: UsageSummaryResponse)
       if (def.id === "fingerprint" && settings.fingerprintResistance) rows.push(buildFingerprintRotateRow(settings));
     }
     if (!rows.length) continue;
-    privacyRows.push(buildInsetGroup(tFallback(group.key, group.fallback), rows));
+    const footer = group.footer ? tFallback(...group.footer) : undefined;
+    privacyRows.push(buildInsetGroup(tFallback(group.key, group.fallback), rows, undefined, footer));
   }
   protectionGroupsEl.replaceChildren(...privacyRows);
 }
@@ -965,17 +975,11 @@ const filterCheckUpdates = document.getElementById("filter-check-updates") as HT
 // tFallback below) -- kept as one table so the two can't drift apart.
 const PRESET_HINTS: Record<PresetName | "custom", { key: string; fallback: string }> = {
   off: { key: "presetHintOff", fallback: "Nothing is blocked." },
-  // The three levels say exactly what their Blocking level cards say.
-  lite: {
-    key: "levelLightDesc",
-    fallback: "Blocks ads, pop-ups, and scam and malware sites. Trackers still load, so sites that depend on them keep working.",
-  },
+  // The three levels say exactly what their level cards say.
+  lite: { key: "levelMenuLight", fallback: "Blocks ads. Fewest broken sites." },
   essential: { key: "presetHintEssential", fallback: "Ads, popups, and known-malicious sites." },
-  standard: { key: "levelBalancedDesc", fallback: "Everything in Light, plus trackers, tracking added to links, and phishing sites. Recommended." },
-  strict: {
-    key: "levelStrictDesc",
-    fallback: "Everything in Balanced, plus cookie notices, social buttons and fingerprinting. A few sites may not work right.",
-  },
+  standard: { key: "levelMenuBalanced", fallback: "Also blocks trackers. Best for most people." },
+  strict: { key: "levelMenuStrict", fallback: "Also hides cookie banners. Some sites may break." },
   custom: { key: "presetHintCustom", fallback: "A mix you've set up yourself." },
 };
 

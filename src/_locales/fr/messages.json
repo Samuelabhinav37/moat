@@ -4395,5 +4395,14 @@
   },
   "kaiABlock2": {
     "message": "Appuyez sur Ajouter un site, saisissez le site et choisissez Toujours bloquer."
+  },
+  "pageLeadProtection2": {
+    "message": "Ce que Moat bloque."
+  },
+  "listsLead2": {
+    "message": "Activer ou désactiver une liste en fait votre propre mélange."
+  },
+  "privacyFootPassword": {
+    "message": "Seul un court fragment brouillé du mot de passe est vérifié, jamais le mot de passe."
   }
 }
