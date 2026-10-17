@@ -104,6 +104,8 @@ export function openPopMenu<T extends string>(doc: Document, button: HTMLElement
   doc.addEventListener("pointerdown", onOutside, true);
   button.setAttribute("aria-expanded", "true");
   button.after(menu);
+  const view = doc.defaultView;
+  if (view && menu.getBoundingClientRect().bottom > view.innerHeight - 8 && button.getBoundingClientRect().top > menu.offsetHeight + 16) menu.classList.add("up");
   (items.find((item) => item.getAttribute("aria-checked") === "true") ?? items[0])?.focus();
 }
 

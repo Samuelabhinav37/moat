@@ -4229,5 +4229,171 @@
   },
   "hlSecurityDetails": {
     "message": "Details"
+  },
+  "pageLeadExceptions2": {
+    "message": "Seiten, auf denen Moat anders vorgeht."
+  },
+  "exSearch": {
+    "message": "Seiten suchen"
+  },
+  "exFilterLabel": {
+    "message": "Anzeigen"
+  },
+  "exFilterAll": {
+    "message": "Alle"
+  },
+  "exFilterPaused": {
+    "message": "Pausiert"
+  },
+  "exFilterHidden": {
+    "message": "Ausgeblendet"
+  },
+  "exFilterBlocked": {
+    "message": "Blockiert"
+  },
+  "exFilterAllowed": {
+    "message": "Erlaubt"
+  },
+  "exEmptyTitle": {
+    "message": "Noch keine Ausnahmen"
+  },
+  "exEmptyHint": {
+    "message": "Pausiere eine Seite, blende einen Teil aus oder blockiere eine Seite, dann steht sie hier."
+  },
+  "exAddSite": {
+    "message": "Seite"
+  },
+  "exAddWhat": {
+    "message": "Was Moat dort macht"
+  },
+  "exAddPause": {
+    "message": "Pausieren, bis ich es wieder einschalte"
+  },
+  "exAddPauseHour": {
+    "message": "1 Stunde pausieren"
+  },
+  "exAddPauseDay": {
+    "message": "1 Tag pausieren"
+  },
+  "exAddBlock": {
+    "message": "Immer blockieren"
+  },
+  "exAddAllow": {
+    "message": "Nie blockieren"
+  },
+  "exAdd": {
+    "message": "Hinzufügen"
+  },
+  "exAddOpen": {
+    "message": "Seite hinzufügen"
+  },
+  "exHideSomething": {
+    "message": "Etwas auf einer Seite ausblenden"
+  },
+  "exPausedNote": {
+    "message": "Pausierte Seiten blockieren weiterhin gefährliche Seiten."
+  },
+  "exMenuLabel": {
+    "message": "Was Moat auf $SITE$ macht",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Spotify"
+      }
+    }
+  },
+  "exStateProtected": {
+    "message": "Geschützt"
+  },
+  "exStateProtectedDesc": {
+    "message": "Moats übliches Blockieren."
+  },
+  "exStatePaused": {
+    "message": "Pausiert"
+  },
+  "exStatePausedDesc": {
+    "message": "Werbung und Tracker laden hier."
+  },
+  "exStateBlock": {
+    "message": "Immer blockieren"
+  },
+  "exStateBlockDesc": {
+    "message": "Von dieser Seite lädt nichts."
+  },
+  "exStateAllow": {
+    "message": "Nie blockieren"
+  },
+  "exStateAllowDesc": {
+    "message": "Lädt auf jeder Seite, die du besuchst."
+  },
+  "exHiddenOne": {
+    "message": "1 Element ausgeblendet"
+  },
+  "exHiddenMany": {
+    "message": "$COUNT$ Elemente ausgeblendet",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exGrayedOne": {
+    "message": "1 Element ausgegraut"
+  },
+  "exGrayedMany": {
+    "message": "$COUNT$ Elemente ausgegraut",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exChangedOne": {
+    "message": "1 Einstellung hier geändert"
+  },
+  "exChangedMany": {
+    "message": "$COUNT$ Einstellungen hier geändert",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exShowAgain": {
+    "message": "Wieder anzeigen"
+  },
+  "exStateDone": {
+    "message": "$SITE$: $STATE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "state": {
+        "content": "$2",
+        "example": "Paused"
+      }
+    }
+  },
+  "exShownAgain": {
+    "message": "Auf $SITE$ wird wieder alles angezeigt",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Fandom"
+      }
+    }
+  },
+  "kaiAPause2": {
+    "message": "Klicke auf der Seite auf das Moat-Symbol neben der Adressleiste und schalte den Schalter aus. Du kannst auch hier auf Seite hinzufügen tippen."
+  },
+  "kaiAHide2": {
+    "message": "Klicke auf der Seite auf das Moat-Symbol und wähle Etwas ausblenden. Seiten, auf denen du etwas ausgeblendet hast, stehen hier."
+  },
+  "kaiABlock2": {
+    "message": "Tippe auf Seite hinzufügen, gib die Seite ein und wähle Immer blockieren."
   }
 }

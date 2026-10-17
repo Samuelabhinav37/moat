@@ -126,11 +126,11 @@ describe("Previously-orphaned i18n keys that turned out to be real content gaps"
   // audit's orphaned-key scan, then confirmed (not assumed) to be genuine
   // missing content rather than rename cruft by checking each one's
   // plausible location against its sibling sections.
-  it("'Hidden on pages' has its own heading and hint", async () => {
+  it("Exceptions has a Hidden filter and a way to hide something", async () => {
     await renderOptions();
 
-    expect(document.querySelector('section[data-tab="hidden"] h2')?.textContent).toBe("Hidden on pages");
-    expect(document.body.textContent).toContain("Hide something on a page");
+    expect(document.querySelector('#ex-filter [data-filter="hidden"]')?.textContent).toBe("Hidden");
+    expect(document.getElementById("pick-element-button")?.textContent).toBe("Hide something on a page");
   });
 
   it("Filter lists: the individual lists have a hint saying what changing one does", async () => {
@@ -153,11 +153,11 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
 
   it("puts the pause box on Paused sites and the blocker import with the backup", async () => {
     await renderOptions();
-    expect(inSection("paused", "#add-input")).toBe(true);
-    expect(inSection("rules", "#add-input")).toBe(false);
+    expect(inSection("exceptions", "#ex-add-input")).toBe(true);
+    expect(inSection("backup", "#ex-add-input")).toBe(false);
     expect(inSection("backup", "#migration-import")).toBe(true);
     expect(inSection("about", "#migration-import")).toBe(false);
-    expect(inSection("rules", "#migration-import")).toBe(false);
+    expect(inSection("exceptions", "#migration-import")).toBe(false);
   });
 
   it("keeps the annoyance fixes on Blocking level and the breach check on Privacy, in groups", async () => {
@@ -191,23 +191,75 @@ describe("Where things live (docs/research/settings-ia-2026-09.md)", () => {
   it("lists settings changed for one site, and Reset clears them", async () => {
     // The mock browser starts with example.com's low-quality-results filter off.
     await renderOptions();
-    const rows = () => Array.from(document.querySelectorAll("#override-list li"));
-    expect(rows()).toHaveLength(1);
-    expect(rows()[0]!.textContent).toContain("example.com");
-    expect(rows()[0]!.textContent).toContain("Hide low-quality search results: off");
-    expect(document.getElementById("override-empty")!.style.display).toBe("none");
+    const row = () => document.querySelector<HTMLElement>('#ex-rows .ex-row[data-host="example.com"]');
+    expect(row()?.querySelector(".ex-name")?.textContent).toBe("Example");
+    expect(row()?.querySelector(".ex-sub")?.textContent).toContain("1 setting changed here · Reset");
 
-    rows()[0]!.querySelector("button")!.click();
+    [...row()!.querySelectorAll<HTMLButtonElement>(".ex-link")].find((b) => b.textContent === "Reset")!.click();
     for (let i = 0; i < 20; i++) await Promise.resolve();
     await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(rows()).toHaveLength(0);
-    expect(document.getElementById("override-empty")!.style.display).toBe("");
+    expect(sentMessages.filter((m) => m.type === "set-per-site-override").at(-1)).toMatchObject({ hostname: "example.com", value: null });
   });
 
-  it("sorts site lists by name, ignoring www.", async () => {
-    await renderOptions({ disabledSites: ["zeta.example", "www.alpha.example", "beta.example"] });
-    const names = Array.from(document.querySelectorAll("#site-list li"), (li) => li.querySelector("span:not(.site-icon)")?.textContent);
-    expect(names).toEqual(["www.alpha.example", "beta.example", "zeta.example"]);
+  it("lists each site once by name, sorted, ignoring www.", async () => {
+    await renderOptions({ disabledSites: ["zeta.example", "www.alpha.example", "beta.example"], customBlockedDomains: ["gamma.example"], perSiteOverrides: {}, customCosmeticRules: {}, customGrayscaleRules: {} });
+    const rows = Array.from(document.querySelectorAll<HTMLElement>("#ex-rows .ex-row"));
+    expect(rows.map((row) => row.querySelector(".ex-name")?.textContent)).toEqual(["Alpha", "Beta", "Gamma", "Zeta"]);
+    expect(rows.map((row) => row.querySelector(".pop-text")?.textContent)).toEqual(["Paused", "Paused", "Always block", "Paused"]);
+    expect(rows[0]!.title).toBe("alpha.example");
+    expect(document.getElementById("nav-count-exceptions")?.textContent).toBe("4");
+  });
+
+  it("filters and searches the list", async () => {
+    await renderOptions({ disabledSites: ["a.example"], customBlockedDomains: ["b.example"], perSiteOverrides: {} });
+    const names = () => Array.from(document.querySelectorAll("#ex-rows .ex-name"), (n) => n.textContent);
+    document.querySelector<HTMLButtonElement>('#ex-filter [data-filter="block"]')!.click();
+    expect(names()).toEqual(["B"]);
+    document.querySelector<HTMLButtonElement>('#ex-filter [data-filter="all"]')!.click();
+    const search = document.getElementById("ex-search") as HTMLInputElement;
+    search.value = "a.ex";
+    search.dispatchEvent(new Event("input"));
+    expect(names()).toEqual(["A"]);
+    search.value = "nothing";
+    search.dispatchEvent(new Event("input"));
+    expect(document.getElementById("ex-empty")?.hidden).toBe(false);
+    expect(document.getElementById("ex-empty-title")?.textContent).toBe("No matches.");
+  });
+
+  it("moves a site from Always block to Never block from its menu, with Undo", async () => {
+    await renderOptions({ customBlockedDomains: ["b.example"], perSiteOverrides: {} });
+    document.querySelector<HTMLButtonElement>('#ex-rows .ex-row[data-host="b.example"] .pop-btn')!.click();
+    document.querySelector<HTMLButtonElement>('.pop-menu .pop-item[data-value="allow"]')!.click();
+    await settle();
+    await settle();
+    const domains = sentMessages.filter((m) => m.type === "add-custom-domain" || m.type === "remove-custom-domain");
+    expect(domains.slice(-2)).toEqual([
+      { type: "remove-custom-domain", field: "customBlockedDomains", hostname: "b.example" },
+      { type: "add-custom-domain", field: "customAllowedDomains", hostname: "b.example" },
+    ]);
+    expect(document.getElementById("saved-toast-label")?.textContent).toBe("B: Never block");
+  });
+
+  it("asks how long before pausing a site from its menu", async () => {
+    await renderOptions({ customBlockedDomains: ["b.example"], perSiteOverrides: {} });
+    document.querySelector<HTMLButtonElement>('#ex-rows .ex-row[data-host="b.example"] .pop-btn')!.click();
+    document.querySelector<HTMLButtonElement>('.pop-menu .pop-item[data-value="paused"]')!.click();
+    expect(document.querySelector(".pause-menu")).not.toBeNull();
+    document.querySelector<HTMLButtonElement>('.pause-menu [data-length="hour"]')!.click();
+    await settle();
+    const sent = sentMessages.filter((m) => m.type === "toggle-site").at(-1)!;
+    expect(sent).toMatchObject({ hostname: "b.example", disabled: true });
+    expect(sent.until as number).toBeGreaterThan(Date.now());
+  });
+
+  it("shows how many things were hidden on a site, and Show again brings them back", async () => {
+    await renderOptions({ customCosmeticRules: { "news.example": [".a", ".b"] }, perSiteOverrides: {} });
+    const row = document.querySelector<HTMLElement>('#ex-rows .ex-row[data-host="news.example"]')!;
+    expect(row.querySelector(".ex-sub")?.textContent).toBe("2 things hidden · Show again");
+    expect(row.querySelector(".pop-text")?.textContent).toBe("Protected");
+    row.querySelector<HTMLButtonElement>(".ex-link")!.click();
+    await settle();
+    expect(sentMessages.filter((m) => m.type === "remove-cosmetic-rule").map((m) => m.selector)).toEqual([".a", ".b"]);
   });
 
   it("says what a changed level changes, with a reset to the level it came from", async () => {
@@ -341,10 +393,12 @@ describe("Block and allow: migration import", () => {
     expect(status?.textContent).toContain("1");
     expect(textarea.value).toBe("");
 
-    // The Block and allow lists re-render from the new state without
-    // a full page reload -- not just a background write nobody sees.
-    expect(document.getElementById("custom-block-list")?.textContent).toContain("ads.example.com");
-    expect(document.getElementById("custom-allow-list")?.textContent).toContain("shop.example.com");
+    // Exceptions re-renders from the new state without a page reload,
+    // not just a background write nobody sees.
+    await settle();
+    const state = (host: string) => document.querySelector(`#ex-rows .ex-row[data-host="${host}"] .pop-text`)?.textContent;
+    expect(state("ads.example.com")).toBe("Always block");
+    expect(state("shop.example.com")).toBe("Never block");
   });
 
   it("reports that nothing was recognized, for text with no supported syntax", async () => {
@@ -403,12 +457,12 @@ describe("Level cards", () => {
     expect(checked()).toEqual(["strict"]);
   });
 
-  it("shows the friendly empty states when nothing is paused or hidden", async () => {
-    await renderOptions({ disabledSites: [], customCosmeticRules: {}, customGrayscaleRules: {} });
-    expect(document.getElementById("site-list")?.children.length).toBe(0);
-    expect(document.getElementById("site-empty-state")?.style.display).not.toBe("none");
-    expect(document.getElementById("hidden-element-empty")?.style.display).not.toBe("none");
-    expect((document.getElementById("grayscale-element-block") as HTMLElement).hidden).toBe(true);
+  it("shows the friendly empty state when no site has an exception", async () => {
+    await renderOptions({ disabledSites: [], customCosmeticRules: {}, customGrayscaleRules: {}, customBlockedDomains: [], customAllowedDomains: [], perSiteOverrides: {} });
+    expect(document.getElementById("ex-rows")?.children.length).toBe(0);
+    expect(document.getElementById("ex-empty")?.hidden).toBe(false);
+    expect(document.getElementById("ex-empty-title")?.textContent).toBe("No exceptions yet");
+    expect(document.getElementById("nav-count-exceptions")?.hidden).toBe(true);
   });
 });
 
@@ -614,14 +668,16 @@ describe("Sites: one row per site", () => {
 });
 
 describe("Pausing for a while", () => {
-  it("pauses from Exceptions for the length picked, with a real label on the field", async () => {
+  it("adds a site from Exceptions, paused for the length picked, with a label on the field", async () => {
     await renderOptions();
-    const input = document.getElementById("add-input") as HTMLInputElement;
-    expect(document.querySelector('label[for="add-input"]')?.textContent).toBe("Pause Moat on a site");
+    document.getElementById("ex-add-open")!.click();
+    expect((document.getElementById("ex-add-form") as HTMLElement).hidden).toBe(false);
+    const input = document.getElementById("ex-add-input") as HTMLInputElement;
+    expect(input.getAttribute("aria-label")).toBe("Site");
     input.value = "x.example";
-    (document.getElementById("add-length") as HTMLSelectElement).value = "day";
+    (document.getElementById("ex-add-state") as HTMLSelectElement).value = "day";
     const before = Date.now();
-    (document.getElementById("add-button") as HTMLButtonElement).click();
+    (document.getElementById("ex-add-form") as HTMLFormElement).requestSubmit();
     await settle();
     const sent = sentMessages.filter((m) => m.type === "toggle-site").at(-1)!;
     expect(sent).toMatchObject({ hostname: "x.example", disabled: true });
@@ -631,28 +687,22 @@ describe("Pausing for a while", () => {
   it("shows when a timed pause ends in the paused list", async () => {
     const until = Date.now() + 3_600_000;
     await renderOptions({ disabledSites: ["paused.example"], pausedUntil: { "paused.example": until } });
-    const row = [...document.querySelectorAll("#site-list li")].find((li) => li.textContent?.includes("paused.example"));
-    expect(row?.querySelector(".row-note")?.textContent).toMatch(/^Until /);
+    const row = document.querySelector('#ex-rows .ex-row[data-host="paused.example"]');
+    expect(row?.querySelector(".ex-sub")?.textContent).toMatch(/^Until /);
   });
 
   it("says where and when a site was paused", async () => {
     const at = Date.now() - 3 * 86_400_000;
     await renderOptions({ disabledSites: ["paused.example", "old.example"], pauseInfo: { "paused.example": { at, from: "popup" } } });
-    const rows = [...document.querySelectorAll("#site-list li")];
-    const note = (host: string) => rows.find((li) => li.textContent?.includes(host))?.querySelector(".row-note")?.textContent ?? null;
+    const note = (host: string) => document.querySelector(`#ex-rows .ex-row[data-host="${host}"] .ex-sub`)?.textContent ?? null;
     expect(note("paused.example")).toBe("From Moat's icon, 3 days ago");
     expect(note("old.example")).toBeNull();
   });
 
-  it("shows the Per site tab only when something was changed for one site", async () => {
-    await renderOptions({ perSiteOverrides: {} });
-    expect(document.getElementById("tab-persite")!.hidden).toBe(true);
-  });
-
-  it("shows the Per site tab with the sites' changes once there are some", async () => {
-    await renderOptions({ perSiteOverrides: { "a.example": { hideSeoSpamResults: false } } });
-    expect(document.getElementById("tab-persite")!.hidden).toBe(false);
-    expect(document.querySelector('section[data-tab="persite"] #override-list')).not.toBeNull();
+  it("lists a site changed from Moat's icon in Exceptions, under Hidden too", async () => {
+    await renderOptions({ perSiteOverrides: { "a.example": { hideSeoSpamResults: false } }, customCosmeticRules: {}, customGrayscaleRules: {} });
+    document.querySelector<HTMLButtonElement>('#ex-filter [data-filter="hidden"]')!.click();
+    expect(Array.from(document.querySelectorAll<HTMLElement>("#ex-rows .ex-row"), (r) => r.dataset.host)).toEqual(["a.example"]);
   });
 
   it("asks how long when a site is switched off on Sites, and puts the switch back on cancel", async () => {

@@ -4229,5 +4229,171 @@
   },
   "hlSecurityDetails": {
     "message": "Detalles"
+  },
+  "pageLeadExceptions2": {
+    "message": "Sitios donde Moat actúa distinto."
+  },
+  "exSearch": {
+    "message": "Buscar sitios"
+  },
+  "exFilterLabel": {
+    "message": "Mostrar"
+  },
+  "exFilterAll": {
+    "message": "Todos"
+  },
+  "exFilterPaused": {
+    "message": "En pausa"
+  },
+  "exFilterHidden": {
+    "message": "Ocultos"
+  },
+  "exFilterBlocked": {
+    "message": "Bloqueados"
+  },
+  "exFilterAllowed": {
+    "message": "Permitidos"
+  },
+  "exEmptyTitle": {
+    "message": "Aún no hay excepciones"
+  },
+  "exEmptyHint": {
+    "message": "Pausa un sitio, oculta parte de una página o bloquea un sitio, y aparecerá aquí."
+  },
+  "exAddSite": {
+    "message": "Sitio"
+  },
+  "exAddWhat": {
+    "message": "Qué hace Moat allí"
+  },
+  "exAddPause": {
+    "message": "Pausar hasta que lo reactive"
+  },
+  "exAddPauseHour": {
+    "message": "Pausar 1 hora"
+  },
+  "exAddPauseDay": {
+    "message": "Pausar 1 día"
+  },
+  "exAddBlock": {
+    "message": "Bloquear siempre"
+  },
+  "exAddAllow": {
+    "message": "No bloquear nunca"
+  },
+  "exAdd": {
+    "message": "Añadir"
+  },
+  "exAddOpen": {
+    "message": "Añadir un sitio"
+  },
+  "exHideSomething": {
+    "message": "Ocultar algo en una página"
+  },
+  "exPausedNote": {
+    "message": "Los sitios en pausa siguen bloqueando páginas peligrosas."
+  },
+  "exMenuLabel": {
+    "message": "Qué hace Moat en $SITE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Spotify"
+      }
+    }
+  },
+  "exStateProtected": {
+    "message": "Protegido"
+  },
+  "exStateProtectedDesc": {
+    "message": "El bloqueo habitual de Moat."
+  },
+  "exStatePaused": {
+    "message": "En pausa"
+  },
+  "exStatePausedDesc": {
+    "message": "Aquí se cargan anuncios y rastreadores."
+  },
+  "exStateBlock": {
+    "message": "Bloquear siempre"
+  },
+  "exStateBlockDesc": {
+    "message": "No se carga nada de este sitio."
+  },
+  "exStateAllow": {
+    "message": "No bloquear nunca"
+  },
+  "exStateAllowDesc": {
+    "message": "Se carga en todos los sitios que visitas."
+  },
+  "exHiddenOne": {
+    "message": "1 elemento oculto"
+  },
+  "exHiddenMany": {
+    "message": "$COUNT$ elementos ocultos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exGrayedOne": {
+    "message": "1 elemento en gris"
+  },
+  "exGrayedMany": {
+    "message": "$COUNT$ elementos en gris",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exChangedOne": {
+    "message": "1 ajuste cambiado aquí"
+  },
+  "exChangedMany": {
+    "message": "$COUNT$ ajustes cambiados aquí",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exShowAgain": {
+    "message": "Mostrar de nuevo"
+  },
+  "exStateDone": {
+    "message": "$SITE$: $STATE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "state": {
+        "content": "$2",
+        "example": "Paused"
+      }
+    }
+  },
+  "exShownAgain": {
+    "message": "Se vuelve a mostrar todo en $SITE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Fandom"
+      }
+    }
+  },
+  "kaiAPause2": {
+    "message": "En el sitio, haz clic en el icono de Moat junto a la barra de direcciones y apaga su interruptor. También puedes pulsar Añadir un sitio aquí."
+  },
+  "kaiAHide2": {
+    "message": "En la página, haz clic en el icono de Moat y elige Ocultar algo. Los sitios donde ocultaste algo aparecen aquí."
+  },
+  "kaiABlock2": {
+    "message": "Pulsa Añadir un sitio, escribe el sitio y elige Bloquear siempre."
   }
 }

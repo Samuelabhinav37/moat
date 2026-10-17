@@ -4414,5 +4414,213 @@
   "hlSecurityDetails": {
     "message": "Details",
     "description": "Overview Highlights: link to Security."
+  },
+  "pageLeadExceptions2": {
+    "message": "Sites where Moat acts differently.",
+    "description": "Exceptions: the page's one-line subtitle."
+  },
+  "exSearch": {
+    "message": "Search sites",
+    "description": "Exceptions: search box placeholder."
+  },
+  "exFilterLabel": {
+    "message": "Show",
+    "description": "Exceptions: label of the filter buttons."
+  },
+  "exFilterAll": {
+    "message": "All",
+    "description": "Exceptions filter."
+  },
+  "exFilterPaused": {
+    "message": "Paused",
+    "description": "Exceptions filter."
+  },
+  "exFilterHidden": {
+    "message": "Hidden",
+    "description": "Exceptions filter: sites with parts hidden or settings changed."
+  },
+  "exFilterBlocked": {
+    "message": "Blocked",
+    "description": "Exceptions filter: Always block."
+  },
+  "exFilterAllowed": {
+    "message": "Allowed",
+    "description": "Exceptions filter: Never block."
+  },
+  "exEmptyTitle": {
+    "message": "No exceptions yet",
+    "description": "Exceptions: empty list title."
+  },
+  "exEmptyHint": {
+    "message": "Pause a site, hide part of a page or block a site, and it shows here.",
+    "description": "Exceptions: empty list hint."
+  },
+  "exAddSite": {
+    "message": "Site",
+    "description": "Exceptions add form: label of the address field."
+  },
+  "exAddWhat": {
+    "message": "What Moat does there",
+    "description": "Exceptions add form: label of the choice."
+  },
+  "exAddPause": {
+    "message": "Pause until I turn it back on",
+    "description": "Exceptions add form choice."
+  },
+  "exAddPauseHour": {
+    "message": "Pause for 1 hour",
+    "description": "Exceptions add form choice."
+  },
+  "exAddPauseDay": {
+    "message": "Pause for 1 day",
+    "description": "Exceptions add form choice."
+  },
+  "exAddBlock": {
+    "message": "Always block",
+    "description": "Exceptions add form choice."
+  },
+  "exAddAllow": {
+    "message": "Never block",
+    "description": "Exceptions add form choice."
+  },
+  "exAdd": {
+    "message": "Add",
+    "description": "Exceptions add form button."
+  },
+  "exAddOpen": {
+    "message": "Add a site",
+    "description": "Exceptions: opens the add form."
+  },
+  "exHideSomething": {
+    "message": "Hide something on a page",
+    "description": "Exceptions: starts the element picker on the last tab."
+  },
+  "exPausedNote": {
+    "message": "Paused sites still block dangerous pages.",
+    "description": "Exceptions: one line under the list."
+  },
+  "exMenuLabel": {
+    "message": "What Moat does on $SITE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Spotify"
+      }
+    },
+    "description": "Exceptions: accessible name of a site's menu."
+  },
+  "exStateProtected": {
+    "message": "Protected",
+    "description": "Exceptions menu: Moat's usual blocking."
+  },
+  "exStateProtectedDesc": {
+    "message": "Moat's usual blocking.",
+    "description": "Exceptions menu: line under Protected."
+  },
+  "exStatePaused": {
+    "message": "Paused",
+    "description": "Exceptions menu."
+  },
+  "exStatePausedDesc": {
+    "message": "Ads and trackers load here.",
+    "description": "Exceptions menu: line under Paused."
+  },
+  "exStateBlock": {
+    "message": "Always block",
+    "description": "Exceptions menu."
+  },
+  "exStateBlockDesc": {
+    "message": "Nothing from this site loads.",
+    "description": "Exceptions menu: line under Always block."
+  },
+  "exStateAllow": {
+    "message": "Never block",
+    "description": "Exceptions menu."
+  },
+  "exStateAllowDesc": {
+    "message": "Loads on every site you visit.",
+    "description": "Exceptions menu: line under Never block."
+  },
+  "exHiddenOne": {
+    "message": "1 thing hidden",
+    "description": "Exceptions row: parts of the page hidden there."
+  },
+  "exHiddenMany": {
+    "message": "$COUNT$ things hidden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    },
+    "description": "Exceptions row."
+  },
+  "exGrayedOne": {
+    "message": "1 thing grayed out",
+    "description": "Exceptions row."
+  },
+  "exGrayedMany": {
+    "message": "$COUNT$ things grayed out",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    },
+    "description": "Exceptions row."
+  },
+  "exChangedOne": {
+    "message": "1 setting changed here",
+    "description": "Exceptions row: changed from Moat's icon for this site."
+  },
+  "exChangedMany": {
+    "message": "$COUNT$ settings changed here",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    },
+    "description": "Exceptions row."
+  },
+  "exShowAgain": {
+    "message": "Show again",
+    "description": "Exceptions row: brings back what was hidden on the site."
+  },
+  "exStateDone": {
+    "message": "$SITE$: $STATE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "state": {
+        "content": "$2",
+        "example": "Paused"
+      }
+    },
+    "description": "Toast after changing what Moat does on a site."
+  },
+  "exShownAgain": {
+    "message": "Showing everything on $SITE$ again",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Fandom"
+      }
+    },
+    "description": "Toast after Show again."
+  },
+  "kaiAPause2": {
+    "message": "On the site, click the Moat icon next to the address bar and turn off its switch. You can also press Add a site here.",
+    "description": "Kai's answer: how to pause a site."
+  },
+  "kaiAHide2": {
+    "message": "On the page, click the Moat icon and choose Hide something. Sites where you hid something are listed here.",
+    "description": "Kai's answer: how to hide something."
+  },
+  "kaiABlock2": {
+    "message": "Press Add a site, type the site and pick Always block.",
+    "description": "Kai's answer: how to always block a site."
   }
 }

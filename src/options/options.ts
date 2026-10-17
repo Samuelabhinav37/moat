@@ -10,12 +10,12 @@ import { detectPreset, presetDifference, presetPatch, type PresetName } from "..
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
-import { applyBulkSelect, type BulkLabels } from "./bulkSelect";
 import { buildSiteIcon, faviconUrl } from "./siteIcon";
 import { buildGlyphTile, stopGlyph, type GlyphName } from "./glyphs";
 import { openPopMenu } from "./popMenu";
+import { buildExceptionRow, exceptionSites, matchesFilter, sharedNames, type ExceptionFilter, type ExceptionHandlers, type ExceptionLabels, type ExceptionSite, type SiteState } from "./exceptionsList";
 import { siteName } from "../shared/siteName";
-import { initDashboard, pageFromHash, showTab } from "./dashboard";
+import { initDashboard, pageFromHash, tabFromHash } from "./dashboard";
 import { buildExplainer, helpSceneFor, initExplainerPanel } from "./explainerPanel";
 import { buildBrandLogo, buildBrandTile, prependBrand, type BrandId } from "./brandIcons";
 import { REPORT_ENDPOINT } from "../shared/reportEndpoint";
@@ -34,9 +34,7 @@ import { buildHighlight, buildKpi, buildWeekChart, changePercent, type DayColumn
 import { buildDays, buildPurposes, buildReachRows, busiestDayPhrase, purposeLabel, purposeShares, type DayData } from "./insightsView";
 import { groupLabel, groupSites, type SiteGroup } from "./siteGroups";
 import { createSavedToast } from "./savedToast";
-import { getCustomRuleStats } from "../background/customRuleStats";
 import { getLastBackupAt, recordBackupTaken } from "../background/backupStats";
-import { customRuleStatKey, isStale } from "../shared/customRuleStats";
 import { validateImportedSettings } from "../background/settingsPortability";
 import { importRisks, summarizeSettingsImport } from "../shared/settingsDiff";
 import type {
@@ -46,7 +44,6 @@ import type {
   CheckForLiveUpdatesMessage,
   CompanyBreakdownResponse,
   CustomDomainListField,
-  CustomRuleStat,
   ExportSettingsMessage,
   FilterListMatchesResponse,
   GetCompanyBreakdownMessage,
@@ -73,8 +70,7 @@ import type {
 } from "../types";
 import { STORAGE_KEY } from "../types";
 import { joinCompanyBreakdown, type CompanyInfo } from "./trackerView";
-import { OVERRIDE_NAMES, siteOverrideEntries, type SiteOverrideEntry } from "./siteOverrides";
-import { describeSelector, type RuleKind } from "./ruleLabel";
+import { siteOverrideEntries, type SiteOverrideEntry } from "./siteOverrides";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { parseFilterListImport } from "../shared/filterListImport";
 import { MAX_STRING_LENGTH } from "../shared/importBounds";
@@ -129,7 +125,7 @@ async function removeGrayscaleRule(hostname: string, selector: string): Promise<
 async function sendAddCustomDomain(field: CustomDomainListField, hostname: string): Promise<boolean> {
   const message: AddCustomDomainMessage = { type: "add-custom-domain", field, hostname };
   const response = (await browser.runtime.sendMessage(message)) as AddCustomDomainResponse;
-  return response.ok;
+  return response?.ok === true;
 }
 
 async function sendRemoveCustomDomain(field: CustomDomainListField, hostname: string): Promise<void> {
@@ -168,11 +164,11 @@ const kaiGuide = initKaiGuide(document, {
   turnOn: () => void setSettings({ enabled: true }).then(() => render()),
   openHelp: () => helpPanel.open(),
   questions: [
-    { id: "pause", ask: ["kaiQPause", "How do I pause Moat on a site?"], answer: ["kaiAPause", "On the site, click the Moat icon next to the address bar and turn off its switch. You can also add a site here, under Exceptions and Paused."], hash: "#paused", target: "#add-input" },
+    { id: "pause", ask: ["kaiQPause", "How do I pause Moat on a site?"], answer: ["kaiAPause2", "On the site, click the Moat icon next to the address bar and turn off its switch. You can also press Add a site here."], hash: "#exceptions", target: "#ex-add-open" },
     { id: "level", ask: ["kaiQLevel", "Where do I change how much Moat blocks?"], answer: ["kaiALevel", "Under Protection, pick a level. Balanced suits most people."], hash: "#blocking", target: "#level-cards" },
     { id: "blocked", ask: ["kaiQBlocked", "Where do I see what Moat blocked?"], answer: ["kaiABlocked", "Overview shows your week. Trackers shows who tried to follow you, and Sites shows where."], hash: "#overview", target: ".ov-week" },
-    { id: "hide", ask: ["kaiQHide", "How do I hide something on a page?"], answer: ["kaiAHide", "On the page, click the Moat icon and choose Hide something on this page. Everything you hid is listed here."], hash: "#hidden", target: "#pick-element-button" },
-    { id: "block", ask: ["kaiQBlock", "How do I always block a site?"], answer: ["kaiABlock", "Type the site under Always block and press Block."], hash: "#rules", target: "#custom-block-input" },
+    { id: "hide", ask: ["kaiQHide", "How do I hide something on a page?"], answer: ["kaiAHide2", "On the page, click the Moat icon and choose Hide something. Sites where you hid something are listed here."], hash: "#exceptions", target: "#pick-element-button" },
+    { id: "block", ask: ["kaiQBlock", "How do I always block a site?"], answer: ["kaiABlock2", "Press Add a site, type the site and pick Always block."], hash: "#exceptions", target: "#ex-add-open" },
     { id: "backup", ask: ["kaiQBackup", "How do I keep my settings on another computer?"], answer: ["kaiABackup", "Under Backup and sync, save a backup file or turn on sync."], hash: "#backup", target: "#a-backup" },
     { id: "broken", ask: ["kaiQBroken", "A site isn't working"], answer: ["kaiABroken", "Let's fix it step by step."], run: () => helpPanel.openTopic("load") },
     { id: "working", ask: ["kaiQWorking", "Is Moat working?"], answer: ["kaiAWorking", "Here's how to check."], run: () => helpPanel.openTopic("verify") },
@@ -574,10 +570,6 @@ const cnameChromeDohHint = tFallback(
 );
 
 const liveStatus = document.getElementById("live-status") as HTMLElement | null;
-const siteList = document.getElementById("site-list") as HTMLUListElement;
-const siteEmptyState = document.getElementById("site-empty-state") as HTMLElement;
-const addInput = document.getElementById("add-input") as HTMLInputElement;
-const addButton = document.getElementById("add-button") as HTMLButtonElement;
 
 // Set by the top-level render() below; read by the import preview and the
 // weekly tracker list so neither needs its own fetch.
@@ -616,12 +608,7 @@ function normalizeHostname(input: string): string | null {
   }
 }
 
-/** Shared by every removable list on this page: the paused-sites list, the
- * two custom block/allow lists, and the picker's two saved-rule lists.
- * rerenderSelf re-renders just this one list after a removal -- adding or
- * removing one entry doesn't need to tear down and rebuild every other
- * list plus the filter-groups checkboxes on the page too, which is what
- * calling the page-level render() here would do. */
+/** The search box and "Show all" on Sites' and Trackers' long lists. */
 const longListLabels: LongListLabels = {
   search: tFallback("listSearch", "Search"),
   showAll: (count) => tFallback("listShowAll", `Show all ${count}`, String(count)),
@@ -629,119 +616,12 @@ const longListLabels: LongListLabels = {
   noMatches: tFallback("listNoMatches", "No matches."),
 };
 
-/** How to put a removed entry back, and what the toast says meanwhile. */
-interface UndoRemoval<T> {
-  message: (item: T) => string;
-  restore: (item: T) => Promise<unknown>;
-}
-
-function offerUndo<T>(undo: UndoRemoval<T> | undefined, item: T, rerenderSelf: () => Promise<void>): void {
-  if (!undo) return;
-  savedToast.offerUndo(undo.message(item), tFallback("toastUndo", "Undo"), () => {
-    void undo.restore(item).then(rerenderSelf);
-  });
-}
-
 // Chrome only: the manifest asks for "favicon" there (see siteIcon.ts).
 const faviconsSupported = (browser.runtime.getManifest().permissions ?? []).includes("favicon");
 const siteIcon = (hostname: string) =>
   buildSiteIcon(document, hostname, faviconUrl(hostname, (path) => browser.runtime.getURL(path), faviconsSupported));
 
-/** Acting on several selected rows at once: the button's wording and what
- * the toast says afterwards. */
-interface BulkRemoval {
-  labels: BulkLabels;
-  done: (count: number) => string;
-}
-
-function renderRows<T>(
-  list: HTMLUListElement,
-  emptyState: HTMLElement,
-  items: T[],
-  formatLabel: (item: T) => string,
-  removeLabel: string,
-  onRemove: (item: T) => Promise<unknown>,
-  rerenderSelf: () => Promise<void>,
-  undo?: UndoRemoval<T>,
-  bulk?: BulkRemoval,
-  withIcons = false,
-  describe?: (item: T) => string | null
-): void {
-  emptyState.style.display = items.length ? "none" : "";
-  const rows = items.map((item) => {
-    const li = document.createElement("li");
-    const label = document.createElement("span");
-    label.textContent = formatLabel(item);
-    li.dataset.search = label.textContent;
-    const note = describe?.(item);
-    if (note) label.append(Object.assign(document.createElement("small"), { className: "row-note", textContent: note }));
-
-    const remove = document.createElement("button");
-    remove.textContent = removeLabel;
-    remove.addEventListener("click", async () => {
-      await onRemove(item);
-      await rerenderSelf();
-      offerUndo(undo, item, rerenderSelf);
-    });
-
-    if (withIcons) li.append(siteIcon(label.textContent));
-    li.append(label, remove);
-    return li;
-  });
-  list.replaceChildren(...rows);
-  applyLongList(list, longListLabels);
-  if (!bulk) return;
-  const keys = items.map(formatLabel);
-  applyBulkSelect(list, rows, keys, bulk.labels, async (chosenKeys) => {
-    const chosen = items.filter((_, i) => chosenKeys.includes(keys[i]!));
-    for (const item of chosen) await onRemove(item);
-    await rerenderSelf();
-    if (!undo) return;
-    savedToast.offerUndo(bulk.done(chosen.length), tFallback("toastUndo", "Undo"), () => {
-      void (async () => {
-        for (const item of chosen) await undo.restore(item);
-        await rerenderSelf();
-      })();
-    });
-  });
-}
-
-function renderDomainList(
-  list: HTMLUListElement,
-  emptyState: HTMLElement,
-  domains: string[],
-  removeLabel: string,
-  onRemove: (domain: string) => Promise<void>,
-  rerenderSelf: () => Promise<void>,
-  undo?: UndoRemoval<string>,
-  bulk?: BulkRemoval,
-  describe?: (domain: string) => string | null
-): void {
-  // By name, ignoring a leading "www.", so www.amazon.com sits with the a's.
-  const bare = (domain: string) => domain.replace(/^www\./i, "");
-  const sorted = [...domains].sort((a, b) => bare(a).localeCompare(bare(b)));
-  renderRows(list, emptyState, sorted, (domain) => domain, removeLabel, onRemove, rerenderSelf, undo, bulk, true, describe);
-}
-
-const bulkLabelsFor = (action: (count: number) => string): BulkLabels => ({
-  selectAll: tFallback("bulkSelectAll", "Select all"),
-  selectRow: (label) => tFallback("bulkSelectRow", `Select ${label}`, label),
-  selected: (count) => tFallback("bulkSelected", `${count} selected`, String(count)),
-  action,
-});
-const bulkResume: BulkRemoval = {
-  labels: bulkLabelsFor((count) => tFallback("bulkResume", `Resume ${count}`, String(count))),
-  done: (count) => tFallback("toastResumedMany", `Resumed ${count} sites`, String(count)),
-};
-const bulkRemove: BulkRemoval = {
-  labels: bulkLabelsFor((count) => tFallback("bulkRemove", `Remove ${count}`, String(count))),
-  done: (count) => tFallback("toastRemovedMany", `Removed ${count} sites`, String(count)),
-};
-
 // ---------- Changed for one site ----------
-
-const overrideList = document.getElementById("override-list") as HTMLUListElement;
-const overrideEmpty = document.getElementById("override-empty") as HTMLElement;
 
 async function setSiteOverrides(entry: SiteOverrideEntry, restore: boolean): Promise<void> {
   for (const { key, value } of entry.changes) {
@@ -753,75 +633,6 @@ async function setSiteOverrides(entry: SiteOverrideEntry, restore: boolean): Pro
     };
     await browser.runtime.sendMessage(message);
   }
-}
-
-/** One row per site: its icon and name, what was changed there ("Block
- * fingerprinting: Off"), and Reset, which puts every setting on that site
- * back to the usual one (with Undo). */
-function renderSiteOverrides(settings: Settings): void {
-  const entries = siteOverrideEntries(settings.perSiteOverrides);
-  overrideEmpty.style.display = entries.length ? "none" : "";
-  // The "Per site" tab only appears once something was changed for one site.
-  // Resetting the last one while it's open moves back to Paused.
-  const tabButton = document.getElementById("tab-persite");
-  if (tabButton) {
-    tabButton.hidden = entries.length === 0;
-    if (tabButton.hidden && tabButton.getAttribute("aria-selected") === "true" && pageFromHash(location.hash) === "exceptions") showTab("exceptions", "paused");
-  }
-  const on = tFallback("commonOn", "on");
-  const off = tFallback("commonOff", "off");
-  overrideList.replaceChildren(
-    ...entries.map((entry) => {
-      const li = document.createElement("li");
-      li.dataset.search = entry.hostname;
-      const text = document.createElement("div");
-      const host = document.createElement("span");
-      host.textContent = entry.hostname;
-      const changes = document.createElement("span");
-      changes.className = "override-changes";
-      changes.textContent = entry.changes
-        .map(({ key, value }) => `${tFallback(OVERRIDE_NAMES[key][0], OVERRIDE_NAMES[key][1])}: ${value ? on : off}`)
-        .join(" · ");
-      text.append(host, changes);
-      const reset = document.createElement("button");
-      reset.textContent = tFallback("popupOverrideReset", "Reset");
-      reset.setAttribute("aria-label", tFallback("overridesResetSite", `Reset ${entry.hostname}`, entry.hostname));
-      reset.addEventListener("click", async () => {
-        await setSiteOverrides(entry, false);
-        await render();
-        savedToast.offerUndo(tFallback("toastReset", `Reset ${entry.hostname}`, entry.hostname), tFallback("toastUndo", "Undo"), () => {
-          void setSiteOverrides(entry, true).then(() => render());
-        });
-      });
-      li.append(siteIcon(entry.hostname), text, reset);
-      return li;
-    })
-  );
-  applyLongList(overrideList, longListLabels);
-}
-
-const undoResume: UndoRemoval<string> = {
-  message: (hostname) => tFallback("toastResumed", `Moat is back on for ${hostname}`, hostname),
-  restore: (hostname) => setSiteDisabled(hostname, true),
-};
-
-function undoRemoveDomain(field: CustomDomainListField): UndoRemoval<string> {
-  return {
-    message: (domain) => tFallback("toastRemoved", `Removed ${domain}`, domain),
-    restore: (domain) => sendAddCustomDomain(field, domain),
-  };
-}
-
-interface RuleEntry {
-  hostname: string;
-  selector: string;
-}
-
-function undoRemoveRule(restore: (hostname: string, selector: string) => Promise<void>): UndoRemoval<RuleEntry> {
-  return {
-    message: (rule) => tFallback("toastRuleRemoved", `Removed an element on ${rule.hostname}`, rule.hostname),
-    restore: (rule) => restore(rule.hostname, rule.selector),
-  };
 }
 
 // ---------- Setting rows ----------
@@ -1473,206 +1284,187 @@ filterCheckUpdates.addEventListener("click", (event) => {
   void checkForFixes(filterCheckUpdates);
 });
 
-// ---------- Custom Rules tab ----------
+// ---------- Exceptions: one list of sites (exceptionsList.ts) ----------
 
-const customBlockList = document.getElementById("custom-block-list") as HTMLUListElement;
-const customBlockEmpty = document.getElementById("custom-block-empty") as HTMLElement;
-const customBlockInput = document.getElementById("custom-block-input") as HTMLInputElement;
-const customBlockAdd = document.getElementById("custom-block-add") as HTMLButtonElement;
-const customBlockAddStatus = document.getElementById("custom-block-add-status") as HTMLElement;
-
-const customAllowList = document.getElementById("custom-allow-list") as HTMLUListElement;
-const customAllowEmpty = document.getElementById("custom-allow-empty") as HTMLElement;
-const customAllowInput = document.getElementById("custom-allow-input") as HTMLInputElement;
-const customAllowAdd = document.getElementById("custom-allow-add") as HTMLButtonElement;
-const customAllowAddStatus = document.getElementById("custom-allow-add-status") as HTMLElement;
-
-// Both a locally-invalid hostname (empty, unparseable, or over
-// MAX_STRING_LENGTH -- see normalizeHostname) and a background rejection
-// (sendAddCustomDomain's { ok: false }) used to look identical to success:
-// the input cleared and the list re-rendered either way, with the domain
-// silently never added. Now both paths leave the input untouched and show
-// a real reason instead.
-async function addCustomDomain(field: CustomDomainListField, input: HTMLInputElement): Promise<void> {
-  const status = field === "customBlockedDomains" ? customBlockAddStatus : customAllowAddStatus;
-  const hostname = normalizeHostname(input.value);
-  if (!hostname) {
-    status.hidden = false;
-    status.textContent = tFallback("optionsAddDomainInvalid", "Enter a site address like example.com.");
-    return;
-  }
-  const ok = await sendAddCustomDomain(field, hostname);
-  if (!ok) {
-    status.hidden = false;
-    status.textContent = tFallback("optionsAddDomainFailed", "Couldn't add that domain. Try again.");
-    return;
-  }
-  status.hidden = true;
-  input.value = "";
-  await (field === "customBlockedDomains" ? rerenderCustomBlockList() : rerenderCustomAllowList());
-}
-
-customBlockAdd.addEventListener("click", () => addCustomDomain("customBlockedDomains", customBlockInput));
-customBlockInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") customBlockAdd.click();
-});
-
-customAllowAdd.addEventListener("click", () => addCustomDomain("customAllowedDomains", customAllowInput));
-customAllowInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") customAllowAdd.click();
-});
-
-const hiddenElementRows = document.getElementById("hidden-element-rows") as HTMLElement;
-const hiddenElementEmpty = document.getElementById("hidden-element-empty") as HTMLElement;
-const grayscaleElementRows = document.getElementById("grayscale-element-rows") as HTMLElement;
-const grayscaleElementEmpty = document.getElementById("grayscale-element-empty") as HTMLElement;
-const grayscaleElementBlock = document.getElementById("grayscale-element-block") as HTMLElement;
+const exRows = document.getElementById("ex-rows") as HTMLElement;
+const exEmpty = document.getElementById("ex-empty") as HTMLElement;
+const exSearch = document.getElementById("ex-search") as HTMLInputElement;
+const exFilterGroup = document.getElementById("ex-filter") as HTMLElement;
+const exAddForm = document.getElementById("ex-add-form") as HTMLFormElement;
+const exAddInput = document.getElementById("ex-add-input") as HTMLInputElement;
+const exAddState = document.getElementById("ex-add-state") as HTMLSelectElement;
+const exAddOpen = document.getElementById("ex-add-open") as HTMLButtonElement;
+const exAddStatus = document.getElementById("ex-add-status") as HTMLElement;
 const pickElementButton = document.getElementById("pick-element-button") as HTMLButtonElement;
 const pickElementStatus = document.getElementById("pick-element-status") as HTMLElement;
 
-const SVG_NS = "http://www.w3.org/2000/svg";
+/** Old links (#paused, #hidden, #rules) open the list filtered to match. */
+const FILTER_FOR_TAB: Record<string, ExceptionFilter> = { paused: "paused", hidden: "hidden", rules: "all" };
+let exFilter: ExceptionFilter = FILTER_FOR_TAB[tabFromHash(location.hash) ?? ""] ?? "all";
 
-/** Built via the DOM rather than an innerHTML template -- web-ext lint flags
- * any innerHTML assignment it can't statically prove is a literal, even a
- * safe hardcoded one, as UNSAFE_VAR_ASSIGNMENT. */
-function buildStaleTriangleIcon(): SVGSVGElement {
-  const icon = document.createElementNS(SVG_NS, "svg");
-  icon.setAttribute("viewBox", "0 0 16 16");
-  icon.setAttribute("fill", "none");
-  icon.setAttribute("stroke", "currentColor");
-  icon.setAttribute("stroke-width", "1.4");
-
-  const outline = document.createElementNS(SVG_NS, "path");
-  outline.setAttribute("d", "M8 1.5l7 12.5H1z");
-  outline.setAttribute("stroke-linejoin", "round");
-
-  const stem = document.createElementNS(SVG_NS, "path");
-  stem.setAttribute("d", "M8 6.2v3.4");
-  stem.setAttribute("stroke-linecap", "round");
-
-  const dot = document.createElementNS(SVG_NS, "circle");
-  dot.setAttribute("cx", "8");
-  dot.setAttribute("cy", "11.6");
-  dot.setAttribute("r", "0.7");
-  dot.setAttribute("fill", "currentColor");
-  dot.setAttribute("stroke", "none");
-
-  icon.append(outline, stem, dot);
-  return icon;
-}
-
-/** Shared by the picker's "Hide" and "Gray out" saved-rule lists -- both are
- * hostname -> selector[] maps, joined against customRuleStats.ts's separate
- * per-rule hit/staleness store (see the surface-redesign plan) keyed the
- * same way that module stores entries. */
-const RULE_KIND_NAMES: Record<RuleKind, readonly [string, string]> = {
-  image: ["pickerKindImage", "Image"],
-  frame: ["pickerKindFrame", "Embedded frame"],
-  video: ["pickerKindVideo", "Video"],
-  link: ["pickerKindLink", "Link"],
-  text: ["pickerKindText", "Text"],
-  box: ["pickerKindBox", "Box"],
+const exLabels: ExceptionLabels = {
+  menuLabel: (name) => tFallback("exMenuLabel", `What Moat does on ${name}`, name),
+  states: {
+    protected: { label: tFallback("exStateProtected", "Protected"), desc: tFallback("exStateProtectedDesc", "Moat's usual blocking.") },
+    paused: { label: tFallback("exStatePaused", "Paused"), desc: tFallback("exStatePausedDesc", "Ads and trackers load here.") },
+    block: { label: tFallback("exStateBlock", "Always block"), desc: tFallback("exStateBlockDesc", "Nothing from this site loads.") },
+    allow: { label: tFallback("exStateAllow", "Never block"), desc: tFallback("exStateAllowDesc", "Loads on every site you visit.") },
+  },
+  hidden: (n) => (n === 1 ? tFallback("exHiddenOne", "1 thing hidden") : tFallback("exHiddenMany", `${n} things hidden`, String(n))),
+  grayed: (n) => (n === 1 ? tFallback("exGrayedOne", "1 thing grayed out") : tFallback("exGrayedMany", `${n} things grayed out`, String(n))),
+  changed: (n) => (n === 1 ? tFallback("exChangedOne", "1 setting changed here") : tFallback("exChangedMany", `${n} settings changed here`, String(n))),
+  showAgain: tFallback("exShowAgain", "Show again"),
+  reset: tFallback("popupOverrideReset", "Reset"),
 };
 
-function ruleLabel(selector: string): string {
-  const { kind, name } = describeSelector(selector);
-  const kindName = tFallback(RULE_KIND_NAMES[kind][0], RULE_KIND_NAMES[kind][1]);
-  return name ? tFallback("ruleLabelNamed", `${kindName} “${name}”`, [kindName, name]) : kindName;
+/** Leaves one state for another: off the old list, onto the new one. */
+async function moveSite(hostname: string, from: SiteState, to: SiteState, pauseUntil?: number): Promise<void> {
+  if (from === "paused" && to !== "paused") await setSiteDisabled(hostname, false);
+  if (from === "block") await sendRemoveCustomDomain("customBlockedDomains", hostname);
+  if (from === "allow") await sendRemoveCustomDomain("customAllowedDomains", hostname);
+  if (to === "paused") await setSiteDisabled(hostname, true, pauseUntil, "exceptions");
+  if (to === "block") await sendAddCustomDomain("customBlockedDomains", hostname);
+  if (to === "allow") await sendAddCustomDomain("customAllowedDomains", hostname);
 }
 
-function buildRuleRow(
-  kind: "hide" | "gray",
-  hostname: string,
-  selector: string,
-  stats: Record<string, CustomRuleStat>,
-  onRemove: (hostname: string, selector: string) => Promise<unknown>,
-  rerenderSelf: () => Promise<void>,
-  undo?: UndoRemoval<RuleEntry>
-): HTMLElement {
-  const now = Date.now();
-  const stat = stats[customRuleStatKey(kind, hostname, selector)];
-  const stale = stat ? isStale(stat, now) : false;
-
-  const row = document.createElement("div");
-  row.className = "rule-row";
-  row.dataset.search = `${hostname} ${selector}`;
-
-  const main = document.createElement("div");
-  main.className = "rule-main";
-  // What it is in words ("Box “sponsor box”"), then the site, then the
-  // selector itself in small print for anyone who wants it.
-  const labelEl = document.createElement("span");
-  labelEl.className = stale ? "rule-label stale" : "rule-label";
-  labelEl.textContent = ruleLabel(selector);
-  const siteEl = document.createElement("span");
-  siteEl.className = "rule-site";
-  siteEl.append(siteIcon(hostname), document.createTextNode(hostname));
-  const selectorEl = document.createElement("span");
-  selectorEl.className = "rule-selector";
-  selectorEl.textContent = selector;
-  main.append(labelEl, siteEl, selectorEl);
-
-  const meta = document.createElement("div");
-  meta.className = "rule-meta";
-  if (stale) {
-    meta.append(
-      buildStaleTriangleIcon(),
-      document.createTextNode(
-        tFallback("optionsRuleStaleMeta", "Hasn't matched in 30 days. The site probably changed.")
-      )
-    );
-  } else if (stat) {
-    const days = Math.max(0, Math.floor((now - stat.createdAt) / 86_400_000));
-    const added =
-      days === 0
-        ? tFallback("optionsRuleAddedToday", "Added today")
-        : days === 1
-          ? tFallback("optionsRuleAddedYesterday", "Added yesterday")
-          : tFallback("optionsRuleAddedDaysAgo", `Added ${days} days ago`, String(days));
-    const hits =
-      stat.hitCount === 0
-        ? tFallback("optionsRuleHitsNone", "not seen on a page yet")
-        : stat.hitCount === 1
-          ? tFallback("optionsRuleHitsOnce", "hidden once since")
-          : tFallback("optionsRuleHitsCount", `hidden ${stat.hitCount} times since`, String(stat.hitCount));
-    meta.textContent = `${added} · ${hits}`;
-  }
-  if (stale || stat) main.append(meta);
-
-  // Stale-rule removal is immediate with no confirm dialog -- the rule is
-  // already doing nothing, so there's nothing a confirm step would protect
-  // against.
-  const remove = document.createElement("button");
-  remove.type = "button";
-  remove.className = stale ? "rule-remove stale-remove" : "rule-remove";
-  remove.textContent = tFallback("commonRemove", "Remove");
-  remove.addEventListener("click", async () => {
-    await onRemove(hostname, selector);
-    await rerenderSelf();
-    offerUndo(undo, { hostname, selector }, rerenderSelf);
+/** Changes what Moat does on a site, then offers Undo. Pausing asks for how
+ * long first, with the same menu as everywhere else. */
+function setSiteState(site: ExceptionSite, to: SiteState, anchor: HTMLElement): void {
+  const name = siteName(site.hostname);
+  const apply = (until?: number) =>
+    void (async () => {
+      const before = { state: site.state, until: lastSettings?.pausedUntil[site.hostname] };
+      await moveSite(site.hostname, site.state, to, until);
+      if (to === "paused") kaiGuide.moment({ name: "paused" });
+      await render();
+      savedToast.offerUndo(tFallback("exStateDone", `${name}: ${exLabels.states[to].label}`, [name, exLabels.states[to].label]), tFallback("toastUndo", "Undo"), () => {
+        void moveSite(site.hostname, to, before.state, before.until).then(() => render());
+      });
+    })();
+  if (to !== "paused") return apply();
+  openPauseMenu(document, anchor, pauseMenuLabels(name), (choice) => {
+    if (choice !== null) apply(pauseEnd(choice, Date.now()));
   });
-
-  row.append(main, remove);
-  return row;
 }
 
-function renderRuleGroup(
-  kind: "hide" | "gray",
-  container: HTMLElement,
-  emptyState: HTMLElement,
-  rules: Record<string, string[]>,
-  stats: Record<string, CustomRuleStat>,
-  onRemove: (hostname: string, selector: string) => Promise<unknown>,
-  rerenderSelf: () => Promise<void>,
-  undo?: UndoRemoval<RuleEntry>
-): void {
-  const rows = Object.entries(rules)
-    .flatMap(([hostname, selectors]) => selectors.map((selector) => ({ hostname, selector })))
-    .sort((a, b) => a.hostname.localeCompare(b.hostname));
-  emptyState.style.display = rows.length ? "none" : "";
-  container.replaceChildren(...rows.map((r) => buildRuleRow(kind, r.hostname, r.selector, stats, onRemove, rerenderSelf, undo)));
-  applyLongList(container, longListLabels);
+/** Brings back everything hidden or grayed out on a site, with Undo. */
+function showSiteAgain(site: ExceptionSite): void {
+  const settings = lastSettings;
+  if (!settings) return;
+  const hidden = [...(settings.customCosmeticRules[site.hostname] ?? [])];
+  const grayed = [...(settings.customGrayscaleRules[site.hostname] ?? [])];
+  void (async () => {
+    for (const selector of hidden) await removeCustomCosmeticRule(site.hostname, selector);
+    for (const selector of grayed) await removeGrayscaleRule(site.hostname, selector);
+    await render();
+    const name = siteName(site.hostname);
+    savedToast.offerUndo(tFallback("exShownAgain", `Showing everything on ${name} again`, name), tFallback("toastUndo", "Undo"), () => {
+      void (async () => {
+        for (const selector of hidden) await saveCosmeticRule(site.hostname, selector);
+        for (const selector of grayed) await saveGrayscaleRule(site.hostname, selector);
+        await render();
+      })();
+    });
+  })();
 }
+
+/** Puts a site's settings changed from Moat's icon back to the usual ones. */
+function resetSite(site: ExceptionSite): void {
+  const entry = lastSettings ? siteOverrideEntries(lastSettings.perSiteOverrides).find((e) => e.hostname === site.hostname) : undefined;
+  if (!entry) return;
+  void (async () => {
+    await setSiteOverrides(entry, false);
+    await render();
+    const name = siteName(site.hostname);
+    savedToast.offerUndo(tFallback("toastReset", `Reset ${name}`, name), tFallback("toastUndo", "Undo"), () => {
+      void setSiteOverrides(entry, true).then(() => render());
+    });
+  })();
+}
+
+function renderExceptions(settings: Settings): void {
+  const all = exceptionSites(settings, (h) => pausedNote(settings, h));
+  const count = document.getElementById("nav-count-exceptions");
+  if (count) {
+    count.textContent = all.length ? all.length.toLocaleString() : "";
+    count.hidden = all.length === 0;
+  }
+  const query = exSearch.value.trim().toLowerCase();
+  const shown = all.filter((site) => matchesFilter(site, exFilter) && (!query || `${siteName(site.hostname)} ${site.hostname}`.toLowerCase().includes(query)));
+  const shared = sharedNames(all);
+  const handlers: ExceptionHandlers = { setState: setSiteState, showAgain: showSiteAgain, reset: resetSite };
+  exRows.replaceChildren(...shown.map((site) => buildExceptionRow(document, site, exLabels, handlers, siteIcon, shared.has(siteName(site.hostname)))));
+  for (const button of exFilterGroup.querySelectorAll<HTMLButtonElement>("[data-filter]")) button.setAttribute("aria-pressed", String(button.dataset.filter === exFilter));
+  exEmpty.hidden = shown.length > 0;
+  const title = document.getElementById("ex-empty-title")!;
+  const hint = document.getElementById("ex-empty-hint")!;
+  if (!all.length) {
+    title.textContent = tFallback("exEmptyTitle", "No exceptions yet");
+    hint.textContent = tFallback("exEmptyHint", "Pause a site, hide part of a page or block a site, and it shows here.");
+  } else {
+    title.textContent = tFallback("listNoMatches", "No matches.");
+    hint.textContent = "";
+  }
+}
+
+exSearch.addEventListener("input", () => {
+  if (lastSettings) renderExceptions(lastSettings);
+});
+for (const button of exFilterGroup.querySelectorAll<HTMLButtonElement>("[data-filter]")) {
+  button.addEventListener("click", () => {
+    exFilter = button.dataset.filter as ExceptionFilter;
+    if (lastSettings) renderExceptions(lastSettings);
+  });
+}
+window.addEventListener("hashchange", () => {
+  const tab = tabFromHash(location.hash);
+  if (!tab || !FILTER_FOR_TAB[tab]) return;
+  exFilter = FILTER_FOR_TAB[tab]!;
+  if (lastSettings) renderExceptions(lastSettings);
+});
+
+function closeAddForm(): void {
+  exAddForm.hidden = true;
+  exAddOpen.hidden = false;
+  exAddOpen.setAttribute("aria-expanded", "false");
+  exAddStatus.hidden = true;
+}
+exAddOpen.addEventListener("click", () => {
+  exAddForm.hidden = false;
+  exAddOpen.hidden = true;
+  exAddOpen.setAttribute("aria-expanded", "true");
+  exAddInput.focus();
+});
+document.getElementById("ex-add-cancel")!.addEventListener("click", () => {
+  closeAddForm();
+  exAddOpen.focus();
+});
+exAddForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const hostname = normalizeHostname(exAddInput.value);
+  if (!hostname) {
+    exAddStatus.hidden = false;
+    exAddStatus.textContent = tFallback("optionsAddDomainInvalid", "Enter a site address like example.com.");
+    return;
+  }
+  const choice = exAddState.value;
+  void (async () => {
+    if (choice === "block" || choice === "allow") {
+      const ok = await sendAddCustomDomain(choice === "block" ? "customBlockedDomains" : "customAllowedDomains", hostname);
+      if (!ok) {
+        exAddStatus.hidden = false;
+        exAddStatus.textContent = tFallback("optionsAddDomainFailed", "Couldn't add that domain. Try again.");
+        return;
+      }
+    } else {
+      await setSiteDisabled(hostname, true, pauseEnd(choice as PauseLength, Date.now()), "exceptions");
+      kaiGuide.moment({ name: "paused" });
+    }
+    exAddInput.value = "";
+    closeAddForm();
+    await render();
+  })();
+});
 
 pickElementButton.addEventListener("click", async () => {
   pickElementStatus.hidden = true;
@@ -1747,7 +1539,7 @@ migrationImportButton.addEventListener("click", async () => {
   const response = (await browser.runtime.sendMessage(message)) as ImportCustomRulesResponse;
   migrationImportStatus.textContent = summarizeImportResult(response, parsed.skippedLines);
   migrationImportTextarea.value = "";
-  await Promise.all([rerenderCustomBlockList(), rerenderCustomAllowList(), rerenderHiddenElementList()]);
+  await render();
 });
 
 // ---------- About tab (DR-13) ----------
@@ -1894,28 +1686,6 @@ shortcutChangeButton.addEventListener("click", () => {
 
 // ---------- Render ----------
 
-// Each of these re-renders exactly one list from a fresh settings read,
-// rather than the whole page -- used as renderRows' rerenderSelf so
-// removing (or adding) one entry doesn't tear down and rebuild every other
-// list plus the filter-groups checkboxes too. getEffectiveSettings() (not
-// getSettings()) so a managed policy's forced disabledSites/
-// customBlockedDomains still shows correctly, matching what the full
-// render() below already does.
-async function rerenderSiteList(): Promise<void> {
-  const settings = await getEffectiveSettings();
-  renderDomainList(
-    siteList,
-    siteEmptyState,
-    settings.disabledSites,
-    tFallback("commonResume", "Resume"),
-    (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
-    rerenderSiteList,
-    undoResume,
-    bulkResume,
-    (hostname) => pausedNote(settings, hostname)
-  );
-}
-
 /** "Until 3:40 PM" for a timed pause; nothing for one that lasts. */
 function pausedUntilNote(until: number | undefined): string | null {
   if (until === undefined) return null;
@@ -1962,64 +1732,6 @@ function pauseMenuLabels(hostname: string) {
   };
 }
 
-async function rerenderCustomBlockList(): Promise<void> {
-  const settings = await getEffectiveSettings();
-  renderDomainList(
-    customBlockList,
-    customBlockEmpty,
-    settings.customBlockedDomains,
-    tFallback("commonRemove", "Remove"),
-    (domain) => sendRemoveCustomDomain("customBlockedDomains", domain),
-    rerenderCustomBlockList,
-    undoRemoveDomain("customBlockedDomains"),
-    bulkRemove
-  );
-}
-
-async function rerenderCustomAllowList(): Promise<void> {
-  const settings = await getEffectiveSettings();
-  renderDomainList(
-    customAllowList,
-    customAllowEmpty,
-    settings.customAllowedDomains,
-    tFallback("commonRemove", "Remove"),
-    (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
-    rerenderCustomAllowList,
-    undoRemoveDomain("customAllowedDomains"),
-    bulkRemove
-  );
-}
-
-async function rerenderHiddenElementList(): Promise<void> {
-  const [settings, stats] = await Promise.all([getEffectiveSettings(), getCustomRuleStats()]);
-  renderRuleGroup(
-    "hide",
-    hiddenElementRows,
-    hiddenElementEmpty,
-    settings.customCosmeticRules,
-    stats,
-    removeCustomCosmeticRule,
-    rerenderHiddenElementList,
-    undoRemoveRule(saveCosmeticRule)
-  );
-  grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
-}
-
-async function rerenderGrayscaleElementList(): Promise<void> {
-  const [settings, stats] = await Promise.all([getEffectiveSettings(), getCustomRuleStats()]);
-  renderRuleGroup(
-    "gray",
-    grayscaleElementRows,
-    grayscaleElementEmpty,
-    settings.customGrayscaleRules,
-    stats,
-    removeGrayscaleRule,
-    rerenderGrayscaleElementList,
-    undoRemoveRule(saveGrayscaleRule)
-  );
-  grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
-}
-
 async function render(): Promise<void> {
   const [settings, policy] = await Promise.all([getEffectiveSettings(), getManagedPolicy()]);
 
@@ -2033,19 +1745,7 @@ async function render(): Promise<void> {
   renderTheme(settings.theme);
   renderLiveStatus(await getLiveUpdateStatus(), await getYoutubeQuickFixesStatus());
 
-  renderDomainList(
-    siteList,
-    siteEmptyState,
-    settings.disabledSites,
-    tFallback("commonResume", "Resume"),
-    (hostname) => setSiteDisabled(hostname, false).then(() => undefined),
-    rerenderSiteList,
-    undoResume,
-    bulkResume,
-    (hostname) => pausedNote(settings, hostname)
-  );
-
-  renderSiteOverrides(settings);
+  renderExceptions(settings);
 
   const filterGroupStatus = await getFilterGroupStatus();
   filterBudgetWarning.hidden = filterGroupStatus === null || filterGroupStatus.ok;
@@ -2079,69 +1779,10 @@ async function render(): Promise<void> {
   for (const input of filterListRows.querySelectorAll("input")) input.disabled = filtersLocked;
   renderLevels(detectPreset(settings), filtersLocked, settings);
 
-  renderDomainList(
-    customBlockList,
-    customBlockEmpty,
-    settings.customBlockedDomains,
-    tFallback("commonRemove", "Remove"),
-    (domain) => sendRemoveCustomDomain("customBlockedDomains", domain),
-    rerenderCustomBlockList,
-    undoRemoveDomain("customBlockedDomains"),
-    bulkRemove
-  );
-  renderDomainList(
-    customAllowList,
-    customAllowEmpty,
-    settings.customAllowedDomains,
-    tFallback("commonRemove", "Remove"),
-    (domain) => sendRemoveCustomDomain("customAllowedDomains", domain),
-    rerenderCustomAllowList,
-    undoRemoveDomain("customAllowedDomains"),
-    bulkRemove
-  );
-  const customRuleStats = await getCustomRuleStats();
-  renderRuleGroup(
-    "hide",
-    hiddenElementRows,
-    hiddenElementEmpty,
-    settings.customCosmeticRules,
-    customRuleStats,
-    removeCustomCosmeticRule,
-    rerenderHiddenElementList,
-    undoRemoveRule(saveCosmeticRule)
-  );
-  renderRuleGroup(
-    "gray",
-    grayscaleElementRows,
-    grayscaleElementEmpty,
-    settings.customGrayscaleRules,
-    customRuleStats,
-    removeGrayscaleRule,
-    rerenderGrayscaleElementList,
-    undoRemoveRule(saveGrayscaleRule)
-  );
-  // The "Grayed out" block only appears once someone has actually grayed
-  // something out -- most people never will, so it stays out of the way.
-  grayscaleElementBlock.hidden = Object.keys(settings.customGrayscaleRules).length === 0;
-
   await renderBackupTab(settings);
   await renderAboutTab(policy, settings);
   explainerPanel.refresh();
 }
-
-addButton.addEventListener("click", async () => {
-  const hostname = normalizeHostname(addInput.value);
-  if (!hostname) return;
-  const length = (document.getElementById("add-length") as HTMLSelectElement).value as PauseLength;
-  await setSiteDisabled(hostname, true, pauseEnd(length, Date.now()), "exceptions");
-  addInput.value = "";
-  await rerenderSiteList();
-  kaiGuide.moment({ name: "paused" });
-});
-
-addInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") addButton.click();
-});
 
 // ---------- Backup tab (DR-15) ----------
 

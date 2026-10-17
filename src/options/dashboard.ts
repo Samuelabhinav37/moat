@@ -118,18 +118,6 @@ export function showPage(key: PageKey, root: Document = document): void {
   if (lead) lead.textContent = soloLead ?? link?.querySelector(".nav-lead")?.textContent ?? "";
 }
 
-/** Keeps a sidebar count in step with the rows of one or more lists. */
-function watchCount(countEl: HTMLElement, lists: HTMLElement[]): void {
-  const update = () => {
-    const count = lists.reduce((sum, list) => sum + list.children.length, 0);
-    countEl.textContent = count ? count.toLocaleString() : "";
-    countEl.hidden = count === 0;
-  };
-  const observer = new MutationObserver(update);
-  for (const list of lists) observer.observe(list, { childList: true });
-  update();
-}
-
 /** `onShow` runs after each screen change (the "How it works" panel follows it). */
 export function initDashboard(win: Window = window, onShow?: (key: PageKey) => void): void {
   const doc = win.document;
@@ -176,18 +164,6 @@ export function initDashboard(win: Window = window, onShow?: (key: PageKey) => v
   }
   win.addEventListener("resize", () => syncTabButtons(doc, currentTab.get(pageFromHash(win.location.hash))));
 
-  const lists = (...ids: string[]) => ids.map((id) => doc.getElementById(id)).filter((el): el is HTMLElement => el !== null);
-  const counts: [string, HTMLElement[]][] = [
-    ["tab-count-paused", lists("site-list")],
-    ["tab-count-persite", lists("override-list")],
-    ["tab-count-hidden", lists("hidden-element-rows", "grayscale-element-rows")],
-    ["tab-count-rules", lists("custom-block-list", "custom-allow-list")],
-    ["nav-count-exceptions", lists("site-list", "override-list", "hidden-element-rows", "grayscale-element-rows", "custom-block-list", "custom-allow-list")],
-  ];
-  for (const [id, els] of counts) {
-    const el = doc.getElementById(id);
-    if (el && els.length) watchCount(el, els);
-  }
 }
 
 /** "On this page" chips: scroll to their card (without changing the hash,

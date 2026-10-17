@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.293
+
+### Changed
+- **Exceptions is one list of sites.** Each site where Moat acts differently shows once, with
+  its icon and name and one menu for what Moat does there: Protected, Paused, Always block or
+  Never block. Change it right in the row, with Undo. Choosing Paused asks for how long.
+- Parts of a page you hid show on the site's row ("2 things hidden · Show again"), and so do
+  settings changed from Moat's icon ("1 setting changed here · Reset").
+- Search the list, or show only Paused, Hidden, Blocked or Allowed sites. Add a site with
+  Add a site, and start hiding something with Hide something on a page.
+- The Paused, Hidden, Allow and block and Per site tabs are gone. Old links to them open the
+  list with the matching filter.
+
 ## 0.11.292
 
 ### Changed
