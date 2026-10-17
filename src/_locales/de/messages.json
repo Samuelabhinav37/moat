@@ -4511,5 +4511,47 @@
         "example": "7"
       }
     }
+  },
+  "backupSave": {
+    "message": "Sichern"
+  },
+  "syncHint2": {
+    "message": "Nur Einstellungen. Keine Surfdaten."
+  },
+  "backupLead2": {
+    "message": "Sichere deine Einstellungen oder nimm sie auf einen anderen Computer mit."
+  },
+  "importFromBlocker": {
+    "message": "Aus einem anderen Blocker importieren"
+  },
+  "importFromBlockerHint": {
+    "message": "Füge Regeln aus uBlock Origin, AdGuard oder einem ähnlichen Blocker ein."
+  },
+  "aboutSentBlocking": {
+    "message": "Läuft auf deinem Gerät."
+  },
+  "aboutSentStats": {
+    "message": "Die Zählungen bleiben auf deinem Gerät."
+  },
+  "aboutSentUpdates": {
+    "message": "Lädt einmal am Tag signierte Listen. Sendet nichts über dich."
+  },
+  "aboutSentCname": {
+    "message": "Adressen, die versteckte Tracker sein könnten, kurz bevor sie laden."
+  },
+  "aboutSentBreach": {
+    "message": "Ein kurzes verschlüsseltes Stück des Passworts, nie das Passwort."
+  },
+  "aboutSentReports": {
+    "message": "Nur wenn du auf Senden tippst, und du siehst vorher alles."
+  },
+  "aboutSentCheckin": {
+    "message": "Nur wenn du antwortest. Nie eine Seite."
+  },
+  "aboutSentGoodbye": {
+    "message": "Wenn du Moat entfernst, fragt eine Seite nach dem Grund. Sie erhält nur die Version."
+  },
+  "aboutLead2": {
+    "message": "Deine Version und was dein Gerät verlässt."
   }
 }

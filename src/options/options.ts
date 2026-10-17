@@ -1800,21 +1800,8 @@ const importSettingsRisks = document.getElementById("import-settings-risks") as 
 const importSettingsRiskList = document.getElementById("import-settings-risk-list") as HTMLUListElement;
 const importSettingsApplyButton = document.getElementById("import-settings-apply-button") as HTMLButtonElement;
 const importSettingsCancelButton = document.getElementById("import-settings-cancel-button") as HTMLButtonElement;
-const exportHintEl = document.getElementById("export-hint") as HTMLElement;
 const backupMetricLastEl = document.getElementById("backup-metric-last") as HTMLElement;
 
-/** "Saves moat-settings-2026-09-29.json, a plain text file you can open and
- * read." as one message, with the file name set as code where the
- * translation puts $FILE$. */
-function renderExportHint(filename: string): void {
-  const MARK = "\u0001";
-  const sentence = tFallback("backupSavesFile", `Saves ${MARK}, a plain text file you can open and read.`, MARK);
-  const [before = "", after = ""] = sentence.split(MARK);
-  const code = document.createElement("code");
-  code.id = "export-filename";
-  code.textContent = filename;
-  exportHintEl.replaceChildren(before, code, after);
-}
 const syncRecipientEl = document.getElementById("sync-recipient") as HTMLElement;
 
 /** Same name the export button itself downloads -- so the hint above it and
@@ -1845,7 +1832,6 @@ syncToggle.addEventListener("change", async () => {
 });
 
 async function renderBackupTab(settings: Settings): Promise<void> {
-  renderExportHint(exportFilename());
   syncToggle.checked = settings.syncEnabled;
   syncRecipientEl.textContent = SYNC_VENDOR_NAME;
   prependBrand(syncRecipientEl, SYNC_VENDOR_BRAND);

@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.297
+
+### Changed
+- **Backup and sync** is a few rows: Save a backup (with when you last did), Restore from a
+  file, Sync across devices, and Import from another blocker. The file name line is gone.
+- **About** says each connection in one short line, and "Chrome only" is no longer repeated.
+  Nothing about what Moat sends has changed. Document links get the same icon tiles.
+
 ## 0.11.296
 
 ### Changed

@@ -4760,5 +4760,61 @@
       }
     },
     "description": "Sites: count on the list's title row."
+  },
+  "backupSave": {
+    "message": "Save",
+    "description": "Backup and sync: the button on Save a backup."
+  },
+  "syncHint2": {
+    "message": "Settings only. No browsing data.",
+    "description": "Backup and sync: under Sync across devices."
+  },
+  "backupLead2": {
+    "message": "Keep your settings safe, or take them to another computer.",
+    "description": "Backup and sync: the page's one-line subtitle."
+  },
+  "importFromBlocker": {
+    "message": "Import from another blocker",
+    "description": "Backup and sync: opens the import box."
+  },
+  "importFromBlockerHint": {
+    "message": "Paste rules from uBlock Origin, AdGuard or a similar blocker.",
+    "description": "Backup and sync: one line in the import box."
+  },
+  "aboutSentBlocking": {
+    "message": "Runs on your device.",
+    "description": "About."
+  },
+  "aboutSentStats": {
+    "message": "Counts stay on your device.",
+    "description": "About."
+  },
+  "aboutSentUpdates": {
+    "message": "Downloads signed lists once a day. Sends nothing about you.",
+    "description": "About."
+  },
+  "aboutSentCname": {
+    "message": "Addresses that might be hidden trackers, just before they load.",
+    "description": "Settings > About: what the hidden-tracker check sends. Chrome only."
+  },
+  "aboutSentBreach": {
+    "message": "A short scrambled piece of a password, never the password.",
+    "description": "About."
+  },
+  "aboutSentReports": {
+    "message": "Only when you press Send, and you see all of it first.",
+    "description": "Settings > About, 'What leaves your device': the problem-report row."
+  },
+  "aboutSentCheckin": {
+    "message": "Only when you answer. Never a site.",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "aboutSentGoodbye": {
+    "message": "When you remove Moat, a page asks why. It gets only the version.",
+    "description": "Settings > About, 'What leaves your device'."
+  },
+  "aboutLead2": {
+    "message": "Your version, and what leaves your device.",
+    "description": "About."
   }
 }
