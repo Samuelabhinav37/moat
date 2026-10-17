@@ -505,6 +505,74 @@
       :root { --bg: #161618; --card: #1f1f22; --border: #303034; --hairline: #26262a; }
       :root[data-theme="light"] { --bg: #f5f5f7; --card: #ffffff; --border: #e3e3e8; --hairline: #ececf0; }
       body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "Segoe UI", sans-serif; letter-spacing: -0.008em; -webkit-font-smoothing: antialiased; }
+      /* ---- Minimal popup (0.11.298): the site and its switch, one line
+         for what was blocked (it opens to the split), then the three
+         things people do here as rows, iOS Settings style. ---- */
+      body { padding: 12px; }
+      .popup-head { margin-bottom: 12px; padding: 2px 2px 0; }
+      .gear { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; color: var(--t2); }
+      .gear:hover { background: var(--s1); color: var(--t1); }
+      .gear svg { width: 18px; height: 18px; }
+      .card { border-radius: 14px; padding: 14px; background: var(--card); box-shadow: inset 0 0 0 1px var(--hairline); }
+      .site-favicon,
+      .site-favicon.has-img {
+        --plate: #fff;
+        width: 34px;
+        height: 34px;
+        border-radius: 27%;
+        background: linear-gradient(180deg, color-mix(in srgb, var(--plate) 70%, #fff), var(--plate));
+        box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 2.5px rgba(0, 0, 0, 0.22);
+      }
+      .site-favicon img { width: 66%; height: 66%; border-radius: 18%; }
+      .site-favicon.light-img { --plate: #3a3a44; }
+      .site-favicon[data-hue] { background: linear-gradient(180deg, hsl(var(--mono-h, 215) 62% 62%), hsl(var(--mono-h, 215) 55% 46%)); color: #fff; font-size: 15px; }
+      .site-favicon[data-hue="0"] { --mono-h: 215; }
+      .site-favicon[data-hue="1"] { --mono-h: 175; }
+      .site-favicon[data-hue="2"] { --mono-h: 260; }
+      .site-favicon[data-hue="3"] { --mono-h: 35; }
+      .site-favicon[data-hue="4"] { --mono-h: 330; }
+      .site-favicon[data-hue="5"] { --mono-h: 200; }
+      .host { font-size: 16px; font-weight: 650; letter-spacing: -0.01em; }
+      .site-state { font-size: 12px; font-weight: 500; }
+      .count-row { display: flex; align-items: center; gap: 6px; width: 100%; margin-top: 12px; padding: 11px 0 0; border: 0; border-top: 1px solid var(--hairline); background: none; color: var(--t1); font: inherit; font-size: 13.5px; text-align: left; cursor: pointer; }
+      .count-row b { font-weight: 650; font-variant-numeric: tabular-nums; }
+      .count-row .chev { width: 7px; height: 12px; margin-left: auto; fill: none; stroke: var(--t3); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease; }
+      .count-row[aria-expanded="true"] .chev { transform: rotate(90deg); }
+      #stats { padding-top: 10px; animation: pop-rise 0.22s ease both; }
+      @keyframes pop-rise { from { opacity: 0; transform: translateY(-4px); } }
+      .breakdown { flex-direction: column; gap: 7px; margin: 0; }
+      .breakdown .seg { flex-direction: row; justify-content: space-between; align-items: center; padding: 0; background: none; border-radius: 0; }
+      .breakdown .l { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--t1); text-transform: none; letter-spacing: 0; }
+      .breakdown .dot { display: block; width: 8px; height: 8px; border-radius: 2px; }
+      .breakdown .dot.ads { background: #3987e5; }
+      .breakdown .dot.trackers { background: #d9578a; }
+      .breakdown .dot.popups { background: #d69a2d; }
+      .breakdown .n { font-size: 13px; font-weight: 600; }
+      .unsorted { margin: 8px 0 0; text-align: left; }
+      .company-line { margin: 10px 0 0; font-size: 12.5px; }
+      #company-details { margin: 8px 0 0; }
+      .reload { width: 100%; margin-top: 10px; padding: 9px 10px; border: 0; border-radius: 10px; background: #3f6fd1; color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+      .reload:hover { background: #2f57ad; }
+      .actions { gap: 0; margin-top: 10px; overflow: hidden; border-radius: 14px; background: var(--card); box-shadow: inset 0 0 0 1px var(--hairline); }
+      .actions .act { display: flex; align-items: center; gap: 11px; width: 100%; min-height: 44px; margin: 0; padding: 8px 12px; border: 0; border-radius: 0; background: none; color: var(--t1); font: inherit; font-size: 14px; font-weight: 500; text-align: left; cursor: pointer; list-style: none; transition: background 0.15s; }
+      .actions .act:hover { background: var(--s1); }
+      .actions > :is(button, details):not([hidden]) ~ :is(button, details):not([hidden]) { border-top: 1px solid var(--hairline); }
+      .actions .act::-webkit-details-marker { display: none; }
+      .actions .tile { display: grid; place-items: center; width: 26px; height: 26px; flex: none; border-radius: 7px; background: linear-gradient(180deg, #6b97f2, #3d68d4); color: #fff; box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.18), 0 1px 2px rgba(0, 0, 0, 0.22); }
+      .actions .tile svg { width: 15px; height: 15px; stroke-width: 2; }
+      .actions .chev { width: 7px; height: 12px; margin-left: auto; fill: none; stroke: var(--t3); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease; }
+      .act-more[open] > summary .chev { transform: rotate(90deg); }
+      .act-more > :not(summary) { margin: 0 12px; }
+      .act-more #site-overrides-list { margin: 4px 12px 0; font-size: 12px; }
+      .act-more .in-site { margin: 10px 12px 12px; }
+      .act-more .in-site button { width: 100%; padding: 8px 10px; border: 0; border-radius: 8px; background: var(--s2); color: var(--t2); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+      .act-more .in-site button.confirming { background: rgba(224, 177, 111, 0.22); color: var(--caution); }
+      #site-overrides { margin: 0; font-size: 14px; }
+      /* components.css makes #week-link a flex row for its 24px target: a gap
+         stands in for the space the row drops after the number. */
+      #week-link { display: flex; justify-content: center; gap: 0.3em; margin-top: 12px; color: var(--t2); font-size: 12.5px; text-align: center; text-decoration: none; }
+      .week-link b { color: var(--t1); font-weight: 600; }
+      @media (prefers-reduced-motion: reduce) { #stats { animation: none; } .count-row .chev, .actions .chev { transition: none; } }
     </style>
   </head>
   <body>
@@ -523,7 +591,7 @@
         <span>Moat</span>
       </h1>
       <div class="moat-header-actions">
-        <a href="#" id="open-options" data-i18n="popupSettingsLink">Settings</a>
+        <a href="#" id="open-options" class="gear" title="Settings" aria-label="Settings" data-i18n-title="popupSettingsLink" data-i18n-aria-label="popupSettingsLink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z" /></svg></a>
       </div>
     </header>
 
@@ -561,6 +629,8 @@
       <span data-i18n="popupInternalPage">Moat doesn't run on browser pages like this one. Open a website to see what it blocks there.</span>
     </div>
 
+    <!-- The site: its icon and name, Moat's switch for it, and how much was
+         blocked here, which opens to the split and the companies. -->
     <div class="card" id="site-card">
       <div class="row">
         <div class="site-head">
@@ -579,7 +649,6 @@
       <!-- Paused: what that means here, and how long it lasts (shared/pauseDuration.ts). -->
       <div class="site-note" id="paused-banner" hidden>
         <span id="paused-text"></span>
-      <!-- How long the pause lasts (shared/pauseDuration.ts). -->
         <div class="pause-length" id="pause-length" hidden>
           <span id="pause-length-text"></span>
           <span class="pause-length-buttons">
@@ -589,41 +658,23 @@
         </div>
       </div>
 
-      <details id="site-overrides" hidden>
-        <summary data-i18n="popupCustomizeSite">Customize for this site</summary>
-        <div id="site-overrides-list"></div>
-        <!-- Signs you out of this site, so it lives here, away from the main path. -->
-        <div class="actions in-site">
-          <button id="fresh-start-button" class="secondary" hidden>
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--caution)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -1px; margin-right: 5px">
-              <path d="M8 2.5l6 11H2l6-11z" />
-              <path d="M8 6.6v3M8 11.6v.2" />
-            </svg>
-            <span data-i18n="popupFreshStartButton">Clear site data…</span>
-          </button>
+      <button type="button" class="count-row" id="count-toggle" aria-expanded="false" aria-controls="stats" hidden>
+        <b id="count">0</b><span data-i18n="popupBlockedHere">blocked on this page</span>
+        <svg class="chev" viewBox="0 0 8 13" aria-hidden="true"><path d="M1.5 1.5l5 5-5 5" /></svg>
+      </button>
+      <div id="stats" hidden>
+        <div class="breakdown">
+          <div class="seg"><span class="l"><i class="dot ads"></i><span data-i18n="popupAds">Ads</span></span><span class="n" id="count-ads">0</span></div>
+          <div class="seg"><span class="l"><i class="dot trackers"></i><span data-i18n="popupTrackers">Trackers</span></span><span class="n" id="count-trackers">0</span></div>
+          <div class="seg"><span class="l"><i class="dot popups"></i><span data-i18n="popupPopups">Pop-ups</span></span><span class="n" id="count-popups">0</span></div>
         </div>
-      </details>
-    </div>
-
-    <div id="stats" hidden>
-      <div class="stat-hero">
-        <div class="n" id="count">0</div>
-        <div class="l" data-i18n="popupBlockedOnPage">Blocked on this page</div>
-        <div class="level" id="protection-level"></div>
+        <p class="unsorted" id="unsorted" hidden></p>
+        <p class="company-line" id="company-line" hidden></p>
+        <details id="company-details" hidden>
+          <summary data-i18n="popupByCompany">By company</summary>
+          <ul id="company-list"></ul>
+        </details>
       </div>
-
-      <div class="breakdown">
-        <div class="seg"><span class="n" id="count-ads">0</span><span class="l"><i class="dot ads"></i><span data-i18n="popupAds">Ads</span></span></div>
-        <div class="seg"><span class="n" id="count-trackers">0</span><span class="l"><i class="dot trackers"></i><span data-i18n="popupTrackers">Trackers</span></span></div>
-        <div class="seg"><span class="n" id="count-popups">0</span><span class="l"><i class="dot popups"></i><span data-i18n="popupPopups">Pop-ups</span></span></div>
-      </div>
-      <p class="unsorted" id="unsorted" hidden></p>
-      <p class="company-line" id="company-line" hidden></p>
-
-      <details id="company-details" hidden>
-        <summary data-i18n="popupByCompany">By company</summary>
-        <ul id="company-list"></ul>
-      </details>
     </div>
 
     <div class="notice" id="permission-guard-notice" hidden>
@@ -657,10 +708,26 @@
       <p class="ck-thanks" id="ck-thanks" hidden data-i18n="checkinThanks">Thanks. It helps decide what to fix next.</p>
     </div>
 
+    <button id="reload-page" class="reload" hidden data-i18n="popupReloadPage">Reload page</button>
+
+    <!-- The three things people do here, as rows (iOS Settings). -->
     <div class="actions">
-      <button id="reload-page" class="secondary" hidden data-i18n="popupReloadPage">Reload page</button>
-      <button id="start-picker" class="secondary" data-i18n="popupBlockElement">Hide something on this page…</button>
-      <button id="report-problem" class="secondary" hidden data-i18n="popupReportProblem">Report a problem…</button>
+      <button id="start-picker" class="act"><span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A9.8 9.8 0 0 1 12 5c5 0 8.5 4.5 9.5 7a13 13 0 0 1-2.6 3.9M6.6 6.6C4.5 8 3.1 10 2.5 12c1 2.5 4.5 7 9.5 7 1.6 0 3-.4 4.3-1" /></svg></span><span data-i18n="popupHideSomething">Hide something</span></button>
+      <button id="report-problem" class="act" hidden><span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4.5c4-2 7 2 11 0 1-.5 2-.5 3 0v9c-1-.5-2-.5-3 0-4 2-7-2-11 0" /></svg></span><span data-i18n="popupReportShort">Report a problem</span></button>
+      <details id="site-overrides" class="act-more" hidden>
+        <summary class="act"><span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></svg></span><span data-i18n="popupSiteSettings">Site settings</span><svg class="chev" viewBox="0 0 8 13" aria-hidden="true"><path d="M1.5 1.5l5 5-5 5" /></svg></summary>
+        <div id="site-overrides-list"></div>
+        <!-- Signs you out of this site, so it lives here, away from the main path. -->
+        <div class="in-site">
+          <button id="fresh-start-button" class="secondary" hidden>
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--caution)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -1px; margin-right: 5px">
+              <path d="M8 2.5l6 11H2l6-11z" />
+              <path d="M8 6.6v3M8 11.6v.2" />
+            </svg>
+            <span data-i18n="popupFreshStartButton">Clear site data…</span>
+          </button>
+        </div>
+      </details>
     </div>
 
     <a href="#" class="week-link" id="week-link" hidden></a>

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { buildSiteIcon, faviconUrl, isLightIcon, monogramHue, samePixels, siteInitial } from "./siteIcon";
+import { buildSiteIcon, faviconUrl, isLightIcon, monogramHue, plateTint, samePixels, siteInitial } from "./siteIcon";
 
 const getURL = (path: string) => `chrome-extension://abc${path}`;
 
@@ -19,7 +19,7 @@ describe("faviconUrl", () => {
     const url = new URL(faviconUrl("reddit.com", getURL, true)!);
     expect(url.href.startsWith("chrome-extension://abc/_favicon/?")).toBe(true);
     expect(url.searchParams.get("pageUrl")).toBe("https://reddit.com/");
-    expect(url.searchParams.get("size")).toBe("32");
+    expect(url.searchParams.get("size")).toBe("64");
   });
 
   it("gives nothing where there is no cache to ask", () => {
@@ -78,5 +78,16 @@ describe("monogramHue", () => {
   it("colours the letter tile until a real icon arrives", () => {
     const tile = buildSiteIcon(document, "example.com", null);
     expect(tile.dataset.hue).toBe(String(monogramHue("example.com")));
+  });
+});
+
+describe("plateTint", () => {
+  it("tints the plate with an icon's own colour", () => {
+    expect(plateTint(pixels([30, 215, 96, 255], [30, 215, 96, 255], [0, 0, 0, 0], [255, 255, 255, 255]))).toBe("rgb(219 249 230)");
+  });
+
+  it("leaves grey and black icons on a plain plate", () => {
+    expect(plateTint(pixels([20, 20, 20, 255], [128, 128, 128, 255], [255, 255, 255, 255], [0, 0, 0, 0]))).toBeNull();
+    expect(plateTint(pixels([0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]))).toBeNull();
   });
 });

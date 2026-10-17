@@ -18,11 +18,12 @@ describe("purposes", () => {
     expect(purposeLabel("something_new", t).name).toBe("Other");
   });
 
-  it("draws a row per purpose with its own bar, folding small ones into Other", () => {
+  it("splits one bar by purpose, with a row each, folding small ones into Other", () => {
     const node = buildPurposes(document, { advertising: 50, site_analytics: 20, social_media: 10, consent: 8, audio_video_player: 7, hosting: 5 }, t);
     const names = [...node.querySelectorAll(".purp-row b")].map((b) => b.textContent);
     expect(names).toEqual(["Advertising", "Analytics", "Social", "Consent tools", "Other"]);
-    expect(node.querySelectorAll(".purp-track i")).toHaveLength(5);
+    expect(node.querySelectorAll(".purp-bar .purp-seg")).toHaveLength(5);
+    expect(node.querySelector(".purp-bar .purp-seg:last-child")!.classList.contains("s-misc")).toBe(true);
     expect(node.querySelector(".purp-row:last-child .purp-val")!.textContent).toBe("12%");
   });
 });
@@ -44,9 +45,10 @@ describe("companyBlurb", () => {
 });
 
 describe("buildReachRows", () => {
-  it("says how many sites and how many blocked, and links to the company", () => {
-    const node = buildReachRows(document, [{ company: "Google", icon: span(), sites: 2, ofSites: 7, blocks: 1335, description: "", seenOn: [], url: "https://about.google/" }], t);
-    expect(node.querySelector(".rr-sub")!.textContent).toBe("On 2 of your 7 sites");
+  it("says where it was seen and how many blocked, and links to the company", () => {
+    const seenOn = [{ hostname: "jack-reacher.fandom.com", icon: span() }, { hostname: "www.linkedin.com", icon: span() }];
+    const node = buildReachRows(document, [{ company: "Google", icon: span(), sites: 2, ofSites: 7, blocks: 1335, description: "", seenOn, url: "https://about.google/" }], t);
+    expect(node.querySelector(".rr-sub")!.textContent).toBe("On Fandom and LinkedIn");
     expect(node.querySelector(".rr-pct b")!.textContent).toBe("1,335");
     const learn = node.querySelector<HTMLAnchorElement>(".rr-learn")!;
     expect(learn.textContent).toBe("Learn more about Google");
@@ -61,10 +63,11 @@ describe("buildReachRows", () => {
     expect(node.querySelector<HTMLElement>(".rr")!.dataset.open).toBe("true");
     expect(btn.getAttribute("aria-expanded")).toBe("true");
     const site = node.querySelector<HTMLButtonElement>(".rr-site")!;
-    expect(site.textContent).toBe("fandom.com");
+    expect(site.textContent).toBe("Fandom");
     site.click();
     expect(opened).toEqual(["www.fandom.com"]);
     expect(node.querySelector(".rr-site-more")!.textContent).toBe("and 40 more");
+    expect(node.querySelector(".rr-sub")!.textContent).toBe("On Fandom and 40 more");
   });
 });
 
@@ -83,13 +86,15 @@ describe("days", () => {
     expect(node.querySelectorAll(".day-bar")).toHaveLength(3);
     expect(node.querySelector('[aria-selected="true"]')!.getAttribute("aria-label")).toBe("Friday: 90");
     expect(node.querySelector(".days-line b")!.textContent).toBe("Friday");
-    expect(node.querySelector(".days-sites .rr-site")!.textContent).toBe("a.example90");
+    expect(node.querySelector(".days-sites .rr-site")!.textContent).toBe("A90");
     node.querySelectorAll<HTMLButtonElement>(".day-bar")[0]!.click();
     expect(node.querySelector(".days-line b")!.textContent).toBe("Monday");
   });
 
   it("names the busiest day in words", () => {
-    expect(busiestDayPhrase([{ name: "Monday", total: 2 }, { name: "Friday", total: 9 }], t)).toBe("Friday was the busiest day. Pick a day to see where.");
+    expect(busiestDayPhrase([{ name: "Monday", total: 2 }, { name: "Friday", total: 9 }], t)).toBe("Friday was the busiest day.");
+    const hours = Array.from({ length: 24 }, (_, h) => (h >= 18 && h < 22 ? 10 : 0));
+    expect(busiestDayPhrase([{ name: "Friday", total: 40, hours }], t)).toMatch(/^Friday, mostly between 6\s?PM and 10\s?PM\.$/);
     expect(busiestDayPhrase([{ name: "Monday", total: 0 }], t)).toBe("No blocks yet this week");
   });
 });

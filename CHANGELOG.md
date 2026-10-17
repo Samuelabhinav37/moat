@@ -3,6 +3,93 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.299
+
+### Changed
+- **Kai stays out of the way.** On wide windows, pages keep a clear gutter for Kai. On narrow
+  ones Kai is smaller and steps aside while you scroll, then comes back once you stop, so
+  nothing under its corner is ever out of reach. It stays put while its chat or bubble is open.
+
+## 0.11.298
+
+### Changed
+- **The popup, minimal.** It shows the site by name with its icon and Moat's switch, then one
+  line, "6 blocked on this page". Press it to see the ads, trackers and pop-ups, and who they
+  came from. Below that are the three things you use: Hide something, Report a problem and
+  Site settings. "4,049 blocked this week" at the bottom opens Overview, and the gear opens
+  Settings.
+
+## 0.11.297
+
+### Changed
+- **Backup and sync** is a few rows: Save a backup (with when you last did), Restore from a
+  file, Sync across devices, and Import from another blocker. The file name line is gone.
+- **About** says each connection in one short line, and "Chrome only" is no longer repeated.
+  Nothing about what Moat sends has changed. Document links get the same icon tiles.
+
+## 0.11.296
+
+### Changed
+- **Security, shorter.** Safety check rows are a tile and a title: green when all is well,
+  amber when something needs a look, blue for something to know. Only rows with something to
+  do keep a line of text and a button.
+- Pages Moat stopped say what kind of page each was ("Fake sign-in page · 2 days ago"), with
+  the list's own words on hover. The tip under them is one short line.
+- **Sites** shows "Most blocked" with how many sites, and each site by name. The line about
+  pausing moved into the switch's tooltip.
+- A site with no icon gets the first letter of its name ("M" for Man Utd).
+
+## 0.11.295
+
+### Changed
+- **Trackers, simpler.** The two number cards are gone. The week's total sits on the list it
+  adds up ("Top trackers · 2,011 blocked"), and each company says where it was seen ("On
+  Fandom and LinkedIn") instead of "On 2 of your 7 sites". Google, Meta, TikTok and X show
+  their logos.
+- **Purpose** is one bar split by what the trackers were for, the way iPhone Storage shows
+  space, with a short line for each kind ("Pick the ads you see").
+- **Busiest day** says it in one line: "Friday, mostly between 6 PM and 10 PM."
+
+## 0.11.294
+
+### Changed
+- **Protection reads like iOS Settings.** Each row is an icon, a short title and a switch. What
+  a setting does is in its (i) picture and its tooltip, not under every row. A warning shows
+  only while its setting is on, when it can matter.
+- Level cards say one line each: Light blocks ads with the fewest broken sites, Balanced also
+  blocks trackers, Strict also hides cookie banners.
+- The intros under Level, Privacy and Annoyances are gone. Passwords get one footer line.
+
+## 0.11.293
+
+### Changed
+- **Exceptions is one list of sites.** Each site where Moat acts differently shows once, with
+  its icon and name and one menu for what Moat does there: Protected, Paused, Always block or
+  Never block. Change it right in the row, with Undo. Choosing Paused asks for how long.
+- Parts of a page you hid show on the site's row ("2 things hidden · Show again"), and so do
+  settings changed from Moat's icon ("1 setting changed here · Reset").
+- Search the list, or show only Paused, Hidden, Blocked or Allowed sites. Add a site with
+  Add a site, and start hiding something with Hide something on a page.
+- The Paused, Hidden, Allow and block and Per site tabs are gone. Old links to them open the
+  list with the matching filter.
+
+## 0.11.292
+
+### Changed
+- **Overview, clearer.** The status card says "Moat is protecting you", and the level next to
+  it is a menu: press Balanced to pick Light, Balanced or Strict, each with one line on what it
+  adds. The week reads "4,046 blocked" with one comparison under it ("85% more than the week
+  before"), and the week picker sits on top of the chart. The sentence under the title is gone.
+- **Highlights.** Three short cards replace the three lists: who tracked you the most, which
+  site had the most blocked, and how many dangerous pages were stopped, each with its top three.
+- **Sites by name.** Lists say "Spotify" and "Fandom" instead of open.spotify.com and
+  jack-reacher.fandom.com. The full address is in the tooltip and in a site's details.
+- **Icons, polished.** Settings and the sidebar use one blue tile style, and red only for
+  danger. Site icons sit on a rounded plate tinted with the site's own colour. Google, Meta,
+  TikTok and X show their own logos. A page Moat stopped shows what kind of danger it was
+  (a fake sign-in page, a fake shop, malware) instead of a letter.
+- Kai keeps clear of the page: pages leave room for it in the corner, and menus open above it.
+
 ## 0.11.291
 
 ### Changed

@@ -231,7 +231,9 @@ describe("Kai's guide", () => {
     expect(tag()).toBe(`That's ${(1000).toLocaleString()} blocked this week.`);
   });
 
-  it("keeps the conversation when reopened within 10 minutes", () => {
+  // Runs 16 minutes of Kai's timers: about a second alone, past vitest's 5s
+  // default under a loaded full run.
+  it("keeps the conversation when reopened within 10 minutes", { timeout: 20_000 }, () => {
     const { open, button, chip, said } = setup();
     open();
     chip("Does Moat collect my data?").click();

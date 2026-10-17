@@ -2846,7 +2846,7 @@
     "description": "Tracker purpose."
   },
   "purposeAdvertisingDesc": {
-    "message": "Crea un perfil para que los anuncios te sigan",
+    "message": "Eligen los anuncios que ves",
     "description": "Tracker purpose."
   },
   "purposeAnalytics": {
@@ -2854,7 +2854,7 @@
     "description": "Tracker purpose."
   },
   "purposeAnalyticsDesc": {
-    "message": "Cuenta visitas, clics y desplazamiento",
+    "message": "Registran lo que pulsas y lees",
     "description": "Tracker purpose."
   },
   "purposeSocial": {
@@ -2862,7 +2862,7 @@
     "description": "Tracker purpose."
   },
   "purposeSocialDesc": {
-    "message": "Cuenta a las redes sociales lo que lees",
+    "message": "Cuentan a las redes sociales lo que lees",
     "description": "Tracker purpose."
   },
   "purposeChat": {
@@ -2870,7 +2870,7 @@
     "description": "Tracker purpose."
   },
   "purposeChatDesc": {
-    "message": "Registra lo que miras",
+    "message": "Chats que registran las páginas que ves",
     "description": "Tracker purpose."
   },
   "purposeVideo": {
@@ -2918,7 +2918,7 @@
     "description": "Tracker purpose."
   },
   "purposeMiscDesc": {
-    "message": "Rastreadores sin un propósito único",
+    "message": "Mixtos o desconocidos",
     "description": "Tracker purpose."
   },
   "helpClose": {
@@ -4127,5 +4127,504 @@
   "optionsDisclosureGoodbyeWhen": {
     "message": "al quitar Moat",
     "description": "Settings > About, 'What leaves your device'."
+  },
+  "ovStatusProtecting": {
+    "message": "Moat te está protegiendo"
+  },
+  "ovUnitBlocked": {
+    "message": "bloqueados"
+  },
+  "ovHighlightsTitle": {
+    "message": "Destacados"
+  },
+  "checkupCardTitle2": {
+    "message": "Ajusta Moat a tu forma de navegar"
+  },
+  "checkupCardLead2": {
+    "message": "Responde 3 preguntas rápidas y mira los ajustes sugeridos."
+  },
+  "levelMenuLight": {
+    "message": "Bloquea anuncios. Menos sitios rotos."
+  },
+  "levelMenuBalanced": {
+    "message": "También bloquea rastreadores. Lo mejor para la mayoría."
+  },
+  "levelMenuStrict": {
+    "message": "También oculta avisos de cookies. Algunos sitios pueden fallar."
+  },
+  "ovMoreThanBefore": {
+    "message": "$PERCENT$ % más que la semana anterior",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "85"
+      }
+    }
+  },
+  "ovFewerThanBefore": {
+    "message": "$PERCENT$ % menos que la semana anterior",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "stopKindPhishing": {
+    "message": "Página de acceso falsa"
+  },
+  "stopKindScam": {
+    "message": "Tienda falsa"
+  },
+  "stopKindMalware": {
+    "message": "Malware"
+  },
+  "stopKindAds": {
+    "message": "Página de anuncios"
+  },
+  "stopKindCustom": {
+    "message": "En una lista de bloqueo"
+  },
+  "stopKindDanger": {
+    "message": "Sitio peligroso"
+  },
+  "hlTrackersTop": {
+    "message": "$COMPANY$ fue quien más te rastreó.",
+    "placeholders": {
+      "company": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "hlSitesTop": {
+    "message": "$SITE$ tuvo más bloqueos.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Fandom"
+      }
+    }
+  },
+  "hlAllTrackers": {
+    "message": "Todos los rastreadores"
+  },
+  "hlAllSites": {
+    "message": "Todos los sitios"
+  },
+  "hlStopsOne": {
+    "message": "1 página peligrosa detenida."
+  },
+  "hlStopsMany": {
+    "message": "$COUNT$ páginas peligrosas detenidas.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "hlStopsNone": {
+    "message": "Ninguna página peligrosa esta semana."
+  },
+  "hlSecurityDetails": {
+    "message": "Detalles"
+  },
+  "pageLeadExceptions2": {
+    "message": "Sitios donde Moat actúa distinto."
+  },
+  "exSearch": {
+    "message": "Buscar sitios"
+  },
+  "exFilterLabel": {
+    "message": "Mostrar"
+  },
+  "exFilterAll": {
+    "message": "Todos"
+  },
+  "exFilterPaused": {
+    "message": "En pausa"
+  },
+  "exFilterHidden": {
+    "message": "Ocultos"
+  },
+  "exFilterBlocked": {
+    "message": "Bloqueados"
+  },
+  "exFilterAllowed": {
+    "message": "Permitidos"
+  },
+  "exEmptyTitle": {
+    "message": "Aún no hay excepciones"
+  },
+  "exEmptyHint": {
+    "message": "Pausa un sitio, oculta parte de una página o bloquea un sitio, y aparecerá aquí."
+  },
+  "exAddSite": {
+    "message": "Sitio"
+  },
+  "exAddWhat": {
+    "message": "Qué hace Moat allí"
+  },
+  "exAddPause": {
+    "message": "Pausar hasta que lo reactive"
+  },
+  "exAddPauseHour": {
+    "message": "Pausar 1 hora"
+  },
+  "exAddPauseDay": {
+    "message": "Pausar 1 día"
+  },
+  "exAddBlock": {
+    "message": "Bloquear siempre"
+  },
+  "exAddAllow": {
+    "message": "No bloquear nunca"
+  },
+  "exAdd": {
+    "message": "Añadir"
+  },
+  "exAddOpen": {
+    "message": "Añadir un sitio"
+  },
+  "exHideSomething": {
+    "message": "Ocultar algo en una página"
+  },
+  "exPausedNote": {
+    "message": "Los sitios en pausa siguen bloqueando páginas peligrosas."
+  },
+  "exMenuLabel": {
+    "message": "Qué hace Moat en $SITE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Spotify"
+      }
+    }
+  },
+  "exStateProtected": {
+    "message": "Protegido"
+  },
+  "exStateProtectedDesc": {
+    "message": "El bloqueo habitual de Moat."
+  },
+  "exStatePaused": {
+    "message": "En pausa"
+  },
+  "exStatePausedDesc": {
+    "message": "Aquí se cargan anuncios y rastreadores."
+  },
+  "exStateBlock": {
+    "message": "Bloquear siempre"
+  },
+  "exStateBlockDesc": {
+    "message": "No se carga nada de este sitio."
+  },
+  "exStateAllow": {
+    "message": "No bloquear nunca"
+  },
+  "exStateAllowDesc": {
+    "message": "Se carga en todos los sitios que visitas."
+  },
+  "exHiddenOne": {
+    "message": "1 elemento oculto"
+  },
+  "exHiddenMany": {
+    "message": "$COUNT$ elementos ocultos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exGrayedOne": {
+    "message": "1 elemento en gris"
+  },
+  "exGrayedMany": {
+    "message": "$COUNT$ elementos en gris",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exChangedOne": {
+    "message": "1 ajuste cambiado aquí"
+  },
+  "exChangedMany": {
+    "message": "$COUNT$ ajustes cambiados aquí",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "exShowAgain": {
+    "message": "Mostrar de nuevo"
+  },
+  "exStateDone": {
+    "message": "$SITE$: $STATE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "state": {
+        "content": "$2",
+        "example": "Paused"
+      }
+    }
+  },
+  "exShownAgain": {
+    "message": "Se vuelve a mostrar todo en $SITE$",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "Fandom"
+      }
+    }
+  },
+  "kaiAPause2": {
+    "message": "En el sitio, haz clic en el icono de Moat junto a la barra de direcciones y apaga su interruptor. También puedes pulsar Añadir un sitio aquí."
+  },
+  "kaiAHide2": {
+    "message": "En la página, haz clic en el icono de Moat y elige Ocultar algo. Los sitios donde ocultaste algo aparecen aquí."
+  },
+  "kaiABlock2": {
+    "message": "Pulsa Añadir un sitio, escribe el sitio y elige Bloquear siempre."
+  },
+  "pageLeadProtection2": {
+    "message": "Cuánto bloquea Moat."
+  },
+  "listsLead2": {
+    "message": "Activar o desactivar una lista crea tu propia mezcla."
+  },
+  "privacyFootPassword": {
+    "message": "Solo se comprueba un trozo corto y cifrado de la contraseña, nunca la contraseña."
+  },
+  "pageLeadTrackers2": {
+    "message": "Quién intentó seguirte esta semana."
+  },
+  "insTopTrackers": {
+    "message": "Principales rastreadores"
+  },
+  "insPurposeTitle": {
+    "message": "Propósito"
+  },
+  "insBusiestTitle": {
+    "message": "Día con más actividad"
+  },
+  "insWhatMostly": {
+    "message": "Sobre todo $PURPOSE$.",
+    "placeholders": {
+      "purpose": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    }
+  },
+  "insWhatMost": {
+    "message": "Más para $PURPOSE$ que para cualquier otra cosa.",
+    "placeholders": {
+      "purpose": {
+        "content": "$1",
+        "example": "advertising"
+      }
+    }
+  },
+  "insBusiestLine": {
+    "message": "$DAY$, sobre todo entre las $FROM$ y las $TO$.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Friday"
+      },
+      "from": {
+        "content": "$2",
+        "example": "6 PM"
+      },
+      "to": {
+        "content": "$3",
+        "example": "10 PM"
+      }
+    }
+  },
+  "insBusiestOnly": {
+    "message": "$DAY$ fue el día con más actividad.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Friday"
+      }
+    }
+  },
+  "insSeenOnLine": {
+    "message": "En $SITES$",
+    "placeholders": {
+      "sites": {
+        "content": "$1",
+        "example": "Fandom and LinkedIn"
+      }
+    }
+  },
+  "insMoreSites": {
+    "message": "$COUNT$ más",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "checkPausedDetail2": {
+    "message": "Los sitios peligrosos se siguen deteniendo allí."
+  },
+  "checkAllowedDetail2": {
+    "message": "Los sitios peligrosos se siguen deteniendo allí."
+  },
+  "secPhishTip2": {
+    "message": "¿Escribiste una contraseña o un número de tarjeta en una de estas? Cambia esa contraseña y avisa a tu banco."
+  },
+  "insSitesTitle2": {
+    "message": "Más bloqueados"
+  },
+  "pageLeadInsightSites2": {
+    "message": "Dónde bloqueó más Moat esta semana."
+  },
+  "pageLeadSecurity2": {
+    "message": "Lo que te protege y lo que Moat detuvo."
+  },
+  "siteSwitchTip": {
+    "message": "Desactívalo para pausar Moat en este sitio"
+  },
+  "insSitesOne": {
+    "message": "1 sitio"
+  },
+  "insSitesMany": {
+    "message": "$COUNT$ sitios",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "backupSave": {
+    "message": "Guardar"
+  },
+  "syncHint2": {
+    "message": "Solo ajustes. Nada de tu navegación."
+  },
+  "backupLead2": {
+    "message": "Guarda tus ajustes o llévalos a otro ordenador."
+  },
+  "importFromBlocker": {
+    "message": "Importar de otro bloqueador"
+  },
+  "importFromBlockerHint": {
+    "message": "Pega reglas de uBlock Origin, AdGuard o un bloqueador parecido."
+  },
+  "aboutSentBlocking": {
+    "message": "Funciona en tu dispositivo."
+  },
+  "aboutSentStats": {
+    "message": "Los recuentos se quedan en tu dispositivo."
+  },
+  "aboutSentUpdates": {
+    "message": "Descarga listas firmadas una vez al día. No envía nada sobre ti."
+  },
+  "aboutSentCname": {
+    "message": "Direcciones que podrían ser rastreadores ocultos, justo antes de cargarse."
+  },
+  "aboutSentBreach": {
+    "message": "Un trozo corto y cifrado de la contraseña, nunca la contraseña."
+  },
+  "aboutSentReports": {
+    "message": "Solo cuando pulsas Enviar, y antes lo ves todo."
+  },
+  "aboutSentCheckin": {
+    "message": "Solo cuando respondes. Nunca un sitio."
+  },
+  "aboutSentGoodbye": {
+    "message": "Al quitar Moat, una página pregunta por qué. Solo recibe la versión."
+  },
+  "aboutLead2": {
+    "message": "Tu versión y lo que sale de tu dispositivo."
+  },
+  "popupBlockedHere": {
+    "message": "bloqueados en esta página"
+  },
+  "popupHideSomething": {
+    "message": "Ocultar algo"
+  },
+  "popupReportShort": {
+    "message": "Informar de un problema"
+  },
+  "popupSiteSettings": {
+    "message": "Ajustes del sitio"
+  },
+  "popupFromOne": {
+    "message": "De $A$.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "popupFromTwo": {
+    "message": "De $A$ y $B$.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      }
+    }
+  },
+  "popupFromThree": {
+    "message": "De $A$, $B$ y 1 más.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      }
+    }
+  },
+  "popupFromMany": {
+    "message": "De $A$, $B$ y $COUNT$ más.",
+    "placeholders": {
+      "a": {
+        "content": "$1",
+        "example": "Spotify"
+      },
+      "b": {
+        "content": "$2",
+        "example": "Google"
+      },
+      "count": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "popupWeekLink2": {
+    "message": "$TOTAL$ bloqueados esta semana ›",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "4,049"
+      }
+    }
   }
 }

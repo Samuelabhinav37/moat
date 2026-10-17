@@ -104,8 +104,21 @@ describe("popup.html render", () => {
     const card = document.getElementById("site-card")!;
     const stats = document.getElementById("stats")!;
     expect(card.compareDocumentPosition(stats) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(document.getElementById("company-line")!.textContent).toBe("Google LLC tried to track you here.");
+    expect(document.getElementById("company-line")!.textContent).toBe("From Google LLC.");
     expect(document.getElementById("fresh-start-button")!.closest("#site-overrides")).not.toBeNull();
+  });
+
+  it("names the site, and opens the count to the split", async () => {
+    await renderPopup("www.nytimes.com");
+    expect(document.getElementById("hostname")!.textContent).toBe("The New York Times");
+    expect(document.getElementById("hostname")!.title).toBe("nytimes.com");
+    const toggle = document.getElementById("count-toggle") as HTMLButtonElement;
+    const stats = document.getElementById("stats")!;
+    expect(toggle.hidden).toBe(false);
+    expect(stats.hidden).toBe(true);
+    toggle.click();
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(stats.hidden).toBe(false);
   });
 
   it("renders without throwing or an unhandled rejection", async () => {
