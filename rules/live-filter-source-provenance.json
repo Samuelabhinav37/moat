@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-10-12T15:46:09.670Z",
+  "generatedAt": "2026-10-19T13:38:07.780Z",
   "sources": {
     "hageziFake": {
       "url": "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/fake-onlydomains.txt",
-      "sha256": "23e1f0257f3ab497ee116b35975cfc11796f0f48b9dda60e3c79e97e34691a85",
-      "byteLength": 292120,
-      "itemCount": 16941
+      "sha256": "90a569e7621cbb7a144e7d22594da0e065f54ff118c41d035fd5f7850b5cf1c6",
+      "byteLength": 300350,
+      "itemCount": 17428
     },
     "peterLowe": {
       "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=nohtml&showintro=0&mimetype=plaintext",
-      "sha256": "9d232bc1ff06ec1c5184c94eac721bfc237af99b172bc446c19cd870d175c023",
-      "byteLength": 58780,
-      "itemCount": 3547
+      "sha256": "8677a7497132cb2eb15b3dce1116dbaf69bb336b48ebad2b11d17409e2023f47",
+      "byteLength": 59111,
+      "itemCount": 3568
     },
     "oisd": {
       "url": "https://small.oisd.nl/",
-      "sha256": "cbb7cbd0790e43cfa7565506ba7d89e6970c8ae29690935bf7167e2e4004e701",
-      "byteLength": 1265128,
-      "itemCount": 56307
+      "sha256": "97b655a7b3451257996d9b683fd5a891712821293068006d6d828ac6a239e5b6",
+      "byteLength": 1289721,
+      "itemCount": 57284
     }
   }
 }
