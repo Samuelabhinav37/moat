@@ -1,11 +1,11 @@
 {
-  "sequence": 1792313666,
-  "generated": "2026-10-18T08:54:26.000Z",
+  "sequence": 1792404022,
+  "generated": "2026-10-19T10:00:22.000Z",
   "files": {
     "redirect-domains.json": "8c83ee73cffd3ff6d864c47a6bbfb90d0a1c2747efd693ec402f67b301ab93e0",
     "quick-fixes.json": "60dee7ff786038e577c9f6dc4473d11950e24e41295818b91947802a5f7acd0e",
     "cosmetic-fixes.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
     "youtube-quick-fixes.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "security-domains.json": "9f1ea64bd55af3b8567f2773de3486aa0a063c782468a4d6a9baffea6f34ab0f"
+    "security-domains.json": "1e17b72a0685209050dd952535005ce8614ccc8c7852f00fd5eb7173fd84d690"
   }
 }
