@@ -34,7 +34,8 @@
     "site:build": "node scripts/site-build.mjs",
     "smoke": "node scripts/live-smoke.mjs",
     "release:check": "node scripts/release-check.mjs",
-    "smoke:firefox": "node scripts/firefox-smoke.mjs"
+    "smoke:firefox": "node scripts/firefox-smoke.mjs",
+    "canary": "node scripts/canary.mjs"
   },
   "dependencies": {
     "webextension-polyfill": "^0.12.0"
