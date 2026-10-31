@@ -100,6 +100,14 @@
       .lc-meter { display: flex; gap: 4px; }
       .lc-meter i { flex: 1; height: 4px; border-radius: 2px; background: var(--border); }
       .lc-meter i.on { background: var(--primary); }
+      .ask { display: grid; gap: 12px; }
+      .ask + .ask { margin-top: 22px; }
+      .ask-q { font-weight: 600; font-size: 15px; }
+      .ask-row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+      .dns-tip { margin-top: 22px; padding: 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--border); font-size: 14px; line-height: 1.5; color: var(--muted); }
+      .dns-tip p { margin: 0 0 8px; overflow-wrap: anywhere; }
+      .dns-tip button { border: 0; background: none; padding: 0; font: inherit; color: #2997ff; cursor: pointer; }
+      :root[data-theme="light"] .dns-tip button { color: #0066cc; }
       .level-saved { margin: 16px 0 0; color: var(--on); font-weight: 600; }
       .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
       @media (max-width: 860px) { .levels { grid-template-columns: minmax(0, 1fr); } }
@@ -284,7 +292,7 @@
       .actions .ghost::after { content: " ›"; }
       .actions .ghost:hover { color: #2997ff; text-decoration: underline; }
       :root[data-theme="light"] .actions .ghost, :root[data-theme="light"] .actions .ghost:hover { color: #0066cc; }
-      .level-card { border-radius: 22px; padding: 22px; }
+      .level-card { border-radius: 22px; padding: 18px; }
       .level-card[aria-checked="true"] { border-color: var(--site-blue); box-shadow: inset 0 0 0 1px var(--site-blue); }
       .lc-meter i.on { background: var(--site-blue); }
       /* the cookies on the ad */
@@ -373,12 +381,11 @@
           </ul>
         </div>
 
-        <!-- Optional last step: the one real choice, how much to block
-             (Google's Privacy Checkup also ends with a choice). Nothing is
-             changed unless a card is picked. -->
+        <!-- Optional last step: three questions, each setting something
+             real (welcome/answers.ts). Nothing changes until one is answered. -->
         <div data-step="5">
-          <h1 data-i18n="tourLevelTitle">Pick your level</h1>
-          <p class="lede" data-i18n="tourLevelLede">Balanced suits most people. Pick Strict for more privacy, or Light if sites keep breaking. You can change it any time in Settings.</p>
+          <h1 data-i18n="tourAskTitle">Three quick questions</h1>
+          <p class="lede" data-i18n="tourAskLede">Each answer changes one setting. Skip any you like.</p>
           <p class="level-saved" id="level-saved" role="status" hidden data-i18n="tourLevelSaved">Saved. It applies to pages you open from now on.</p>
         </div>
 
@@ -510,23 +517,43 @@
         </div>
 
         <div data-step="5">
-          <div class="levels" role="radiogroup" aria-labelledby="level-group-label">
-            <span class="sr-only" id="level-group-label" data-i18n="tourLevelTitle">Pick your level</span>
-            <button type="button" class="level-card" role="radio" aria-checked="false" data-level="lite">
-              <span class="lc-meter" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
-              <b data-i18n="presetLite">Light</b>
-              <span data-i18n="levelLightDesc">Blocks ads, pop-ups, and dangerous sites like scams and malware. Trackers still load, so sites that depend on them keep working.</span>
-            </button>
-            <button type="button" class="level-card" role="radio" aria-checked="false" data-level="standard">
-              <span class="lc-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
-              <b data-i18n="presetStandard">Balanced</b>
-              <span data-i18n="levelBalancedDesc">Everything in Light, plus trackers, tracking added to links, and fake login sites. Recommended.</span>
-            </button>
-            <button type="button" class="level-card" role="radio" aria-checked="false" data-level="strict">
-              <span class="lc-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>
-              <b data-i18n="presetStrict">Strict</b>
-              <span data-i18n="levelStrictDesc">Everything in Balanced, plus cookie banners and social media buttons. It also makes your device harder for sites to recognize and keeps your IP address private in video calls. A few sites may break.</span>
-            </button>
+          <div class="ask">
+            <span class="ask-q" id="level-group-label" data-i18n="tourAskWant">What do you want most?</span>
+            <div class="levels" role="radiogroup" aria-labelledby="level-group-label">
+              <button type="button" class="level-card" role="radio" aria-checked="false" data-level="lite">
+                <span class="lc-meter" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
+                <b data-i18n="tourAnswerSafe">Just stay safe</b>
+                <span><span data-i18n="presetLite">Light</span>. <span data-i18n="levelMenuLight">Blocks ads. Fewest broken sites.</span></span>
+              </button>
+              <button type="button" class="level-card" role="radio" aria-checked="false" data-level="standard">
+                <span class="lc-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
+                <b data-i18n="tourAnswerFewerAds">Fewer ads</b>
+                <span><span data-i18n="presetStandard">Balanced</span>. <span data-i18n="levelMenuBalanced">Also blocks trackers. Best for most people.</span></span>
+              </button>
+              <button type="button" class="level-card" role="radio" aria-checked="false" data-level="strict">
+                <span class="lc-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+                <b data-i18n="tourAnswerPrivacy">More privacy</b>
+                <span><span data-i18n="presetStrict">Strict</span>. <span data-i18n="levelMenuStrict">Also hides cookie banners. Some sites may break.</span></span>
+              </button>
+            </div>
+          </div>
+          <div class="ask ask-row">
+            <span class="ask-q" id="ask-checks" data-i18n="tourAskChecks">Do you often get "Verify you're human" checks?</span>
+            <div class="seg" role="group" aria-labelledby="ask-checks" data-answer="botChecks">
+              <button type="button" aria-pressed="false" data-value="yes" data-i18n="tourYes">Yes</button>
+              <button type="button" aria-pressed="false" data-value="no" data-i18n="tourNo">No</button>
+            </div>
+          </div>
+          <div class="ask ask-row">
+            <span class="ask-q" id="ask-router" data-i18n="tourAskRouter">Do you already block ads on your router or Wi-Fi?</span>
+            <div class="seg" role="group" aria-labelledby="ask-router" data-answer="routerBlocks">
+              <button type="button" aria-pressed="false" data-value="yes" data-i18n="tourYes">Yes</button>
+              <button type="button" aria-pressed="false" data-value="no" data-i18n="tourNo">No</button>
+            </div>
+          </div>
+          <div class="dns-tip" id="dns-tip" hidden>
+            <p data-i18n="tourDnsTip">Moat now blocks ad sites like a router would. For DNS blocking in Chrome too, turn on secure DNS, pick Custom, and paste https://dns.adguard-dns.com/dns-query</p>
+            <button type="button" id="dns-open" data-i18n="tourDnsOpen">Open Chrome's DNS setting</button>
           </div>
         </div>
       </section>

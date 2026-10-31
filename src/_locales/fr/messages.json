@@ -976,13 +976,6 @@
   "tourPopupLede": {
     "message": "Cliquez sur l’icône de Moat sur n’importe quelle page. Voici ce qu’elle affichait sur weather.com."
   },
-  "tourLevelTitle": {
-    "message": "Choisissez votre niveau",
-    "description": "Welcome tour, last step: choose how much Moat blocks."
-  },
-  "tourLevelLede": {
-    "message": "Équilibré convient à la plupart des gens. Choisissez Strict pour plus de confidentialité, ou Léger si des sites ne marchent plus. Vous pourrez le changer à tout moment dans les Réglages."
-  },
   "tourLevelSaved": {
     "message": "Enregistré. Cela s'applique aux pages que vous ouvrez à partir de maintenant."
   },
@@ -4644,5 +4637,41 @@
         "example": "4,049"
       }
     }
+  },
+  "tourAskTitle": {
+    "message": "Trois petites questions"
+  },
+  "tourAskLede": {
+    "message": "Chaque réponse change un réglage. Passez celles que vous voulez."
+  },
+  "tourAskWant": {
+    "message": "Que voulez-vous surtout ?"
+  },
+  "tourAnswerSafe": {
+    "message": "Juste rester protégé"
+  },
+  "tourAnswerFewerAds": {
+    "message": "Moins de pubs"
+  },
+  "tourAnswerPrivacy": {
+    "message": "Plus de confidentialité"
+  },
+  "tourAskChecks": {
+    "message": "Devez-vous souvent prouver que vous êtes humain ?"
+  },
+  "tourAskRouter": {
+    "message": "Bloquez-vous déjà les pubs sur votre box ou votre Wi-Fi ?"
+  },
+  "tourYes": {
+    "message": "Oui"
+  },
+  "tourNo": {
+    "message": "Non"
+  },
+  "tourDnsTip": {
+    "message": "Moat bloque maintenant les sites de pub comme un routeur. Pour bloquer aussi par DNS dans Chrome, activez le DNS sécurisé, choisissez Personnalisé et collez https://dns.adguard-dns.com/dns-query"
+  },
+  "tourDnsOpen": {
+    "message": "Ouvrir le réglage DNS de Chrome"
   }
 }

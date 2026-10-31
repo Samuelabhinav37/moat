@@ -976,13 +976,6 @@
   "tourPopupLede": {
     "message": "Haz clic en el icono de Moat en cualquier página. Esto es lo que mostró en weather.com."
   },
-  "tourLevelTitle": {
-    "message": "Elige tu nivel",
-    "description": "Welcome tour, last step: choose how much Moat blocks."
-  },
-  "tourLevelLede": {
-    "message": "Equilibrado sirve para la mayoría. Elige Estricto para más privacidad, o Ligero si los sitios fallan a menudo. Puedes cambiarlo cuando quieras en Configuración."
-  },
   "tourLevelSaved": {
     "message": "Guardado. Se aplica a las páginas que abras a partir de ahora."
   },
@@ -4644,5 +4637,41 @@
         "example": "4,049"
       }
     }
+  },
+  "tourAskTitle": {
+    "message": "Tres preguntas rápidas"
+  },
+  "tourAskLede": {
+    "message": "Cada respuesta cambia un ajuste. Sáltate las que quieras."
+  },
+  "tourAskWant": {
+    "message": "¿Qué quieres sobre todo?"
+  },
+  "tourAnswerSafe": {
+    "message": "Solo estar seguro"
+  },
+  "tourAnswerFewerAds": {
+    "message": "Menos anuncios"
+  },
+  "tourAnswerPrivacy": {
+    "message": "Más privacidad"
+  },
+  "tourAskChecks": {
+    "message": "¿Te piden a menudo verificar que eres humano?"
+  },
+  "tourAskRouter": {
+    "message": "¿Ya bloqueas anuncios en tu router o wifi?"
+  },
+  "tourYes": {
+    "message": "Sí"
+  },
+  "tourNo": {
+    "message": "No"
+  },
+  "tourDnsTip": {
+    "message": "Moat ya bloquea sitios de anuncios como un router. Para bloquear también por DNS en Chrome, activa el DNS seguro, elige Personalizado y pega https://dns.adguard-dns.com/dns-query"
+  },
+  "tourDnsOpen": {
+    "message": "Abrir el ajuste de DNS de Chrome"
   }
 }

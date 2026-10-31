@@ -6,6 +6,7 @@
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createMockBrowser } from "../shared/mockExtensionBrowser";
+import type { Settings } from "../types";
 import { loadPageFixture } from "../shared/loadPageFixture";
 import { findInvisibleText } from "../shared/findInvisibleText";
 
@@ -48,8 +49,10 @@ async function settle(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 20));
 }
 
+let mock: ReturnType<typeof createMockBrowser>;
+
 async function renderTour() {
-  const mock = createMockBrowser();
+  mock = createMockBrowser();
   const browser = {
     ...mock.browser,
     tabs: { ...mock.browser.tabs, getCurrent: () => Promise.resolve({ id: 7 }), remove: removeTab },
@@ -110,6 +113,30 @@ describe("welcome.html (first-run tour)", () => {
     await settle();
     expect(checkedLevel()).toBe("lite");
     expect(document.getElementById("level-saved")?.hidden).toBe(false);
+  });
+
+  it("asks about bot checks and router blocking, and offers secure DNS to people without a router blocker", async () => {
+    await renderTour();
+    for (let i = 0; i < 4; i++) next();
+    await settle();
+    const lastPatch = () => (mock.sentMessages.filter((m) => m.type === "set-settings-patch").at(-1)?.patch ?? {}) as Partial<Settings>;
+    const answer = (question: string, value: string) => document.querySelector<HTMLButtonElement>(`[data-answer="${question}"] [data-value="${value}"]`)!.click();
+    expect(document.getElementById("dns-tip")?.hidden).toBe(true);
+    answer("routerBlocks", "no");
+    await settle();
+    expect(lastPatch().filterGroups?.["ad-pages"]).toBe(true);
+    expect(document.getElementById("dns-tip")?.hidden).toBe(false);
+    expect(findInvisibleText(document.body)).toEqual([]);
+    answer("botChecks", "yes");
+    await settle();
+    expect(lastPatch()).toMatchObject({ fingerprintResistance: false, filterGroups: { "ad-pages": true } });
+    expect(document.querySelector('[data-answer="botChecks"] [data-value="yes"]')?.getAttribute("aria-pressed")).toBe("true");
+    (document.getElementById("dns-open") as HTMLButtonElement).click();
+    expect(mock.createdTabs).toContain("chrome://settings/security");
+    answer("routerBlocks", "yes");
+    await settle();
+    expect(lastPatch().filterGroups?.["ad-pages"]).toBe(false);
+    expect(document.getElementById("dns-tip")?.hidden).toBe(true);
   });
 
   it("the pin step follows the browser: unpinned, then pinned", async () => {

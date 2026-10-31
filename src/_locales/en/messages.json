@@ -979,13 +979,6 @@
   "tourPopupLede": {
     "message": "Click Moat's icon on any page. This is what it showed on weather.com."
   },
-  "tourLevelTitle": {
-    "message": "Pick your level",
-    "description": "Welcome tour, last step: choose how much Moat blocks."
-  },
-  "tourLevelLede": {
-    "message": "Balanced suits most people. Pick Strict for more privacy, or Light if sites keep breaking. You can change it any time in Settings."
-  },
   "tourLevelSaved": {
     "message": "Saved. It applies to pages you open from now on."
   },
@@ -4918,5 +4911,53 @@
       }
     },
     "description": "Popup footer: opens Overview. The number shows in bold."
+  },
+  "tourAskTitle": {
+    "message": "Three quick questions",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourAskLede": {
+    "message": "Each answer changes one setting. Skip any you like.",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourAskWant": {
+    "message": "What do you want most?",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourAnswerSafe": {
+    "message": "Just stay safe",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourAnswerFewerAds": {
+    "message": "Fewer ads",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourAnswerPrivacy": {
+    "message": "More privacy",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourAskChecks": {
+    "message": "Do you often get \"Verify you're human\" checks?",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourAskRouter": {
+    "message": "Do you already block ads on your router or Wi-Fi?",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourYes": {
+    "message": "Yes",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourNo": {
+    "message": "No",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourDnsTip": {
+    "message": "Moat now blocks ad sites like a router would. For DNS blocking in Chrome too, turn on secure DNS, pick Custom, and paste https://dns.adguard-dns.com/dns-query",
+    "description": "First-run tour, last step: setup questions."
+  },
+  "tourDnsOpen": {
+    "message": "Open Chrome's DNS setting",
+    "description": "First-run tour, last step: setup questions."
   }
 }

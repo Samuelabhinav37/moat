@@ -1,14 +1,15 @@
 // First-run tour: five steps shown once, in a tab background/firstRunTour.ts
 // opens on a fresh install. Moat is already blocking before this page loads;
-// the last step offers the one real choice, the blocking level, and changes
-// nothing unless a level is picked. The before/after screenshots and numbers
+// the last step asks three questions (welcome/answers.ts) and changes
+// nothing unless one is answered. The before/after screenshots and numbers
 // are real captures (docs/research/first-run-tour-2026-09.md).
 import browser from "webextension-polyfill";
 import { applyStaticI18n, getMessageOrFallback } from "../shared/i18n";
 import { dismissOnboarding } from "../background/updateNotice";
 import { watchPinState, type ActionLike, type PinState } from "./pinState";
-import { getEffectiveSettings } from "../background/settings";
-import { detectPreset, presetDifference, presetPatch, type PresetName } from "../shared/filterPresets";
+import { getEffectiveSettings, getSettings } from "../background/settings";
+import { answersPatch, type TourAnswers } from "./answers";
+import { detectPreset, presetDifference } from "../shared/filterPresets";
 import type { SetSettingsPatchMessage } from "../types";
 import "../ui/kai/kaiLife.js";
 
@@ -129,7 +130,31 @@ $("next").addEventListener("click", () => (step < STEPS ? show(step + 1) : void 
 $("back").addEventListener("click", () => show(step - 1));
 $("skip").addEventListener("click", () => (step < STEPS ? show(STEPS) : void finish(true)));
 
-// ---------- Step 5: pick your level ----------
+// ---------- Step 5: three questions ----------
+
+const answers: TourAnswers = {};
+// Each answer saves at once, with every earlier answer reapplied on top.
+async function saveAnswers(): Promise<void> {
+  const current = await getSettings();
+  const message: SetSettingsPatchMessage = { type: "set-settings-patch", patch: answersPatch(answers, current.filterGroups) };
+  await browser.runtime.sendMessage(message);
+  $("level-saved").hidden = false;
+}
+
+for (const group of document.querySelectorAll<HTMLElement>("[data-answer]")) {
+  for (const button of group.querySelectorAll<HTMLButtonElement>("button")) {
+    button.addEventListener("click", () => {
+      for (const other of group.querySelectorAll("button")) other.setAttribute("aria-pressed", String(other === button));
+      const key = group.dataset.answer as "botChecks" | "routerBlocks";
+      answers[key] = button.dataset.value === "yes";
+      // No router blocker: offer the same kind of blocking through Chrome's secure DNS.
+      if (key === "routerBlocks") $("dns-tip").hidden = isFirefox || answers.routerBlocks !== false;
+      void saveAnswers();
+    });
+  }
+}
+$("dns-open").addEventListener("click", () => void browser.tabs.create({ url: "chrome://settings/security" }));
+
 
 const levelCards = Array.from(document.querySelectorAll<HTMLButtonElement>(".level-card"));
 const markLevel = (level: string) => {
@@ -151,8 +176,8 @@ void getEffectiveSettings()
 for (const card of levelCards) {
   card.addEventListener("click", () => {
     markLevel(card.dataset.level!);
-    const message: SetSettingsPatchMessage = { type: "set-settings-patch", patch: presetPatch(card.dataset.level as PresetName) };
-    void browser.runtime.sendMessage(message).then(() => ($("level-saved").hidden = false));
+    answers.level = card.dataset.level as TourAnswers["level"];
+    void saveAnswers();
   });
   // Arrow keys move between the cards, as in any radio group.
   card.addEventListener("keydown", (event) => {

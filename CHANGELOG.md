@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.305
+
+### Changed
+- **Setup asks three quick questions.** The tour's last step asks what you want most (sets
+  Light, Balanced or Strict), whether you often get "Verify you're human" checks (Yes keeps
+  the device disguise off, since it can trip them), and whether your router already blocks
+  ads (No turns on "Ad and tracker sites"). Each answer saves at once and you can skip any.
+  If your router doesn't block ads, Moat also shows how to turn on secure DNS in Chrome with
+  a blocking provider.
+
 ## 0.11.304
 
 ### Added
