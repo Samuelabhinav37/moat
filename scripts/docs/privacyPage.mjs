@@ -29,7 +29,7 @@ const ic = (k, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" f
 // Every way Moat touches the network. [icon, name, what is sent, who receives it, when, state class, detail paragraphs]
 const CONNECTIONS = [
   ["download", "Daily list updates", "Nothing about you", "GitHub Pages (a public file host)", "Once a day", "on",
-    ["Moat downloads a few public files: fixes for broken filters and today's lists of phishing, malware and scam sites. It's a plain file download, like opening a web page.",
+    ["Moat downloads a few public files: fixes for broken filters, today's lists of phishing, malware and scam sites, and new ad sites. It's a plain file download, like opening a web page.",
      "Every file is checked against a signature before Moat uses it. If the check fails, Moat keeps the lists it already has.",
      "GitHub sees your IP address, as with any web request. Nothing else is sent."]],
   ["search", "Catch hidden trackers", "Some web addresses your browser is about to load", "Cloudflare (on Chrome only)", "Off by default", "off",

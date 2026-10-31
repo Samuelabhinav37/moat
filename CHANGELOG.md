@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.306
+
+### Added
+- **New ad sites are blocked within a day.** Each day Moat downloads the ad and tracker
+  sites added to the oisd list since its last release and blocks them the same way it blocks
+  the rest of that list. Before, new ones waited for the next release. The list is signed and
+  checked like the daily security lists, it only adds blocks, and it stops when you turn oisd
+  off. Pausing a site still unblocks everything on it.
+
 ## 0.11.305
 
 ### Changed

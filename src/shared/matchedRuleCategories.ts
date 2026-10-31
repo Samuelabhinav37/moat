@@ -1,4 +1,5 @@
 import type { RulesetManifestEntry } from "./rulesetManifest";
+import { isLiveAdRule } from "./liveAds";
 
 type BreakdownBucket = "ads" | "trackers" | "popups";
 
@@ -73,7 +74,8 @@ export function summarizeMatchedRules(
       counts.ads += 1;
       continue;
     }
-    const bucket = idToBucket.get(match.rulesetId);
+    // The daily ad domains extend oisd, mostly ad servers (liveAds.ts).
+    const bucket = isLiveAdRule(match.rulesetId, match.ruleId) ? "ads" : idToBucket.get(match.rulesetId);
     if (bucket) counts[bucket] += 1;
   }
   return counts;

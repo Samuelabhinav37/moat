@@ -66,7 +66,7 @@ export function buildLiveSecurityRules(
  * group filterGroups.ts left out because the browser had no room for its
  * bundled ruleset (Firefox allows 30,000 static rules). The daily lists are
  * dynamic rules, which don't use that budget, so they still apply. */
-async function activeGroups(): Promise<Set<string>> {
+export async function activeGroups(): Promise<Set<string>> {
   const [enabled, manifest, stored] = await Promise.all([
     browser.declarativeNetRequest.getEnabledRulesets(),
     loadRulesetManifest(),

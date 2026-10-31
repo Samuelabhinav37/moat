@@ -8,6 +8,11 @@ name: Daily security lists
 # the script's guardrails (well-formed hosts, no IPs, no public suffixes,
 # no protected sites) apply every day.
 #
+# It also refreshes live/ad-domains.json: today's oisd domains the latest
+# release doesn't block yet (scripts/update-live-ads.mjs), diffed against
+# that release's own chrome.zip. Those apply only while oisd is on, at the
+# lists' own priority, so pausing a site still unblocks them.
+#
 # A day that trips the size guardrails (a list that shrank by more than
 # half, or more than max(5,000, 25%) domains changed) is NOT published:
 # it goes to a pull request on chore/security-live for a person to check.
@@ -46,15 +51,26 @@ jobs:
 
       - name: Fetch and check today's lists
         id: fetch
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set +e
           node scripts/update-live-security.mjs
           code=$?
+          # The ad list diffs against the latest release's own rules.
+          gh release download --repo "$GITHUB_REPOSITORY" --pattern chrome.zip --dir "$RUNNER_TEMP/release" &&
+            unzip -q "$RUNNER_TEMP/release/chrome.zip" -d "$RUNNER_TEMP/release/chrome" &&
+            node scripts/update-live-ads.mjs "$RUNNER_TEMP/release/chrome"
+          ads=$?
           set -e
-          echo "code=$code" >> "$GITHUB_OUTPUT"
           # 0 = fine, 3 = needs review; anything else is a failure and
-          # leaves the published lists as they are.
+          # leaves the published lists as they are. A failed ad list only
+          # skips the ad list (the script writes nothing when it fails), so
+          # the security lists still go out. Review wins over fine.
           if [ "$code" -ne 0 ] && [ "$code" -ne 3 ]; then exit "$code"; fi
+          if [ "$ads" -ne 0 ] && [ "$ads" -ne 3 ]; then echo "::warning::ad list skipped today (exit $ads)"; ads=0; fi
+          if [ "$ads" -eq 3 ]; then code=3; fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
           if [ -n "$(git status --porcelain live/)" ]; then echo "changed=true" >> "$GITHUB_OUTPUT"; fi
 
       - name: Sign the live manifest
@@ -78,7 +94,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add live/
-          git commit -m "live: daily security lists ($(date -u +%Y-%m-%d))"
+          git commit -m "live: daily security and ad lists ($(date -u +%Y-%m-%d))"
           git pull --rebase origin master
           git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:master
           # A push made with the workflow's own token doesn't start other
@@ -97,12 +113,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BR"
           git add live/
-          git commit -m "live: security lists need review ($(date -u +%Y-%m-%d))"
+          git commit -m "live: daily lists need review ($(date -u +%Y-%m-%d))"
           git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BR"
           if gh pr view "$BR" --json state --jq .state 2>/dev/null | grep -q OPEN; then
             echo "PR already open for $BR; force-push updated it."
           else
             gh pr create --base master --head "$BR" \
-              --title "live: security lists need review" \
-              --body "Today's security lists changed more than the unattended limits allow (see the workflow log for which list and why). Nothing was published, and nothing here is signed. Look at the diff; merge to publish it (sign-live.yml signs it after the merge), or close to keep the current lists."
+              --title "live: daily lists need review" \
+              --body "Today's security or ad lists changed more than the unattended limits allow (see the workflow log for which list and why). Nothing was published, and nothing here is signed. Look at the diff; merge to publish it (sign-live.yml signs it after the merge), or close to keep the current lists."
           fi

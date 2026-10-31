@@ -41,6 +41,7 @@ import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from ".
 import { countCosmeticFixSelectors, filterValidCosmeticFixes } from "./liveCosmeticFixes";
 import { isManifestTrusted, verifyLiveManifest } from "./liveSignature";
 import { storeLiveSecurityPayload } from "./liveSecurityRules";
+import { storeLiveAdPayload } from "./liveAdRules";
 import { reapplySettings } from "./settings";
 import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY, LIVE_YOUTUBE_QUICK_FIXES_KEY } from "../types";
 
@@ -262,6 +263,15 @@ export async function fetchAndApply(options: { force?: boolean } = {}): Promise<
         );
       } catch {
         // Keep the lists applied from the last good fetch.
+      }
+    }
+
+    // Daily ad domains, the same way. Absent from older manifests too.
+    if (hashes["ad-domains.json"]) {
+      try {
+        await storeLiveAdPayload(await fetchVerified("ad-domains.json", hashes["ad-domains.json"]));
+      } catch {
+        // Keep the domains applied from the last good fetch.
       }
     }
 

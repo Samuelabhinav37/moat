@@ -16,7 +16,7 @@ import { buildPopunderNetworkRules } from "./lib/popunderNetworkRules.mjs";
 import { dropSiteBreakingHeaderRules } from "./lib/siteBreakingHeaderRules.mjs";
 import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
 import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
-import { buildOisdRules } from "./lib/oisdRules.mjs";
+import { buildOisdRules, OISD_MIN_DOMAINS, OISD_URL, parseOisdList } from "./lib/oisdRules.mjs";
 import { buildCompatAllowRules } from "./lib/compatAllowRules.mjs";
 import { buildLoopbackRules } from "./lib/loopbackRules.mjs";
 import { buildTrackerCookieRules } from "./lib/trackerCookieRules.mjs";
@@ -721,28 +721,18 @@ peterLoweChunks.forEach((chunkRules, index) => {
 // fact, 100% plain `||domain^` lines end to end (no `@@` exceptions, no
 // regex/cosmetic rules) -- the parse floor below re-checks that assumption
 // on every run rather than trusting it stays true forever.
-const OISD_URL = "https://small.oisd.nl/";
 const oisdResponse = await fetchWithRetry(OISD_URL);
 if (!oisdResponse.ok) {
   throw new Error(`Failed to fetch oisd small: ${oisdResponse.status} ${oisdResponse.statusText}`);
 }
 const oisdText = await oisdResponse.text();
-const OISD_LINE_PATTERN = /^\|\|([a-z0-9.-]+)\^$/i;
-const oisdDomains = [
-  ...new Set(
-    oisdText
-      .split("\n")
-      .map((line) => line.trim())
-      .map((line) => OISD_LINE_PATTERN.exec(line)?.[1]?.toLowerCase())
-      .filter((domain) => domain && SCAM_DOMAIN_PATTERN.test(domain))
-  ),
-].sort();
+const oisdDomains = parseOisdList(oisdText);
 // Written against ~56,000 domains (the "small" variant's own "Entries:"
 // header at fetch time) -- a near-empty parse means either the source
 // changed format (e.g. started using modifiers/exceptions this parser
 // deliberately doesn't handle) or genuinely shrank; either way this should
 // never ship silently.
-if (oisdDomains.length < 20000) {
+if (oisdDomains.length < OISD_MIN_DOMAINS) {
   throw new Error(
     `oisd small parsed to only ${oisdDomains.length} domains -- refusing to ship a suspiciously small list; ` +
       "the source's format may have changed (see scripts/update-filters.mjs's oisd section)."
