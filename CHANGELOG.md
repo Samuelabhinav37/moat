@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.302
+
+### Fixed
+- **"Verify you are human" checks stop looping.** Moat's page guard no longer runs inside
+  Cloudflare Turnstile, reCAPTCHA or hCaptcha frames. These checks saw the guard's changes to
+  the page as a sign of a bot and kept asking again.
+
 ## 0.11.301
 
 ### Added

@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { PRESETS } from "../src/shared/filterPresets.ts";
 import { SITE } from "../src/shared/siteUrls.ts";
+import { CHALLENGE_FRAME_MATCHES } from "../src/shared/challengeFrames.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rulesManifestPath = join(__dirname, "..", "rules", "dnr", "manifest.json");
@@ -137,6 +138,8 @@ function baseManifest() {
       {
         matches: ["<all_urls>"],
         js: ["main-world-guard.js", "fingerprint-guard.js"],
+        // Not in bot-check frames (shared/challengeFrames.ts).
+        exclude_matches: CHALLENGE_FRAME_MATCHES,
         run_at: "document_start",
         all_frames: true,
         // Also about:blank, srcdoc and blob: frames a page makes itself.
@@ -150,6 +153,7 @@ function baseManifest() {
       {
         matches: ["<all_urls>"],
         js: ["bridge.js"],
+        exclude_matches: CHALLENGE_FRAME_MATCHES,
         run_at: "document_start",
         all_frames: true,
         match_about_blank: true,
