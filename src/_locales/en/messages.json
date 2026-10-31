@@ -2350,6 +2350,14 @@
     "message": "Catches what the lists above miss.",
     "description": "Filter list: what it stops."
   },
+  "listAdPagesName": {
+    "message": "Ad and tracker sites",
+    "description": "Filter list name (ad and tracker domains blocked as pages, opt-in)."
+  },
+  "listAdPagesDesc": {
+    "message": "Stops their pages too, like a router blocker.",
+    "description": "Filter list: what it stops."
+  },
   "listTrackersName": {
     "message": "Trackers",
     "description": "Filter list name."

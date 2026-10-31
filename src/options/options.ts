@@ -6,7 +6,7 @@ import { getFilterGroupStatus } from "../background/filterGroups";
 import { effectiveFilterGroupState } from "../background/filterGroupState";
 import { isSupported as isCnameUncloakFirefoxSupported } from "../background/cnameUncloak";
 import { isSupported as isCnameUncloakChromeSupported } from "../background/cnameUncloakChrome";
-import { detectPreset, presetDifference, presetPatch, type PresetName } from "../shared/filterPresets";
+import { detectPreset, isGroupOn, presetDifference, presetPatch, type PresetName } from "../shared/filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
@@ -1210,7 +1210,7 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
     if (droppedGroups.has(list.group)) {
       extra.push(buildLine("locked-badge budget-badge", tFallback("optionsFilterBudgetDroppedBadge", "Off to stay within the browser limit")));
     }
-    const on = settings.filterGroups[list.group] ?? true;
+    const on = isGroupOn(settings.filterGroups, list.group);
     const control = buildSwitch(on, titleId, (checked) => {
       const updated = { ...(currentFilterGroups ?? settings.filterGroups), [list.group]: checked };
       currentFilterGroups = updated;
@@ -1228,7 +1228,7 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
   };
   filterListRows.replaceChildren(
     ...groupLists(lists).map(({ section, lists: inSection }) => {
-      const onCount = inSection.filter((l) => settings.filterGroups[l.group] ?? true).length;
+      const onCount = inSection.filter((l) => isGroupOn(settings.filterGroups, l.group)).length;
       const title = SECTION_TITLES[section];
       return buildInsetGroup(
         tFallback(title.key, title.fallback),

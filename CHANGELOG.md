@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.304
+
+### Added
+- **Block ad sites like a router (off unless you turn it on).** A new list, "Ad and tracker
+  sites" under Settings › Filter lists, also stops ad and tracker hosts when they open as a
+  page, such as a pop-under or an ad's landing page. You get Moat's block page with "Open
+  anyway". Email and link-shortener hosts are left out, so links in your mail still open.
+  It's in no level, so turning it on keeps your level.
+
 ## 0.11.303
 
 ### Fixed

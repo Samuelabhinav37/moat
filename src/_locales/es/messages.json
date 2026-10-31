@@ -2189,6 +2189,12 @@
     "message": "Atrapa lo que se les escapa a las listas de arriba.",
     "description": "Filter list: what it stops."
   },
+  "listAdPagesName": {
+    "message": "Sitios de anuncios y rastreadores"
+  },
+  "listAdPagesDesc": {
+    "message": "También bloquea sus páginas, como un bloqueador en el router."
+  },
   "listTrackersName": {
     "message": "Rastreadores",
     "description": "Filter list name."

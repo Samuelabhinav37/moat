@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ALL_TOGGLEABLE_GROUPS, detectPreset, presetDifference, presetPatch, PRESETS } from "./filterPresets";
+import { ALL_TOGGLEABLE_GROUPS, detectPreset, isGroupOn, presetDifference, presetPatch, PRESETS } from "./filterPresets";
 import { DEFAULT_SETTINGS } from "../types";
 import type { Settings } from "../types";
 
@@ -142,5 +142,18 @@ describe("presetDifference", () => {
     const strict = { ...DEFAULT_SETTINGS, ...presetPatch("strict") } as Settings;
     const mix = { ...strict, filterGroups: { ...strict.filterGroups, annoyances: false } };
     expect(presetDifference(mix)).toEqual({ base: "strict", added: [], removed: ["annoyances"] });
+  });
+});
+
+describe("isGroupOn", () => {
+  it("reads an untouched list as on, except page blocking, which waits to be asked", () => {
+    expect(isGroupOn({}, "ads")).toBe(true);
+    expect(isGroupOn({}, "ad-pages")).toBe(false);
+    expect(isGroupOn({ "ad-pages": true }, "ad-pages")).toBe(true);
+  });
+
+  it("leaves page blocking out of every level, so turning it on keeps the level", () => {
+    const strict = { ...DEFAULT_SETTINGS, ...presetPatch("strict") } as Settings;
+    expect(detectPreset({ ...strict, filterGroups: { ...strict.filterGroups, "ad-pages": true } })).toBe("strict");
   });
 });

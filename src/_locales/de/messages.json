@@ -2189,6 +2189,12 @@
     "message": "Fängt, was die Listen oben verpassen.",
     "description": "Filter list: what it stops."
   },
+  "listAdPagesName": {
+    "message": "Werbe- und Tracker-Seiten"
+  },
+  "listAdPagesDesc": {
+    "message": "Sperrt auch ihre Seiten, wie ein Router-Blocker."
+  },
   "listTrackersName": {
     "message": "Tracker",
     "description": "Filter list name."
