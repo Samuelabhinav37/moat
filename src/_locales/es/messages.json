@@ -3736,6 +3736,18 @@
   "checkUpdateFailedDetail": {
     "message": "Moat sigue usando las listas que tiene y lo intentará pronto."
   },
+  "checkSafeBrowsingOnTitle": {
+    "message": "La Navegación segura de Chrome está activada"
+  },
+  "checkSafeBrowsingOffTitle": {
+    "message": "La Navegación segura de Chrome está desactivada"
+  },
+  "checkSafeBrowsingOffDetail": {
+    "message": "La comprobación de sitios peligrosos de Chrome. Solo tú puedes activarla."
+  },
+  "checkOpenChromeSettings": {
+    "message": "Abrir configuración"
+  },
   "checkPwOnTitle": {
     "message": "Los avisos de contraseñas filtradas están activados"
   },

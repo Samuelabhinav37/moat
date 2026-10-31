@@ -3736,6 +3736,18 @@
   "checkUpdateFailedDetail": {
     "message": "Moat continue avec ses listes actuelles et réessaiera bientôt."
   },
+  "checkSafeBrowsingOnTitle": {
+    "message": "La navigation sécurisée de Chrome est activée"
+  },
+  "checkSafeBrowsingOffTitle": {
+    "message": "La navigation sécurisée de Chrome est désactivée"
+  },
+  "checkSafeBrowsingOffDetail": {
+    "message": "La vérification des sites dangereux propre à Chrome. Vous seul pouvez l'activer."
+  },
+  "checkOpenChromeSettings": {
+    "message": "Ouvrir les paramètres"
+  },
   "checkPwOnTitle": {
     "message": "Les alertes de mots de passe divulgués sont activées"
   },

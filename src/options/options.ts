@@ -2475,8 +2475,21 @@ function checkRow(state: CheckState, title: string, detail: string, action?: { l
   return row;
 }
 
+/** Whether Chrome's own Safe Browsing is on, or null where the browser
+ * doesn't expose it (Firefox). Extensions can read it but never turn it on. */
+async function safeBrowsingOn(): Promise<boolean | null> {
+  const privacy = browser.privacy as { services?: { safeBrowsingEnabled?: { get(details: object): Promise<{ value: unknown }> } } } | undefined;
+  const setting = privacy?.services?.safeBrowsingEnabled;
+  if (!setting) return null;
+  try {
+    return (await setting.get({})).value !== false;
+  } catch {
+    return null;
+  }
+}
+
 async function renderSecurityPage(settings: Settings, usage: UsageSummaryResponse): Promise<void> {
-  const [live, undo] = await Promise.all([getLiveUpdateStatus().catch(() => null), getImportUndo()]);
+  const [live, undo, safeBrowsing] = await Promise.all([getLiveUpdateStatus().catch(() => null), getImportUndo(), safeBrowsingOn()]);
   const rows: HTMLElement[] = [];
 
   rows.push(
@@ -2498,6 +2511,19 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
         })
       : checkRow("ok", tFallback("checkListsOnTitle", "Dangerous-site lists are on"), "")
   );
+
+  // Chrome's own check for dangerous sites catches what Google has crawled;
+  // Moat's daily lists are the second net for scams too new for it.
+  if (safeBrowsing !== null) {
+    rows.push(
+      safeBrowsing
+        ? checkRow("ok", tFallback("checkSafeBrowsingOnTitle", "Chrome's Safe Browsing is on"), "")
+        : checkRow("warn", tFallback("checkSafeBrowsingOffTitle", "Chrome's Safe Browsing is off"), tFallback("checkSafeBrowsingOffDetail", "Chrome's own check for dangerous sites. Only you can turn it on."), {
+            label: tFallback("checkOpenChromeSettings", "Open settings"),
+            run: () => void browser.tabs.create({ url: "chrome://settings/security" }),
+          })
+    );
+  }
 
   if (live) {
     rows.push(

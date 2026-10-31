@@ -3897,6 +3897,18 @@
   "checkUpdateFailedDetail": {
     "message": "Moat keeps using the lists it has and tries again soon."
   },
+  "checkSafeBrowsingOnTitle": {
+    "message": "Chrome's Safe Browsing is on"
+  },
+  "checkSafeBrowsingOffTitle": {
+    "message": "Chrome's Safe Browsing is off"
+  },
+  "checkSafeBrowsingOffDetail": {
+    "message": "Chrome's own check for dangerous sites. Only you can turn it on."
+  },
+  "checkOpenChromeSettings": {
+    "message": "Open settings"
+  },
   "checkPwOnTitle": {
     "message": "Leaked password warnings are on"
   },

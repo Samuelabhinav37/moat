@@ -3736,6 +3736,18 @@
   "checkUpdateFailedDetail": {
     "message": "Moat nutzt die vorhandenen Listen weiter und versucht es bald erneut."
   },
+  "checkSafeBrowsingOnTitle": {
+    "message": "Safe Browsing in Chrome ist an"
+  },
+  "checkSafeBrowsingOffTitle": {
+    "message": "Safe Browsing in Chrome ist aus"
+  },
+  "checkSafeBrowsingOffDetail": {
+    "message": "Chromes eigene Prüfung auf gefährliche Websites. Nur du kannst sie einschalten."
+  },
+  "checkOpenChromeSettings": {
+    "message": "Einstellungen öffnen"
+  },
   "checkPwOnTitle": {
     "message": "Warnungen bei geleakten Passwörtern sind an"
   },

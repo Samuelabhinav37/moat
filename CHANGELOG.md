@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.301
+
+### Added
+- **Safety check shows Chrome's Safe Browsing.** If it's off, the row says so and opens
+  Chrome's security settings. Moat can't turn it on for you. It's Chrome's own check for
+  dangerous sites, and Moat's daily lists catch scams too new for it.
+
 ## 0.11.300
 
 ### Changed
