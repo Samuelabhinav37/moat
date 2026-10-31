@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.300
+
+### Changed
+- **Chrome's own switches do more of the work.** While Moat is on, it turns off link pings
+  (`<a ping>`) and Chrome's ad interest, ad auction and ad measurement features (Topics,
+  Protected Audience, Attribution Reporting). None of these can break a site. Switching Moat
+  off hands them back to Chrome.
+
 ## 0.11.299
 
 ### Changed

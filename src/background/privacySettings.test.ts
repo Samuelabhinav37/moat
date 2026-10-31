@@ -160,4 +160,27 @@ describe("applyPrivacySettings", () => {
       applyPrivacySettings({ ...baseSettings, firefoxResistFingerprinting: true, firefoxFirstPartyIsolate: true })
     ).resolves.toBeUndefined();
   });
+
+  it("turns off link pings and Chrome's ad APIs while Moat is on, and hands them back when it's off", async () => {
+    const make = () => ({ set: vi.fn(() => Promise.resolve()), clear: vi.fn(() => Promise.resolve()) });
+    const websites = {
+      hyperlinkAuditingEnabled: make(),
+      topicsEnabled: make(),
+      fledgeEnabled: make(),
+      adMeasurementEnabled: make(),
+    };
+    setPrivacy({ websites });
+
+    await applyPrivacySettings(baseSettings);
+    for (const setting of Object.values(websites)) {
+      expect(setting.set).toHaveBeenCalledWith({ value: false });
+      setting.set.mockClear();
+    }
+
+    await applyPrivacySettings({ ...baseSettings, enabled: false });
+    for (const setting of Object.values(websites)) {
+      expect(setting.clear).toHaveBeenCalledWith({});
+      expect(setting.set).not.toHaveBeenCalled();
+    }
+  });
 });
