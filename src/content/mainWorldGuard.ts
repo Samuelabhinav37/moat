@@ -1,8 +1,12 @@
 // Runs in the page's MAIN world at document_start, before any page script.
 // No extension APIs exist here (that's what bridge.ts is for) -- this file
-// only ever talks back to the extension over a private MessagePort from
-// bridge.ts (see GUARD_CONNECT_EVENT in types.ts).
-import { GUARD_CONNECT_EVENT, type GuardBlockKind, type GuardBlockReport, type PopupGuardConfig } from "../types";
+// only ever talks back to the extension over a private MessagePort it hands
+// to bridge.ts (see POPUP_GUARD_HELLO_EVENT in types.ts).
+//
+// Registered at runtime (background/optionalContentScripts.ts), not in the
+// manifest: paused sites, bot-check frames and Moat switched off get no
+// guard at all, so nothing on those pages sees a built-in function replaced.
+import { BRIDGE_READY_EVENT, POPUP_GUARD_HELLO_EVENT, type GuardBlockKind, type GuardBlockReport, type PopupGuardConfig } from "../types";
 import { authPopupKind } from "./authPopup";
 import { isFrameEscape, topSiteOf, type FrameContext } from "./frameEscape";
 import { siteOf } from "../shared/siteOf";
@@ -51,11 +55,11 @@ let siteDisabled = false;
 let lastTrustedClick: { time: number; target: EventTarget | null; consumed: boolean } | null = null;
 const popupRateLimiter = createPopupRateLimiter();
 
-// Private channel to bridge.ts, handed over at document_start before any
-// page script runs (see GUARD_CONNECT_EVENT in types.ts). The first port
-// wins; a page can't hand over a port of its own because it has no script
-// running yet when the real one arrives.
-let bridgePort: MessagePort | null = null;
+// Private channel to bridge.ts. Its other end is handed over at
+// document_start, before any page script runs (see POPUP_GUARD_HELLO_EVENT
+// in types.ts and the end of this file).
+const bridgeChannel = new MessageChannel();
+const bridgePort = bridgeChannel.port1;
 
 // Chrome keeps a click's user activation for 5 s, and sign-in code often
 // awaits a network round trip before it opens the popup (MSAL fetches the
@@ -65,7 +69,7 @@ const TRUST_WINDOW_MS = 5000;
 function report(kind: GuardBlockKind, url: string | null): void {
   // Before the port arrives the report is dropped: at most one uncounted
   // block, never a missed one (the block itself already happened).
-  bridgePort?.postMessage({ kind, url } satisfies GuardBlockReport);
+  bridgePort.postMessage({ kind, url } satisfies GuardBlockReport);
 }
 
 document.addEventListener(
@@ -303,11 +307,14 @@ if (nativeRequestSubmit) {
   });
 }
 
-document.addEventListener(GUARD_CONNECT_EVENT, (event) => {
-  const port = (event as MessageEvent).ports?.[0];
-  if (bridgePort || !port) return;
-  bridgePort = port;
-  port.onmessage = (message: MessageEvent<PopupGuardConfig>) => {
-    if (typeof message.data?.disabled === "boolean") siteDisabled = message.data.disabled;
-  };
-});
+bridgePort.onmessage = (message: MessageEvent<PopupGuardConfig>) => {
+  if (typeof message.data?.disabled === "boolean") siteDisabled = message.data.disabled;
+};
+
+// The bridge cancels the hello it takes. Not cancelled means it hasn't
+// loaded yet: send it again when it says it has. That listener is gone
+// before any page script runs, so a page can't trigger a second hello and
+// catch the port.
+const sayHello = () =>
+  !document.dispatchEvent(new MessageEvent(POPUP_GUARD_HELLO_EVENT, { cancelable: true, ports: [bridgeChannel.port2] }));
+if (!sayHello()) document.addEventListener(BRIDGE_READY_EVENT, sayHello, { once: true });

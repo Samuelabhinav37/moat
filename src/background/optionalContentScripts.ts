@@ -10,6 +10,12 @@
 //   exception for one of its selectors). Generic hiding the browser applies
 //   at document start by itself, so ads don't flash while the worker wakes
 //   (scripts/lib/earlyCosmetics.mjs).
+// - main-world-guard.js       the pop-up guard, MAIN world, every frame, whenever
+//   Moat is on. Paused sites, this computer's own addresses and bot-check
+//   frames are left out, so nothing there sees a built-in function replaced
+//   (field report 2026-10-30: Cloudflare checks looped). It hands bridge.js
+//   its own port, since registered scripts run after the manifest's
+//   (POPUP_GUARD_HELLO_EVENT in types.ts).
 // - admiral-guard.js          <1 KB, MAIN world, whenever Moat is on. Registered
 //   here rather than in the manifest so paused sites can be left out before
 //   the page's first script runs (a static script only learns about a pause
@@ -30,6 +36,7 @@
 import browser from "webextension-polyfill";
 import type { Settings } from "../types";
 import { LOOPBACK_MATCH_PATTERNS } from "../shared/loopback";
+import { CHALLENGE_FRAME_MATCHES } from "../shared/challengeFrames";
 import { loadTrackerCookieData } from "./cookieClobber";
 
 export interface OptionalScript {
@@ -41,6 +48,8 @@ export interface OptionalScript {
   matches: string[] | ((data: ReconcileData) => string[]);
   /** Every frame, not just the top page. */
   allFrames?: boolean;
+  /** Also about:blank, srcdoc and blob: frames, matched by their creator. */
+  matchOriginAsFallback?: boolean;
   runAt: "document_start" | "document_end" | "document_idle";
   /** The page's own JavaScript world instead of the extension's isolated one. */
   world?: "MAIN";
@@ -152,6 +161,18 @@ export const OPTIONAL_SCRIPTS: OptionalScript[] = [
     excludeMatches: earlyExceptedPatterns,
   },
   {
+    id: "moat-main-world-guard",
+    js: "main-world-guard.js",
+    matches: ["<all_urls>"],
+    allFrames: true,
+    // A page opened pop-ups through a blank iframe's window.open without it.
+    matchOriginAsFallback: true,
+    runAt: "document_start",
+    world: "MAIN",
+    wants: (s) => s.enabled,
+    excludeMatches: (s) => [...new Set([...pausedSitePatterns(s), ...CHALLENGE_FRAME_MATCHES])].sort(),
+  },
+  {
     id: "moat-admiral-guard",
     js: "admiral-guard.js",
     matches: ["<all_urls>"],
@@ -250,6 +271,7 @@ export async function reconcileOptionalContentScripts(settings: Settings): Promi
           runAt: s.runAt,
           ...(s.world ? { world: s.world } : {}),
           allFrames: s.allFrames ?? false,
+          ...(s.matchOriginAsFallback ? { matchOriginAsFallback: true } : {}),
           // Survive a browser restart so an enabled feature still runs on
           // the first page load after one, without waiting for the worker
           // to wake; reapplySettings reconciles any drift on the next wake.

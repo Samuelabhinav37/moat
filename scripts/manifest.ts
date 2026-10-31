@@ -137,7 +137,9 @@ function baseManifest() {
     content_scripts: [
       {
         matches: ["<all_urls>"],
-        js: ["main-world-guard.js", "fingerprint-guard.js"],
+        // main-world-guard.js is registered at runtime instead, so paused
+        // sites never get it (background/optionalContentScripts.ts).
+        js: ["fingerprint-guard.js"],
         // Not in bot-check frames (shared/challengeFrames.ts).
         exclude_matches: CHALLENGE_FRAME_MATCHES,
         run_at: "document_start",

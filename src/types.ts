@@ -850,15 +850,29 @@ export type RuntimeMessage =
   | StartElementPickerMessage
   | CheckForLiveUpdatesMessage;
 
-/** How bridge.ts (isolated world) reaches the MAIN-world guards, which have
- * no extension APIs. At document_start, before any page script exists,
+/** How bridge.ts (isolated world) reaches the fingerprint guard (MAIN world,
+ * no extension APIs). At document_start, before any page script exists,
  * bridge.ts dispatches one synchronous MessageEvent of this type on
- * `document` carrying two MessagePorts: [popup guard, fingerprint guard].
- * Each guard keeps the first port it sees. Everything after that goes over
- * the private ports, so page scripts never see a config (or the
- * fingerprint seed in it). A window.postMessage was readable by any page
- * script listening for "message". */
+ * `document` carrying one MessagePort. The guard keeps the first port it
+ * sees. Everything after that goes over the private port, so page scripts
+ * never see the config (or the fingerprint seed in it). A
+ * window.postMessage was readable by any page script listening for
+ * "message". */
 export const GUARD_CONNECT_EVENT = "moat-guard-connect";
+
+/** The popup guard (mainWorldGuard.ts) is registered at runtime so paused
+ * sites never get it, and Chrome runs registered scripts after the
+ * manifest's bridge.js. So the guard hands over its own port instead: a
+ * cancelable MessageEvent of this type on `document`, carrying one
+ * MessagePort, as soon as it loads. bridge.ts keeps the first one and
+ * cancels the event, which tells the guard synchronously that it arrived.
+ * If it wasn't cancelled (the bridge loaded second), the guard sends it
+ * again on BRIDGE_READY_EVENT, which bridge.ts dispatches once when it
+ * loads. All of it happens at document_start, before any page script. The
+ * bridge drops the port unless Moat is on for the page, so on a paused
+ * page, where there is no guard, a page script's own hello gets nothing. */
+export const POPUP_GUARD_HELLO_EVENT = "moat-popup-guard-hello";
+export const BRIDGE_READY_EVENT = "moat-bridge-ready";
 
 /** bridge.ts -> mainWorldGuard.ts. */
 export interface PopupGuardConfig {

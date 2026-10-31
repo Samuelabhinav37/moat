@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.303
+
+### Fixed
+- **Pausing a site really leaves it alone.** Moat's pop-up guard used to load on paused
+  sites too and just stay quiet, which bot checks could still notice. Now paused sites,
+  this computer's own addresses and bot-check frames never get it, and it's gone entirely
+  while Moat is off. If a "verify you are human" check still loops on a site, pausing it now
+  fixes it. Pop-up blocking everywhere else works as before.
+
 ## 0.11.302
 
 ### Fixed

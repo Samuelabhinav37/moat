@@ -33,7 +33,7 @@ beforeEach(() => {
 function postConfig(fingerprintResistance: boolean, _label: string): void {
   if (!port) {
     port = { onmessage: null, postMessage() {} };
-    document.dispatchEvent(Object.assign(new Event(GUARD_CONNECT_EVENT), { ports: [{}, port] }));
+    document.dispatchEvent(Object.assign(new Event(GUARD_CONNECT_EVENT), { ports: [port] }));
   }
   port.onmessage?.({ data: { fingerprintResistance, fingerprintSeed: "test-seed" } });
 }
