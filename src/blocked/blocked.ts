@@ -2,10 +2,11 @@
 // background/blockedPage.ts for how a tab gets here.
 import browser from "webextension-polyfill";
 import { applyStaticI18n } from "../shared/i18n";
-import { CUSTOM_LIST, POLICY_LIST, UNKNOWN_LIST, destinationIn, parseBlockedPageQuery, type BlockKind } from "../shared/blockedPage";
+import { CUSTOM_LIST, LOOKALIKE_LIST, POLICY_LIST, UNKNOWN_LIST, destinationIn, parseBlockedPageQuery, type BlockKind } from "../shared/blockedPage";
 import { LIST_LABELS } from "../options/filterListLabels";
 import type { OpenBlockedPageMessage } from "../types";
 import { noteTrouble } from "../background/checkin";
+import { LIVE_LOOKALIKES_KEY } from "../shared/liveLookalikes";
 
 // A stopped page is a bad moment for the check-in question.
 void noteTrouble().catch(() => {});
@@ -32,6 +33,7 @@ function dangerReason(list: string): string {
 function listName(list: string): string {
   if (list === CUSTOM_LIST) return msg("blockedListCustom", "Your block list");
   if (list === POLICY_LIST) return msg("blockedListPolicy", "Your organization's policy");
+  if (list === LOOKALIKE_LIST) return msg("blockedListLookalike", "Moat's new lookalike sites");
   const label = LIST_LABELS[list];
   if (label) return msg("blockedListNamed", `Moat's ${label.name} list`, msg(label.nameKey, label.name));
   return msg("blockedListUnknown", "One of Moat's lists");
@@ -55,6 +57,7 @@ function render(): void {
     custom: msg("blockedTitleCustom", "You blocked this site"),
     policy: msg("blockedTitlePolicy", "Your organization blocked this site"),
     unknown: msg("blockedTitleAds", "Moat stopped this page"),
+    lookalike: msg("blockedTitleLookalike", "This site may be pretending to be another"),
   };
   const reasons: Record<BlockKind, string> = {
     danger: dangerReason(list),
@@ -65,6 +68,7 @@ function render(): void {
     custom: msg("blockedWhyCustom", "It's on your own block list in Moat's settings."),
     policy: msg("blockedWhyPolicy", "Your organization's policy blocks it. Ask your IT team if you need it."),
     unknown: msg("blockedWhyUnknown", "It's on one of Moat's lists. Moat couldn't tell which one this time, so it may be a dangerous site."),
+    lookalike: msg("blockedWhyLookalike", "It was set up in the last few weeks with a name made to look like a well-known site. Don't sign in or pay here unless you're sure."),
   };
   document.getElementById("title")!.textContent = titles[kind];
   document.title = host ? `${titles[kind]}: ${host}` : titles[kind];
@@ -90,7 +94,7 @@ function render(): void {
 
   // "Open anyway": plain for ads and your own blocks, behind Details for a
   // dangerous site, and not at all for an organization's block.
-  document.getElementById("open-anyway")!.hidden = !params || (kind !== "ads" && kind !== "custom");
+  document.getElementById("open-anyway")!.hidden = !params || (kind !== "ads" && kind !== "custom" && kind !== "lookalike");
   // A stop Moat couldn't trace to a list gets the same care as a dangerous one.
   document.getElementById("danger-proceed")!.hidden = !params || (kind !== "danger" && kind !== "unknown");
 
@@ -105,6 +109,20 @@ function render(): void {
     goTo.textContent = msg("blockedGoTo", `Go to ${destinationHost}`, destinationHost);
     goTo.addEventListener("click", () => location.assign(destination));
     document.getElementById("go-back")!.classList.remove("primary");
+  }
+  if (kind === "lookalike" && host) void nameBrand(host);
+}
+
+/** Puts the brand a lookalike site imitates in the title, once it's read. */
+async function nameBrand(host: string): Promise<void> {
+  const stored = ((await browser.storage.local.get(LIVE_LOOKALIKES_KEY))[LIVE_LOOKALIKES_KEY] ?? {}) as Record<string, { brand?: unknown }>;
+  for (let name = host; name.includes("."); name = name.slice(name.indexOf(".") + 1)) {
+    const brand = stored[name]?.brand;
+    if (typeof brand !== "string") continue;
+    const title = msg("blockedTitleLookalikeBrand", `This site may be pretending to be ${brand}`, brand);
+    document.getElementById("title")!.textContent = title;
+    document.title = `${title}: ${host}`;
+    return;
   }
 }
 

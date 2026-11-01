@@ -4673,5 +4673,31 @@
   },
   "tourDnsOpen": {
     "message": "Ouvrir le réglage DNS de Chrome"
+  },
+  "blockedTitleLookalike": {
+    "message": "Ce site se fait peut-être passer pour un autre",
+    "description": "Block page heading for a new site whose name imitates a brand, before the brand is known."
+  },
+  "blockedTitleLookalikeBrand": {
+    "message": "Ce site se fait peut-être passer pour $BRAND$",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "PayPal"
+      }
+    },
+    "description": "Block page heading for a new site whose name imitates a brand. $BRAND$ is a brand like PayPal."
+  },
+  "blockedWhyLookalike": {
+    "message": "Il a été créé ces dernières semaines avec un nom qui imite un site connu. Ne vous connectez pas et ne payez rien ici sans en être sûr.",
+    "description": "Block page: why a new lookalike site was stopped."
+  },
+  "blockedListLookalike": {
+    "message": "Nouveaux sites imitateurs de Moat",
+    "description": "Block page details: the list behind a lookalike warning."
+  },
+  "secStopLookalike": {
+    "message": "Un nouveau site fait pour ressembler à un site connu",
+    "description": "Settings, stopped pages: what a lookalike stop was."
   }
 }

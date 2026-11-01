@@ -13,6 +13,10 @@ name: Daily security lists
 # that release's own chrome.zip. Those apply only while oisd is on, at the
 # lists' own priority, so pausing a site still unblocks them.
 #
+# And live/lookalike-domains.json: domains registered this week whose names
+# imitate a brand (scripts/update-live-lookalikes.mjs). Moat warns on those
+# with a page that has "Open anyway".
+#
 # A day that trips the size guardrails (a list that shrank by more than
 # half, or more than max(5,000, 25%) domains changed) is NOT published:
 # it goes to a pull request on chore/security-live for a person to check.
@@ -62,14 +66,18 @@ jobs:
             unzip -q "$RUNNER_TEMP/release/chrome.zip" -d "$RUNNER_TEMP/release/chrome" &&
             node scripts/update-live-ads.mjs "$RUNNER_TEMP/release/chrome"
           ads=$?
+          node scripts/update-live-lookalikes.mjs
+          look=$?
           set -e
           # 0 = fine, 3 = needs review; anything else is a failure and
           # leaves the published lists as they are. A failed ad list only
           # skips the ad list (the script writes nothing when it fails), so
-          # the security lists still go out. Review wins over fine.
+          # the security lists still go out. The lookalike list, the same.
+          # Review wins over fine.
           if [ "$code" -ne 0 ] && [ "$code" -ne 3 ]; then exit "$code"; fi
           if [ "$ads" -ne 0 ] && [ "$ads" -ne 3 ]; then echo "::warning::ad list skipped today (exit $ads)"; ads=0; fi
-          if [ "$ads" -eq 3 ]; then code=3; fi
+          if [ "$look" -ne 0 ] && [ "$look" -ne 3 ]; then echo "::warning::lookalike list skipped today (exit $look)"; look=0; fi
+          if [ "$ads" -eq 3 ] || [ "$look" -eq 3 ]; then code=3; fi
           echo "code=$code" >> "$GITHUB_OUTPUT"
           if [ -n "$(git status --porcelain live/)" ]; then echo "changed=true" >> "$GITHUB_OUTPUT"; fi
 

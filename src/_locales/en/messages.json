@@ -4959,5 +4959,31 @@
   "tourDnsOpen": {
     "message": "Open Chrome's DNS setting",
     "description": "First-run tour, last step: setup questions."
+  },
+  "blockedTitleLookalike": {
+    "message": "This site may be pretending to be another",
+    "description": "Block page heading for a new site whose name imitates a brand, before the brand is known."
+  },
+  "blockedTitleLookalikeBrand": {
+    "message": "This site may be pretending to be $BRAND$",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "PayPal"
+      }
+    },
+    "description": "Block page heading for a new site whose name imitates a brand. $BRAND$ is a brand like PayPal."
+  },
+  "blockedWhyLookalike": {
+    "message": "It was set up in the last few weeks with a name made to look like a well-known site. Don't sign in or pay here unless you're sure.",
+    "description": "Block page: why a new lookalike site was stopped."
+  },
+  "blockedListLookalike": {
+    "message": "Moat's new lookalike sites",
+    "description": "Block page details: the list behind a lookalike warning."
+  },
+  "secStopLookalike": {
+    "message": "A new site made to look like a well-known one",
+    "description": "Settings, stopped pages: what a lookalike stop was."
   }
 }

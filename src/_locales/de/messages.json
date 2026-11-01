@@ -4673,5 +4673,31 @@
   },
   "tourDnsOpen": {
     "message": "DNS-Einstellung in Chrome öffnen"
+  },
+  "blockedTitleLookalike": {
+    "message": "Diese Website gibt sich vielleicht als eine andere aus",
+    "description": "Block page heading for a new site whose name imitates a brand, before the brand is known."
+  },
+  "blockedTitleLookalikeBrand": {
+    "message": "Diese Website gibt sich vielleicht als $BRAND$ aus",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "PayPal"
+      }
+    },
+    "description": "Block page heading for a new site whose name imitates a brand. $BRAND$ is a brand like PayPal."
+  },
+  "blockedWhyLookalike": {
+    "message": "Sie wurde in den letzten Wochen eingerichtet, mit einem Namen, der wie eine bekannte Website aussieht. Melde dich hier nicht an und bezahle nichts, wenn du nicht sicher bist.",
+    "description": "Block page: why a new lookalike site was stopped."
+  },
+  "blockedListLookalike": {
+    "message": "Moats neue Nachahmer-Websites",
+    "description": "Block page details: the list behind a lookalike warning."
+  },
+  "secStopLookalike": {
+    "message": "Eine neue Website, die wie eine bekannte aussehen soll",
+    "description": "Settings, stopped pages: what a lookalike stop was."
   }
 }

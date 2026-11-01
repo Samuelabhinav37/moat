@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.308
+
+### Added
+- **Moat warns before new sites dressed up as a brand.** Each day Moat downloads a list of
+  sites registered in the last week whose names copy a bank, shop or sign-in page, like
+  "paypal-login-help.com" or "rnicrosoft.com". Opening one shows a warning that names the
+  brand it imitates, with Go back first and Open anyway beside it. It only warns, since a new
+  site isn't proven bad. It's part of the Phishing list, so it stops when you turn that off,
+  and pausing a site or adding it to Never block lets it through. Chrome only for now.
+
 ## 0.11.307
 
 ### Added

@@ -15,12 +15,13 @@
 import browser from "webextension-polyfill";
 import { isKnownRedirectHost } from "./popupGuard";
 import { LIVE_SECURITY_ID_START, LIVE_SECURITY_KEY, MAX_LIVE_SECURITY_RULES } from "./liveSecurityRules";
+import { storedLookalikes } from "./liveLookalikeRules";
 import type { PageBlocked } from "./liveBlocks";
 import { readMatchedRules } from "./matchStats";
 import { rememberBlockedTab } from "./proceedRules";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
 import { recordPageStop } from "./usageStats";
-import { CUSTOM_LIST, POLICY_LIST, UNKNOWN_LIST, blockedPageQuery, hostOnList, kindForList, listForRule, pageMatch, securityGroupFor, type BlockKind, type MatchedRule, type SecurityHostsIndex } from "../shared/blockedPage";
+import { CUSTOM_LIST, LOOKALIKE_LIST, POLICY_LIST, UNKNOWN_LIST, blockedPageQuery, hostOnList, kindForList, listForRule, pageMatch, securityGroupFor, type BlockKind, type MatchedRule, type SecurityHostsIndex } from "../shared/blockedPage";
 import { hostnameOf } from "../shared/trackerDomains";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
 import { getEffectiveSettings, getSettings } from "./settings";
@@ -62,8 +63,9 @@ async function findPageMatch(block: PageBlocked): Promise<MatchedRule | null> {
 }
 
 /** A list Moat holds itself that blocks this host: a danger list that's
- * switched on (today's copy, then the bundled one), your block list, or
- * your organization's. Danger first: it decides how careful the page is. */
+ * switched on (today's copy, then the bundled one), your block list, your
+ * organization's, or the new lookalike sites. Danger first: it decides how
+ * careful the page is. */
 async function ownListFor(url: string, hostname: string): Promise<{ list: string; kind: BlockKind } | null> {
   const [own, effective] = await Promise.all([getSettings().catch(() => null), getEffectiveSettings().catch(() => null)]);
   const enabled = (group: string) => effective?.filterGroups[group] ?? true;
@@ -73,6 +75,9 @@ async function ownListFor(url: string, hostname: string): Promise<{ list: string
   if (bundled) return { list: bundled, kind: "danger" };
   if (own && matchesDomainOrSubdomain(hostname, own.customBlockedDomains)) return { list: CUSTOM_LIST, kind: "custom" };
   if (effective && matchesDomainOrSubdomain(hostname, effective.customBlockedDomains)) return { list: POLICY_LIST, kind: "policy" };
+  if (enabled("phishing-urls") && hostOnList(hostname, new Set(Object.keys(await storedLookalikes().catch(() => ({})))))) {
+    return { list: LOOKALIKE_LIST, kind: "lookalike" };
+  }
   return null;
 }
 

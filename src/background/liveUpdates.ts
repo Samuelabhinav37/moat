@@ -42,6 +42,7 @@ import { countCosmeticFixSelectors, filterValidCosmeticFixes } from "./liveCosme
 import { isManifestTrusted, verifyLiveManifest } from "./liveSignature";
 import { storeLiveSecurityPayload } from "./liveSecurityRules";
 import { storeLiveAdPayload } from "./liveAdRules";
+import { storeLookalikePayload } from "./liveLookalikeRules";
 import { storeSiteExceptions } from "./siteExceptionRules";
 import { reapplySettings } from "./settings";
 import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY, LIVE_YOUTUBE_QUICK_FIXES_KEY } from "../types";
@@ -283,6 +284,15 @@ export async function fetchAndApply(options: { force?: boolean } = {}): Promise<
         await storeLiveAdPayload(await fetchVerified("ad-domains.json", hashes["ad-domains.json"]));
       } catch {
         // Keep the domains applied from the last good fetch.
+      }
+    }
+
+    // New sites dressed up as a brand, the same way.
+    if (hashes["lookalike-domains.json"]) {
+      try {
+        await storeLookalikePayload(await fetchVerified("lookalike-domains.json", hashes["lookalike-domains.json"]));
+      } catch {
+        // Keep the sites from the last good fetch.
       }
     }
 

@@ -9,21 +9,25 @@ import type { RulesetManifestEntry } from "./rulesetManifest";
 /** What kind of stop a list makes. Danger lists (phishing, malware, scams)
  * only offer "Open anyway" behind Details, as Chrome's Safe Browsing does.
  * "unknown" is a stop Moat couldn't trace to a list (Chrome's lookup quota
- * was spent): it might be a dangerous site, so it's treated as carefully. */
-export type BlockKind = "danger" | "ads" | "custom" | "policy" | "unknown";
-export const BLOCK_KINDS: readonly BlockKind[] = ["danger", "ads", "custom", "policy", "unknown"];
+ * was spent): it might be a dangerous site, so it's treated as carefully.
+ * "lookalike" is a new site dressed up as a brand: a warning with a plain
+ * "Open anyway", since it isn't proven bad. */
+export type BlockKind = "danger" | "ads" | "custom" | "policy" | "unknown" | "lookalike";
+export const BLOCK_KINDS: readonly BlockKind[] = ["danger", "ads", "custom", "policy", "unknown", "lookalike"];
 
 /** A list id for rules that aren't from a bundled list. */
 export const CUSTOM_LIST = "custom";
 export const POLICY_LIST = "policy";
 export const UNKNOWN_LIST = "unknown";
+export const LOOKALIKE_LIST = "lookalike";
 
 // Dynamic rule id ranges (each module's *_ID_START), kept here as plain
 // numbers so this file needs nothing from the background.
 const RANGES: { start: number; end: number; list: string | "live-security" }[] = [
   { start: 800_000, end: 810_000, list: CUSTOM_LIST }, // customRules.ts CUSTOM_BLOCK_ID_START
   { start: 820_000, end: 830_000, list: POLICY_LIST }, // customRules.ts MANAGED_BLOCK_ID_START
-  { start: 930_000, end: 940_000, list: "live-security" }, // liveSecurityRules.ts
+  { start: 930_000, end: 935_000, list: "live-security" }, // liveSecurityRules.ts
+  { start: 935_000, end: 936_000, list: LOOKALIKE_LIST }, // liveLookalikeRules.ts
   { start: 960_000, end: 970_000, list: POLICY_LIST }, // athenaPolicyRules.ts
 ];
 
@@ -47,6 +51,7 @@ export function listForRule(rule: MatchedRule, manifest: readonly RulesetManifes
 export function kindForList(list: string, manifest: readonly RulesetManifestEntry[]): BlockKind {
   if (list === CUSTOM_LIST) return "custom";
   if (list === POLICY_LIST) return "policy";
+  if (list === LOOKALIKE_LIST) return "lookalike";
   return manifest.some((entry) => entry.group === list && entry.category === "security") ? "danger" : "ads";
 }
 

@@ -2063,7 +2063,7 @@ async function renderOverviewTops(usage: UsageSummaryResponse): Promise<void> {
   const info = await loadCompanyInfo();
   const companies = [...usage.companiesThisWeek].sort((a, b) => b.count - a.count || b.hostnameCount - a.hostnameCount);
   const sites = groupSites(usage.topSites);
-  const danger = usage.pageStops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown");
+  const danger = usage.pageStops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown" || s.kind === "lookalike");
   const stops = [...danger, ...usage.pageStops.filter((s) => !danger.includes(s))];
   const tile = (glyph: GlyphName, danger = false) => buildGlyphTile(document, glyph, danger ? "glyph-tile tile-danger" : "glyph-tile");
   const top = companies[0];
@@ -2581,7 +2581,7 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
 function renderStops(stops: UsageSummaryResponse["pageStops"]): void {
   const list = document.getElementById("sec-list");
   if (!list) return;
-  const danger = stops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown");
+  const danger = stops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown" || s.kind === "lookalike");
   const ads = stops.filter((s) => s.kind === "ads");
   const custom = stops.filter((s) => s.kind === "custom" || s.kind === "policy");
   setTakeaway(
@@ -2618,6 +2618,7 @@ function renderStops(stops: UsageSummaryResponse["pageStops"]): void {
 function stopWhy(stop: UsageSummaryResponse["pageStops"][number]): string {
   if (stop.list === "custom") return tFallback("blockedListCustom", "Your block list");
   if (stop.list === "policy") return tFallback("blockedListPolicy", "Your organization's policy");
+  if (stop.list === "lookalike") return tFallback("secStopLookalike", "A new site made to look like a well-known one");
   const label = stop.list ? LIST_LABELS[stop.list] : undefined;
   if (!label) return tFallback("secStopUnknown", "On a danger list Moat couldn't name");
   return stop.kind === "danger" ? `${tFallback(label.nameKey, label.name)}: ${tFallback(label.descKey, label.desc).replace(/\.$/, "").toLowerCase()}` : tFallback(label.nameKey, label.name);

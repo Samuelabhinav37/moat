@@ -84,7 +84,9 @@ only to an organization's own infrastructure, never to Moat's developer.
    also bundled (about 0.5 MB compressed), so newly reported phishing sites
    are blocked within a day instead of at the next release, and
    `ad-domains.json`, ad and tracker domains added to the oisd list since
-   the last release. Both can only add blocks. Moat verifies each file
+   the last release, and `lookalike-domains.json`, sites registered in
+   the last few weeks whose names imitate a well-known brand, which Moat
+   warns about before they load. All three can only add blocks. Moat verifies each file
    against a SHA-256 hash in the manifest, and the manifest itself against a
    bundled Ed25519 public key, before applying anything; a failed check
    means Moat keeps its bundled baseline. These are plain file downloads --
