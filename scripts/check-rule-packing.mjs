@@ -76,7 +76,12 @@ function actionTable(dir, manifest) {
   return table;
 }
 
-async function outcomes(extDir, table) {
+/** Asks Chrome for every test's outcome with `only` rulesets on, or, without
+ * it, as many as Chrome will take: the unpacked copy can be over Chrome's
+ * total rule limit (the lists grow daily; packed, they're far under it), so
+ * it gets each ruleset that still fits, smallest first, and the packed copy
+ * gets the same. */
+async function outcomes(extDir, table, only) {
   const profile = mkdtempSync(join(tmpdir(), "moat-packcheck-profile-"));
   const browser = await puppeteer.launch({ executablePath: await chromePath(root), headless: true, pipe: true, userDataDir: profile, enableExtensions: [extDir],
     // GitHub's Linux runners can't use Chrome's sandbox (same as check-chrome-load.mjs).
@@ -86,11 +91,18 @@ async function outcomes(extDir, table) {
     const worker = await target.worker();
     // Let Moat's own startup apply its settings, then turn every ruleset on.
     await new Promise((r) => setTimeout(r, 6000));
-    await worker.evaluate(async () => {
-      const ids = chrome.runtime.getManifest().declarative_net_request.rule_resources.map((r) => r.id);
-      await chrome.declarativeNetRequest.updateEnabledRulesets({ enableRulesetIds: ids });
-    });
-    const enabled = await worker.evaluate(() => chrome.declarativeNetRequest.getEnabledRulesets());
+    const enabled = await worker.evaluate(async (only, bySize) => {
+      const ids = only ?? bySize;
+      const dnr = chrome.declarativeNetRequest;
+      await dnr.updateEnabledRulesets({ disableRulesetIds: await dnr.getEnabledRulesets() });
+      try {
+        await dnr.updateEnabledRulesets({ enableRulesetIds: ids });
+      } catch (e) {
+        if (only) throw e;
+        for (const id of ids) await dnr.updateEnabledRulesets({ enableRulesetIds: [id] }).catch(() => {});
+      }
+      return chrome.declarativeNetRequest.getEnabledRulesets();
+    }, only ?? null, BY_SIZE);
     const result = [];
     const BATCH = 4000;
     for (let i = 0; i < tests.length; i += BATCH) {
@@ -114,17 +126,20 @@ async function outcomes(extDir, table) {
         );
       }
     }
-    return { result, enabled: enabled.length };
+    return { result, enabled };
   } finally {
     await browser.close();
     rmSync(profile, { recursive: true, force: true });
   }
 }
 
+const BY_SIZE = [...unpackedManifest].sort((a, b) => (a.ruleCount ?? 0) - (b.ruleCount ?? 0)).map((entry) => entry.id);
 const started = Date.now();
 const packedManifest = JSON.parse(readFileSync(join(packedExt, "rules", "rulesets.json"), "utf8"));
 const before = await outcomes(unpackedExt, actionTable(join(unpackedExt, "rules"), unpackedManifest));
-const after = await outcomes(packedExt, actionTable(join(packedExt, "rules"), packedManifest));
+const left = unpackedManifest.map((entry) => entry.id).filter((id) => !before.enabled.includes(id));
+if (left.length) console.log(`Over Chrome's rule limit unpacked; compared without: ${left.join(", ")}`);
+const after = await outcomes(packedExt, actionTable(join(packedExt, "rules"), packedManifest), before.enabled);
 rmSync(work, { recursive: true, force: true });
 
 let differences = 0;
@@ -141,7 +156,7 @@ before.result.forEach((o, i) => {
   if (o.includes("error") && process.env.SHOW_ERRORS) console.log(`ERR ${tests[i].type} ${tests[i].url} ${o}`);
 });
 const errors = after.result.filter((o) => o.includes("error")).length + before.result.filter((o) => o.includes("error")).length;
-console.log(`rulesets enabled: unpacked ${before.enabled}, packed ${after.enabled}`);
+console.log(`rulesets enabled: unpacked ${before.enabled.length}, packed ${after.enabled.length}`);
 console.log(`outcomes (unpacked): ${[...tally].map(([k, v]) => `${k} ${v.toLocaleString()}`).join(", ")}`);
 console.log(`${differences.toLocaleString()} differences, ${errors} errors, in ${Math.round((Date.now() - started) / 1000)} s`);
-process.exit(differences === 0 && errors === 0 && before.enabled === after.enabled ? 0 : 1);
+process.exit(differences === 0 && errors === 0 && before.enabled.length === after.enabled.length ? 0 : 1);
