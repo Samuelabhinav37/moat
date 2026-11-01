@@ -6,10 +6,7 @@ const block = (condition) => ({ id: 1, priority: 1, action: { type: "block" }, c
 describe("buildAdPageRules", () => {
   it("turns plainly blocked domains into page blocks, once each", () => {
     const rules = buildAdPageRules([[block({ urlFilter: "||ads.example^" })], [block({ urlFilter: "||ads.example^" }), block({ requestDomains: ["track.example"] })]]);
-    expect(rules).toEqual([
-      { id: 1, priority: 1, action: { type: "block" }, condition: { urlFilter: "||ads.example^", resourceTypes: ["main_frame"] } },
-      { id: 2, priority: 1, action: { type: "block" }, condition: { urlFilter: "||track.example^", resourceTypes: ["main_frame"] } },
-    ]);
+    expect(rules).toEqual([{ id: 1, priority: 1, action: { type: "block" }, condition: { requestDomains: ["ads.example", "track.example"], resourceTypes: ["main_frame"] } }]);
   });
 
   it("skips narrower rules and shared link hosts", () => {
