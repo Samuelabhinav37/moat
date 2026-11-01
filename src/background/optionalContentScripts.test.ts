@@ -11,12 +11,14 @@ vi.mock("webextension-polyfill", () => ({ default: { scripting } }));
 
 import { OPTIONAL_SCRIPTS, pausedSitePatterns, planReconcile, reconcileOptionalContentScripts } from "./optionalContentScripts";
 import { LOOPBACK_MATCH_PATTERNS } from "../shared/loopback";
+import { CHALLENGE_FRAME_MATCHES } from "../shared/challengeFrames";
 
 const settings = (patch: Partial<Settings>): Settings => ({ ...DEFAULT_SETTINGS, ...patch });
 const CONSENT = "moat-consent-rejector";
 const LEAKED = "moat-leaked-password-check";
 const ADMIRAL = "moat-admiral-guard";
 const EARLY = "moat-early-cosmetics";
+const GUARD = "moat-main-world-guard";
 // Paused-site patterns always include this computer's own addresses.
 const withLoopback = (patterns: string[]): string[] => [...patterns, ...LOOPBACK_MATCH_PATTERNS].sort();
 // The Admiral guard and the early stylesheet are registered whenever Moat is
@@ -25,6 +27,9 @@ const ADMIRAL_NONE_PAUSED = { id: ADMIRAL, excludeMatches: withLoopback([]) };
 const EARLY_NONE_PAUSED = { id: EARLY, excludeMatches: withLoopback([]) };
 // The cookie-banner rejector leaves paused sites out too (0.11.283).
 const CONSENT_NONE_PAUSED = { id: CONSENT, excludeMatches: withLoopback([]) };
+// The pop-up guard also stays out of bot-check frames (0.11.303).
+const guardExcludes = (patterns: string[]): string[] => [...withLoopback(patterns), ...CHALLENGE_FRAME_MATCHES].sort();
+const GUARD_NONE_PAUSED = { id: GUARD, excludeMatches: guardExcludes([]) };
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -35,20 +40,20 @@ beforeEach(() => {
 
 describe("planReconcile", () => {
   it("registers a script whose setting is on and which isn't registered yet", () => {
-    const { register, unregisterIds } = planReconcile(settings({ cookieBannerAutoReject: true }), [ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
+    const { register, unregisterIds } = planReconcile(settings({ cookieBannerAutoReject: true }), [GUARD_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
     expect(register.map((s) => s.id)).toEqual([CONSENT]);
     expect(unregisterIds).toEqual([]);
   });
 
   it("unregisters a script whose setting went off", () => {
-    const { register, unregisterIds } = planReconcile(settings({ cookieBannerAutoReject: false }), [CONSENT, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
+    const { register, unregisterIds } = planReconcile(settings({ cookieBannerAutoReject: false }), [CONSENT, GUARD_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
     expect(register).toEqual([]);
     expect(unregisterIds).toEqual([CONSENT]);
   });
 
   it("is a no-op when registration already matches the settings", () => {
     const on = settings({ cookieBannerAutoReject: true, leakedPasswordCheck: true });
-    const { register, unregisterIds } = planReconcile(on, [CONSENT_NONE_PAUSED, LEAKED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
+    const { register, unregisterIds } = planReconcile(on, [CONSENT_NONE_PAUSED, LEAKED, GUARD_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
     expect(register).toEqual([]);
     expect(unregisterIds).toEqual([]);
   });
@@ -56,33 +61,33 @@ describe("planReconcile", () => {
   it("handles the two scripts independently", () => {
     const { register, unregisterIds } = planReconcile(
       settings({ cookieBannerAutoReject: true, leakedPasswordCheck: false }),
-      [LEAKED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]
+      [LEAKED, GUARD_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]
     );
     expect(register.map((s) => s.id)).toEqual([CONSENT]);
     expect(unregisterIds).toEqual([LEAKED]);
   });
 
-  it("defaults register the cookie-banner rejector, the early stylesheet and the Admiral guard", () => {
+  it("defaults register the cookie-banner rejector, the early stylesheet, the pop-up guard and the Admiral guard", () => {
     const { register, unregisterIds } = planReconcile(DEFAULT_SETTINGS, []);
-    expect(register.map((s) => s.id)).toEqual([CONSENT, EARLY, ADMIRAL]);
+    expect(register.map((s) => s.id)).toEqual([CONSENT, EARLY, GUARD, ADMIRAL]);
     expect(unregisterIds).toEqual([]);
   });
 
   it("re-registers the paused-site-aware ones when the paused sites change, and not otherwise", () => {
     const paused = settings({ disabledSites: ["weather.com"] });
-    expect(planReconcile(paused, [CONSENT_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED])).toEqual({
-      register: [expect.objectContaining({ id: CONSENT }), expect.objectContaining({ id: EARLY }), expect.objectContaining({ id: ADMIRAL })],
-      unregisterIds: [CONSENT, EARLY, ADMIRAL],
+    expect(planReconcile(paused, [CONSENT_NONE_PAUSED, GUARD_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED])).toEqual({
+      register: [expect.objectContaining({ id: CONSENT }), expect.objectContaining({ id: EARLY }), expect.objectContaining({ id: GUARD }), expect.objectContaining({ id: ADMIRAL })],
+      unregisterIds: [CONSENT, EARLY, GUARD, ADMIRAL],
     });
     const excluded = withLoopback(["*://*.weather.com/*"]);
-    expect(planReconcile(paused, [{ id: CONSENT, excludeMatches: excluded }, { id: ADMIRAL, excludeMatches: excluded }, { id: EARLY, excludeMatches: excluded }])).toEqual({
+    expect(planReconcile(paused, [{ id: CONSENT, excludeMatches: excluded }, { id: GUARD, excludeMatches: guardExcludes(["*://*.weather.com/*"]) }, { id: ADMIRAL, excludeMatches: excluded }, { id: EARLY, excludeMatches: excluded }])).toEqual({
       register: [],
       unregisterIds: [],
     });
   });
 
-  it("drops the Admiral guard and the early stylesheet while Moat is off everywhere", () => {
-    expect(planReconcile(settings({ enabled: false }), [CONSENT_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]).unregisterIds).toEqual([EARLY, ADMIRAL]);
+  it("drops both guards and the early stylesheet while Moat is off everywhere", () => {
+    expect(planReconcile(settings({ enabled: false }), [CONSENT_NONE_PAUSED, GUARD_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]).unregisterIds).toEqual([EARLY, GUARD, ADMIRAL]);
   });
 });
 
@@ -165,22 +170,40 @@ describe("reconcileOptionalContentScripts", () => {
   });
 
   it("does nothing when the registration already matches", async () => {
-    scripting.getRegisteredContentScripts.mockResolvedValue([CONSENT_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
+    scripting.getRegisteredContentScripts.mockResolvedValue([CONSENT_NONE_PAUSED, GUARD_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
     await reconcileOptionalContentScripts(settings({ cookieBannerAutoReject: true }));
     expect(scripting.registerContentScripts).not.toHaveBeenCalled();
     expect(scripting.unregisterContentScripts).not.toHaveBeenCalled();
   });
 
   it("leaves paused sites out of the Admiral guard", async () => {
-    scripting.getRegisteredContentScripts.mockResolvedValue([CONSENT_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
+    scripting.getRegisteredContentScripts.mockResolvedValue([CONSENT_NONE_PAUSED, GUARD_NONE_PAUSED, ADMIRAL_NONE_PAUSED, EARLY_NONE_PAUSED]);
     await reconcileOptionalContentScripts(settings({ disabledSites: ["weather.com"] }));
-    expect(scripting.unregisterContentScripts).toHaveBeenCalledWith({ ids: [CONSENT, EARLY, ADMIRAL] });
+    expect(scripting.unregisterContentScripts).toHaveBeenCalledWith({ ids: [CONSENT, EARLY, GUARD, ADMIRAL] });
     expect(scripting.registerContentScripts).toHaveBeenCalledWith([
       expect.objectContaining({ id: CONSENT, excludeMatches: withLoopback(["*://*.weather.com/*"]) }),
     ]);
     expect(scripting.registerContentScripts).toHaveBeenCalledWith([
       expect.objectContaining({ id: ADMIRAL, excludeMatches: withLoopback(["*://*.weather.com/*"]) }),
     ]);
+  });
+
+  it("registers the pop-up guard in every frame, blank ones too, outside paused sites and bot-check frames", async () => {
+    await reconcileOptionalContentScripts(settings({ disabledSites: ["weather.com"] }));
+    expect(scripting.registerContentScripts).toHaveBeenCalledWith([
+      {
+        id: GUARD,
+        js: ["main-world-guard.js"],
+        matches: ["<all_urls>"],
+        runAt: "document_start",
+        world: "MAIN",
+        allFrames: true,
+        matchOriginAsFallback: true,
+        persistAcrossSessions: true,
+        excludeMatches: guardExcludes(["*://*.weather.com/*"]),
+      },
+    ]);
+    expect(guardExcludes([])).toContain("*://challenges.cloudflare.com/*");
   });
 
   it("swallows a scripting-API failure without throwing", async () => {

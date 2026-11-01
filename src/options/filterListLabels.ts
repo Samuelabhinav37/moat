@@ -19,6 +19,7 @@ export const LIST_LABELS: Record<string, ListLabel> = {
   ads: { section: "ads", nameKey: "listAdsName", name: "Ads", descKey: "listAdsDesc", desc: "Banners, video ads and ad scripts.", icon: "ad" },
   popups: { section: "ads", nameKey: "listPopupsName", name: "Pop-up ads", descKey: "listPopupsDesc", desc: "New tabs and pop-unders.", icon: "popup" },
   oisd: { section: "ads", nameKey: "listOisdName", name: "Extra ad and tracker sites", descKey: "listOisdDesc", desc: "Catches what the lists above miss.", icon: "globe" },
+  "ad-pages": { section: "ads", nameKey: "listAdPagesName", name: "Ad and tracker sites", descKey: "listAdPagesDesc", desc: "Stops their pages too, like a router blocker.", icon: "globe" },
   trackers: { section: "tracking", nameKey: "listTrackersName", name: "Trackers", descKey: "listTrackersDesc", desc: "Analytics and ad-tech scripts.", icon: "tracker" },
   "tracker-cookies": { section: "tracking", nameKey: "listTrackerCookiesName", name: "Tracker cookies", descKey: "listTrackerCookiesDesc", desc: "Needed services load without their tracking cookies.", icon: "cookie" },
   "url-tracking": { section: "tracking", nameKey: "listUrlTrackingName", name: "Tracking in links", descKey: "listUrlTrackingDesc", desc: "Strips click IDs from links.", icon: "link" },

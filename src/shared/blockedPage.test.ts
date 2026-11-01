@@ -17,6 +17,7 @@ describe("listForRule", () => {
     expect(listForRule({ rulesetId: "_dynamic", ruleId: 960_000 }, MANIFEST, () => null)).toBe("policy");
     expect(listForRule({ rulesetId: "_dynamic", ruleId: 930_000 }, MANIFEST, () => "scam")).toBe("scam");
     expect(listForRule({ rulesetId: "_dynamic", ruleId: 930_000 }, MANIFEST, () => null)).toBe("unknown");
+    expect(listForRule({ rulesetId: "_dynamic", ruleId: 935_000 }, MANIFEST, () => "scam")).toBe("lookalike");
     expect(listForRule({ rulesetId: "_dynamic", ruleId: 5 }, MANIFEST, () => null)).toBe("unknown");
   });
 });
@@ -28,6 +29,7 @@ describe("kindForList", () => {
     expect(kindForList("unknown", MANIFEST)).toBe("ads");
     expect(kindForList("custom", MANIFEST)).toBe("custom");
     expect(kindForList("policy", MANIFEST)).toBe("policy");
+    expect(kindForList("lookalike", MANIFEST)).toBe("lookalike");
   });
 });
 

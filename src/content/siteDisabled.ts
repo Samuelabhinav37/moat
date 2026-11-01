@@ -14,6 +14,7 @@ import { DEFAULT_SETTINGS, STORAGE_KEY, type Settings } from "../types";
 import { getManagedPolicy, applyManagedOverrides } from "../background/managedPolicy";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
 import { isLoopbackHost } from "../shared/loopback";
+import { SITE_EXCEPTIONS_FORMAT, SITE_EXCEPTIONS_KEY, applySiteExceptions, parseSiteExceptions } from "../shared/siteExceptions";
 
 // Every script above is built as its own fully self-contained Rollup IIFE
 // (see scripts/build.mjs) -- each gets its OWN private copy of this file's
@@ -51,16 +52,17 @@ function ensureInvalidationListener(): void {
   if (host[LISTENER_KEY]) return;
   host[LISTENER_KEY] = true;
   browser.storage.onChanged.addListener((changes, area) => {
-    if (area === "managed" || (area === "local" && STORAGE_KEY in changes)) {
+    if (area === "managed" || (area === "local" && (STORAGE_KEY in changes || SITE_EXCEPTIONS_KEY in changes))) {
       delete host[CACHE_KEY];
     }
   });
 }
 
 async function fetchEffectiveSettings(): Promise<Settings> {
-  const [stored, policy] = await Promise.all([browser.storage.local.get(STORAGE_KEY), getManagedPolicy()]);
+  const [stored, policy] = await Promise.all([browser.storage.local.get([STORAGE_KEY, SITE_EXCEPTIONS_KEY]), getManagedPolicy()]);
   const settings: Settings = { ...DEFAULT_SETTINGS, ...(stored[STORAGE_KEY] as Partial<Settings> | undefined) };
-  return applyManagedOverrides(settings, policy);
+  const exceptions = parseSiteExceptions({ format: SITE_EXCEPTIONS_FORMAT, sites: stored[SITE_EXCEPTIONS_KEY] ?? [] }) ?? [];
+  return applySiteExceptions(applyManagedOverrides(settings, policy), exceptions);
 }
 
 /** Single storage.local read (+ managed-policy merge) for every check every

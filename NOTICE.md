@@ -41,6 +41,14 @@ compiled into `rules/dnr/ruleset_scam-blocklist.json` by
 alongside AdGuard's own Scam Blocklist. Same compatibility as the AdGuard
 entry above.
 
+## HaGeZi newly registered domains -- GPL-3.0
+
+Source: [hagezi/nrd](https://github.com/hagezi/nrd) (`domains/nrd7.txt`,
+based on Stamus Labs data), GPL-3.0. Domains registered in the last week.
+`scripts/update-live-lookalikes.mjs` keeps only the names that imitate a
+brand and publishes them daily as `live/lookalike-domains.json`, which Moat
+warns about before they load.
+
 ## oisd small -- GPL-3.0
 
 Source: [sjhgvr/oisd](https://github.com/sjhgvr/oisd) (`small.oisd.nl`), GPL-3.0.
@@ -201,7 +209,9 @@ Its cookie-blocked tracker list and company site groups (`seed.json`,
 `multiDomainFirstParties`), its crawler's tracker list, yellowlist, site fixes
 and embed domains (`pbconfig.json`, `socialwidgets.json`) are vendored into `rules/privacy-badger.json` by
 `scripts/vendor-privacy-badger.mjs` and build the Tracker cookies list and
-`ruleset_pb-trackers` (`scripts/lib/pbTrackerRules.mjs`); the
+`ruleset_pb-trackers` (`scripts/lib/pbTrackerRules.mjs`); the company site
+groups also build `ruleset_same-company` (`scripts/lib/sameCompanyRules.mjs`),
+which leaves a tracker alone on its own company's sites; the
 script-cookie guard (`src/content/cookieClobber.ts`) follows its
 `clobbercookie.js`. The wrapped-link skip and Google click-ping rules
 (`scripts/lib/linkRules.mjs`) follow its `data/dnr/bypass_redirects.json` and

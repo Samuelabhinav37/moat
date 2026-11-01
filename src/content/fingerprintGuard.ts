@@ -47,7 +47,7 @@ const WORKER_PRELUDE = workerGuardPrelude.toString();
 /** The page's window, or a same-origin frame's (see ensurePatched). */
 type GuardWindow = Window & typeof globalThis;
 
-// Private channel to bridge.ts (the second port of GUARD_CONNECT_EVENT, see
+// Private channel to bridge.ts (the port of GUARD_CONNECT_EVENT, see
 // types.ts). The seed only ever travels over it, so page scripts can't read
 // it and undo the noise.
 let bridgePort: MessagePort | null = null;
@@ -519,7 +519,7 @@ function applyConfig(data: FingerprintGuardConfig | undefined): void {
 }
 
 document.addEventListener(GUARD_CONNECT_EVENT, (event) => {
-  const port = (event as MessageEvent).ports?.[1];
+  const port = (event as MessageEvent).ports?.[0];
   if (bridgePort || !port) return;
   bridgePort = port;
   port.onmessage = (message: MessageEvent<FingerprintGuardConfig>) => applyConfig(message.data);

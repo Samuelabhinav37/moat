@@ -11,6 +11,14 @@
 import browser from "webextension-polyfill";
 import type { Settings } from "../types";
 
+/** Chrome-only ad and link-ping switches an extension may only turn off. */
+interface ChromeAdSwitches {
+  hyperlinkAuditingEnabled?: { set(details: { value: boolean }): Promise<void>; clear(details: object): Promise<void> };
+  topicsEnabled?: { set(details: { value: boolean }): Promise<void>; clear(details: object): Promise<void> };
+  fledgeEnabled?: { set(details: { value: boolean }): Promise<void>; clear(details: object): Promise<void> };
+  adMeasurementEnabled?: { set(details: { value: boolean }): Promise<void>; clear(details: object): Promise<void> };
+}
+
 interface ChromeThirdPartyCookies {
   thirdPartyCookiesAllowed?: { set(details: { value: boolean }): Promise<void>; clear(details: object): Promise<void> };
 }
@@ -68,7 +76,7 @@ export async function applyPrivacySettings(settings: Settings): Promise<void> {
   // 2026-10-14: it stayed on with Moat off and kept breaking sign-ins).
   // A pause can't exempt one site from it, which its toggle says.
   const blockCookies = settings.enabled && settings.blockThirdPartyCookies;
-  const websites = privacy.websites as (typeof privacy.websites & ChromeThirdPartyCookies) | undefined;
+  const websites = privacy.websites as (typeof privacy.websites & ChromeThirdPartyCookies & ChromeAdSwitches) | undefined;
   if (websites?.thirdPartyCookiesAllowed) {
     await applyOrClear(websites.thirdPartyCookiesAllowed, blockCookies, false);
   } else {
@@ -83,6 +91,20 @@ export async function applyPrivacySettings(settings: Settings): Promise<void> {
   // replicate either one itself.
   await applyOrClear(websites?.resistFingerprinting, settings.firefoxResistFingerprinting, true);
   await applyOrClear(websites?.firstPartyIsolate, settings.firefoxFirstPartyIsolate, true);
+
+  // Browser-wide, so only switches that can't break a site (a pause can't
+  // exempt one): <a ping> beacons, and Chrome's ad interest, auction and
+  // ad-measurement APIs (Topics, Protected Audience, Attribution
+  // Reporting), which Google is retiring anyway. Off while Moat is on,
+  // the browser's own value back when it's off.
+  for (const setting of [
+    websites?.hyperlinkAuditingEnabled,
+    websites?.topicsEnabled,
+    websites?.fledgeEnabled,
+    websites?.adMeasurementEnabled,
+  ]) {
+    await applyOrClear(setting, settings.enabled, false);
+  }
 
   // Firefox-only native setting that makes it send the GPC signal (and
   // expose navigator.globalPrivacyControl) itself, on top of the DNR header

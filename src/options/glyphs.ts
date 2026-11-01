@@ -62,7 +62,7 @@ export function buildGlyphTile(doc: Document, name: GlyphName, className = "glyp
 /** Which glyph a stopped page gets, from the list that stopped it. */
 export function stopGlyph(list: string | undefined, kind: string | undefined): GlyphName {
   if (kind === "ads" || kind === "custom" || kind === "policy") return "blocked";
-  if (list === "phishing-urls") return "phishing";
+  if (list === "phishing-urls" || list === "lookalike") return "phishing";
   if (list === "scam") return "scam";
   if (list === "malicious-urls" || list === "badware") return "malware";
   return "danger";

@@ -41,6 +41,9 @@ import { allQuickFixRuleIds, buildQuickFixRules, filterValidQuickFixes } from ".
 import { countCosmeticFixSelectors, filterValidCosmeticFixes } from "./liveCosmeticFixes";
 import { isManifestTrusted, verifyLiveManifest } from "./liveSignature";
 import { storeLiveSecurityPayload } from "./liveSecurityRules";
+import { storeLiveAdPayload } from "./liveAdRules";
+import { storeLookalikePayload } from "./liveLookalikeRules";
+import { storeSiteExceptions } from "./siteExceptionRules";
 import { reapplySettings } from "./settings";
 import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY, LIVE_YOUTUBE_QUICK_FIXES_KEY } from "../types";
 
@@ -262,6 +265,34 @@ export async function fetchAndApply(options: { force?: boolean } = {}): Promise<
         );
       } catch {
         // Keep the lists applied from the last good fetch.
+      }
+    }
+
+    // Per-site exceptions a person approved from reports. Absent until the
+    // first one is published.
+    if (hashes["site-exceptions.json"]) {
+      try {
+        await storeSiteExceptions(await fetchVerified("site-exceptions.json", hashes["site-exceptions.json"]));
+      } catch {
+        // Keep the exceptions from the last good fetch.
+      }
+    }
+
+    // Daily ad domains, the same way. Absent from older manifests too.
+    if (hashes["ad-domains.json"]) {
+      try {
+        await storeLiveAdPayload(await fetchVerified("ad-domains.json", hashes["ad-domains.json"]));
+      } catch {
+        // Keep the domains applied from the last good fetch.
+      }
+    }
+
+    // New sites dressed up as a brand, the same way.
+    if (hashes["lookalike-domains.json"]) {
+      try {
+        await storeLookalikePayload(await fetchVerified("lookalike-domains.json", hashes["lookalike-domains.json"]));
+      } catch {
+        // Keep the sites from the last good fetch.
       }
     }
 

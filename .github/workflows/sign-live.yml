@@ -53,7 +53,7 @@ jobs:
         if: steps.check.outputs.needed == 'true'
         run: |
           npm ci --ignore-scripts
-          npx vitest run src/background/liveFixesData.test.ts src/background/quickFixRules.test.ts src/background/liveCosmeticFixes.test.ts
+          npx vitest run src/background/liveFixesData.test.ts src/background/quickFixRules.test.ts src/background/liveCosmeticFixes.test.ts src/shared/siteExceptions.test.ts
 
   sign:
     needs: check

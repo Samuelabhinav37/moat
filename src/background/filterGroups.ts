@@ -6,6 +6,8 @@
 // and avoids drift if something updates state outside this module.
 import browser from "webextension-polyfill";
 import { applyLiveSecurityRules } from "./liveSecurityRules";
+import { applyLiveAdRules } from "./liveAdRules";
+import { applyLookalikeRules } from "./liveLookalikeRules";
 import { groupChunkIds, summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { effectiveFilterGroupState, orderGroupsByImportance } from "./filterGroupState";
 import { loadRulesetManifest } from "./rulesetManifestLoader";
@@ -137,6 +139,8 @@ export async function applyFilterGroupState(settings: Settings, options: ApplyFi
     // After the status, which it reads: the daily security lists stay on
     // for every list the user wants, including one dropped for space.
     await applyLiveSecurityRules().catch(() => {});
+    await applyLiveAdRules().catch(() => {});
+    await applyLookalikeRules().catch(() => {});
     if (droppedGroups.length === 0) {
       await browser.storage.session.set({ [APPLIED_FINGERPRINT_KEY]: fingerprint });
     } else {

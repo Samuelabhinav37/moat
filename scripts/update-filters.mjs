@@ -16,12 +16,14 @@ import { buildPopunderNetworkRules } from "./lib/popunderNetworkRules.mjs";
 import { dropSiteBreakingHeaderRules } from "./lib/siteBreakingHeaderRules.mjs";
 import { buildScamBlocklistRules } from "./lib/scamBlocklistRules.mjs";
 import { buildPeterLoweRules } from "./lib/peterLoweRules.mjs";
-import { buildOisdRules } from "./lib/oisdRules.mjs";
+import { buildOisdRules, OISD_MIN_DOMAINS, OISD_URL, parseOisdList } from "./lib/oisdRules.mjs";
 import { buildCompatAllowRules } from "./lib/compatAllowRules.mjs";
 import { buildLoopbackRules } from "./lib/loopbackRules.mjs";
 import { buildTrackerCookieRules } from "./lib/trackerCookieRules.mjs";
 import { buildPbTrackerRules } from "./lib/pbTrackerRules.mjs";
 import { buildLinkSkipRules, withoutSharedLinkBlocks } from "./lib/linkRules.mjs";
+import { AD_PAGES_GROUP, buildAdPageRules, isAdPageSource } from "./lib/adPageRules.mjs";
+import { buildSameCompanyRules } from "./lib/sameCompanyRules.mjs";
 import { GPC_SITE_FIXES } from "../src/shared/gpcSiteFixes.ts";
 import { plainBlockedDomains, isBlockedByDomainChain } from "./lib/blockedDomains.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
@@ -720,28 +722,18 @@ peterLoweChunks.forEach((chunkRules, index) => {
 // fact, 100% plain `||domain^` lines end to end (no `@@` exceptions, no
 // regex/cosmetic rules) -- the parse floor below re-checks that assumption
 // on every run rather than trusting it stays true forever.
-const OISD_URL = "https://small.oisd.nl/";
 const oisdResponse = await fetchWithRetry(OISD_URL);
 if (!oisdResponse.ok) {
   throw new Error(`Failed to fetch oisd small: ${oisdResponse.status} ${oisdResponse.statusText}`);
 }
 const oisdText = await oisdResponse.text();
-const OISD_LINE_PATTERN = /^\|\|([a-z0-9.-]+)\^$/i;
-const oisdDomains = [
-  ...new Set(
-    oisdText
-      .split("\n")
-      .map((line) => line.trim())
-      .map((line) => OISD_LINE_PATTERN.exec(line)?.[1]?.toLowerCase())
-      .filter((domain) => domain && SCAM_DOMAIN_PATTERN.test(domain))
-  ),
-].sort();
+const oisdDomains = parseOisdList(oisdText);
 // Written against ~56,000 domains (the "small" variant's own "Entries:"
 // header at fetch time) -- a near-empty parse means either the source
 // changed format (e.g. started using modifiers/exceptions this parser
 // deliberately doesn't handle) or genuinely shrank; either way this should
 // never ship silently.
-if (oisdDomains.length < 20000) {
+if (oisdDomains.length < OISD_MIN_DOMAINS) {
   throw new Error(
     `oisd small parsed to only ${oisdDomains.length} domains -- refusing to ship a suspiciously small list; ` +
       "the source's format may have changed (see scripts/update-filters.mjs's oisd section)."
@@ -845,6 +837,47 @@ console.log(
   `Privacy Badger trackers: ${pbTrackers.domains.length} domains in ${pbTrackers.rules.length} rules; left out ` +
     Object.entries(pbTrackers.skipped).map(([why, list]) => `${list.length} ${why}`).join(", ")
 );
+
+// Trackers aren't blocked on their own company's sites (scripts/lib/sameCompanyRules.mjs).
+// In the "trackers" group, so it only applies while those lists are on.
+const rulesOf = (groups) => manifestEntries.filter((entry) => groups.includes(entry.group)).map((entry) => JSON.parse(readFileSync(join(outDir, entry.file), "utf8")));
+const trackerHosts = new Set(rulesOf(["trackers"]).flatMap((rules) => [...plainBlockedDomains(rules, { allowResourceTypes: true, allowThirdParty: true })]));
+// Every host an ad rule names, whole or one path of it.
+const adHosts = new Set(
+  rulesOf(["ads", "oisd"]).flatMap((rules) =>
+    rules.filter((rule) => rule.action.type === "block").flatMap((rule) => [...(rule.condition.requestDomains ?? []), extractRuleDomain(rule.condition.urlFilter)].filter(Boolean))
+  )
+);
+const sameCompanyRules = buildSameCompanyRules(trackerHosts, adHosts, privacyBadger.entities, psl);
+writeFileSync(join(outDir, "ruleset_same-company.json"), JSON.stringify(sameCompanyRules));
+manifestEntries.push({
+  id: "ruleset_same-company",
+  group: "trackers",
+  category: "ads",
+  name: "Moat: trackers on their own company's sites",
+  enabled: true,
+  file: "ruleset_same-company.json",
+  ruleCount: sameCompanyRules.length,
+});
+console.log(`Same-company allows: ${sameCompanyRules.reduce((n, rule) => n + rule.condition.requestDomains.length, 0)} tracker hosts across ${sameCompanyRules.length} companies`);
+
+// Opt-in page blocks for the ad and tracker domains (scripts/lib/adPageRules.mjs).
+// Off at install and until switched on: filterPresets.ts's OFF_UNTIL_ASKED.
+const adPageRules = buildAdPageRules(
+  manifestEntries.filter(isAdPageSource).map((entry) => JSON.parse(readFileSync(join(outDir, entry.file), "utf8")))
+);
+writeFileSync(join(outDir, `ruleset_${AD_PAGES_GROUP}.json`), JSON.stringify(adPageRules));
+manifestEntries.push({
+  id: `ruleset_${AD_PAGES_GROUP}`,
+  group: AD_PAGES_GROUP,
+  category: "ads",
+  name: "Ad and tracker sites (pages)",
+  enabled: false,
+  file: `ruleset_${AD_PAGES_GROUP}.json`,
+  ruleCount: adPageRules.length,
+  countAs: "ads",
+});
+console.log(`Ad and tracker sites as pages: ${adPageRules.length} domains`);
 
 // Move every security ruleset into its own priority band, above a paused
 // site's allowAllRequests rule and the user's "Never block" rules (see

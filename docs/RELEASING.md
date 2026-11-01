@@ -29,6 +29,12 @@
    popup's count, the signed daily live download, Settings and About, and no console errors. It
    then repeats the install with the live channel unreachable and on a slow link. Screenshots
    and `results.json` land in `.cache/release-check/`. Every check must pass.
+   Then run the breakage canary against the previous release:
+   `npm run canary -- --ext <that folder> --base <unzipped previous chrome.zip>`. It loads ~55
+   real sites (sign-in, banks, shops, news, Cloudflare-fronted) with both builds, lists which
+   rules matched, and flags sites where the new build lost text, controls or the page, or met a
+   bot check the old one didn't. Look at every flagged site before publishing; a list update that
+   breaks one waits for a fix.
    Then test the unpacked packages in supported Chrome and Firefox versions. The Firefox package also
    declares `gecko_android` (min 142), so AMO lists it for Android automatically — spot-check the
    popup and options pages on Firefox for Android (`web-ext run -t firefox-android`) when the UI

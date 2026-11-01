@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildOisdRules } from "./oisdRules.mjs";
+import { buildOisdRules, parseOisdList } from "./oisdRules.mjs";
 
 // Deliberately does not test the no-args (loadOisdDomains()) path -- same
 // reasoning as scamBlocklistRules.test.mjs: rules/dnr/oisd-domains.json is a
@@ -26,5 +26,12 @@ describe("buildOisdRules", () => {
 
   it("returns an empty array for an empty domain list, not an error", () => {
     expect(buildOisdRules([])).toEqual([]);
+  });
+});
+
+describe("parseOisdList", () => {
+  it("keeps only plain ||domain^ lines, lowercased, deduped and sorted", () => {
+    const text = ["# Title: oisd small", "||B.example^", "||a.example^ ", "||a.example^", "@@||ok.example^", "||c.example^$third-party", "||1.2^"].join("\n");
+    expect(parseOisdList(text)).toEqual(["a.example", "b.example"]);
   });
 });

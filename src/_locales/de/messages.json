@@ -976,13 +976,6 @@
   "tourPopupLede": {
     "message": "Klicke auf einer beliebigen Seite auf das Moat-Symbol. Das hat es auf weather.com gezeigt."
   },
-  "tourLevelTitle": {
-    "message": "Wähle deine Stufe",
-    "description": "Welcome tour, last step: choose how much Moat blocks."
-  },
-  "tourLevelLede": {
-    "message": "Ausgewogen passt für die meisten. Wähle Streng für mehr Privatsphäre oder Leicht, wenn Websites oft nicht funktionieren. Du kannst es jederzeit in den Einstellungen ändern."
-  },
   "tourLevelSaved": {
     "message": "Gespeichert. Gilt für Seiten, die du ab jetzt öffnest."
   },
@@ -2188,6 +2181,12 @@
   "listOisdDesc": {
     "message": "Fängt, was die Listen oben verpassen.",
     "description": "Filter list: what it stops."
+  },
+  "listAdPagesName": {
+    "message": "Werbe- und Tracker-Seiten"
+  },
+  "listAdPagesDesc": {
+    "message": "Sperrt auch ihre Seiten, wie ein Router-Blocker."
   },
   "listTrackersName": {
     "message": "Tracker",
@@ -3736,6 +3735,18 @@
   "checkUpdateFailedDetail": {
     "message": "Moat nutzt die vorhandenen Listen weiter und versucht es bald erneut."
   },
+  "checkSafeBrowsingOnTitle": {
+    "message": "Safe Browsing in Chrome ist an"
+  },
+  "checkSafeBrowsingOffTitle": {
+    "message": "Safe Browsing in Chrome ist aus"
+  },
+  "checkSafeBrowsingOffDetail": {
+    "message": "Chromes eigene Prüfung auf gefährliche Websites. Nur du kannst sie einschalten."
+  },
+  "checkOpenChromeSettings": {
+    "message": "Einstellungen öffnen"
+  },
   "checkPwOnTitle": {
     "message": "Warnungen bei geleakten Passwörtern sind an"
   },
@@ -4626,5 +4637,67 @@
         "example": "4,049"
       }
     }
+  },
+  "tourAskTitle": {
+    "message": "Drei kurze Fragen"
+  },
+  "tourAskLede": {
+    "message": "Jede Antwort ändert eine Einstellung. Überspringe, was du willst."
+  },
+  "tourAskWant": {
+    "message": "Was ist dir am wichtigsten?"
+  },
+  "tourAnswerSafe": {
+    "message": "Einfach sicher bleiben"
+  },
+  "tourAnswerFewerAds": {
+    "message": "Weniger Werbung"
+  },
+  "tourAnswerPrivacy": {
+    "message": "Mehr Privatsphäre"
+  },
+  "tourAskChecks": {
+    "message": "Musst du oft bestätigen, dass du ein Mensch bist?"
+  },
+  "tourAskRouter": {
+    "message": "Blockierst du Werbung schon im Router oder WLAN?"
+  },
+  "tourYes": {
+    "message": "Ja"
+  },
+  "tourNo": {
+    "message": "Nein"
+  },
+  "tourDnsTip": {
+    "message": "Moat sperrt Werbeseiten jetzt wie ein Router. Für DNS-Sperren auch in Chrome: Sicheres DNS einschalten, Benutzerdefiniert wählen und https://dns.adguard-dns.com/dns-query einfügen."
+  },
+  "tourDnsOpen": {
+    "message": "DNS-Einstellung in Chrome öffnen"
+  },
+  "blockedTitleLookalike": {
+    "message": "Diese Website gibt sich vielleicht als eine andere aus",
+    "description": "Block page heading for a new site whose name imitates a brand, before the brand is known."
+  },
+  "blockedTitleLookalikeBrand": {
+    "message": "Diese Website gibt sich vielleicht als $BRAND$ aus",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "PayPal"
+      }
+    },
+    "description": "Block page heading for a new site whose name imitates a brand. $BRAND$ is a brand like PayPal."
+  },
+  "blockedWhyLookalike": {
+    "message": "Sie wurde in den letzten Wochen eingerichtet, mit einem Namen, der wie eine bekannte Website aussieht. Melde dich hier nicht an und bezahle nichts, wenn du nicht sicher bist.",
+    "description": "Block page: why a new lookalike site was stopped."
+  },
+  "blockedListLookalike": {
+    "message": "Moats neue Nachahmer-Websites",
+    "description": "Block page details: the list behind a lookalike warning."
+  },
+  "secStopLookalike": {
+    "message": "Eine neue Website, die wie eine bekannte aussehen soll",
+    "description": "Settings, stopped pages: what a lookalike stop was."
   }
 }

@@ -2,14 +2,15 @@
 // webextension-polyfill and throws on import outside a real extension
 // context) so it's testable without a browser environment.
 import type { Settings } from "../types";
+import { isGroupOn } from "../shared/filterPresets.ts";
 
-/** Master switch off -> every toggleable list off; otherwise each list's own override, defaulting to on. */
+/** Master switch off -> every toggleable list off; otherwise each list's own override, defaulting to on (see isGroupOn). */
 export function effectiveFilterGroupState(
   masterEnabled: boolean,
   filterGroups: Settings["filterGroups"],
   groups: string[]
 ): Record<string, boolean> {
-  return Object.fromEntries(groups.map((group) => [group, masterEnabled && (filterGroups[group] ?? true)]));
+  return Object.fromEntries(groups.map((group) => [group, masterEnabled && isGroupOn(filterGroups, group)]));
 }
 
 export interface FilterListInfo {

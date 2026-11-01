@@ -31,6 +31,15 @@ export const ALL_TOGGLEABLE_GROUPS = [
 // their cookies) is in every level: it breaks nothing it doesn't have to,
 // and a group missing from older settings reads as on, so leaving it out of
 // a level would mark everyone on that level "Customized".
+/** Lists that stay off until switched on, unlike the rest, which read as on
+ * when the user never touched them. "ad-pages" blocks whole pages
+ * (scripts/lib/adPageRules.mjs), so it's opt-in and in no level. */
+export const OFF_UNTIL_ASKED: ReadonlySet<string> = new Set(["ad-pages"]);
+
+export function isGroupOn(filterGroups: Settings["filterGroups"], group: string): boolean {
+  return filterGroups[group] ?? !OFF_UNTIL_ASKED.has(group);
+}
+
 const SECURITY_AND_ADS = ["ads", "oisd", "popups", "malicious-urls", "phishing-urls", "scam", "badware", "tracker-cookies"];
 
 // Same as essential, minus phishing-urls (Moat's single largest security

@@ -627,6 +627,21 @@ describe("Security: Safety check", () => {
     expect((sent.patch as Partial<Settings>).filterGroups).toMatchObject({ "phishing-urls": true, scam: true });
   });
 
+  it("flags Chrome's Safe Browsing when it's off, with a way to Chrome's settings", async () => {
+    const { browser, createdTabs: opened } = createMockBrowser({ hostname: "example.com", settings: { enabled: true } });
+    (browser.privacy as unknown as Record<string, unknown>).services = { safeBrowsingEnabled: { get: () => Promise.resolve({ value: false }) } };
+    vi.doMock("webextension-polyfill", () => ({ default: browser }));
+    loadPageFixture(OPTIONS_HTML, [THEME_CSS, OPTIONS_CSS]);
+    await import("./options");
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    const row = [...document.querySelectorAll<HTMLElement>("#sec-check .check-row")].find((r) => r.querySelector("b")?.textContent === "Chrome's Safe Browsing is off")!;
+    expect(row.dataset.state).toBe("warn");
+    row.querySelector<HTMLButtonElement>("button")!.click();
+    expect(opened).toEqual(["chrome://settings/security"]);
+  });
+
   it("offers to undo a restore that turned protection off", async () => {
     await renderOptions({ enabled: true }, { importUndo: { time: Date.now() - 1000, before: { enabled: true }, risky: true } });
     const row = [...document.querySelectorAll<HTMLElement>("#sec-check .check-row")].find((r) => r.querySelector("b")?.textContent?.startsWith("Settings restored from a file"))!;

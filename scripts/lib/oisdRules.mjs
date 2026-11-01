@@ -21,6 +21,25 @@ import { dirname, join } from "node:path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const domainsPath = join(__dirname, "..", "..", "rules", "dnr", "oisd-domains.json");
 
+export const OISD_URL = "https://small.oisd.nl/";
+/** "Small" has held about 56,000 domains; far fewer means a format change. */
+export const OISD_MIN_DOMAINS = 20000;
+const OISD_LINE_PATTERN = /^\|\|([a-z0-9.-]+)\^$/i;
+const HOST_PATTERN = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
+
+/** The plain `||domain^` lines of oisd's list, lowercased, deduped, sorted.
+ * Anything else (modifiers, exceptions) is skipped, never guessed at. */
+export function parseOisdList(text) {
+  return [
+    ...new Set(
+      text
+        .split("\n")
+        .map((line) => OISD_LINE_PATTERN.exec(line.trim())?.[1]?.toLowerCase())
+        .filter((domain) => domain && HOST_PATTERN.test(domain))
+    ),
+  ].sort();
+}
+
 export function loadOisdDomains() {
   return JSON.parse(readFileSync(domainsPath, "utf8"));
 }

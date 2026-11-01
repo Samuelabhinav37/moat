@@ -6,7 +6,7 @@ import { getFilterGroupStatus } from "../background/filterGroups";
 import { effectiveFilterGroupState } from "../background/filterGroupState";
 import { isSupported as isCnameUncloakFirefoxSupported } from "../background/cnameUncloak";
 import { isSupported as isCnameUncloakChromeSupported } from "../background/cnameUncloakChrome";
-import { detectPreset, presetDifference, presetPatch, type PresetName } from "../shared/filterPresets";
+import { detectPreset, isGroupOn, presetDifference, presetPatch, type PresetName } from "../shared/filterPresets";
 import { summarizeFilterLists, type RulesetManifestEntry } from "../shared/rulesetManifest";
 import { getUsageSummary } from "../background/usageStats";
 import { applyLongList, type LongListLabels } from "./longList";
@@ -1210,7 +1210,7 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
     if (droppedGroups.has(list.group)) {
       extra.push(buildLine("locked-badge budget-badge", tFallback("optionsFilterBudgetDroppedBadge", "Off to stay within the browser limit")));
     }
-    const on = settings.filterGroups[list.group] ?? true;
+    const on = isGroupOn(settings.filterGroups, list.group);
     const control = buildSwitch(on, titleId, (checked) => {
       const updated = { ...(currentFilterGroups ?? settings.filterGroups), [list.group]: checked };
       currentFilterGroups = updated;
@@ -1228,7 +1228,7 @@ async function renderFilterLists(settings: Settings, droppedGroups: Set<string>)
   };
   filterListRows.replaceChildren(
     ...groupLists(lists).map(({ section, lists: inSection }) => {
-      const onCount = inSection.filter((l) => settings.filterGroups[l.group] ?? true).length;
+      const onCount = inSection.filter((l) => isGroupOn(settings.filterGroups, l.group)).length;
       const title = SECTION_TITLES[section];
       return buildInsetGroup(
         tFallback(title.key, title.fallback),
@@ -2063,7 +2063,7 @@ async function renderOverviewTops(usage: UsageSummaryResponse): Promise<void> {
   const info = await loadCompanyInfo();
   const companies = [...usage.companiesThisWeek].sort((a, b) => b.count - a.count || b.hostnameCount - a.hostnameCount);
   const sites = groupSites(usage.topSites);
-  const danger = usage.pageStops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown");
+  const danger = usage.pageStops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown" || s.kind === "lookalike");
   const stops = [...danger, ...usage.pageStops.filter((s) => !danger.includes(s))];
   const tile = (glyph: GlyphName, danger = false) => buildGlyphTile(document, glyph, danger ? "glyph-tile tile-danger" : "glyph-tile");
   const top = companies[0];
@@ -2475,8 +2475,21 @@ function checkRow(state: CheckState, title: string, detail: string, action?: { l
   return row;
 }
 
+/** Whether Chrome's own Safe Browsing is on, or null where the browser
+ * doesn't expose it (Firefox). Extensions can read it but never turn it on. */
+async function safeBrowsingOn(): Promise<boolean | null> {
+  const privacy = browser.privacy as { services?: { safeBrowsingEnabled?: { get(details: object): Promise<{ value: unknown }> } } } | undefined;
+  const setting = privacy?.services?.safeBrowsingEnabled;
+  if (!setting) return null;
+  try {
+    return (await setting.get({})).value !== false;
+  } catch {
+    return null;
+  }
+}
+
 async function renderSecurityPage(settings: Settings, usage: UsageSummaryResponse): Promise<void> {
-  const [live, undo] = await Promise.all([getLiveUpdateStatus().catch(() => null), getImportUndo()]);
+  const [live, undo, safeBrowsing] = await Promise.all([getLiveUpdateStatus().catch(() => null), getImportUndo(), safeBrowsingOn()]);
   const rows: HTMLElement[] = [];
 
   rows.push(
@@ -2498,6 +2511,19 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
         })
       : checkRow("ok", tFallback("checkListsOnTitle", "Dangerous-site lists are on"), "")
   );
+
+  // Chrome's own check for dangerous sites catches what Google has crawled;
+  // Moat's daily lists are the second net for scams too new for it.
+  if (safeBrowsing !== null) {
+    rows.push(
+      safeBrowsing
+        ? checkRow("ok", tFallback("checkSafeBrowsingOnTitle", "Chrome's Safe Browsing is on"), "")
+        : checkRow("warn", tFallback("checkSafeBrowsingOffTitle", "Chrome's Safe Browsing is off"), tFallback("checkSafeBrowsingOffDetail", "Chrome's own check for dangerous sites. Only you can turn it on."), {
+            label: tFallback("checkOpenChromeSettings", "Open settings"),
+            run: () => void browser.tabs.create({ url: "chrome://settings/security" }),
+          })
+    );
+  }
 
   if (live) {
     rows.push(
@@ -2555,7 +2581,7 @@ async function renderSecurityPage(settings: Settings, usage: UsageSummaryRespons
 function renderStops(stops: UsageSummaryResponse["pageStops"]): void {
   const list = document.getElementById("sec-list");
   if (!list) return;
-  const danger = stops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown");
+  const danger = stops.filter((s) => s.kind === "danger" || !s.kind || s.kind === "unknown" || s.kind === "lookalike");
   const ads = stops.filter((s) => s.kind === "ads");
   const custom = stops.filter((s) => s.kind === "custom" || s.kind === "policy");
   setTakeaway(
@@ -2592,6 +2618,7 @@ function renderStops(stops: UsageSummaryResponse["pageStops"]): void {
 function stopWhy(stop: UsageSummaryResponse["pageStops"][number]): string {
   if (stop.list === "custom") return tFallback("blockedListCustom", "Your block list");
   if (stop.list === "policy") return tFallback("blockedListPolicy", "Your organization's policy");
+  if (stop.list === "lookalike") return tFallback("secStopLookalike", "A new site made to look like a well-known one");
   const label = stop.list ? LIST_LABELS[stop.list] : undefined;
   if (!label) return tFallback("secStopUnknown", "On a danger list Moat couldn't name");
   return stop.kind === "danger" ? `${tFallback(label.nameKey, label.name)}: ${tFallback(label.descKey, label.desc).replace(/\.$/, "").toLowerCase()}` : tFallback(label.nameKey, label.name);

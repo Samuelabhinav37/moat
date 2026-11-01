@@ -3,6 +3,94 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.309
+
+### Changed
+- **Fewer broken sign-ins and players on big companies' own sites.** A company's trackers
+  are no longer blocked on that company's own sites, like Microsoft's on msn.com or
+  TikTok's on tiktok.com. The company already sees that visit, so blocking it protected
+  nothing. They stay blocked on every other site. Ad servers stay blocked everywhere, and
+  so do trackers a list blocks on one page of a site. DuckDuckGo works the same way.
+
+## 0.11.308
+
+### Added
+- **Moat warns before new sites dressed up as a brand.** Each day Moat downloads a list of
+  sites registered in the last week whose names copy a bank, shop or sign-in page, like
+  "paypal-login-help.com" or "rnicrosoft.com". Opening one shows a warning that names the
+  brand it imitates, with Go back first and Open anyway beside it. It only warns, since a new
+  site isn't proven bad. It's part of the Phishing list, so it stops when you turn that off,
+  and pausing a site or adding it to Never block lets it through. Chrome only for now.
+
+## 0.11.307
+
+### Added
+- **Sites many people report get fixed for everyone within a day.** When 3 different people
+  report the same site and problem within a week, the report gets flagged with a suggested
+  fix. Once a person approves it, every copy of Moat backs off on that site, for example by
+  leaving a bank's device check alone. Your own choices for a site still win, and the
+  dangerous-site lists still block. Nobody's IP address is stored: the report service keeps a
+  scrambled form for a week to tell different people apart, then deletes it.
+
+## 0.11.306
+
+### Added
+- **New ad sites are blocked within a day.** Each day Moat downloads the ad and tracker
+  sites added to the oisd list since its last release and blocks them the same way it blocks
+  the rest of that list. Before, new ones waited for the next release. The list is signed and
+  checked like the daily security lists, it only adds blocks, and it stops when you turn oisd
+  off. Pausing a site still unblocks everything on it.
+
+## 0.11.305
+
+### Changed
+- **Setup asks three quick questions.** The tour's last step asks what you want most (sets
+  Light, Balanced or Strict), whether you often get "Verify you're human" checks (Yes keeps
+  the device disguise off, since it can trip them), and whether your router already blocks
+  ads (No turns on "Ad and tracker sites"). Each answer saves at once and you can skip any.
+  If your router doesn't block ads, Moat also shows how to turn on secure DNS in Chrome with
+  a blocking provider.
+
+## 0.11.304
+
+### Added
+- **Block ad sites like a router (off unless you turn it on).** A new list, "Ad and tracker
+  sites" under Settings › Filter lists, also stops ad and tracker hosts when they open as a
+  page, such as a pop-under or an ad's landing page. You get Moat's block page with "Open
+  anyway". Email and link-shortener hosts are left out, so links in your mail still open.
+  It's in no level, so turning it on keeps your level.
+
+## 0.11.303
+
+### Fixed
+- **Pausing a site really leaves it alone.** Moat's pop-up guard used to load on paused
+  sites too and just stay quiet, which bot checks could still notice. Now paused sites,
+  this computer's own addresses and bot-check frames never get it, and it's gone entirely
+  while Moat is off. If a "verify you are human" check still loops on a site, pausing it now
+  fixes it. Pop-up blocking everywhere else works as before.
+
+## 0.11.302
+
+### Fixed
+- **"Verify you are human" checks stop looping.** Moat's page guard no longer runs inside
+  Cloudflare Turnstile, reCAPTCHA or hCaptcha frames. These checks saw the guard's changes to
+  the page as a sign of a bot and kept asking again.
+
+## 0.11.301
+
+### Added
+- **Safety check shows Chrome's Safe Browsing.** If it's off, the row says so and opens
+  Chrome's security settings. Moat can't turn it on for you. It's Chrome's own check for
+  dangerous sites, and Moat's daily lists catch scams too new for it.
+
+## 0.11.300
+
+### Changed
+- **Chrome's own switches do more of the work.** While Moat is on, it turns off link pings
+  (`<a ping>`) and Chrome's ad interest, ad auction and ad measurement features (Topics,
+  Protected Audience, Attribution Reporting). None of these can break a site. Switching Moat
+  off hands them back to Chrome.
+
 ## 0.11.299
 
 ### Changed

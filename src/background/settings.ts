@@ -17,6 +17,7 @@ import { applyCnameUncloak } from "./cnameUncloak";
 import { applyCnameUncloakChrome } from "./cnameUncloakChrome";
 import { schedulePauseExpiry } from "./pauseExpiry";
 import { getManagedPolicy, applyManagedOverrides } from "./managedPolicy";
+import { SITE_EXCEPTIONS_FORMAT, SITE_EXCEPTIONS_KEY, applySiteExceptions, parseSiteExceptions } from "../shared/siteExceptions";
 import { exportSettings, validateImportedSettings } from "./settingsPortability";
 import { isSafeCosmeticSelector } from "../shared/selectorSafety";
 import { matchesDomainOrSubdomain } from "../shared/domainChain";
@@ -55,8 +56,10 @@ export async function getSettings(): Promise<Settings> {
 
 /** getSettings() merged with any enterprise-managed policy -- what should actually be enforced. */
 export async function getEffectiveSettings(): Promise<Settings> {
-  const [settings, policy] = await Promise.all([getSettings(), getManagedPolicy()]);
-  return applyManagedOverrides(settings, policy);
+  const [settings, policy, stored] = await Promise.all([getSettings(), getManagedPolicy(), browser.storage.local.get(SITE_EXCEPTIONS_KEY)]);
+  // Remote per-site defaults (shared/siteExceptions.ts), under your own choices.
+  const exceptions = parseSiteExceptions({ format: SITE_EXCEPTIONS_FORMAT, sites: stored[SITE_EXCEPTIONS_KEY] ?? [] }) ?? [];
+  return applySiteExceptions(applyManagedOverrides(settings, policy), exceptions);
 }
 
 async function applyEffectiveSettings(options: { forceFilterGroups?: boolean } = {}): Promise<void> {
