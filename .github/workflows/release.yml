@@ -40,7 +40,13 @@ jobs:
 
       - run: npm ci
 
+      # Today's lists can change live/*.json. This run never publishes them (the
+      # daily job and sign-live.yml do), so it builds without signing and then
+      # puts back the committed, signed live/ files the tests and build use.
       - run: npm run filters:update
+        env:
+          LIVE_SIGN_LATER: "1"
+      - run: git checkout -- live/
       - run: npm run validate:rules
       - run: npm run typecheck
       - run: npm test
