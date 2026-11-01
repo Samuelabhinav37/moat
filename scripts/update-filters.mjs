@@ -23,6 +23,7 @@ import { buildTrackerCookieRules } from "./lib/trackerCookieRules.mjs";
 import { buildPbTrackerRules } from "./lib/pbTrackerRules.mjs";
 import { buildLinkSkipRules, withoutSharedLinkBlocks } from "./lib/linkRules.mjs";
 import { AD_PAGES_GROUP, buildAdPageRules, isAdPageSource } from "./lib/adPageRules.mjs";
+import { buildSameCompanyRules } from "./lib/sameCompanyRules.mjs";
 import { GPC_SITE_FIXES } from "../src/shared/gpcSiteFixes.ts";
 import { plainBlockedDomains, isBlockedByDomainChain } from "./lib/blockedDomains.mjs";
 import { fetchWithRetry } from "./lib/fetchWithRetry.mjs";
@@ -836,6 +837,29 @@ console.log(
   `Privacy Badger trackers: ${pbTrackers.domains.length} domains in ${pbTrackers.rules.length} rules; left out ` +
     Object.entries(pbTrackers.skipped).map(([why, list]) => `${list.length} ${why}`).join(", ")
 );
+
+// Trackers aren't blocked on their own company's sites (scripts/lib/sameCompanyRules.mjs).
+// In the "trackers" group, so it only applies while those lists are on.
+const rulesOf = (groups) => manifestEntries.filter((entry) => groups.includes(entry.group)).map((entry) => JSON.parse(readFileSync(join(outDir, entry.file), "utf8")));
+const trackerHosts = new Set(rulesOf(["trackers"]).flatMap((rules) => [...plainBlockedDomains(rules, { allowResourceTypes: true, allowThirdParty: true })]));
+// Every host an ad rule names, whole or one path of it.
+const adHosts = new Set(
+  rulesOf(["ads", "oisd"]).flatMap((rules) =>
+    rules.filter((rule) => rule.action.type === "block").flatMap((rule) => [...(rule.condition.requestDomains ?? []), extractRuleDomain(rule.condition.urlFilter)].filter(Boolean))
+  )
+);
+const sameCompanyRules = buildSameCompanyRules(trackerHosts, adHosts, privacyBadger.entities, psl);
+writeFileSync(join(outDir, "ruleset_same-company.json"), JSON.stringify(sameCompanyRules));
+manifestEntries.push({
+  id: "ruleset_same-company",
+  group: "trackers",
+  category: "ads",
+  name: "Moat: trackers on their own company's sites",
+  enabled: true,
+  file: "ruleset_same-company.json",
+  ruleCount: sameCompanyRules.length,
+});
+console.log(`Same-company allows: ${sameCompanyRules.reduce((n, rule) => n + rule.condition.requestDomains.length, 0)} tracker hosts across ${sameCompanyRules.length} companies`);
 
 // Opt-in page blocks for the ad and tracker domains (scripts/lib/adPageRules.mjs).
 // Off at install and until switched on: filterPresets.ts's OFF_UNTIL_ASKED.

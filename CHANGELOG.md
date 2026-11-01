@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.309
+
+### Changed
+- **Fewer broken sign-ins and players on big companies' own sites.** A company's trackers
+  are no longer blocked on that company's own sites, like Microsoft's on msn.com or
+  TikTok's on tiktok.com. The company already sees that visit, so blocking it protected
+  nothing. They stay blocked on every other site. Ad servers stay blocked everywhere, and
+  so do trackers a list blocks on one page of a site. DuckDuckGo works the same way.
+
 ## 0.11.308
 
 ### Added
