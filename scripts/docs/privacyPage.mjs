@@ -44,7 +44,7 @@ const CONNECTIONS = [
   ["flag", "Problem reports", "The site, what went wrong, your note, Moat's version and settings", "Moat's developer, privately", "When you press Send", "send",
     ["Nothing is sent until you press Send, and the report page shows you the whole report first.",
      "It includes the site's name (the full address only if you tick that box), the problem you picked, whether pausing helped, your note, Moat's version, your browser and its major version, your blocking level and which lists are on. It also names up to 30 sites Moat blocked on that page, unless you untick that box. Nothing else.",
-     "It goes through a Cloudflare Worker that keeps no logs into a private GitHub repository only Moat's developer can read. Your IP address is used only to limit how many reports one address can send a minute."]],
+     "It goes through a Cloudflare Worker that keeps no logs into a private GitHub repository only Moat's developer can read. Your IP address is used to limit how many reports one address can send, and, scrambled with a secret key, to tell different people apart. The scrambled form is deleted after 7 days."]],
   ["chat", "Check-in question", "Your answer, your note, Moat's version, your browser and how many weeks Moat has been installed", "Moat's developer, privately", "Only when you answer", "send",
     ["After Moat has been in use for a while, the popup asks once how it's working for you. It asks at most three times a year, and never right after something went wrong.",
      "Nothing is sent unless you tap an answer and press Send. The answer never includes a site or anything about your browsing.",

@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.307
+
+### Added
+- **Sites many people report get fixed for everyone within a day.** When 3 different people
+  report the same site and problem within a week, the report gets flagged with a suggested
+  fix. Once a person approves it, every copy of Moat backs off on that site, for example by
+  leaving a bank's device check alone. Your own choices for a site still win, and the
+  dangerous-site lists still block. Nobody's IP address is stored: the report service keeps a
+  scrambled form for a week to tell different people apart, then deletes it.
+
 ## 0.11.306
 
 ### Added

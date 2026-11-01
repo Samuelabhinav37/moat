@@ -42,6 +42,7 @@ import { countCosmeticFixSelectors, filterValidCosmeticFixes } from "./liveCosme
 import { isManifestTrusted, verifyLiveManifest } from "./liveSignature";
 import { storeLiveSecurityPayload } from "./liveSecurityRules";
 import { storeLiveAdPayload } from "./liveAdRules";
+import { storeSiteExceptions } from "./siteExceptionRules";
 import { reapplySettings } from "./settings";
 import { LIVE_COSMETIC_FIXES_KEY, LIVE_REDIRECT_DOMAINS_KEY, LIVE_YOUTUBE_QUICK_FIXES_KEY } from "../types";
 
@@ -263,6 +264,16 @@ export async function fetchAndApply(options: { force?: boolean } = {}): Promise<
         );
       } catch {
         // Keep the lists applied from the last good fetch.
+      }
+    }
+
+    // Per-site exceptions a person approved from reports. Absent until the
+    // first one is published.
+    if (hashes["site-exceptions.json"]) {
+      try {
+        await storeSiteExceptions(await fetchVerified("site-exceptions.json", hashes["site-exceptions.json"]));
+      } catch {
+        // Keep the exceptions from the last good fetch.
       }
     }
 

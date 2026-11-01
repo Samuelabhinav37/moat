@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ProblemReport } from "../../src/shared/problemReport";
-import { DailyCap, handle, labelsFor, type CapNamespace, type Env } from "./index";
+import { DailyCap, ReportTally, THRESHOLD_LABEL, draftException, handle, labelsFor, type CapNamespace, type Env } from "./index";
 
 const report: ProblemReport = {
   v: 1,
@@ -31,6 +31,24 @@ function fakeCap(): CapNamespace {
   return { idFromName: (n) => n, get: () => ({ fetch: (input) => cap.fetch(new Request(input)) }) };
 }
 
+/** One real ReportTally per name, over in-memory storage; alarms fire on demand. */
+function fakeTally() {
+  const tallies = new Map<string, { tally: ReportTally; data: Map<string, unknown> }>();
+  const forName = (name: string) => {
+    let t = tallies.get(name);
+    if (!t) {
+      const data = new Map<string, unknown>();
+      const tally = new ReportTally({
+        storage: { get: async (k) => data.get(k), put: async (k, v) => void data.set(k, v), deleteAll: async () => data.clear(), setAlarm: async () => {} },
+      });
+      tallies.set(name, (t = { tally, data }));
+    }
+    return t;
+  };
+  const ns: CapNamespace = { idFromName: (n) => n, get: (id) => ({ fetch: (input) => forName(id as string).tally.fetch(new Request(input)) }) };
+  return { ns, forName };
+}
+
 function env(overrides: Partial<Env> = {}): Env {
   return {
     GITHUB_TOKEN: "t",
@@ -39,6 +57,7 @@ function env(overrides: Partial<Env> = {}): Env {
     SITE_LIMITER: allow,
     ALL_LIMITER: allow,
     DAILY_CAP: fakeCap(),
+    REPORT_TALLY: fakeTally().ns,
     DAILY_REPORT_LIMIT: "150",
     ...overrides,
   };
@@ -193,5 +212,54 @@ describe("check-ins and goodbyes", () => {
     expect((await handle(to("/checkin", checkin, ORIGIN), capped, gh.impl, NOW)).status).toBe(200);
     expect((await handle(to("/checkin", checkin, ORIGIN), capped, gh.impl, NOW)).status).toBe(429);
     expect((await handle(post(report), capped, gh.impl, NOW)).status).toBe(200);
+  });
+});
+
+describe("report threshold", () => {
+  const broken: ProblemReport = { ...report, category: "broken", pausingFixes: "yes" };
+  const from = (ip: string) => post(broken, { "cf-connecting-ip": ip });
+
+  it("labels the issue and drafts an exception when the third different person reports it", async () => {
+    const tally = fakeTally();
+    const e = env({ REPORT_TALLY: tally.ns });
+    const gh = fakeGithub(42);
+    const day = new Date("2026-10-31T12:00:00Z");
+    await handle(from("203.0.113.1"), e, gh.impl, day);
+    await handle(from("203.0.113.1"), e, gh.impl, day);
+    await handle(from("203.0.113.2"), e, gh.impl, day);
+    expect(gh.calls.some((c) => c.url.endsWith("/labels"))).toBe(false);
+    await handle(from("203.0.113.3"), e, gh.impl, day);
+    const labelled = gh.calls.filter((c) => c.url.endsWith("/issues/42/labels"));
+    expect(labelled).toEqual([{ url: expect.any(String), method: "POST", body: { labels: [THRESHOLD_LABEL] } }]);
+    const draft = gh.calls.filter((c) => c.url.endsWith("/issues/42/comments")).at(-1)?.body as { body: string };
+    expect(draft.body).toContain('{"site":"news.example.com","allowRequests":true,"issue":42}');
+    // A fourth person doesn't label it again.
+    await handle(from("203.0.113.4"), e, gh.impl, day);
+    expect(gh.calls.filter((c) => c.url.endsWith("/labels")).length).toBe(1);
+  });
+
+  it("keeps no IP address, and forgets everything when the week is up", async () => {
+    const tally = fakeTally();
+    const e = env({ REPORT_TALLY: tally.ns });
+    await handle(from("203.0.113.9"), e, fakeGithub(42).impl, new Date("2026-10-31T12:00:00Z"));
+    const stored = tally.forName("news.example.com|broken");
+    expect(JSON.stringify([...stored.data.values()])).not.toContain("203.0.113.9");
+    await stored.tally.alarm();
+    expect(stored.data.size).toBe(0);
+  });
+
+  it("counts only the last 7 days", async () => {
+    const tally = fakeTally();
+    const e = env({ REPORT_TALLY: tally.ns });
+    const gh = fakeGithub(42);
+    await handle(from("203.0.113.1"), e, gh.impl, new Date("2026-10-01T12:00:00Z"));
+    await handle(from("203.0.113.2"), e, gh.impl, new Date("2026-10-02T12:00:00Z"));
+    await handle(from("203.0.113.3"), e, gh.impl, new Date("2026-10-20T12:00:00Z"));
+    expect(gh.calls.some((c) => c.url.endsWith("/labels"))).toBe(false);
+  });
+
+  it("drafts only what an exception can fix", () => {
+    expect(draftException({ ...report, category: "cookie" }, 7)).toContain('"off":["cookieBannerAutoReject"]');
+    expect(draftException({ ...report, category: "ads" }, 7)).toBeNull();
   });
 });

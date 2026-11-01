@@ -160,11 +160,16 @@ only to an organization's own infrastructure, never to Moat's developer.
    report fixable. Nothing else: no browsing history, no cookies, no
    other tabs. It goes to Moat's report service, a Cloudflare Worker that
    files it as an issue in a private GitHub repository that only Moat's
-   developer can read. The service keeps no logs. The only thing it stores
-   is how many reports it filed today, a single number with nothing about
-   you, so a flood of fake reports stops at a daily limit. Your IP address reaches Cloudflare, as with any web request;
-   the service uses it only to limit how many reports one address can send
-   a minute, and never passes it on. If you'd rather, the same page can
+   developer can read. The service keeps no logs. It stores two things:
+   how many reports it filed today, a single number with nothing about
+   you, so a flood of fake reports stops at a daily limit; and, for each
+   site and problem, a scrambled form of the last 7 days' reporters' IP
+   addresses, made with a secret random key, so it can tell 3 different
+   people reporting a site from one person reporting it 3 times. The
+   scrambled forms and their key are deleted 7 days after the last report
+   for that site. Your IP address reaches Cloudflare, as with any web
+   request; the service uses it only for those two things, never stores
+   it as it is, and never passes it on. If you'd rather, the same page can
    copy the report or open it as a public GitHub issue instead.
 
 7. **The check-in, only when you answer.** After Moat has been installed

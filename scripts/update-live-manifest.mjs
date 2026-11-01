@@ -26,8 +26,9 @@ const liveDir = join(dirname(fileURLToPath(import.meta.url)), "..", "live");
 
 // Everything in live/ except the manifest itself. security-domains.json and
 // ad-domains.json are written by the daily security-live workflow
-// (scripts/update-live-security.mjs, scripts/update-live-ads.mjs), so each
-// is only listed once it exists.
+// (scripts/update-live-security.mjs, scripts/update-live-ads.mjs), and
+// site-exceptions.json by a person approving a report (docs/site-exceptions.md),
+// so each is only listed once it exists.
 const TRACKED_FILES = [
   "redirect-domains.json",
   "quick-fixes.json",
@@ -35,6 +36,7 @@ const TRACKED_FILES = [
   "youtube-quick-fixes.json",
   "security-domains.json",
   "ad-domains.json",
+  "site-exceptions.json",
 ].filter((name) => existsSync(join(liveDir, name)));
 
 const sha256Hex = (buf) => createHash("sha256").update(buf).digest("hex");

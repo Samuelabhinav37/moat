@@ -26,6 +26,16 @@ class_name = "DailyCap"
 tag = "v1"
 new_sqlite_classes = ["DailyCap"]
 
+# Per site and problem: keyed hashes of the last 7 days' reporters, deleted
+# with their key 7 days after the last report (ReportTally in src/index.ts).
+[[durable_objects.bindings]]
+name = "REPORT_TALLY"
+class_name = "ReportTally"
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["ReportTally"]
+
 # Counted per Cloudflare location. Limits must use a period of 10 or 60 seconds.
 [[ratelimits]]
 name = "IP_LIMITER"

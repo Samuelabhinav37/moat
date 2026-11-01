@@ -9,11 +9,13 @@
 // one question (POST /goodbye, from samuelabhinav.com/moat/goodbye/). Each
 // joins one issue per ISO week, "Check-ins 2026-W42" and "Goodbyes 2026-W42".
 //
-// What it keeps: one number, how many reports it filed today (DailyCap
-// below), so a flood can't run through the GitHub token's limits or fill
-// the repository. No logs (observability is off in wrangler.toml), nothing
-// about the sender. The caller's IP address is only passed to the rate
-// limiter as a key and never written anywhere by this code.
+// What it keeps: how many reports it filed today (DailyCap below), so a
+// flood can't run through the GitHub token's limits or fill the repository;
+// and, per site and problem, keyed hashes of the last 7 days' reporters'
+// IP addresses (ReportTally below), deleted with their key 7 days after the
+// last report, so "3 different people" can be told from one person sending
+// 3. No logs (observability is off in wrangler.toml). The IP address itself
+// is only a rate-limiter key and a hash input, never stored or sent on.
 import { formatReport, reportTitle, validateReport, type ProblemReport } from "../../src/shared/problemReport";
 import { formatCheckin, formatGoodbye, isoWeek, validateCheckin, validateGoodbye } from "../../src/shared/feedback";
 
@@ -24,7 +26,7 @@ export interface RateLimiter {
 /** The parts of a Durable Object namespace this file uses. */
 export interface CapNamespace {
   idFromName(name: string): unknown;
-  get(id: unknown): { fetch(input: string): Promise<Response> };
+  get(id: unknown): { fetch(input: string | Request): Promise<Response> };
 }
 
 export interface Env {
@@ -40,6 +42,8 @@ export interface Env {
   ALL_LIMITER: RateLimiter;
   /** One DailyCap counter for the whole service. */
   DAILY_CAP: CapNamespace;
+  /** One ReportTally per site and problem. */
+  REPORT_TALLY: CapNamespace;
   /** Reports filed per UTC day before the service answers "busy". */
   DAILY_REPORT_LIMIT: string;
   /** Check-ins and goodbyes together, per UTC day. */
@@ -67,6 +71,89 @@ export class DailyCap {
     if (count >= limit) return Response.json({ ok: false });
     await this.state.storage.put("count", count + 1);
     return Response.json({ ok: true });
+  }
+}
+
+/** Different reporters for one site and problem, within WINDOW_MS, before
+ * the issue is labelled and an exception drafted. A person still approves
+ * every exception, so a flood of fake reports can't turn protection off. */
+export const THRESHOLD_REPORTERS = 3;
+export const THRESHOLD_LABEL = "threshold:3-reporters";
+const WINDOW_MS = 7 * 86_400_000;
+
+type TallyStorage = {
+  get(key: string): Promise<unknown>;
+  put(key: string, value: unknown): Promise<void>;
+  deleteAll(): Promise<void>;
+  setAlarm(time: number): Promise<void>;
+};
+
+/** One per site and problem. Tells reporters apart by a keyed hash of their
+ * IP address, never the address: the key is random, kept only here, and
+ * everything (key and hashes) is deleted 7 days after the last report.
+ * Answers how many different reporters there were in the last 7 days, and
+ * whether this report is the one that reached the threshold. */
+export class ReportTally {
+  constructor(private readonly state: { storage: TallyStorage }) {}
+
+  async fetch(request: Request): Promise<Response> {
+    const ip = request.headers.get("x-reporter") ?? "";
+    const now = Number(new URL(request.url).searchParams.get("now"));
+    if (!ip || !Number.isFinite(now)) return Response.json({ ok: false }, { status: 400 });
+    let key = (await this.state.storage.get("key")) as string | undefined;
+    if (!key) {
+      key = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));
+      await this.state.storage.put("key", key);
+    }
+    const hmacKey = await crypto.subtle.importKey("raw", Uint8Array.from(atob(key), (c) => c.charCodeAt(0)), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const mac = new Uint8Array(await crypto.subtle.sign("HMAC", hmacKey, new TextEncoder().encode(ip)));
+    const hash = Array.from(mac.slice(0, 12), (b) => b.toString(16).padStart(2, "0")).join("");
+    const seen = ((await this.state.storage.get("seen")) as { h: string; at: number }[] | undefined) ?? [];
+    const recent = seen.filter((entry) => now - entry.at < WINDOW_MS && entry.h !== hash);
+    const before = recent.length;
+    recent.push({ h: hash, at: now });
+    await this.state.storage.put("seen", recent);
+    await this.state.storage.setAlarm(now + WINDOW_MS);
+    return Response.json({ ok: true, reporters: recent.length, reached: before < THRESHOLD_REPORTERS && recent.length >= THRESHOLD_REPORTERS });
+  }
+
+  /** 7 days after the last report: forget everything, key included. */
+  async alarm(): Promise<void> {
+    await this.state.storage.deleteAll();
+  }
+}
+
+/** The exception a person might approve, as a starting point. Only for
+ * problems an exception can fix: a broken site, or a cookie banner. */
+export function draftException(report: ProblemReport, issue: number): string | null {
+  if (report.category !== "broken" && report.category !== "cookie") return null;
+  const entry =
+    report.category === "cookie"
+      ? { site: report.hostname, off: ["cookieBannerAutoReject"], issue }
+      : { site: report.hostname, allowRequests: true, issue };
+  return [
+    `${THRESHOLD_REPORTERS} different people reported this within 7 days.`,
+    "",
+    "Draft entry for `live/site-exceptions.json` (see docs/site-exceptions.md). Check the reports first, and prefer the narrowest fix that works:",
+    "",
+    "```json",
+    JSON.stringify(entry),
+    "```",
+  ].join("\n");
+}
+
+/** Counts this reporter; at the threshold, labels the issue and posts the
+ * draft. Never fails the report it came with. */
+export async function tallyReport(report: ProblemReport, ip: string, issue: number, env: Env, fetchImpl: typeof fetch = fetch, now: Date = new Date()): Promise<void> {
+  try {
+    const stub = env.REPORT_TALLY.get(env.REPORT_TALLY.idFromName(`${report.hostname}|${report.category}`));
+    const res = await stub.fetch(new Request(`https://report-tally/add?now=${now.getTime()}`, { headers: { "x-reporter": ip } }));
+    if (!res.ok || !((await res.json()) as { reached?: boolean }).reached) return;
+    await github(env, fetchImpl, `/repos/${env.REPORTS_REPO}/issues/${issue}/labels`, { method: "POST", body: JSON.stringify({ labels: [THRESHOLD_LABEL] }) });
+    const draft = draftException(report, issue);
+    if (draft) await github(env, fetchImpl, `/repos/${env.REPORTS_REPO}/issues/${issue}/comments`, { method: "POST", body: JSON.stringify({ body: draft }) });
+  } catch {
+    // The report is filed either way.
   }
 }
 
@@ -218,6 +305,7 @@ export async function handle(request: Request, env: Env, fetchImpl: typeof fetch
 
   try {
     const number = await fileReport(report, env, fetchImpl);
+    await tallyReport(report, ip, number, env, fetchImpl, now);
     return json({ id: `R-${number}` }, 200, allowed);
   } catch {
     return json({ error: "upstream" }, 502, allowed);

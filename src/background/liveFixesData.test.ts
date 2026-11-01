@@ -2,10 +2,11 @@
 // Checks the committed live/quick-fixes.json and live/cosmetic-fixes.json with
 // the same validators installed copies use, so a merged fix can't be silently
 // dropped on every user's machine. sign-live.yml runs this before signing.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { MAX_QUICK_FIX_RULES, filterValidQuickFixes } from "./quickFixRules";
 import { filterValidCosmeticFixes } from "./liveCosmeticFixes";
+import { parseSiteExceptions } from "../shared/siteExceptions";
 
 const read = (name: string) => JSON.parse(readFileSync(`live/${name}`, "utf8")) as unknown;
 
@@ -24,5 +25,11 @@ describe("live fix files", () => {
     expect(rejectedDomains).toBe(0);
     // Every selector kept, not just every site.
     for (const [site, selectors] of Object.entries(raw)) expect(valid[site.toLowerCase()], site).toEqual(selectors);
+  });
+
+  // Written by a person approving a report (docs/site-exceptions.md); absent until the first one.
+  it.runIf(existsSync("live/site-exceptions.json"))("site-exceptions.json: every entry is accepted", () => {
+    const raw = read("site-exceptions.json") as { sites?: unknown[] };
+    expect(parseSiteExceptions(raw)?.length).toBe(raw.sites?.length);
   });
 });
