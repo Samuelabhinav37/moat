@@ -26,7 +26,11 @@ jobs:
 
       - run: npm ci
 
+      # Today's lists can change live/*.json; this run never commits them, so it
+      # leaves the manifest unsigned instead of failing (sign-live.yml signs).
       - run: npm run filters:update
+        env:
+          LIVE_SIGN_LATER: "1"
       - run: npm run validate:rules
       - run: npm run typecheck
       - run: npm run lint

@@ -877,7 +877,7 @@ manifestEntries.push({
   ruleCount: adPageRules.length,
   countAs: "ads",
 });
-console.log(`Ad and tracker sites as pages: ${adPageRules.length} domains`);
+console.log(`Ad and tracker sites as pages: ${adPageRules.reduce((n, rule) => n + rule.condition.requestDomains.length, 0)} domains in ${adPageRules.length} rules`);
 
 // Move every security ruleset into its own priority band, above a paused
 // site's allowAllRequests rule and the user's "Never block" rules (see
