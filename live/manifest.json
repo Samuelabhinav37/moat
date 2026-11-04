@@ -1,13 +1,13 @@
 {
-  "sequence": 1793707243,
-  "generated": "2026-11-03T12:00:43.000Z",
+  "sequence": 1793794559,
+  "generated": "2026-11-04T12:15:59.000Z",
   "files": {
     "redirect-domains.json": "8c83ee73cffd3ff6d864c47a6bbfb90d0a1c2747efd693ec402f67b301ab93e0",
     "quick-fixes.json": "60dee7ff786038e577c9f6dc4473d11950e24e41295818b91947802a5f7acd0e",
     "cosmetic-fixes.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
     "youtube-quick-fixes.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "security-domains.json": "c8484c29466f53e0c8d537290e9e9b65aba95216d7071655e68f4a1c92f1347e",
-    "ad-domains.json": "61d7eb50b5b0876777693470078b22fb83c73d3e1aa1e210b86f82ca3850028a",
-    "lookalike-domains.json": "a1e71d6ad0cbdd92b5f6efa4c85fd48e8bbd861c679ae3a6b03ab721440fe51c"
+    "security-domains.json": "6f6e0133f8f42e3024b07ca0c4a6d195958de9e3c5378375979b5c2899d3f34a",
+    "ad-domains.json": "d1952c603eda3bbb9803e71594de07cdf0ed732b6b74c6c285942fd6fb527e72",
+    "lookalike-domains.json": "03b252723ce1a61b5dd751411deb09f2a4fab0b0a030c4f6ef26949c21b86ee8"
   }
 }
