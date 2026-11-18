@@ -1,0 +1,13 @@
+{
+  "sequence": 1795007445,
+  "generated": "2026-11-18T13:10:45.000Z",
+  "files": {
+    "redirect-domains.json": "8c83ee73cffd3ff6d864c47a6bbfb90d0a1c2747efd693ec402f67b301ab93e0",
+    "quick-fixes.json": "60dee7ff786038e577c9f6dc4473d11950e24e41295818b91947802a5f7acd0e",
+    "cosmetic-fixes.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "youtube-quick-fixes.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "security-domains.json": "8ddcfcdb4bcabeafa432cbb9ce43c89ddf737969b4336b3df50474265e29a4d5",
+    "ad-domains.json": "629c7fd4e85ee68ef58f7c7001e7a5c41282b41d688abd73f3225c502dd26fdb",
+    "lookalike-domains.json": "1e09f1f3d120cf86b965d5a956f0df7d0ca119823c1d8331dfdf4a8a33397c56"
+  }
+}
